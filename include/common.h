@@ -1,0 +1,80 @@
+#ifndef COMMON_H
+#define COMMON_H
+
+/**
+ * @file common.h
+ * @brief Included first by every unit: the integer types (types.h),
+ *        and small C89 helper macros.
+ */
+
+#ifdef HOST_BUILD
+/* The host build has no PS1 assembly: the macros that include it are empty,
+ * and the PS1 linker's labels are left out. */
+#define INCLUDE_ASM(FOLDER, NAME)
+#define INCLUDE_RODATA(FOLDER, NAME)
+#else
+#include "include_asm.h"
+#endif
+#include "types.h"
+
+/** The byte offset of `member` in `type`: C89's <stddef.h> offsetof, which
+ * Sony's stddef.h does not provide. A constant expression. */
+#ifndef offsetof
+#define offsetof(type, member) ((unsigned int)&((type *)0)->member)
+#endif
+
+/** Fails to compile unless `cond`, a constant expression, holds: C89's
+ * static assertion, a typedef of an array of size -1. `name` keeps the
+ * typedef unique in its unit. No code or data. Used for the layouts a file
+ * or the SDK fixes, which must hold on the PS1 and on every host. */
+#define COMPILE_ASSERT(cond, name) typedef char static_assert_##name[(cond) ? 1 : -1]
+
+/** The number of elements in the array `arr` (an array, never a pointer).
+ * Signed, so `i < ARRAY_COUNT(a)` on an s32 compares signed, as a literal
+ * would. */
+#define ARRAY_COUNT(arr) ((s32)(sizeof(arr) / sizeof((arr)[0])))
+
+/** `deg` degrees as a PlayStation angle, 4096 (libgte's ONE) to the turn.
+ * Exact for multiples of 45 degrees; a constant expression. */
+#define ANGLE_DEG(deg) ((deg) * 4096 / 360)
+
+#if !defined(M2CTX) && !defined(PERMUTER) && !defined(HOST_BUILD)
+/** Places a definition in small data, the `.sdata` section: the game's
+ * small initialized globals, reached through one base register. Used as
+ * `static s32 sName SDATA = 320;`. The definition must have an initializer,
+ * and its unit's yaml range must be `.sdata`. */
+#define SDATA __attribute__((section(".sdata")))
+/** Places a zero-initialized definition in `.sbss`, the uninitialized half of
+ * small data: `static s32 sName SBSS = 0;`. The `= 0` is required; without
+ * an initializer the section attribute has no effect. */
+#define SBSS __attribute__((section(".sbss")))
+#else
+#define SDATA
+#define SBSS
+#endif
+
+/** Read-only data in the image that the game writes all the same: `const`
+ * on the PS1, so that it lands in `.rodata` as in the image; writable on a
+ * host build, whose `.rodata` is read-only memory. */
+#ifdef HOST_BUILD
+#define IMAGE_CONST
+#else
+#define IMAGE_CONST const
+#endif
+
+/** 20.12 fixed point: libgte's ONE is 1 << FIX12_SHIFT, so `n << FIX12_SHIFT`
+ * is the integer n as a fixed-point value. */
+#define FIX12_SHIFT 12
+
+/** GteLong's type: `int` against psyz's libgte, `long` against Sony's. */
+#ifdef HOST_BUILD
+#define GTE_LONG_BASE int
+#else
+#define GTE_LONG_BASE long
+#endif
+/** libgte's 32-bit integer, the type of MATRIX.t[] and of VECTOR's members:
+ * `long` in Sony's headers, `int` in psyz's (the host build). A pointer to
+ * one of those members is a `GteLong *`. */
+typedef GTE_LONG_BASE GteLong;
+
+#endif

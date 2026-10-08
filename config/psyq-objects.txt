@@ -1,0 +1,12 @@
+# Psy-Q library objects linked into the build, one per splat `o` segment.
+#
+#   <sdk version>  <lib>/<module>  <file offset of its .text in SLPS_017.62>
+#
+# tools/psyq_sdk.py install reads this, converts the matching disc in sdk/
+# (bring your own -- see sdk/README.md), verifies each object's masked .text
+# against retail at the offset, and writes lib/<lib>/<module>.o. The yaml's
+# `o` segments must agree with this file: `tools/psyq_sdk.py check`.
+#
+# Which disc holds which build of a library is MEASURED by
+# `tools/psyq_sdk.py match`, not assumed -- the game mixed library versions
+# .

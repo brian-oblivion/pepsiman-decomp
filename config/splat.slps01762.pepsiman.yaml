@@ -1,0 +1,75 @@
+# Pepsiman (PSX, 1999), Japanese retail release.
+#
+# ADDRESSING. A plain PS-X EXE: a 0x800-byte header followed by one
+# contiguous image loaded at 0x80010000, so
+#
+#     file offset = vram - 0x80010000 + 0x800
+#
+# and the whole file is 0x86000 bytes. The entry point (0x80042C58) clears
+# .bss from 0x800956D0 to 0x800FAE80 and sets $gp to 0x800954C4.
+#
+# FIRST-PASS SEGMENTATION, measured from the bytes: rodata from the start of
+# the image, code from the first function prologue to the last `jr $ra`,
+# then data to the end of the file. Every segment boundary here is a
+# starting point to be refined (library objects, per-unit splits).
+name: Pepsiman
+sha1: 116d895763ebef141b4e2c3c90c1b227d257b804
+options:
+  basename: pepsiman
+  platform: psx
+  compiler: GCC
+
+  base_path: ..
+  target_path: disk/SLPS_017.62
+  asm_path:    asm/
+  asset_path:  assets/
+  src_path:    src/
+  o_path:      lib/
+  symbol_addrs_path: config/symbols.slps01762.pepsiman.txt
+  undefined_funcs_auto_path:   config/undefined_funcs_auto.slps01762.pepsiman.txt
+  undefined_syms_auto_path:    config/undefined_syms_auto.slps01762.pepsiman.txt
+  ld_script_path: pepsiman.ld
+
+  find_file_boundaries: True
+  pair_rodata_to_text: False
+  migrate_rodata_to_functions: True
+  gp_value: 0x800954C4
+
+  o_as_suffix: False
+  use_legacy_include_asm: False
+
+  asm_function_macro: glabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+
+  section_order: [".rodata", ".text", ".data", ".sdata", ".sbss", ".bss"]
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+segments:
+  - name: header
+    type: header
+    start: 0x0
+
+  - name: main
+    type: code
+    start: 0x800
+    vram: 0x80010000
+    align: 4
+    subsegments:
+      - [0x800, .rodata, main]
+      - [0x396C, c, main]
+      - [0x62C84, data]
+      # $gp is 0x800954C4 and the lowest gp-relative access in the code is
+      # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
+      # which is where .sbss starts; its first 0x130 bytes are still inside
+      # the file (zeros) and the rest of .bss lies past the image's end.
+      - [0x85CC4, sdata]
+      - [0x85ED0, sbss]
+
+  - [0x86000]

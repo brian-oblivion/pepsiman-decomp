@@ -1,0 +1,100 @@
+# ---------------------------------------------------------------------------
+# BRING YOUR OWN DISC. The game executable and any disc image stay out of git.
+# ---------------------------------------------------------------------------
+disk/*
+!disk/.gitignore
+!disk/README.md
+*.bin
+*.cue
+*.iso
+*.img
+Pepsiman*/
+
+# ---------------------------------------------------------------------------
+# GENERATED. splat rewrites all of this on every `make extract`; committing it
+# would turn regenerated disassembly into merge conflicts and let stale files
+# accumulate invisibly (southpark-decomp round 79 found 1604 stale against 992
+# live). If a segment ever holds assembly that was NEVER compiled from C, give
+# it splat's `hasm` type, commit it, and add a negation here -- an `hasm` file
+# is authored source, splat only writes it when missing, and annotating it is
+# the whole point of the category.
+# ---------------------------------------------------------------------------
+asm/
+build/
+expected/
+*.ld
+# ...except the GENERATED-but-committed Psy-Q fragment: the link needs it and a
+# clone without the SDK discs cannot regenerate it (psyq_sdk.py ldfrag).
+!config/psyq-objects.ld
+config/undefined_funcs_auto.*.txt
+config/undefined_syms_auto.*.txt
+ctx.c
+ctx.c.m2c
+
+# ---------------------------------------------------------------------------
+# TOOLCHAIN. Fetched or built by tools/setup.sh, never committed.
+# ---------------------------------------------------------------------------
+# NO TRAILING SLASHES ON THESE. A trailing slash makes a pattern match only a
+# DIRECTORY. In the main checkout these are real directories, so `tools/gcc263/`
+# ignored them fine -- but tools/setup-worktree.sh gives every worktree SYMLINKS
+# to them, and a symlink is not a directory, so all seven showed up as untracked
+# in every runner worktree. That silently disables the honesty check in
+# docs/PARALLEL-RUNS.md 3b: `git status --porcelain` can never be empty, so the
+# head cannot distinguish a runner that committed its work from one that did
+# not. The slashless form matches both spellings.
+.venv
+tools/binutils
+tools/splat
+tools/asm-differ
+tools/m2c
+tools/maspsx
+tools/decomp-permuter
+tools/gcc263
+tools/psyq-obj-parser
+permuter-work
+# Seed scaffolds a runner hands the permuter. Generated working state, same
+# as permuter-work, and NOT the durable record: a preserved body belongs
+# inlined in its match report, never as a path into an ignored directory
+# (PARALLEL-RUNS collision rule 2). Untracked and unignored, this directory
+# made it impossible for a runner using the permuter to ever report the
+# empty `git status --porcelain` the runner protocol requires -- which is a
+# check the round relies on, so it must not be the thing that cries wolf.
+permuter-seeds
+# `permuter.py --debug` writes these into the CURRENT directory, not into the
+# permuter dir. MATCHING-GUIDE now tells everyone to run --debug first (a
+# scaffold whose base score does not match the match report is scoring the
+# wrong thing), so they will keep reappearing in the repo root.
+debug_source.c
+debug_compiled_object.o
+
+__pycache__/
+*.pyc
+.vscode/
+scratchpad/
+
+# Per-operator permission grants. `additionalDirectories` takes ABSOLUTE
+# paths, and a worktree path is derived from the basename of whoever's
+# checkout it is, so a committed entry would be wrong in every clone but
+# one. PARALLEL-RUNS.md has always described this file as gitignored; it
+# was not, until round 12 went to write it and found out.
+.claude/settings.local.json
+
+# ---------------------------------------------------------------------------
+# PSY-Q SDK. Bring your own disc, exactly like disk/. sdk/ holds the user's
+# SDK discs and everything unpacked from them; lib/ holds the converted Sony
+# objects the build links (splat `o` segments). config/psyq-objects.txt is the
+# committed manifest that regenerates lib/ from sdk/.
+# `lib` with NO trailing slash, for the same reason as the toolchain entries
+# above: a worktree gets a symlink named lib, and `lib/` matches only a
+# directory, so every runner worktree showed `?? lib` and could never report
+# a clean tree.
+# ---------------------------------------------------------------------------
+sdk/*
+!sdk/.gitkeep
+lib
+# Sony's headers, generated from sdk/ by psyq_sdk.py install (config/psyq-headers.txt)
+include/psyq
+
+# tools/objdiff_report.py (decomp.dev): generated, and objdiff-cli is fetched
+objdiff.json
+tools/objdiff-cli

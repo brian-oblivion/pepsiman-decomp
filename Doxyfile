@@ -1,0 +1,102 @@
+# API documentation for the game's C.
+#
+#     doxygen Doxyfile        # -> build/doxygen/html/index.html
+#
+# Only settings that differ from Doxygen's defaults are listed. Sony's own
+# headers (include/psyq/) are read for their types but not documented, and
+# tools/apidoc.py is the measurement: this file renders what it checks.
+
+PROJECT_NAME           = "Pepsiman"
+PROJECT_BRIEF          = "Decompiled game source (SLPS-01762)"
+OUTPUT_DIRECTORY       = build/doxygen
+INPUT                  = include src
+FILE_PATTERNS          = *.h *.c
+RECURSIVE              = YES
+EXCLUDE                = include/psyq include/include_asm.h
+EXCLUDE_PATTERNS       = */include/psyq/*
+
+OPTIMIZE_OUTPUT_FOR_C  = YES
+TYPEDEF_HIDES_STRUCT   = YES
+EXTRACT_STATIC         = YES
+SOURCE_BROWSER         = YES
+STRIP_FROM_PATH        = .
+
+# The class framework spells every inherited member through macros
+# (BASICCLASS_FIELDS, BASICCLASS_SLOTS and each subclass's own). Doxygen
+# drops the comments inside a macro when it expands one, so every inherited
+# member would come out undocumented in every subclass. The macros therefore
+# expand to nothing here: each struct lists the members it adds, and the
+# inherited ones are documented once, on the class that declares them (each
+# class block names its parent). A new class's _FIELDS/_SLOTS pair goes here.
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = include include/psyq
+PREDEFINED             = "INCLUDE_ASM(dir, name)=" \
+                         "INCLUDE_RODATA(dir, name)=" \
+                         "COMPILE_ASSERT(cond, name)=" \
+                         __attribute__(x)= \
+                         SDATA= \
+                         SBSS= \
+                         __asm__(x)= \
+                         "ACTOR_FIELDS(Methods):=" \
+                         "ACTOR_SLOTS(Self, CtorParams):=" \
+                         "APPLICATION_FIELDS(Methods):=" \
+                         "APPLICATION_SLOTS(Self, CtorParams):=" \
+                         "BASICCLASS_FIELDS(Methods):=" \
+                         "BASICCLASS_SLOTS(Self, CtorParams):=" \
+                         "BASICCLASS_SLOTS_R(Self, CtorRet, CtorParams):=" \
+                         "BOXFILL_FIELDS(Methods):=" \
+                         "BOXFILL_SLOTS(Self, CtorParams):=" \
+                         "CHARSPRITE_FIELDS(Methods):=" \
+                         "CHARSPRITE_SLOTS(Self, CtorParams):=" \
+                         "DAYTASK_FIELDS(Methods):=" \
+                         "DAYTASK_SLOTS(Self, CtorParams):=" \
+                         "FILERESOURCE_BASE_SLOTS(Self, CtorParams):=" \
+                         "FILERESOURCE_FIELDS(Methods):=" \
+                         "FILERESOURCE_SLOTS(Self, CtorParams):=" \
+                         "GRIDCELL_FIELDS(Methods):=" \
+                         "GRIDCELL_SLOTS(Self, CtorParams):=" \
+                         "INTERMEDIATEBASE_FIELDS(Methods):=" \
+                         "INTERMEDIATEBASE_SLOTS(Self, CtorParams):=" \
+                         "LIGHTRIG_FIELDS(Methods):=" \
+                         "LIGHTRIG_SLOTS(Self, CtorParams):=" \
+                         "MODELDATA_FIELDS(Methods):=" \
+                         "MODELDATA_SLOTS(Self, CtorParams):=" \
+                         "NODEGUARDEDVIEWPORT_FIELDS(Methods):=" \
+                         "NODEGUARDEDVIEWPORT_SLOTS(Self, CtorParams):=" \
+                         "SCENENODE_FIELDS(Methods):=" \
+                         "SCENENODE_SLOTS(Self, CtorParams):=" \
+                         "SCREENSPRITE_FIELDS(Methods):=" \
+                         "SCREENSPRITE_SLOTS(Self, CtorParams):=" \
+                         "SPRITE_FIELDS(Methods):=" \
+                         "SPRITE_SLOTS(Self, CtorParams):=" \
+                         "STYLEEFFECT_FIELDS(Methods):=" \
+                         "STYLEEFFECT_SLOTS(Self, CtorParams):=" \
+                         "TASKCORE_FIELDS(Methods):=" \
+                         "TASKCORE_SLOTS(Self, CtorParams):=" \
+                         "TIMEDTASK_FIELDS(Methods):=" \
+                         "TIMEDTASK_SLOTS(Self, CtorParams):=" \
+                         "TODACTOR_FIELDS(Methods):=" \
+                         "TODACTOR_SLOTS(Self, CtorParams):=" \
+                         "TOD_FIELDS(Methods):=" \
+                         "TOD_SLOTS(Self, CtorParams):=" \
+                         "VARIANTSPRITE_FIELDS(Methods):=" \
+                         "VARIANTSPRITE_SLOTS(Self, CtorParams):=" \
+                         "VIEWPORT_FIELDS(Methods):=" \
+                         "VIEWPORT_SLOTS(Self, CtorParams):="
+
+# padNN members hold bytes the game never names; they keep every later field
+# at its offset and have nothing to document. (Hex-named, so listed by first
+# digit; padE alone because padEnable is a real member.)
+EXCLUDE_SYMBOLS        = pad0* pad1* pad2* pad3* pad4* pad5* pad6* pad7* pad8* pad9* \
+                         padA* padC* padE padF*
+
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = YES
+WARN_LOGFILE           = build/doxygen/warnings.log
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HAVE_DOT               = NO

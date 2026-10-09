@@ -1,5 +1,7 @@
 #include "common.h"
 #include "memory.h"
+#include "libapi.h"
+#include "sys/file.h"
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
 typedef struct {
@@ -82,6 +84,32 @@ typedef struct {
     s32 offset; /**< byte offset of the second part from the header */
 } BlockHeader;
 
+/** @brief An eight-byte entry of the BlockHeader's first part. */
+typedef struct {
+    s16 unk0; /**< not yet known */
+    s16 unk2; /**< not yet known */
+    u16 unk4; /**< summed over the entries */
+    s16 unk6; /**< an index into the 128 byte flags */
+} Ent8;
+
+/** @brief Four halfword triples after a word: the corners of a box. */
+typedef struct {
+    u8 unk0[4];  /**< not yet known */
+    s16 v[4][3]; /**< x, y, z of each corner */
+} Box4;
+
+/** @brief The head of the game state; only byte 5 is used here. */
+typedef struct {
+    u8 unk0[5]; /**< not yet known */
+    u8 unk5;    /**< a mode byte: 0x42 and 0x43 seen */
+} GameHead;
+
+/** @brief A state block with a halfword total at 0x26. */
+typedef struct {
+    u8 unk0[0x26]; /**< not yet known */
+    u16 unk26;     /**< a sum over the current block's entries */
+} Totals28;
+
 extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;      /**< the BlockHeader's second part */
 extern s32 D_800959C8;      /**< the BlockHeader's first word */
@@ -91,6 +119,16 @@ extern u16 D_80095B4C[];    /**< first of a run of halfwords */
 extern u8 D_80096738[];     /**< passed to the lookup */
 extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
 extern Rec3C D_800A7898[];  /**< 100 Rec3C records */
+extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
+extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
+extern u8 D_80095B28[];     /**< a Totals28 */
+extern char D_80011260[];   /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
+
+/* MATCHING: a struct lvalue keeps the base in a register. */
+#define sGameHead (*(GameHead *)D_8009EB78)
+#define sTotals (*(Totals28 *)D_80095B28)
+/* The Rec48 table; common.h declares it as words. */
+#define sRecs48 ((Rec48 *)D_800A9008)
 
 s32 func_80018D70(void *pos, void *arg, s32 cur);
 s32 func_80028AE4(Query30 *q);
@@ -100,6 +138,9 @@ s32 func_80018D04(s16 a, s16 b, u16 t, u16 n);
 void func_800330D4(void);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
+s32 func_80028260(s32 n);
+void func_8002C4D8(void);
+s32 func_8002C650(void);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -111,7 +152,17 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A328);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A558);
+/** @brief Switches the game mode byte to 0x42 and resets, when a status
+ *         field is 1 and the mode is not already 0x43.
+ *  @return nothing; the value is undefined. */
+s32 func_8002A558(void) {
+    /* MATCHING: non-void with no return keeps the second branch's delay
+     * slot a nop. */
+    if ((((u32)D_80095864 >> 4) & 3) == 1 && sGameHead.unk5 != 0x43) {
+        sGameHead.unk5 = 0x42;
+        func_80028260(-1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 
@@ -161,11 +212,43 @@ void func_8002C438(Obj2C *p) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C47C);
+/** @brief Clears every used Rec5C record, then refreshes the Rec48 table
+ *         and clears its records. */
+void func_8002C47C(void) {
+    u32 i;
+
+    for (i = 0; i < 200; i++) {
+        if (D_800CF080[i].unk0 != -1) {
+            D_800CF080[i].unk0 = 0;
+        }
+    }
+    func_8002C4D8();
+    func_8002C650();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C4D8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C540);
+/** @brief Sets the four corners of a box `w` wide and `d` deep, centred on
+ *         the origin at height 0. */
+void func_8002C540(Box4 *b, s16 w, s16 d) {
+    s16 x;
+    s16 z;
+
+    x = w / 2;
+    b->v[0][0] = x;
+    b->v[1][0] = x;
+    b->v[2][0] = -x;
+    b->v[3][0] = -x;
+    z = d / 2;
+    b->v[0][2] = z;
+    b->v[1][2] = -z;
+    b->v[2][2] = z;
+    b->v[3][2] = -z;
+    b->v[0][1] = 0;
+    b->v[1][1] = 0;
+    b->v[2][1] = 0;
+    b->v[3][1] = 0;
+}
 
 /** @brief Clears byte 0 of the first `count` records of a Rec5C table. */
 void func_8002C5A4(Rec5C *recs, u16 count) {
@@ -179,7 +262,21 @@ void func_8002C5A4(Rec5C *recs, u16 count) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5D0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C650);
+/** @brief Clears unk40 and unk24 of all 200 Rec48 records and all but bit 0
+ *         of unk41.
+ *  @return nothing; the value is undefined. */
+s32 func_8002C650(void) {
+    u16 i;
+    Rec48 *r;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    for (i = 0; i < 200; i++) {
+        r = &sRecs48[(s16)i];
+        r->unk40 = 0;
+        r->unk24 = 0;
+        r->unk41 &= 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C6A4);
 
@@ -262,7 +359,18 @@ s32 func_8002D140(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D16C);
+/** @brief Marks with 2 every block entry whose flag is 1.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D16C(void) {
+    u32 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    for (i = 0; i < 200; i++) {
+        if ((s8)D_800A74D0[((Ent8 *)D_800959C4)[i].unk6] == 1) {
+            D_800A7550[i] = 2;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D1CC);
 
@@ -637,7 +745,22 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003399C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033A08);
 
+#ifdef NON_MATCHING
+/** @brief Totals unk4 of the current block's entries into sTotals.unk26. */
+void func_80033AB8(void) {
+    s32 i;
+    Ent8 *e;
+
+    e = (Ent8 *)D_800959C0;
+    sTotals.unk26 = 0;
+    for (i = 0; i < D_800959C8; i++) {
+        sTotals.unk26 += e->unk4;
+        e++;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033AB8);
+#endif
 
 /** @brief Runs an update, then latches a halfword into the first slot of a
  *         halfword run. */
@@ -654,9 +777,29 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033C90);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033D3C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033DE8);
+/** @brief Writes the tool buffer to the tool file on the host.
+ *  @return the count written. */
+s32 func_80033DE8(void) {
+    s32 fd;
+    s32 n;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033E40);
+    fd = open(D_80011260, O_CREAT | O_WRONLY);
+    n = write(fd, (void *)0x8016D000, 0x2285C);
+    close(fd);
+    return n;
+}
+
+/** @brief Reads the tool file on the host into the tool buffer.
+ *  @return the count read. */
+s32 func_80033E40(void) {
+    s32 fd;
+    s32 n;
+
+    fd = open(D_80011260, O_RDONLY);
+    n = read(fd, (void *)0x8016D000, 0x2285C);
+    close(fd);
+    return n;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033E98);
 

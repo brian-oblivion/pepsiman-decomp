@@ -24,12 +24,14 @@ extern u8 D_800956B8[];
 /** @brief The 0x14-byte records of common.h's NumberedSlot table, as this
  *         unit writes them. */
 typedef struct {
-    s16 unk0;   /**< cleared when the record is taken */
-    s16 unk2;   /**< not yet known */
-    u8 unk4[8]; /**< not yet known */
-    s16 unkC;   /**< not yet known */
-    s16 unkE;   /**< not yet known */
-    s16 unk10;  /**< not yet known */
+    s16 unk0;   /**< animation frame; cleared when the record is taken */
+    s16 unk2;   /**< frames to wait before the animation starts */
+    s16 unk4;   /**< per-frame step of the rising sprite's y offset */
+    s16 unk6;   /**< the rising sprite's end distance */
+    u8 unk8[4]; /**< not yet known */
+    s16 unkC;   /**< x offset added to the drawing position */
+    s16 unkE;   /**< y offset added to the drawing position */
+    s16 unk10;  /**< z offset added to the drawing position */
     u8 unk12;   /**< not yet known */
     u8 next;    /**< free-list link: the next record's index */
 } Slot;
@@ -434,4 +436,18 @@ s32 func_8003FE5C(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FFAC);
+s32 func_8003FFAC(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE + p->unk4 * p->unk0, z + p->unk10);
+        size.vy = size.vx = 100;
+        color.r = 0;
+        color.g = color.b = color.cd = 0x80;
+        func_8001A3D4(0x134, &size, &color, 2, ot);
+        return ++p->unk0 * p->unk4 >= p->unk6;
+    }
+    p->unk2--;
+    return 0;
+}

@@ -81,6 +81,9 @@ VRAM_BASE = 0x80010000
 FILE_BASE = 0x800
 
 INCLUDE_RE = re.compile(r'INCLUDE_ASM\("[^"]+",\s*(\w+)\)')
+# INCLUDE_RODATA keeps a generated .s live too (Pepsiman's rodata goes through
+# main.c); it is not a function, so only the stale-file check reads it.
+INCLUDE_ANY_RE = re.compile(r'INCLUDE_(?:ASM|RODATA)\("[^"]+",\s*(\w+)\)')
 GLABEL_RE = re.compile(r"^glabel (\w+)$", re.M)
 # splat emits these alongside real functions; they are segment boundaries and
 # data labels, not code we could ever decompile.
@@ -468,7 +471,7 @@ def main():
 
     live_inc = set()
     for c in srcpath.src_files():
-        live_inc.update(INCLUDE_RE.findall(strip_dead_code(c.read_text())))
+        live_inc.update(INCLUDE_ANY_RE.findall(strip_dead_code(c.read_text())))
     reopened_live = len(reopened & live_inc)
     stale_nm = [p for p in srcpath.nm_all() if p.stem not in live_inc]
 

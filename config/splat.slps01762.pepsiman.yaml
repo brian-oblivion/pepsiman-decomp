@@ -64,6 +64,12 @@ segments:
     subsegments:
       - [0x800, .rodata, main]
       - [0x396C, c, main]
+      # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
+      # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
+      # Runtime Library objects (tools/psyq_sdk.py, GAME_SDK). One asm block
+      # until the objects are converted in runs (docs/lsd-reference/
+      # SDK-OBJECTS-GUIDE.md).
+      - [0x33458, asm, psyq_33458]
       - [0x62C84, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,

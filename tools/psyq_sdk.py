@@ -54,14 +54,34 @@ EXE = ROOT / "disk/SLPS_017.62"
 OBJCOPY = ROOT / "tools/binutils/bin/mipsel-linux-gnu-objcopy"
 PARSER = ROOT / "tools/psyq-obj-parser/psyq-obj-parser"
 VRAM, HDR = 0x80010000, 0x800
-# When several discs place an object at the same offset the bytes are identical
-# and it does not matter which one the manifest names; prefer the disc whose
-# library builds are closest to the game's (measured: 3.3 places the most).
-PREFER = ["3.3", "3.5", "3.6", "3.0"]
+# The disc whose library builds Pepsiman linked. Measured: with 4.4 the
+# unplaced bytes of the SDK area fall to 8448 (4.3 leaves 57984, 4.6 66080);
+# libgpu/sys, libsnd/vm_key and libcd/cdread place only from 4.4. Every
+# placement another disc added on top was false: 3.3's libgte/msc00 (0x80
+# bytes) inside 4.4's (0x90), and 3.0 libsnd/scnoff and 4.0 libsnd/vm_doff,
+# 16-32 byte bodies that coincide with game code -- 4.4's own calls put
+# _SsVmDamperOff at 0x80049FF4, not where vm_doff "placed".
+GAME_SDK = "4.4"
+
+
+def _all_placements():
+    """{'lib/module': (version, text_fileoff, text_size)} from GAME_SDK's match.txt."""
+    path = WORK / GAME_SDK / "match.txt"
+    if not path.exists():
+        # A worktree without sdk/ linked used to get "TOTAL: 0 objects in 0
+        # runs", exit 0 -- which reads as "queue empty", not "corpus missing".
+        die(f"no {path.relative_to(ROOT)} -- sdk/ is empty or not linked into this checkout "
+            f"(tools/setup-worktree.sh links it; `psyq_sdk.py match --version {GAME_SDK}` builds it)")
+    out = {}
+    for line in path.read_text().splitlines():
+        m = re.match(r"(\S+)\.o\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
+        if m:
+            out[m.group(1)] = (GAME_SDK, int(m.group(3), 16), int(m.group(2), 16))
+    return out
 
 
 def placed_objects():
-    """{'lib/module': (version, text_fileoff, text_size)} over every disc's match.txt.
+    """{'lib/module': (version, text_fileoff, text_size)} placed from GAME_SDK.
 
     A placement whose span lies strictly INSIDE another placement's span is a
     finer-grained module of the same bytes -- the 3.5/3.6 discs split several
@@ -73,21 +93,9 @@ def placed_objects():
     overlap. Such placements are dropped here, so `runs`, `coverage`,
     `symbols` and the bss plan all see one object per byte. Two objects with
     IDENTICAL spans (libc/a56 == libc2/exit) are both kept; `runs` shows them
-    as `a|b` alternates. Every PARTIAL OVERLAP `runs` reported on 2026-09-11
-    was this pattern and every one resolved to the 3.3 object."""
-    out = {}
-    versions = sorted((m.parent.name for m in WORK.glob("*/match.txt")),
-                      key=lambda v: PREFER.index(v) if v in PREFER else 99)
-    if not versions:
-        # A worktree without sdk/ linked used to get "TOTAL: 0 objects in 0
-        # runs", exit 0 -- which reads as "queue empty", not "corpus missing".
-        die(f"no {WORK.relative_to(ROOT)}/<ver>/match.txt -- sdk/ is empty or not linked into this checkout "
-            f"(tools/setup-worktree.sh links it; `psyq_sdk.py match` builds it)")
-    for ver in versions:
-        for line in (WORK / ver / "match.txt").read_text().splitlines():
-            m = re.match(r"(\S+)\.o\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
-            if m:
-                out.setdefault(m.group(1), (ver, int(m.group(3), 16), int(m.group(2), 16)))
+    as `a|b` alternates. (lsddecomp's notes, from mixing discs: every
+    PARTIAL OVERLAP there resolved to the coarse object.)"""
+    out = _all_placements()
     spans = [(off, off + size, name) for name, (_v, off, size) in out.items()]
     superseded = {n for a, b, n in spans
                   if any((a2 <= a and b <= b2) and (a2, b2) != (a, b) for a2, b2, _n2 in spans)}
@@ -96,14 +104,7 @@ def placed_objects():
 
 def superseded_objects():
     """The placements placed_objects() dropped, as {'lib/module': 'container'}."""
-    out = {}
-    versions = sorted((m.parent.name for m in WORK.glob("*/match.txt")),
-                      key=lambda v: PREFER.index(v) if v in PREFER else 99)
-    for ver in versions:
-        for line in (WORK / ver / "match.txt").read_text().splitlines():
-            m = re.match(r"(\S+)\.o\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
-            if m:
-                out.setdefault(m.group(1), (ver, int(m.group(3), 16), int(m.group(2), 16)))
+    out = _all_placements()
     kept = placed_objects()
     res = {}
     for name, (_v, off, size) in out.items():
@@ -936,7 +937,10 @@ def cmd_runs(_args):
     by_span = defaultdict(list)
     for name, (ver, off, size) in placed.items():
         by_span[(off, off + size)].append((name, ver))
-    objs = sorted((a, b, "|".join(n for n, _ in sorted(v)), v[0][1]) for (a, b), v in by_span.items())
+    # The version travels with the FIRST name of the sorted group, since that is
+    # the one secs() opens: f3 (3.5+) and tmdf_f3 (3.3) share a span, and pairing
+    # f3 with 3.3 looked for a file that disc does not have.
+    objs = sorted((a, b, "|".join(n for n, _ in sorted(v)), sorted(v)[0][1]) for (a, b), v in by_span.items())
 
     def secs(name, ver):
         name = name.split("|")[0]

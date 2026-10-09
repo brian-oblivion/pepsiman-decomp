@@ -1,0 +1,1 @@
+__SN_ENTRY_POINT = 0x80042C58; // type:func  (Psy-Q libsn/snmain, the crt0 that clears .bss, sets $sp and $gp and calls main)

@@ -50,6 +50,9 @@ extern Rec78 D_800D8D20[]; /**< 80 records */
 extern s32 D_80095970; /**< flag word; bit 5 enables a two-state dispatch */
 extern u8 D_80095A29;  /**< state of that dispatch: 0 or 1 */
 
+extern s16 D_80095A30; /**< current index, clamped to the entry count */
+extern s16 D_8009588E; /**< number of entries */
+
 void func_80034F38(void);
 void func_80036F50(void);
 
@@ -226,7 +229,17 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036F50);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036FE8);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003708C);
+void func_8003708C(void) {
+    s32 flags = D_80095970;
+
+    if (flags & 8) {
+        D_80095A30++;
+    }
+    if (flags & 4) {
+        D_80095A30--;
+    }
+    D_80095A30 = D_80095A30 < 0 ? 0 : D_80095A30 > D_8009588E - 1 ? D_8009588E - 1 : D_80095A30;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037114);
 

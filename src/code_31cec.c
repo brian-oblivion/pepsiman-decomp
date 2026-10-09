@@ -1,4 +1,9 @@
 #include "common.h"
+#include "libsnd.h"
+#include "libcd.h"
+
+extern s16 D_800E0570[];
+extern char D_800E0588[];
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800414EC);
 
@@ -32,7 +37,11 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042538);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800426A4);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800428B0);
+void func_800428B0(void) {
+    SsInit();
+    SsSetTableSize(D_800E0588, 9, 1);
+    SsSetTickMode(1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800428EC);
 

@@ -21,6 +21,7 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003828C);
 
 extern u8 *D_80095A18;
+extern u8 *D_800959D4;
 
 u16 func_800382DC(void) {
     u8 *p;
@@ -41,7 +42,10 @@ u16 func_800382DC(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003831C);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038374);
+void func_80038374(void) {
+    D_800959D4 = (u8 *)0x8018D000;
+    D_80095A18 = (u8 *)0x8016D000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038394);
 

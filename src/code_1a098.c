@@ -20,11 +20,15 @@ typedef struct {
     s32 offset; /**< byte offset of the second part from the header */
 } BlockHeader;
 
-extern u8 *D_800959C0;  /**< the bytes after a BlockHeader */
-extern u8 *D_800959C4;  /**< the BlockHeader's second part */
-extern s32 D_800959C8;  /**< the BlockHeader's first word */
-extern u16 D_800958E8;  /**< zeroed with the block; never loaded here */
-extern u8 D_800A74D0[]; /**< 128 byte flags; cleared together */
+extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4;   /**< the BlockHeader's second part */
+extern s32 D_800959C8;   /**< the BlockHeader's first word */
+extern u16 D_800958E8;   /**< zeroed with the block; never loaded here */
+extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
+extern u16 D_80095748;   /**< a halfword copied into the run below */
+extern u16 D_80095B4C[]; /**< first of a run of halfwords */
+
+void func_800330D4(void);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -491,7 +495,12 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033A08);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033AB8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033B08);
+/** @brief Runs an update, then latches a halfword into the first slot of a
+ *         halfword run. */
+void func_80033B08(void) {
+    func_800330D4();
+    D_80095B4C[0] = D_80095748;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033B34);
 

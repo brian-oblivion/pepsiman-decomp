@@ -96,6 +96,34 @@ extern u8 D_80095A48;  /**< saved value of menu line 1 */
 extern s16 D_800958B0; /**< limit of the value being edited */
 extern s16 D_800958DA; /**< cleared when flag bit 6 is set */
 
+/** @brief The three words of the game state this unit resets. */
+typedef struct {
+    u8 pad0[0x348]; /**< not reached here */
+    s32 unk348;     /**< cleared on a reset */
+    s32 unk34C;     /**< cleared on a reset */
+    s32 unk350;     /**< cleared on a reset */
+} GameStatePos;
+
+/* MATCHING: a struct lvalue keeps the base in a register. */
+#define sGamePos (*(GameStatePos *)D_8009EB78)
+
+extern s32 D_80095780; /**< entry count of the first record bank */
+extern s32 D_80095810; /**< entry count of the second record bank */
+extern u8 D_80095A61;
+extern u8 D_80095A24;
+extern s16 D_80095A26;
+extern u8 D_80095A60;
+extern s16 D_80095A22;
+extern s32 D_80095A38;
+extern s32 D_80095A5C;
+extern s32 D_80095A2C;
+extern s32 D_80095A40;
+extern u8 D_80095A58;
+extern u8 D_80095A28;
+
+void func_80036E50(void);
+void func_80036EA0(void);
+
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
@@ -246,7 +274,38 @@ void func_80036AB8(VECTOR *pos, u16 scale) {
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036B90);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036D50);
+void func_80036D50(void) {
+    D_800A7308[0] = 0;
+    D_800A7308[2] = 0;
+    D_8009588E = 80;
+    bzero((u8 *)0x8016D000, 0x10000);
+    *(s32 *)0x8016D000 = 80;
+    D_80095780 = 80;
+    D_80095A50 = 0x8016D004;
+    func_80036E50();
+    bzero((u8 *)0x8017D000, 0x10000);
+    *(s32 *)0x8017D000 = 80;
+    D_80095810 = 80;
+    D_80095A4C = 0x8017D004;
+    func_80036EA0();
+    sGamePos.unk348 = 0;
+    sGamePos.unk34C = 0;
+    sGamePos.unk350 = 0;
+    D_80095A61 = 10;
+    D_80095A24 = 2;
+    D_80095A26 = 10;
+    D_80095A60 = 0;
+    D_80095A22 = 0;
+    D_80095A30 = 0;
+    D_80095A29 = 0;
+    D_80095A38 = 0;
+    D_80095A5C = 0;
+    D_80095A2C = 0;
+    D_80095A40 = 0;
+    D_80095A3C = 5;
+    D_80095A58 = 0;
+    D_80095A28 = 0;
+}
 
 void func_80036E50(void) {
     u32 i;

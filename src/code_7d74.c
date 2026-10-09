@@ -99,7 +99,43 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800184BC);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018AE0);
 
+#ifdef NON_MATCHING
+/** @brief The head of the game state as this function sees it. */
+typedef struct {
+    u8 unk0[6]; /**< not yet known */
+    u8 unk6;    /**< takes the level value when flag 0x20 is set */
+    u8 unk7;    /**< not yet known */
+    u8 unk8;    /**< set to 0xFF when flag 0x20 is set */
+} LevelHead;
+
+extern s32 D_80095970; /**< flag word */
+extern s8 D_800956D0;  /**< a level, kept within 0..120 */
+extern u8 D_800956D1;  /**< set to 1 when the level is applied */
+
+void func_80018BD8(void) {
+    s32 flags = D_80095970;
+
+    if (flags & 0x10) {
+        D_800956D0++;
+    }
+    if (flags & 0x80) {
+        D_800956D0--;
+    }
+    if (D_800956D0 < 0) {
+        D_800956D0 = 0;
+    }
+    if (D_800956D0 >= 0x79) {
+        D_800956D0 = 0x78;
+    }
+    if (flags & 0x20) {
+        (*(LevelHead *)D_8009EB78).unk8 = 0xFF;
+        D_800956D1 = 1;
+        (*(LevelHead *)D_8009EB78).unk6 = D_800956D0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018BD8);
+#endif
 
 void func_80018CA4(void) {}
 

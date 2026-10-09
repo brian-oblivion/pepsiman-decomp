@@ -6,9 +6,6 @@
 #include "code_13068.h"
 #include "rand.h"
 
-extern u16 D_800957D2;
-extern s8 D_8009599C;
-
 /** @brief The game-wide state record, as far as this unit reads it. The
  *         shared header declares it as a byte array; the rest of the layout
  *         is still unknown. */
@@ -59,7 +56,6 @@ extern u8 D_800D8960[];
 extern s16 D_800D38DE[];
 extern s8 D_8009EF4D[];
 
-extern s32 D_800958AC;
 /* MATCHING: code_308ec views this as a rotation and a position. */
 extern SVECTOR D_800A7680[];
 extern s32 D_80095964;

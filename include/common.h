@@ -153,6 +153,10 @@ extern s32 D_800958A8; /**< 2 units; 3 when a stage starts */
 extern s16 D_800957BC; /**< 2 units; a heading */
 extern u8 *D_800958FC; /**< 2 units; far (fog) colours, four bytes each */
 extern u16 D_8009576A; /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern s32 D_800957A8; /**< 2 units */
+extern s32 D_800958AC; /**< 2 units; 1 picks the second set of stage tables */
+extern s8 D_8009599C;  /**< 2 units */
+extern u16 D_800957D2; /**< 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
@@ -192,6 +196,9 @@ void func_800428B0(void);
 
 /** @brief Defined in code_7d74; called from main. */
 void func_80018CB4(void);
+
+/** @brief Defined in code_7d74; called when a stage is reset. */
+void func_80017574(void);
 
 /** @brief Defined in code_7d74; called from main: sets up the three flat
  *         lights, the ambient light and the fog. */

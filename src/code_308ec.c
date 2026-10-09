@@ -62,16 +62,44 @@ typedef struct {
     u8 unk0;                  /**< set to 1 when a stage starts */
     u8 pad1;                  /**< not yet known */
     u8 unk2;                  /**< set to 1 when a stage starts */
-    u8 pad3[3];               /**< not yet known */
-    u8 unk6;                  /**< set to 2 when a stage starts */
-    u8 pad7[0x348 - 0x7];     /**< not yet known */
+    u8 unk3;                  /**< cleared on a reset */
+    u8 unk4;                  /**< cleared on a reset */
+    u8 unk5;                  /**< cleared on a reset; 0x57 in mode 4 */
+    u8 unk6;                  /**< 2 when a stage starts, 3 on a reset */
+    u8 pad7;                  /**< not yet known */
+    u8 unk8;                  /**< 0xFF on a reset */
+    u8 pad9[0x348 - 0x9];     /**< not yet known */
     Pos3 unk348;              /**< the start position */
-    u8 pad354[0x37C - 0x354]; /**< not yet known */
+    s32 unk354;               /**< cleared on a reset */
+    s32 unk358;               /**< cleared on a reset */
+    s32 unk35C;               /**< cleared on a reset */
+    s16 unk360;               /**< cleared on a reset */
+    s16 unk362;               /**< cleared on a reset */
+    s16 unk364;               /**< cleared on a reset */
+    u8 pad366[0x374 - 0x366]; /**< not yet known */
+    s16 unk374;               /**< cleared in mode 4 */
+    s16 unk376;               /**< cleared in mode 4 */
+    s16 unk378;               /**< cleared in mode 4 */
+    s16 unk37A;               /**< cleared in mode 4 */
     s32 unk37C;               /**< the start heading */
     s32 unk380;               /**< the start heading */
-    u8 pad384[0x3C8 - 0x384]; /**< not yet known */
+    u8 pad384[0x38C - 0x384]; /**< not yet known */
+    s16 unk38C;               /**< cleared on a reset */
+    u8 unk38E;                /**< cleared on a reset */
+    u8 pad38F[0x398 - 0x38F]; /**< not yet known */
+    s16 unk398;               /**< cleared in mode 4 */
+    u8 pad39A[0x3A6 - 0x39A]; /**< not yet known */
+    s16 unk3A6;               /**< cleared on a reset */
+    s16 unk3A8;               /**< 50 on a reset, 0 in mode 4 */
+    u8 pad3AA[0x3C8 - 0x3AA]; /**< not yet known */
     s16 unk3C8;               /**< cleared when a stage starts */
     s16 unk3CA;               /**< cleared when a stage starts */
+    u8 pad3CC[0x3D1 - 0x3CC]; /**< not yet known */
+    u8 unk3D1;                /**< cleared on a reset */
+    u8 unk3D2;                /**< cleared on a reset */
+    u8 unk3D3;                /**< 1 on a reset */
+    u8 unk3D4;                /**< cleared on a reset */
+    u8 unk3D5;                /**< cleared on a reset */
 } StageState;
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
@@ -125,6 +153,43 @@ void func_800412DC(void);
 void func_80041118(u8 arg0);
 
 extern u8 *D_800E48D0; /**< the next free byte of the primitive buffer */
+
+/** @brief The saved state a stage can resume from. */
+typedef struct {
+    s32 valid;   /**< non-zero when there is one */
+    Pos3 pos;    /**< the position */
+    s32 unk10;   /**< restored into a global word */
+    s32 unk14;   /**< restored into a second global word */
+    u16 unk18;   /**< restored into a global halfword */
+    u16 unk1A;   /**< restored into a second global halfword */
+    u8 pad1C[4]; /**< not yet known */
+    s32 unk20;   /**< restored into a word of a global table */
+} SavedStart;
+
+/* MATCHING: a struct lvalue keeps the base in a register. */
+#define sSaved (*(SavedStart *)D_800D86B8)
+
+extern s16 D_800E474C;
+extern u16 D_80095880;
+extern u8 D_8009586C;
+extern u8 D_80095974;
+extern s32 D_800957A4;
+extern u16 D_80095868;
+extern s32 D_80095988;
+extern s32 D_8007B038[][3];
+extern s32 D_8007AF84[][3];
+/* A word inside libgte's clipf object, written as a variable. */
+extern s32 ClipF;
+
+void func_800413BC(void);
+/* MATCHING: main.c types the object as its Stepper; here it is the game
+ * state's head. */
+u8 func_80017F0C(StageState *obj, u16 index, u8 arg);
+void func_800285B0(void);
+void func_800287C0(void);
+/* MATCHING: main.c defines it on a TableHeader; the table is a u16 array
+ * here, as in code_13068. */
+void func_80015450(u16 *table, s32 index);
 
 void func_800400EC(void) {
     s32 i;
@@ -235,7 +300,94 @@ void func_8004079C(u8 arg0) {
     func_80014C58(D_80095830);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040998);
+/* MATCHING: the table indices go into locals before the final if, so both
+ * are loaded once ahead of the branch. */
+void func_80040998(void) {
+    RECT r;
+    s32 mode;
+    s32 saved;
+
+    D_80095900 = 1;
+    func_80017574();
+    if (D_80095880 != 0x29) {
+        r.x = 0;
+        r.y = D_800E474C * 240;
+        r.w = 320;
+        r.h = 240;
+        MoveImage(&r, 0x280, 0);
+    }
+    func_800400EC();
+    D_8009586C = 0;
+    D_800957A8 = 2;
+    func_800413BC();
+    if (D_800958AC == 1) {
+        D_800958A8 = 2;
+    } else {
+        D_800958A8 = 3;
+    }
+    D_80095858 = 0;
+    func_8002D0C4((BlockHeader *)0x801FD000);
+    D_80095768 = 0;
+    sStage.unk6 = 3;
+    sStage.unk3CA = 0;
+    sStage.unk3 = 0;
+    sStage.unk4 = 0;
+    sStage.unk5 = 0;
+    sStage.unk8 = 0xFF;
+    func_80017F0C(&sStage, 0, 0);
+    sStage.unk3A8 = 50;
+    sStage.unk38E = 0;
+    sStage.unk38C = 0;
+    sStage.unk3D2 = 0;
+    sStage.unk354 = sStage.unk358 = sStage.unk35C = 0;
+    sStage.unk360 = sStage.unk362 = sStage.unk364 = 0;
+    sStage.unk3D1 = 0;
+    sStage.unk3D3 = 1;
+    sStage.unk3C8 = 0;
+    sStage.unk2 = 1;
+    D_8009599C = 0;
+    sStage.unk3D4 = sStage.unk3D5 = 0;
+    sStage.unk3A6 = 0;
+    D_80096768[6] = 0;
+    sStage.unk0 = 1;
+    D_800958EC = 0;
+    D_800957D6 = 1;
+    D_8009578C = 0;
+    D_80095974 = 0;
+    D_800957A4 = 0;
+    ClipF = 0;
+    D_8009576A = 0;
+    func_800287C0();
+    if (sSaved.valid != 0) {
+        D_8009578C = sSaved.unk10;
+        sStage.unk348.vx = sSaved.pos.vx;
+        sStage.unk348.vy = sSaved.pos.vy;
+        sStage.unk348.vz = sSaved.pos.vz;
+        D_800957F4 = sSaved.unk14;
+        D_80095868 = sSaved.unk18;
+        D_800958E8 = sSaved.unk1A;
+        D_80096768[1] = sSaved.unk20;
+    } else if (D_80095830 == 4) {
+        sStage.unk5 = 0x57;
+        sStage.unk6 = 0x23;
+        sStage.unk398 = 0;
+        sStage.unk3A8 = 0;
+        D_800957D2 = 0;
+        sStage.unk374 = sStage.unk376 = sStage.unk378 = sStage.unk37A = 0;
+        sStage.unk0 = 0;
+        sStage.unk348.vy = D_800A7680.pos.vy - 1000;
+    }
+    mode = D_80095830;
+    saved = sSaved.valid;
+    if (D_800958AC == 1) {
+        D_80095988 = D_8007B038[mode][saved] * 30;
+    } else {
+        D_80095988 = D_8007AF84[mode][saved] * 30;
+    }
+    D_8009EF48[0] = 0;
+    func_800285B0();
+    func_80015450(D_800734AC, 0);
+}
 
 /* MATCHING: ret has no default; out-of-range numbers return whatever $a1
  * held. */

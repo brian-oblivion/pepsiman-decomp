@@ -1,6 +1,7 @@
 #include "common.h"
 #include "libgte.h"
 #include "libgpu.h"
+#include "libetc.h"
 #include "libgs.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
@@ -50,6 +51,12 @@ extern GsDOBJ2 D_800AC868[];
 extern u32 D_80095798;
 extern GsDOBJ2 D_800ACB88[];
 extern GsCOORDINATE2 D_800A72B8;
+
+extern s32 D_80095968;
+extern s32 D_800A7278[];
+extern u8 D_800AC848[];
+extern u8 D_800A7888[];
+extern u8 D_800A76E8[];
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
@@ -188,7 +195,15 @@ void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     out[1] = t * dy / d;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E29C);
+void func_8003E29C(s32 a, s32 b, s32 c) {
+    if (D_80095968 < 16) {
+        D_800A7278[D_80095968] = VSync(1);
+        D_800AC848[D_80095968] = a;
+        D_800A7888[D_80095968] = b;
+        D_800A76E8[D_80095968] = c;
+        D_80095968++;
+    }
+}
 
 void func_8003E360(s32 level) {
     s32 i;

@@ -154,16 +154,20 @@ void func_80018CB4(void) {
     GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
 }
 
-#ifdef NON_MATCHING
 s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
+    s32 v;
+
     if (step == steps) {
         return to;
     }
-    return from + ((((to - from) << 16) / steps) * step) / 0x10000;
+    /* MATCHING: one local carried through compound steps keeps every
+     * stage of the arithmetic in one register. */
+    v = (to - from) << 16;
+    v /= steps;
+    v *= step;
+    v /= 0x10000;
+    return from + v;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018D04);
-#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018D70);
 

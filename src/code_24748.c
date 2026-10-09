@@ -440,9 +440,7 @@ void func_80036F50(void) {
 }
 
 #ifdef NON_MATCHING
-/* MATCHING: s32 with no return keeps the index shift in the bound check's
- * delay slot. Under the current split the jump table lands 4 bytes late
- * (the unit's rodata starts at the wrong place; see its match report). */
+/* MATCHING: s32 with no return; the jump table lands 4 bytes late. */
 s32 func_80036FE8(void) {
     if (D_80095970 & 0x100) {
         switch (D_80095A26) {

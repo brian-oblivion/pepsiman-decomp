@@ -26,7 +26,38 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800148B0);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800149D0);
+extern char D_800954C8[];
+extern char D_800954CC[];
+extern char D_800954D0[];
+extern char D_800954D8[];
+extern char D_800954DC[];
+extern s32 D_80095788;
+
+void func_800149D0(u8 *base) {
+    u8 *p;
+    s32 row;
+    s32 col;
+    s16 i;
+    s16 j;
+
+    D_80095788 = 0;
+    FntPrint(D_800954D0);
+    p = base + D_80095788;
+    FntPrint(D_800954D8, p);
+    for (i = 0; i < 1; i++) {
+        FntPrint(D_800954CC);
+    }
+    for (row = 0; row < 16; row++) {
+        for (col = 0; col < 8; col++) {
+            FntPrint(D_800954DC, *p);
+            p++;
+        }
+        FntPrint(D_800954C8);
+        for (j = 0; j < 1; j++) {
+            FntPrint(D_800954CC);
+        }
+    }
+}
 
 void func_80013EE4(void);
 void func_8001534C(void);
@@ -72,8 +103,6 @@ void func_80014B8C(s16 frames) {
         VSync(0);
     }
 }
-
-extern char D_800954CC[];
 
 void func_80014BF0(s16 count) {
     s16 i;

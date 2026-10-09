@@ -60,11 +60,6 @@ extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
 
-/* The defining unit's prototypes; its header does not carry them yet.
- * Drop these once include/code_a0bc.h and common.h declare them. */
-void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
-void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
-extern s16 D_800E474C;
 extern GsOT D_800A7318[];
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);

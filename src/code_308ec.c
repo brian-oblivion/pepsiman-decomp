@@ -169,7 +169,6 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sSaved (*(SavedStart *)D_800D86B8)
 
-extern s16 D_800E474C;
 extern u16 D_80095880;
 extern u8 D_8009586C;
 extern u8 D_80095974;

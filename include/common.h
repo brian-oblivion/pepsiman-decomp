@@ -145,6 +145,7 @@ extern u16 D_800958E8; /**< 5 units, 7 functions */
 extern s16 D_800958B0; /**< limit of the value being edited */
 extern s16 D_800958B2; /**< the count a menu line wraps at */
 extern s32 D_80095970; /**< flag word; bit 5 enables a two-state dispatch */
+extern s16 D_800E474C; /**< libgs's PSDIDX; 2 units */
 extern u8 *D_800959C0; /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4; /**< the BlockHeader's second part */
 extern s32 D_800959C8; /**< the BlockHeader's first word */

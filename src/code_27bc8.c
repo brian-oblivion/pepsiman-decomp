@@ -168,7 +168,18 @@ s16 func_80038574(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800385E0);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800386A8);
+void func_800386A8(void) {
+    EnterCriticalSection();
+    CloseEvent(D_800959E8);
+    CloseEvent(D_800959EC);
+    CloseEvent(D_800959F0);
+    CloseEvent(D_800959F4);
+    CloseEvent(D_800959FC);
+    CloseEvent(D_80095A00);
+    CloseEvent(D_80095A04);
+    CloseEvent(D_80095A08);
+    ExitCriticalSection();
+}
 
 void func_80038730(void) {
     EnableEvent(D_800959E8);

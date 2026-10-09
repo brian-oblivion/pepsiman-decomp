@@ -122,7 +122,20 @@ s32 func_800283A0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800283E4);
+void func_800283E4(void) {
+    sGame.unk6 = 2;
+    sGame.unk5 = 0;
+    sGame.unk0 = 1;
+    sGame.unk38E = 0;
+    if (D_8009599C == 1) {
+        sGame.unk2 = 0;
+        sGame.unk3C8 = 60;
+        D_8009599C = 0;
+    }
+    if ((sGame.unk3D0 & 0xF) == 3) {
+        sGame.unk6 = 0x33;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028448);
 

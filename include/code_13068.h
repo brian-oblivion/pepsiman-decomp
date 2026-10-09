@@ -14,4 +14,6 @@
  *  @param out the screen position */
 void func_800230E0(VECTOR *pos, SVECTOR *out);
 
+extern SVECTOR D_800A7680[]; /**< rotations; [0].vy is a yaw (heading) */
+
 #endif

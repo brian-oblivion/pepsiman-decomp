@@ -2,20 +2,30 @@
 #include "memory.h"
 #include "libapi.h"
 #include "libgte.h"
+#include "libgpu.h"
 #include "sys/file.h"
 #include "code_1a098.h"
+#include "code_13068.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
 typedef struct {
     s16 unk0;      /**< -1 when the record is free (a guess) */
-    u8 unk2[0x3A]; /**< not yet known */
+    u8 unk2[0x24]; /**< not yet known */
+    u8 unk26;      /**< bit 7 picks one of two handlers */
+    u8 unk27[5];   /**< not yet known */
+    s16 unk2C;     /**< matched against sTotals.unk2A */
+    u8 unk2E[0xE]; /**< not yet known */
 } Rec3C;
 
 /** @brief A state block with a halfword total at 0x26. */
 typedef struct {
-    u8 unk0[0x26]; /**< not yet known */
+    u8 unk0[0x1E]; /**< not yet known */
+    u16 unk1E;     /**< matched against a Rec48's unk34 */
+    u8 unk20[6];   /**< not yet known */
     u16 unk26;     /**< a sum over the current block's entries */
+    u8 unk28[2];   /**< not yet known */
+    u16 unk2A;     /**< matched against a Rec3C's unk2C */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -38,11 +48,39 @@ extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
 extern u8 D_80095B28[];    /**< a Totals28 */
 extern char D_80011260[];  /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
 #define sTotals (*(Totals28 *)D_80095B28)
+extern char D_800955DC[]; /**< "\n\n" */
+extern char D_800954F4[]; /**< colour code of a highlighted menu line */
+extern char D_8009550C[]; /**< colour code of a plain menu line */
+extern char D_80095628[]; /**< "  YES\n" */
+extern char D_80095630[]; /**< "  NO" */
+extern char D_80095638[]; /**< "  SAVE\n" */
+extern char D_80095640[]; /**< "  LOAD\n" */
+
+/** @brief The tool state block, seen as the save area past its totals. */
+typedef struct {
+    u8 unk0[0x38]; /**< not yet known */
+    s32 unk38[3];  /**< a copy of sGameSave.unk348 */
+    s16 unk44;     /**< a saved halfword of game state */
+    u8 unk46[2];   /**< not yet known */
+    s32 unk48[6];  /**< six saved words of game state */
+} ToolSave;
+
+#define sToolSave (*(ToolSave *)D_80095B28)
+
+/** @brief The game state, seen as the part the tool state saves. */
+typedef struct {
+    u8 unk0[0x348]; /**< not yet known */
+    s32 unk348[3];  /**< saved into sToolSave.unk38 */
+} GameSave;
+
+#define sGameSave (*(GameSave *)D_8009EB78)
 
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
+void func_8002C894(s16 id, Rec3C *r);
+void func_8002B8F8(s16 id, Rec3C *r);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -306,7 +344,23 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003146C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800317D0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031A48);
+/** @brief Runs one of two handlers on every used Rec3C whose unk2C equals
+ *         sTotals.unk2A, picked by bit 7 of its unk26. */
+void func_80031A48(void) {
+    u32 i;
+    Rec3C *r;
+
+    for (i = 0; i < 100; i++) {
+        r = &D_800A7898[i];
+        if (r->unk0 != -1 && sTotals.unk2A == r->unk2C) {
+            if (r->unk26 & 0x80) {
+                func_8002C894(r->unk0, r);
+            } else {
+                func_8002B8F8(r->unk0, r);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031AEC);
 
@@ -343,7 +397,21 @@ s32 func_8003356C(s16 n) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800335E8);
+/** @brief Saves three pieces of game state into the tool state block,
+ *         then runs a step on the tool buffer. */
+void func_800335E8(s16 a) {
+    sToolSave.unk38[0] = sGameSave.unk348[0];
+    sToolSave.unk38[1] = sGameSave.unk348[1];
+    sToolSave.unk38[2] = sGameSave.unk348[2];
+    sToolSave.unk44 = D_800A7680[0].vy;
+    sToolSave.unk48[0] = D_800DB2A0[0];
+    sToolSave.unk48[1] = D_800DB2A0[1];
+    sToolSave.unk48[2] = D_800DB2A0[2];
+    sToolSave.unk48[3] = D_800DB2A0[3];
+    sToolSave.unk48[4] = D_800DB2A0[4];
+    sToolSave.unk48[5] = D_800DB2A0[5];
+    func_80032964(a, (u8 *)0x8016D000);
+}
 
 /** @brief Checks that save slot `i` of the tool buffer is valid and
  *         belongs to the current owner.
@@ -363,7 +431,21 @@ s32 func_80033680(s16 i) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800336F8);
+/** @brief Runs a step on the tool buffer, then restores the game state
+ *         the save step put in the tool state block. */
+void func_800336F8(s16 a) {
+    func_80032C28(a, (u8 *)0x8016D000);
+    sGameSave.unk348[0] = sToolSave.unk38[0];
+    sGameSave.unk348[1] = sToolSave.unk38[1];
+    sGameSave.unk348[2] = sToolSave.unk38[2];
+    D_800A7680[0].vy = sToolSave.unk44;
+    D_800DB2A0[0] = sToolSave.unk48[0];
+    D_800DB2A0[1] = sToolSave.unk48[1];
+    D_800DB2A0[2] = sToolSave.unk48[2];
+    D_800DB2A0[3] = sToolSave.unk48[3];
+    D_800DB2A0[4] = sToolSave.unk48[4];
+    D_800DB2A0[5] = sToolSave.unk48[5];
+}
 
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
  *         then clears and resets the Rec3C table. */
@@ -462,7 +544,17 @@ void func_8003399C(void) {
     func_80032C28(0, (u8 *)0x8016D000);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033A08);
+/** @brief Moves the game position `dist` units along heading `deg`
+ *         (degrees) relative to the yaw in the first rotation. */
+void func_80033A08(s32 deg, s32 dist) {
+    s32 ang;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    ang = (deg << 12) / 360;
+    sGameSave.unk348[0] -= rsin(rot->vy + ang) * dist >> 12;
+    sGameSave.unk348[2] -= rcos(rot->vy + ang) * dist >> 12;
+}
 
 /** @brief Totals unk4 of the current block's entries into sTotals.unk26. */
 void func_80033AB8(void) {
@@ -486,11 +578,59 @@ void func_80033B08(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033B34);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033BF8);
+/** @brief Applies every used Rec48 whose unk34 equals sTotals.unk1E to the
+ *         Rec78 its unk36 names. */
+void func_80033BF8(void) {
+    u32 i;
+    Rec48 *r;
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033C90);
+    for (i = 0; i < 200; i++) {
+        r = &((Rec48 *)D_800A9008)[i];
+        if (r->unk36 != -1 && sTotals.unk1E == r->unk34) {
+            func_8002A7D8(&D_800D8D20[r->unk36], r);
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033D3C);
+/** @brief Prints a two-line YES/NO menu, highlighting the line
+ *         the menu cursor selects. */
+void func_80033C90(void) {
+    FntPrint(D_800955DC);
+    func_80014BF0(4);
+    if (D_8009574A == 0) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095628);
+    func_80014BF0(4);
+    if (D_8009574A == 1) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095630);
+}
+
+/** @brief Prints a two-line SAVE/LOAD menu, highlighting the line
+ *         the menu cursor selects. */
+void func_80033D3C(void) {
+    FntPrint(D_800955DC);
+    func_80014BF0(4);
+    if (D_8009574A == 0) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095638);
+    func_80014BF0(4);
+    if (D_8009574A == 1) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095640);
+}
 
 /** @brief Writes the tool buffer to the tool file on the host.
  *  @return the count written. */
@@ -516,7 +656,26 @@ s32 func_80033E40(void) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033E98);
+/** @brief Wraps the edited value and the highlighted line into their
+ *         ranges: below 0 to the top, at or past the limit to 0.
+ *  @return 0. */
+s32 func_80033E98(void) {
+    /* MATCHING: retail reads the edited value signed (lh); common.h's
+     * declaration is u16. */
+    if ((s16)D_80095748 < 0) {
+        D_80095748 = D_800958B0 - 1;
+    }
+    if ((s16)D_80095748 >= D_800958B0) {
+        D_80095748 = 0;
+    }
+    if (D_8009574A < 0) {
+        D_8009574A = D_800958B2 - 1;
+    }
+    if (D_8009574A >= D_800958B2) {
+        D_8009574A = 0;
+    }
+    return 0;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800114DC);
 

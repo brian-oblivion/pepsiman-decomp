@@ -113,7 +113,23 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018DF0);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800195CC);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019684);
+void func_80019684(SlotList *list, Slot *slots, u8 *objs, s32 data, s32 n) {
+    s32 i;
+
+    list->count = 0;
+    list->slots = slots;
+    list->capacity = n;
+    for (i = 0; i < n; i++) {
+        slots->unk0 = 0x80000000;
+        slots->unkC = -1;
+        slots->unk4 = (s32)objs;
+        *(s32 *)(objs + 0x44) = data;
+        slots->unk8 = 0;
+        slots++;
+        objs += 0x50;
+        data += 0x28;
+    }
+}
 
 Slot *func_800196E4(SlotList *list, s32 key) {
     Slot *s;

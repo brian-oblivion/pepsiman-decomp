@@ -123,7 +123,31 @@ void func_80020C14(void) {
     D_800E48E8[7][7] = func_8001EE30;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020CF8);
+s32 func_80020CF8(s32 mode) {
+    switch (mode) {
+        case 0:
+        case 1:
+            D_800E48E8[3][0] = func_800201BC;
+            D_800E48E8[7][0] = func_80020520;
+            break;
+        case 2:
+            D_800E48E8[3][0] = func_80021F80;
+            D_800E48E8[7][0] = func_8002097C;
+            break;
+        case 3:
+            D_800E48E8[3][0] = func_8001FBBC;
+            D_800E48E8[7][0] = func_8001FE5C;
+            break;
+        case 4:
+            D_800E48E8[3][0] = func_80022150;
+            D_800E48E8[7][0] = func_8002230C;
+            break;
+        case 5:
+            D_800E48E8[3][0] = func_80021B88;
+            D_800E48E8[7][0] = func_80021D3C;
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020DD8);
 

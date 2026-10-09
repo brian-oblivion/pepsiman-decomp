@@ -60,12 +60,14 @@ typedef struct {
 
 extern CardHeader D_800DF5D0;
 extern u8 D_800119C8[]; /**< title of the first save file */
+extern u8 D_80011C54[]; /**< title of the second save file */
 
 void func_80037CF0(void);
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
 void func_80038900(void);
+void func_800390B8(void);
 
 /* MATCHING: s32, not s16: both callers test the result unextended. */
 s32 func_8003828C(u8 *a, u8 *b, s16 n) {
@@ -360,7 +362,14 @@ s16 func_80039618(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003968C);
+void func_8003968C(void) {
+    D_800DF5D0.magic[0] = 'S';
+    D_800DF5D0.magic[1] = 'C';
+    D_800DF5D0.iconFlag = 0x13;
+    D_800DF5D0.blocks = 12;
+    D_800DF5D0.title = *(CardTitle *)D_80011C54;
+    func_800390B8();
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C54);
 

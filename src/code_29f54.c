@@ -45,6 +45,10 @@ typedef struct {
 
 extern Edge *D_800958D4;
 
+extern u32 D_80095798;
+extern GsDOBJ2 D_800ACB88[];
+extern GsCOORDINATE2 D_800A72B8;
+
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
@@ -108,7 +112,25 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003DE34);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003DFB8);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E07C);
+void func_8003E07C(unsigned long *tmd) {
+    u32 i;
+    GsDOBJ2 *obj;
+
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095798 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095798; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    }
+    obj = D_800ACB88;
+    for (i = 0; i < D_80095798; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0;
+        obj++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E13C);
 

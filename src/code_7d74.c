@@ -40,6 +40,10 @@ typedef struct {
     s16 unk1E;     /**< 4, 2 or not set, by pixel mode */
 } TimInfo;
 
+/* MATCHING: reading the TimInfo through the global each time, not a
+ * pointer local, picks retail's registers. */
+#define sTim ((TimInfo *)D_800956D4)
+
 extern u8 D_800958C9;
 extern CdlLOC D_80095728;
 extern MATRIX D_800E4858;
@@ -53,7 +57,7 @@ typedef struct {
  * declares the table as words. */
 #define sLights ((*(FlatLights *)D_800DD070).l)
 
-void func_80017774(void *data);
+s32 func_80017774(void *data);
 s8 func_80017640(u16 *tim);
 s32 func_800175AC(u8 com);
 u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
@@ -82,7 +86,33 @@ void func_80017614(u8 mode) {
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017640);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017774);
+s32 func_80017774(void *data) {
+    RECT rect;
+    RECT clut;
+    TimInfo *info;
+    u16 w;
+    u16 h;
+
+    if (func_80017640(data) == -1) {
+        return -1;
+    }
+    w = sTim->pixRect.w;
+    h = sTim->pixRect.h;
+    rect.x = sTim->pixRect.x;
+    rect.y = sTim->pixRect.y;
+    rect.w = sTim->pixRect.w;
+    rect.h = sTim->pixRect.h;
+    LoadImage(&rect, sTim->pixel);
+    info = sTim;
+    if (info->hasClut == 1) {
+        clut.x = info->clutRect.x;
+        clut.y = info->clutRect.y;
+        clut.w = info->clutRect.w;
+        clut.h = info->clutRect.h;
+        LoadImage(&clut, info->clut);
+    }
+    return (s16)w * (s16)h * sTim->unk1E + (s32)sTim->pixel;
+}
 
 /* MATCHING: s32 with no value returned keeps the return register live,
  * so cc1 leaves the two forward branch delay slots empty. */

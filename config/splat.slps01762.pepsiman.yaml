@@ -186,7 +186,29 @@ segments:
       - [0x3C984, o, libsnd/vm_n2p]           # note2pitch, SsPitchFromNote, note2pitch2
       - [0x3CB64, o, libsnd/vm_no1]           # vmNoiseOn
       - [0x3D0D4, o, libspu/s_snc]            # SpuSetNoiseClock
-      - [0x3D124, asm, psyq_3D124]
+      - [0x3D124, o, libsnd/vm_noff]          # vmNoiseOff
+      - [0x3D164, o, libsnd/vm_nowof]         # _SsVmKeyOffNow
+      - [0x3D224, o, libsnd/vm_nowon]         # _SsVmKeyOnNow
+      - [0x3D6F4, o, libsnd/vm_pb]            # _SsVmPBVoice, _SsVmPitchBend
+      - [0x3D9C4, o, libsnd/vm_prog]          # _SsVmSetProgVol, _SsVmGetProgVol, _SsVmSetProgPan, _SsVmGe
+      - [0x3DB44, o, libsnd/vm_seq]           # _SsVmSetSeqVol, _SsVmGetSeqVol, _SsVmGetSeqLVol, _SsVmGetS
+      - [0x3E254, o, libsnd/vm_stav]          # _SsVmSelectToneAndVag
+      - [0x3E324, o, libsnd/vm_vol]           # _SsVmSetVol
+      - [0x3E8C4, o, libsnd/vm_vsu]           # _SsVmVSetUp
+      - [0x3E984, o, libsnd/vs_mono]          # SsSetMono, SsSetStereo
+      - [0x3E9A4, o, libsnd/vs_vab]           # SsVabClose
+      - [0x3EA54, o, libspu/s_m_f]            # SpuFree
+      - [0x3EAD4, o, libspu/s_m_int]          # _spu_gcSPU
+      - [0x3EDD4, o, libsnd/vs_vh2]           # SsVabOpenHead
+      - [0x3EE74, o, libspu/s_m_m]            # SpuMalloc
+      - [0x3F144, o, libsnd/vs_vh]            # SsVabOpenHeadSticky, _SsVabOpenHeadWithMode, SsVabFakeHead
+      - [0x3F5A4, o, libsnd/vs_vtb]           # SsVabTransBody
+      - [0x3F664, o, libspu/s_w]              # SpuWrite
+      - [0x3F6C4, o, libspu/s_stsa]           # SpuSetTransferStartAddr
+      - [0x3F724, o, libspu/s_stm]            # SpuSetTransferMode
+      - [0x3F754, o, libsnd/vs_vtc]           # SsVabTransCompleted
+      - [0x3F784, o, libspu/s_itc]            # SpuIsTransferCompleted
+      - [0x3F834, asm, psyq_3F834]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]

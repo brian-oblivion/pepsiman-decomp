@@ -103,6 +103,9 @@ extern u8 D_80095774; /**< set while the reset below runs */
 void func_80023F80(u8 *state);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
+extern char D_8001178C[]; /**< path of the first hit-data file, HITDATA0.T1D */
+extern char D_800117B4[]; /**< path of the second hit-data file, HITDATA1.T1D */
+extern char D_800117DC[]; /**< path of the third hit-data file, HITDATA2.T1D */
 
 /* MATCHING: the bob gets its own statement, or cc1 adds -200 to pos->vy. */
 void func_80033F48(VECTOR *pos) {
@@ -263,7 +266,38 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035E24);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036184);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003634C);
+s32 func_8003634C(void) {
+    s32 fd;
+
+    fd = open(D_8001178C, O_CREAT | O_WRONLY);
+    if (write(fd, (void *)0x8018D200, 0x4744) == -1) {
+        goto fail;
+    }
+    if (write(fd, (void *)0x80191944, 0x2034) == -1) {
+        goto fail;
+    }
+    close(fd);
+    fd = open(D_800117B4, O_CREAT | O_WRONLY);
+    if (write(fd, (void *)0x80193978, 0x4744) == -1) {
+        goto fail;
+    }
+    if (write(fd, (void *)0x801980BC, 0x2034) == -1) {
+        goto fail;
+    }
+    close(fd);
+    fd = open(D_800117DC, O_CREAT | O_WRONLY);
+    if (write(fd, (void *)0x8019A0F0, 0x4744) == -1) {
+        goto fail;
+    }
+    if (write(fd, (void *)0x8019E834, 0x2034) == -1) {
+        goto fail;
+    }
+    close(fd);
+    return 0;
+fail:
+    close(fd);
+    return -1;
+}
 
 /* MATCHING: -pos->vx + ... loads the parameter's word before the global's. */
 void func_80036478(VECTOR *pos) {

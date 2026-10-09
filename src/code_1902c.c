@@ -51,7 +51,11 @@ INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002971C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_800297A4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002980C);
+void func_8002980C(void) {
+    D_8009EB78[1] = 0;
+    func_8002985C();
+    func_8002988C();
+}
 
 void func_80029838(void) {
     s32 *p = (s32 *)D_8009EB78;

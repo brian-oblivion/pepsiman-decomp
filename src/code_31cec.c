@@ -26,6 +26,8 @@ extern s16 D_800E0570[];
 extern char D_800E0588[];
 extern s32 D_80095AB4;
 extern u8 D_80095AEE;
+extern s16 D_800956C2;
+extern s16 D_80095AC8;
 
 void func_800FA610(s16 arg0);
 void func_80041EE0(CdlLOC *loc);
@@ -50,7 +52,17 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041A6C);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041BAC);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041C7C);
+void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
+    dec->vlcbuf[0] = (u_long *)0x8015D000;
+    dec->vlcbuf[1] = (u_long *)0x80171000;
+    dec->vlcid = 0;
+    dec->imgbuf = (u_short *)0x80195000;
+    dec->rectid = 0;
+    dec->isdone = 0;
+    setRECT(&dec->rect[0], x0, y0, 480, 240);
+    setRECT(&dec->rect[1], x1, y1, 480, 240);
+    setRECT(&dec->slice, x0 + D_800956C2, y0 + (240 - D_80095AC8) / 2, 24, D_80095AC8);
+}
 
 void func_80041D18(CdlLOC *loc, void (*callback)()) {
     DecDCTReset(0);

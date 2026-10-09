@@ -1,5 +1,7 @@
 #include "common.h"
 #include "libgte.h"
+#include "libgpu.h"
+#include "libgs.h"
 
 extern u16 D_800957D2;
 extern s8 D_8009599C;
@@ -62,7 +64,26 @@ void func_800230D8(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800230E0);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023194);
+/* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
+void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR v;
+    VECTOR t;
+    s32 unused[2];
+    long flag;
+
+    v.vx = pos->vx;
+    v.vy = pos->vy;
+    v.vz = pos->vz;
+    GsGetLws(coord, &local, &world);
+    GsSetLsMatrix(&local);
+    RotTrans(&v, &t, &flag);
+    out->vx = t.vx;
+    out->vy = t.vy;
+    out->vz = t.vz;
+    GsSetLsMatrix(&world);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023228);
 

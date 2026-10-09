@@ -70,7 +70,6 @@ typedef struct {
     s32 z; /**< always 0 */
 } GridPoint;
 
-extern s32 D_800958D0;
 extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
 

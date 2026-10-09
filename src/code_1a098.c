@@ -3,6 +3,8 @@
 #include "libapi.h"
 #include "libgte.h"
 #include "sys/file.h"
+#include "libgpu.h"
+#include "libgs.h"
 #include "code_1a098.h"
 
 /** @brief An object whose current position and halfword triple are reset
@@ -20,9 +22,10 @@ typedef struct {
     u16 unk1E;   /**< stored */
     u16 unk20;   /**< stored */
     u16 unk22;   /**< stored */
-    u8 unk24[8]; /**< not yet known */
-    s32 unk2C;   /**< zeroed on a reset */
-    s32 unk30;   /**< zeroed on a reset */
+    u8 unk24[4]; /**< not yet known */
+    s32 unk28;   /**< passed to the lookup and updated from it */
+    s32 unk2C;   /**< zeroed on a reset; an angle from the lookup */
+    s32 unk30;   /**< zeroed on a reset; an angle from the lookup */
 } Obj34;
 
 /** @brief An object with a word at 0x28 that a lookup updates. */
@@ -58,17 +61,74 @@ typedef struct {
     s16 v[4][3]; /**< x, y, z of each corner */
 } Box4;
 
-/** @brief The head of the game state; only byte 5 is used here. */
+/** @brief A 0x2C-byte record placed relative to a coordinate system. */
 typedef struct {
-    u8 unk0[5]; /**< not yet known */
-    u8 unk5;    /**< a mode byte: 0x42 and 0x43 seen */
+    VECTOR pos;           /**< world position, written from the local one */
+    u8 unk10[0xC];        /**< not yet known */
+    s32 lx;               /**< local x */
+    s32 ly;               /**< local y */
+    s32 lz;               /**< local z */
+    GsCOORDINATE2 *coord; /**< the coordinate system lx..lz are in */
+} Placed2C;
+
+/** @brief A local position and the index of its coordinate system. */
+typedef struct {
+    s32 x;    /**< local x */
+    s32 y;    /**< local y */
+    s32 z;    /**< local z */
+    s8 coord; /**< index into the coordinate-system table */
+} LocalPos;
+
+/** @brief A point of a path with the direction of its segment. */
+typedef struct {
+    s16 x;  /**< x of the point */
+    s16 z;  /**< z of the point */
+    s16 dx; /**< x of the direction */
+    s16 dz; /**< z of the direction */
+} PathPt;
+
+/** @brief Something that follows a path; only x, z and the segment are
+ *         known. */
+typedef struct {
+    s16 x;         /**< x */
+    u8 unk2[6];    /**< not yet known */
+    s16 z;         /**< z */
+    u8 unkA[0x32]; /**< not yet known */
+    s32 seg;       /**< the current path segment */
+} PathUser;
+
+/** @brief A model object with its own coordinate system and transform. */
+typedef struct {
+    GsDOBJ2 obj;         /**< the object handler */
+    GsCOORDINATE2 coord; /**< the object's coordinate system */
+    SVECTOR rot;         /**< rotation */
+    SVECTOR scale;       /**< scale, 0x1000 = 1 */
+} Model70;
+
+/** @brief The head of the game state, as far as this unit reaches. */
+typedef struct {
+    u8 unk0[5];      /**< not yet known */
+    u8 unk5;         /**< a mode byte: 0x42 and 0x43 seen */
+    u8 unk6[0x1A];   /**< not yet known */
+    s32 unk20[100];  /**< first word of each loaded entry */
+    s32 unk1B0[100]; /**< third word of each loaded entry */
 } GameHead;
 
-extern u8 D_800A74D0[];     /**< 128 byte flags; cleared together */
-extern u8 D_80096738[];     /**< passed to the lookup */
-extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
-extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
-extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
+/** @brief A 16-byte directory entry of a loaded file. */
+typedef struct {
+    s32 offset;   /**< byte offset of the entry from the directory */
+    u8 unk4[0xA]; /**< not yet known */
+    u16 count;    /**< entry count; read from the first entry only */
+} DirEnt16;
+
+extern u8 D_800A74D0[];            /**< 128 byte flags; cleared together */
+extern s16 D_80096738[];           /**< filled by the lookup: a height, then a direction */
+extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
+extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
+extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */
+extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems */
+extern PathPt *D_800958A0;         /**< the current path */
+extern s32 *D_800D81B0[];          /**< per-entry data pointers */
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
@@ -87,9 +147,52 @@ s32 func_8002C650(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
 s32 func_800297A4(void *a, void *b);
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
+/* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
+ * unextended, so its prototype takes s32. */
+s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
+/** @brief Sets `p->pos` to the world position of its local position. */
+/* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
+void func_80029898(Placed2C *p) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR v;
+    VECTOR t;
+    s32 unused[2];
+    long flag;
+
+    v.vx = p->lx;
+    v.vy = p->ly;
+    v.vz = p->lz;
+    GsGetLws(p->coord, &local, &world);
+    GsSetLsMatrix(&local);
+    RotTrans(&v, &t, &flag);
+    p->pos.vx = t.vx;
+    p->pos.vy = t.vy;
+    p->pos.vz = t.vz;
+    GsSetLsMatrix(&world);
+}
+
+/** @brief Sets `out` to the world position of the local position `lp`. */
+/* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
+void func_80029930(LocalPos *lp, VECTOR *out) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR v;
+    VECTOR t;
+    s32 unused[2];
+    long flag;
+
+    v.vx = lp->x;
+    v.vy = lp->y;
+    v.vz = lp->z;
+    GsGetLws(&D_800D86E0[lp->coord], &local, &world);
+    GsSetLsMatrix(&local);
+    RotTrans(&v, &t, &flag);
+    out->vx = t.vx;
+    out->vy = t.vy;
+    out->vz = t.vz;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800299D8);
 
@@ -117,7 +220,33 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A98C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AEB8);
+/** @brief Moves `u` to the next or previous path segment once it has
+ *         passed the next point or not yet reached its own.
+ *  @return the new segment */
+/* MATCHING: the unused pair gives the leaf its 8-byte frame. */
+s32 func_8002AEB8(PathUser *u) {
+    s32 unused[2];
+    s32 i;
+    s32 d;
+    PathPt *next;
+    PathPt *pt;
+
+    /* MATCHING: two point locals and a sum local; one reused point pointer
+     * moves the parameter out of $a0. Integer sums put the index first. */
+    i = u->seg;
+    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
+    if (d >= 0) {
+        i++;
+    }
+    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
+    if (d >= 0) {
+        i--;
+    }
+    u->seg = i;
+    return i;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AF6C);
 
@@ -131,15 +260,58 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B7C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B8F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BC4C);
+/** @brief Updates the Rec78 entry of every live Rec48 record whose Rec5C
+ *         record is marked 1. */
+void func_8002BC4C(void) {
+    u32 i;
+
+    for (i = 0; i < 200; i++) {
+        if (sRecs48[i].unk36 != -1 && D_800CF080[sRecs48[i].unk34].unk0 == 1) {
+            func_8002A7D8(&D_800D8D20[sRecs48[i].unk36], &sRecs48[i]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BEC0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C044);
+/** @brief Registers the entries of the directory loaded at a fixed address
+ *         from slot 0x33 on.
+ *  @return nothing; the value is undefined. */
+s32 func_8002C044(void) {
+    DirEnt16 *e;
+    s32 *p;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C0EC);
+    /* MATCHING: non-void with no return orders the loop preheader; the
+     * pointer is assigned inside the store so the index loads first. */
+    e = (DirEnt16 *)0x8017D708;
+    D_800958CC = 0x33;
+    D_800958D0 = e->count;
+    for (; D_800958CC < D_800958D0 + 0x33; D_800958CC++) {
+        D_800D81B0[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
+        e++;
+        sGameHead.unk20[D_800958CC] = *D_800D81B0[D_800958CC];
+        D_800D81B0[D_800958CC]++;
+        sGameHead.unk1B0[D_800958CC] = D_800D81B0[D_800958CC][1];
+    }
+}
+
+/** @brief Looks up the height under `p`; on success sets its current and
+ *         stored y and two angles from the result.
+ *  @return the lookup's result, -1 when it failed */
+s32 func_8002C0EC(Obj34 *p) {
+    s32 v;
+
+    v = func_80018D70(p, D_80096738, p->unk28);
+    if (v != -1) {
+        p->unk28 = v;
+        p->unk4 = p->unk10 = D_80096738[0];
+        p->unk2C = ratan2(-D_80096738[3], D_80096738[2]);
+        p->unk30 = ratan2(-D_80096738[1], D_80096738[2]);
+    }
+    return v;
+}
 
 /** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
 void func_8002C188(s32 r, s16 deg, Vec3 *out) {
@@ -150,7 +322,26 @@ void func_8002C188(s32 r, s16 deg, Vec3 *out) {
     out->z = rcos(a) * r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C20C);
+/** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
+ *         identity transform, and counts it. */
+void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
+    GsInitCoordinate2(WORLD, &m->coord);
+    m->obj.coord2 = &m->coord;
+    /* MATCHING: the parameter is advanced in two steps; offsets from one
+     * copy give the object pointer and the TMD pointer swapped registers. */
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd += 2;
+    GsLinkObject4((unsigned long)tmd, &m->obj, n);
+    m->obj.attribute = 0x200;
+    m->scale.vx = 0x1000;
+    m->scale.vy = 0x1000;
+    m->scale.vz = 0x1000;
+    m->rot.vx = 0;
+    m->rot.vy = 0;
+    m->rot.vz = 0;
+    D_8009588E++;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C2B4);
 
@@ -378,6 +569,24 @@ s32 func_8002D1CC(s16 n) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D230);
+/** @brief On even frames, launches effect 4 at the first block entry marked
+ *         1 and marks it 2. */
+void func_8002D230(void) {
+    u32 i;
+    Ent8 *e;
+
+    if (D_8009585C & 1) {
+        return;
+    }
+    for (i = 0; i < 200; i++) {
+        if ((s8)D_800A7550[i] == 1) {
+            /* MATCHING: an integer sum puts the scaled index first. */
+            e = (Ent8 *)(i * 8 + (u32)D_800959C4);
+            func_8003F834(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
+            D_800A7550[i] = 2;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D2C0);

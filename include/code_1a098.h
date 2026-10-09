@@ -50,9 +50,9 @@ typedef struct {
  *  @param hdr the header */
 void func_8002D0C4(BlockHeader *hdr);
 
-/** @brief Applies a Rec48 to the Rec78 it names.
- *  @param rec the Rec78
- *  @param r the Rec48 */
+/** @brief Updates a Rec78 entry and the Rec48 record it belongs to.
+ *  @param rec the Rec78 entry
+ *  @param r the Rec48 record; its byte at 0x40 collects a result bit */
 void func_8002A7D8(Rec78 *rec, Rec48 *r);
 
 #endif

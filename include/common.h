@@ -159,6 +159,9 @@ extern s32 D_800957A8; /**< 2 units */
 extern s32 D_800958AC; /**< 2 units; 1 picks the second set of stage tables */
 extern s8 D_8009599C;  /**< 2 units */
 extern u16 D_800957D2; /**< 2 units */
+extern u32 D_8009585C; /**< a frame counter; 2 units */
+extern s32 D_800958D0; /**< a loop counter or count kept in a global; 2 units */
+extern s16 D_8009588E; /**< number of entries; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

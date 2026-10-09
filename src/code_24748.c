@@ -7,6 +7,7 @@
 #include "libgs.h"
 #include "code_a0bc.h"
 #include "code_13068.h"
+#include "code_1a098.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -43,7 +44,6 @@ extern u8 D_800DB2C0[]; /**< 0x1DB0-byte buffer, cleared as a whole */
 extern u8 D_80095A29; /**< state of that dispatch: 0 or 1 */
 
 extern s16 D_80095A30; /**< current index, clamped to the entry count */
-extern s16 D_8009588E; /**< number of entries */
 
 void func_80034F38(void);
 void func_80036F50(void);
@@ -98,13 +98,8 @@ extern u8 D_80095A28;
 void func_80036E50(void);
 void func_80036EA0(void);
 
-extern u32 D_8009585C; /**< a frame counter driving the marker's bob */
-
 extern u8 D_80095774; /**< set while the reset below runs */
 
-/* MATCHING: this unit's view drops the second (Rec48) argument the
- * definition takes; the call here passes only the record. */
-void func_8002A7D8(Rec78 *rec);
 void func_80023F80(u8 *state);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
@@ -436,7 +431,7 @@ void func_80037114(void) {
     ((s16 *)D_800A9008)[14] = 0;
     D_800A9008[11] = 0;
     D_800A9008[12] = 0;
-    func_8002A7D8(&D_800D8D20[D_80095A30]);
+    func_8002A7D8(&D_800D8D20[D_80095A30], (Rec48 *)D_800A9008);
     func_80023F80(D_8009EB78);
     func_80029838();
     D_80095774 = 0;

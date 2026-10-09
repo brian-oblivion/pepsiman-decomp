@@ -396,7 +396,15 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033790);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800337E4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033854);
+/** @brief Sets byte 0 of each of 200 consecutive 0x5C-byte records to -1. */
+void func_80033854(s8 *p) {
+    u32 i;
+
+    for (i = 0; i < 200; i++) {
+        *p = -1;
+        p += 0x5C;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033878);
 

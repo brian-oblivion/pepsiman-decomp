@@ -3,6 +3,8 @@
 #include "libgpu.h"
 #include "libetc.h"
 #include "libpad.h"
+#include "libgs.h"
+#include "libapi.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -202,7 +204,22 @@ INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80015584);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015754);
+extern char D_80010148[];
+
+void func_80015754(char *name, void *buf) {
+    s32 fd;
+
+    fd = open(name, 1);
+    if (fd == -1) {
+        for (;;) {
+            GsSwapDispBuff();
+            FntPrint(D_80010148, name);
+            FntFlush(-1);
+        }
+    }
+    read(fd, buf, 0x100000);
+    close(fd);
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800157DC);
 

@@ -27,6 +27,13 @@ SECTIONS {
     .psyq_bss.libgs_objt3_bss 0x800E48E8 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/objt3.o(.bss) }   /* 0x130 bytes; section-relative refs */
     .psyq_bss.libgpu_font_bss 0x800E4A18 (NOLOAD) : SUBALIGN(2) { build/lib/libgpu/font.o(.bss) }   /* 0x4410 bytes; section-relative refs */
     .psyq_bss.libgpu_sys_bss 0x800E8E28 (NOLOAD) : SUBALIGN(2) { build/lib/libgpu/sys.o(.bss) }   /* 0x1950 bytes; section-relative refs */
+    .psyq_bss.libcard_patch_bss 0x800EA778 (NOLOAD) : SUBALIGN(2) { build/lib/libcard/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libcard_end_bss 0x800EA788 (NOLOAD) : SUBALIGN(2) { build/lib/libcard/end.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libds_dscb_bss 0x800EA798 (NOLOAD) : SUBALIGN(2) { build/lib/libds/dscb.o(.bss) }   /* 0xC bytes; section-relative refs */
+    .psyq_bss.libapi_first_bss 0x800EA7A8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/first.o(.bss) }   /* 0x30 bytes; section-relative refs */
+    .psyq_bss.libapi_pad_bss 0x800EA7D8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/pad.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libapi_patch_bss 0x800EA7E8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libapi_chclrpad_bss 0x800EA7F8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/chclrpad.o(.bss) }   /* 0x10 bytes; section-relative refs */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -93,36 +100,10 @@ GsIDMATRIX = 0x800E4858;   /* libgs/gs_123 */
 GsWSMATRIX = 0x800E4878;   /* libgs/gs_123 */
 GsIDMATRIX2 = 0x800E4898;   /* libgs/gs_123 */
 _que = 0x800E8F78;   /* libgpu/sys */
+GlobalCallback = 0x800EA798;   /* libds/dscb */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
-puts = 0x8006C15C;
-setjmp = 0x8006C174;
-strcmp = 0x8006C184;
-strncmp = 0x8006C194;
-strlen = 0x8006C1B4;
-memcpy = 0x8006C1D4;
-memset = 0x8006C1E4;
-printf = 0x8006C204;
-DsReadyCallback = 0x8006C228;
-DsDataCallback = 0x8006C250;
-FlushCache = 0x8006C284;
-GPU_cw = 0x8006C294;
-_96_remove = 0x8006C2AC;
-DeliverEvent = 0x8006C2C4;
-OpenEvent = 0x8006C2D4;
-WaitEvent = 0x8006C2F4;
-TestEvent = 0x8006C304;
-EnableEvent = 0x8006C314;
-ReturnFromException = 0x8006C334;
-ResetEntryInt = 0x8006C344;
-HookEntryInt = 0x8006C354;
-EnterCriticalSection = 0x8006C364;
-ExitCriticalSection = 0x8006C374;
-ChangeClearPAD = 0x8006C404;
-ChangeClearRCnt = 0x8006C414;
-SetRCnt = 0x8006C424;
-ResetRCnt = 0x8006C55C;
 _spu_AllocBlockNum = 0x8007BD4C;
 _spu_AllocLastNum = 0x8007BD50;
 _spu_memList = 0x8007BD54;
@@ -132,6 +113,8 @@ _spu_rev_param = 0x8007C1AC;
 rsin_tbl = 0x8007DD14;
 SQRT = 0x8007E524;
 rcossin_tbl = 0x8007E844;
+CF_DVLC = 0x80084B84;
+CF2_DVLC = 0x80094B84;
 _svm_rattr = 0x800E1C40;
 _svm_vab_pg = 0x800E1C58;
 _svm_vab_vh = 0x800E1C98;

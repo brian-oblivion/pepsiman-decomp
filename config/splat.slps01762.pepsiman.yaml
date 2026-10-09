@@ -88,7 +88,8 @@ segments:
       - [0x32CC, o, libgs/objt3, .rdata]
       - [0x336C, o, libgpu/font, .rdata]
       - [0x340C, o, libgpu/sys, .rdata]
-      - [0x362C, rodata]
+      - [0x362C, o, libpress/libpress, .rdata]
+      - [0x367C, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -405,7 +406,71 @@ segments:
       - [0x5BA74, o, libgpu/p26]              # SetTile
       - [0x5BA94, o, libgpu/p40]              # SetDrawStp
       - [0x5BAC4, o, libgpu/p41]              # SetDrawMode
-      - [0x5BB64, asm, psyq_5BB64]
+      - [0x5BB64, o, libpress/libpress]       # DecDCTReset, DecDCTGetEnv, DecDCTPutEnv, DecDCTBufSize, De
+      - [0x5C1F4, o, libpress/vlc]            # DecDCTvlcSize, DecDCTvlc
+      - [0x5C574, o, libcard/c112]            # _bu_init
+      - [0x5C584, o, libcard/c171]            # _card_info
+      - [0x5C594, o, libcard/c172]            # _card_load
+      - [0x5C5A4, o, libcard/card]            # _card_clear
+      - [0x5C5E4, o, libcard/a78]             # _card_write
+      - [0x5C5F4, o, libcard/a80]             # _new_card
+      - [0x5C604, o, libcard/init]            # InitCARD, StartCARD, StopCARD
+      - [0x5C6D4, o, libcard/a74]             # InitCARD2
+      - [0x5C6E4, o, libcard/a75]             # StartCARD2
+      - [0x5C6F4, o, libcard/a76]             # StopCARD2
+      - [0x5C704, o, libcard/patch]           # _patch_card, _patch_card2, _copy_memcard_patch
+      - [0x5C8D4, o, libcard/end]             # _ExitCard
+      - [0x5C954, o, libc/a63]                # puts
+      - [0x5C974, o, libc/c19]                # setjmp
+      - [0x5C984, o, libc/c23]                # strcmp
+      - [0x5C994, o, libc/c24]                # strncmp
+      - [0x5C9A4, o, libc/c25]                # strcpy
+      - [0x5C9B4, o, libc/c27]                # strlen
+      - [0x5C9C4, o, libc/c40]                # bzero
+      - [0x5C9D4, o, libc/c42]                # memcpy
+      - [0x5C9E4, o, libc/c43]                # memset
+      - [0x5C9F4, o, libc/c47]                # rand
+      - [0x5CA04, o, libc/c63]                # printf
+      - [0x5CA14, o, libds/dscb]              # DsSyncCallback, DsReadyCallback, DsStartCallback, DsDataCa
+      - [0x5CA74, o, libapi/c57]              # InitHeap
+      - [0x5CA84, o, libapi/c68]              # FlushCache
+      - [0x5CA94, o, libapi/c73]              # GPU_cw
+      - [0x5CAA4, o, libapi/c114]             # _96_remove
+      - [0x5CAC4, o, libapi/a07]              # DeliverEvent
+      - [0x5CAD4, o, libapi/a08]              # OpenEvent
+      - [0x5CAE4, o, libapi/a09]              # CloseEvent
+      - [0x5CAF4, o, libapi/a10]              # WaitEvent
+      - [0x5CB04, o, libapi/a11]              # TestEvent
+      - [0x5CB14, o, libapi/a12]              # EnableEvent
+      - [0x5CB24, o, libapi/a13]              # DisableEvent
+      - [0x5CB34, o, libapi/a23]              # ReturnFromException
+      - [0x5CB44, o, libapi/a24]              # ResetEntryInt
+      - [0x5CB54, o, libapi/a25]              # HookEntryInt
+      - [0x5CB64, o, libapi/a36]              # EnterCriticalSection
+      - [0x5CB74, o, libapi/a37]              # ExitCriticalSection
+      - [0x5CB84, o, libapi/a50]              # open
+      - [0x5CB94, o, libapi/a51]              # lseek
+      - [0x5CBA4, o, libapi/a52]              # read
+      - [0x5CBB4, o, libapi/a53]              # write
+      - [0x5CBC4, o, libapi/a54]              # close
+      - [0x5CBD4, o, libapi/a65]              # format
+      - [0x5CBE4, o, libapi/a67]              # nextfile
+      - [0x5CBF4, o, libapi/a69]              # erase
+      - [0x5CC04, o, libapi/a91]              # ChangeClearPAD
+      - [0x5CC14, o, libapi/l10]              # ChangeClearRCnt
+      - [0x5CC24, o, libapi/counter]          # SetRCnt, GetRCnt, StartRCnt, StopRCnt, ResetRCnt
+      - [0x5CD94, o, libapi/first]            # firstfile
+      - [0x5D034, o, libapi/a66]              # firstfile2
+      - [0x5D044, o, libapi/pad]              # SetInitPadFlag, ReadInitPadFlag, PAD_init, InitPAD, StartP
+      - [0x5D344, o, libapi/a18]              # InitPAD2
+      - [0x5D354, o, libapi/a19]              # StartPAD2
+      - [0x5D364, o, libapi/a20]              # StopPAD2
+      - [0x5D374, o, libapi/a21]              # PAD_init2
+      - [0x5D384, o, libapi/l02]              # SysEnqIntRP
+      - [0x5D394, o, libapi/l03]              # SysDeqIntRP
+      - [0x5D3A4, o, libapi/patch]            # _patch_pad, EnablePAD, DisablePAD
+      - [0x5D444, o, libapi/chclrpad]         # _remove_ChgclrPAD
+      - [0x5D4B4, asm, psyq_5D4B4]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -444,7 +509,13 @@ segments:
       - [0x73BA4, o, libgs/objt2, .data]
       - [0x73CD4, o, libgpu/font, .data]
       - [0x74864, o, libgpu/sys, .data]
-      - [0x74A04, data]
+      - [0x74A04, o, libpress/libpress, .data]
+      - [0x74B54, o, libpress/vlc, .data]
+      - [0x74B84, data]
+      - [0x85B84, o, libcard/init, .data]
+      - [0x85B94, o, libapi/counter, .data]
+      - [0x85BB4, o, libapi/pad, .data]
+      - [0x85BC4, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

@@ -276,7 +276,6 @@ extern u16 D_80095766;
 extern u16 D_800957D8;
 extern u16 D_800957E0;
 
-#ifdef NON_MATCHING
 void func_80015450(TableHeader *tbl, u16 index) {
     u8 *rec;
 
@@ -292,9 +291,6 @@ void func_80015450(TableHeader *tbl, u16 index) {
     D_800957D8 = *(u16 *)(rec + 8);
     D_800957E0 = rec[6];
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
-#endif
 
 void func_800154C4(void) {
     TableHeader *hdr;

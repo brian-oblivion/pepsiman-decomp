@@ -1,4 +1,5 @@
 #include "common.h"
+#include "code_a0bc.h"
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800198BC);
 

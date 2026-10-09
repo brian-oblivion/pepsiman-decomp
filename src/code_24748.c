@@ -5,6 +5,8 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "code_a0bc.h"
+#include "code_13068.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -81,15 +83,6 @@ extern char D_80095668[]; /**< marker of the highlighted line */
 extern char D_80095670[]; /**< marker of the other lines */
 extern char D_8001175C[]; /**< format of one numbered line */
 
-/** @brief A 20-byte entry of the table handed to the sprite drawer. */
-typedef struct {
-    u8 unk0[20]; /**< not yet known */
-} Rec14;
-
-extern s32 D_80095750;     /**< index of the current entry of that table */
-extern Rec14 D_800ACEA8[]; /**< the table */
-
-void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 mode, Rec14 *rec);
 
 extern u16 D_80095A3C; /**< saved value of menu line 0 */
 extern u8 D_80095A48;  /**< saved value of menu line 1 */
@@ -126,15 +119,12 @@ void func_80036EA0(void);
 
 extern u32 D_8009585C; /**< a frame counter driving the marker's bob */
 
-void func_800230E0(VECTOR *pos, SVECTOR *out);
-void func_8001B354(u16 id, SVECTOR *pos, s32 a, s32 b, Rec14 *rec);
+void func_8001B354(u16 id, SVECTOR *pos, s32 a, s32 b, GsOT *ot);
 
 extern u8 D_80095774; /**< set while the reset below runs */
 
-void func_8002980C(void);
 void func_8002A7D8(Rec78 *rec);
 void func_80023F80(u8 *state);
-void func_80029838(void);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 

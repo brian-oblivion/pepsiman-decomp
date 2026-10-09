@@ -2,13 +2,11 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "code_a0bc.h"
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
 extern s32 D_8009EF30[];
-
-extern GsOT D_800ACEA8[];
-extern s32 D_80095750;
 
 /** @brief A 72-byte record in the slot table the free-slot search walks;
  *         only the free marker is known. */
@@ -28,7 +26,6 @@ typedef struct {
     s32 radius; /**< summed with the other body's radius */
 } Body;
 
-void func_8001A3D4(s32 id, SVECTOR *size, CVECTOR *color, s32 mode, GsOT *ot);
 void func_80028984(void);
 void func_8002985C(void);
 void func_8002988C(void);

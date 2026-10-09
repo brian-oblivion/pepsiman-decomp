@@ -101,6 +101,7 @@ extern s32 D_80095714; /**< 2 units, 2 functions */
 extern s32 D_8009571C; /**< 2 units, 2 functions */
 extern s32 D_80095720; /**< 2 units, 2 functions */
 extern u16 D_80095748; /**< 2 units, 2 functions */
+extern s32 D_80095750; /**< 2 units, 3 functions */
 extern u16 D_80095768; /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D5;  /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D6;  /**< 2 units, 3 functions; never loaded, sign unknown */
@@ -163,5 +164,11 @@ void func_80014BF0(s16 count);
 
 /** @brief Defined in code_1a098. */
 void func_800330D4(void);
+
+/** @brief Defined in code_1902c. */
+void func_8002980C(void);
+
+/** @brief Defined in code_1902c. */
+void func_80029838(void);
 
 #endif

@@ -2,6 +2,7 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "code_13068.h"
 #include "rand.h"
 
 extern u16 D_800957D2;

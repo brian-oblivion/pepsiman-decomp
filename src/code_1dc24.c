@@ -2,6 +2,7 @@
 #include "memory.h"
 #include "libapi.h"
 #include "libgte.h"
+#include "libgpu.h"
 #include "sys/file.h"
 #include "code_1a098.h"
 
@@ -40,6 +41,13 @@ extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
 extern u8 D_80095B28[];    /**< a Totals28 */
 extern char D_80011260[];  /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
 #define sTotals (*(Totals28 *)D_80095B28)
+extern char D_800955DC[]; /**< "\n\n" */
+extern char D_800954F4[]; /**< colour code of a highlighted menu line */
+extern char D_8009550C[]; /**< colour code of a plain menu line */
+extern char D_80095628[]; /**< "  YES\n" */
+extern char D_80095630[]; /**< "  NO" */
+extern char D_80095638[]; /**< "  SAVE\n" */
+extern char D_80095640[]; /**< "  LOAD\n" */
 
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
@@ -549,7 +557,25 @@ void func_80033BF8(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033C90);
+/** @brief Prints a two-line YES/NO menu, highlighting the line
+ *         the menu cursor selects. */
+void func_80033C90(void) {
+    FntPrint(D_800955DC);
+    func_80014BF0(4);
+    if (D_8009574A == 0) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095628);
+    func_80014BF0(4);
+    if (D_8009574A == 1) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095630);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033D3C);
 

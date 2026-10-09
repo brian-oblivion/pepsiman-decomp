@@ -55,14 +55,49 @@ void func_80037CF0(void);
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
+s16 func_80038890(void);
 void func_80038900(void);
+void func_80038948(void);
 void func_800390B8(void);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800373C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037440);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037700);
+s16 func_80037700(void) {
+    s16 retry;
+    s16 r;
+
+    retry = 0;
+    do {
+        func_80038900();
+        _card_info(0x10);
+        r = func_80038820();
+        switch (r) {
+            case 1: /* MATCHING: the empty case gives retail's compare tree */
+                break;
+            case 2:
+                retry++;
+                if (retry >= 11) {
+                    return 2;
+                }
+                break;
+            case 3:
+                func_80038948();
+                _card_clear(0x10);
+                func_80038890();
+                D_80095A14 = 1;
+                break;
+        }
+        func_80038900();
+        _card_load(0x10);
+        r = func_80038820();
+    } while (r == 1 || r == 2);
+    if (r == 0) {
+        return 0;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800377E8);
 

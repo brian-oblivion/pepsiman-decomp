@@ -20,7 +20,9 @@ typedef struct {
 typedef struct {
     u8 unk0[0x24]; /**< not yet known */
     s16 unk24;     /**< zeroed with unk40 */
-    u8 unk26[0xE]; /**< not yet known */
+    u8 unk26[2];   /**< not yet known */
+    s32 unk28;     /**< set from func_800183B0 */
+    u8 unk2C[8];   /**< not yet known */
     s16 unk34;     /**< -1 when reset */
     s16 unk36;     /**< -1 when reset */
     s16 unk38;     /**< -1 when fully reset */
@@ -139,6 +141,7 @@ void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
 s32 func_80028260(s32 n);
 void func_8002C4D8(void);
+s32 func_800183B0(Rec48 *r);
 s32 func_8002C650(void);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
@@ -225,7 +228,17 @@ void func_8002C47C(void) {
     func_8002C650();
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C4D8);
+/** @brief Refreshes unk28 of every live record of the 200-entry table. */
+void func_8002C4D8(void) {
+    u32 i;
+
+    /* MATCHING: indexed; a walking Rec48 pointer is biased to unk28. */
+    for (i = 0; i < 200; i++) {
+        if (sRecs48[i].unk36 != -1) {
+            sRecs48[i].unk28 = func_800183B0(&sRecs48[i]);
+        }
+    }
+}
 
 /** @brief Sets the four corners of a box `w` wide and `d` deep, centred on
  *         the origin at height 0. */
@@ -371,7 +384,20 @@ s32 func_8002D16C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D1CC);
+/** @brief Flags n, then marks with 1 every block entry whose unk6 is n.
+ *  @param n the flag to set and the value to look for
+ *  @return nothing; the value is undefined. */
+s32 func_8002D1CC(s16 n) {
+    u32 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    D_800A74D0[n] = 1;
+    for (i = 0; i < 200; i++) {
+        if (((Ent8 *)D_800959C4)[i].unk6 == n) {
+            D_800A7550[i] = 1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D230);
 

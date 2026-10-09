@@ -20,6 +20,20 @@ function's match report, not here.
   load. cc1's split of an array puts the address and the value in different
   registers (`lui $v0` / `lbu $v1`). Check every retail load before declaring.
   (func_800414EC, `u8 D_80095830`; func_80028650, `s32 D_80095864`)
+  Only when the two are ADJACENT: a `lui` in a delay slot with another load
+  before its `lw` is cc1's array split (`extern s32 D_8009EF44[];`,
+  func_800281B8).
+- **An ADDRESS built in one register, `lui $X` / `addiu $X, $X, %lo(sym)`:
+  cc1's `la` of an object of known size at most 8**, e.g. `extern s8
+  D_80095AA0[8];` or `extern CdlLOC D_80095728;`. Declared `[]`, cc1 splits
+  it over two registers. (func_8003E444, func_800175AC)
+- **A callee's prototype is a per-unit view.** A caller that stores an `s16`
+  result with no re-extension saw it as `s32`; a caller passing arguments
+  unextended saw `s32` parameters. Declare that view in the caller's `.c`
+  with a `MATCHING:` note. (func_8002CAA4, func_8002CAE4; func_80028260's
+  calls to func_8003F834)
+- **A `u8` parameter that is only ever stored with `sb` may be `s32`**; the
+  narrower type reorders the argument copies. (func_8003F834)
 - **A large global's base in a register (`lui`/`addiu`) with fields at
   `off($reg)`: the source used a struct lvalue or a local pointer.** Byte
   arithmetic on the array, `*(s16 *)(D + 0x398)`, folds the offset into
@@ -40,6 +54,13 @@ function's match report, not here.
   `andi 0xFF`. (func_800173E8)
 - **A byte store of `addiu $x, $zero, -1`: the value is `s8` -1.** A `u8` 0xFF
   gives `addiu ..., 0xFF`. (func_80033854)
+- **A byte loaded twice, `lb` then `lbu`: read once through an `(s8)` cast
+  for the test, once plainly for the value.** (func_8003F834)
+- **An 8-byte local filled with `lwl`/`lwr` from a global: a struct copy**,
+  `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (func_8003E444)
+- **A zero returned from a saved register (`addu $v0, $s2, $zero`): an `s32
+  ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
+  (func_800383F8, func_80038468, func_8003950C)
 
 ## Loops
 
@@ -57,6 +78,12 @@ function's match report, not here.
   increments are separate statements after the test**, `if (*a != *b) return
   -1; a++; b++;`. In `*a++ != *b++`, 2.8.1 schedules `b++` before the load of
   `*a`. (func_8003828C)
+- **A loop bound kept in a saved register across calls, never reloaded: the
+  source copied it to a local** before the loop (`n = pack->count;`).
+  Testing the member in the `for` reloads it every pass. (func_8001797C)
+- **The index added into the table base's register (`addu $v0, $a0, $v0`):
+  the base went into a local and was advanced**, `src = tbl; src += i;`.
+  Every indexed spelling puts the sum in the index register. (func_8002C85C)
 
 ## Control flow and frames
 
@@ -78,6 +105,15 @@ function's match report, not here.
   the unchanged path included: one assignment of a nested ternary**, `x = x <
   0 ? 0 : x > n - 1 ? n - 1 : x;`. An if/else-if clamp stores per branch.
   (func_8003708C)
+- **A constant kept in one register across basic blocks: a local**, `s32 one
+  = 1;`. Literals are rematerialised per block. A global reloaded in each arm
+  with one shared branch is two compares that `goto` one label. (func_80028448)
+- **The value in a branch's delay slot follows the early return**: `if (x >=
+  4) return -1; return 0;` gives `beqz` with -1 in the slot; the inverted form
+  gives `bnez` with 0. (func_80039618)
+- **A non-leaf frame whose locals all sit N bytes high: an unused `s32
+  unused[N/4];` declared at that point.** Locals are laid out from `sp+0x10`
+  in declaration order. (func_80023194, 8 bytes; func_800230E0, 88)
 - **`== 1`, then `slti < 2`, then `== 0` on a byte: nested `if`s on an `s32`
   copy.** A `u8` copy gives `sltu`; a `switch` on {0, 1} and an `&&` chain
   both fold to one `bnez`, so the empty-case lever above does not apply.
@@ -94,3 +130,8 @@ function's match report, not here.
 - **Independent stores to a local struct come out in source order.** Retail
   writing `val3`..`val0` of a `CdlATV` means the source assigned them in that
   order. (func_80042C14, func_80042968)
+  The same holds for a field-by-field copy into a local struct.
+  (func_8002D0F0)
+- **A constant folded onto the wrong operand: parenthesise where retail adds
+  it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
+  the `rand()` result. (func_80022F68)

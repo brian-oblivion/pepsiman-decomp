@@ -2,6 +2,7 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "rand.h"
 
 extern u16 D_800957D2;
 extern s8 D_8009599C;
@@ -63,6 +64,9 @@ extern s32 D_800957EC;
  * from the lw), so it is an array here, though both halves use one register. */
 extern s32 D_8009EF44[];
 
+/* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
+ * unextended, so its prototype takes s32. */
+s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
 void func_80042538(s32 id);
 
@@ -76,7 +80,10 @@ void func_80022F58(void) {}
 
 void func_80022F60(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022F68);
+void func_80022F68(VECTOR *pos) {
+    func_8003F834(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+                  (s16)pos->vz + (rand() % 160 - 80), 1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023020);
 

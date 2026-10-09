@@ -1,23 +1,6 @@
 #include "common.h"
 #include "libapi.h"
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800373C8);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037440);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037700);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800377E8);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003796C);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037AE4);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037C2C);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
-
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
+#include "string.h"
 
 extern u8 *D_80095A18;
 extern u8 *D_800959D4;
@@ -30,14 +13,20 @@ extern s32 D_80095A00;
 extern s32 D_80095A04;
 extern s32 D_80095A08;
 
-/** @brief A 0x18-byte record; the halfword at 0x14 is summed. */
+/** @brief A file's size in 8 KiB blocks, stored as a word, summed as a halfword. */
+typedef union {
+    s32 w;  /**< the block count as written */
+    u16 lo; /**< its low half, which the sums read */
+} BlockCount;
+
+/** @brief One memory card file found by the directory scan. */
 typedef struct {
-    u8 unk0[0x14]; /**< not yet known */
-    u16 unk14;     /**< summed over the records in use */
-    u8 unk16[2];   /**< not yet known */
+    char name[20];     /**< file name, from the directory entry */
+    BlockCount blocks; /**< size in 8 KiB blocks */
 } Rec18;
 
 extern Rec18 D_800DF858[];
+extern u16 D_800959DA;
 extern s32 D_800959DC;    /**< number of records in use */
 extern s16 D_800959D0;    /**< 11 after a failed format, 12 after a failed erase */
 extern char *D_80095A1C;  /**< name of the file last erased */
@@ -68,6 +57,51 @@ void func_800387A8(void);
 s16 func_80038820(void);
 void func_80038900(void);
 void func_800390B8(void);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800373C8);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037440);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037700);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800377E8);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003796C);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037AE4);
+
+#ifdef NON_MATCHING
+s32 func_80037C2C(void) {
+    struct DIRENTRY de;
+    Rec18 *rec;
+    s32 i;
+
+    i = 0;
+    D_800959DC = 0;
+    if (firstfile(D_800956A8, &de) == NULL) {
+        D_800959DA = 0xFFFF;
+        return 0xFFFF;
+    }
+    rec = D_800DF858;
+loop:
+    strcpy(rec->name, de.name);
+    rec->blocks.w = de.size / 8192;
+    D_800959DC++;
+    i++;
+    if (nextfile(&de) == NULL) {
+        D_800959DA = 0;
+        return 0;
+    }
+    rec = &D_800DF858[i];
+    goto loop;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037C2C);
+#endif
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
+
+INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
 
 /* MATCHING: s32, not s16: both callers test the result unextended. */
 s32 func_8003828C(u8 *a, u8 *b, s16 n) {
@@ -175,7 +209,7 @@ s16 func_800384DC(void) {
 
     D_80095A1C = "BISLPS-12345PEPTOOL";
     for (i = 0; i < D_800959DC; i++) {
-        if (func_8003828C(D_800DF858[i].unk0, (u8 *)D_80095A1C, 0x14) == 0) {
+        if (func_8003828C((u8 *)D_800DF858[i].name, (u8 *)D_80095A1C, 0x14) == 0) {
             return 0;
         }
     }
@@ -188,7 +222,7 @@ s16 func_80038574(void) {
 
     sum = 0;
     for (i = 0; i < D_800959DC; i++) {
-        sum += D_800DF858[i].unk14;
+        sum += D_800DF858[i].blocks.lo;
     }
     if (sum > 0) {
         return -1;
@@ -341,7 +375,7 @@ s16 func_80039580(void) {
 
     D_80095A1C = "BISLPS-67890PEPTOOL";
     for (i = 0; i < D_800959DC; i++) {
-        if (func_8003828C(D_800DF858[i].unk0, (u8 *)D_80095A1C, 0x14) == 0) {
+        if (func_8003828C((u8 *)D_800DF858[i].name, (u8 *)D_80095A1C, 0x14) == 0) {
             return 0;
         }
     }
@@ -354,7 +388,7 @@ s16 func_80039618(void) {
 
     sum = 0;
     for (i = 0; i < D_800959DC; i++) {
-        sum += D_800DF858[i].unk14;
+        sum += D_800DF858[i].blocks.lo;
     }
     if (sum >= 4) {
         return -1;

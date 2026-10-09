@@ -119,7 +119,19 @@ s16 func_80038394(void) {
     return result;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800383F8);
+s32 func_800383F8(void) {
+    s32 ret;
+    s16 i;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        if (format(D_800956A8) != 0) {
+            return ret;
+        }
+    }
+    D_800959D0 = 11;
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038468);
 

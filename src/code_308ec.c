@@ -1,8 +1,5 @@
 #include "common.h"
 
-extern u8 D_80095AA8;
-extern u8 D_80095AA9;
-
 void func_800400EC(void) {
     s32 i;
 

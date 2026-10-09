@@ -18,6 +18,21 @@ extern s8 D_80095AA0[8];
 extern u8 D_800956B0[];
 extern u8 D_800956B8[];
 
+/* The 0x14-byte records of common.h's NumberedSlot table, as this unit
+ * writes them. */
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    u8 unk4[8];
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    u8 unk12;
+    u8 next;
+} Slot;
+
+#define sSlots ((Slot *)D_800DFAB0)
+
 void func_80042538(s32 arg0);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
@@ -144,7 +159,26 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F488);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F664);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F834);
+s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
+    u8 prev;
+    Slot *slot;
+
+    if ((s8)D_80095AA9 < 0) {
+        return -1;
+    }
+    prev = D_80095AA8;
+    D_80095AA8 = D_80095AA9;
+    D_80095AA9 = sSlots[D_80095AA8].next;
+    sSlots[D_80095AA8].next = prev;
+    sSlots[D_80095AA8].unk12 = arg0;
+    slot = &sSlots[D_80095AA8];
+    slot->unkC = arg1;
+    slot->unkE = arg2;
+    slot->unk10 = arg3;
+    slot->unk0 = 0;
+    slot->unk2 = arg4;
+    return 0;
+}
 
 void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsCOORDINATE2 coord;

@@ -53,7 +53,10 @@ void func_80042958(u8 value) {
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042968);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800429B4);
+void func_800429B4(void) {
+    SsSeqStop(D_800E0570[0]);
+    SsSeqClose(D_800E0570[0]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800429EC);
 

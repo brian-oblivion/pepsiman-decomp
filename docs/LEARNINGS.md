@@ -34,6 +34,18 @@ function's match report, not here.
   marks a source-file seam**: maspsx applies one gp list to the whole build,
   so no C spelling closes it. Report it with the addresses; it is a
   segmentation or toolchain decision. (func_80033AB8, func_80014C58)
+  Between units this is solved: each unit gets its own gp list,
+  `config/gp/<unit>.txt` (func_80014C58, func_80018BD8). Inside one unit it
+  still needs the unit split. (func_80033AB8, func_800337E4)
+- **A word store through a pointer that keeps a later global reload below it:
+  a plain `*(s32 *)p` store, not `p->member`.** A member store is assumed not
+  to alias a fixed global, so the reload is dropped. The store-side twin of
+  func_8002D0C4's byte-pointer read. (func_800337E4)
+- **A callee result tested with no `sll`/`sra`: the callee is `s32` in this
+  unit's view**; a definition that returns only constants can simply be
+  `s32`. (func_800384DC, func_80039580)
+- **A word written with `sw` and summed elsewhere with `lhu`: a union**
+  (`{ s32 w; u16 lo; }`). (func_8003828C's table, code_27bc8)
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
@@ -65,6 +77,9 @@ function's match report, not here.
   for the test, once plainly for the value.** (func_8003F834)
 - **An 8-byte local filled with `lwl`/`lwr` from a global: a struct copy**,
   `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (func_8003E444)
+- **Four `lw` then four `sw`, both pointers bumped by 16 to an end pointer:
+  a block move**, `*(Big *)dst = *(Big *)src` with a one-member `u8 b[N]`
+  struct; also for an odd, byte-aligned size. (func_80033930, func_800385E0)
 - **A zero returned from a saved register (`addu $v0, $s2, $zero`): an `s32
   ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
   (func_800383F8, func_80038468, func_8003950C)
@@ -101,6 +116,14 @@ function's match report, not here.
   counter per loop.** A shared counter costs a saved register. `f(fmt, *p);
   p++;` keeps the format's `addiu` first; `f(fmt, *p++)` does not.
   (func_800149D0)
+- **A row offset built as `row*21` then plus the column: a flat index**,
+  `tbl[row*21 + col]`; `T t[][21]` scales the row by the row size.
+  (func_800229A8)
+- **`addu d, shift, base` (index first): an integer sum**, `(T *)(i * 8 +
+  (s32)D)`. Pointer arithmetic always puts the pointer first.
+  (func_8003A3F4, func_80026C70)
+- **A count-down `bgez` loop: write it counting down.** 2.8.1 did not
+  reverse a short `s32` count-up here. (code_29f54, round 5)
 
 ## Control flow and frames
 
@@ -132,6 +155,22 @@ function's match report, not here.
 - **Two `.sdata` strings sharing a `%hi`, each arm building its own `lui`
   before a call at the join: one call per arm**, `if (c) f(A); else f(B);`.
   A ternary or a `char *` local shares one `%hi`. (func_80037280)
+- **Success falling through to its own `jr ra`, -1 set in the first test's
+  delay slot and reused: separate guards**, `if (!A) return -1; if (!B)
+  return -1; return 0;`. (func_80033680)
+- **Case bodies are laid out in source order, not compare order.**
+  (func_80023764)
+- **`addiu -K; sltiu N`: `(u32)(x - K) < N`.** `x >= K && x < K+N` stays two
+  compares. (func_80027BEC)
+- **`beq K` / `slti K+1` / `beq K+1`: a switch with an empty `case K-1:
+  break;`.** (func_80037700)
+- **A NULL return as the last block: `if (found) { ...; return p; } return
+  NULL;`.** (func_800197E4)
+- **An `abs` that must not move a later branch target: write it inline**,
+  `(d < 0 ? -d : d) > 56`, not as a statement. (func_80023B20)
+- **A parameter copied out of its register at entry (`move a3, a1`): the
+  source duplicated the tail that uses it**; cross-jumping merged the copies.
+  (func_80019730)
 - **A constant kept in one register across basic blocks: a local**, `s32 one
   = 1;`. Literals are rematerialised per block. A global reloaded in each arm
   with one shared branch is two compares that `goto` one label. (func_80028448)
@@ -176,3 +215,13 @@ function's match report, not here.
   modified), and keep the addend literal. (func_80042058, func_80042150)
 - **Small local aggregates sit on 8-byte slots** from `sp+0x10` in
   declaration order. (func_80042B80)
+- **A fixed-point chain kept in one register: one local through compound
+  statements**, `v = (a - b) << 16; v /= n; v *= k; v /= 0x10000;`.
+  (func_80018D04)
+- **An induction expression cc1 reassociates: put the induction part in its
+  own local**, `base = i*3 + 0x40; v = base - level;`. (func_8003E360)
+- **Two addresses computed into one register in turn: one local reused**,
+  `p = a->data; G1 = (s32)p; p = b->data; G2 = (s32)p;`. (func_800373C8)
+- **A register parameter spilled where retail spills a stack one: name an
+  unrelated early subexpression** (`r = col & 0x1F;`) to flip global-alloc.
+  (func_800286B0)

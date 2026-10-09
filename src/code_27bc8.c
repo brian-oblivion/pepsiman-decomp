@@ -170,7 +170,16 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800385E0);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800386A8);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038730);
+void func_80038730(void) {
+    EnableEvent(D_800959E8);
+    EnableEvent(D_800959EC);
+    EnableEvent(D_800959F0);
+    EnableEvent(D_800959F4);
+    EnableEvent(D_800959FC);
+    EnableEvent(D_80095A00);
+    EnableEvent(D_80095A04);
+    EnableEvent(D_80095A08);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800387A8);
 

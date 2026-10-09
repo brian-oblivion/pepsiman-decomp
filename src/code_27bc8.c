@@ -18,8 +18,6 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003828C);
-
 extern u8 *D_80095A18;
 extern u8 *D_800959D4;
 extern s32 D_800959E8;
@@ -32,6 +30,19 @@ extern s32 D_80095A04;
 extern s32 D_80095A08;
 
 long TestEvent(long event);
+
+s16 func_8003828C(u8 *a, u8 *b, s16 n) {
+    s16 i;
+
+    for (i = 0; i < n; i++) {
+        if (*a != *b) {
+            return -1;
+        }
+        a++;
+        b++;
+    }
+    return 0;
+}
 
 u16 func_800382DC(void) {
     u8 *p;

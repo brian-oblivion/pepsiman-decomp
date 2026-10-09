@@ -97,7 +97,42 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800153CC);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800154C4);
+/**
+ * @brief A 10-byte header at the start of a table in initialized data,
+ *        unpacked field by field into small globals. Meanings not yet known.
+ */
+typedef struct {
+    u16 unk0; /**< not yet known */
+    u16 unk2; /**< not yet known */
+    u8 unk4;  /**< not yet known */
+    u8 unk5;  /**< not yet known */
+    u8 unk6;  /**< not yet known */
+    u8 unk7;  /**< not yet known */
+    u16 unk8; /**< not yet known */
+} TableHeader;
+
+extern TableHeader *D_80095930;
+extern u16 D_8009576C;
+extern u16 D_8009586A;
+extern u16 D_800958E6;
+extern u16 D_80095764;
+extern u16 D_80095766;
+extern u16 D_800957D8;
+extern u16 D_800957E0;
+
+void func_800154C4(void) {
+    TableHeader *hdr;
+
+    hdr = (TableHeader *)D_800734AC;
+    D_80095930 = hdr;
+    D_8009576C = 0;
+    D_8009586A = hdr->unk0;
+    D_800958E6 = hdr->unk2;
+    D_80095764 = hdr->unk5;
+    D_80095766 = hdr->unk4;
+    D_800957D8 = hdr->unk8;
+    D_800957E0 = hdr->unk6;
+}
 
 extern u8 *D_80095700;
 

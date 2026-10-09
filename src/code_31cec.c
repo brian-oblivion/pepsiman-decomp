@@ -26,6 +26,7 @@ extern s16 D_800E0570[];
 extern char D_800E0588[];
 extern s32 D_80095AB4;
 extern u8 D_80095AEE;
+extern u16 D_80095B1A;
 extern s16 D_800956C2;
 extern s16 D_80095AC8;
 
@@ -154,7 +155,18 @@ void func_800429B4(void) {
     SsSeqClose(D_800E0570[0]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800429EC);
+void func_800429EC(void) {
+    s16 *seq;
+
+    for (D_80095B1A = 2; D_80095B1A < 10; D_80095B1A++) {
+        seq = &D_800E0570[D_80095B1A];
+        if (*seq != 0) {
+            if (SsIsEos(*seq, 0) == 1) {
+                SsSeqStop(*seq);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042A88);
 

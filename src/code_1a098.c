@@ -222,12 +222,14 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BEC0);
 
 /** @brief Registers the entries of the directory loaded at a fixed address
- *         from slot 0x33 on. */
-#ifdef NON_MATCHING
-void func_8002C044(void) {
+ *         from slot 0x33 on.
+ *  @return nothing; the value is undefined. */
+s32 func_8002C044(void) {
     DirEnt16 *e;
     s32 *p;
 
+    /* MATCHING: non-void with no return orders the loop preheader; the
+     * pointer is assigned inside the store so the index loads first. */
     e = (DirEnt16 *)0x8017D708;
     D_800958CC = 0x33;
     D_800958D0 = e->count;
@@ -239,9 +241,6 @@ void func_8002C044(void) {
         sGameHead.unk1B0[D_800958CC] = D_800D81B0[D_800958CC][1];
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C044);
-#endif
 
 /** @brief Looks up the height under `p`; on success sets its current and
  *         stored y and two angles from the result.
@@ -270,7 +269,7 @@ void func_8002C188(s32 r, s16 deg, Vec3 *out) {
 
 /** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
  *         identity transform, and counts it. */
-void func_8002C20C(Model70 *m, u_long *tmd, u8 n) {
+void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
     GsInitCoordinate2(WORLD, &m->coord);
     m->obj.coord2 = &m->coord;
     /* MATCHING: the parameter is advanced in two steps; offsets from one
@@ -278,7 +277,7 @@ void func_8002C20C(Model70 *m, u_long *tmd, u8 n) {
     tmd++;
     GsMapModelingData(tmd);
     tmd += 2;
-    GsLinkObject4((u_long)tmd, &m->obj, n);
+    GsLinkObject4((unsigned long)tmd, &m->obj, n);
     m->obj.attribute = 0x200;
     m->scale.vx = 0x1000;
     m->scale.vy = 0x1000;

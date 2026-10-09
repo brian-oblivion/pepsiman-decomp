@@ -212,7 +212,19 @@ void func_8002C438(Obj2C *p) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C47C);
+/** @brief Clears every used Rec5C record, then refreshes the Rec48 table
+ *         and clears its records. */
+void func_8002C47C(void) {
+    u32 i;
+
+    for (i = 0; i < 200; i++) {
+        if (D_800CF080[i].unk0 != -1) {
+            D_800CF080[i].unk0 = 0;
+        }
+    }
+    func_8002C4D8();
+    func_8002C650();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C4D8);
 

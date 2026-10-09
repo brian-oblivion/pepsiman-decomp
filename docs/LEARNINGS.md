@@ -26,7 +26,14 @@ function's match report, not here.
 - **An ADDRESS built in one register, `lui $X` / `addiu $X, $X, %lo(sym)`:
   cc1's `la` of an object of known size at most 8**, e.g. `extern s8
   D_80095AA0[8];` or `extern CdlLOC D_80095728;`. Declared `[]`, cc1 splits
-  it over two registers. (func_8003E444, func_800175AC)
+  it over two registers. (func_8003E444, func_800175AC) This holds even for
+  a loop base the loop writes past: `extern s32 D[2];` (func_8001534C).
+- **A global every access reloads right after storing it: `volatile`**, in
+  the unit, with a `MATCHING:` note. (D_80095AD0, code_31cec)
+- **A global reached `$gp` in one stretch of a unit and `lui` in another
+  marks a source-file seam**: maspsx applies one gp list to the whole build,
+  so no C spelling closes it. Report it with the addresses; it is a
+  segmentation or toolchain decision. (func_80033AB8, func_80014C58)
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
@@ -61,6 +68,10 @@ function's match report, not here.
 - **A zero returned from a saved register (`addu $v0, $s2, $zero`): an `s32
   ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
   (func_800383F8, func_80038468, func_8003950C)
+- **`andi 0xFFFF` / `sltiu` on the counter with `sll`/`sra 16` on the index:
+  a `u16` counter indexed through `(s16)i`.** (func_8002C650)
+- **A parameter masked once in the prologue: `mode &= 1;` at the top**, not
+  at its use. (func_800153CC)
 
 ## Loops
 
@@ -84,6 +95,12 @@ function's match report, not here.
 - **The index added into the table base's register (`addu $v0, $a0, $v0`):
   the base went into a local and was advanced**, `src = tbl; src += i;`.
   Every indexed spelling puts the sum in the index register. (func_8002C85C)
+- **An element address kept in a saved register across a call: a local
+  pointer**, `seq = &tbl[i];`. (func_800429EC)
+- **Two one-pass loops whose registers pair with different variables: one
+  counter per loop.** A shared counter costs a saved register. `f(fmt, *p);
+  p++;` keeps the format's `addiu` first; `f(fmt, *p++)` does not.
+  (func_800149D0)
 
 ## Control flow and frames
 
@@ -104,7 +121,17 @@ function's match report, not here.
 - **A clamp whose one store of the global sits at a join every path reaches,
   the unchanged path included: one assignment of a nested ternary**, `x = x <
   0 ? 0 : x > n - 1 ? n - 1 : x;`. An if/else-if clamp stores per branch.
-  (func_8003708C)
+  (func_8003708C) When the value is loaded straight into the stored register
+  and the too-low block comes last, it is a local: `v = x; if (x > lo) { if
+  (x > hi) v = hi; } else v = lo; x = v;`. (func_800355D8)
+- **A call at a loop head, then `beqz` forward to a countdown that branches
+  back**: `while ((x = f()) == NULL) { if (--cnt == 0) return -1; }`.
+  Do/while lays the blocks out the other way round. (func_80041D88)
+- **A redundant `li $v0, 1` while `$v0` already holds 1: `state++`** (the
+  value known from the `switch` case), not `state = 1`. (func_80042A88)
+- **Two `.sdata` strings sharing a `%hi`, each arm building its own `lui`
+  before a call at the join: one call per arm**, `if (c) f(A); else f(B);`.
+  A ternary or a `char *` local shares one `%hi`. (func_80037280)
 - **A constant kept in one register across basic blocks: a local**, `s32 one
   = 1;`. Literals are rematerialised per block. A global reloaded in each arm
   with one shared branch is two compares that `goto` one label. (func_80028448)
@@ -126,7 +153,8 @@ function's match report, not here.
   `((s32 *)p)[1]`) lets the load rise above the stores. Once the load is in
   place, the order of the global stores decides the rest. Why the second form
   rises is not understood; treat the alias explanation as a hypothesis.
-  (func_8002D0C4)
+  (func_8002D0C4) Confirmed: member reads through a pointer rise above
+  stores to fixed scalar globals; byte-pointer reads stay. (func_80015450)
 - **Independent stores to a local struct come out in source order.** Retail
   writing `val3`..`val0` of a `CdlATV` means the source assigned them in that
   order. (func_80042C14, func_80042968)
@@ -134,4 +162,17 @@ function's match report, not here.
   (func_8002D0F0)
 - **A constant folded onto the wrong operand: parenthesise where retail adds
   it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
-  the `rand()` result. (func_80022F68)
+  the `rand()` result. (func_80022F68) If cc1 still moves it, give it its own
+  statement: `bob = (...) - 200; y = pos->vy + bob;`. (func_80033F48)
+- **Operand order sets load order.** `a <= b` and `a - b` load `a` first; a
+  `subu` whose subtrahend loads first was `-b + a`. (func_800281B8,
+  func_80036478)
+- **Chained assignment stores right to left**: `a.x = a.y = v` stores `y`
+  first. (func_8002964C, func_80036AB8)
+- **A store into a stack slot that held an earlier value: the source reused
+  that local.** A fresh local loses the store. (func_8002971C)
+- **One literal address in two registers (`lui`/`ori` twice): load through a
+  pointer local CSE has lost track of** (set before the loop label, or
+  modified), and keep the addend literal. (func_80042058, func_80042150)
+- **Small local aggregates sit on 8-byte slots** from `sp+0x10` in
+  declaration order. (func_80042B80)

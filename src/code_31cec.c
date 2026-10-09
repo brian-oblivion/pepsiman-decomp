@@ -3,6 +3,7 @@
 #include "libcd.h"
 #include "libetc.h"
 #include "libpress.h"
+#include "stdio.h"
 #include "libgte.h"
 #include "libgpu.h"
 
@@ -95,7 +96,19 @@ s32 func_80041D88(DECENV *dec) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041E20);
+void func_80041E20(DECENV *dec) {
+    D_80095AD0 = 0x800000;
+    while (dec->isdone == 0) {
+        if (--D_80095AD0 == 0) {
+            printf("time out in decoding !\n");
+            dec->isdone = 1;
+            dec->rectid = dec->rectid == 0;
+            dec->slice.x = dec->rect[dec->rectid].x;
+            dec->slice.y = dec->rect[dec->rectid].y;
+        }
+    }
+    dec->isdone = 0;
+}
 
 void func_80041EE0(CdlLOC *loc) {
     do {

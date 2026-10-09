@@ -152,7 +152,6 @@ void func_80040998(void);
 void func_800412DC(void);
 void func_80041118(u8 arg0);
 
-extern u8 *D_800E48D0; /**< the next free byte of the primitive buffer */
 
 /** @brief The saved state a stage can resume from. */
 typedef struct {

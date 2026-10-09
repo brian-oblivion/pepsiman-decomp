@@ -595,7 +595,18 @@ void func_80033878(Rec5C *recs) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338A0);
+/** @brief Resets all 200 records of a Rec48 table. */
+void func_800338A0(Rec48 *recs) {
+    u32 i;
+
+    for (i = 0; i < 200; i++) {
+        recs->unk36 = -1;
+        recs->unk38 = -1;
+        recs->unk34 = -1;
+        recs->unk41 = 1;
+        recs++;
+    }
+}
 
 /** @brief Resets records 150 to 199 of a 200-entry Rec48 table. */
 void func_800338D8(Rec48 *recs) {

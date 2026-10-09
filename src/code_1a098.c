@@ -13,6 +13,16 @@ typedef struct {
     u8 unk2[0x3A]; /**< not yet known */
 } Rec3C;
 
+/** @brief A 0x48-byte record of a 200-entry table; three fields known. */
+typedef struct {
+    u8 unk0[0x34]; /**< not yet known */
+    s16 unk34;     /**< -1 when reset */
+    s16 unk36;     /**< -1 when reset */
+    u8 unk38[9];   /**< not yet known */
+    u8 unk41;      /**< 1 when reset */
+    u8 unk42[6];   /**< not yet known */
+} Rec48;
+
 /** @brief The header of a block whose second part starts at a byte offset
  *         the header gives. */
 typedef struct {
@@ -475,7 +485,19 @@ void func_80033878(Rec5C *recs) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338A0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338D8);
+/** @brief Resets records 150 to 199 of a 200-entry Rec48 table. */
+void func_800338D8(Rec48 *recs) {
+    u32 i;
+    Rec48 *r;
+
+    r = &recs[150];
+    for (i = 150; i < 200; i++) {
+        r->unk36 = -1;
+        r->unk34 = -1;
+        r->unk41 = 1;
+        r++;
+    }
+}
 
 /** @brief Sets the halfword at 0 of all 100 records of a Rec3C table to -1. */
 void func_8003390C(Rec3C *recs) {

@@ -112,6 +112,11 @@ typedef struct {
     u16 unk26;     /**< a sum over the current block's entries */
 } Totals28;
 
+/** @brief 64 KiB of the tool buffer, copied whole. */
+typedef struct {
+    u8 b[0x10000]; /**< not yet known */
+} Page64K;
+
 extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;      /**< the BlockHeader's second part */
 extern s32 D_800959C8;      /**< the BlockHeader's first word */
@@ -143,6 +148,8 @@ s32 func_80028260(s32 n);
 void func_8002C4D8(void);
 s32 func_800183B0(Rec48 *r);
 s32 func_8002C650(void);
+void func_80032964(s32 a, u8 *buf);
+void func_80032C28(s32 a, u8 *buf);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -764,7 +771,12 @@ void func_8003390C(Rec3C *recs) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033930);
+/** @brief Runs a step on the tool buffer, then copies its first 64 KiB to
+ *         the next 64 KiB. */
+void func_80033930(void) {
+    func_80032964(0, (u8 *)0x8016D000);
+    *(Page64K *)0x8017D000 = *(Page64K *)0x8016D000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003399C);
 

@@ -46,7 +46,12 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041D88);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041E20);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041EE0);
+void func_80041EE0(CdlLOC *loc) {
+    do {
+        while (CdControl(CdlSetloc, (u_char *)loc, 0) == 0) {
+        }
+    } while (CdRead2(CdlModeStream | CdlModeSpeed | CdlModeRT) == 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041F28);
 

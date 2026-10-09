@@ -27,7 +27,6 @@ void func_80041F28(s16 arg0);
 extern s16 D_800E0570[];
 extern char D_800E0588[];
 extern s32 D_80095AB4;
-extern u8 D_80095AEE;
 extern u16 D_80095B1A;
 extern s32 D_8009579C;
 extern s16 D_80095B14;

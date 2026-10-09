@@ -128,6 +128,8 @@ extern u8 D_800958EC;  /**< 2 units, 4 functions; never loaded, sign unknown */
 extern s32 D_800958CC; /**< 2 units, 2 functions; a loop counter kept in a global */
 extern s32 D_800959B4; /**< 2 units, 2 functions */
 extern s32 D_800959B8; /**< 2 units, 2 functions */
+extern u8 D_800958C9;  /**< 1 while CD audio is playing; 2 units */
+extern u8 D_80095AEE;  /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
 extern s16 D_800959E0; /**< 2 units, 2 functions */
 extern u16 D_800959E4; /**< 2 units, 4 functions */
 extern s16 D_80095A0C; /**< 2 units, 4 functions */
@@ -212,6 +214,15 @@ void func_80018094(void);
 /** @brief Defined in main.
  *  @param count how many times it prints its fixed string */
 void func_80014BF0(s16 count);
+
+/** @brief Defined in code_7d74; issues one CD command.
+ *  @param com the CdlXXX command
+ *  @return always 0 */
+s32 func_800175AC(u8 com);
+
+/** @brief Defined in code_7d74; the CD ready callback main installs.
+ *  @param mode the interrupt status */
+void func_80017614(u8 mode);
 
 /** @brief Defined in code_a0bc: fills one 8-byte record of a sprite table.
  *  @param id    which record

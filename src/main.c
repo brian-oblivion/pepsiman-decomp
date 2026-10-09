@@ -381,6 +381,44 @@ void func_800173E8(Stepper *obj) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80017440);
+extern CdlLOC D_80095FE0[];
+extern s32 D_80095710;
+extern s32 D_80095718;
+/* MATCHING: a known small size, so the byte store is `$gp`-relative. */
+extern u8 D_80095AC0[4];
+
+void func_80017440(s32 track, s32 arg) {
+    CdlATV atv;
+
+    if (D_800958C9 == 1) {
+        func_80017574();
+    }
+    if (D_80095AEE) {
+        atv.val2 = 0x50;
+        atv.val0 = 0x50;
+        atv.val3 = 0;
+        atv.val1 = 0;
+    } else {
+        atv.val2 = 0x50;
+        atv.val0 = 0x50;
+        atv.val3 = 0x50;
+        atv.val1 = 0x50;
+    }
+    CdMix(&atv);
+    D_80095718 = arg;
+    CdGetToc(D_80095FE0);
+    D_80095720 = CdPosToInt(&D_80095FE0[track]);
+    D_80095710 = CdPosToInt(&D_80095FE0[track + 1]) - 20;
+    D_8009571C = 0;
+    D_80095714 = D_80095720;
+    SsSetSerialAttr(0, 0, 1);
+    SsSetSerialVol(0, 0x72, 0x72);
+    D_80095AC0[0] = 3;
+    CdControlB(CdlSetmode, D_80095AC0, 0);
+    VSync(3);
+    CdReadyCallback((CdlCB)func_80017614);
+    func_800175AC(CdlPlay);
+    D_800958C9 = 1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010404);

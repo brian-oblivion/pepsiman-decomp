@@ -13,6 +13,18 @@ typedef struct {
     u8 unk2[0x3A]; /**< not yet known */
 } Rec3C;
 
+/** @brief The header of a block whose second part starts at a byte offset
+ *         the header gives. */
+typedef struct {
+    s32 unk0;   /**< not yet known; kept in a global */
+    s32 offset; /**< byte offset of the second part from the header */
+} BlockHeader;
+
+extern u8 *D_800959C0; /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4; /**< the BlockHeader's second part */
+extern s32 D_800959C8; /**< the BlockHeader's first word */
+extern u16 D_800958E8; /**< zeroed with the block; never loaded here */
+
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
@@ -107,7 +119,15 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CC24);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CCEC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D0C4);
+/** @brief Points the current-block globals at the block `hdr` heads. */
+void func_8002D0C4(BlockHeader *hdr) {
+    D_800959C0 = (u8 *)hdr + 8;
+    D_800959C8 = hdr->unk0;
+    /* MATCHING: offset read through a byte pointer, not hdr->offset: the
+     * member access lets the load rise above the D_800959C8 store. */
+    D_800959C4 = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
+    D_800958E8 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D0F0);
 

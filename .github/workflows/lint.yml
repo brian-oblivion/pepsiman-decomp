@@ -56,7 +56,9 @@ jobs:
       # Doxyfile warns on undocumented members and parameters; any warning fails.
       - name: Doxygen
         run: |
-          mkdir -p build/doxygen
+          # Doxyfile EXCLUDEs include/psyq; without Sony's headers it does not
+          # exist, and Doxygen 1.9 warns about a missing excluded path.
+          mkdir -p build/doxygen include/psyq
           doxygen Doxyfile >/dev/null
           if [ -s build/doxygen/warnings.log ]; then
             cat build/doxygen/warnings.log

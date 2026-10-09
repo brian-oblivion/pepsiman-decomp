@@ -117,6 +117,16 @@ typedef struct {
     u8 b[0x10000]; /**< not yet known */
 } Page64K;
 
+/** @brief A 0xB774-byte slot of the tool buffer; a tag byte and an owner
+ *         byte known. */
+typedef struct {
+    u8 unk0[0x200];    /**< not yet known */
+    u8 unk200;         /**< 0x38 when the slot is valid */
+    u8 unk201;         /**< not yet known */
+    u8 unk202;         /**< the owner; compared with a global */
+    u8 unk203[0xB571]; /**< not yet known */
+} SaveSlot;
+
 extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;      /**< the BlockHeader's second part */
 extern s32 D_800959C8;      /**< the BlockHeader's first word */
@@ -698,7 +708,23 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003356C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800335E8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033680);
+/** @brief Checks that save slot `i` of the tool buffer is valid and
+ *         belongs to the current owner.
+ *  @return 0 when it does, -1 when not. */
+s32 func_80033680(s16 i) {
+    SaveSlot *slot;
+
+    slot = &((SaveSlot *)0x8016D000)[i];
+    /* MATCHING: two guards, each returning -1; an && test lays the success
+     * path out as the branch target. */
+    if (slot->unk200 != 0x38) {
+        return -1;
+    }
+    if (slot->unk202 != D_80095830) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800336F8);
 

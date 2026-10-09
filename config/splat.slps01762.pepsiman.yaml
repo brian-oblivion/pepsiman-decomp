@@ -68,7 +68,8 @@ segments:
       - [0x29BC, o, libsnd/seqinit, .rdata]
       - [0x29FC, o, libspu/s_sca, .rdata]
       - [0x2A3C, o, libsnd/sstick, .rdata]
-      - [0x2A5C, rodata]
+      - [0x2A5C, o, libspu/s_sva, .rdata]
+      - [0x2A9C, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -162,7 +163,30 @@ segments:
       - [0x3A394, o, libsnd/ut_rdep]          # SsUtSetReverbDepth
       - [0x3A424, o, libsnd/ut_rev]           # SsUtSetReverbType, SsUtGetReverbType
       - [0x3A4D4, o, libspu/s_sr]             # SpuSetReverb
-      - [0x3A5A4, asm, psyq_3A5A4]
+      - [0x3A5A4, o, libsnd/ut_rfb]           # SsUtSetReverbFeedback
+      - [0x3A5E4, o, libsnd/ut_roff]          # SsUtReverbOff
+      - [0x3A604, o, libsnd/ut_ron]           # SsUtReverbOn
+      - [0x3A624, o, libsnd/ut_sva]           # SsUtSetVagAtr
+      - [0x3A7F4, o, libsnd/vm_doff]          # _SsVmDamperOff
+      - [0x3A804, o, libsnd/vm_don]           # _SsVmDamperOn
+      - [0x3A814, o, libsnd/vm_f]             # _SsVmFlush
+      - [0x3ACA4, o, libspu/s_snv]            # SpuSetNoiseVoice
+      - [0x3ACD4, o, libspu/s_sav]            # _SpuSetAnyVoice
+      - [0x3AF94, o, libspu/s_srv]            # SpuSetReverbVoice
+      - [0x3AFC4, o, libspu/s_sk]             # SpuSetKey
+      - [0x3B184, o, libspu/s_sva]            # SpuSetVoiceAttr
+      - [0x3B784, o, libspu/s_n2p]            # _spu_note2pitch, _spu_pitch2note
+      - [0x3B984, o, libspu/s_gvex]           # SpuGetVoiceEnvelope
+      - [0x3B9A4, o, libsnd/vm_init]          # _SsVmInit
+      - [0x3BCF4, o, libspu/s_m_init]         # SpuInitMalloc
+      - [0x3BD54, o, libspu/s_it]             # _spu_setInTransfer, _spu_getInTransfer
+      - [0x3BD94, o, libsnd/vm_key]           # _SsVmKeyOn, _SsVmKeyOff, _SsVmSeKeyOn, _SsVmSeKeyOff, KeyO
+      - [0x3C544, o, libsnd/vm_aloc1]         # _SsVmAlloc
+      - [0x3C7B4, o, libsnd/vm_aloc2]         # _SsVmDoAllocate
+      - [0x3C984, o, libsnd/vm_n2p]           # note2pitch, SsPitchFromNote, note2pitch2
+      - [0x3CB64, o, libsnd/vm_no1]           # vmNoiseOn
+      - [0x3D0D4, o, libspu/s_snc]            # SpuSetNoiseClock
+      - [0x3D124, asm, psyq_3D124]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -171,6 +195,9 @@ segments:
       - [0x6C54C, data]
       - [0x6C98C, o, libsnd/ssstart, .data]
       - [0x6C9AC, data]
+      - [0x6CC5C, o, libspu/s_n2p, .data]
+      - [0x6CD7C, o, libsnd/vm_n2p, .data]
+      - [0x6CE9C, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

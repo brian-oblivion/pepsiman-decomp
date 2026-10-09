@@ -10,6 +10,8 @@ SECTIONS {
     .psyq_bss.libsnd_ssinit_bss 0x800E0CD8 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/ssinit.o(.bss) }   /* 0x92C bytes; first symbol _SsMarkCallback */
     .psyq_bss.libspu_spu_bss 0x800E14E0 (NOLOAD) : SUBALIGN(2) { build/lib/libspu/spu.o(.bss) }   /* 0x14 bytes; first symbol _spu_RQ */
     .psyq_bss.libspu_s_sca_bss 0x80100000 (NOLOAD) : SUBALIGN(2) { build/lib/libspu/s_sca.o(.bss) }   /* 0x4 bytes; unreferenced; spare NOLOAD area */
+    .psyq_bss.libsnd_vm_f_bss 0x800E14C8 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/vm_f.o(.bss) }   /* 0x738 bytes; section-relative refs */
+    .psyq_bss.libsnd_vm_init_bss 0x800E1E00 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/vm_init.o(.bss) }   /* 0x110 bytes; section-relative refs */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -20,24 +22,33 @@ _SsMarkCallback = 0x800E0CD8;   /* libsnd/ssinit */
 _snd_seq_s_max = 0x800E14D8;   /* libsnd/ssinit */
 _snd_seq_t_max = 0x800E14DA;   /* libsnd/ssinit */
 _spu_RQ = 0x800E14E0;   /* libspu/spu */
+_svm_okon1 = 0x800E1500;   /* libsnd/vm_f */
+_svm_okon2 = 0x800E1502;   /* libsnd/vm_f */
+_svm_orev1 = 0x800E1504;   /* libsnd/vm_f */
+_svm_orev2 = 0x800E1506;   /* libsnd/vm_f */
+_svm_onos1 = 0x800E1508;   /* libsnd/vm_f */
+_svm_onos2 = 0x800E150A;   /* libsnd/vm_f */
+_svm_voice = 0x800E1510;   /* libsnd/vm_f */
+_svm_sreg_dirty = 0x800E1A50;   /* libsnd/vm_f */
+_autopan = 0x800E1A68;   /* libsnd/vm_f */
+_svm_sreg_buf = 0x800E1A70;   /* libsnd/vm_f */
+_autovol = 0x800E1BF0;   /* libsnd/vm_f */
+_svm_envx_ptr = 0x800E1BF4;   /* libsnd/vm_f */
+_svm_envx_hist = 0x800E1BF8;   /* libsnd/vm_f */
+_svm_okof1 = 0x800E1C38;   /* libsnd/vm_f */
+_svm_okof2 = 0x800E1C3A;   /* libsnd/vm_f */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
-SsUtSetReverbFeedback = 0x80049DA4;
-SsUtReverbOff = 0x80049DE4;
-SsUtReverbOn = 0x80049E04;
-SsUtSetVagAtr = 0x80049E24;
-_SsVmDamperOff = 0x80049FF4;
-_SsVmDamperOn = 0x8004A004;
-_SsVmFlush = 0x8004A014;
-_SsVmInit = 0x8004B1A4;
-_SsVmKeyOn = 0x8004B594;
-_SsVmKeyOff = 0x8004BAB0;
+vmNoiseOff = 0x8004C924;
+_SsVmKeyOffNow = 0x8004C964;
+_SsVmKeyOnNow = 0x8004CA24;
 _SsVmPitchBend = 0x8004D0E0;
 _SsVmSetProgVol = 0x8004D1C4;
 _SsVmSetSeqVol = 0x8004D344;
 _SsVmGetSeqVol = 0x8004D8B0;
 _SsVmSeqKeyOff = 0x8004D9A4;
+_SsVmSelectToneAndVag = 0x8004DA54;
 _SsVmSetVol = 0x8004DB24;
 _SsVmVSetUp = 0x8004E0C4;
 ResetCallback = 0x8004F244;
@@ -61,7 +72,15 @@ _spu_zerobuf = 0x8007BD5C;
 _spu_rev_startaddr = 0x8007C15C;
 _spu_rev_param = 0x8007C1AC;
 _svm_rattr = 0x800E1C40;
+_svm_damper = 0x800E1CD8;
+_svm_stereo_mono = 0x800E1D20;
+kMaxPrograms = 0x800E1D22;
 _svm_pg = 0x800E1D24;
+_svm_vh = 0x800E1D2C;
 _svm_tn = 0x800E1D30;
+_SsVmMaxVoice = 0x800E1D34;
+_svm_vab_not_send_size = 0x800E1D38;
 _svm_cur = 0x800E1D40;
 _svm_vab_used = 0x800E1D60;
+_svm_auto_kof_mode = 0x800E1D70;
+_svm_vab_count = 0x800E1DB8;

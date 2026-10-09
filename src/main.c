@@ -1,6 +1,7 @@
 #include "common.h"
 #include "libgte.h"
 #include "libgpu.h"
+#include "libpad.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -80,7 +81,19 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800154C4);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8001552C);
+extern u8 *D_80095700;
+
+void func_8001552C(u8 *a, u8 *b) {
+    s32 i;
+
+    D_80095700 = a;
+    D_80095704 = b;
+    for (i = 0; i < 32; i++) {
+        D_80095704[i] = 0;
+    }
+    PadInitDirect(D_80095700, D_80095700 + 0x22);
+    PadStartCom();
+}
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
 

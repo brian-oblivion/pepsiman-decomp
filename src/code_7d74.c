@@ -30,8 +30,12 @@ extern CdlLOC D_80095728;
 void func_80017774(void *data);
 s32 func_800175AC(u8 com);
 
-
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017574);
+void func_80017574(void) {
+    if (D_800958C9 != 0) {
+        CdControlF(CdlPause, 0);
+        D_800958C9 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800175AC);
 

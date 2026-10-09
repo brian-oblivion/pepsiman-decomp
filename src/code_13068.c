@@ -94,6 +94,7 @@ extern s32 D_8009EEF8[];
 void func_80023834(u8 mode, u16 a, u16 b);
 void func_80023B20(void);
 void func_80028650(void);
+void func_80028500(void);
 
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
@@ -286,7 +287,44 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026548);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_8002670C);
+/* MATCHING: non-void with no return keeps li 0x71 first in the call block. */
+s32 func_8002670C(void) {
+    s32 btn;
+
+    if (sGame.unk0 != 0) {
+        switch ((s8)sGame.unk38E) {
+            case 0:
+                sGame.unk38E = 0;
+                sGame.unk38C = 0;
+                if ((u32)(sGame.unk6 - 2) < 3 && sGame.unk34C >= sGame.unk3C0 && (D_800957EC & 0x40)) {
+                    btn = D_80095964;
+                    if (btn & 0x4000) {
+                        sGame.unk38E = 1;
+                        sGame.unk38C = 0;
+                        sGame.unk5 = 0x3B;
+                    }
+                    if (btn & 0x1000) {
+                        if ((u32)((u16)sGame.unk3A8 - 0x26) < 5) {
+                            sGame.unk38E = 2;
+                            sGame.unk5 = 0x39;
+                            func_80042538(0x71);
+                            sGame.unk38C = 0;
+                        }
+                    }
+                }
+                break;
+            case 1:
+                func_80028500();
+                break;
+            case 2:
+                if (sGame.unk5 == 0) {
+                    sGame.unk38E = 0;
+                    sGame.unk38C = 0;
+                }
+                break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026848);
 

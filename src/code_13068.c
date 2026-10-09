@@ -23,7 +23,10 @@ typedef struct {
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
     s32 unk350; /**< pushed back along the cosine of an angle */
-    u8 pad354[0x38E - 0x354];
+    u8 pad354[0x380 - 0x354];
+    s32 unk380; /**< an angle that follows the camera's yaw in bounded steps */
+    s32 unk384; /**< decays towards 0 by one a step */
+    u8 pad388[0x38E - 0x388];
     u8 unk38E;  /**< cleared on a reset */
     u8 unk38F;  /**< 1 also gates a check on unk398 */
     s16 unk390; /**< set to 2 together with clearing unk398 */
@@ -78,6 +81,7 @@ extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
 
 extern u8 D_80095784;
+extern s16 D_800957BC;
 extern s32 D_8009EEF8[];
 
 void func_80023834(u8 mode, u16 a, u16 b);
@@ -207,7 +211,40 @@ void func_80023764(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023834);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023B20);
+/* MATCHING: the inline ternary abs (not an if on d) lets the first +56 test reuse the
+ * loaded value when it skips the store. */
+void func_80023B20(void) {
+    u16 i;
+    s32 yaw;
+    s32 d;
+
+    for (i = 0; i < 3; i++) {
+        if (sGame.unk384 < 0) {
+            sGame.unk384++;
+        }
+        if (sGame.unk384 > 0) {
+            sGame.unk384--;
+        }
+        yaw = D_800A7680->vy;
+        d = sGame.unk380 - yaw;
+        if ((d < 0 ? -d : d) > 56) {
+            if (sGame.unk380 < yaw) {
+                sGame.unk380 += 56;
+            }
+            if (sGame.unk380 > yaw) {
+                sGame.unk380 -= 56;
+            }
+        } else {
+            if (sGame.unk380 < yaw) {
+                sGame.unk380 += 11;
+            }
+            if (sGame.unk380 > yaw) {
+                sGame.unk380 -= 11;
+            }
+        }
+        D_800957BC = sGame.unk380;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023BFC);
 

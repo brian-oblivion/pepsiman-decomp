@@ -410,7 +410,31 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800160E8);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80016D14);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80016FC0);
+void func_800160E8(void);
+
+extern s32 D_80095980;
+
+void func_80016FC0(void) {
+    SVECTOR pos;
+
+    pos.vx = 0x70;
+    pos.vy = 0x48;
+    func_8001B354(D_8009585C % 10 + 0xFB, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = -0xA0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_800160E8();
+    if (D_800958A6 == 100) {
+        D_80095760 = 4;
+        D_80095980 = 0;
+        D_800958A6 = 0;
+        D_80095880 = 14;
+        func_80014C58(D_80095830);
+    }
+}
 
 void func_80015CC8(void);
 

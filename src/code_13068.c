@@ -60,8 +60,8 @@ extern u8 D_800D8960[];
 extern s16 D_800D38DE[];
 extern s8 D_8009EF4D[];
 
-extern s32 D_800958A8;
 extern s32 D_800958AC;
+/* MATCHING: code_308ec views this as a rotation and a position. */
 extern SVECTOR D_800A7680[];
 extern s32 D_80095964;
 extern s32 D_800957EC;
@@ -92,7 +92,6 @@ typedef struct {
 
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)D_800DD070)
-extern s16 D_800957BC;
 extern s32 D_8009EEF8[];
 
 void func_80023834(u8 mode, u16 a, u16 b);

@@ -7,8 +7,35 @@
  * variable is pinned to its retail address (a script assignment overrides the
  * object's own definition). NOLOAD: none of this is in the executable image. */
 SECTIONS {
+    .psyq_bss.libsnd_ssinit_bss 0x800E0CD8 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/ssinit.o(.bss) }   /* 0x92C bytes; first symbol _SsMarkCallback */
+    .psyq_bss.libspu_spu_bss 0x800E14E0 (NOLOAD) : SUBALIGN(2) { build/lib/libspu/spu.o(.bss) }   /* 0x14 bytes; first symbol _spu_RQ */
 }
+SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
+_snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
+_snd_openflag = 0x800E0C50;   /* libsnd/ssinit */
+VBLANK_MINUS = 0x800E0C54;   /* libsnd/ssinit */
+_ss_score = 0x800E0C58;   /* libsnd/ssinit */
+_SsMarkCallback = 0x800E0CD8;   /* libsnd/ssinit */
+_snd_seq_s_max = 0x800E14D8;   /* libsnd/ssinit */
+_snd_seq_t_max = 0x800E14DA;   /* libsnd/ssinit */
+_spu_RQ = 0x800E14E0;   /* libspu/spu */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
+_SsVmInit = 0x8004B1A4;
+_SsVmSetSeqVol = 0x8004D344;
+_SsVmSeqKeyOff = 0x8004D9A4;
+ResetCallback = 0x8004F244;
+DMACallback = 0x8004F2A4;
+printf = 0x8006C204;
 DeliverEvent = 0x8006C2C4;
+OpenEvent = 0x8006C2D4;
+WaitEvent = 0x8006C2F4;
+EnableEvent = 0x8006C314;
+EnterCriticalSection = 0x8006C364;
+ExitCriticalSection = 0x8006C374;
+_spu_AllocBlockNum = 0x8007BD4C;
+_spu_AllocLastNum = 0x8007BD50;
+_spu_memList = 0x8007BD54;
+_spu_zerobuf = 0x8007BD5C;
+_spu_rev_startaddr = 0x8007C15C;

@@ -63,6 +63,8 @@ segments:
     align: 4
     subsegments:
       - [0x800, .rodata, main]
+      - [0x293C, o, libspu/spu, .rdata]
+      - [0x298C, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -76,10 +78,22 @@ segments:
       - [0x337D4, o, libmath/muldf3]          # __muldf3, _mul_mant_d
       - [0x33BD4, o, libmath/addmant]         # _add_mant_d
       - [0x33C84, o, libmath/ferr]            # _err_math
-      - [0x33CF4, asm, psyq_33CF4]
+      - [0x33CF4, o, libsnd/ssclose]          # SsSeqClose, SsSepClose
+      - [0x33EC4, o, libsnd/ssinit]           # _SsInit
+      - [0x33F64, o, libsnd/ssinit_c]         # SsInit
+      - [0x33FA4, o, libspu/s_i]              # SpuInit
+      - [0x33FC4, o, libspu/s_ini]            # _SpuInit, SpuStart
+      - [0x34124, o, libspu/spu]              # _spu_init, _spu_Fw1ts, _spu_FiDMA, _spu_Fr_, _spu_t, _spu_
+      - [0x34C64, o, libspu/s_dcb]            # _SpuDataCallback
+      - [0x34C94, o, libspu/s_crwa]           # SpuClearReverbWorkArea
+      - [0x34E34, o, libspu/s_m_util]         # _SpuIsInAllocateArea, _SpuIsInAllocateArea_
+      - [0x34F44, asm, psyq_34F44]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
-      - [0x6C43C, data]
+      - [0x6C43C, o, libsnd/ssinit, .data]
+      - [0x6C46C, o, libspu/s_ini, .data]
+      - [0x6C4EC, o, libspu/spu, .data]
+      - [0x6C54C, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

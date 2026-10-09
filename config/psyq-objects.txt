@@ -17,3 +17,12 @@
 4.4  libmath/muldf3    0x337D4
 4.4  libmath/addmant   0x33BD4
 4.4  libmath/ferr      0x33C84
+4.4  libsnd/ssclose     0x33CF4
+4.4  libsnd/ssinit      0x33EC4
+4.4  libsnd/ssinit_c    0x33F64
+4.4  libspu/s_i         0x33FA4
+4.4  libspu/s_ini       0x33FC4
+4.4  libspu/spu         0x34124
+4.4  libspu/s_dcb       0x34C64
+4.4  libspu/s_crwa      0x34C94
+4.4  libspu/s_m_util    0x34E34

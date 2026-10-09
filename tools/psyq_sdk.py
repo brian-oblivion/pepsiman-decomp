@@ -125,6 +125,12 @@ RESOLVED = {
     # s_r and s_w share a span; s_r's call to _spu_Fr lands 0x84 bytes away
     # from where libspu/spu defines it, so the object there is s_w.
     "libspu/s_w": 0x3F664,
+    # Identical bytes under two names and no placed caller: provisional,
+    # names only (the image is the same either way); game code's calls decide.
+    "libgs/gs_111": 0x48984,        # GsDrawOt, not gs_112 GsDrawOtIO
+    "libgs/gs_131": 0x48E64,        # GsSetRefView2, not libhmd/rvwunit: nothing
+    "libgs/gs_137": 0x49DB4,        # else of libhmd places; libgs's GsSortObject4 does
+    "libcard/c112": 0x5C574,        # _bu_init, among libcard's objects; libapi has a copy
 }
 
 

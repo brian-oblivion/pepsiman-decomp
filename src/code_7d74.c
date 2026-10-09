@@ -1,4 +1,35 @@
 #include "common.h"
+#include "rand.h"
+#include "libgte.h"
+#include "libgpu.h"
+#include "libgs.h"
+#include "libcd.h"
+
+typedef struct {
+    s32 offset;
+    u8 unk4[0xA];
+    u16 count;
+} PackEntry;
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} Slot;
+
+typedef struct {
+    Slot *slots;
+    s32 count;
+    s32 capacity;
+} SlotList;
+
+extern u8 D_800958C9;
+extern CdlLOC D_80095728;
+
+void func_80017774(void *data);
+s32 func_800175AC(u8 com);
+
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017574);
 
@@ -16,7 +47,9 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001797C);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800179F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017B18);
+s32 func_80017B18(void) {
+    return rand();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017B38);
 

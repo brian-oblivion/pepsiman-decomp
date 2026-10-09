@@ -150,4 +150,8 @@ extern s32 D_800DD070[]; /**< 3 units, 4 functions */
  *  @param id what to start, by number */
 void func_80042538(s32 id);
 
+/** @brief Defined in main.
+ *  @param count how many times it prints its fixed string */
+void func_80014BF0(s16 count);
+
 #endif

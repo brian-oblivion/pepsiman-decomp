@@ -2,6 +2,8 @@
 #include "memory.h"
 #include "libapi.h"
 #include "sys/file.h"
+#include "libgte.h"
+#include "libgpu.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -71,6 +73,12 @@ extern s16 D_80095A56;   /**< set to 100 on entering state 1 */
 
 void func_80034BCC(void);
 void func_8002A98C(Obj48 *obj, u8 *p, s32 a, s32 b);
+
+extern s16 D_8009574A;    /**< the highlighted line of a three-line menu */
+extern char D_800956A4[]; /**< the menu's title */
+extern char D_80095668[]; /**< marker of the highlighted line */
+extern char D_80095670[]; /**< marker of the other lines */
+extern char D_8001175C[]; /**< format of one numbered line */
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
@@ -275,7 +283,20 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037114);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800371A0);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037280);
+void func_80037280(void) {
+    s16 i;
+
+    FntPrint(D_800956A4);
+    for (i = 0; i < 3; i++) {
+        func_80014BF0(4);
+        if (D_8009574A == i) {
+            FntPrint(D_80095668);
+        } else {
+            FntPrint(D_80095670);
+        }
+        FntPrint(D_8001175C, i + 1);
+    }
+}
 
 s32 func_80037318(void) {
     s32 fd;

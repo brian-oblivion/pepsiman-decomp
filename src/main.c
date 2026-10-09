@@ -331,7 +331,28 @@ void func_80015754(char *name, void *buf) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800157DC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015A28);
+extern u16 D_800958A6;
+
+void func_80015A28(void) {
+    SVECTOR pos;
+    RECT rect;
+
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    D_800958A6 = 0;
+    D_80095880 = 0x2A;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80015B78);
 
@@ -344,8 +365,6 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80016D14);
 INCLUDE_ASM("asm/nonmatchings/main", func_80016FC0);
 
 void func_80015CC8(void);
-
-extern u16 D_800958A6;
 
 void func_80017124(void) {
     SVECTOR pos;

@@ -366,6 +366,11 @@ def main():
             hard.append(rel)
             continue
         t = re.sub(r"/\*.*?\*/", "", p.read_text(errors="replace"), flags=re.S)
+        # and string literals: a unit named for a symbol (src/main.c, main())
+        # carries the name in every INCLUDE_ASM path, which defines nothing
+        t = re.sub(r'"(?:[^"\\\n]|\\.)*"', '""', t)
+        if not re.search(rf"\b{re.escape(new)}\b", t):
+            continue
         (hard if scope.search(t) or oldpat.search(t) else soft).append(rel)
     # REGISTERING, not renaming: the C already defines NEW, the link puts it at
     # OLD's address, and only the symbols file lacks it, so retail's

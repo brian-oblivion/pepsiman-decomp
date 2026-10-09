@@ -63,6 +63,18 @@ segments:
     align: 4
     subsegments:
       - [0x800, .rodata, main]
+      - [0xC14, .rodata, code_7d74]
+      - [0xC74, .rodata, code_a0bc]
+      - [0xC8C, .rodata, code_11dc4]
+      - [0xCE8, .rodata, code_13068]
+      - [0x1320, .rodata, code_1902c]
+      - [0x137C, .rodata, code_1a098]
+      - [0x1D28, .rodata, code_24748]
+      - [0x2198, .rodata, code_27bc8]
+      - [0x26C0, .rodata, code_29f54]
+      - [0x278C, .rodata, code_308ec]
+      - [0x285C, .rodata, code_31958]
+      - [0x2910, .rodata, code_31cec]
       - [0x293C, o, libspu/spu, .rdata]
       - [0x298C, o, libsnd/ssopenq, .rdata]
       - [0x29BC, o, libsnd/seqinit, .rdata]
@@ -93,7 +105,19 @@ segments:
       - [0x369C, o, libmcrd/libmcrd, .rdata]
       - [0x392C, o, libcard/format, .rdata]
       - [0x394C, o, libmcrd/userfunc, .rdata]
-      - [0x396C, c, main]
+      - [0x396C, c, main]                     # 37 functions
+      - [0x7D74, c, code_7d74]                # 31 functions
+      - [0xA0BC, c, code_a0bc]                # 30 functions
+      - [0x11DC4, c, code_11dc4]              # 9 functions
+      - [0x13068, c, code_13068]              # 48 functions
+      - [0x1902C, c, code_1902c]              # 13 functions
+      - [0x1A098, c, code_1a098]              # 100 functions
+      - [0x24748, c, code_24748]              # 36 functions
+      - [0x27BC8, c, code_27bc8]              # 37 functions
+      - [0x29F54, c, code_29f54]              # 47 functions
+      - [0x308EC, c, code_308ec]              # 10 functions
+      - [0x31958, c, code_31958]              # 6 functions
+      - [0x31CEC, c, code_31cec]              # 26 functions
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it, so it stays asm) and
       # then the Psy-Q 4.4 Runtime Library, linked from Sony's own objects

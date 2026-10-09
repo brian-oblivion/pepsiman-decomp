@@ -767,3 +767,4 @@ _get_card_event = 0x8007225C; // type:func  (Psy-Q libmcrd/bios)
 _get_card_event_x = 0x80072334; // type:func  (Psy-Q libmcrd/bios)
 _chk_card_event = 0x8007240C; // type:func  (Psy-Q libmcrd/bios)
 _chk_card_event_x = 0x80072448; // type:func  (Psy-Q libmcrd/bios)
+main = 0x8001316C; // type:func

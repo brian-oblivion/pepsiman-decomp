@@ -1,0 +1,147 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011528);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011534);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011540);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001154C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011564);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011570);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011588);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011594);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115A0);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115AC);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115BC);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115D0);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115DC);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011618);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011624);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011634);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011644);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011654);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011664);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011678);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011688);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011698);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116AC);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116BC);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116D4);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116E0);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116F4);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001170C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001171C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011728);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001173C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001174C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001175C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011768);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001178C);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117B4);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117DC);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034070);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034388);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800345C8);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034788);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034BCC);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034D5C);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034F38);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035350);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800355D8);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035970);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035E24);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036184);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003634C);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036478);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800365A0);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036878);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036A50);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036A84);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036AB8);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036B90);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036D50);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036E50);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036EA0);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036EF0);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036F50);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036FE8);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003708C);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037114);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800371A0);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037280);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037318);
+
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037370);

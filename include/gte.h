@@ -22,7 +22,7 @@
  * 5-7 the translation vector, 31 FLAG. include/psyq/gtenom.h names the same
  * assignments.
  *
- * Names follow Sony's include/psyq/inline.h, so the SDK manual describes
+ * Names follow Sony's include/psyq/inline_c.h, so the SDK manual describes
  * each one. Code around the macros is ordinary C; a GTE operation this file
  * lacks is added here under Sony's name, not written out at a call site.
  *

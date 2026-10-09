@@ -47,9 +47,9 @@ compiler, plus:
   zips (don't unpack them), in `sdk/`. They are on archive.org
   (<https://archive.org/download/ps1_sdks>). The version is read from the
   file name, so keep the original names. Pepsiman links Runtime Library
-  **4.4** (DTL-S2350), measured with `tools/psyq_sdk.py match`; the build
-  needs that disc for the library objects and, for now, **3.5**
-  (DTL-S2300) for Sony's headers (`config/psyq-headers.txt`).
+  **4.4** (DTL-S2350), measured with `tools/psyq_sdk.py match`; that one
+  disc gives the build both the library objects and Sony's headers. The
+  other discs are only needed to repeat the measurement.
 
 Then:
 

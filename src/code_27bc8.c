@@ -26,6 +26,10 @@ extern s32 D_800959E8;
 extern s32 D_800959EC;
 extern s32 D_800959F0;
 extern s32 D_800959F4;
+extern s32 D_800959FC;
+extern s32 D_80095A00;
+extern s32 D_80095A04;
+extern s32 D_80095A08;
 
 long TestEvent(long event);
 
@@ -84,7 +88,12 @@ void func_80038900(void) {
     TestEvent(D_800959F4);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038948);
+void func_80038948(void) {
+    TestEvent(D_800959FC);
+    TestEvent(D_80095A00);
+    TestEvent(D_80095A04);
+    TestEvent(D_80095A08);
+}
 
 void func_80038990(u8 *p, s32 n) {
     s32 i;

@@ -9,6 +9,7 @@
 #include "libsnd.h"
 #include "libmcrd.h"
 #include "memory.h"
+#include "code_a0bc.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -342,7 +343,29 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80016D14);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80016FC0);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80017124);
+void func_80015CC8(void);
+
+extern u16 D_800958A6;
+
+void func_80017124(void) {
+    SVECTOR pos;
+
+    pos.vx = 0x70;
+    pos.vy = 0x48;
+    func_8001B354(D_8009585C % 10 + 0xFB, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = -0xA0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_80015CC8();
+    if (D_800958A6 == 100) {
+        D_80095760 = 4;
+        D_800958A6 = 0;
+        D_80095880 = 14;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80017270);
 

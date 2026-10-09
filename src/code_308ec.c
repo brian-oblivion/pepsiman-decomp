@@ -126,7 +126,6 @@ typedef struct {
 extern Placement D_800A7680;
 
 extern u8 D_80095900;
-extern s16 D_80095760;
 extern s8 D_8007AD58[];
 extern s16 D_80095858;
 extern s32 D_800957F4;
@@ -167,7 +166,6 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sSaved (*(SavedStart *)D_800D86B8)
 
-extern u16 D_80095880;
 extern u8 D_8009586C;
 extern u8 D_80095974;
 extern s32 D_800957A4;

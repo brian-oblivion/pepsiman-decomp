@@ -132,7 +132,27 @@ void func_8003E07C(unsigned long *tmd) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E13C);
+void func_8003E13C(unsigned long *p) {
+    RECT rect;
+    GsIMAGE tim;
+
+    while (*p == 0x10) {
+        GsGetTimInfo(p + 1, &tim);
+        rect.x = tim.cx;
+        rect.y = tim.cy;
+        rect.w = tim.cw;
+        rect.h = tim.ch;
+        LoadImage(&rect, (u_long *)tim.clut);
+        rect.x = tim.px;
+        rect.y = tim.py;
+        rect.w = tim.pw;
+        rect.h = tim.ph;
+        LoadImage(&rect, (u_long *)tim.pixel);
+        p += 2;
+        p += *p >> 2;
+        p += *p >> 2;
+    }
+}
 
 void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 dx;

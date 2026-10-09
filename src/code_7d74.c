@@ -44,6 +44,15 @@ extern u8 D_800958C9;
 extern CdlLOC D_80095728;
 extern MATRIX D_800E4858;
 
+/** @brief The three flat lights. */
+typedef struct {
+    GsF_LIGHT l[3]; /**< lights 0 to 2 */
+} FlatLights;
+
+/* MATCHING: a struct lvalue keeps the base in one register; common.h
+ * declares the table as words. */
+#define sLights ((*(FlatLights *)D_800DD070).l)
+
 void func_80017774(void *data);
 s8 func_80017640(u16 *tim);
 s32 func_800175AC(u8 com);
@@ -132,7 +141,39 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017DD4);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017F0C);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018094);
+void func_80018094(void) {
+    GsFOGPARAM fog;
+
+    sLights[0].vx = 0;
+    sLights[0].vy = 100;
+    sLights[0].vz = 100;
+    GsSetFlatLight(0, &sLights[0]);
+    sLights[1].vx = 86;
+    sLights[1].vy = 100;
+    sLights[1].vz = -50;
+    GsSetFlatLight(1, &sLights[1]);
+    sLights[2].vx = -86;
+    sLights[2].vy = 100;
+    sLights[2].vz = -50;
+    sLights[0].r = 0xD0;
+    sLights[0].g = 0xD0;
+    sLights[0].b = 0xD0;
+    sLights[1].r = 0xD0;
+    sLights[1].g = 0xD0;
+    sLights[1].b = 0xD0;
+    sLights[2].r = 0xD0;
+    sLights[2].g = 0xD0;
+    sLights[2].b = 0xD0;
+    GsSetFlatLight(2, &sLights[2]);
+    GsSetAmbient(0x400, 0x400, 0x400);
+    GsSetLightMode(0);
+    fog.dqa = -0x3200;
+    fog.dqb = 0x1400000;
+    fog.rfc = D_8009575C;
+    fog.gfc = D_80095754;
+    fog.bfc = D_8009574C;
+    GsSetFogParam(&fog);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001819C);
 

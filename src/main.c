@@ -27,7 +27,6 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
 void func_80013EE4(void);
 void func_800142EC(s32 arg);
 void func_80014B8C(s16 frames);
-void func_80018094(void);
 
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
 extern s32 D_80095850[2];
@@ -112,9 +111,6 @@ void func_80014D20(void);
 void func_80014D6C(void);
 
 extern s32 D_800957A8;
-extern u8 D_8009574C;
-extern u8 D_80095754;
-extern u8 D_8009575C;
 extern u8 D_80095820;
 
 void func_80014AC8(void) {

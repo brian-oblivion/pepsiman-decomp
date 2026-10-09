@@ -121,8 +121,9 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
-extern u8 D_800A74D0[];            /**< 128 byte flags; cleared together */
-extern s16 D_80096738[];           /**< filled by the lookup: a height, then a direction */
+extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
+extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
+/* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
 extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
 extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */

@@ -152,7 +152,6 @@ void func_80040998(void);
 void func_800412DC(void);
 void func_80041118(u8 arg0);
 
-
 /** @brief The saved state a stage can resume from. */
 typedef struct {
     s32 valid;   /**< non-zero when there is one */

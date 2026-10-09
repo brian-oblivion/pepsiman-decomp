@@ -96,7 +96,34 @@ void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E29C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E360);
+void func_8003E360(s32 level) {
+    s32 i;
+    s32 v;
+    s32 base;
+
+    struct {
+        SVECTOR a;
+        SVECTOR b;
+        CVECTOR c;
+    } st;
+
+    if (level > 0x80) {
+        level = 0x80;
+    }
+    for (i = 8; i >= 0; i--) {
+        base = i * 3 + 0x40;
+        v = base - level;
+        if (v < 0) {
+            v = 0;
+        }
+        st.a.vy = st.a.pad = st.a.vx = st.a.vz = 0;
+        st.b.vx = st.b.vy = v * 32 + 0x1000;
+        st.b.vz = (v << 12) / 360 * 3;
+        st.b.pad = 1;
+        st.c.r = 1;
+        st.c.g = st.c.b = st.c.cd = 0x10;
+    }
+}
 
 void func_8003E40C(void) {
     D_80095A78 = 0;

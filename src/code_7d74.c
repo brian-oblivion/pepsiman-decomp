@@ -54,6 +54,7 @@ typedef struct {
 
 extern u8 D_800958C9;
 extern s32 D_800958B4;
+extern s16 D_80095914; /**< the view's orbit angle, in degrees */
 s32 func_800299D8(s32 *out, s32 index, Vec3i *pos, s32 data);
 extern CdlLOC D_80095728;
 extern MATRIX D_800E4858;
@@ -251,7 +252,21 @@ s32 func_80017B18(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017B38);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017DD4);
+void func_80017DD4(void) {
+    D_800DB2A0[0] = rcos((D_80095914 << 12) / 360) * 400 / 4096;
+    D_800DB2A0[1] = -100;
+    D_800DB2A0[2] = rsin((D_80095914 << 12) / 360) * 400 / 4096;
+    D_800DB2A0[6] = 0;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = -100;
+    D_800DB2A0[5] = 0;
+    if (D_80095964 & 4) {
+        D_80095914 += 2;
+    }
+    if (D_80095964 & 8) {
+        D_80095914 -= 2;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017F0C);
 

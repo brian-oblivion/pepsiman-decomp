@@ -121,6 +121,7 @@ extern u16 D_80095748; /**< 2 units, 2 functions */
 extern s16 D_8009574A; /**< the highlighted line of a three-line menu */
 extern u32 D_80095794; /**< an entry count */
 extern s32 D_80095750; /**< 2 units, 3 functions */
+extern s32 D_80095964; /**< button flags; 2 units */
 extern u16 D_80095768; /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D5;  /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D6;  /**< 2 units, 3 functions; never loaded, sign unknown */

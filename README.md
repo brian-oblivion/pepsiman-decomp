@@ -9,9 +9,9 @@ toolchain the game was built with, into an executable that is
 
 ## Status
 
-Just started. The executable is split and rebuilds byte for byte from its
-own disassembly, with every function an `INCLUDE_ASM` in `src/main.c`.
-Nothing is decompiled yet. To measure:
+Early. The executable rebuilds byte for byte. Sony's library code is linked
+from Sony's own Psy-Q objects; the game's code is one unit, `src/main.c`,
+almost all of it still `INCLUDE_ASM`. To measure:
 
 ```sh
 python3 tools/progress.py
@@ -46,9 +46,10 @@ compiler, plus:
 - **The Psy-Q SDK.** "Programmer Tool - Runtime Library" discs, as redump
   zips (don't unpack them), in `sdk/`. They are on archive.org
   (<https://archive.org/download/ps1_sdks>). The version is read from the
-  file name, so keep the original names. Pepsiman links libraries from a
-  4.x release; which discs exactly is still to be measured
-  (`tools/psyq_sdk.py match`).
+  file name, so keep the original names. Pepsiman links Runtime Library
+  **4.4** (DTL-S2350), measured with `tools/psyq_sdk.py match`; the build
+  needs that disc for the library objects and, for now, **3.5**
+  (DTL-S2300) for Sony's headers (`config/psyq-headers.txt`).
 
 Then:
 
@@ -72,13 +73,16 @@ segmentation, measured from the bytes:
 | file offset | vram | what |
 | --- | --- | --- |
 | `0x800` | `0x80010000` | read-only data: strings, jump tables |
-| `0x396C` | `0x8001316C` | code, to `0x80072484` |
+| `0x396C` | `0x8001316C` | game code (`src/main.c`) |
+| `0x33458` | `0x80042C58` | Sony: SN's crt0 (the entry point), then the Psy-Q 4.4 objects, to `0x80072484` |
 | `0x62C84` | `0x80072484` | initialized data |
 | `0x85CC4` | `0x800954C4` | `.sdata` (gp-relative) |
 | `0x85ED0` | `0x800956D0` | `.sbss`; `.bss` runs on to `0x800FAE80`, past the file |
 
-The code is still one unit; carving it into the game's files and Sony's
-library objects is the first job.
+Sony's objects are listed in `config/psyq-objects.txt` and linked from
+`lib/`; two pieces stay disassembly (SN's crt0, which the object converter
+cannot read, and `libgs/gs_001`, whose `.bss` Sony's linker scattered).
+Carving the game's code into its source files is the next job.
 
 ## Changing the code and keeping it matching
 

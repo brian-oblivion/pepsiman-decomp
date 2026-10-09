@@ -20,11 +20,15 @@ typedef struct {
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
     s32 unk350; /**< pushed back along the cosine of an angle */
-    u8 pad354[0x380 - 0x354];
+    s32 unk354; /**< added to unk348 for a drawn position */
+    u8 pad358[0x35C - 0x358];
+    s32 unk35C; /**< added to unk350 for a drawn position */
+    u8 pad360[0x380 - 0x360];
     s32 unk380; /**< an angle that follows the camera's yaw in bounded steps */
     s32 unk384; /**< decays towards 0 by one a step */
-    u8 pad388[0x38E - 0x388];
-    u8 unk38E;  /**< cleared on a reset */
+    u8 pad388[0x38C - 0x388];
+    s16 unk38C; /**< cleared whenever unk38E changes */
+    u8 unk38E;  /**< cleared on a reset; a small state (0, 1, 2) */
     u8 unk38F;  /**< 1 also gates a check on unk398 */
     s16 unk390; /**< set to 2 together with clearing unk398 */
     u8 pad392[0x398 - 0x392];
@@ -44,6 +48,8 @@ typedef struct {
     u8 pad3CA[0x3CC - 0x3CA];
     s32 unk3CC; /**< with unk39C, picks which cap unk34C gets */
     u8 unk3D0;  /**< low nibble read on a reset */
+    u8 pad3D1[0x3D3 - 0x3D1];
+    s8 unk3D3; /**< nonzero draws the gauge sprite */
 } GameState;
 
 /* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
@@ -94,7 +100,29 @@ void func_80028650(void);
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022868);
+void func_80022868(void) {
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+    SVECTOR size;
+    s32 unused[2];
+    CVECTOR color;
+    s32 d;
+
+    if (sGame.unk3D3 != 0) {
+        GsInitCoordinate2(WORLD, &coord);
+        coord.coord.t[0] = sGame.unk348 + sGame.unk354 + D_800A7308[0];
+        coord.coord.t[1] = D_800AC858[0];
+        coord.coord.t[2] = sGame.unk350 + sGame.unk35C + D_800A7308[2];
+        GsGetLs(&coord, &ls);
+        GsSetLsMatrix(&ls);
+        d = (sGame.unk3C0 - sGame.unk34C) / 10;
+        color.r = 2;
+        size.vx = 100 - d;
+        size.vy = size.vx / 2;
+        color.g = color.b = color.cd = 0x40 - d;
+        func_8001A3D4(0x12D, &size, &color, 2, &D_800ACEA8[D_80095750]);
+    }
+}
 
 void func_800229A8(void) {
     for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {

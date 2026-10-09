@@ -66,7 +66,19 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E07C);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E13C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E1FC);
+void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+    s32 dx;
+    s32 dy;
+    s32 t;
+    s32 d;
+
+    dx = x1 - x0;
+    dy = y1 - y0;
+    t = -(x0 * dx + y0 * dy);
+    d = dx * dx + dy * dy;
+    out[0] = t * dx / d;
+    out[1] = t * dy / d;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E29C);
 

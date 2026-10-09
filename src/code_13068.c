@@ -17,20 +17,29 @@ typedef struct {
     u8 pad3[2];
     u8 unk5; /**< cleared on a reset */
     u8 unk6; /**< 2 on a reset, 0x33 when unk3D0's low nibble is 3 */
-    u8 pad7[0x38E - 0x7];
-    u8 unk38E; /**< cleared on a reset */
-    u8 pad38F;
+    u8 pad7[0x34C - 0x7];
+    s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
+    u8 pad350[0x38E - 0x350];
+    u8 unk38E;  /**< cleared on a reset */
+    u8 unk38F;  /**< 1 also gates a check on unk398 */
     s16 unk390; /**< set to 2 together with clearing unk398 */
     u8 pad392[0x398 - 0x392];
     s16 unk398; /**< cleared together with setting unk390 */
-    u8 pad39A[0x3A8 - 0x39A];
+    u8 pad39A[0x39C - 0x39A];
+    s32 unk39C; /**< with unk3CC, picks which cap unk34C gets */
+    u8 pad3A0[0x3A8 - 0x3A0];
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
     s16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
-    u8 pad3AE[0x3C8 - 0x3AE];
+    u8 pad3AE[0x3B8 - 0x3AE];
+    s32 unk3B8; /**< 1 selects the global cap for unk34C */
+    u8 pad3BC[0x3C0 - 0x3BC];
+    s32 unk3C0; /**< the usual cap for unk34C */
+    u8 pad3C4[0x3C8 - 0x3C4];
     s16 unk3C8; /**< set to 60 on a reset when the flag byte is 1 */
-    u8 pad3CA[0x3D0 - 0x3CA];
-    u8 unk3D0; /**< low nibble read on a reset */
+    u8 pad3CA[0x3CC - 0x3CA];
+    s32 unk3CC; /**< with unk39C, picks which cap unk34C gets */
+    u8 unk3D0;  /**< low nibble read on a reset */
 } GameState;
 
 /* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
@@ -45,6 +54,12 @@ extern s8 D_8009EF4D[];
 
 extern s32 D_800958A8;
 extern s32 D_800958AC;
+/* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
+ * from the lw), so it is an array here, though both halves use one register. */
+extern s32 D_8009EF44[];
+
+void func_80015450(u16 *table, s32 index);
+void func_80042538(s32 id);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022868);
 
@@ -129,7 +144,26 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028008);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800281B8);
+s32 func_800281B8(GameState *g) {
+    s32 ret;
+
+    ret = 0;
+    if (g->unk39C <= g->unk3CC && g->unk3B8 == 1) {
+        if (g->unk34C >= D_8009EF44[0]) {
+            g->unk34C = D_8009EF44[0];
+            ret = 2;
+            func_80042538(30);
+        }
+    } else if (g->unk34C >= g->unk3C0) {
+        g->unk34C = g->unk3C0;
+        ret = 1;
+        func_80042538(30);
+    }
+    if (ret != 0) {
+        func_80015450(D_800734AC, 6);
+    }
+    return ret;
+}
 
 s32 func_80028260(s32 n) {
     D_800958A8 += n;

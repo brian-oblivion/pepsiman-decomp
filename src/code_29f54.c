@@ -34,6 +34,17 @@ typedef struct {
 
 #define sSlots ((Slot *)D_800DFAB0)
 
+/** @brief An 8-byte boundary record: a point and the direction its sign
+ *         test projects onto. */
+typedef struct {
+    s16 x;  /**< the point's x */
+    s16 y;  /**< the point's y */
+    s16 dx; /**< the direction's x */
+    s16 dy; /**< the direction's y */
+} Edge;
+
+extern Edge *D_800958D4;
+
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
@@ -44,7 +55,28 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A008);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A20C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A3F4);
+void func_8003A3F4(s32 *index, s16 x, s16 y) {
+    s32 i;
+    s32 j;
+    s32 d;
+    Edge *e;
+    Edge *f;
+
+    /* MATCHING: integer address sums put the scaled index first; pointer
+     * arithmetic puts the base first and changes the register choice. */
+    i = *index;
+    e = (Edge *)(i * 8 + (s32)D_800958D4) + 1;
+    d = e->dx * (x - e->x) + e->dy * (y - e->y);
+    if (d >= 0) {
+        *index = i + 1;
+    }
+    j = *index;
+    f = (Edge *)(j * 8 + (s32)D_800958D4);
+    d = -f->dx * (x - f->x) + -f->dy * (y - f->y);
+    if (d >= 0) {
+        *index = j - 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A4B4);
 

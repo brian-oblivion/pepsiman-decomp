@@ -10,7 +10,11 @@
  *         known. */
 typedef struct {
     s16 unk0;      /**< -1 when the record is free (a guess) */
-    u8 unk2[0x3A]; /**< not yet known */
+    u8 unk2[0x24]; /**< not yet known */
+    u8 unk26;      /**< bit 7 picks one of two handlers */
+    u8 unk27[5];   /**< not yet known */
+    s16 unk2C;     /**< matched against sTotals.unk2A */
+    u8 unk2E[0xE]; /**< not yet known */
 } Rec3C;
 
 /** @brief A state block with a halfword total at 0x26. */
@@ -19,6 +23,8 @@ typedef struct {
     u16 unk1E;     /**< matched against a Rec48's unk34 */
     u8 unk20[6];   /**< not yet known */
     u16 unk26;     /**< a sum over the current block's entries */
+    u8 unk28[2];   /**< not yet known */
+    u16 unk2A;     /**< matched against a Rec3C's unk2C */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -72,6 +78,8 @@ void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
+void func_8002C894(s16 id, Rec3C *r);
+void func_8002B8F8(s16 id, Rec3C *r);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -335,7 +343,23 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003146C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800317D0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031A48);
+/** @brief Runs one of two handlers on every used Rec3C whose unk2C equals
+ *         sTotals.unk2A, picked by bit 7 of its unk26. */
+void func_80031A48(void) {
+    u32 i;
+    Rec3C *r;
+
+    for (i = 0; i < 100; i++) {
+        r = &D_800A7898[i];
+        if (r->unk0 != -1 && sTotals.unk2A == r->unk2C) {
+            if (r->unk26 & 0x80) {
+                func_8002C894(r->unk0, r);
+            } else {
+                func_8002B8F8(r->unk0, r);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031AEC);
 

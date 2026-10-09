@@ -198,7 +198,16 @@ void func_8002C820(Obj34 *p) {
     p->unk1C = p->unk22;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C85C);
+/** @brief Copies entry `i` of the eight-byte table to `out`. */
+void func_8002C85C(u16 i, Quad16 *out) {
+    Quad16 *src;
+
+    /* MATCHING: the base in its own local, then advanced by i; indexing
+     * gives the sum the index register. */
+    src = D_800DD0A0;
+    src += i;
+    *out = *src;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C894);
 

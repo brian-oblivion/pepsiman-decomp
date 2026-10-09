@@ -213,7 +213,10 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C894);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C994);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CAA4);
+/** @brief Interpolates from 0 towards `b` by `t`/`n`, into out[1]. */
+void func_8002CAA4(s16 b, u16 t, u16 n, s32 *out) {
+    out[1] = func_80018D04(0, b, t, n);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CAE4);
 

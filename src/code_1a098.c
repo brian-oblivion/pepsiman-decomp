@@ -70,17 +70,26 @@ typedef struct {
     GsCOORDINATE2 *coord; /**< the coordinate system lx..lz are in */
 } Placed2C;
 
+/** @brief A local position and the index of its coordinate system. */
+typedef struct {
+    s32 x;    /**< local x */
+    s32 y;    /**< local y */
+    s32 z;    /**< local z */
+    s8 coord; /**< index into the coordinate-system table */
+} LocalPos;
+
 /** @brief The head of the game state; only byte 5 is used here. */
 typedef struct {
     u8 unk0[5]; /**< not yet known */
     u8 unk5;    /**< a mode byte: 0x42 and 0x43 seen */
 } GameHead;
 
-extern u8 D_800A74D0[];     /**< 128 byte flags; cleared together */
-extern u8 D_80096738[];     /**< passed to the lookup */
-extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
-extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
-extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
+extern u8 D_800A74D0[];            /**< 128 byte flags; cleared together */
+extern u8 D_80096738[];            /**< passed to the lookup */
+extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
+extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
+extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */
+extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems */
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
@@ -125,7 +134,26 @@ void func_80029898(Placed2C *p) {
     GsSetLsMatrix(&world);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
+/** @brief Sets `out` to the world position of the local position `lp`. */
+/* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
+void func_80029930(LocalPos *lp, VECTOR *out) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR v;
+    VECTOR t;
+    s32 unused[2];
+    long flag;
+
+    v.vx = lp->x;
+    v.vy = lp->y;
+    v.vz = lp->z;
+    GsGetLws(&D_800D86E0[lp->coord], &local, &world);
+    GsSetLsMatrix(&local);
+    RotTrans(&v, &t, &flag);
+    out->vx = t.vx;
+    out->vy = t.vy;
+    out->vz = t.vz;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800299D8);
 

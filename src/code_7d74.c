@@ -1,10 +1,56 @@
 #include "common.h"
+#include "rand.h"
+#include "libgte.h"
+#include "libgpu.h"
+#include "libgs.h"
+#include "libcd.h"
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017574);
+typedef struct {
+    s32 offset;
+    u8 unk4[0xA];
+    u16 count;
+} PackEntry;
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800175AC);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} Slot;
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017614);
+typedef struct {
+    Slot *slots;
+    s32 count;
+    s32 capacity;
+} SlotList;
+
+extern u8 D_800958C9;
+extern CdlLOC D_80095728;
+
+void func_80017774(void *data);
+s32 func_800175AC(u8 com);
+
+void func_80017574(void) {
+    if (D_800958C9 != 0) {
+        CdControlF(CdlPause, 0);
+        D_800958C9 = 0;
+    }
+}
+
+s32 func_800175AC(u8 com) {
+    CdIntToPos(D_80095720, &D_80095728);
+    while (CdControl(com, (u_char *)&D_80095728, 0) == 0) {
+    }
+    D_80095714 = D_80095720;
+    D_8009571C++;
+    return 0;
+}
+
+void func_80017614(u8 mode) {
+    if (mode == 4) {
+        func_800175AC(CdlPlay);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017640);
 
@@ -12,11 +58,25 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017774);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017880);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001797C);
+void func_8001797C(PackEntry *pack) {
+    PackEntry *e;
+    u16 i;
+    u16 n;
+
+    e = pack;
+    n = pack->count;
+    for (i = 0; i < n; i++) {
+        func_80017774((u8 *)pack + e->offset);
+        e++;
+        DrawSync(0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800179F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017B18);
+s32 func_80017B18(void) {
+    return rand();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017B38);
 
@@ -40,7 +100,18 @@ void func_80018CA4(void) {}
 
 void func_80018CAC(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018CB4);
+void func_80018CB4(void) {
+    GsSetProjection(250);
+    D_800DB2A0[0] = 0;
+    D_800DB2A0[1] = 0;
+    D_800DB2A0[2] = 4000;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = 0;
+    D_800DB2A0[5] = 0;
+    D_800DB2A0[6] = 0;
+    D_800DB2A0[7] = 0;
+    GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+}
 
 #ifdef NON_MATCHING
 s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
@@ -61,9 +132,40 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018DF0);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800195CC);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019684);
+void func_80019684(SlotList *list, Slot *slots, u8 *objs, s32 data, s32 n) {
+    s32 i;
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800196E4);
+    list->count = 0;
+    list->slots = slots;
+    list->capacity = n;
+    for (i = 0; i < n; i++) {
+        slots->unk0 = 0x80000000;
+        slots->unkC = -1;
+        slots->unk4 = (s32)objs;
+        *(s32 *)(objs + 0x44) = data;
+        slots->unk8 = 0;
+        slots++;
+        objs += 0x50;
+        data += 0x28;
+    }
+}
+
+Slot *func_800196E4(SlotList *list, s32 key) {
+    Slot *s;
+    s32 i;
+
+    s = list->slots;
+    for (i = 0; i < list->count; i++) {
+        if (key == s->unkC) {
+            break;
+        }
+        s++;
+    }
+    if (i == list->count) {
+        return NULL;
+    }
+    return s;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019730);
 

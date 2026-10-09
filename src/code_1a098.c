@@ -762,7 +762,17 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033C90);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033D3C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033DE8);
+/** @brief Writes the tool buffer to the tool file on the host.
+ *  @return the count written. */
+s32 func_80033DE8(void) {
+    s32 fd;
+    s32 n;
+
+    fd = open(D_80011260, O_CREAT | O_WRONLY);
+    n = write(fd, (void *)0x8016D000, 0x2285C);
+    close(fd);
+    return n;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033E40);
 

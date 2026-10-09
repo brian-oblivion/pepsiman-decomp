@@ -1,5 +1,7 @@
 #include "common.h"
 #include "memory.h"
+#include "libapi.h"
+#include "sys/file.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -44,6 +46,8 @@ typedef struct {
 extern u8 D_800D3CA8[];    /**< 0x44C0-byte buffer, cleared as a whole */
 extern u8 D_800DB2C0[];    /**< 0x1DB0-byte buffer, cleared as a whole */
 extern Rec78 D_800D8D20[]; /**< 80 records */
+
+extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
 
@@ -213,6 +217,14 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800371A0);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037280);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037318);
+s32 func_80037318(void) {
+    s32 fd;
+    s32 n;
+
+    fd = open(D_80011768, O_CREAT | O_WRONLY);
+    n = write(fd, (void *)0x8018D000, 0x13868);
+    close(fd);
+    return n;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037370);

@@ -4,6 +4,7 @@
 #include "sys/file.h"
 #include "libgte.h"
 #include "libgpu.h"
+#include "libgs.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -79,6 +80,16 @@ extern char D_800956A4[]; /**< the menu's title */
 extern char D_80095668[]; /**< marker of the highlighted line */
 extern char D_80095670[]; /**< marker of the other lines */
 extern char D_8001175C[]; /**< format of one numbered line */
+
+/** @brief A 20-byte entry of the table handed to the sprite drawer. */
+typedef struct {
+    u8 unk0[20]; /**< not yet known */
+} Rec14;
+
+extern s32 D_80095750;     /**< index of the current entry of that table */
+extern Rec14 D_800ACEA8[]; /**< the table */
+
+void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 mode, Rec14 *rec);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
@@ -210,7 +221,23 @@ Rec4C *func_80036A84(s32 idx, s32 sub) {
     return &recs[bank->entries[idx].first + sub];
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036AB8);
+void func_80036AB8(VECTOR *pos, u16 scale) {
+    SVECTOR size;
+    CVECTOR color;
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = -pos->vx;
+    coord.coord.t[1] = pos->vy;
+    coord.coord.t[2] = -pos->vz;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+    size.vx = size.vy = scale * 2;
+    color.r = 0;
+    color.g = color.b = color.cd = 0x80;
+    func_8001A3D4(0x15D, &size, &color, 2, &D_800ACEA8[D_80095750]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036B90);
 

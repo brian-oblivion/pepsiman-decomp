@@ -24,12 +24,14 @@ extern u8 D_800956B8[];
 /** @brief The 0x14-byte records of common.h's NumberedSlot table, as this
  *         unit writes them. */
 typedef struct {
-    s16 unk0;   /**< cleared when the record is taken */
-    s16 unk2;   /**< not yet known */
-    u8 unk4[8]; /**< not yet known */
-    s16 unkC;   /**< not yet known */
-    s16 unkE;   /**< not yet known */
-    s16 unk10;  /**< not yet known */
+    s16 unk0;   /**< animation frame; cleared when the record is taken */
+    s16 unk2;   /**< frames to wait before the animation starts */
+    s16 unk4;   /**< per-frame step of the rising sprite's y offset */
+    s16 unk6;   /**< the rising sprite's end distance */
+    u8 unk8[4]; /**< not yet known */
+    s16 unkC;   /**< x offset added to the drawing position */
+    s16 unkE;   /**< y offset added to the drawing position */
+    s16 unk10;  /**< z offset added to the drawing position */
     u8 unk12;   /**< not yet known */
     u8 next;    /**< free-list link: the next record's index */
 } Slot;
@@ -57,6 +59,13 @@ extern s32 D_800A7278[];
 extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
+
+/* The defining unit's prototypes; its header does not carry them yet.
+ * Drop these once include/code_a0bc.h and common.h declare them. */
+void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
+void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
+extern s16 D_800E474C;
+extern GsOT D_800A7318[];
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
@@ -103,9 +112,50 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003BDF4);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C014);
+void func_8003C014(void) {
+    RECT rect;
+    SVECTOR pos;
+    CVECTOR color;
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C17C);
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    color.r = 0;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+}
+
+void func_8003C17C(u8 level) {
+    RECT rect;
+    SVECTOR pos;
+    CVECTOR color;
+
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    /* MATCHING: an s8 store gives li -1; a u_char one gives li 0xFF. */
+    *(s8 *)&color.r = -1;
+    color.g = color.b = color.cd = level;
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C2E8);
 
@@ -315,6 +365,27 @@ s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     return 0;
 }
 
+/* MATCHING: inlined, so each call rebuilds the two struct addresses. */
+/**
+ * @brief Sets the GS local-screen matrix to a pure translation (x, y, z);
+ *        the sprite steps below expand it in place.
+ * @param x translation x
+ * @param y translation y
+ * @param z translation z
+ */
+static __inline__ void setLs(s16 x, s16 y, s16 z) {
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = x;
+    coord.coord.t[1] = y;
+    coord.coord.t[2] = z;
+    coord.flg = 0;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+}
+
 void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsCOORDINATE2 coord;
     MATRIX ls;
@@ -328,78 +399,103 @@ void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-#ifdef NON_MATCHING
 s32 func_8003F960(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
-    GsCOORDINATE2 coord;
-    MATRIX ls;
-    s32 ret;
 
-    if (p->unk2 != 0) {
-        p->unk2--;
-        ret = 0;
-    } else {
-        x += p->unkC;
-        y += p->unkE;
-        z += p->unk10;
-        GsInitCoordinate2(WORLD, &coord);
-        coord.coord.t[0] = x;
-        coord.coord.t[1] = y;
-        coord.coord.t[2] = z;
-        coord.flg = 0;
-        GsGetLs(&coord, &ls);
-        GsSetLsMatrix(&ls);
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
         size.vy = size.vx = 0x96;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
         func_8001A3D4((u16)(p->unk0 + 0x11A), &size, &color, 2, ot);
-        ret = ++p->unk0 == 8;
+        return ++p->unk0 == 8;
     }
-    return ret;
+    p->unk2--;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F960);
-#endif
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FA88);
+s32 func_8003FA88(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
 
-#ifdef NON_MATCHING
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vx = p->unk0 + 0x14;
+        size.vy = p->unk0 + 0x14;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 2);
+        func_8001A3D4(0x11F, &size, &color, 2, ot);
+        p->unkE -= 4;
+        p->unk10 += p->unk0 >> 2;
+        return ++p->unk0 == 0x20;
+    }
+    p->unk2--;
+    return 0;
+}
+
 s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
-    GsCOORDINATE2 coord;
-    MATRIX ls;
-    s32 ret;
 
-    if (p->unk2 != 0) {
-        p->unk2--;
-        ret = 0;
-    } else {
-        x += p->unkC;
-        y += p->unkE;
-        z += p->unk10;
-        GsInitCoordinate2(WORLD, &coord);
-        coord.coord.t[0] = x;
-        coord.coord.t[1] = y;
-        coord.coord.t[2] = z;
-        coord.flg = 0;
-        GsGetLs(&coord, &ls);
-        GsSetLsMatrix(&ls);
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
         size.vy = size.vx = 0x32;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
         func_8001A3D4(0x11A, &size, &color, 2, ot);
-        ret = ++p->unk0 == 8;
+        return ++p->unk0 == 8;
     }
-    return ret;
+    p->unk2--;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FBE0);
-#endif
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FD0C);
+s32 func_8003FD0C(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FE5C);
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vx = p->unk0 * 10 + 100;
+        size.vy = p->unk0 * 10 + 100;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        return ++p->unk0 == 8;
+    }
+    p->unk2--;
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FFAC);
+s32 func_8003FE5C(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vx = p->unk0 * 10 + 100;
+        size.vy = p->unk0 * 10 + 100;
+        color.r = 2;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        return ++p->unk0 == 8;
+    }
+    p->unk2--;
+    return 0;
+}
+
+s32 func_8003FFAC(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE + p->unk4 * p->unk0, z + p->unk10);
+        size.vy = size.vx = 100;
+        color.r = 0;
+        color.g = color.b = color.cd = 0x80;
+        func_8001A3D4(0x134, &size, &color, 2, ot);
+        return ++p->unk0 * p->unk4 >= p->unk6;
+    }
+    p->unk2--;
+    return 0;
+}

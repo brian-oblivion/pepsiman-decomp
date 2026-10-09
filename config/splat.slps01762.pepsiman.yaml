@@ -68,7 +68,7 @@ segments:
       - [0xC8C, .rodata, code_11dc4]
       - [0xCE8, .rodata, code_13068]
       - [0x1320, .rodata, code_1902c]
-      - [0x137C, .rodata, code_1a098]
+      - [0x137C, .rodata, code_1dc24]
       - [0x1D28, .rodata, code_24748]
       - [0x2198, .rodata, code_27bc8]
       - [0x26C0, .rodata, code_29f54]
@@ -111,7 +111,8 @@ segments:
       - [0x11DC4, c, code_11dc4]              # 9 functions
       - [0x13068, c, code_13068]              # 48 functions
       - [0x1902C, c, code_1902c]              # 13 functions
-      - [0x1A098, c, code_1a098]              # 100 functions
+      - [0x1A098, c, code_1a098]              # 50 functions
+      - [0x1DC24, c, code_1dc24]              # 50 functions
       - [0x24748, c, code_24748]              # 36 functions
       - [0x27BC8, c, code_27bc8]              # 37 functions
       - [0x29F54, c, code_29f54]              # 47 functions

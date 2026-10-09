@@ -36,7 +36,8 @@ function's match report, not here.
   segmentation or toolchain decision. (func_80033AB8, func_80014C58)
   Between units this is solved: each unit gets its own gp list,
   `config/gp/<unit>.txt` (func_80014C58, func_80018BD8). Inside one unit it
-  still needs the unit split. (func_80033AB8, func_800337E4)
+  needs the unit split: code_1a098 split at func_8002D424 into code_1dc24,
+  which matched both. (func_80033AB8, func_800337E4)
 - **A word store through a pointer that keeps a later global reload below it:
   a plain `*(s32 *)p` store, not `p->member`.** A member store is assumed not
   to alias a fixed global, so the reload is dropped. The store-side twin of

@@ -77,6 +77,12 @@ extern s32 D_800958D0;
 extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
 
+extern u8 D_80095784;
+extern s32 D_8009EEF8[];
+
+void func_80023834(u8 mode, u16 a, u16 b);
+void func_80023B20(void);
+
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
@@ -167,7 +173,37 @@ void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023228);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023764);
+void func_80023764(void) {
+    if (sGame.unk0 != 0) {
+        switch (D_80095784) {
+            case 0x73:
+                if (D_80095964 & 0x8000) {
+                    func_80023834(3, 16, 15);
+                } else if (D_80095964 & 0x2000) {
+                    func_80023834(2, 16, 15);
+                } else {
+                    func_80023B20();
+                }
+                break;
+            case 0x41:
+                if (D_80095964 & 0x8000) {
+                    func_80023834(3, 16, 15);
+                } else if (D_80095964 & 0x2000) {
+                    func_80023834(2, 16, 15);
+                } else {
+                    func_80023B20();
+                }
+                break;
+            default:
+                func_80023B20();
+                break;
+        }
+        if (sGame.unk0 != 0) {
+            return;
+        }
+    }
+    D_8009EEF8[0] = D_800A7680[0].vy;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023834);
 

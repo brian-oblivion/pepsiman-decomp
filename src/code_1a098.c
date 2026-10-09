@@ -223,28 +223,30 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
 /** @brief Moves `u` to the next or previous path segment once it has
  *         passed the next point or not yet reached its own.
  *  @return the new segment */
-#ifdef NON_MATCHING
 /* MATCHING: the unused pair gives the leaf its 8-byte frame. */
 s32 func_8002AEB8(PathUser *u) {
     s32 unused[2];
     s32 i;
+    s32 d;
+    PathPt *next;
     PathPt *pt;
 
+    /* MATCHING: two point locals and a sum local; one reused point pointer
+     * moves the parameter out of $a0. Integer sums put the index first. */
     i = u->seg;
-    pt = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
-    if (pt->dx * (u->x - pt->x) + pt->dz * (u->z - pt->z) >= 0) {
+    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
+    if (d >= 0) {
         i++;
     }
     pt = (PathPt *)(i * 8 + (u32)D_800958A0);
-    if (-pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z) >= 0) {
+    d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
+    if (d >= 0) {
         i--;
     }
     u->seg = i;
     return i;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AEB8);
-#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AF6C);
 

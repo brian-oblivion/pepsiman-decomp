@@ -75,7 +75,13 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038900);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038948);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038990);
+void func_80038990(u8 *p, s32 n) {
+    s32 i;
+
+    for (i = 0; i < n; i++) {
+        *p++ = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800389B4);
 

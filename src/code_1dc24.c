@@ -656,7 +656,26 @@ s32 func_80033E40(void) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033E98);
+/** @brief Wraps the edited value and the highlighted line into their
+ *         ranges: below 0 to the top, at or past the limit to 0.
+ *  @return 0. */
+s32 func_80033E98(void) {
+    /* MATCHING: retail reads the edited value signed (lh); common.h's
+     * declaration is u16. */
+    if ((s16)D_80095748 < 0) {
+        D_80095748 = D_800958B0 - 1;
+    }
+    if ((s16)D_80095748 >= D_800958B0) {
+        D_80095748 = 0;
+    }
+    if (D_8009574A < 0) {
+        D_8009574A = D_800958B2 - 1;
+    }
+    if (D_8009574A >= D_800958B2) {
+        D_8009574A = 0;
+    }
+    return 0;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800114DC);
 

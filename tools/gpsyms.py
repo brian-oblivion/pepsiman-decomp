@@ -16,6 +16,13 @@ A small-data symbol lives in one of two places, and both are read:
     it. Its symbols are the symbols-file entries whose addresses fall in the
     range, up to the next yaml line.
 
+Neither covers the .sbss that lies past the end of the file: splat writes no
+labels there. So the retail game code is also decoded, and every address a
+$gp-based load or store reaches is added, under its symbols-file name or
+D_<addr>, together with the symbol that contains it when the access is at an
+offset (`D_800956D8 + 0x1`). This reads the executable, not asm/, so a
+function moving to C does not drop its targets.
+
 The C side is checked against the yaml: a definition marked SDATA (or SBSS,
 include/common.h) in src/ whose name the list does not hold means a missing
 yaml line or symbols-file entry, and a symbol in a C-owned range that no
@@ -23,12 +30,17 @@ unit marks means a definition that will not land in small data. Either is
 fatal: a gp-relative access to a symbol that is not in small data, or an
 absolute one to a symbol that is, links and runs but does not match.
 """
-import glob, re, sys
+import bisect, glob, re, struct, sys
 
 OUT = 'config/gp-symbols.txt'
 YAML = 'config/splat.slps01762.pepsiman.yaml'
 SYMBOLS = 'config/symbols.slps01762.pepsiman.txt'
+EXE = 'disk/SLPS_017.62'
 FILE_BASE, VRAM_BASE = 0x800, 0x80010000
+GP = 0x800954C4
+# lb lh lwl lw lbu lhu lwr, sb sh swl sw swr, lwc2 swc2
+GP_LOADSTORE = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
+                0x28, 0x29, 0x2A, 0x2B, 0x2E, 0x32, 0x3A}
 
 LABEL = re.compile(r'^(?:dlabel|glabel)\s+(\S+)')
 SEG = re.compile(r'^\s*- \[\s*(0x[0-9A-Fa-f]+)\s*(?:,\s*([.\w]+)\s*)?(?:,\s*([\w/]+)\s*)?[,\]]')
@@ -46,6 +58,44 @@ def asm_labels():
             if m:
                 syms.add(m.group(1))
     return syms
+
+
+def game_code():
+    """(file_lo, file_hi): the game's own C units, first `c` line of the yaml
+    to the line after the last one (Sony's code follows)."""
+    rows = [(int(m.group(1), 16), m.group(2)) for m in map(SEG.match, open(YAML)) if m]
+    idx = [i for i, (_, ty) in enumerate(rows) if ty == 'c']
+    return rows[idx[0]][0], rows[idx[-1] + 1][0]
+
+
+def retail_targets(labels):
+    """Names for every address retail game code loads or stores off $gp."""
+    exe = open(EXE, 'rb').read()
+    lo, hi = game_code()
+    targets = set()
+    for off in range(lo, hi, 4):
+        w = struct.unpack_from('<I', exe, off)[0]
+        if (w >> 21) & 31 == 28 and w >> 26 in GP_LOADSTORE:
+            targets.add(GP + ((w & 0xFFFF) ^ 0x8000) - 0x8000)
+    named = {}
+    for line in open(SYMBOLS):
+        m = SYMLINE.match(line)
+        if m:
+            named[int(m.group(2), 16)] = m.group(1)
+    for name in labels:
+        if re.fullmatch(r'D_8[0-9A-F]{7}', name):
+            named.setdefault(int(name[2:], 16), name)
+    known = sorted(named)
+    out = set()
+    for t in targets:
+        if t in named:
+            out.add(named[t])
+            continue
+        out.add(f'D_{t:08X}')
+        i = bisect.bisect_right(known, t) - 1
+        if i >= 0 and t - known[i] < 8:   # an offset into a small symbol
+            out.add(named[known[i]])
+    return out
 
 
 def c_ranges():
@@ -109,7 +159,7 @@ def derive():
         if name not in owned:
             errors.append(f'{f}: {name} is marked {how}, but no `.{how.lower()}` yaml range of a C unit '
                           f'holds its symbols-file address')
-    return sorted(syms | set(owned)), errors
+    return sorted(syms | set(owned) | retail_targets(syms)), errors
 
 
 def main():
@@ -143,7 +193,7 @@ def main():
     # every gp_rel target retail uses must be in the list
     targets = set()
     for f in glob.glob('asm/**/*.s', recursive=True):
-        for m in re.finditer(r'%gp_rel\(([A-Za-z_0-9]+)', open(f).read()):
+        for m in re.finditer(r'%gp_rel\(\s*([A-Za-z_0-9]+)', open(f).read()):
             targets.add(m.group(1))
     missing = sorted(targets - set(syms))
     if missing:

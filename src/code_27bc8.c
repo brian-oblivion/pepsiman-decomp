@@ -34,6 +34,12 @@ extern char D_800956A8[]; /**< "bu10:" */
 extern char D_80011998[]; /**< "bu10:BISLPS-12345PEPTOOL" */
 extern char D_80011C24[]; /**< "bu10:BISLPS-67890PEPTOOL" */
 
+/** @brief A loaded record bank file: a count word, then the bank. */
+typedef struct {
+    s32 count;  /**< entry count, copied to the bank's count global */
+    u8 data[4]; /**< the bank itself; real size unknown */
+} BankFile;
+
 /** @brief The 27 title bytes copied into a save header in one block move. */
 typedef struct {
     u8 b[27]; /**< Shift-JIS title text */
@@ -60,7 +66,23 @@ void func_80038900(void);
 void func_80038948(void);
 void func_800390B8(void);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800373C8);
+void func_800373C8(BankFile *a, BankFile *b) {
+    u8 *bank; /* MATCHING: one local for both bank addresses */
+    u32 i;
+
+    bank = a->data;
+    D_80095A50 = (s32)bank;
+    bank = b->data;
+    D_80095A4C = (s32)bank;
+    D_80095780 = a->count;
+    D_80095810 = b->count;
+    for (i = 0; i < 80; i++) {
+        D_800D8D20[i].unk72 = -1;
+        D_800D8D20[i].unk74 = 0;
+    }
+    func_80036704();
+    func_80036878();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037440);
 

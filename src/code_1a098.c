@@ -158,6 +158,9 @@ s32 func_80028260(s32 n);
 void func_8002C4D8(void);
 s32 func_800183B0(Rec48 *r);
 s32 func_8002C650(void);
+/* MATCHING: a per-unit view of the squared-distance helper; it takes two
+ * VECTOR pointers. */
+s32 func_800297A4(void *a, void *b);
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 
@@ -320,7 +323,23 @@ s32 func_8002C650(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C6A4);
+/** @brief Latches bit 1 of `r->unk41` once the record comes within `range`
+ *         of a fixed object.
+ *  @return 1 when the bit was set by this call, else 0. */
+s32 func_8002C6A4(Rec48 *r, s32 range) {
+    s32 ret;
+    s32 sq;
+
+    ret = 0;
+    if (!((r->unk41 >> 1) & 1)) {
+        sq = range * range;
+        if (func_800297A4(D_8009EEC0, r) < sq) {
+            r->unk41 |= 2;
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C724);
 

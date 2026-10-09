@@ -136,6 +136,8 @@ extern u16 D_8009EAB8[]; /**< 2 units, 3 functions; never loaded, sign unknown *
 extern s16 D_8009EABA[]; /**< 2 units, 2 functions */
 extern u8 D_8009EB78[];  /**< 8 units, 69 functions */
 extern u8 D_8009EB7E[];  /**< 2 units, 2 functions */
+extern u8 D_8009EEC0[];  /**< an object with a position; passed to
+                          *   distance tests */
 extern s16 D_8009EF20[]; /**< 2 units, 6 functions */
 extern u8 D_8009EF48[];  /**< 4 units, 7 functions */
 extern s8 D_8009EF4A[];  /**< 2 units, 2 functions */

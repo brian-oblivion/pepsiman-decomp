@@ -68,7 +68,6 @@ typedef struct {
 } Obj48;
 
 extern Obj48 D_800DF9C0; /**< reset by the dispatch's state 0 */
-extern u8 D_8009EEC0[];  /**< passed with it */
 extern u8 D_80095A59;    /**< state of the second dispatch: 0 or 1 */
 extern s16 D_80095A54;   /**< set to 100 on entering state 1 */
 extern s16 D_80095A56;   /**< set to 100 on entering state 1 */

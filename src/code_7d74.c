@@ -94,7 +94,58 @@ void func_80017614(u8 mode) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017640);
+s8 func_80017640(u16 *tim) {
+    u16 *p;
+    u16 *start;
+    s32 len;
+    s32 c;
+
+    p = tim;
+    if (*p != 0x10) {
+        return -1;
+    }
+    p += 2;
+    sTim->mode = *p & 7;
+    /* MATCHING: the masked flag through a local keeps cc1's store-flag
+     * code from turning the test into a shift. */
+    c = *p & 8;
+    sTim->hasClut = c != 0;
+    if (sTim->hasClut) {
+        p += 2;
+        start = p;
+        len = *p;
+        p += 2;
+        sTim->clutRect.x = *p++;
+        sTim->clutRect.y = *p++;
+        sTim->clutRect.w = *p++;
+        sTim->clutRect.h = *p++;
+        sTim->clut = (u32 *)p;
+        p = (u16 *)((u8 *)start + len);
+    } else {
+        p += 2;
+    }
+    p += 2;
+    sTim->pixRect.x = *p++;
+    sTim->pixRect.y = *p++;
+    sTim->pixRect.w = *p++;
+    sTim->pixRect.h = *p++;
+    sTim->pixel = (u32 *)p;
+    switch (sTim->mode) {
+        case 0:
+            sTim->unk1E = 4;
+            /* MATCHING: a multiply, not a shift, loads the width with lh. */
+            sTim->unk1C = sTim->pixRect.w * 4;
+            break;
+        case 1:
+            sTim->unk1E = 2;
+            sTim->unk1C = sTim->pixRect.w * 2;
+            break;
+        default:
+            sTim->unk1C = sTim->pixRect.w;
+            break;
+    }
+    return 0;
+}
 
 s32 func_80017774(void *data) {
     RECT rect;

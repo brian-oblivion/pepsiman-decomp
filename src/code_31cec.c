@@ -115,7 +115,30 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800429EC);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042A88);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042B80);
+void func_80042B80(u8 chan) {
+    CdlFILTER filter;
+    u_char mode[4];
+    CdlATV atv;
+
+    if (D_80095AEE) {
+        atv.val2 = 80;
+        atv.val0 = 80;
+        atv.val3 = 0;
+        atv.val1 = 0;
+    } else {
+        atv.val2 = 80;
+        atv.val0 = 80;
+        atv.val3 = 80;
+        atv.val1 = 80;
+    }
+    CdMix(&atv);
+    filter.file = 1;
+    filter.chan = chan;
+    CdControlF(CdlSetfilter, (u_char *)&filter);
+    mode[0] = CdlModeSpeed | CdlModeRT | CdlModeSF | CdlModeDA;
+    CdControlF(CdlSetmode, mode);
+    CdControlF(CdlReadS, 0);
+}
 
 void func_80042C14(void) {
     CdlATV vol;

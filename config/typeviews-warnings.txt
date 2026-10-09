@@ -1,0 +1,1 @@
+main: warning: unused variable `unused'

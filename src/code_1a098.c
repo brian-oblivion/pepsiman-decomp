@@ -6,6 +6,13 @@ typedef struct {
     u8 unk1[0x5B]; /**< not yet known */
 } Rec5C;
 
+/** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
+ *         known. */
+typedef struct {
+    s16 unk0;      /**< -1 when the record is free (a guess) */
+    u8 unk2[0x3A]; /**< not yet known */
+} Rec3C;
+
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
@@ -427,7 +434,15 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338A0);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338D8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003390C);
+/** @brief Sets the halfword at 0 of all 100 records of a Rec3C table to -1. */
+void func_8003390C(Rec3C *recs) {
+    u32 i;
+
+    for (i = 0; i < 100; i++) {
+        recs->unk0 = -1;
+        recs++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033930);
 

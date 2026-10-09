@@ -64,6 +64,15 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042A88);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042B80);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042C14);
+void func_80042C14(void) {
+    CdlATV vol;
+
+    vol.val3 = 0;
+    vol.val2 = 0;
+    vol.val1 = 0;
+    vol.val0 = 0;
+    CdMix(&vol);
+    CdControlF(CdlPause, 0);
+}
 
 void func_80042C50(void) {}

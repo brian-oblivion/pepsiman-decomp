@@ -166,7 +166,45 @@ s16 func_80040CD0(u8 arg0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040E04);
+/* MATCHING: arg1 and arg2 go through to every callee untouched; they keep
+ * $a1 and $a2 live, which puts ret in $a3. */
+u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2) {
+    u16 ret = 1;
+
+    switch (D_80095830) {
+        case 0:
+            ret = func_800FAD08(arg0, arg1, arg2);
+            break;
+        case 1:
+            ret = func_800FAD04(arg0, arg1, arg2);
+            break;
+        case 3:
+            ret = func_800FA894(arg0, arg1, arg2);
+            break;
+        case 4:
+            ret = func_800FA580(arg0, arg1, arg2);
+            break;
+        case 6:
+            ret = func_800F1A48(arg0, arg1, arg2);
+            break;
+        case 7:
+            ret = func_800F1A48(arg0, arg1, arg2);
+            break;
+        case 9:
+            ret = func_800F9ABC(arg0, arg1, arg2);
+            break;
+        case 10:
+            ret = func_800F9CA4(arg0, arg1, arg2);
+            break;
+        case 12:
+            ret = func_800FA060(arg0, arg1, arg2);
+            break;
+        case 13:
+            ret = func_800F922C(arg0, arg1, arg2);
+            break;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040F14);
 

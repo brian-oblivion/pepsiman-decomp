@@ -704,7 +704,20 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033224);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033388);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003356C);
+/** @brief Wraps the highlighted line at `n` lines, resets the edited value
+ *         and runs an update.
+ *  @return the highlighted line when flag bit 5 is set, else -1. */
+s32 func_8003356C(s16 n) {
+    D_80095748 = 0;
+    D_800958B2 = n;
+    D_800958B0 = 1;
+    D_8009574A = D_8009574A % n;
+    func_800330D4();
+    if (D_80095970 & 0x20) {
+        return D_8009574A;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800335E8);
 

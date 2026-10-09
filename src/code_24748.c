@@ -53,8 +53,7 @@ extern u8 D_800D3CA8[];    /**< 0x44C0-byte buffer, cleared as a whole */
 extern u8 D_800DB2C0[];    /**< 0x1DB0-byte buffer, cleared as a whole */
 extern Rec78 D_800D8D20[]; /**< 80 records */
 
-extern s32 D_80095970; /**< flag word; bit 5 enables a two-state dispatch */
-extern u8 D_80095A29;  /**< state of that dispatch: 0 or 1 */
+extern u8 D_80095A29; /**< state of that dispatch: 0 or 1 */
 
 extern s16 D_80095A30; /**< current index, clamped to the entry count */
 extern s16 D_8009588E; /**< number of entries */
@@ -77,7 +76,6 @@ extern s16 D_80095A56;   /**< set to 100 on entering state 1 */
 void func_80034BCC(void);
 void func_8002A98C(Obj48 *obj, u8 *p, s32 a, s32 b);
 
-extern s16 D_8009574A;    /**< the highlighted line of a three-line menu */
 extern char D_800956A4[]; /**< the menu's title */
 extern char D_80095668[]; /**< marker of the highlighted line */
 extern char D_80095670[]; /**< marker of the other lines */
@@ -86,7 +84,6 @@ extern char D_8001175C[]; /**< format of one numbered line */
 
 extern u16 D_80095A3C; /**< saved value of menu line 0 */
 extern u8 D_80095A48;  /**< saved value of menu line 1 */
-extern s16 D_800958B0; /**< limit of the value being edited */
 extern s16 D_800958DA; /**< cleared when flag bit 6 is set */
 
 /** @brief The three words of the game state this unit resets. */

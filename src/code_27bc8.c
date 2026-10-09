@@ -133,7 +133,20 @@ s32 func_800383F8(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038468);
+s32 func_80038468(void) {
+    s32 ret;
+    s16 i;
+
+    ret = 0;
+    D_80095A1C = D_80011998;
+    for (i = 0; i < 10; i++) {
+        if (erase(D_80095A1C) != 0) {
+            return ret;
+        }
+    }
+    D_800959D0 = 12;
+    return -1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 

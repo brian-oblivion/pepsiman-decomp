@@ -1,4 +1,5 @@
 #include "common.h"
+#include "memory.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -28,6 +29,21 @@ typedef struct {
     BankEntry entries[80]; /**< per-entry start indices */
     Rec4C recs[1];         /**< the records; real count unknown */
 } Bank4C;
+
+/** @brief A 0x78-byte record of an 80-entry table; two pairs of halfwords
+ *         are reset together. */
+typedef struct {
+    u8 unk0[0x6E]; /**< not yet known */
+    s16 unk6E;     /**< zeroed when the second buffer is cleared */
+    s16 unk70;     /**< -1 when the second buffer is cleared */
+    s16 unk72;     /**< zeroed when the first buffer is cleared */
+    s16 unk74;     /**< -1 when the first buffer is cleared */
+    u8 unk76[2];   /**< not yet known */
+} Rec78;
+
+extern u8 D_800D3CA8[];    /**< 0x44C0-byte buffer, cleared as a whole */
+extern u8 D_800DB2C0[];    /**< 0x1DB0-byte buffer, cleared as a whole */
+extern Rec78 D_800D8D20[]; /**< 80 records */
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
 
@@ -163,7 +179,15 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036B90);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036D50);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036E50);
+void func_80036E50(void) {
+    u32 i;
+
+    bzero(D_800D3CA8, 0x44C0);
+    for (i = 0; i < 80; i++) {
+        D_800D8D20[i].unk72 = 0;
+        D_800D8D20[i].unk74 = -1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036EA0);
 

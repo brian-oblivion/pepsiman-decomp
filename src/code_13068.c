@@ -82,7 +82,30 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023020);
 
 void func_800230D8(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800230E0);
+/* MATCHING: the unused 88 bytes put p and flag at sp+0xE8 and the frame at 0x100. */
+void func_800230E0(VECTOR *pos, SVECTOR *out) {
+    DVECTOR sxy;
+    SVECTOR v;
+    MATRIX ls;
+    GsCOORDINATE2 coord;
+    s32 unused[22];
+    long p;
+    long flag;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = pos->vx;
+    coord.coord.t[1] = pos->vy;
+    coord.coord.t[2] = pos->vz;
+    coord.flg = 0;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+    v.vz = 0;
+    v.vy = 0;
+    v.vx = 0;
+    out->vz = RotTransPers(&v, (long *)&sxy, &p, &flag);
+    out->vx = sxy.vx;
+    out->vy = sxy.vy;
+}
 
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {

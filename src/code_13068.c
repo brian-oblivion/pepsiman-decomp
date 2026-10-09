@@ -82,11 +82,22 @@ extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
 
 extern u8 D_80095784;
+extern u8 *D_80095790;
+extern u16 D_8009576A;
+
+/** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */
+typedef struct {
+    GsF_LIGHT l[3]; /**< one per light index */
+} LightTable;
+
+/* MATCHING: a struct lvalue keeps the table's base in a register. */
+#define sLights (*(LightTable *)D_800DD070)
 extern s16 D_800957BC;
 extern s32 D_8009EEF8[];
 
 void func_80023834(u8 mode, u16 a, u16 b);
 void func_80023B20(void);
+void func_80028650(void);
 
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
@@ -263,7 +274,30 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026848);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026A60);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026C70);
+/* MATCHING: the index-first integer sum gives retail's addu operand order. */
+void func_80026C70(void) {
+    u8 *c;
+
+    c = (u8 *)((((u32)D_80095864 >> 12) & 3) * 4 + (s32)D_80095790);
+    sLights.l[0].r = sLights.l[1].r = sLights.l[2].r = c[0];
+    sLights.l[0].g = sLights.l[1].g = sLights.l[2].g = c[1];
+    sLights.l[0].b = sLights.l[1].b = sLights.l[2].b = c[2];
+    sLights.l[0].vx = 0;
+    sLights.l[0].vy = 100;
+    sLights.l[0].vz = 100;
+    GsSetFlatLight(0, &sLights.l[0]);
+    sLights.l[1].vx = 86;
+    sLights.l[1].vy = 100;
+    sLights.l[1].vz = -50;
+    GsSetFlatLight(1, &sLights.l[1]);
+    sLights.l[2].vx = -86;
+    sLights.l[2].vy = 100;
+    sLights.l[2].vz = -50;
+    GsSetFlatLight(2, &sLights.l[2]);
+    if (D_8009576A == 100 || D_80095830 % 3 == 2) {
+        func_80028650();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026D9C);
 

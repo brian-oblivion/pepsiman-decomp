@@ -95,11 +95,10 @@ INCLUDE_ASM("asm/nonmatchings/main", func_8001534C);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800153CC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
-
 /**
- * @brief A 10-byte header at the start of a table in initialized data,
- *        unpacked field by field into small globals. Meanings not yet known.
+ * @brief A 10-byte record of a table in initialized data (the table
+ *        starts with one), unpacked field by field into small globals.
+ *        Meanings not yet known.
  */
 typedef struct {
     u16 unk0; /**< not yet known */
@@ -119,6 +118,26 @@ extern u16 D_80095764;
 extern u16 D_80095766;
 extern u16 D_800957D8;
 extern u16 D_800957E0;
+
+#ifdef NON_MATCHING
+void func_80015450(TableHeader *tbl, u16 index) {
+    u8 *rec;
+
+    D_80095930 = tbl;
+    tbl += index;
+    D_8009576C = index;
+    D_8009586A = tbl->unk0;
+    D_800958E6 = tbl->unk2;
+    /* MATCHING: byte-pointer reads keep each load below the prior store. */
+    rec = (u8 *)tbl;
+    D_80095764 = rec[5];
+    D_80095766 = rec[4];
+    D_800957D8 = *(u16 *)(rec + 8);
+    D_800957E0 = rec[6];
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
+#endif
 
 void func_800154C4(void) {
     TableHeader *hdr;

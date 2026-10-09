@@ -227,4 +227,12 @@ s32 func_80037318(void) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037370);
+s32 func_80037370(void) {
+    s32 fd;
+    s32 n;
+
+    fd = open(D_80011768, O_RDONLY);
+    n = read(fd, (void *)0x8018D000, 0x13868);
+    close(fd);
+    return n;
+}

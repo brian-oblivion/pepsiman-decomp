@@ -78,7 +78,16 @@ void func_800428B0(void) {
     SsSetTickMode(1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800428EC);
+void func_800428EC(void) {
+    SsSetMVol(0, 0);
+    SsSetRVol(0, 0);
+    SsUtSetReverbType(SS_REV_TYPE_STUDIO_B);
+    VSync(0);
+    SsSetMVol(127, 127);
+    SsSetRVol(120, 120);
+    SsUtReverbOn();
+    SsUtSetReverbDepth(48, 48);
+}
 
 extern s16 D_80095AF0;
 

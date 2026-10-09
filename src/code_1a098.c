@@ -20,10 +20,11 @@ typedef struct {
     s32 offset; /**< byte offset of the second part from the header */
 } BlockHeader;
 
-extern u8 *D_800959C0; /**< the bytes after a BlockHeader */
-extern u8 *D_800959C4; /**< the BlockHeader's second part */
-extern s32 D_800959C8; /**< the BlockHeader's first word */
-extern u16 D_800958E8; /**< zeroed with the block; never loaded here */
+extern u8 *D_800959C0;  /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4;  /**< the BlockHeader's second part */
+extern s32 D_800959C8;  /**< the BlockHeader's first word */
+extern u16 D_800958E8;  /**< zeroed with the block; never loaded here */
+extern u8 D_800A74D0[]; /**< 128 byte flags; cleared together */
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -131,7 +132,17 @@ void func_8002D0C4(BlockHeader *hdr) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D0F0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D140);
+/** @brief Clears a 128-byte table of flags.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D140(void) {
+    u32 i;
+
+    /* MATCHING: non-void with no return; it keeps $v0 live at the exit, so
+     * the loop's delay slot stays a nop. */
+    for (i = 0; i < 128; i++) {
+        D_800A74D0[i] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D16C);
 

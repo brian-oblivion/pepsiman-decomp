@@ -65,7 +65,12 @@ void func_80029838(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002985C);
+void func_8002985C(void) {
+    D_8009F0B0[0] = 0;
+    D_8009F0B0[10] = 0;
+    D_8009F0B0[20] = 0;
+    func_80028984();
+}
 
 void func_8002988C(void) {
     D_8009EF30[0] = 0;

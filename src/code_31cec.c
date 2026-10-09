@@ -27,6 +27,12 @@ extern char D_800E0588[];
 extern s32 D_80095AB4;
 extern u8 D_80095AEE;
 extern u16 D_80095B1A;
+extern s16 D_80095AF0;
+extern s32 D_8009579C;
+extern s16 D_80095B14;
+extern s16 D_80095B18;
+extern s16 D_80095B16;
+extern s16 D_80095AEA;
 extern s16 D_800956C2;
 extern s16 D_80095AC8;
 
@@ -100,7 +106,23 @@ void func_80041EE0(CdlLOC *loc) {
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041F28);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042058);
+s32 func_80042058(void) {
+    s16 i;
+    u32 *hdr;
+
+    SsSetSerialAttr(SS_SERIAL_A, SS_MIX, SS_SON);
+    SsSetSerialVol(SS_SERIAL_A, 127, 127);
+    D_80095AEA = 0;
+    D_80095B1A = 0;
+    hdr = (u32 *)0x80101000;
+    for (i = 2; i < 10; i++) {
+        D_800E0570[i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), D_80095B16);
+    }
+    for (i = 0; i < 10; i++) {
+        SsSeqSetVol(D_800E0570[i], 0, 0);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042150);
 
@@ -126,8 +148,6 @@ void func_800428EC(void) {
     SsUtReverbOn();
     SsUtSetReverbDepth(48, 48);
 }
-
-extern s16 D_80095AF0;
 
 void func_80042958(u8 value) {
     D_80095AF0 = value;

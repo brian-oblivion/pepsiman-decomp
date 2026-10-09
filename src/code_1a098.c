@@ -359,7 +359,18 @@ s32 func_8002D140(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D16C);
+/** @brief Marks with 2 every block entry whose flag is 1.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D16C(void) {
+    u32 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    for (i = 0; i < 200; i++) {
+        if ((s8)D_800A74D0[((Ent8 *)D_800959C4)[i].unk6] == 1) {
+            D_800A7550[i] = 2;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D1CC);
 

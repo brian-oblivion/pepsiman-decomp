@@ -66,7 +66,9 @@ segments:
       - [0x293C, o, libspu/spu, .rdata]
       - [0x298C, o, libsnd/ssopenq, .rdata]
       - [0x29BC, o, libsnd/seqinit, .rdata]
-      - [0x29FC, rodata]
+      - [0x29FC, o, libspu/s_sca, .rdata]
+      - [0x2A3C, o, libsnd/sstick, .rdata]
+      - [0x2A5C, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -134,13 +136,41 @@ segments:
       - [0x37424, o, libsnd/ssplay]           # SsSeqPlay, SsSepPlay
       - [0x374A4, o, libsnd/playmode]         # Snd_SetPlayMode
       - [0x375C4, o, libsnd/sssattr]          # SsSetSerialAttr
-      - [0x37684, asm, psyq_37684]
+      - [0x37684, o, libspu/s_sca]            # SpuSetCommonAttr
+      - [0x37A04, o, libsnd/sssmv]            # SsSetMVol
+      - [0x37A54, o, libsnd/sssrv]            # SsSetRVol
+      - [0x37AE4, o, libspu/s_srd]            # SpuSetReverbDepth
+      - [0x37B64, o, libsnd/ssstart]          # SsStart, SsStart2
+      - [0x37E74, o, libsnd/sscall]           # SsSeqCalledTbyT
+      - [0x380E4, o, libsnd/cres]             # _SsSndCrescendo
+      - [0x382F4, o, libsnd/pause]            # _SsSndPause
+      - [0x38394, o, libsnd/play]             # _SsSndPlay
+      - [0x383C4, o, libsnd/midiread]         # _SsSeqPlay, _SsGetSeqData, _SsSeqGetEof
+      - [0x38AB4, o, libsnd/next]             # _SsSndNextSep
+      - [0x38BB4, o, libsnd/replay]           # _SsSndReplay
+      - [0x38C14, o, libsnd/ssstop]           # _SsSndStop, SsSeqStop, SsSepStop
+      - [0x38DF4, o, libsnd/sssv]             # SsSetSerialVol
+      - [0x38F04, o, libsnd/sstable]          # SsSetTableSize
+      - [0x39124, o, libsnd/sstick]           # SsSetTickMode
+      - [0x39274, o, libsnd/ssvol]            # _SsSndSetVol, SsSeqSetVol, SsSepSetVol, SsSeqGetVol
+      - [0x39434, o, libsnd/tempo]            # _SsSndTempo
+      - [0x39654, o, libsnd/ut_gpa]           # SsUtGetProgAtr
+      - [0x39764, o, libsnd/ut_gva]           # SsUtGetVagAtr
+      - [0x399A4, o, libsnd/ut_rdel]          # SsUtSetReverbDelay
+      - [0x399E4, o, libspu/s_srmp]           # SpuSetReverbModeParam
+      - [0x39EC4, o, libspu/s_sra]            # _spu_setReverbAttr
+      - [0x3A394, o, libsnd/ut_rdep]          # SsUtSetReverbDepth
+      - [0x3A424, o, libsnd/ut_rev]           # SsUtSetReverbType, SsUtGetReverbType
+      - [0x3A4D4, o, libspu/s_sr]             # SpuSetReverb
+      - [0x3A5A4, asm, psyq_3A5A4]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
       - [0x6C46C, o, libspu/s_ini, .data]
       - [0x6C4EC, o, libspu/spu, .data]
       - [0x6C54C, data]
+      - [0x6C98C, o, libsnd/ssstart, .data]
+      - [0x6C9AC, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

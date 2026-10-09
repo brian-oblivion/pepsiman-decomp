@@ -28,11 +28,24 @@ typedef struct {
     s32 capacity; /**< slots in the array */
 } SlotList;
 
+/** @brief A TIM image's header, unpacked: where its CLUT and pixels go. */
+typedef struct {
+    s16 mode;      /**< pixel mode, the low 3 bits of the TIM flags */
+    s16 hasClut;   /**< 1 when the TIM carries a CLUT */
+    u32 *clut;     /**< the CLUT's pixel data */
+    RECT clutRect; /**< where the CLUT goes in VRAM */
+    u32 *pixel;    /**< the image's pixel data */
+    RECT pixRect;  /**< where the image goes in VRAM */
+    s16 unk1C;     /**< the image width scaled by the pixel mode */
+    s16 unk1E;     /**< 4, 2 or not set, by pixel mode */
+} TimInfo;
+
 extern u8 D_800958C9;
 extern CdlLOC D_80095728;
 extern MATRIX D_800E4858;
 
 void func_80017774(void *data);
+s8 func_80017640(u16 *tim);
 s32 func_800175AC(u8 com);
 u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
 
@@ -62,7 +75,36 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017640);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017774);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017880);
+/* MATCHING: s32 with no value returned keeps the return register live,
+ * so cc1 leaves the two forward branch delay slots empty. */
+s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
+    RECT rect;
+    RECT clut;
+    TimInfo *info;
+    TimInfo *clutInfo;
+
+    if (func_80017640(tim) == -1) {
+        return;
+    }
+    info = (TimInfo *)D_800956D4;
+    if (px != -1) {
+        rect.x = px;
+        rect.y = py;
+        rect.w = info->pixRect.w;
+        rect.h = info->pixRect.h;
+        LoadImage(&rect, info->pixel);
+    }
+    if (cx != -1) {
+        clutInfo = (TimInfo *)D_800956D4;
+        if (clutInfo->hasClut == 1) {
+            clut.x = cx;
+            clut.y = cy;
+            clut.w = clutInfo->clutRect.w;
+            clut.h = clutInfo->clutRect.h;
+            LoadImage(&clut, clutInfo->clut);
+        }
+    }
+}
 
 void func_8001797C(PackEntry *pack) {
     PackEntry *e;

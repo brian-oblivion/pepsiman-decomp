@@ -272,7 +272,19 @@ INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C24);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80039580);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80039618);
+s16 func_80039618(void) {
+    s16 sum;
+    s16 i;
+
+    sum = 0;
+    for (i = 0; i < D_800959DC; i++) {
+        sum += D_800DF858[i].unk14;
+    }
+    if (sum >= 4) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003968C);
 

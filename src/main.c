@@ -24,7 +24,55 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80014044);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800148B0);
+void func_80013EE4(void);
+void func_800142EC(s32 arg);
+void func_80014B8C(s16 frames);
+void func_80018094(void);
+
+/* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
+extern s32 D_80095850[2];
+extern s32 D_80095870[2];
+extern s32 D_80095848[2];
+
+void func_800148B0(void) {
+    s32 x;
+    s32 y;
+    s32 pad;
+
+    x = 0;
+    y = 0;
+    func_80014B8C(20);
+    for (;;) {
+        pad = D_80095848[0];
+        if (pad & 0x2000) {
+            x += 8;
+        }
+        if (pad & 0x8000) {
+            x -= 8;
+        }
+        if (pad & 0x1000) {
+            y -= 8;
+        }
+        if (pad & 0x4000) {
+            y += 8;
+        }
+        if (pad & 0x800) {
+            break;
+        }
+        x = x < 0 ? 0 : x > 0x2C0 ? 0x2C0 : x;
+        y = y < 0 ? 0 : y > 0x110 ? 0x110 : y;
+        GsDefDispBuff(x, y, x, y);
+        func_800142EC(0);
+        DrawSync(0);
+        VSync(0);
+        GsSwapDispBuff();
+    }
+    func_80013EE4();
+    GsInit3D();
+    func_80018CB4();
+    func_80018094();
+    func_80014B8C(5);
+}
 
 extern char D_800954C8[];
 extern char D_800954CC[];
@@ -59,7 +107,6 @@ void func_800149D0(u8 *base) {
     }
 }
 
-void func_80013EE4(void);
 void func_8001534C(void);
 void func_80014D20(void);
 void func_80014D6C(void);
@@ -92,8 +139,6 @@ void func_80014AC8(void) {
     D_80095820 = 0;
     func_80014D6C();
 }
-
-void func_800142EC(s32 arg);
 
 void func_80014B8C(s16 frames) {
     s16 i;
@@ -180,10 +225,6 @@ void func_8001552C(u8 *a, u8 *b);
 
 extern u8 D_80095BA0[];
 extern u8 D_80095BE8[];
-/* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
-extern s32 D_80095850[2];
-extern s32 D_80095870[2];
-extern s32 D_80095848[2];
 
 void func_8001534C(void) {
     s16 i;

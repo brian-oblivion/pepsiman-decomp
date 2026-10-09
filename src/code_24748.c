@@ -150,7 +150,12 @@ Rec2C *func_80036A50(s32 idx, s32 sub) {
     return &recs[bank->entries[idx].first + sub];
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036A84);
+Rec4C *func_80036A84(s32 idx, s32 sub) {
+    Bank4C *bank = (Bank4C *)D_80095A4C;
+    Rec4C *recs = bank->recs;
+
+    return &recs[bank->entries[idx].first + sub];
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036AB8);
 

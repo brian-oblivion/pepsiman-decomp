@@ -220,7 +220,45 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035350);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800355D8);
+void func_800355D8(void) {
+    s32 flags = D_80095970;
+    u8 v;
+
+    if (flags & 1) {
+        D_80095A60++;
+        D_80095A22 = D_800958DA;
+        D_800958DA = 6;
+        D_80095A24 = 0;
+    }
+    if (flags & 2) {
+        D_80095A60--;
+        D_80095A22 = D_800958DA;
+        D_800958DA = 6;
+        D_80095A24 = 0;
+    }
+    if (flags & 0x80) {
+        D_80095A61++;
+        D_80095A22 = D_800958DA;
+        D_800958DA = 6;
+        D_80095A24 = 0;
+    }
+    if (flags & 0x40) {
+        D_80095A61--;
+        D_80095A22 = D_800958DA;
+        D_800958DA = 6;
+        D_80095A24 = 0;
+    }
+    v = D_80095A61;
+    if ((s8)D_80095A61 > 0) {
+        if ((s8)D_80095A61 > 20) {
+            v = 20;
+        }
+    } else {
+        v = 1;
+    }
+    D_80095A61 = v;
+    D_80095A60 = (s8)D_80095A60 < 0 ? 4 : (s8)D_80095A60 > 4 ? 0 : D_80095A60;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
 

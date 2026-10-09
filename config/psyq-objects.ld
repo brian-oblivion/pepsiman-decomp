@@ -22,9 +22,26 @@ _spu_RQ = 0x800E14E0;   /* libspu/spu */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
+SpuSetCommonAttr = 0x80046E84;
+SsUtGetProgAtr = 0x80048E54;
+SsUtGetVagAtr = 0x80048F64;
+SsUtSetReverbDelay = 0x800491A4;
+SsUtSetReverbDepth = 0x80049B94;
+SsUtSetReverbType = 0x80049C24;
+SsUtSetReverbFeedback = 0x80049DA4;
+SsUtReverbOff = 0x80049DE4;
+SsUtReverbOn = 0x80049E04;
+SsUtSetVagAtr = 0x80049E24;
+_SsVmDamperOff = 0x80049FF4;
+_SsVmDamperOn = 0x8004A004;
 _SsVmInit = 0x8004B1A4;
+_SsVmKeyOn = 0x8004B594;
+_SsVmKeyOff = 0x8004BAB0;
+_SsVmPitchBend = 0x8004D0E0;
+_SsVmSetProgVol = 0x8004D1C4;
 _SsVmSetSeqVol = 0x8004D344;
 _SsVmSeqKeyOff = 0x8004D9A4;
+_SsVmSetVol = 0x8004DB24;
 ResetCallback = 0x8004F244;
 DMACallback = 0x8004F2A4;
 printf = 0x8006C204;

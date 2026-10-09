@@ -64,7 +64,9 @@ segments:
     subsegments:
       - [0x800, .rodata, main]
       - [0x293C, o, libspu/spu, .rdata]
-      - [0x298C, rodata]
+      - [0x298C, o, libsnd/ssopenq, .rdata]
+      - [0x29BC, o, libsnd/seqinit, .rdata]
+      - [0x29FC, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -87,7 +89,52 @@ segments:
       - [0x34C64, o, libspu/s_dcb]            # _SpuDataCallback
       - [0x34C94, o, libspu/s_crwa]           # SpuClearReverbWorkArea
       - [0x34E34, o, libspu/s_m_util]         # _SpuIsInAllocateArea, _SpuIsInAllocateArea_
-      - [0x34F44, asm, psyq_34F44]
+      - [0x34F44, o, libsnd/ssloop]           # SsSetLoop, SsIsEos
+      - [0x34FC4, o, libsnd/ssopenq]          # SsSeqOpen
+      - [0x35254, o, libsnd/cc_0]             # _SsContBankChange
+      - [0x352D4, o, libsnd/cc_6]             # _SsContDataEntry
+      - [0x35654, o, libsnd/cc_7]             # _SsContMainVol
+      - [0x35724, o, libsnd/cc_10]            # _SsContPanpot
+      - [0x357F4, o, libsnd/cc_11]            # _SsContExpression
+      - [0x358E4, o, libsnd/cc_64]            # _SsContDamper
+      - [0x35994, o, libsnd/cc_91]            # _SsContExternal
+      - [0x35A24, o, libsnd/cc_98]            # _SsContNrpn1
+      - [0x35B24, o, libsnd/cc_99]            # _SsContNrpn2
+      - [0x35C64, o, libsnd/cc_100]           # _SsContRpn1
+      - [0x35CD4, o, libsnd/cc_101]           # _SsContRpn2
+      - [0x35D44, o, libsnd/cc_121]           # _SsContResetAll
+      - [0x35E04, o, libsnd/de_0]             # _SsSetNrpnVabAttr0
+      - [0x35E94, o, libsnd/de_1]             # _SsSetNrpnVabAttr1
+      - [0x35F54, o, libsnd/de_2]             # _SsSetNrpnVabAttr2
+      - [0x35FE4, o, libsnd/de_3]             # _SsSetNrpnVabAttr3
+      - [0x36074, o, libsnd/de_4]             # _SsSetNrpnVabAttr4
+      - [0x36124, o, libsnd/ccadsr]           # _SsUtResolveADSR, _SsUtBuildADSR
+      - [0x36224, o, libsnd/de_5]             # _SsSetNrpnVabAttr5
+      - [0x362E4, o, libsnd/de_6]             # _SsSetNrpnVabAttr6
+      - [0x36394, o, libsnd/de_7]             # _SsSetNrpnVabAttr7
+      - [0x36444, o, libsnd/de_8]             # _SsSetNrpnVabAttr8
+      - [0x364F4, o, libsnd/de_9]             # _SsSetNrpnVabAttr9
+      - [0x365B4, o, libsnd/de_10]            # _SsSetNrpnVabAttr10
+      - [0x36664, o, libsnd/de_11]            # _SsSetNrpnVabAttr11
+      - [0x36714, o, libsnd/de_12]            # _SsSetNrpnVabAttr12
+      - [0x367F4, o, libsnd/de_13]            # _SsSetNrpnVabAttr13
+      - [0x36894, o, libsnd/de_14]            # _SsSetNrpnVabAttr14
+      - [0x36934, o, libsnd/de_15]            # _SsSetNrpnVabAttr15
+      - [0x36964, o, libsnd/de_16]            # _SsSetNrpnVabAttr16
+      - [0x36994, o, libsnd/de_17]            # _SsSetNrpnVabAttr17
+      - [0x369C4, o, libsnd/de_18]            # _SsSetNrpnVabAttr18
+      - [0x369F4, o, libsnd/de_19]            # _SsSetNrpnVabAttr19
+      - [0x36A24, o, libsnd/midibend]         # _SsSetPitchBend
+      - [0x36AD4, o, libsnd/midicc]           # _SsSetControlChange
+      - [0x36D04, o, libsnd/midimeta]         # _SsGetMetaEvent
+      - [0x36ED4, o, libsnd/midinote]         # _SsNoteOn
+      - [0x36FB4, o, libsnd/midiprog]         # _SsSetProgramChange
+      - [0x37024, o, libsnd/miditime]         # _SsReadDeltaValue
+      - [0x370D4, o, libsnd/seqinit]          # _SsInitSoundSeq
+      - [0x37424, o, libsnd/ssplay]           # SsSeqPlay, SsSepPlay
+      - [0x374A4, o, libsnd/playmode]         # Snd_SetPlayMode
+      - [0x375C4, o, libsnd/sssattr]          # SsSetSerialAttr
+      - [0x37684, asm, psyq_37684]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]

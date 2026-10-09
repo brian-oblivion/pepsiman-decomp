@@ -80,7 +80,12 @@ segments:
       - [0x300C, o, libcd/cdread, .rdata]
       - [0x305C, o, libcd/c_011, .rdata]
       - [0x307C, o, libgs/2d_com1, .rdata]
-      - [0x30AC, rodata]
+      - [0x30AC, o, libgs/matrix, .rdata]
+      - [0x30DC, o, libgs/gs_108, .rdata]
+      - [0x30FC, o, libgs/gs_123, .rdata]
+      - [0x318C, o, libgs/objt, .rdata]
+      - [0x322C, o, libgs/objt2, .rdata]
+      - [0x32CC, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -271,7 +276,47 @@ segments:
                                               # scattered in retail (ldfrag NOTE), so the object
                                               # cannot link unedited
       - [0x474C4, o, libgs/gs_002]            # GsGetActiveBuff, GsSetDrawBuffOffset
-      - [0x475E4, asm, psyq_475E4]
+      - [0x475E4, o, libgte/reg12]            # SetGeomOffset
+      - [0x47604, o, libgs/gs_003]            # GsSetDrawBuffClip
+      - [0x47684, o, libgs/gs_010]            # GsSwapDispBuff
+      - [0x47734, o, libgs/matrix]            # GsInitCoordinate2, GsInitCoord2param, GsSetLsMatrix, GsSet
+      - [0x47AF4, o, libgte/mtx_000]          # MulMatrix0
+      - [0x47C04, o, libgte/mtx_004]          # ApplyMatrixLV
+      - [0x47D64, o, libgte/mtx_006]          # PushMatrix, PopMatrix
+      - [0x47EB4, o, libgte/mtx_03]           # MulMatrix
+      - [0x47FC4, o, libgte/mtx_04]           # MulMatrix2
+      - [0x480D4, o, libgte/mtx_10]           # SetLightMatrix
+      - [0x48104, o, libgs/gs_103]            # GsDefDispBuff
+      - [0x481A4, o, libgs/gs_104]            # GsInit3D
+      - [0x48224, o, libgs/gs_105]            # GsMapModelingData
+      - [0x48294, o, libgs/gs_106]            # GsSetProjection
+      - [0x482B4, o, libgte/reg13]            # SetGeomScreen
+      - [0x482C4, o, libgs/gs_107]            # GsSetFlatLight
+      - [0x48834, o, libgte/mtx_11]           # SetColorMatrix
+      - [0x48864, o, libgs/gs_108]            # GsSetLightMode
+      - [0x488E4, o, libgs/gs_109]            # GsSetFogParam
+      - [0x48934, o, libgs/gs_110]            # GsSetAmbient
+      - [0x48964, o, libgte/reg10]            # SetBackColor
+      - [0x48984, o, libgs/gs_111]            # GsDrawOt
+      - [0x489B4, o, libgs/gs_113]            # GsClearOt
+      - [0x48A14, o, libgs/gs_114]            # GsSortOt
+      - [0x48AD4, o, libgs/gs_121]            # gte_init
+      - [0x48B24, o, libgte/msc00]            # InitGeom
+      - [0x48BB4, o, libgte/patchgte]         # _patch_gte
+      - [0x48C94, o, libgs/gs_122]            # GsGetTimInfo
+      - [0x48D84, o, libgs/gs_123]            # Gssub_make_matrix
+      - [0x48E54, o, libgs/gs_124]            # GsSetWorkBase
+      - [0x48E64, o, libgs/gs_131]            # GsSetRefView2
+      - [0x49404, o, libgte/fgo_00]           # TransposeMatrix
+      - [0x49444, o, libgs/gs_119]            # gte_rotate_z_matrix
+      - [0x49504, o, libgs/gs_133]            # GsGetLw
+      - [0x497C4, o, libgs/gs_134]            # GsGetLs
+      - [0x49A94, o, libgs/gs_135]            # GsGetLws
+      - [0x49DB4, o, libgs/gs_137]            # GsSetRefView2L
+      - [0x4A3C4, o, libgte/cor_05]           # csqrt_1, csqrt
+      - [0x4A5B4, o, libgs/objt]              # GsLinkObject4
+      - [0x4A744, o, libgs/objt2]             # GsSortObject4
+      - [0x4AFD4, asm, psyq_4AFD4]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -304,6 +349,11 @@ segments:
       - [0x73044, o, libgte/clip_ini, .data]
       - [0x73054, o, libgte/ratan, .data]
       - [0x73864, data]
+      - [0x73874, o, libgte/mtx_006, .data]
+      - [0x73B84, o, libgte/msc00, .data]
+      - [0x73B94, data]
+      - [0x73BA4, o, libgs/objt2, .data]
+      - [0x73CD4, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

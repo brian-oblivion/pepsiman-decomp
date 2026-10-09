@@ -1,5 +1,34 @@
 #include "common.h"
 
+/** @brief One of the 80 entries heading a record bank: where the entry's
+ *         records start. */
+typedef struct {
+    s32 first; /**< index in the bank's records of the entry's first one */
+    s32 unk4;  /**< not yet known */
+} BankEntry;
+
+/** @brief A 0x2C-byte record of the first of two record banks. */
+typedef struct {
+    u8 unk0[0x2C]; /**< not yet known */
+} Rec2C;
+
+/** @brief A 0x4C-byte record of the second of two record banks. */
+typedef struct {
+    u8 unk0[0x4C]; /**< not yet known */
+} Rec4C;
+
+/** @brief The first record bank: 80 entries, then 0x2C-byte records. */
+typedef struct {
+    BankEntry entries[80]; /**< per-entry start indices */
+    Rec2C recs[1];         /**< the records; real count unknown */
+} Bank2C;
+
+/** @brief The second record bank: 80 entries, then 0x4C-byte records. */
+typedef struct {
+    BankEntry entries[80]; /**< per-entry start indices */
+    Rec4C recs[1];         /**< the records; real count unknown */
+} Bank4C;
+
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
 
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011528);
@@ -114,7 +143,12 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036878);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036A50);
+Rec2C *func_80036A50(s32 idx, s32 sub) {
+    Bank2C *bank = (Bank2C *)D_80095A50;
+    Rec2C *recs = bank->recs;
+
+    return &recs[bank->entries[idx].first + sub];
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036A84);
 

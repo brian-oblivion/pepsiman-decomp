@@ -106,10 +106,17 @@ literal (declare the existing `extern const char D_…[]` instead).
   -mno-abicalls`, then maspsx with the flags in the Makefile's
   `MASPSX_FLAGS`. Anything that compiles in isolation reads the flags from
   the Makefile and never retypes them.
-- The compiler is GCC 2.8.1, not lsddecomp's 2.6.3: it splits `%hi`/`%lo`
-  itself and decides `$gp` addressing from `-G8`. Lessons in
-  `docs/lsd-reference/` that are about 2.6.3's codegen (most of
+- The compiler is GCC 2.8.1, not lsddecomp's 2.6.3. Lessons in
+  `docs/lsd-reference/` about 2.6.3's codegen (most of
   `DECOMPILATION_LEARNINGS.md`) are hypotheses here, not rules.
+- **A global's declaration decides how it is reached; read retail's access
+  to choose it.** A small complete object (scalar, pointer, struct of at
+  most 8 bytes) stays a symbolic load that maspsx makes `%gp_rel` if the
+  name is in `config/gp-symbols.txt` and `lui $at` if not. An array of
+  unknown size or a larger object is split by cc1 into `lui <reg>` and
+  `%lo(sym)(<reg>)`. `include/common.h` declares the globals every unit
+  reaches the same way; one that units reach differently is declared in
+  each unit with a `MATCHING:` note (`tools/declcheck.py` accepts that).
 - Sony's SDK is linked from Sony's objects (`config/psyq-objects.txt`). Never
   write C for a function a Sony object owns; `tools/sdkstalls.py` and
   `tools/psyq_sdk.py coverage` say which those are. Pepsiman's libraries

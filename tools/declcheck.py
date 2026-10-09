@@ -26,7 +26,7 @@ Reports (each exits non-zero when non-empty):
   TYPE      a declaration whose type differs from the definition's
   IMPLICIT  a function a game unit calls with no declaration in that unit
 
-A TYPE or MULTI hit whose declaration line, or the unbroken (no blank line)
+A TYPE, MULTI or LOCAL hit whose declaration line, or the unbroken (no blank line)
 block of lines above it, carries a `MATCHING:` or `arity-ok` note is a deliberate view (a dead argument, a
 packed pair) and is listed under DELIBERATE without failing.
 """
@@ -257,7 +257,7 @@ def main():
             if others:
                 why.append("used by " + ", ".join(others))
             if why:
-                problems["LOCAL"].append(f"{name}: {w} ({'; '.join(why)})")
+                problems["DELIBERATE" if deliberate(d) else "LOCAL"].append(f"{name}: {w} ({'; '.join(why)})")
         if df:
             for w, d in s.items():
                 if d.typ != df.typ:

@@ -1,13 +1,5 @@
 #include "common.h"
 
-/** @brief A record of a 128-entry table. Only one byte is known: the
- *         record's 1-based number, written at start-up. */
-typedef struct {
-    u8 unk0[0x13]; /**< not yet known */
-    u8 unk13;      /**< set to the record's index + 1 */
-} NumberedSlot;
-
-extern NumberedSlot D_800DFAB0[];
 extern u8 D_80095AA8;
 extern u8 D_80095AA9;
 

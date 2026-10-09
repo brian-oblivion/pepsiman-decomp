@@ -77,4 +77,68 @@
  * one of those members is a `GteLong *`. */
 typedef GTE_LONG_BASE GteLong;
 
+/* --- Globals shared across units ------------------------------------------
+ *
+ * Only what every unit can use unchanged: a global that some units reach as a
+ * small object and others as an array of unknown size is declared in each
+ * unit instead. Types come from the access widths and the signedness of the
+ * loads; a 4-byte one is s32 until a unit shows it is a pointer.
+ */
+
+/** @brief A record of a 128-entry table. Only one byte is known: the
+ *         record's 1-based number, written at start-up. */
+typedef struct {
+    u8 unk0[0x13]; /**< not yet known */
+    u8 unk13;      /**< set to the record's index + 1 */
+} NumberedSlot;
+
+extern NumberedSlot D_800DFAB0[]; /**< the 128 records; 2 units */
+
+/* Small: a plain extern. */
+extern s32 D_800956D4; /**< 2 units, 4 functions */
+extern u8 D_800956F7;  /**< 3 units, 3 functions */
+extern s32 D_80095714; /**< 2 units, 2 functions */
+extern s32 D_8009571C; /**< 2 units, 2 functions */
+extern s32 D_80095720; /**< 2 units, 2 functions */
+extern u16 D_80095768; /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D5;  /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D6;  /**< 2 units, 3 functions; never loaded, sign unknown */
+extern u8 D_800958EC;  /**< 2 units, 4 functions; never loaded, sign unknown */
+extern s32 D_800959B4; /**< 2 units, 2 functions */
+extern s32 D_800959B8; /**< 2 units, 2 functions */
+extern s16 D_800959E0; /**< 2 units, 2 functions */
+extern u16 D_800959E4; /**< 2 units, 4 functions */
+extern s16 D_80095A0C; /**< 2 units, 4 functions */
+extern u16 D_80095A14; /**< 3 units, 3 functions; never loaded, sign unknown */
+extern s32 D_80095A4C; /**< 2 units, 7 functions */
+extern s32 D_80095A50; /**< 2 units, 7 functions */
+extern u16 D_80095B0E; /**< 2 units, 3 functions */
+
+/* Arrays of unknown size, each reached only at its first element: most are
+ * probably members of larger structures, still to be found. */
+extern u16 D_800734AC[]; /**< 3 units, 6 functions */
+extern u8 D_80095830[];  /**< 8 units, 24 functions */
+extern s32 D_80095864[]; /**< 3 units, 5 functions */
+extern s32 D_80096748[]; /**< 3 units, 7 functions */
+extern s32 D_80096768[]; /**< 4 units, 4 functions */
+extern s32 D_8009676C[]; /**< 2 units, 3 functions */
+extern u16 D_8009EAB8[]; /**< 2 units, 3 functions; never loaded, sign unknown */
+extern s16 D_8009EABA[]; /**< 2 units, 2 functions */
+extern u8 D_8009EB78[];  /**< 8 units, 69 functions */
+extern u8 D_8009EB7E[];  /**< 2 units, 2 functions */
+extern s16 D_8009EF20[]; /**< 2 units, 6 functions */
+extern u8 D_8009EF48[];  /**< 4 units, 7 functions */
+extern s8 D_8009EF4A[];  /**< 2 units, 2 functions */
+extern s32 D_8009F090[]; /**< 3 units, 7 functions */
+extern u8 D_8009F0B0[];  /**< 2 units, 4 functions */
+extern s32 D_8009F248[]; /**< 3 units, 7 functions */
+extern s32 D_800A7308[]; /**< 5 units, 22 functions */
+extern s32 D_800A9008[]; /**< 3 units, 17 functions */
+extern s16 D_800AC858[]; /**< 2 units, 6 functions */
+extern s32 D_800D39C8[]; /**< 2 units, 2 functions */
+extern s32 D_800D8360[]; /**< 2 units, 5 functions */
+extern s32 D_800D86B8[]; /**< 2 units, 3 functions */
+extern s32 D_800DB2A0[]; /**< 5 units, 15 functions */
+extern s32 D_800DD070[]; /**< 3 units, 4 functions */
+
 #endif

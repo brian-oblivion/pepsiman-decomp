@@ -39,6 +39,25 @@ extern u8 D_80095B28[];    /**< a Totals28 */
 extern char D_80011260[];  /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
 #define sTotals (*(Totals28 *)D_80095B28)
 
+/** @brief The tool state block, seen as the save area past its totals. */
+typedef struct {
+    u8 unk0[0x38]; /**< not yet known */
+    s32 unk38[3];  /**< a copy of sGameSave.unk348 */
+    s16 unk44;     /**< a saved halfword of game state */
+    u8 unk46[2];   /**< not yet known */
+    s32 unk48[6];  /**< six saved words of game state */
+} ToolSave;
+
+#define sToolSave (*(ToolSave *)D_80095B28)
+
+/** @brief The game state, seen as the part the tool state saves. */
+typedef struct {
+    u8 unk0[0x348]; /**< not yet known */
+    s32 unk348[3];  /**< saved into sToolSave.unk38 */
+} GameSave;
+
+#define sGameSave (*(GameSave *)D_8009EB78)
+
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
@@ -343,7 +362,21 @@ s32 func_8003356C(s16 n) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800335E8);
+/** @brief Saves three pieces of game state into the tool state block,
+ *         then runs a step on the tool buffer. */
+void func_800335E8(s16 a) {
+    sToolSave.unk38[0] = sGameSave.unk348[0];
+    sToolSave.unk38[1] = sGameSave.unk348[1];
+    sToolSave.unk38[2] = sGameSave.unk348[2];
+    sToolSave.unk44 = D_800A7682[0];
+    sToolSave.unk48[0] = D_800DB2A0[0];
+    sToolSave.unk48[1] = D_800DB2A0[1];
+    sToolSave.unk48[2] = D_800DB2A0[2];
+    sToolSave.unk48[3] = D_800DB2A0[3];
+    sToolSave.unk48[4] = D_800DB2A0[4];
+    sToolSave.unk48[5] = D_800DB2A0[5];
+    func_80032964(a, (u8 *)0x8016D000);
+}
 
 /** @brief Checks that save slot `i` of the tool buffer is valid and
  *         belongs to the current owner.

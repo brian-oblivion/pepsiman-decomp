@@ -145,6 +145,7 @@ extern u16 D_800958E8; /**< 5 units, 7 functions */
 extern s16 D_800958B0; /**< limit of the value being edited */
 extern s16 D_800958B2; /**< the count a menu line wraps at */
 extern s32 D_80095970; /**< flag word; bit 5 enables a two-state dispatch */
+extern s16 D_80095AF0; /**< 2 units, 2 functions */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

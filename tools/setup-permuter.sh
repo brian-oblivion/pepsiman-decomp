@@ -72,6 +72,11 @@ done
 # permuter's own cwd.
 MASPSX_FLAGS=$(sed -n 's/^MASPSX_FLAGS *:= *//p' "$REPO/Makefile" | sed "s| config/| $REPO/config/|g; s|=config/|=$REPO/config/|g")
 [ -n "$MASPSX_FLAGS" ] || { echo "FATAL: could not read MASPSX_FLAGS from $REPO/Makefile" >&2; exit 1; }
+# The build hands maspsx the UNIT's gp list after MASPSX_FLAGS (Makefile
+# UNIT_GP); a later --gp-symbols wins, so append the same one here.
+unit=$(basename "$(dirname "$asm")")
+[ -f "$REPO/config/gp/$unit.txt" ] || { echo "FATAL: no config/gp/$unit.txt -- run python3 tools/gpsyms.py" >&2; exit 1; }
+MASPSX_FLAGS="$MASPSX_FLAGS --gp-symbols=$REPO/config/gp/$unit.txt"
 echo "maspsx flags (from Makefile): $MASPSX_FLAGS"
 # Trap 8: CC_FLAGS were hardcoded here too, with -G0 while the Makefile has
 # -G8 (Pepsiman's 2.8.1 splits %hi/%lo itself). The scaffold then disagreed

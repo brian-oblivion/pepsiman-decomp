@@ -158,9 +158,7 @@ typedef struct {
     u8 b[15]; /**< the bytes */
 } Bytes15;
 
-#ifdef NON_MATCHING
 extern u8 D_80010000[];
-extern s16 D_80095AF0;
 
 void func_80017440(s32 a, s32 b);
 
@@ -168,15 +166,11 @@ void func_80014C58(u8 idx) {
     Bytes15 tbl;
 
     tbl = *(Bytes15 *)D_80010000;
-    /* MATCHING: retail reaches this through `lui`, other units through $gp. */
     if (D_80095AF0 != 0) {
         D_80095AF0 = 0;
     }
     func_80017440(tbl.b[idx], 1);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/main", func_80014C58);
-#endif
 
 void func_80014CF0(void) {
     /* MATCHING: retail reserves an 8-byte frame it never touches. */

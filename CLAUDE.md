@@ -113,7 +113,8 @@ literal (declare the existing `extern const char D_…[]` instead).
 - **A global's declaration decides how it is reached; read retail's access
   to choose it.** A small complete object (scalar, pointer, struct of at
   most 8 bytes) stays a symbolic load that maspsx makes `%gp_rel` if the
-  name is in `config/gp-symbols.txt` and `lui $at` if not. An array of
+  name is in the unit's `config/gp/<unit>.txt` (what retail reaches through
+  `$gp` from that unit; `tools/gpsyms.py`) and `lui $at` if not. An array of
   unknown size or a larger object is split by cc1 into `lui <reg>` and
   `%lo(sym)(<reg>)`. `include/common.h` declares the globals every unit
   reaches the same way; one that units reach differently is declared in

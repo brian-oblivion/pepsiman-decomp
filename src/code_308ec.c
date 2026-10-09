@@ -111,7 +111,60 @@ INCLUDE_ASM("asm/nonmatchings/code_308ec", func_8004079C);
 
 INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040998);
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040CD0);
+/* MATCHING: ret has no default; out-of-range numbers return whatever $a1
+ * held. */
+s16 func_80040CD0(u8 arg0) {
+    s32 ret;
+
+    switch (arg0) {
+        case 0:
+            ret = func_800FA6C8();
+            break;
+        case 1:
+            ret = func_800FA804();
+            break;
+        case 2:
+            ret = func_800F6CE4();
+            break;
+        case 3:
+            ret = func_800FA3EC();
+            break;
+        case 4:
+            ret = func_800FA1C0();
+            break;
+        case 5:
+            ret = func_800F6AC8();
+            break;
+        case 6:
+            ret = func_800F1080();
+            break;
+        case 7:
+            ret = func_800F1080();
+            break;
+        case 8:
+            ret = func_800F64B0();
+            break;
+        case 9:
+            ret = func_800F9618();
+            break;
+        case 10:
+            ret = func_800F98E4();
+            break;
+        case 11:
+            ret = func_800F475C();
+            break;
+        case 12:
+            ret = func_800F9BC0();
+            break;
+        case 13:
+            ret = func_800F8D34();
+            break;
+        case 14:
+            ret = func_800F3800();
+            break;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040E04);
 

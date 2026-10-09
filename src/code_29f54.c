@@ -315,6 +315,27 @@ s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     return 0;
 }
 
+/* MATCHING: inlined, so each call rebuilds the two struct addresses. */
+/**
+ * @brief Sets the GS local-screen matrix to a pure translation (x, y, z);
+ *        the sprite steps below expand it in place.
+ * @param x translation x
+ * @param y translation y
+ * @param z translation z
+ */
+static __inline__ void setLs(s16 x, s16 y, s16 z) {
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = x;
+    coord.coord.t[1] = y;
+    coord.coord.t[2] = z;
+    coord.flg = 0;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+}
+
 void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsCOORDINATE2 coord;
     MATRIX ls;
@@ -362,7 +383,24 @@ s32 func_8003F960(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F960);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FA88);
+s32 func_8003FA88(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vx = p->unk0 + 0x14;
+        size.vy = p->unk0 + 0x14;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 2);
+        func_8001A3D4(0x11F, &size, &color, 2, ot);
+        p->unkE -= 4;
+        p->unk10 += p->unk0 >> 2;
+        return ++p->unk0 == 0x20;
+    }
+    p->unk2--;
+    return 0;
+}
 
 #ifdef NON_MATCHING
 s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {

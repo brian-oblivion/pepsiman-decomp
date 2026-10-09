@@ -54,6 +54,8 @@ extern s8 D_8009EF4D[];
 
 extern s32 D_800958A8;
 extern s32 D_800958AC;
+extern s32 D_80095964;
+extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
  * from the lw), so it is an array here, though both halves use one register. */
 extern s32 D_8009EF44[];
@@ -220,7 +222,14 @@ void func_800284F8(void) {}
 
 void func_80028500(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028508);
+/* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
+s32 func_80028508(void) {
+    if (sGame.unk0 != 0 && (sGame.unk6 < 5 || sGame.unk6 >= 8) &&
+        (sGame.unk38F != 1 || sGame.unk398 < 6) && !(D_80095964 & 0x1000) && (D_800957EC & 0x40)) {
+        func_80042538(22);
+        sGame.unk6 = 5;
+    }
+}
 
 void func_800285B0(void) {
     sGame.unk398 = 0;

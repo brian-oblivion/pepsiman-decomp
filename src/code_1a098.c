@@ -79,6 +79,24 @@ typedef struct {
     s8 coord; /**< index into the coordinate-system table */
 } LocalPos;
 
+/** @brief A point of a path with the direction of its segment. */
+typedef struct {
+    s16 x;  /**< x of the point */
+    s16 z;  /**< z of the point */
+    s16 dx; /**< x of the direction */
+    s16 dz; /**< z of the direction */
+} PathPt;
+
+/** @brief Something that follows a path; only x, z and the segment are
+ *         known. */
+typedef struct {
+    s16 x;         /**< x */
+    u8 unk2[6];    /**< not yet known */
+    s16 z;         /**< z */
+    u8 unkA[0x32]; /**< not yet known */
+    s32 seg;       /**< the current path segment */
+} PathUser;
+
 /** @brief A model object with its own coordinate system and transform. */
 typedef struct {
     GsDOBJ2 obj;         /**< the object handler */
@@ -109,6 +127,7 @@ extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
 extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */
 extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems */
+extern PathPt *D_800958A0;         /**< the current path */
 extern s32 *D_800D81B0[];          /**< per-entry data pointers */
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
@@ -201,7 +220,31 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A98C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
 
+/** @brief Moves `u` to the next or previous path segment once it has
+ *         passed the next point or not yet reached its own.
+ *  @return the new segment */
+#ifdef NON_MATCHING
+/* MATCHING: the unused pair gives the leaf its 8-byte frame. */
+s32 func_8002AEB8(PathUser *u) {
+    s32 unused[2];
+    s32 i;
+    PathPt *pt;
+
+    i = u->seg;
+    pt = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    if (pt->dx * (u->x - pt->x) + pt->dz * (u->z - pt->z) >= 0) {
+        i++;
+    }
+    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    if (-pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z) >= 0) {
+        i--;
+    }
+    u->seg = i;
+    return i;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AEB8);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AF6C);
 

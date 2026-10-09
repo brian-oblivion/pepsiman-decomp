@@ -245,7 +245,20 @@ void func_800394EC(void) {
     D_80095A18 = (u8 *)0x8018D000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003950C);
+s32 func_8003950C(void) {
+    s32 ret;
+    s16 i;
+
+    ret = 0;
+    D_80095A1C = D_80011C24;
+    for (i = 0; i < 10; i++) {
+        if (erase(D_80095A1C) != 0) {
+            return ret;
+        }
+    }
+    D_800959D0 = 12;
+    return -1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_800119C8);
 

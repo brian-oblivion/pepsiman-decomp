@@ -104,7 +104,22 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800195CC);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019684);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800196E4);
+Slot *func_800196E4(SlotList *list, s32 key) {
+    Slot *s;
+    s32 i;
+
+    s = list->slots;
+    for (i = 0; i < list->count; i++) {
+        if (key == s->unkC) {
+            break;
+        }
+        s++;
+    }
+    if (i == list->count) {
+        return NULL;
+    }
+    return s;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019730);
 

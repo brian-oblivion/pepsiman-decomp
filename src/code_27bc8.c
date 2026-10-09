@@ -45,6 +45,23 @@ extern char D_800956A8[]; /**< "bu10:" */
 extern char D_80011998[]; /**< "bu10:BISLPS-12345PEPTOOL" */
 extern char D_80011C24[]; /**< "bu10:BISLPS-67890PEPTOOL" */
 
+/** @brief The 27 title bytes copied into a save header in one block move. */
+typedef struct {
+    u8 b[27]; /**< Shift-JIS title text */
+} CardTitle;
+
+/** @brief The start of a memory card file header. */
+typedef struct {
+    u8 magic[2];     /**< "SC" */
+    u8 iconFlag;     /**< icon display flag */
+    u8 blocks;       /**< blocks the file uses */
+    CardTitle title; /**< Shift-JIS title */
+} CardHeader;
+
+extern CardHeader D_800DF5D0;
+extern u8 D_800119C8[]; /**< title of the first save file */
+
+void func_80037CF0(void);
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
@@ -177,7 +194,14 @@ s16 func_80038574(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800385E0);
+void func_800385E0(void) {
+    D_800DF5D0.magic[0] = 'S';
+    D_800DF5D0.magic[1] = 'C';
+    D_800DF5D0.iconFlag = 0x13;
+    D_800DF5D0.blocks = 15;
+    D_800DF5D0.title = *(CardTitle *)D_800119C8;
+    func_80037CF0();
+}
 
 void func_800386A8(void) {
     EnterCriticalSection();

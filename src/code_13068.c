@@ -276,7 +276,31 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027A00);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027BEC);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027D04);
+void func_80027D04(void) {
+    s16 v;
+
+    if (sGame.unk0 != 0 && sGame.unk6 == 0x33) {
+        v = sGame.unk3A8;
+        if (v < 30) {
+            D_800957D2 += 16;
+        } else if (D_80095964 & 0x1000) {
+            D_800957D2 += 32;
+            if ((s16)D_800957D2 >> 4 > 30) {
+                D_800957D2 = 480;
+            }
+        } else if (D_80095964 & 0x4000) {
+            D_800957D2 -= 32;
+            if ((s16)D_800957D2 >> 4 < 30) {
+                D_800957D2 = 480;
+            }
+        } else if (v > 30) {
+            D_800957D2 -= 16;
+        } else {
+            D_800957D2 += 16;
+        }
+        D_8009EF20[0] = (s16)D_800957D2 >> 4;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
 

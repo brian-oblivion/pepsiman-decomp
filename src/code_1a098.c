@@ -71,7 +71,15 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C4D8);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C540);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5A4);
+/** @brief Clears byte 0 of the first `count` records of a Rec5C table. */
+void func_8002C5A4(Rec5C *recs, u16 count) {
+    u16 i;
+
+    for (i = 0; i < count; i++) {
+        recs->unk0 = 0;
+        recs++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5D0);
 

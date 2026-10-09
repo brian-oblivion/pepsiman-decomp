@@ -1,4 +1,5 @@
 #include "common.h"
+#include "memory.h"
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
 typedef struct {
@@ -13,15 +14,66 @@ typedef struct {
     u8 unk2[0x3A]; /**< not yet known */
 } Rec3C;
 
-/** @brief A 0x48-byte record of a 200-entry table; three fields known. */
+/** @brief A 0x48-byte record of a 200-entry table; a few fields known. */
 typedef struct {
-    u8 unk0[0x34]; /**< not yet known */
+    u8 unk0[0x24]; /**< not yet known */
+    s16 unk24;     /**< zeroed with unk40 */
+    u8 unk26[0xE]; /**< not yet known */
     s16 unk34;     /**< -1 when reset */
     s16 unk36;     /**< -1 when reset */
-    u8 unk38[9];   /**< not yet known */
-    u8 unk41;      /**< 1 when reset */
+    s16 unk38;     /**< -1 when fully reset */
+    u8 unk3A[6];   /**< not yet known */
+    u8 unk40;      /**< cleared with unk24 */
+    u8 unk41;      /**< 1 when reset; only bit 0 survives a clear */
     u8 unk42[6];   /**< not yet known */
 } Rec48;
+
+/** @brief An object whose current position and halfword triple are reset
+ *         from a stored copy. */
+typedef struct {
+    s32 unk0;    /**< current; reset from unkC */
+    s32 unk4;    /**< current; reset from unk10 */
+    s32 unk8;    /**< current; reset from unk14 */
+    s32 unkC;    /**< stored */
+    s32 unk10;   /**< stored */
+    s32 unk14;   /**< stored */
+    u16 unk18;   /**< current; reset from unk1E */
+    u16 unk1A;   /**< current; reset from unk20 */
+    u16 unk1C;   /**< current; reset from unk22 */
+    u16 unk1E;   /**< stored */
+    u16 unk20;   /**< stored */
+    u16 unk22;   /**< stored */
+    u8 unk24[8]; /**< not yet known */
+    s32 unk2C;   /**< zeroed on a reset */
+    s32 unk30;   /**< zeroed on a reset */
+} Obj34;
+
+/** @brief An object with a word at 0x28 that a lookup updates. */
+typedef struct {
+    u8 unk0[0x28]; /**< not yet known */
+    s32 unk28;     /**< passed to the lookup and updated from it */
+} Obj2C;
+
+/** @brief Three words, a position. */
+typedef struct {
+    s32 x; /**< x */
+    s32 y; /**< y */
+    s32 z; /**< z */
+} Vec3;
+
+/** @brief The 0x30-byte argument block of a position query. */
+typedef struct {
+    Vec3 pos;       /**< the position asked about */
+    u8 unkC[8];     /**< not set by the range-50 caller */
+    s32 unk14;      /**< 50 from the range-50 caller (a range?) */
+    u8 unk18;       /**< 0 from the range-50 caller */
+    u8 unk19[0x17]; /**< not set by the range-50 caller */
+} Query30;
+
+/** @brief Eight bytes of four halfwords, copied whole. */
+typedef struct {
+    s16 v[4]; /**< not yet known */
+} Quad16;
 
 /** @brief The header of a block whose second part starts at a byte offset
  *         the header gives. */
@@ -30,15 +82,25 @@ typedef struct {
     s32 offset; /**< byte offset of the second part from the header */
 } BlockHeader;
 
-extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
-extern u8 *D_800959C4;   /**< the BlockHeader's second part */
-extern s32 D_800959C8;   /**< the BlockHeader's first word */
-extern u16 D_800958E8;   /**< zeroed with the block; never loaded here */
-extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
-extern u16 D_80095748;   /**< a halfword copied into the run below */
-extern u16 D_80095B4C[]; /**< first of a run of halfwords */
+extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4;      /**< the BlockHeader's second part */
+extern s32 D_800959C8;      /**< the BlockHeader's first word */
+extern u16 D_800958E8;      /**< zeroed with the block; never loaded here */
+extern u8 D_800A74D0[];     /**< 128 byte flags; cleared together */
+extern u16 D_80095748;      /**< a halfword copied into the run below */
+extern u16 D_80095B4C[];    /**< first of a run of halfwords */
+extern u8 D_80096738[];     /**< passed to the lookup */
+extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
+extern Rec3C D_800A7898[];  /**< 100 Rec3C records */
 
+s32 func_80018D70(void *pos, void *arg, s32 cur);
+s32 func_80028AE4(Query30 *q);
+/* MATCHING: s32, though the callee returns a sign-extended s16: retail
+ * stores the result with no re-extension. */
+s32 func_80018D04(s16 a, s16 b, u16 t, u16 n);
 void func_800330D4(void);
+void func_800337E4(u8 *buf);
+void func_8003390C(Rec3C *recs);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -90,7 +152,15 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C20C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C2B4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C438);
+/** @brief Updates `p->unk28` from a lookup unless the lookup fails (-1). */
+void func_8002C438(Obj2C *p) {
+    s32 v;
+
+    v = func_80018D70(p, D_80096738, p->unk28);
+    if (v != -1) {
+        p->unk28 = v;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C47C);
 

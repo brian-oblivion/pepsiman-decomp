@@ -316,7 +316,64 @@ segments:
       - [0x4A3C4, o, libgte/cor_05]           # csqrt_1, csqrt
       - [0x4A5B4, o, libgs/objt]              # GsLinkObject4
       - [0x4A744, o, libgs/objt2]             # GsSortObject4
-      - [0x4AFD4, asm, psyq_4AFD4]
+      - [0x4AFD4, o, libgte/f3]               # GsTMDfastNF3, GsTMDfastF3NL, GsTMDfastF3L, GsTMDfastF3LFG
+      - [0x4B4E4, o, libgte/f4]               # GsTMDfastNF4, GsTMDfastF4NL, GsTMDfastF4L, GsTMDfastF4LFG
+      - [0x4BAB4, o, libgte/g3]               # GsTMDfastNG3, GsTMDfastG3NL, GsTMDfastG3L, GsTMDfastG3LFG
+      - [0x4C064, o, libgte/g4]               # GsTMDfastNG4, GsTMDfastG4NL, GsTMDfastG4L, GsTMDfastG4LFG
+      - [0x4C724, o, libgte/ft3]              # GsTMDfastTNF3, GsTMDfastTF3NL, GsTMDfastTF3L, GsTMDfastTF3
+      - [0x4CCD4, o, libgte/ft4]              # GsTMDfastTNF4, GsTMDfastTF4NL, GsTMDfastTF4L, GsTMDfastTF4
+      - [0x4D374, o, libgte/gt3]              # GsTMDfastTNG3, GsTMDfastTG3NL, GsTMDfastTG3L, GsTMDfastTG3
+      - [0x4D9B4, o, libgte/gt4]              # GsTMDfastTNG4, GsTMDfastTG4NL, GsTMDfastTG4L, GsTMDfastTG4
+      - [0x4E124, o, libgte/dvf3_00]          # GsTMDdivF3L
+      - [0x4E364, o, libgte/reg04]            # ReadSZfifo3
+      - [0x4E384, o, libgte/cmb_09]           # RotAverageNclipColorCol3
+      - [0x4E454, o, libgte/dvf3_01]          # GsTMDdivF3LFG
+      - [0x4E694, o, libgte/cmb_08]           # RotAverageNclipColorDpq3
+      - [0x4E764, o, libgte/dvf3_02]          # GsTMDdivF3NL
+      - [0x4E954, o, libgte/cmb_06]           # RotAverageNclip3
+      - [0x4E9E4, o, libgte/dvf3_03]          # GsTMDdivNF3
+      - [0x4EBD4, o, libgte/dvft3_00]         # GsTMDdivTF3L
+      - [0x4EF04, o, libgte/smp]              # LocalLight, DpqColor, NormalColor, NormalColor3, NormalCol
+      - [0x4F0E4, o, libgte/cmb_01]           # RotAverage3
+      - [0x4F144, o, libgte/dvft3_01]         # GsTMDdivTF3LFG
+      - [0x4F474, o, libgte/dvft3_02]         # GsTMDdivTF3NL
+      - [0x4F724, o, libgte/dvft3_03]         # GsTMDdivTNF3
+      - [0x4F9D4, o, libgte/dvg3_00]          # GsTMDdivG3L
+      - [0x4FC14, o, libgte/dvg3_01]          # GsTMDdivG3LFG
+      - [0x4FE54, o, libgte/cmb_18]           # RotAverageNclipColorDpq3_1
+      - [0x4FF54, o, libgte/dvg3_02]          # GsTMDdivG3NL
+      - [0x50154, o, libgte/dvg3_03]          # GsTMDdivNG3
+      - [0x50354, o, libgte/dvgt3_00]         # GsTMDdivTG3L
+      - [0x505D4, o, libgte/dvgt3_01]         # GsTMDdivTG3LFG
+      - [0x50854, o, libgte/dvgt3_02]         # GsTMDdivTG3NL
+      - [0x50A84, o, libgte/dvgt3_03]         # GsTMDdivTNG3
+      - [0x50CC4, o, libgte/dvf4_00]          # GsTMDdivF4L
+      - [0x50F34, o, libgte/reg05]            # ReadSZfifo4
+      - [0x50F54, o, libgte/cmb_07]           # RotAverageNclip4
+      - [0x51004, o, libgte/dvf4_01]          # GsTMDdivF4LFG
+      - [0x51274, o, libgte/dvf4_02]          # GsTMDdivF4NL
+      - [0x514B4, o, libgte/dvf4_03]          # GsTMDdivNF4
+      - [0x516F4, o, libgte/dvft4_00]         # GsTMDdivTF4L
+      - [0x51994, o, libgte/dvft4_01]         # GsTMDdivTF4LFG
+      - [0x51C34, o, libgte/dvft4_02]         # GsTMDdivTF4NL
+      - [0x51EB4, o, libgte/dvft4_03]         # GsTMDdivTNF4
+      - [0x52134, o, libgte/dvg4_00]          # GsTMDdivG4L
+      - [0x523E4, o, libgte/dvg4_01]          # GsTMDdivG4LFG
+      - [0x526A4, o, libgte/dvg4_02]          # GsTMDdivG4NL
+      - [0x52904, o, libgte/dvg4_03]          # GsTMDdivNG4
+      - [0x52B64, o, libgte/dvgt4_00]         # GsTMDdivTG4L
+      - [0x52E54, o, libgte/dvgt4_01]         # GsTMDdivTG4LFG
+      - [0x53154, o, libgte/dvgt4_02]         # GsTMDdivTG4NL
+      - [0x533E4, o, libgte/dvgt4_03]         # GsTMDdivTNG4
+      - [0x53694, o, libgte/divf3a]           # RCpolyF3, RCpolyF3A
+      - [0x53A04, o, libgte/divft3a]          # RCpolyFT3, RCpolyFT3A
+      - [0x53E04, o, libgte/divg3a]           # RCpolyG3, RCpolyG3A
+      - [0x54214, o, libgte/divgt3a]          # RCpolyGT3, RCpolyGT3A
+      - [0x546B4, o, libgte/divf4a]           # RCpolyF4, RCpolyF4A
+      - [0x54B34, o, libgte/divft4a]          # RCpolyFT4, RCpolyFT4A
+      - [0x55054, o, libgte/divg4a]           # RCpolyG4, RCpolyG4A
+      - [0x555A4, o, libgte/divgt4a]          # RCpolyGT4, RCpolyGT4A
+      - [0x55BC4, asm, psyq_55BC4]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]

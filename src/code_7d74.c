@@ -30,6 +30,7 @@ typedef struct {
 
 extern u8 D_800958C9;
 extern CdlLOC D_80095728;
+extern MATRIX D_800E4858;
 
 void func_80017774(void *data);
 s32 func_800175AC(u8 com);
@@ -97,7 +98,19 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800183B0);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800184BC);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018AE0);
+void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord) {
+    MATRIX m;
+    SVECTOR r;
+
+    m = D_800E4858;
+    m.t[0] = coord->coord.t[0];
+    m.t[1] = coord->coord.t[1];
+    m.t[2] = coord->coord.t[2];
+    r = *rot;
+    RotMatrixYXZ(&r, &m);
+    coord->coord = m;
+    coord->flg = 0;
+}
 
 #ifdef NON_MATCHING
 /** @brief The head of the game state as this function sees it. */

@@ -7,6 +7,7 @@
 #include "libgs.h"
 #include "code_a0bc.h"
 #include "code_13068.h"
+#include "code_1a098.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -101,7 +102,6 @@ void func_8001B354(u16 id, SVECTOR *pos, s32 a, s32 b, GsOT *ot);
 
 extern u8 D_80095774; /**< set while the reset below runs */
 
-void func_8002A7D8(Rec78 *rec);
 void func_80023F80(u8 *state);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
@@ -433,7 +433,7 @@ void func_80037114(void) {
     ((s16 *)D_800A9008)[14] = 0;
     D_800A9008[11] = 0;
     D_800A9008[12] = 0;
-    func_8002A7D8(&D_800D8D20[D_80095A30]);
+    func_8002A7D8(&D_800D8D20[D_80095A30], (Rec48 *)D_800A9008);
     func_80023F80(D_8009EB78);
     func_80029838();
     D_80095774 = 0;

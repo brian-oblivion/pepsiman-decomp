@@ -258,7 +258,17 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B7C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B8F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BC4C);
+/** @brief Updates the Rec78 entry of every live Rec48 record whose Rec5C
+ *         record is marked 1. */
+void func_8002BC4C(void) {
+    u32 i;
+
+    for (i = 0; i < 200; i++) {
+        if (sRecs48[i].unk36 != -1 && D_800CF080[sRecs48[i].unk34].unk0 == 1) {
+            func_8002A7D8(&D_800D8D20[sRecs48[i].unk36], &sRecs48[i]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
 

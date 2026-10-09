@@ -231,6 +231,18 @@
 /* clang-format on */
 
 /**
+ * @brief AVSZ4: the average of SZ0-SZ3, scaled, into OTZ (read back with
+ * gte_stotz()): a quad's ordering-table depth. No operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_avsz4() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4B68002E")
+/* clang-format on */
+
+/**
  * @brief MVMVA with the rotation matrix and the IR vector, no translation,
  * shifted by 12: IR1-IR3 := rotation * IR. Sony's rtir; its llir uses the
  * light matrix instead. No operands, no clobbers.

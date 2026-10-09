@@ -13,6 +13,17 @@ typedef struct {
     u16 pad;     /**< padding */
 } TmdF3;
 
+/** @brief A flat, unlit TMD quad: a header, its colour and four vertex
+ *  indices. */
+typedef struct {
+    u32 hdr;     /**< the TMD primitive header */
+    CVECTOR rgb; /**< the colour, depth-cued per frame */
+    u16 v0;      /**< first vertex index */
+    u16 v1;      /**< second vertex index */
+    u16 v2;      /**< third vertex index */
+    u16 v3;      /**< fourth vertex index */
+} TmdF4;
+
 /** @brief An eight-byte table entry: two halfwords and four bytes. */
 typedef struct {
     u16 unk0; /**< a byte and a bit packed together */
@@ -46,7 +57,7 @@ PACKET *func_800201BC();
 PACKET *func_80020520();
 PACKET *func_8002097C();
 PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_80020F24();
+PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_800210B4();
 PACKET *func_80021240();
 PACKET *func_80021434();
@@ -195,7 +206,46 @@ PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift,
     return (PACKET *)pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020F24);
+PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
+    s32 v;
+    s32 dp;
+    s32 i;
+    u32 *tag;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_f4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_stsxy2(&pkt->x3);
+        gte_avsz4();
+        gte_stotz(&v);
+        gte_stdp(&dp);
+        gte_ldrgb(&prim->rgb);
+        gte_lddp(dp);
+        gte_dpcs();
+        gte_strgb(&pkt->r0);
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x05000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        pkt++;
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800210B4);
 

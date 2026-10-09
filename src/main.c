@@ -1,6 +1,7 @@
 #include "common.h"
 #include "libgte.h"
 #include "libgpu.h"
+#include "libetc.h"
 #include "libpad.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
@@ -23,7 +24,16 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800149D0);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014AC8);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014B8C);
+void func_800142EC(s32 arg);
+
+void func_80014B8C(s16 frames) {
+    s16 i;
+
+    for (i = 0; i < frames; i++) {
+        func_800142EC(0);
+        VSync(0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014BF0);
 

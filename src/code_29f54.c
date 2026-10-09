@@ -60,6 +60,13 @@ extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
 
+/* The defining unit's prototypes; its header does not carry them yet.
+ * Drop these once include/code_a0bc.h and common.h declare them. */
+void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
+void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
+extern s16 D_800E474C;
+extern GsOT D_800A7318[];
+
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
@@ -105,7 +112,27 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003BDF4);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C014);
+void func_8003C014(void) {
+    RECT rect;
+    SVECTOR pos;
+    CVECTOR color;
+
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    color.r = 0;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C17C);
 

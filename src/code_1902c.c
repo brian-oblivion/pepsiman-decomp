@@ -60,7 +60,14 @@ INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002964C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002971C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_800297A4);
+s32 func_800297A4(VECTOR *a, VECTOR *b) {
+    VECTOR d;
+
+    d.vx = (b->vx - a->vx) * (b->vx - a->vx);
+    d.vy = (b->vy - a->vy) * (b->vy - a->vy);
+    d.vz = (b->vz - a->vz) * (b->vz - a->vz);
+    return d.vx + d.vy + d.vz;
+}
 
 void func_8002980C(void) {
     D_8009EB78[1] = 0;

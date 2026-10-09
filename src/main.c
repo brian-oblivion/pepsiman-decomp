@@ -54,7 +54,10 @@ void func_80014D20(void) {
     DrawSync(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014D6C);
+void func_80014D6C(void) {
+    FntLoad(0x3C0, 0);
+    FntOpen(-0x9A, -0x74, 0x140, 0x100, 0, 0x400);
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014DB0);
 

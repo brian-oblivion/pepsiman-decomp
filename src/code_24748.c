@@ -91,6 +91,11 @@ extern Rec14 D_800ACEA8[]; /**< the table */
 
 void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 mode, Rec14 *rec);
 
+extern u16 D_80095A3C; /**< saved value of menu line 0 */
+extern u8 D_80095A48;  /**< saved value of menu line 1 */
+extern s16 D_800958B0; /**< limit of the value being edited */
+extern s16 D_800958DA; /**< cleared when flag bit 6 is set */
+
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
@@ -308,7 +313,36 @@ void func_8003708C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037114);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800371A0);
+void func_800371A0(void) {
+    s32 unused[2];
+    s16 line = D_8009574A;
+
+    func_800330D4();
+    if (line != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 0x33;
+                D_80095748 = D_80095A3C;
+                break;
+            case 1:
+                D_800958B0 = 0x100;
+                D_80095748 = D_80095A48;
+                break;
+        }
+    } else {
+        switch (line) {
+            case 0:
+                D_80095A3C = D_80095748;
+                break;
+            case 1:
+                D_80095A48 = D_80095748;
+                break;
+        }
+    }
+    if (D_80095970 & 0x40) {
+        D_800958DA = 0;
+    }
+}
 
 void func_80037280(void) {
     s16 i;

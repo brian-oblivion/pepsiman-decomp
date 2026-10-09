@@ -1,4 +1,6 @@
 #include "common.h"
+#include "libgte.h"
+#include "libgpu.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -41,7 +43,16 @@ void func_80014CF0(void) {
     D_8009575C = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014D20);
+void func_80014D20(void) {
+    RECT rect;
+
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 0x400;
+    rect.h = 0x200;
+    ClearImage(&rect, 0, 0, 0);
+    DrawSync(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014D6C);
 

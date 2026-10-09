@@ -289,7 +289,20 @@ void func_8002C5A4(Rec5C *recs, u16 count) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5D0);
+/** @brief For each odd-numbered Rec5C record whose byte 0 is 1, sets byte 0
+ *         of it and of the record before it to 2.
+ *  @return nothing; the value is undefined. */
+s32 func_8002C5D0(void) {
+    u16 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    for (i = 1; i < 200; i += 2) {
+        if (D_800CF080[(s16)i].unk0 == 1) {
+            D_800CF080[(s16)i].unk0 = 2;
+            D_800CF080[(s16)i - 1].unk0 = 2;
+        }
+    }
+}
 
 /** @brief Clears unk40 and unk24 of all 200 Rec48 records and all but bit 0
  *         of unk41.

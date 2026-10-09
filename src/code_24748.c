@@ -124,9 +124,28 @@ extern u8 D_80095A28;
 void func_80036E50(void);
 void func_80036EA0(void);
 
+extern u32 D_8009585C; /**< a frame counter driving the marker's bob */
+
+void func_800230E0(VECTOR *pos, SVECTOR *out);
+void func_8001B354(u16 id, SVECTOR *pos, s32 a, s32 b, Rec14 *rec);
+
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
+void func_80033F48(VECTOR *pos) {
+    SVECTOR size;
+    VECTOR world;
+    SVECTOR screen;
+    s32 bob;
+
+    world.vx = pos->vx + D_800A7308[0];
+    bob = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
+    world.vy = pos->vy + bob;
+    world.vz = pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    size.vx = screen.vx - 7;
+    size.vy = screen.vy - 32;
+    func_8001B354(0x15E, &size, 0, 5, &D_800ACEA8[D_80095750]);
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011528);
 

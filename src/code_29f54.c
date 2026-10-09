@@ -1,7 +1,9 @@
 #include "common.h"
 #include "libgte.h"
 #include "libgpu.h"
+#include "libetc.h"
 #include "libgs.h"
+#include "code_a0bc.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
 typedef struct {
@@ -34,6 +36,29 @@ typedef struct {
 
 #define sSlots ((Slot *)D_800DFAB0)
 
+/** @brief An 8-byte boundary record: a point and the direction its sign
+ *         test projects onto. */
+typedef struct {
+    s16 x;  /**< the point's x */
+    s16 y;  /**< the point's y */
+    s16 dx; /**< the direction's x */
+    s16 dy; /**< the direction's y */
+} Edge;
+
+extern Edge *D_800958D4;
+
+extern u32 D_80095794;
+extern GsDOBJ2 D_800AC868[];
+extern u32 D_80095798;
+extern GsDOBJ2 D_800ACB88[];
+extern GsCOORDINATE2 D_800A72B8;
+
+extern s32 D_80095968;
+extern s32 D_800A7278[];
+extern u8 D_800AC848[];
+extern u8 D_800A7888[];
+extern u8 D_800A76E8[];
+
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
@@ -44,7 +69,28 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A008);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A20C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A3F4);
+void func_8003A3F4(s32 *index, s16 x, s16 y) {
+    s32 i;
+    s32 j;
+    s32 d;
+    Edge *e;
+    Edge *f;
+
+    /* MATCHING: integer address sums put the scaled index first; pointer
+     * arithmetic puts the base first and changes the register choice. */
+    i = *index;
+    e = (Edge *)(i * 8 + (s32)D_800958D4) + 1;
+    d = e->dx * (x - e->x) + e->dy * (y - e->y);
+    if (d >= 0) {
+        *index = i + 1;
+    }
+    j = *index;
+    f = (Edge *)(j * 8 + (s32)D_800958D4);
+    d = -f->dx * (x - f->x) + -f->dy * (y - f->y);
+    if (d >= 0) {
+        *index = j - 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A4B4);
 
@@ -74,11 +120,67 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003D960);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003DE34);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003DFB8);
+void func_8003DFB8(unsigned long *tmd) {
+    u32 i;
+    GsDOBJ2 *obj;
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E07C);
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095794 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095794; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800AC868[i], i);
+    }
+    obj = D_800AC868;
+    for (i = 0; i < D_80095794; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0x200;
+        obj++;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E13C);
+void func_8003E07C(unsigned long *tmd) {
+    u32 i;
+    GsDOBJ2 *obj;
+
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095798 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095798; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    }
+    obj = D_800ACB88;
+    for (i = 0; i < D_80095798; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0;
+        obj++;
+    }
+}
+
+void func_8003E13C(unsigned long *p) {
+    RECT rect;
+    GsIMAGE tim;
+
+    while (*p == 0x10) {
+        GsGetTimInfo(p + 1, &tim);
+        rect.x = tim.cx;
+        rect.y = tim.cy;
+        rect.w = tim.cw;
+        rect.h = tim.ch;
+        LoadImage(&rect, (u_long *)tim.clut);
+        rect.x = tim.px;
+        rect.y = tim.py;
+        rect.w = tim.pw;
+        rect.h = tim.ph;
+        LoadImage(&rect, (u_long *)tim.pixel);
+        p += 2;
+        p += *p >> 2;
+        p += *p >> 2;
+    }
+}
 
 void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 dx;
@@ -94,9 +196,44 @@ void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     out[1] = t * dy / d;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E29C);
+void func_8003E29C(s32 a, s32 b, s32 c) {
+    if (D_80095968 < 16) {
+        D_800A7278[D_80095968] = VSync(1);
+        D_800AC848[D_80095968] = a;
+        D_800A7888[D_80095968] = b;
+        D_800A76E8[D_80095968] = c;
+        D_80095968++;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E360);
+void func_8003E360(s32 level) {
+    s32 i;
+    s32 v;
+    s32 base;
+
+    struct {
+        SVECTOR a;
+        SVECTOR b;
+        CVECTOR c;
+    } st;
+
+    if (level > 0x80) {
+        level = 0x80;
+    }
+    for (i = 8; i >= 0; i--) {
+        base = i * 3 + 0x40;
+        v = base - level;
+        if (v < 0) {
+            v = 0;
+        }
+        st.a.vy = st.a.pad = st.a.vx = st.a.vz = 0;
+        st.b.vx = st.b.vy = v * 32 + 0x1000;
+        st.b.vz = (v << 12) / 360 * 3;
+        st.b.pad = 1;
+        st.c.r = 1;
+        st.c.g = st.c.b = st.c.cd = 0x10;
+    }
+}
 
 void func_8003E40C(void) {
     D_80095A78 = 0;
@@ -192,11 +329,75 @@ void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
+#ifdef NON_MATCHING
+s32 func_8003F960(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+    s32 ret;
+
+    if (p->unk2 != 0) {
+        p->unk2--;
+        ret = 0;
+    } else {
+        x += p->unkC;
+        y += p->unkE;
+        z += p->unk10;
+        GsInitCoordinate2(WORLD, &coord);
+        coord.coord.t[0] = x;
+        coord.coord.t[1] = y;
+        coord.coord.t[2] = z;
+        coord.flg = 0;
+        GsGetLs(&coord, &ls);
+        GsSetLsMatrix(&ls);
+        size.vy = size.vx = 0x96;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80;
+        func_8001A3D4((u16)(p->unk0 + 0x11A), &size, &color, 2, ot);
+        ret = ++p->unk0 == 8;
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F960);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FA88);
 
+#ifdef NON_MATCHING
+s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+    s32 ret;
+
+    if (p->unk2 != 0) {
+        p->unk2--;
+        ret = 0;
+    } else {
+        x += p->unkC;
+        y += p->unkE;
+        z += p->unk10;
+        GsInitCoordinate2(WORLD, &coord);
+        coord.coord.t[0] = x;
+        coord.coord.t[1] = y;
+        coord.coord.t[2] = z;
+        coord.flg = 0;
+        GsGetLs(&coord, &ls);
+        GsSetLsMatrix(&ls);
+        size.vy = size.vx = 0x32;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        func_8001A3D4(0x11A, &size, &color, 2, ot);
+        ret = ++p->unk0 == 8;
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FBE0);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FD0C);
 

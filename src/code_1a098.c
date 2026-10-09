@@ -186,7 +186,17 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C6A4);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C724);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C820);
+/** @brief Resets an object's current values from its stored copy. */
+void func_8002C820(Obj34 *p) {
+    p->unk2C = 0;
+    p->unk30 = 0;
+    p->unk0 = p->unkC;
+    p->unk4 = p->unk10;
+    p->unk8 = p->unk14;
+    p->unk18 = p->unk1E;
+    p->unk1A = p->unk20;
+    p->unk1C = p->unk22;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C85C);
 

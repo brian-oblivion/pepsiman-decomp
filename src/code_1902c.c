@@ -56,7 +56,23 @@ INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028DBC);
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028F0C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002964C);
+void func_8002964C(VECTOR *pos, u16 scale) {
+    SVECTOR size;
+    CVECTOR color;
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = pos->vx;
+    coord.coord.t[1] = pos->vy;
+    coord.coord.t[2] = pos->vz;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+    size.vx = size.vy = scale * 2;
+    color.r = 0;
+    color.g = color.b = color.cd = 0x80;
+    func_8001A3D4(0x15D, &size, &color, 2, &D_800ACEA8[D_80095750]);
+}
 
 s32 func_8002971C(Body *a, Body *b) {
     VECTOR d;

@@ -218,7 +218,10 @@ void func_8002CAA4(s16 b, u16 t, u16 n, s32 *out) {
     out[1] = func_80018D04(0, b, t, n);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CAE4);
+/** @brief Interpolates from `a` towards `b` by `t`/`n`, into out[1]. */
+void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
+    out[1] = func_80018D04(a, b, t, n);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CB24);
 

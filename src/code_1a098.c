@@ -745,7 +745,22 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003399C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033A08);
 
+#ifdef NON_MATCHING
+/** @brief Totals unk4 of the current block's entries into sTotals.unk26. */
+void func_80033AB8(void) {
+    s32 i;
+    Ent8 *e;
+
+    e = (Ent8 *)D_800959C0;
+    sTotals.unk26 = 0;
+    for (i = 0; i < D_800959C8; i++) {
+        sTotals.unk26 += e->unk4;
+        e++;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033AB8);
+#endif
 
 /** @brief Runs an update, then latches a halfword into the first slot of a
  *         halfword run. */

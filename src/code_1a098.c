@@ -262,7 +262,21 @@ void func_8002C5A4(Rec5C *recs, u16 count) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5D0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C650);
+/** @brief Clears unk40 and unk24 of all 200 Rec48 records and all but bit 0
+ *         of unk41.
+ *  @return nothing; the value is undefined. */
+s32 func_8002C650(void) {
+    u16 i;
+    Rec48 *r;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    for (i = 0; i < 200; i++) {
+        r = &sRecs48[(s16)i];
+        r->unk40 = 0;
+        r->unk24 = 0;
+        r->unk41 &= 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C6A4);
 

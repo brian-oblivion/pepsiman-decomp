@@ -12,6 +12,12 @@ SECTIONS {
     .psyq_bss.libspu_s_sca_bss 0x80100000 (NOLOAD) : SUBALIGN(2) { build/lib/libspu/s_sca.o(.bss) }   /* 0x4 bytes; unreferenced; spare NOLOAD area */
     .psyq_bss.libsnd_vm_f_bss 0x800E14C8 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/vm_f.o(.bss) }   /* 0x738 bytes; section-relative refs */
     .psyq_bss.libsnd_vm_init_bss 0x800E1E00 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/vm_init.o(.bss) }   /* 0x110 bytes; section-relative refs */
+    .psyq_bss.libcd_cdrom_bss 0x800E1F50 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/cdrom.o(.bss) }   /* 0x48 bytes; first symbol StRingAddr */
+    .psyq_bss.libcd_bios_bss 0x800E1F58 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/bios.o(.bss) }   /* 0x34 bytes; section-relative refs */
+    .psyq_bss.libcd_iso9660_bss 0x800E1F90 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/iso9660.o(.bss) }   /* 0x2400 bytes; section-relative refs */
+    .psyq_bss.libcd_c_004_bss 0x800E4390 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_004.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libcd_c_005_bss 0x800E43A0 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_005.o(.bss) }   /* 0x8 bytes; first symbol StFunc1 */
+    .psyq_bss.libcd_c_011_bss 0x800E43A8 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_011.o(.bss) }   /* 0x10 bytes; section-relative refs */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -37,22 +43,51 @@ _svm_envx_ptr = 0x800E1BF4;   /* libsnd/vm_f */
 _svm_envx_hist = 0x800E1BF8;   /* libsnd/vm_f */
 _svm_okof1 = 0x800E1C38;   /* libsnd/vm_f */
 _svm_okof2 = 0x800E1C3A;   /* libsnd/vm_f */
+Stframe_no = 0x800E1F10;   /* libcd/cdrom */
+Stsector_offset = 0x800E1F14;   /* libcd/cdrom */
+StRgb24 = 0x800E1F18;   /* libcd/cdrom */
+StCdIntrFlag = 0x800E1F1C;   /* libcd/cdrom */
+StCHANNEL = 0x800E1F20;   /* libcd/cdrom */
+StStartFrame = 0x800E1F24;   /* libcd/cdrom */
+CChannel = 0x800E1F28;   /* libcd/cdrom */
+StFinalSector = 0x800E1F2C;   /* libcd/cdrom */
+StEmu_Idx = 0x800E1F30;   /* libcd/cdrom */
+StRingIdx1 = 0x800E1F34;   /* libcd/cdrom */
+StRingIdx2 = 0x800E1F38;   /* libcd/cdrom */
+StRingIdx3 = 0x800E1F3C;   /* libcd/cdrom */
+StEmu_Addr = 0x800E1F40;   /* libcd/cdrom */
+StEndFrame = 0x800E1F44;   /* libcd/cdrom */
+StSTART_FLAG = 0x800E1F48;   /* libcd/cdrom */
+StRingBase = 0x800E1F4C;   /* libcd/cdrom */
+StRingAddr = 0x800E1F50;   /* libcd/cdrom */
+StRingSize = 0x800E1F54;   /* libcd/cdrom */
+StMode = 0x800E1F88;   /* libcd/bios */
+StFunc1 = 0x800E43A0;   /* libcd/c_005 */
+StFunc2 = 0x800E43A4;   /* libcd/c_005 */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
-ResetCallback = 0x8004F244;
-InterruptCallback = 0x8004F274;
-DMACallback = 0x8004F2A4;
-VSyncCallback = 0x8004F2D4;
-GetVideoMode = 0x8004FCD8;
+puts = 0x8006C15C;
+setjmp = 0x8006C174;
+strcmp = 0x8006C184;
+strncmp = 0x8006C194;
+memcpy = 0x8006C1D4;
 printf = 0x8006C204;
+DsReadyCallback = 0x8006C228;
+DsDataCallback = 0x8006C250;
+_96_remove = 0x8006C2AC;
 DeliverEvent = 0x8006C2C4;
 OpenEvent = 0x8006C2D4;
 WaitEvent = 0x8006C2F4;
 TestEvent = 0x8006C304;
 EnableEvent = 0x8006C314;
+ReturnFromException = 0x8006C334;
+ResetEntryInt = 0x8006C344;
+HookEntryInt = 0x8006C354;
 EnterCriticalSection = 0x8006C364;
 ExitCriticalSection = 0x8006C374;
+ChangeClearPAD = 0x8006C404;
+ChangeClearRCnt = 0x8006C414;
 SetRCnt = 0x8006C424;
 ResetRCnt = 0x8006C55C;
 _spu_AllocBlockNum = 0x8007BD4C;

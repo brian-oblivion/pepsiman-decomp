@@ -69,7 +69,17 @@ segments:
       - [0x29FC, o, libspu/s_sca, .rdata]
       - [0x2A3C, o, libsnd/sstick, .rdata]
       - [0x2A5C, o, libspu/s_sva, .rdata]
-      - [0x2A9C, rodata]
+      - [0x2A9C, o, libetc/vsync, .rdata]
+      - [0x2AAC, o, libetc/intr, .rdata]
+      - [0x2B1C, o, libetc/intr_dma, .rdata]
+      - [0x2B4C, o, libcd/toc, .rdata]
+      - [0x2B8C, o, libcd/event, .rdata]
+      - [0x2BAC, o, libcd/sys, .rdata]
+      - [0x2BBC, o, libcd/bios, .rdata]
+      - [0x2E1C, o, libcd/iso9660, .rdata]
+      - [0x300C, o, libcd/cdread, .rdata]
+      - [0x305C, o, libcd/c_011, .rdata]
+      - [0x307C, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -208,7 +218,29 @@ segments:
       - [0x3F724, o, libspu/s_stm]            # SpuSetTransferMode
       - [0x3F754, o, libsnd/vs_vtc]           # SsVabTransCompleted
       - [0x3F784, o, libspu/s_itc]            # SpuIsTransferCompleted
-      - [0x3F834, asm, psyq_3F834]
+      - [0x3F834, o, libetc/vsync]            # VSync
+      - [0x3FA44, o, libetc/intr]             # ResetCallback, InterruptCallback, DMACallback, VSyncCallba
+      - [0x40104, o, libetc/intr_vb]          # startIntrVSync
+      - [0x40224, o, libetc/intr_dma]         # startIntrDMA
+      - [0x404C4, o, libetc/vmode]            # SetVideoMode, GetVideoMode
+      - [0x404F4, o, libcd/cdrom]             # StSetRing
+      - [0x40524, o, libcd/toc]               # CdGetToc, CdGetToc2
+      - [0x40774, o, libcd/event]             # CdInit
+      - [0x408C4, o, libcd/sys]               # CdStatus, CdMode, CdLastCom, CdLastPos, CdReset, CdFlush,
+      - [0x41054, o, libcd/bios]              # CD_sync, CD_flush, CD_ready, CD_cw, CD_vol, CD_initvol, CD
+      - [0x427B4, o, libcd/iso9660]           # CdSearchFile
+      - [0x43124, o, libcd/cdread]            # CdReadBreak, CdRead, CdReadSync, CdReadCallback, CdReadMod
+      - [0x43AF4, o, libcd/cdread2]           # CdRead2
+      - [0x43BA4, o, libcd/c_002]             # StClearRing
+      - [0x43C04, o, libcd/c_003]             # StUnSetRing
+      - [0x43C84, o, libcd/c_004]             # data_ready_callback, StGetBackloc
+      - [0x43D74, o, libcd/c_005]             # StSetStream
+      - [0x43E04, o, libcd/c_007]             # StFreeRing
+      - [0x43EB4, o, libcd/c_008]             # init_ring_status
+      - [0x43EF4, o, libcd/c_009]             # StGetNext
+      - [0x43FB4, o, libcd/c_010]             # StSetMask
+      - [0x43FD4, o, libcd/c_011]             # StCdInterrupt
+      - [0x44AC4, asm, psyq_44AC4]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -220,6 +252,22 @@ segments:
       - [0x6CC5C, o, libspu/s_n2p, .data]
       - [0x6CD7C, o, libsnd/vm_n2p, .data]
       - [0x6CE9C, data]
+      - [0x6CEA4, o, libetc/vsync, .data]
+      - [0x6CEC4, o, libetc/intr, .data]
+      - [0x6DFC4, o, libetc/intr_vb, .data]
+      - [0x6DFF4, o, libetc/intr_dma, .data]
+      - [0x6E024, o, libetc/vmode, .data]
+      - [0x6E034, data]
+      - [0x6E044, o, libcd/event, .data]
+      - [0x6E054, o, libcd/sys, .data]
+      - [0x6E0D4, o, libcd/bios, .data]
+      - [0x6E3F4, o, libcd/iso9660, .data]
+      - [0x6E404, o, libcd/cdread, .data]
+      - [0x6E444, data]
+      - [0x6E454, o, libcd/c_003, .data]
+      - [0x6E464, data]
+      - [0x6E4C4, o, libcd/c_011, .data]
+      - [0x6E514, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

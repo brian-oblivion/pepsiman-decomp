@@ -3,8 +3,9 @@
 #include "libgpu.h"
 #include "libgs.h"
 
+/** @brief Eight bytes, copied together as one unaligned block. */
 typedef struct {
-    u8 b[8];
+    u8 b[8]; /**< the bytes */
 } Bytes8;
 
 extern s32 D_80095A78;
@@ -18,17 +19,17 @@ extern s8 D_80095AA0[8];
 extern u8 D_800956B0[];
 extern u8 D_800956B8[];
 
-/* The 0x14-byte records of common.h's NumberedSlot table, as this unit
- * writes them. */
+/** @brief The 0x14-byte records of common.h's NumberedSlot table, as this
+ *         unit writes them. */
 typedef struct {
-    s16 unk0;
-    s16 unk2;
-    u8 unk4[8];
-    s16 unkC;
-    s16 unkE;
-    s16 unk10;
-    u8 unk12;
-    u8 next;
+    s16 unk0;   /**< cleared when the record is taken */
+    s16 unk2;   /**< not yet known */
+    u8 unk4[8]; /**< not yet known */
+    s16 unkC;   /**< not yet known */
+    s16 unkE;   /**< not yet known */
+    s16 unk10;  /**< not yet known */
+    u8 unk12;   /**< not yet known */
+    u8 next;    /**< free-list link: the next record's index */
 } Slot;
 
 #define sSlots ((Slot *)D_800DFAB0)

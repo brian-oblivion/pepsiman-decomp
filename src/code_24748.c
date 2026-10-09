@@ -129,8 +129,16 @@ extern u32 D_8009585C; /**< a frame counter driving the marker's bob */
 void func_800230E0(VECTOR *pos, SVECTOR *out);
 void func_8001B354(u16 id, SVECTOR *pos, s32 a, s32 b, Rec14 *rec);
 
+extern u8 D_80095774; /**< set while the reset below runs */
+
+void func_8002980C(void);
+void func_8002A7D8(Rec78 *rec);
+void func_80023F80(u8 *state);
+void func_80029838(void);
+
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
+/* MATCHING: the bob gets its own statement, or cc1 adds -200 to pos->vy. */
 void func_80033F48(VECTOR *pos) {
     SVECTOR size;
     VECTOR world;
@@ -239,6 +247,8 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035350);
 
+/* MATCHING: the first clamp is a preloaded local with nested ifs; a nested
+ * ternary like the second one moves the value through another register. */
 void func_800355D8(void) {
     s32 flags = D_80095970;
     u8 v;
@@ -289,6 +299,7 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036184);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003634C);
 
+/* MATCHING: -pos->vx + ... loads the parameter's word before the global's. */
 void func_80036478(VECTOR *pos) {
     SVECTOR size;
     VECTOR world;
@@ -325,6 +336,7 @@ Rec4C *func_80036A84(s32 idx, s32 sub) {
     return &recs[bank->entries[idx].first + sub];
 }
 
+/* MATCHING: the chained assignment stores its rightmost target first. */
 void func_80036AB8(VECTOR *pos, u16 scale) {
     SVECTOR size;
     CVECTOR color;
@@ -441,8 +453,28 @@ void func_8003708C(void) {
     D_80095A30 = D_80095A30 < 0 ? 0 : D_80095A30 > D_8009588E - 1 ? D_8009588E - 1 : D_80095A30;
 }
 
+#ifdef NON_MATCHING
+void func_80037114(void) {
+    D_80095774 = 1;
+    func_8002980C();
+    D_800A9008[0] = 0;
+    D_800A9008[1] = 0;
+    D_800A9008[2] = 0;
+    ((s16 *)D_800A9008)[12] = 0;
+    ((s16 *)D_800A9008)[13] = 0;
+    ((s16 *)D_800A9008)[14] = 0;
+    D_800A9008[11] = 0;
+    D_800A9008[12] = 0;
+    func_8002A7D8(&D_800D8D20[D_80095A30]);
+    func_80023F80(D_8009EB78);
+    func_80029838();
+    D_80095774 = 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037114);
+#endif
 
+/* MATCHING: the unused 8 bytes give the 0x20-byte frame. */
 void func_800371A0(void) {
     s32 unused[2];
     s16 line = D_8009574A;
@@ -474,6 +506,7 @@ void func_800371A0(void) {
     }
 }
 
+/* MATCHING: one call per arm; a ternary argument shares one %hi register. */
 void func_80037280(void) {
     s16 i;
 

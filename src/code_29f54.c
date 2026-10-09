@@ -79,7 +79,20 @@ s32 func_8003E438(void) {
     return D_80095A94;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E444);
+void func_8003E444(void) {
+    s32 i;
+    Bytes8 buf;
+
+    buf = *(Bytes8 *)D_800956B0;
+    D_80095A98 = 0;
+    D_80095A90 = 0;
+    D_80095A80 = 1;
+    D_80095A7C = 0;
+    for (i = 0; i < 8; i++) {
+        D_80095AA0[i] = buf.b[i];
+        D_80095A88[i] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E4C4);
 

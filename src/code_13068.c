@@ -160,18 +160,13 @@ void func_800285C8(s32 deg, s32 radius, VECTOR *out) {
     out->vz = rcos(angle) * radius >> FIX12_SHIFT;
 }
 
-#ifdef NON_MATCHING
-/* Differs only in how the shared header declares the fog-colour index word. */
 void func_80028650(void) {
     s32 i;
 
-    i = ((u32)D_80095864[0] >> 8) & 3;
+    i = ((u32)D_80095864 >> 8) & 3;
     SetFogNearFar(3000, 8000, 250);
     SetFarColor(D_800958FC[i * 4], D_800958FC[i * 4 + 1], D_800958FC[i * 4 + 2]);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028650);
-#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800286B0);
 

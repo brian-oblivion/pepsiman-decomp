@@ -12,11 +12,8 @@ extern u8 D_80095AEE;
 void func_800FA610(s16 arg0);
 void func_80041EE0(CdlLOC *loc);
 
-#ifdef NON_MATCHING
-/* Off by one register choice: the mode byte is declared as an array in
- * common.h, but this function reads it as a scalar. */
 void func_800414EC(s16 arg0) {
-    s32 mode = D_80095830[0];
+    s32 mode = D_80095830;
 
     if (mode != 1) {
         if (mode < 2) {
@@ -26,9 +23,6 @@ void func_800414EC(s16 arg0) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800414EC);
-#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041534);
 

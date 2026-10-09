@@ -113,12 +113,12 @@ extern u16 D_80095A14; /**< 3 units, 3 functions; never loaded, sign unknown */
 extern s32 D_80095A4C; /**< 2 units, 7 functions */
 extern s32 D_80095A50; /**< 2 units, 7 functions */
 extern u16 D_80095B0E; /**< 2 units, 3 functions */
+extern u8 D_80095830;  /**< 8 units, 24 functions */
+extern s32 D_80095864; /**< 3 units, 5 functions */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
 extern u16 D_800734AC[]; /**< 3 units, 6 functions */
-extern u8 D_80095830[];  /**< 8 units, 24 functions */
-extern s32 D_80095864[]; /**< 3 units, 5 functions */
 extern s32 D_80096748[]; /**< 3 units, 7 functions */
 extern s32 D_80096768[]; /**< 4 units, 4 functions */
 extern s32 D_8009676C[]; /**< 2 units, 3 functions */

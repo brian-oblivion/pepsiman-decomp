@@ -33,6 +33,7 @@ extern CdlLOC D_80095728;
 
 void func_80017774(void *data);
 s32 func_800175AC(u8 com);
+u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
 
 void func_80017574(void) {
     if (D_800958C9 != 0) {
@@ -134,7 +135,20 @@ void func_80018DE8(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018DF0);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800195CC);
+u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6) {
+    u32 i;
+    u32 n;
+
+    n = *(u16 *)(data + 2);
+    if (time < *(u32 *)(data + 4)) {
+        return data;
+    }
+    data += 8;
+    for (i = 0; i < n; i++) {
+        data = func_80018DF0(data, arg2, arg3, arg4, arg5, arg6);
+    }
+    return data;
+}
 
 void func_80019684(SlotList *list, Slot *slots, u8 *objs, s32 data, s32 n) {
     s32 i;

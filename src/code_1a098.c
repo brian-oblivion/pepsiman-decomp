@@ -1,6 +1,7 @@
 #include "common.h"
 #include "memory.h"
 #include "libapi.h"
+#include "libgte.h"
 #include "sys/file.h"
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
@@ -218,7 +219,14 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C044);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C0EC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C188);
+/** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
+void func_8002C188(s32 r, s16 deg, Vec3 *out) {
+    s32 a;
+
+    a = deg * 4096 / 360;
+    out->x = rsin(a) * r;
+    out->z = rcos(a) * r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C20C);
 

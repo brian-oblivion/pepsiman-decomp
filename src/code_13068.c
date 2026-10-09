@@ -152,7 +152,13 @@ void func_800285B0(void) {
     sGame.unk390 = 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800285C8);
+void func_800285C8(s32 deg, s32 radius, VECTOR *out) {
+    s32 angle;
+
+    angle = ANGLE_DEG(deg);
+    out->vx = rsin(angle) * radius >> FIX12_SHIFT;
+    out->vz = rcos(angle) * radius >> FIX12_SHIFT;
+}
 
 #ifdef NON_MATCHING
 /* Differs only in how the shared header declares the fog-colour index word. */

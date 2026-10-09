@@ -90,11 +90,10 @@ fi
 cat <<DONE
 
 Worktree ready: $dest  (branch: $branch)
-Start a runner session there with the prompt in docs/PARALLEL-RUNS.md.
+Start a runner session there with the prompt in docs/lsd-reference/PARALLEL-RUNS.md.
 
-Tear down only after the four preconditions in PARALLEL-RUNS.md section 3.9.
---force is REQUIRED, not optional: asm/, build/ and pepsiman.ld are generated and
-untracked, and plain \`git worktree remove\` refuses while they exist. Check the
-preconditions yourself; the flag suppresses the only automatic guard.
-  git worktree remove --force $dest && git branch -d $branch
+Tear down only after the four preconditions in PARALLEL-RUNS.md section 3.9, and
+only through the guard, which refuses on unmerged commits, a dirty tree or a
+live permuter (plain \`git worktree remove --force\` skips all three):
+  tools/teardown-worktree.sh $name
 DONE

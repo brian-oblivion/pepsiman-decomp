@@ -173,7 +173,29 @@ Slot *func_800196E4(SlotList *list, s32 key) {
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019730);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800197E4);
+Slot *func_800197E4(SlotList *list) {
+    Slot *s;
+    s32 i;
+
+    s = list->slots;
+    for (i = 0; i < list->count; i++) {
+        if (s->unkC == -1) {
+            break;
+        }
+        s++;
+    }
+    if (i < list->count) {
+        s->unkC = -1;
+        if (i == list->count - 1) {
+            do {
+                list->count--;
+                s--;
+            } while (s->unkC == -1);
+        }
+        return s;
+    }
+    return NULL;
+}
 
 s32 *func_80019874(s32 *table, s32 *keys, s32 key) {
     s32 n;

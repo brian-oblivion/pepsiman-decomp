@@ -14,7 +14,9 @@ typedef struct {
 
 /** @brief A state block with a halfword total at 0x26. */
 typedef struct {
-    u8 unk0[0x26]; /**< not yet known */
+    u8 unk0[0x1E]; /**< not yet known */
+    u16 unk1E;     /**< matched against a Rec48's unk34 */
+    u8 unk20[6];   /**< not yet known */
     u16 unk26;     /**< a sum over the current block's entries */
 } Totals28;
 
@@ -533,7 +535,19 @@ void func_80033B08(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033B34);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033BF8);
+/** @brief Applies every used Rec48 whose unk34 equals sTotals.unk1E to the
+ *         Rec78 its unk36 names. */
+void func_80033BF8(void) {
+    u32 i;
+    Rec48 *r;
+
+    for (i = 0; i < 200; i++) {
+        r = &((Rec48 *)D_800A9008)[i];
+        if (r->unk36 != -1 && sTotals.unk1E == r->unk34) {
+            func_8002A7D8(&D_800D8D20[r->unk36], r);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033C90);
 

@@ -50,4 +50,9 @@ typedef struct {
  *  @param hdr the header */
 void func_8002D0C4(BlockHeader *hdr);
 
+/** @brief Applies a Rec48 to the Rec78 it names.
+ *  @param rec the Rec78
+ *  @param r the Rec48 */
+void func_8002A7D8(Rec78 *rec, Rec48 *r);
+
 #endif

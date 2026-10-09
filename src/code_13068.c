@@ -17,9 +17,11 @@ typedef struct {
     u8 pad3[2];
     u8 unk5; /**< cleared on a reset */
     u8 unk6; /**< 2 on a reset, 0x33 when unk3D0's low nibble is 3 */
-    u8 pad7[0x34C - 0x7];
+    u8 pad7[0x348 - 0x7];
+    s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
-    u8 pad350[0x38E - 0x350];
+    s32 unk350; /**< pushed back along the cosine of an angle */
+    u8 pad354[0x38E - 0x354];
     u8 unk38E;  /**< cleared on a reset */
     u8 unk38F;  /**< 1 also gates a check on unk398 */
     s16 unk390; /**< set to 2 together with clearing unk398 */
@@ -54,6 +56,7 @@ extern s8 D_8009EF4D[];
 
 extern s32 D_800958A8;
 extern s32 D_800958AC;
+extern SVECTOR D_800A7680[];
 extern s32 D_80095964;
 extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
@@ -185,7 +188,16 @@ s32 func_80028260(s32 n) {
     return D_800958A8;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800282F0);
+/* MATCHING: the local pointer lets angle and the sGame base share $s0. */
+void func_800282F0(s32 deg, s32 dist) {
+    s32 angle;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    angle = ANGLE_DEG(deg);
+    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+}
 
 /* MATCHING: non-void with no return keeps the first delay slot a nop. */
 s32 func_800283A0(void) {

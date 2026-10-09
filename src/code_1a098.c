@@ -750,7 +750,25 @@ void func_80033790(void) {
     func_8003390C(D_800A7898);
 }
 
+#ifdef NON_MATCHING
+/** @brief Builds an empty block header in `buf` for the current entry
+ *         count and points the current-block globals at it. */
+void func_800337E4(u8 *buf) {
+    s32 n;
+
+    func_8002D0C4((BlockHeader *)buf);
+    n = D_80095794;
+    D_800959C0 = buf + 8;
+    D_800959C8 = n;
+    D_800959C4 = buf + (n * 8 + 8);
+    /* MATCHING: byte-pointer stores, not BlockHeader members: a member
+     * store does not alias the globals, so the reload below would go. */
+    *(s32 *)buf = n;
+    *(s32 *)(buf + 4) = D_800959C8 * 8 + 8;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800337E4);
+#endif
 
 /** @brief Sets byte 0 of all 200 records of a Rec5C table to -1. */
 void func_80033854(Rec5C *recs) {

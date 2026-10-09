@@ -36,7 +36,11 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800428B0);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800428EC);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042958);
+extern s16 D_80095AF0;
+
+void func_80042958(u8 value) {
+    D_80095AF0 = value;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042968);
 

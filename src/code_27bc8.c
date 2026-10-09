@@ -20,7 +20,24 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003828C);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800382DC);
+extern u8 *D_80095A18;
+
+u16 func_800382DC(void) {
+    u8 *p;
+    s32 sum;
+    s32 i;
+    u8 lo;
+    u8 hi;
+
+    p = D_80095A18;
+    sum = 0;
+    for (i = 0; i < 0xEFFF; i++) {
+        lo = *p++;
+        hi = *p++;
+        sum += lo | (hi << 8);
+    }
+    return sum;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003831C);
 

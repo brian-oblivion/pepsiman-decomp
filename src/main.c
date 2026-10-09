@@ -38,7 +38,12 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80014FA8);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80015180);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015328);
+extern u8 *D_80095704;
+
+void func_80015328(s32 offset, u8 a, u8 b) {
+    D_80095704[offset + 2] = a;
+    D_80095704[offset + 3] = b;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_8001534C);
 

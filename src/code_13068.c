@@ -156,7 +156,10 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028650);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800286B0);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800287C0);
+void func_800287C0(void) {
+    D_8009EF20[0] = 0;
+    D_800957D2 = 0x280;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800287DC);
 

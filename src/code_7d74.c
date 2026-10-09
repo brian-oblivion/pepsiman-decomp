@@ -4,6 +4,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "libcd.h"
+#include "code_a0bc.h"
 
 /** @brief A 16-byte entry of a pack's directory; the first entry's count is
  *         the number of entries. */
@@ -168,7 +169,30 @@ void func_8001797C(PackEntry *pack) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800179F8);
+/* MATCHING: the red channel through its own local moves the colour's copy
+ * first in the prologue, as retail. */
+void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
+    POLY_F4 poly;
+    POLY_F4 *p;
+    s32 r;
+
+    p = &poly;
+    SetPolyF4(p);
+    SetSemiTrans(p, 1);
+    r = col & 0x1F;
+    p->r0 = r << 3;
+    p->g0 = ((col >> 5) & 0x1F) << 3;
+    p->b0 = ((col >> 10) & 0x1F) << 3;
+    p->x0 = x0;
+    p->y0 = y0;
+    p->x1 = x1;
+    p->y1 = y1;
+    p->x2 = x3;
+    p->y2 = y3;
+    p->x3 = x2;
+    p->y3 = y2;
+    GsSortPoly(p, &D_800ACEA8[D_80095750], pri);
+}
 
 s32 func_80017B18(void) {
     return rand();

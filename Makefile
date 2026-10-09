@@ -20,10 +20,10 @@ NM        := $(CROSS)nm
 OBJCOPY   := $(CROSS)objcopy
 OBJDUMP   := $(CROSS)objdump
 
-# GCC 2.6.3, the Psy-Q compiler ("Sony Playstation" is in cc1's own banner).
-# `cpp` is 2.6.3's preprocessor too — a modern cpp expands differently enough
-# to move code.
-GCC_DIR   := tools/gcc263
+# GCC 2.8.1, the Psy-Q compiler ("Sony Playstation" is in cc1's own banner).
+# `cpp` is the same release's preprocessor — a modern cpp expands differently
+# enough to move code. (2.6.3's cpp gives identical output on every unit.)
+GCC_DIR   := tools/gcc
 CPP       := $(GCC_DIR)/cpp
 CC1       := $(GCC_DIR)/cc1
 
@@ -32,16 +32,21 @@ SPLAT     := $(PYTHON) -m splat split
 MASPSX    := $(PYTHON) tools/maspsx/maspsx.py
 
 # --- flags -----------------------------------------------------------------
-# NOTE `-fno-builtin` is a cc1 flag only; 2.6.3's cpp rejects it outright.
+# NOTE `-fno-builtin` is a cc1 flag only; the Psy-Q cpp rejects it outright.
 CPP_FLAGS  := -Iinclude -Iinclude/psyq -undef -Wall -lang-c -nostdinc
 CPP_FLAGS  += -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx
 CPP_FLAGS  += -D__psx__ -D__psx -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL
 CPP_FLAGS  += -D_LANGUAGE_C -DLANGUAGE_C
 
 CC_FLAGS   := -mips1 -mcpu=3000 -quiet -Wall -fno-builtin -mno-abicalls
-CC_FLAGS   += -funsigned-char -G0 -O2
+# -G8: 2.8.1 splits %hi/%lo itself, so maspsx never sees a symbolic load to
+# turn gp-relative; cc1 has to. -G4 scores the same on every probe so far.
+CC_FLAGS   += -funsigned-char -G8 -O2
 
-MASPSX_FLAGS := --aspsx-version=2.34 --dont-force-G0 --addiu-at --gp-symbols=config/gp-symbols.txt --nop-at-expansion
+# 2.56: retail assembles `li 0xFF` as addiu and `li 0xEFFE` as ori, which is
+# GNU as's li, i.e. no maspsx li expansion (aspsx >= 2.50). 2.56..2.86 score
+# the same so far.
+MASPSX_FLAGS := --aspsx-version=2.56 --dont-force-G0 --addiu-at --gp-symbols=config/gp-symbols.txt --nop-at-expansion
 
 AS_FLAGS   := -Iinclude -Iinclude/psyq -march=r3000 -mtune=r3000 -EL
 AS_FLAGS   += -no-pad-sections -G0 -O2

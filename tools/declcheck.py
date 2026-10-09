@@ -79,7 +79,7 @@ def strip_asm(text):
 
 
 def preprocess(path):
-    cmd = [str(REPO / "tools/gcc263/cpp")] + cpp_flags() + ["-DM2CTX", str(path)]
+    cmd = [str(REPO / "tools/gcc/cpp")] + cpp_flags() + ["-DM2CTX", str(path)]
     r = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True)
     if r.returncode:
         sys.exit(f"cpp failed on {path}:\n{r.stderr}")

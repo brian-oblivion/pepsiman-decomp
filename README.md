@@ -3,7 +3,7 @@
 A matching decompilation of **Pepsiman** (PlayStation, 1999, Japan,
 SLPS-01762).
 
-"Matching" means the C in `src/` compiles, with the Psy-Q GCC 2.6.3
+"Matching" means the C in `src/` compiles, with the Psy-Q GCC 2.8.1
 toolchain the game was built with, into an executable that is
 **byte-for-byte identical** to the one on the retail disc.
 
@@ -58,7 +58,7 @@ Then:
 ./build-and-verify.sh     # build, then compare the whole image with retail
 ```
 
-`setup.sh` fetches the prebuilt GCC 2.6.3, builds `mipsel-linux-gnu`
+`setup.sh` fetches the prebuilt GCC 2.8.1, builds `mipsel-linux-gnu`
 binutils, installs splat into a venv, and clones maspsx (patched from
 `tools/patches/`), m2c, asm-differ and decomp-permuter. After that,
 `./build-and-verify.sh` is the only build command. It ends `OK: build
@@ -94,7 +94,7 @@ grep -nE 'error:|parse error|undefined reference|\*\*\* \[[^]]*\.o\]' /tmp/build
 ```
 
 - **exit 1**: `disk/SLPS_017.62` is missing or is the wrong dump.
-- **exit 2 with a grep hit**: the C didn't compile. GCC 2.6.3 predates the
+- **exit 2 with a grep hit**: the C didn't compile. Psy-Q GCC predates the
   `error:` prefix, so the `*** [...o]` pattern is the reliable signal.
 - **exit 2 and no hit**: it compiled, but the image differs from retail.
   `cmp -l build/SLPS_017.62 disk/SLPS_017.62 | head` gives 1-based file
@@ -104,7 +104,7 @@ grep -nE 'error:|parse error|undefined reference|\*\*\* \[[^]]*\.o\]' /tmp/build
 The rules that break the image if you ignore them:
 
 - **Functions stay in ROM-address order within a file.**
-- **C89, as GCC 2.6.3 reads it.** Declarations at the top of a block, only
+- **C89, as GCC 2.8.1 reads it.** Declarations at the top of a block, only
   `/* */` comments, `char` is unsigned (a signed byte is `s8`).
 - **A rodata string is defined once, by name.** A literal written at a use
   emits a second copy and shifts the image.
@@ -150,5 +150,5 @@ maspsx patches in `tools/patches/`.
   [asm-differ](https://github.com/simonlindholm/asm-differ),
   [decomp-permuter](https://github.com/simonlindholm/decomp-permuter),
   [objdiff](https://github.com/encounter/objdiff) and pcsx-redux's
-  psyq-obj-parser, and the prebuilt GCC 2.6.3 from
-  [decompme/compilers](https://github.com/decompme/compilers).
+  psyq-obj-parser, and the prebuilt GCC 2.8.1 from
+  [decompals/old-gcc](https://github.com/decompals/old-gcc).

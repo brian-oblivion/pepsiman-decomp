@@ -6,7 +6,6 @@ INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041178);
 
 INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041198);
 
-#ifdef NON_MATCHING
 void func_80022554(s32 id);
 
 void func_8004121C(u16 sel) {
@@ -63,9 +62,6 @@ void func_8004121C(u16 sel) {
     }
     func_80022554(id);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_8004121C);
-#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_31958", func_800412DC);
 

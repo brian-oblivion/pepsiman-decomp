@@ -35,7 +35,7 @@ ctx.c.m2c
 # TOOLCHAIN. Fetched or built by tools/setup.sh, never committed.
 # ---------------------------------------------------------------------------
 # NO TRAILING SLASHES ON THESE. A trailing slash makes a pattern match only a
-# DIRECTORY. In the main checkout these are real directories, so `tools/gcc263/`
+# DIRECTORY. In the main checkout these are real directories, so `tools/gcc/`
 # ignored them fine -- but tools/setup-worktree.sh gives every worktree SYMLINKS
 # to them, and a symlink is not a directory, so all seven showed up as untracked
 # in every runner worktree. That silently disables the honesty check in
@@ -49,7 +49,8 @@ tools/asm-differ
 tools/m2c
 tools/maspsx
 tools/decomp-permuter
-tools/gcc263
+tools/gcc
+tools/cc-candidates
 tools/psyq-obj-parser
 permuter-work
 # Seed scaffolds a runner hands the permuter. Generated working state, same

@@ -69,7 +69,6 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019730);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800197E4);
 
-#ifdef NON_MATCHING
 s32 *func_80019874(s32 *table, s32 *keys, s32 key) {
     s32 n;
 
@@ -88,8 +87,5 @@ s32 *func_80019874(s32 *table, s32 *keys, s32 key) {
     }
     return table;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019874);
-#endif
 
 INCLUDE_RODATA("asm/nonmatchings/code_7d74", D_80010454);

@@ -1,4 +1,4 @@
 compiler_type = "gcc"
 
 [decompme.compilers]
-"tools/gcc263/gcc" = "psyq4.1"
+"tools/gcc/gcc" = "psyq4.1"

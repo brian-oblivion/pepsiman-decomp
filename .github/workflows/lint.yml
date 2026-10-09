@@ -47,7 +47,7 @@ jobs:
           pip install "clang-format==22.*"
           sudo apt-get update -qq && sudo apt-get install -y -qq doxygen
 
-      - name: Toolchain for the lint (venv, GCC 2.6.3's cpp)
+      - name: Toolchain for the lint (venv, the Psy-Q cpp)
         run: ./tools/setup.sh --lint-only
 
       - name: tools/lint.sh

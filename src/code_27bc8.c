@@ -24,7 +24,7 @@ extern u8 *D_80095A18;
 
 u16 func_800382DC(void) {
     u8 *p;
-    s32 sum;
+    u16 sum;
     s32 i;
     u8 lo;
     u8 hi;

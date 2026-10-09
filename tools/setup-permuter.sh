@@ -88,8 +88,8 @@ MASPSX_FLAGS="$MASPSX_FLAGS"
 AS_FLAGS="-I\$REPO -I\$REPO/include -I\$REPO/include/psyq -march=r3000
  -mtune=r3000 -EL -no-pad-sections -G0 -O2"
 INPUT=\$1; shift
-\$REPO/tools/gcc263/cpp \$CPP_FLAGS "\$INPUT" \\
-  | \$REPO/tools/gcc263/cc1 \$CC_FLAGS \\
+\$REPO/tools/gcc/cpp \$CPP_FLAGS "\$INPUT" \\
+  | \$REPO/tools/gcc/cc1 \$CC_FLAGS \\
   | \$REPO/.venv/bin/python3 \$REPO/tools/maspsx/maspsx.py \$MASPSX_FLAGS \\
   | \$REPO/tools/binutils/bin/mipsel-linux-gnu-as \$AS_FLAGS "\$@"
 SH
@@ -117,7 +117,7 @@ tools/binutils/bin/mipsel-linux-gnu-as -march=r3000 -mtune=r3000 -EL \
 
 # --- base.c: the seed, preprocessed and reduced to one function -------------
 cp "$seed" "$dir/orig.c"
-tools/gcc263/cpp -Iinclude -Iinclude/psyq -undef -lang-c -nostdinc \
+tools/gcc/cpp -Iinclude -Iinclude/psyq -undef -lang-c -nostdinc \
   -Dmips -D__GNUC__=2 -D__OPTIMIZE__ -D__mips__ -D__mips -Dpsx -D__psx__ -D__psx \
   -D_PSYQ -D__EXTENSIONS__ -D_MIPSEL -D_LANGUAGE_C -DLANGUAGE_C \
   -D'__attribute__(x)=' "$dir/orig.c" | grep -v '^#' > "$dir/base.c"

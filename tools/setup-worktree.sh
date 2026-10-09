@@ -34,7 +34,7 @@ fi
 # toolchain -- it cannot build one -- so an incomplete main checkout has to
 # fail here, loudly, rather than as a confusing build error inside a runner
 # session an hour later.
-REQUIRED="binutils gcc263 maspsx asm-differ m2c"
+REQUIRED="binutils gcc maspsx asm-differ m2c"
 OPTIONAL="decomp-permuter psyq-obj-parser"
 
 missing=""

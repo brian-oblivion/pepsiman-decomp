@@ -73,7 +73,7 @@ jobs:
         with:
           path: |
             tools/binutils
-            tools/gcc263
+            tools/gcc
           key: toolchain-${{ hashFiles('tools/setup.sh') }}
 
       # setup.sh ends with ./build-and-verify.sh and fails unless the image

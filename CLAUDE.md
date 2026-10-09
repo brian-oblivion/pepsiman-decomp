@@ -34,11 +34,11 @@ general guides from it are already in `docs/lsd-reference/`.
    `config/symbols.slps01762.pepsiman.txt` (through `tools/rename.py`) and
    change segmentation in `config/splat.slps01762.pepsiman.yaml`. A hook
    blocks it.
-6. **The toolchain is pinned** (GCC 2.6.3, binutils, flags, maspsx). A
+6. **The toolchain is pinned** (GCC 2.8.1, binutils, flags, maspsx). A
    suspected toolchain problem is reported to the operator with a minimal
-   reproducer, never experimented on. Pepsiman's compiler flags and maspsx
-   flags are inherited from lsddecomp and not yet proven on C for this game;
-   a flag that has to change is a finding to report, with the evidence.
+   reproducer, never experimented on. `tools/cctest.py` scores a function
+   across compilers and flags; use it to build the evidence, not to change
+   the pin.
 7. **No register pinning.** `register T v asm("$N")` and extended-asm operand
    constraints are banned as a way to fix which register holds a value. A
    bare `__asm__("")` barrier (order only) is allowed. The one exception is
@@ -60,7 +60,7 @@ general guides from it are already in `docs/lsd-reference/`.
 
    Exit 2 is both "did not compile" and "compiled, does not match". Only the
    grep tells them apart: any hit means the C didn't build, and any score is
-   from the previous build. GCC 2.6.3 prints semantic errors without an
+   from the previous build. Psy-Q GCC prints semantic errors without an
    `error:` prefix, which is why the `*** [….o]` pattern is there.
 3. `tools/lint.sh` before committing. Renames go through `tools/rename.py`,
    `tools/renametype.py` and `tools/unitfile.py`, never by hand.
@@ -102,10 +102,14 @@ literal (declare the existing `extern const char D_…[]` instead).
   0x800`. Entry `0x80042C58`. `$gp` is `0x800954C4`; `.sdata` starts there,
   `.sbss` at `0x800956D0`, and `.bss` runs to `0x800FAE80`. Little-endian
   R3000, no FPU.
-- Flags: `-mips1 -mcpu=3000 -O2 -G0 -funsigned-char -fno-builtin
+- Flags: `-mips1 -mcpu=3000 -O2 -G8 -funsigned-char -fno-builtin
   -mno-abicalls`, then maspsx with the flags in the Makefile's
   `MASPSX_FLAGS`. Anything that compiles in isolation reads the flags from
   the Makefile and never retypes them.
+- The compiler is GCC 2.8.1, not lsddecomp's 2.6.3: it splits `%hi`/`%lo`
+  itself and decides `$gp` addressing from `-G8`. Lessons in
+  `docs/lsd-reference/` that are about 2.6.3's codegen (most of
+  `DECOMPILATION_LEARNINGS.md`) are hypotheses here, not rules.
 - Sony's SDK is linked from Sony's objects (`config/psyq-objects.txt`). Never
   write C for a function a Sony object owns; `tools/sdkstalls.py` and
   `tools/psyq_sdk.py coverage` say which those are. Pepsiman's libraries

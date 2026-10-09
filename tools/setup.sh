@@ -5,7 +5,7 @@
 #   ./tools/setup.sh              # run every step that is not already done
 #   ./tools/setup.sh --force      # redo every step from scratch
 #   ./tools/setup.sh --no-verify  # skip the final build (faster; not advised)
-#   ./tools/setup.sh --lint-only  # no disc or SDK: the venv and GCC 2.6.3's cpp,
+#   ./tools/setup.sh --lint-only  # no disc or SDK: the venv and the Psy-Q cpp,
 #                                 # all tools/lint.sh needs (CI's lint job)
 #
 # This is the ONLY setup path. Matching rounds run in worktrees that symlink an
@@ -165,43 +165,47 @@ if [ -f tools/maspsx/maspsx.py ]; then
 fi
 
 # ---------------------------------------------------------------------------
-step "Psy-Q compiler (GCC 2.6.3) and mipsel binutils"
+step "Psy-Q compiler (GCC 2.8.1) and mipsel binutils"
 
-# -- GCC 2.6.3 --------------------------------------------------------------
-# The compiler Sony shipped in the Psy-Q SDK; cc1's own banner says "Sony
-# Playstation". These are prebuilt i386 binaries from decompals/old-gcc, which
-# is where the whole PSX decomp scene gets them.
-if [ "$FORCE" = 1 ]; then rm -rf tools/gcc263; fi
-if [ -x tools/gcc263/cc1 ]; then
-    skip "tools/gcc263/cc1"
+# -- GCC 2.8.1 --------------------------------------------------------------
+# The Psy-Q compiler; cc1's own banner says "Sony Playstation". These are
+# prebuilt i386 binaries from decompals/old-gcc, which is where the whole PSX
+# decomp scene gets them. 2.8.1, not lsddecomp's 2.6.3: Pepsiman's game code
+# has compiler-split %hi/%lo addresses (every jump-table dispatch), branchy
+# zero-returns and duplicated early returns that 2.6.3 and 2.7.2 cannot emit
+# and 2.8.x does, word for word (tools/cctest.py; the switch commit has the
+# table). 2.8.0 scored the same on every probe so far. tools/gcc is
+# version-neutral on purpose.
+if [ "$FORCE" = 1 ]; then rm -rf tools/gcc; fi
+if [ -x tools/gcc/cc1 ] && tools/gcc/gcc --version 2>/dev/null | grep -q '^2\.8\.1'; then
+    skip "tools/gcc/cc1 (2.8.1)"
 else
     # `-psx` is the load-bearing half of the name: it is the Psy-Q-patched
-    # build, not stock 2.6.3. This exact tarball was confirmed to rebuild
-    # SLPS_017.62 byte-for-byte, so it is what the pin below refers to. The
-    # binaries inside are not reproducible (build IDs differ between
-    # re-releases of the same source), which is why the TARBALL is hashed
-    # rather than its contents.
-    GCCURL=https://github.com/decompals/old-gcc/releases/download/0.17/gcc-2.6.3-psx.tar.gz
-    GCCSHA=2051de9da5cbba81d4c14ef0bce85e35981ccb51
+    # build, not stock GCC. The binaries inside are not reproducible (build
+    # IDs differ between re-releases of the same source), which is why the
+    # TARBALL is hashed rather than its contents.
+    GCCURL=https://github.com/decompals/old-gcc/releases/download/0.17/gcc-2.8.1-psx.tar.gz
+    GCCSHA=a0890a9a3d258f1f62d69b503ab740aee49d3551
     GCCTMP=$(mktemp -d)
     curl -sfL -o "$GCCTMP/gcc.tar.gz" "$GCCURL" \
         || { rm -rf "$GCCTMP"; die "could not fetch $GCCURL
-      If the release layout has changed, drop cc1/cpp/gcc into tools/gcc263/
-      by hand -- any Psy-Q-patched GCC 2.6.3 build will do, but PROVE it with
+      If the release layout has changed, drop cc1/cpp/gcc into tools/gcc/
+      by hand -- any Psy-Q-patched GCC 2.8.1 build will do, but PROVE it with
       ./build-and-verify.sh before matching against it."; }
     got=$(sha1sum "$GCCTMP/gcc.tar.gz" | cut -d' ' -f1)
     if [ "$got" != "$GCCSHA" ]; then
-        printf '      \033[33mWARNING\033[0m gcc-2.6.3-psx.tar.gz sha1 %s\n' "$got"
+        printf '      \033[33mWARNING\033[0m gcc-2.8.1-psx.tar.gz sha1 %s\n' "$got"
         printf '              expected %s -- upstream re-released it.\n' "$GCCSHA"
         printf '              Continuing; the build verification below is the real check.\n'
     fi
-    mkdir -p tools/gcc263
-    tar xzf "$GCCTMP/gcc.tar.gz" -C tools/gcc263
+    rm -rf tools/gcc
+    mkdir -p tools/gcc
+    tar xzf "$GCCTMP/gcc.tar.gz" -C tools/gcc
     rm -rf "$GCCTMP"
-    chmod +x tools/gcc263/*
-    tools/gcc263/gcc --version 2>/dev/null | grep -q '^2\.6\.3' \
-        || die "tools/gcc263/gcc is not GCC 2.6.3"
-    ok "tools/gcc263 (cc1, cpp, gcc)"
+    chmod +x tools/gcc/*
+    tools/gcc/gcc --version 2>/dev/null | grep -q '^2\.8\.1' \
+        || die "tools/gcc/gcc is not GCC 2.8.1"
+    ok "tools/gcc (cc1, cpp, gcc 2.8.1)"
 fi
 
 if [ "$LINT" = 1 ]; then

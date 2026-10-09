@@ -47,6 +47,15 @@ function's match report, not here.
   `s32`. (func_800384DC, func_80039580)
 - **A word written with `sw` and summed elsewhere with `lhu`: a union**
   (`{ s32 w; u16 lo; }`). (func_8003828C's table, code_27bc8)
+- **A result kept in `$a3` that skips `$a1`/`$a2`, which the function never
+  touches: extra arguments passed straight through to callees.**
+  (func_80040E04)
+- **`lbu` of a stack parameter with no `andi 0xFF`: an `s32` parameter read
+  as `(u8)p`.** A `u8` parameter adds the `andi`. (func_8001B2F4)
+- **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain
+  assignment gives `li 0xFF`. (func_8003FFAC)
+- **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
+  (func_80033E98)
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
@@ -81,6 +90,8 @@ function's match report, not here.
 - **Four `lw` then four `sw`, both pointers bumped by 16 to an end pointer:
   a block move**, `*(Big *)dst = *(Big *)src` with a one-member `u8 b[N]`
   struct; also for an odd, byte-aligned size. (func_80033930, func_800385E0)
+  More than four registers per batch, the first word through `%lo(sym)`:
+  separate `s32` assignments, not a struct copy. (func_800335E8)
 - **A zero returned from a saved register (`addu $v0, $s2, $zero`): an `s32
   ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
   (func_800383F8, func_80038468, func_8003950C)
@@ -117,6 +128,13 @@ function's match report, not here.
   counter per loop.** A shared counter costs a saved register. `f(fmt, *p);
   p++;` keeps the format's `addiu` first; `f(fmt, *p++)` does not.
   (func_800149D0)
+- **A record loop whose pointer stays at the record start and rebuilds a
+  constant every pass: `r = &tbl[i];` inside the body.** `r++` biases the
+  pointer and hoists the constant. (func_80033BF8, func_80031A48)
+- **A parameter advanced in steps pairs saved registers like retail**:
+  `tmd++; f(tmd); tmd += 2; g(tmd);`, not `tmd + 2`. (func_8002C20C)
+- **`addPrim(ot, p); p++; G = (u8 *)p;`**, not `G = (u8 *)(p + 1);`, for a
+  primitive-buffer bump. libgpu's macros match unchanged. (func_80040F14)
 - **A row offset built as `row*21` then plus the column: a flat index**,
   `tbl[row*21 + col]`; `T t[][21]` scales the row by the row size.
   (func_800229A8)
@@ -221,6 +239,16 @@ function's match report, not here.
   (func_80018D04)
 - **An induction expression cc1 reassociates: put the induction part in its
   own local**, `base = i*3 + 0x40; v = base - level;`. (func_8003E360)
+- **Retail rebuilding local addresses before every call, with those locals
+  after the caller's own in the frame: an inlined helper**, `static
+  __inline__ setLs(x, y, z)` holding the shared body. (func_8003F960,
+  func_8003FA88, func_8003FBE0, func_8003FD0C, func_8003FE5C, func_8003FFAC)
+- **A jump table whose bound check's delay slot holds the index `sll`, not
+  the table's `lui`: non-void with no return.** (func_80020CF8)
+- **`A[g] = (p = expr) + 1;` loads `g` before `expr`.** (func_8002C044)
+- **Asm splat calls handwritten, with `cfc2 $t4, $31` / `mtc2 x, $8`:
+  compiled C using `gte_stflg` / `gte_lddp`** (include/gte.h).
+  (func_80020DD8, func_80020F24)
 - **Two addresses computed into one register in turn: one local reused**,
   `p = a->data; G1 = (s32)p; p = b->data; G2 = (s32)p;`. (func_800373C8)
 - **A register parameter spilled where retail spills a stack one: name an

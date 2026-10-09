@@ -22,9 +22,10 @@ typedef struct {
     u16 unk1E;   /**< stored */
     u16 unk20;   /**< stored */
     u16 unk22;   /**< stored */
-    u8 unk24[8]; /**< not yet known */
-    s32 unk2C;   /**< zeroed on a reset */
-    s32 unk30;   /**< zeroed on a reset */
+    u8 unk24[4]; /**< not yet known */
+    s32 unk28;   /**< passed to the lookup and updated from it */
+    s32 unk2C;   /**< zeroed on a reset; an angle from the lookup */
+    s32 unk30;   /**< zeroed on a reset; an angle from the lookup */
 } Obj34;
 
 /** @brief An object with a word at 0x28 that a lookup updates. */
@@ -85,7 +86,7 @@ typedef struct {
 } GameHead;
 
 extern u8 D_800A74D0[];            /**< 128 byte flags; cleared together */
-extern u8 D_80096738[];            /**< passed to the lookup */
+extern s16 D_80096738[];           /**< filled by the lookup: a height, then a direction */
 extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
 extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */
@@ -203,7 +204,21 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BEC0);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C044);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C0EC);
+/** @brief Looks up the height under `p`; on success sets its current and
+ *         stored y and two angles from the result.
+ *  @return the lookup's result, -1 when it failed */
+s32 func_8002C0EC(Obj34 *p) {
+    s32 v;
+
+    v = func_80018D70(p, D_80096738, p->unk28);
+    if (v != -1) {
+        p->unk28 = v;
+        p->unk4 = p->unk10 = D_80096738[0];
+        p->unk2C = ratan2(-D_80096738[3], D_80096738[2]);
+        p->unk30 = ratan2(-D_80096738[1], D_80096738[2]);
+    }
+    return v;
+}
 
 /** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
 void func_8002C188(s32 r, s16 deg, Vec3 *out) {

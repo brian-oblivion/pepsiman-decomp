@@ -46,7 +46,7 @@ CC_FLAGS   += -funsigned-char -G8 -O2
 # 2.56: retail assembles `li 0xFF` as addiu and `li 0xEFFE` as ori, which is
 # GNU as's li, i.e. no maspsx li expansion (aspsx >= 2.50). 2.56..2.86 score
 # the same so far.
-MASPSX_FLAGS := --aspsx-version=2.56 --dont-force-G0 --addiu-at --gp-symbols=config/gp-symbols.txt --nop-at-expansion
+MASPSX_FLAGS := --aspsx-version=2.56 --dont-force-G0 --gp-symbols=config/gp-symbols.txt --nop-at-expansion
 
 AS_FLAGS   := -Iinclude -Iinclude/psyq -march=r3000 -mtune=r3000 -EL
 AS_FLAGS   += -no-pad-sections -G0 -O2

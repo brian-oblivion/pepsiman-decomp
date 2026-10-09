@@ -231,6 +231,18 @@
 /* clang-format on */
 
 /**
+ * @brief AVSZ4: the average of SZ0-SZ3, scaled, into OTZ (read back with
+ * gte_stotz()): a quad's ordering-table depth. No operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_avsz4() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4B68002E")
+/* clang-format on */
+
+/**
  * @brief MVMVA with the rotation matrix and the IR vector, no translation,
  * shifted by 12: IR1-IR3 := rotation * IR. Sony's rtir; its llir uses the
  * light matrix instead. No operands, no clobbers.
@@ -445,6 +457,30 @@
         "sh $13, 0x6(%0)\n\t" \
         "sh $14, 0xC(%0)" \
         : : "r" (r1) : "$12", "$13", "$14", "memory")
+/* clang-format on */
+
+/**
+ * @brief Stores the whole FLAG control register (control 31), the GTE's
+ * error and saturation bits from the last operation, at `r1`: Sony's
+ * gte_stflg. Operand: `r1` by "r"; clobbers general register 12 and memory.
+ */
+/* clang-format off */
+#define gte_stflg(r1) \
+    __asm__ volatile ( \
+        "cfc2 $12, $31\n\t" \
+        "nop\n\t" \
+        "sw $12, 0x0(%0)" \
+        : : "r" (r1) : "$12", "memory")
+/* clang-format on */
+
+/**
+ * @brief Loads the value `r1` into IR0 (data 8), the depth-cue
+ * interpolation factor gte_dpcs() reads: Sony's gte_lddp. Operand: `r1` by
+ * "r" (a value, not a pointer); no clobbers.
+ */
+/* clang-format off */
+#define gte_lddp(r1) \
+    __asm__ volatile ("mtc2 %0, $8" : : "r" (r1))
 /* clang-format on */
 
 /**

@@ -1,5 +1,45 @@
 #include "common.h"
 
+/** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
+typedef struct {
+    s8 unk0;       /**< -1 when the record is free (a guess) */
+    u8 unk1[0x5B]; /**< not yet known */
+} Rec5C;
+
+/** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
+ *         known. */
+typedef struct {
+    s16 unk0;      /**< -1 when the record is free (a guess) */
+    u8 unk2[0x3A]; /**< not yet known */
+} Rec3C;
+
+/** @brief A 0x48-byte record of a 200-entry table; three fields known. */
+typedef struct {
+    u8 unk0[0x34]; /**< not yet known */
+    s16 unk34;     /**< -1 when reset */
+    s16 unk36;     /**< -1 when reset */
+    u8 unk38[9];   /**< not yet known */
+    u8 unk41;      /**< 1 when reset */
+    u8 unk42[6];   /**< not yet known */
+} Rec48;
+
+/** @brief The header of a block whose second part starts at a byte offset
+ *         the header gives. */
+typedef struct {
+    s32 unk0;   /**< not yet known; kept in a global */
+    s32 offset; /**< byte offset of the second part from the header */
+} BlockHeader;
+
+extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4;   /**< the BlockHeader's second part */
+extern s32 D_800959C8;   /**< the BlockHeader's first word */
+extern u16 D_800958E8;   /**< zeroed with the block; never loaded here */
+extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
+extern u16 D_80095748;   /**< a halfword copied into the run below */
+extern u16 D_80095B4C[]; /**< first of a run of halfwords */
+
+void func_800330D4(void);
+
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
@@ -58,7 +98,15 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C4D8);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C540);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5A4);
+/** @brief Clears byte 0 of the first `count` records of a Rec5C table. */
+void func_8002C5A4(Rec5C *recs, u16 count) {
+    u16 i;
+
+    for (i = 0; i < count; i++) {
+        recs->unk0 = 0;
+        recs++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5D0);
 
@@ -86,11 +134,29 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CC24);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CCEC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D0C4);
+/** @brief Points the current-block globals at the block `hdr` heads. */
+void func_8002D0C4(BlockHeader *hdr) {
+    D_800959C0 = (u8 *)hdr + 8;
+    D_800959C8 = hdr->unk0;
+    /* MATCHING: offset read through a byte pointer, not hdr->offset: the
+     * member access lets the load rise above the D_800959C8 store. */
+    D_800959C4 = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
+    D_800958E8 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D0F0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D140);
+/** @brief Clears a 128-byte table of flags.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D140(void) {
+    u32 i;
+
+    /* MATCHING: non-void with no return; it keeps $v0 live at the exit, so
+     * the loop's delay slot stays a nop. */
+    for (i = 0; i < 128; i++) {
+        D_800A74D0[i] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D16C);
 
@@ -396,15 +462,52 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033790);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800337E4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033854);
+/** @brief Sets byte 0 of all 200 records of a Rec5C table to -1. */
+void func_80033854(Rec5C *recs) {
+    u32 i;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033878);
+    for (i = 0; i < 200; i++) {
+        recs->unk0 = -1;
+        recs++;
+    }
+}
+
+/** @brief Sets byte 0 of records 100 to 199 of a 200-entry table to -1. */
+void func_80033878(Rec5C *recs) {
+    u32 i;
+
+    recs += 100;
+    for (i = 100; i < 200; i++) {
+        recs->unk0 = -1;
+        recs++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338A0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338D8);
+/** @brief Resets records 150 to 199 of a 200-entry Rec48 table. */
+void func_800338D8(Rec48 *recs) {
+    u32 i;
+    Rec48 *r;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003390C);
+    r = &recs[150];
+    for (i = 150; i < 200; i++) {
+        r->unk36 = -1;
+        r->unk34 = -1;
+        r->unk41 = 1;
+        r++;
+    }
+}
+
+/** @brief Sets the halfword at 0 of all 100 records of a Rec3C table to -1. */
+void func_8003390C(Rec3C *recs) {
+    u32 i;
+
+    for (i = 0; i < 100; i++) {
+        recs->unk0 = -1;
+        recs++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033930);
 
@@ -414,7 +517,12 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033A08);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033AB8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033B08);
+/** @brief Runs an update, then latches a halfword into the first slot of a
+ *         halfword run. */
+void func_80033B08(void) {
+    func_800330D4();
+    D_80095B4C[0] = D_80095748;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033B34);
 

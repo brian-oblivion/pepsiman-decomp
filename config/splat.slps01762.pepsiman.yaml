@@ -79,7 +79,8 @@ segments:
       - [0x2E1C, o, libcd/iso9660, .rdata]
       - [0x300C, o, libcd/cdread, .rdata]
       - [0x305C, o, libcd/c_011, .rdata]
-      - [0x307C, rodata]
+      - [0x307C, o, libgs/2d_com1, .rdata]
+      - [0x30AC, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -240,7 +241,37 @@ segments:
       - [0x43EF4, o, libcd/c_009]             # StGetNext
       - [0x43FB4, o, libcd/c_010]             # StSetMask
       - [0x43FD4, o, libcd/c_011]             # StCdInterrupt
-      - [0x44AC4, asm, psyq_44AC4]
+      - [0x44AC4, o, libgte/geo_00]           # rsin, sin_1
+      - [0x44B94, o, libgte/geo_01]           # rcos
+      - [0x44C34, o, libgte/fog_02]           # SetFogNearFar
+      - [0x44D44, o, libgte/msc01]            # SquareRoot0
+      - [0x44DD4, o, libgte/msc02]            # InvSquareRoot, VectorNormal, VectorNormalS, VectorNormalSS
+      - [0x45084, o, libgte/mtx_07]           # TransMatrix
+      - [0x450B4, o, libgte/mtx_08]           # ScaleMatrix
+      - [0x451F4, o, libgte/mtx_09]           # SetRotMatrix
+      - [0x45224, o, libgte/mtx_12]           # SetTransMatrix
+      - [0x45244, o, libgte/reg03]            # SetVertex0, SetVertex1, SetVertex2, SetVertexTri, SetRGBfi
+      - [0x45354, o, libgte/reg11]            # SetFarColor
+      - [0x45374, o, libgte/smp_00]           # LightColor, DpqColorLight, DpqColor3, Intpl, Square12, Squ
+      - [0x45584, o, libgte/smp_02]           # RotTransPers
+      - [0x455B4, o, libgte/smp_04]           # RotTrans
+      - [0x455E4, o, libgte/fgo_01]           # RotMatrix
+      - [0x45874, o, libgte/fgo_02]           # RotMatrixYXZ
+      - [0x45B04, o, libgte/fgo_04]           # RotMatrixX
+      - [0x45CA4, o, libgte/fgo_06]           # RotMatrixZ
+      - [0x45E44, o, libgte/clipf_04]         # ClipF
+      - [0x46624, o, libgte/clip_ini]         # InitClip
+      - [0x46744, o, libgte/clipf_05]         # ZClipF
+      - [0x46814, o, libgte/msc06]            # LoadAverage12, LoadAverage0, LoadAverageShort12, LoadAvera
+      - [0x46AA4, o, libgte/ratan]            # ratan2
+      - [0x46C24, o, libgs/2d_lin0]           # GsSortLine
+      - [0x46D04, o, libgs/2d_com1]           # _make_packet
+      - [0x46DA4, o, libgs/2d_prim]           # GsSortPoly
+      - [0x46F74, asm, psyq_46F74]            # libgs/gs_001 stays asm: its .bss statics are
+                                              # scattered in retail (ldfrag NOTE), so the object
+                                              # cannot link unedited
+      - [0x474C4, o, libgs/gs_002]            # GsGetActiveBuff, GsSetDrawBuffOffset
+      - [0x475E4, asm, psyq_475E4]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -268,6 +299,11 @@ segments:
       - [0x6E464, data]
       - [0x6E4C4, o, libcd/c_011, .data]
       - [0x6E514, data]
+      - [0x6EEA4, o, libgte/msc02, .data]
+      - [0x6F044, data]
+      - [0x73044, o, libgte/clip_ini, .data]
+      - [0x73054, o, libgte/ratan, .data]
+      - [0x73864, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

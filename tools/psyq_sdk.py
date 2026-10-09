@@ -750,6 +750,37 @@ def reloc_addresses(exe, opath, toff, gp=0x800954C4):
                 pending = None
 
 
+def data_reloc_addresses(exe, name, opath):
+    """Yield (symbol_name, retail_address) for the R_MIPS_32 words in the
+    object's data sections that the yaml places (`- [0xOFF, o, lib/mod, .data]`).
+    A pointer table can be the ONLY reference to a bss variable: libgte/
+    clip_ini's .data holds &_tmp_evbf (0x800E43D0) and no text names it, so
+    without this the variable stays unpinned at its section's base."""
+    import struct as st
+    from elftools.elf.elffile import ELFFile
+    offs = {}
+    for line in YAML.read_text().splitlines():
+        m = re.match(r"\s+- \[\s*(0x[0-9A-Fa-f]+)\s*,\s*o\s*,\s*([\w/]+)\s*,\s*(\.\w+)\s*\]", line)
+        if m and m.group(2) == name:
+            offs[m.group(3)] = int(m.group(1), 16)
+    if not offs:
+        return
+    with open(opath, "rb") as f:
+        elf = ELFFile(f)
+        syms = list(elf.get_section_by_name(".symtab").iter_symbols())
+        for sec, off in offs.items():
+            rel = elf.get_section_by_name(".rel" + sec)
+            if rel is None:
+                continue
+            body = elf.get_section_by_name(sec).data()
+            for r in rel.iter_relocations():
+                sym = syms[r["r_info_sym"]]
+                if r["r_info_type"] != R_MIPS_32 or not sym.name or sym["st_info"]["type"] == "STT_SECTION":
+                    continue
+                o = r["r_offset"]
+                yield sym.name, st.unpack_from("<I", exe, off + o)[0] - st.unpack_from("<I", body, o)[0]
+
+
 def cmd_symbols(_args):
     """Retail address of every Psy-Q symbol the placed objects reference, in
     symbols-file syntax. Two sources: an object's own exports (text symbols
@@ -817,6 +848,8 @@ def bss_plan(objects):
     for name, path, toff in (corpus or objects):
         for sname, addr in reloc_addresses(exe, path, toff, gp):
             known[sname].add(addr)
+        for sname, addr in data_reloc_addresses(exe, name, path):
+            known[sname].add(addr)
     sections, pins, notes = [], [], []
     # Externals: a linked object calls SDK (or game) symbols nothing in the link
     # defines yet -- InterruptCallback, printf, putchar ... Pin each to the
@@ -832,6 +865,8 @@ def bss_plan(objects):
                 if sym.name and sym["st_shndx"] != "SHN_UNDEF" and sym["st_info"]["type"] != "STT_SECTION":
                     defined.add(sym.name)
         for sname, addr in reloc_addresses(exe, path, toff, gp):
+            undefined[sname].add(addr)
+        for sname, addr in data_reloc_addresses(exe, name, path):
             undefined[sname].add(addr)
     externs = []
     for sname in sorted(undefined):

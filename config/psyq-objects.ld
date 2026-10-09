@@ -18,6 +18,7 @@ SECTIONS {
     .psyq_bss.libcd_c_004_bss 0x800E4390 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_004.o(.bss) }   /* 0x10 bytes; section-relative refs */
     .psyq_bss.libcd_c_005_bss 0x800E43A0 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_005.o(.bss) }   /* 0x8 bytes; first symbol StFunc1 */
     .psyq_bss.libcd_c_011_bss 0x800E43A8 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_011.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libgte_clip_ini_bss 0x800E43D0 (NOLOAD) : SUBALIGN(2) { build/lib/libgte/clip_ini.o(.bss) }   /* 0x2D8 bytes; first symbol _tmp_evbf */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -64,9 +65,18 @@ StRingSize = 0x800E1F54;   /* libcd/cdrom */
 StMode = 0x800E1F88;   /* libcd/bios */
 StFunc1 = 0x800E43A0;   /* libcd/c_005 */
 StFunc2 = 0x800E43A4;   /* libcd/c_005 */
+CLIPKdhx = 0x800E43B8;   /* libgte/clip_ini */
+CLIPHdkx = 0x800E43BC;   /* libgte/clip_ini */
+CLIPKdhy = 0x800E43C0;   /* libgte/clip_ini */
+CLIPHdky = 0x800E43C4;   /* libgte/clip_ini */
+CLIPFarz = 0x800E43C8;   /* libgte/clip_ini */
+CLIPNearz = 0x800E43CC;   /* libgte/clip_ini */
+_tmp_evbf = 0x800E43D0;   /* libgte/clip_ini */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
+SetGeomOffset = 0x80056DE4;
+PutDrawEnv = 0x80068994;
 puts = 0x8006C15C;
 setjmp = 0x8006C174;
 strcmp = 0x8006C184;
@@ -96,6 +106,9 @@ _spu_memList = 0x8007BD54;
 _spu_zerobuf = 0x8007BD5C;
 _spu_rev_startaddr = 0x8007C15C;
 _spu_rev_param = 0x8007C1AC;
+rsin_tbl = 0x8007DD14;
+SQRT = 0x8007E524;
+rcossin_tbl = 0x8007E844;
 _svm_rattr = 0x800E1C40;
 _svm_vab_pg = 0x800E1C58;
 _svm_vab_vh = 0x800E1C98;
@@ -114,3 +127,12 @@ _svm_auto_kof_mode = 0x800E1D70;
 _svm_vab_total = 0x800E1D78;
 _svm_vab_count = 0x800E1DB8;
 _svm_vab_start = 0x800E1DC0;
+PSDOFSX = 0x800E46B0;
+PSDOFSY = 0x800E46B4;
+POSITION = 0x800E46C0;
+GsDRAWENV = 0x800E46C8;
+GsORGOFSX = 0x800E473C;
+GsORGOFSY = 0x800E473E;
+PSDIDX = 0x800E474C;
+PSDGPU = 0x800E474E;
+GsOUT_PACKET_P = 0x800E48D0;

@@ -35,7 +35,11 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017574);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800175AC);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017614);
+void func_80017614(u8 mode) {
+    if (mode == 4) {
+        func_800175AC(CdlPlay);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017640);
 

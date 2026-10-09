@@ -30,6 +30,12 @@ extern s32 D_80095A04;
 extern s32 D_80095A08;
 
 long TestEvent(long event);
+long _card_info(long chan);
+
+void func_80038730(void);
+void func_800387A8(void);
+s16 func_80038820(void);
+void func_80038900(void);
 
 s16 func_8003828C(u8 *a, u8 *b, s16 n) {
     s16 i;
@@ -86,7 +92,19 @@ void func_80038374(void) {
     D_80095A18 = (u8 *)0x8016D000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038394);
+s16 func_80038394(void) {
+    s16 result;
+
+    result = 0;
+    func_80038730();
+    func_80038900();
+    _card_info(0x10);
+    if (func_80038820() == 2) {
+        result = -1;
+    }
+    func_800387A8();
+    return result;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800383F8);
 

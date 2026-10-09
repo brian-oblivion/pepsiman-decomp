@@ -85,7 +85,10 @@ void func_80022F68(VECTOR *pos) {
                   (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023020);
+void func_80023020(VECTOR *pos) {
+    func_8003F834(6, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+                  (s16)pos->vz + (rand() % 160 - 80), 1);
+}
 
 void func_800230D8(void) {}
 

@@ -43,7 +43,6 @@ extern u8 D_800DB2C0[]; /**< 0x1DB0-byte buffer, cleared as a whole */
 extern u8 D_80095A29; /**< state of that dispatch: 0 or 1 */
 
 extern s16 D_80095A30; /**< current index, clamped to the entry count */
-extern s16 D_8009588E; /**< number of entries */
 
 void func_80034F38(void);
 void func_80036F50(void);

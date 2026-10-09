@@ -79,6 +79,14 @@ typedef struct {
     s8 coord; /**< index into the coordinate-system table */
 } LocalPos;
 
+/** @brief A model object with its own coordinate system and transform. */
+typedef struct {
+    GsDOBJ2 obj;         /**< the object handler */
+    GsCOORDINATE2 coord; /**< the object's coordinate system */
+    SVECTOR rot;         /**< rotation */
+    SVECTOR scale;       /**< scale, 0x1000 = 1 */
+} Model70;
+
 /** @brief The head of the game state, as far as this unit reaches. */
 typedef struct {
     u8 unk0[5];      /**< not yet known */
@@ -260,7 +268,26 @@ void func_8002C188(s32 r, s16 deg, Vec3 *out) {
     out->z = rcos(a) * r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C20C);
+/** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
+ *         identity transform, and counts it. */
+void func_8002C20C(Model70 *m, u_long *tmd, u8 n) {
+    GsInitCoordinate2(WORLD, &m->coord);
+    m->obj.coord2 = &m->coord;
+    /* MATCHING: the parameter is advanced in two steps; offsets from one
+     * copy give the object pointer and the TMD pointer swapped registers. */
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd += 2;
+    GsLinkObject4((u_long)tmd, &m->obj, n);
+    m->obj.attribute = 0x200;
+    m->scale.vx = 0x1000;
+    m->scale.vy = 0x1000;
+    m->scale.vz = 0x1000;
+    m->rot.vx = 0;
+    m->rot.vy = 0;
+    m->rot.vz = 0;
+    D_8009588E++;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C2B4);
 

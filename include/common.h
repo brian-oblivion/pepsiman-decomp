@@ -96,6 +96,9 @@ extern NumberedSlot D_800DFAB0[]; /**< the 128 records; 2 units */
 
 /* Small: a plain extern. */
 extern s32 D_800956D4; /**< 2 units, 4 functions */
+extern u8 D_8009574C;  /**< fog colour, red; 2 units */
+extern u8 D_80095754;  /**< fog colour, green; 2 units */
+extern u8 D_8009575C;  /**< fog colour, blue; 2 units */
 extern u8 D_800956F7;  /**< 3 units, 3 functions */
 extern s32 D_80095714; /**< 2 units, 2 functions */
 extern s32 D_8009571C; /**< 2 units, 2 functions */
@@ -164,6 +167,10 @@ void func_800428B0(void);
 
 /** @brief Defined in code_7d74; called from main. */
 void func_80018CB4(void);
+
+/** @brief Defined in code_7d74; called from main: sets up the three flat
+ *         lights, the ambient light and the fog. */
+void func_80018094(void);
 
 /** @brief Defined in main.
  *  @param count how many times it prints its fixed string */

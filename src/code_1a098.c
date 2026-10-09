@@ -21,7 +21,7 @@ typedef struct {
     u8 unk0[0x24]; /**< not yet known */
     s16 unk24;     /**< zeroed with unk40 */
     u8 unk26[2];   /**< not yet known */
-    s32 unk28;     /**< set from func_800183B0 */
+    s32 unk28;     /**< set from a per-record lookup */
     u8 unk2C[8];   /**< not yet known */
     s16 unk34;     /**< -1 when reset */
     s16 unk36;     /**< -1 when reset */

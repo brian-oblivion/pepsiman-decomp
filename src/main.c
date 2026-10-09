@@ -237,8 +237,6 @@ void func_8001534C(void) {
     }
 }
 
-extern s32 D_800958CC;
-
 void func_800153CC(s32 mode) {
     mode &= 1;
     D_800958CC = 0;

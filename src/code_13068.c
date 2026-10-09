@@ -65,6 +65,18 @@ extern s32 D_800957EC;
  * from the lw), so it is an array here, though both halves use one register. */
 extern s32 D_8009EF44[];
 
+/** @brief A point of a 21-by-16 grid spanning the 320x240 screen, 16
+ *         pixels apart, stored row by row. */
+typedef struct {
+    s32 x; /**< column offset from the screen centre */
+    s32 y; /**< row offset from the screen centre */
+    s32 z; /**< always 0 */
+} GridPoint;
+
+extern s32 D_800958D0;
+extern s32 D_800959A8;
+extern GridPoint D_800DE5E0[];
+
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
@@ -72,7 +84,22 @@ void func_80015450(u16 *table, s32 index);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022868);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800229A8);
+void func_800229A8(void) {
+    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
+        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].x = D_800958CC * 16 - 160;
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].y = D_800958D0 * 16 - 120;
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = 0;
+        }
+    }
+    D_800DB2A0[0] = 0;
+    D_800959A8 = 0;
+    D_800DB2A0[1] = 0;
+    D_800DB2A0[2] = 1000;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = 0;
+    D_800DB2A0[5] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022A74);
 

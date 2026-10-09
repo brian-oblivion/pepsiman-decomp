@@ -577,7 +577,25 @@ void func_80033C90(void) {
     FntPrint(D_80095630);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033D3C);
+/** @brief Prints a two-line SAVE/LOAD menu, highlighting the line
+ *         the menu cursor selects. */
+void func_80033D3C(void) {
+    FntPrint(D_800955DC);
+    func_80014BF0(4);
+    if (D_8009574A == 0) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095638);
+    func_80014BF0(4);
+    if (D_8009574A == 1) {
+        FntPrint(D_800954F4);
+    } else {
+        FntPrint(D_8009550C);
+    }
+    FntPrint(D_80095640);
+}
 
 /** @brief Writes the tool buffer to the tool file on the host.
  *  @return the count written. */

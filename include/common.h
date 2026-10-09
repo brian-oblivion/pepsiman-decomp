@@ -144,4 +144,10 @@ extern s32 D_800D86B8[]; /**< 2 units, 3 functions */
 extern s32 D_800DB2A0[]; /**< 5 units, 15 functions */
 extern s32 D_800DD070[]; /**< 3 units, 4 functions */
 
+/* --- Functions called from more than one unit, with the same prototype ---- */
+
+/** @brief Defined in code_31cec.
+ *  @param id what to start, by number */
+void func_80042538(s32 id);
+
 #endif

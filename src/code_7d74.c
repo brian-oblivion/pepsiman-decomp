@@ -5,23 +5,27 @@
 #include "libgs.h"
 #include "libcd.h"
 
+/** @brief A 16-byte entry of a pack's directory; the first entry's count is
+ *         the number of entries. */
 typedef struct {
-    s32 offset;
-    u8 unk4[0xA];
-    u16 count;
+    s32 offset;   /**< byte offset of the entry's data from the pack start */
+    u8 unk4[0xA]; /**< not yet known */
+    u16 count;    /**< number of entries (read from the first one) */
 } PackEntry;
 
+/** @brief A slot of a SlotList, found by its key. */
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
+    s32 unk0; /**< only the sign bit set when the slot is initialised */
+    s32 unk4; /**< the slot's 0x50-byte object */
+    s32 unk8; /**< cleared when the slot is initialised */
+    s32 unkC; /**< the key; -1 when free */
 } Slot;
 
+/** @brief A fixed-capacity list of Slots. */
 typedef struct {
-    Slot *slots;
-    s32 count;
-    s32 capacity;
+    Slot *slots;  /**< the slot array */
+    s32 count;    /**< slots in use */
+    s32 capacity; /**< slots in the array */
 } SlotList;
 
 extern u8 D_800958C9;

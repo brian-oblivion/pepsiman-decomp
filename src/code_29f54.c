@@ -34,8 +34,6 @@ typedef struct {
 
 #define sSlots ((Slot *)D_800DFAB0)
 
-void func_80042538(s32 arg0);
-
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);

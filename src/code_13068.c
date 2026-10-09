@@ -68,7 +68,6 @@ extern s32 D_8009EF44[];
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
-void func_80042538(s32 id);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022868);
 

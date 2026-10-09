@@ -53,8 +53,8 @@ import srcpath
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
-CPP = ROOT / "tools/gcc263/cpp"
-CC1 = ROOT / "tools/gcc263/cc1"
+CPP = ROOT / "tools/gcc/cpp"
+CC1 = ROOT / "tools/gcc/cc1"
 
 
 def makefile_flags(var):

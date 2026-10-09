@@ -30,7 +30,7 @@ from pathlib import Path
 import srcpath
 
 ROOT = Path(__file__).resolve().parent.parent
-CPP = ROOT / "tools/gcc263/cpp"
+CPP = ROOT / "tools/gcc/cpp"
 M2C = ROOT / "tools/m2c/m2c.py"
 PYTHON = ROOT / ".venv/bin/python3"
 DEFAULT_OUT = ROOT / "build/ctx.c"

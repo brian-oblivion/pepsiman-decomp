@@ -1,5 +1,7 @@
 #include "common.h"
 #include "memory.h"
+#include "libapi.h"
+#include "sys/file.h"
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
 typedef struct {
@@ -82,6 +84,32 @@ typedef struct {
     s32 offset; /**< byte offset of the second part from the header */
 } BlockHeader;
 
+/** @brief An eight-byte entry of the BlockHeader's first part. */
+typedef struct {
+    s16 unk0; /**< not yet known */
+    s16 unk2; /**< not yet known */
+    u16 unk4; /**< summed over the entries */
+    s16 unk6; /**< an index into the 128 byte flags */
+} Ent8;
+
+/** @brief Four halfword triples after a word: the corners of a box. */
+typedef struct {
+    u8 unk0[4];  /**< not yet known */
+    s16 v[4][3]; /**< x, y, z of each corner */
+} Box4;
+
+/** @brief The head of the game state; only byte 5 is used here. */
+typedef struct {
+    u8 unk0[5]; /**< not yet known */
+    u8 unk5;    /**< a mode byte: 0x42 and 0x43 seen */
+} GameHead;
+
+/** @brief A state block with a halfword total at 0x26. */
+typedef struct {
+    u8 unk0[0x26]; /**< not yet known */
+    u16 unk26;     /**< a sum over the current block's entries */
+} Totals28;
+
 extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;      /**< the BlockHeader's second part */
 extern s32 D_800959C8;      /**< the BlockHeader's first word */
@@ -91,6 +119,16 @@ extern u16 D_80095B4C[];    /**< first of a run of halfwords */
 extern u8 D_80096738[];     /**< passed to the lookup */
 extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
 extern Rec3C D_800A7898[];  /**< 100 Rec3C records */
+extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
+extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
+extern u8 D_80095B28[];     /**< a Totals28 */
+extern char D_80011260[];   /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
+
+/* MATCHING: a struct lvalue keeps the base in a register. */
+#define sGameHead (*(GameHead *)D_8009EB78)
+#define sTotals (*(Totals28 *)D_80095B28)
+/* The Rec48 table; common.h declares it as words. */
+#define sRecs48 ((Rec48 *)D_800A9008)
 
 s32 func_80018D70(void *pos, void *arg, s32 cur);
 s32 func_80028AE4(Query30 *q);
@@ -100,6 +138,9 @@ s32 func_80018D04(s16 a, s16 b, u16 t, u16 n);
 void func_800330D4(void);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
+s32 func_80028260(s32 n);
+void func_8002C4D8(void);
+s32 func_8002C650(void);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -111,7 +152,17 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A328);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A558);
+/** @brief Switches the game mode byte to 0x42 and resets, when a status
+ *         field is 1 and the mode is not already 0x43.
+ *  @return nothing; the value is undefined. */
+s32 func_8002A558(void) {
+    /* MATCHING: non-void with no return keeps the second branch's delay
+     * slot a nop. */
+    if ((((u32)D_80095864 >> 4) & 3) == 1 && sGameHead.unk5 != 0x43) {
+        sGameHead.unk5 = 0x42;
+        func_80028260(-1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 

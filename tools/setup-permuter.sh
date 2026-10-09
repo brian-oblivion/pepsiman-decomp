@@ -120,10 +120,15 @@ printf 'func_name = "%s"\ncompiler_type = "gcc"\n' "$func" > "$dir/settings.toml
 # hold retail's bytes at all, and the permuter's objdump parser crashes on it.
 # Delete by CONTENT instead, and keep `nonmatching`: prelude.inc defines that
 # macro (line 43), so it is fine anywhere after the prelude.
+# Trap 9 (round 6): splat writes GTE instructions (rtpt, nclip, avsz3...) as
+# mnemonics that GNU as only knows through include/gte_macros.inc, which the
+# build gets from macro.inc. Without it every GTE function failed here with
+# "unrecognized opcode".
 grep -v '^\.set gp=64' tools/decomp-permuter/prelude.inc > "$dir/target.s"
+echo '.include "gte_macros.inc"' >> "$dir/target.s"
 sed -e '/^\.set noat/d' -e '/^\.set noreorder/d' "$asm" >> "$dir/target.s"
 tools/binutils/bin/mipsel-linux-gnu-as -march=r3000 -mtune=r3000 -EL \
-    -no-pad-sections -G0 -O2 "$dir/target.s" -o "$dir/target.o"
+    -no-pad-sections -G0 -O2 -I include "$dir/target.s" -o "$dir/target.o"
 
 # --- base.c: the seed, preprocessed and reduced to one function -------------
 cp "$seed" "$dir/orig.c"

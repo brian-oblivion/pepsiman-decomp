@@ -119,7 +119,39 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80017124);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80017270);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800173E8);
+/**
+ * @brief A per-channel stepping state (the name is a guess): its stepper
+ *        advances channel N through tables at offsets 0x20 and 0x1B0.
+ *        Only the bytes this unit touches are named.
+ */
+typedef struct {
+    u8 unk0[4];     /**< not yet known */
+    u8 unk4;        /**< passed on as the stepper's third argument */
+    u8 unk5;        /**< a kind: 0x60 and 0x61 are tested */
+    u8 unk6[2];     /**< not yet known */
+    u8 unk8;        /**< set to 0xFF when a 0x61 step returns zero */
+    u8 unk9[0x337]; /**< not yet known */
+    u8 unk340;      /**< the stepper's last result */
+} Stepper;
+
+u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
+
+void func_800173E8(Stepper *obj) {
+    /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
+    s8 result;
+
+    result = func_80017F0C(obj, 0, obj->unk4);
+    obj->unk340 = result;
+    switch (obj->unk5) {
+        case 0x60:
+            break;
+        case 0x61:
+            if (result == 0) {
+                obj->unk8 = 0xFF;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80017440);
 

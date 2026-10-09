@@ -204,12 +204,12 @@ void func_80014BF0(s16 count);
  *  @param mode  stored at bit 7 of the record's first halfword
  *  @param w     stored in byte 6
  *  @param h     stored in byte 7
- *  @param page  the low bits of the first halfword
+ *  @param page  the low byte of the first halfword (read as a byte)
  *  @param u     stored in byte 4
  *  @param v     stored in byte 5
  *  @param clutX its top 12 bits form the low bits of the second halfword
  *  @param clutY stored from bit 6 of the second halfword */
-void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, u8 page, s32 u, s32 v, u16 clutX, s32 clutY);
+void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
 
 /** @brief Defined in code_1a098. */
 void func_800330D4(void);

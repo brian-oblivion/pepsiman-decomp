@@ -77,13 +77,13 @@ INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001ACB4);
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B004);
 
-void func_8001B2F4(u16 idx, u8 a1, u8 a2, u8 a3, s32 a4, u8 a5, u8 a6, u16 a7, s32 a8) {
-    D_800DD0A0[idx].unk0 = (u8)a4 | (a1 << 7);
-    D_800DD0A0[idx].unk2 = (a8 << 6) | (a7 >> 4);
-    D_800DD0A0[idx].unk4 = a5;
-    D_800DD0A0[idx].unk5 = a6;
-    D_800DD0A0[idx].unk6 = a2;
-    D_800DD0A0[idx].unk7 = a3;
+void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY) {
+    D_800DD0A0[id].unk0 = (u8)page | (mode << 7);
+    D_800DD0A0[id].unk2 = (clutY << 6) | (clutX >> 4);
+    D_800DD0A0[id].unk4 = u;
+    D_800DD0A0[id].unk5 = v;
+    D_800DD0A0[id].unk6 = w;
+    D_800DD0A0[id].unk7 = h;
 }
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B354);

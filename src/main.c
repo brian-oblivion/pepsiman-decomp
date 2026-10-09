@@ -111,7 +111,20 @@ void func_8001534C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800153CC);
+extern s32 D_800958CC;
+
+void func_800153CC(s32 mode) {
+    mode &= 1;
+    D_800958CC = 0;
+    do {
+        VSync(0);
+        if (PadGetState(0) == 6) {
+            PadSetMainMode(0, mode, 0);
+            return;
+        }
+        D_800958CC++;
+    } while (D_800958CC < 10);
+}
 
 /**
  * @brief A 10-byte record of a table in initialized data (the table

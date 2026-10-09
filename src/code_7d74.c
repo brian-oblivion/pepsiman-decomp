@@ -81,7 +81,18 @@ void func_80018CA4(void) {}
 
 void func_80018CAC(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018CB4);
+void func_80018CB4(void) {
+    GsSetProjection(250);
+    D_800DB2A0[0] = 0;
+    D_800DB2A0[1] = 0;
+    D_800DB2A0[2] = 4000;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = 0;
+    D_800DB2A0[5] = 0;
+    D_800DB2A0[6] = 0;
+    D_800DB2A0[7] = 0;
+    GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+}
 
 #ifdef NON_MATCHING
 s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {

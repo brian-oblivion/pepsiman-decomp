@@ -35,7 +35,15 @@ void func_80014B8C(s16 frames) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014BF0);
+extern char D_800954CC[];
+
+void func_80014BF0(s16 count) {
+    s16 i;
+
+    for (i = 0; i < count; i++) {
+        FntPrint(D_800954CC);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014C58);
 

@@ -289,7 +289,21 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036184);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003634C);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036478);
+void func_80036478(VECTOR *pos) {
+    SVECTOR size;
+    VECTOR world;
+    SVECTOR screen;
+    s32 bob;
+
+    world.vx = -pos->vx + D_800A7308[0];
+    bob = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
+    world.vy = pos->vy + bob;
+    world.vz = -pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    size.vx = screen.vx - 7;
+    size.vy = screen.vy - 32;
+    func_8001B354(0x15E, &size, 0, 5, &D_800ACEA8[D_80095750]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800365A0);
 

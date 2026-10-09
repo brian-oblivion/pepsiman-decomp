@@ -1,7 +1,9 @@
 #include "common.h"
+#include "libgte.h"
 
 extern u16 D_800957D2;
 extern s8 D_8009599C;
+extern u8 *D_800958FC;
 
 /** @brief The game-wide state record, as far as this unit reads it. The
  *         shared header declares it as a byte array; the rest of the layout
@@ -152,7 +154,18 @@ void func_800285B0(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800285C8);
 
+#ifdef NON_MATCHING
+/* Differs only in how the shared header declares the fog-colour index word. */
+void func_80028650(void) {
+    s32 i;
+
+    i = ((u32)D_80095864[0] >> 8) & 3;
+    SetFogNearFar(3000, 8000, 250);
+    SetFarColor(D_800958FC[i * 4], D_800958FC[i * 4 + 1], D_800958FC[i * 4 + 2]);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028650);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800286B0);
 

@@ -62,7 +62,6 @@ extern s8 D_8009EF4D[];
 
 extern s32 D_800958A8;
 extern s32 D_800958AC;
-extern SVECTOR D_800A7680[];
 extern s32 D_80095964;
 extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away

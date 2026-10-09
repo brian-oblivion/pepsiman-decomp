@@ -5,6 +5,7 @@
 #include "libgpu.h"
 #include "sys/file.h"
 #include "code_1a098.h"
+#include "code_13068.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
@@ -402,7 +403,7 @@ void func_800335E8(s16 a) {
     sToolSave.unk38[0] = sGameSave.unk348[0];
     sToolSave.unk38[1] = sGameSave.unk348[1];
     sToolSave.unk38[2] = sGameSave.unk348[2];
-    sToolSave.unk44 = D_800A7682[0];
+    sToolSave.unk44 = D_800A7680[0].vy;
     sToolSave.unk48[0] = D_800DB2A0[0];
     sToolSave.unk48[1] = D_800DB2A0[1];
     sToolSave.unk48[2] = D_800DB2A0[2];
@@ -437,7 +438,7 @@ void func_800336F8(s16 a) {
     sGameSave.unk348[0] = sToolSave.unk38[0];
     sGameSave.unk348[1] = sToolSave.unk38[1];
     sGameSave.unk348[2] = sToolSave.unk38[2];
-    D_800A7682[0] = sToolSave.unk44;
+    D_800A7680[0].vy = sToolSave.unk44;
     D_800DB2A0[0] = sToolSave.unk48[0];
     D_800DB2A0[1] = sToolSave.unk48[1];
     D_800DB2A0[2] = sToolSave.unk48[2];
@@ -543,7 +544,17 @@ void func_8003399C(void) {
     func_80032C28(0, (u8 *)0x8016D000);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033A08);
+/** @brief Moves the game position `dist` units along heading `deg`
+ *         (degrees) relative to the yaw in the first rotation. */
+void func_80033A08(s32 deg, s32 dist) {
+    s32 ang;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    ang = (deg << 12) / 360;
+    sGameSave.unk348[0] -= rsin(rot->vy + ang) * dist >> 12;
+    sGameSave.unk348[2] -= rcos(rot->vy + ang) * dist >> 12;
+}
 
 /** @brief Totals unk4 of the current block's entries into sTotals.unk26. */
 void func_80033AB8(void) {

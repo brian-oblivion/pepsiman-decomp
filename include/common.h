@@ -176,7 +176,6 @@ extern s32 D_800D8360[]; /**< 2 units, 5 functions */
 extern s32 D_800D86B8[]; /**< 2 units, 3 functions */
 extern s32 D_800DB2A0[]; /**< 5 units, 15 functions */
 extern s32 D_800DD070[]; /**< 3 units, 4 functions */
-extern s16 D_800A7682[]; /**< 4 units; saved by the tool state */
 
 /* --- Functions called from more than one unit, with the same prototype ---- */
 

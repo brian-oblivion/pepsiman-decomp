@@ -274,7 +274,32 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_800278B0);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027A00);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027BEC);
+/* MATCHING: the unsigned range test is the single subtract-and-compare retail does. */
+void func_80027BEC(void) {
+    s16 v;
+
+    if (sGame.unk0 != 0 && (u32)(sGame.unk6 - 0x33) < 3) {
+        v = sGame.unk3A8;
+        if (v < 35) {
+            D_800957D2 += 16;
+        } else if (D_80095964 & 0x1000) {
+            D_800957D2 += 32;
+            if ((s16)D_800957D2 >> 4 > 35) {
+                D_800957D2 = 560;
+            }
+        } else if (D_80095964 & 0x4000) {
+            D_800957D2 -= 32;
+            if ((s16)D_800957D2 >> 4 < 35) {
+                D_800957D2 = 560;
+            }
+        } else if (v > 35) {
+            D_800957D2 -= 16;
+        } else {
+            D_800957D2 += 16;
+        }
+        D_8009EF20[0] = (s16)D_800957D2 >> 4;
+    }
+}
 
 void func_80027D04(void) {
     s16 v;

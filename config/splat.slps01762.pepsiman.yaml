@@ -89,12 +89,15 @@ segments:
       - [0x336C, o, libgpu/font, .rdata]
       - [0x340C, o, libgpu/sys, .rdata]
       - [0x362C, o, libpress/libpress, .rdata]
-      - [0x367C, rodata]
+      - [0x367C, o, libpad/padentry, .rdata]
+      - [0x369C, o, libmcrd/libmcrd, .rdata]
+      - [0x392C, o, libcard/format, .rdata]
+      - [0x394C, o, libmcrd/userfunc, .rdata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
-      # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
-      # Runtime Library objects (tools/psyq_sdk.py, GAME_SDK). One asm block
-      # until the objects are converted in runs (docs/lsd-reference/
+      # entry point; psyq-obj-parser cannot convert it, so it stays asm) and
+      # then the Psy-Q 4.4 Runtime Library, linked from Sony's own objects
+      # (config/psyq-objects.txt, tools/psyq_sdk.py; docs/lsd-reference/
       # SDK-OBJECTS-GUIDE.md).
       - [0x33458, asm, psyq_33458]            # __SN_ENTRY_POINT (libsn/snmain)
       - [0x33514, o, libmath/fltsidf]         # __floatsidf
@@ -470,7 +473,21 @@ segments:
       - [0x5D394, o, libapi/l03]              # SysDeqIntRP
       - [0x5D3A4, o, libapi/patch]            # _patch_pad, EnablePAD, DisablePAD
       - [0x5D444, o, libapi/chclrpad]         # _remove_ChgclrPAD
-      - [0x5D4B4, asm, psyq_5D4B4]
+      - [0x5D4B4, o, libpad/padentry]         # PadChkVsync, PadStartCom, PadStopCom, PadChkMtap, PadGetSt
+      - [0x5D974, o, libpad/padmain]          # PadEnableCom, _padSetVsyncParam, _padInitSioMode, _padChkV
+      - [0x5E744, o, libpad/padcmd]           # _padSetAct, _padSetCmd, _padSendAtLoadInfo, _padRecvAtLoad
+      - [0x5F344, o, libpad/padif]            #
+      - [0x5F974, o, libpad/padportd]         # PadInitDirect
+      - [0x5FFD4, o, libpad/padseqd]          # _padInitDirSeq, _dirFailAuto
+      - [0x60494, o, libpad/waitrc2]          # setRC2wait, chkRC2wait
+      - [0x60554, o, libmcrd/init]            # MemCardInit, MemCardEnd
+      - [0x605A4, o, libmcrd/libmcrd]         # MemCardStart, MemCardStop, MemCardExist, MemCardAccept, Me
+      - [0x62144, o, libcard/format]          # _card_format
+      - [0x62494, o, libcard/a79]             # _card_read
+      - [0x624A4, o, libcard/a92]             # _card_status
+      - [0x624B4, o, libc/c21]                # strcat
+      - [0x624C4, o, libmcrd/userfunc]        # UserFuncInit, UserFuncOpen, UserFuncExecute, UserFuncCompl
+      - [0x625D4, o, libmcrd/bios]            # funcEvSpIOE, funcEvSpError, funcEvSpTimeout, funcEvSpNewca
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -515,7 +532,12 @@ segments:
       - [0x85B84, o, libcard/init, .data]
       - [0x85B94, o, libapi/counter, .data]
       - [0x85BB4, o, libapi/pad, .data]
-      - [0x85BC4, data]
+      - [0x85BC4, o, libpad/padmain, .data]
+      - [0x85C44, o, libpad/padif, .data]
+      - [0x85C74, o, libpad/padportd, .data]
+      - [0x85C84, o, libmcrd/init, .data]
+      - [0x85C94, o, libmcrd/libmcrd, .data]
+      - [0x85CB4, o, libmcrd/userfunc, .data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

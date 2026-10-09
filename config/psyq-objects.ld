@@ -34,6 +34,14 @@ SECTIONS {
     .psyq_bss.libapi_pad_bss 0x800EA7D8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/pad.o(.bss) }   /* 0x10 bytes; section-relative refs */
     .psyq_bss.libapi_patch_bss 0x800EA7E8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
     .psyq_bss.libapi_chclrpad_bss 0x800EA7F8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/chclrpad.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libpad_padmain_bss 0x800EA808 (NOLOAD) : SUBALIGN(2) { build/lib/libpad/padmain.o(.bss) }   /* 0x20 bytes; section-relative refs */
+    .psyq_bss.libpad_padcmd_bss 0x800EA828 (NOLOAD) : SUBALIGN(2) { build/lib/libpad/padcmd.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libpad_padportd_bss 0x800EA838 (NOLOAD) : SUBALIGN(2) { build/lib/libpad/padportd.o(.bss) }   /* 0x270 bytes; section-relative refs */
+    .psyq_bss.libpad_waitrc2_bss 0x800EAAAC (NOLOAD) : SUBALIGN(2) { build/lib/libpad/waitrc2.o(.bss) }   /* 0x8 bytes; first symbol _waitTime */
+    .psyq_bss.libmcrd_libmcrd_bss 0x800EAAB0 (NOLOAD) : SUBALIGN(2) { build/lib/libmcrd/libmcrd.o(.bss) }   /* 0x90 bytes; section-relative refs */
+    .psyq_bss.libcard_format_bss 0x800EAB40 (NOLOAD) : SUBALIGN(2) { build/lib/libcard/format.o(.bss) }   /* 0x2B0 bytes; section-relative refs */
+    .psyq_bss.libmcrd_userfunc_bss 0x800EADF0 (NOLOAD) : SUBALIGN(2) { build/lib/libmcrd/userfunc.o(.bss) }   /* 0x50 bytes; section-relative refs */
+    .psyq_bss.libmcrd_bios_bss 0x800EAE40 (NOLOAD) : SUBALIGN(2) { build/lib/libmcrd/bios.o(.bss) }   /* 0x40 bytes; section-relative refs */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -101,6 +109,8 @@ GsWSMATRIX = 0x800E4878;   /* libgs/gs_123 */
 GsIDMATRIX2 = 0x800E4898;   /* libgs/gs_123 */
 _que = 0x800E8F78;   /* libgpu/sys */
 GlobalCallback = 0x800EA798;   /* libds/dscb */
+_startTime = 0x800EAAA8;   /* libpad/waitrc2 */
+_waitTime = 0x800EAAAC;   /* libpad/waitrc2 */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */

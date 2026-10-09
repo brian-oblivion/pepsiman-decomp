@@ -3,6 +3,8 @@
 #include "libapi.h"
 #include "libgte.h"
 #include "sys/file.h"
+#include "libgpu.h"
+#include "libgs.h"
 #include "code_1a098.h"
 
 /** @brief An object whose current position and halfword triple are reset
@@ -58,6 +60,16 @@ typedef struct {
     s16 v[4][3]; /**< x, y, z of each corner */
 } Box4;
 
+/** @brief A 0x2C-byte record placed relative to a coordinate system. */
+typedef struct {
+    VECTOR pos;           /**< world position, written from the local one */
+    u8 unk10[0xC];        /**< not yet known */
+    s32 lx;               /**< local x */
+    s32 ly;               /**< local y */
+    s32 lz;               /**< local z */
+    GsCOORDINATE2 *coord; /**< the coordinate system lx..lz are in */
+} Placed2C;
+
 /** @brief The head of the game state; only byte 5 is used here. */
 typedef struct {
     u8 unk0[5]; /**< not yet known */
@@ -90,7 +102,28 @@ s32 func_800297A4(void *a, void *b);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
+
+/** @brief Sets `p->pos` to the world position of its local position. */
+/* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
+void func_80029898(Placed2C *p) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR v;
+    VECTOR t;
+    s32 unused[2];
+    long flag;
+
+    v.vx = p->lx;
+    v.vy = p->ly;
+    v.vz = p->lz;
+    GsGetLws(p->coord, &local, &world);
+    GsSetLsMatrix(&local);
+    RotTrans(&v, &t, &flag);
+    p->pos.vx = t.vx;
+    p->pos.vy = t.vy;
+    p->pos.vz = t.vz;
+    GsSetLsMatrix(&world);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
 

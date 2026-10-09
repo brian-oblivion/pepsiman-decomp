@@ -47,6 +47,12 @@ extern u8 D_800D3CA8[];    /**< 0x44C0-byte buffer, cleared as a whole */
 extern u8 D_800DB2C0[];    /**< 0x1DB0-byte buffer, cleared as a whole */
 extern Rec78 D_800D8D20[]; /**< 80 records */
 
+extern s32 D_80095970; /**< flag word; bit 5 enables a two-state dispatch */
+extern u8 D_80095A29;  /**< state of that dispatch: 0 or 1 */
+
+void func_80034F38(void);
+void func_80036F50(void);
+
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80033F48);
@@ -203,7 +209,18 @@ void func_80036EA0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036EF0);
+void func_80036EF0(void) {
+    if (D_80095970 & 0x20) {
+        switch (D_80095A29) {
+            case 0:
+                func_80034F38();
+                break;
+            case 1:
+                func_80036F50();
+                break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036F50);
 

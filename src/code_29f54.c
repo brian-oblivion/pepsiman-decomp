@@ -1,5 +1,22 @@
 #include "common.h"
 
+typedef struct {
+    u8 b[8];
+} Bytes8;
+
+extern s32 D_80095A78;
+extern s32 D_80095A7C;
+extern s32 D_80095A80;
+extern s32 D_80095A90;
+extern s32 D_80095A94;
+extern s32 D_80095A98;
+extern s8 D_80095A88[8];
+extern s8 D_80095AA0[8];
+extern u8 D_800956B0[];
+extern u8 D_800956B8[];
+
+void func_80042538(s32 arg0);
+
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
@@ -54,7 +71,9 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E360);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E40C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E438);
+s32 func_8003E438(void) {
+    return D_80095A94;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E444);
 

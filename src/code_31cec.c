@@ -3,6 +3,24 @@
 #include "libcd.h"
 #include "libetc.h"
 #include "libpress.h"
+#include "libgte.h"
+#include "libgpu.h"
+
+/** @brief Movie decode state: double VLC buffers, image buffer, VRAM targets. */
+typedef struct {
+    u_long *vlcbuf[2]; /**< VLC buffers, used alternately */
+    s32 vlcid;         /**< index of the VLC buffer being decoded */
+    u_short *imgbuf;   /**< decoded image slice buffer */
+    RECT rect[2];      /**< VRAM frame areas, used alternately */
+    s32 rectid;        /**< index of the frame area being filled */
+    RECT slice;        /**< area one DecDCTout() call fills */
+    s32 isdone;        /**< set when a whole frame has been decoded */
+} DECENV;
+
+/* MATCHING: every access reloads after the store, as a volatile does. */
+extern volatile s32 D_80095AD0;
+
+u_long *func_80041A6C(DECENV *dec);
 
 extern s16 D_800E0570[];
 extern char D_800E0588[];
@@ -43,7 +61,20 @@ void func_80041D18(CdlLOC *loc, void (*callback)()) {
     func_80041EE0(loc);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041D88);
+s32 func_80041D88(DECENV *dec) {
+    u_long *next;
+
+    D_80095AD0 = 0x800000;
+    while ((next = func_80041A6C(dec)) == NULL) {
+        if (--D_80095AD0 == 0) {
+            return -1;
+        }
+    }
+    dec->vlcid = dec->vlcid == 0;
+    DecDCTvlc(next, dec->vlcbuf[dec->vlcid]);
+    StFreeRing(next);
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041E20);
 

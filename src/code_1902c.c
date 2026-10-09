@@ -58,7 +58,17 @@ INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028F0C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002964C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002971C);
+s32 func_8002971C(Body *a, Body *b) {
+    VECTOR d;
+    s32 dist;
+
+    d.vx = (b->x - a->x) * (b->x - a->x);
+    d.vy = (b->y - a->y) * (b->y - a->y);
+    d.vz = (b->z - a->z) * (b->z - a->z);
+    dist = d.vx + d.vy + d.vz;
+    d.vx = (b->radius + a->radius) * (b->radius + a->radius);
+    return dist < d.vx;
+}
 
 s32 func_800297A4(VECTOR *a, VECTOR *b) {
     VECTOR d;

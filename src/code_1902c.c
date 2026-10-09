@@ -33,7 +33,18 @@ void func_80028984(void);
 void func_8002985C(void);
 void func_8002988C(void);
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_8002882C);
+s16 func_8002882C(void) {
+    Slot48 *slot = (Slot48 *)D_800959B8;
+    u32 i;
+
+    for (i = 0; i < D_800959B4 / sizeof(Slot48); i++) {
+        if (slot->unk36 == -1) {
+            return i;
+        }
+        slot++;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028888);
 

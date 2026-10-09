@@ -58,7 +58,19 @@ INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017774);
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017880);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001797C);
+void func_8001797C(PackEntry *pack) {
+    PackEntry *e;
+    u16 i;
+    u16 n;
+
+    e = pack;
+    n = pack->count;
+    for (i = 0; i < n; i++) {
+        func_80017774((u8 *)pack + e->offset);
+        e++;
+        DrawSync(0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800179F8);
 

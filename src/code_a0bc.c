@@ -1,5 +1,17 @@
 #include "common.h"
 #include "code_a0bc.h"
+#include "gte.h"
+
+/** @brief A flat, unlit TMD triangle: a header, its colour and three
+ *  vertex indices. */
+typedef struct {
+    u32 hdr;     /**< the TMD primitive header */
+    CVECTOR rgb; /**< the colour, depth-cued per frame */
+    u16 v0;      /**< first vertex index */
+    u16 v1;      /**< second vertex index */
+    u16 v2;      /**< third vertex index */
+    u16 pad;     /**< padding */
+} TmdF3;
 
 /** @brief An eight-byte table entry: two halfwords and four bytes. */
 typedef struct {
@@ -15,39 +27,39 @@ typedef struct {
 extern Sprite8 D_800DD0A0[];
 
 /** @brief A primitive handler: one entry of the handler table. */
-typedef void (*PrimFunc)();
+typedef PACKET *(*PrimFunc)();
 
 /* The handler table, eight rows of eight handlers. */
 extern PrimFunc D_800E48E8[8][8];
 
-void func_8001B4BC();
-void func_8001B9A4();
-void func_8001C13C();
-void func_8001C878();
-void func_8001D39C();
-void func_8001DAD4();
-void func_8001E558();
-void func_8001EE30();
-void func_8001FBBC();
-void func_8001FE5C();
-void func_800201BC();
-void func_80020520();
-void func_8002097C();
-void func_80020DD8();
-void func_80020F24();
-void func_800210B4();
-void func_80021240();
-void func_80021434();
+PACKET *func_8001B4BC();
+PACKET *func_8001B9A4();
+PACKET *func_8001C13C();
+PACKET *func_8001C878();
+PACKET *func_8001D39C();
+PACKET *func_8001DAD4();
+PACKET *func_8001E558();
+PACKET *func_8001EE30();
+PACKET *func_8001FBBC();
+PACKET *func_8001FE5C();
+PACKET *func_800201BC();
+PACKET *func_80020520();
+PACKET *func_8002097C();
+PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *func_80020F24();
+PACKET *func_800210B4();
+PACKET *func_80021240();
+PACKET *func_80021434();
 
 /* Handlers code_11dc4 defines. */
-void func_800215C4();
-void func_800217A8();
-void func_80021958();
-void func_80021B88();
-void func_80021D3C();
-void func_80021F80();
-void func_80022150();
-void func_8002230C();
+PACKET *func_800215C4();
+PACKET *func_800217A8();
+PACKET *func_80021958();
+PACKET *func_80021B88();
+PACKET *func_80021D3C();
+PACKET *func_80021F80();
+PACKET *func_80022150();
+PACKET *func_8002230C();
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800198BC);
 
@@ -149,7 +161,39 @@ s32 func_80020CF8(s32 mode) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020DD8);
+PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+    s32 v;
+    s32 dp;
+    s32 i;
+    u32 *tag;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_f3(pkt);
+        gte_avsz3();
+        gte_stotz(&v);
+        gte_stdp(&dp);
+        gte_ldrgb(&prim->rgb);
+        gte_lddp(dp);
+        gte_dpcs();
+        gte_strgb(&pkt->r0);
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        pkt++;
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020F24);
 

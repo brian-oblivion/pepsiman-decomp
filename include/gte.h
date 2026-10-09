@@ -448,6 +448,30 @@
 /* clang-format on */
 
 /**
+ * @brief Stores the whole FLAG control register (control 31), the GTE's
+ * error and saturation bits from the last operation, at `r1`: Sony's
+ * gte_stflg. Operand: `r1` by "r"; clobbers general register 12 and memory.
+ */
+/* clang-format off */
+#define gte_stflg(r1) \
+    __asm__ volatile ( \
+        "cfc2 $12, $31\n\t" \
+        "nop\n\t" \
+        "sw $12, 0x0(%0)" \
+        : : "r" (r1) : "$12", "memory")
+/* clang-format on */
+
+/**
+ * @brief Loads the value `r1` into IR0 (data 8), the depth-cue
+ * interpolation factor gte_dpcs() reads: Sony's gte_lddp. Operand: `r1` by
+ * "r" (a value, not a pointer); no clobbers.
+ */
+/* clang-format off */
+#define gte_lddp(r1) \
+    __asm__ volatile ("mtc2 %0, $8" : : "r" (r1))
+/* clang-format on */
+
+/**
  * @brief Reads the FLAG control register (control 31), keeps bit 18
  * (0x40000, the SZ3/OTZ saturation flag) and stores it at `r1`: Sony's
  * gte_stflg_4, not gte_stflg, which stores the whole register. Operand:

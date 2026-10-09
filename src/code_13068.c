@@ -108,7 +108,19 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028260);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800282F0);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800283A0);
+/* MATCHING: non-void with no return keeps the first delay slot a nop. */
+s32 func_800283A0(void) {
+    s16 v;
+
+    v = sGame.unk3A8;
+    if (v < 13) {
+        sGame.unk3AC = 0;
+    } else if (v >= 26) {
+        sGame.unk3AC = 2;
+    } else {
+        sGame.unk3AC = 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800283E4);
 

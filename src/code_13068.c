@@ -6,10 +6,6 @@
 #include "code_13068.h"
 #include "rand.h"
 
-extern u16 D_800957D2;
-extern s8 D_8009599C;
-extern u8 *D_800958FC;
-
 /** @brief The game-wide state record, as far as this unit reads it. The
  *         shared header declares it as a byte array; the rest of the layout
  *         is still unknown. */
@@ -60,8 +56,6 @@ extern u8 D_800D8960[];
 extern s16 D_800D38DE[];
 extern s8 D_8009EF4D[];
 
-extern s32 D_800958A8;
-extern s32 D_800958AC;
 extern s32 D_80095964;
 extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
@@ -82,7 +76,6 @@ extern GridPoint D_800DE5E0[];
 
 extern u8 D_80095784;
 extern u8 *D_80095790;
-extern u16 D_8009576A;
 
 /** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */
 typedef struct {
@@ -91,7 +84,6 @@ typedef struct {
 
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)D_800DD070)
-extern s16 D_800957BC;
 extern s32 D_8009EEF8[];
 
 void func_80023834(u8 mode, u16 a, u16 b);

@@ -110,7 +110,6 @@ void func_8001534C(void);
 void func_80014D20(void);
 void func_80014D6C(void);
 
-extern s32 D_800957A8;
 extern u8 D_80095820;
 
 void func_80014AC8(void) {
@@ -362,6 +361,7 @@ typedef struct {
     u8 unk340;      /**< the stepper's last result */
 } Stepper;
 
+/* MATCHING: code_308ec passes the game state's head in its own view. */
 u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
 
 void func_800173E8(Stepper *obj) {

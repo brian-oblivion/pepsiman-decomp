@@ -40,7 +40,14 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041BAC);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041C7C);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041D18);
+void func_80041D18(CdlLOC *loc, void (*callback)()) {
+    DecDCTReset(0);
+    D_80095AB4 = 0;
+    DecDCToutCallback(callback);
+    StSetRing((u_long *)0x80185000, 32);
+    StSetStream(1, 1, -1, 0, 0);
+    func_80041EE0(loc);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041D88);
 

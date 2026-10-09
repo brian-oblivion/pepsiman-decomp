@@ -85,7 +85,10 @@ segments:
       - [0x30FC, o, libgs/gs_123, .rdata]
       - [0x318C, o, libgs/objt, .rdata]
       - [0x322C, o, libgs/objt2, .rdata]
-      - [0x32CC, rodata]
+      - [0x32CC, o, libgs/objt3, .rdata]
+      - [0x336C, o, libgpu/font, .rdata]
+      - [0x340C, o, libgpu/sys, .rdata]
+      - [0x362C, rodata]
       - [0x396C, c, main]
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it) and then the Psy-Q 4.4
@@ -373,7 +376,36 @@ segments:
       - [0x54B34, o, libgte/divft4a]          # RCpolyFT4, RCpolyFT4A
       - [0x55054, o, libgte/divg4a]           # RCpolyG4, RCpolyG4A
       - [0x555A4, o, libgte/divgt4a]          # RCpolyGT4, RCpolyGT4A
-      - [0x55BC4, asm, psyq_55BC4]
+      - [0x55BC4, o, libgs/objt3]             # GsSortObject4J
+      - [0x56454, o, libgs/dag3gf00]          # GsTMDfastG3GL
+      - [0x56654, o, libgs/dag3gf01]          # GsTMDfastG3GLFG
+      - [0x56854, o, libgs/dag3gf02]          # GsTMDfastG3GNL
+      - [0x569C4, o, libgs/daf3gf00]          # GsTMDfastF3GL
+      - [0x56BE4, o, libgs/daf3gf01]          # GsTMDfastF3GLFG
+      - [0x56E04, o, libgs/daf3gf02]          # GsTMDfastF3GNL
+      - [0x56F84, o, libgs/daf4gf00]          # GsTMDfastF4GL
+      - [0x57214, o, libgs/daf4gf01]          # GsTMDfastF4GLFG
+      - [0x574A4, o, libgs/daf4gf02]          # GsTMDfastF4GNL
+      - [0x57674, o, libgs/dag4gf00]          # GsTMDfastG4GL
+      - [0x578F4, o, libgs/dag4gf01]          # GsTMDfastG4GLFG
+      - [0x57B74, o, libgs/dag4gf02]          # GsTMDfastG4GNL
+      - [0x57D34, o, libgpu/font]             # SetDumpFnt, FntPrint, FntLoad, FntOpen, FntFlush
+      - [0x587B4, o, libgpu/sys]              # ResetGraph, SetGraphDebug, SetGraphQueue, GetGraphDebug, D
+      - [0x5B6E4, o, libgpu/e00]              # LoadTPage
+      - [0x5B7D4, o, libgpu/e02]              # LoadClut2
+      - [0x5B844, o, libgpu/e03]              # SetDefDrawEnv
+      - [0x5B904, o, libgpu/e04]              # SetDefDispEnv
+      - [0x5B944, o, libgpu/p00]              # GetTPage
+      - [0x5B984, o, libgpu/p01]              # GetClut
+      - [0x5B9A4, o, libgpu/p06]              # AddPrim
+      - [0x5B9E4, o, libgpu/p09]              # TermPrim
+      - [0x5BA04, o, libgpu/p10]              # SetSemiTrans
+      - [0x5BA34, o, libgpu/p16]              # SetPolyF4
+      - [0x5BA54, o, libgpu/p20]              # SetSprt8
+      - [0x5BA74, o, libgpu/p26]              # SetTile
+      - [0x5BA94, o, libgpu/p40]              # SetDrawStp
+      - [0x5BAC4, o, libgpu/p41]              # SetDrawMode
+      - [0x5BB64, asm, psyq_5BB64]
       - [0x62C84, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
@@ -410,7 +442,9 @@ segments:
       - [0x73B84, o, libgte/msc00, .data]
       - [0x73B94, data]
       - [0x73BA4, o, libgs/objt2, .data]
-      - [0x73CD4, data]
+      - [0x73CD4, o, libgpu/font, .data]
+      - [0x74864, o, libgpu/sys, .data]
+      - [0x74A04, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

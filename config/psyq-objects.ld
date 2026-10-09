@@ -24,6 +24,9 @@ SECTIONS {
     .psyq_bss.libgs_gs_107_bss 0x800E47E8 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/gs_107.o(.bss) }   /* 0x40 bytes; first symbol GsLIGHTWSMATRIX */
     .psyq_bss.libgte_patchgte_bss 0x800E4828 (NOLOAD) : SUBALIGN(2) { build/lib/libgte/patchgte.o(.bss) }   /* 0x10 bytes; section-relative refs */
     .psyq_bss.libgs_gs_123_bss 0x800E4858 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/gs_123.o(.bss) }   /* 0x80 bytes; first symbol GsIDMATRIX */
+    .psyq_bss.libgs_objt3_bss 0x800E48E8 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/objt3.o(.bss) }   /* 0x130 bytes; section-relative refs */
+    .psyq_bss.libgpu_font_bss 0x800E4A18 (NOLOAD) : SUBALIGN(2) { build/lib/libgpu/font.o(.bss) }   /* 0x4410 bytes; section-relative refs */
+    .psyq_bss.libgpu_sys_bss 0x800E8E28 (NOLOAD) : SUBALIGN(2) { build/lib/libgpu/sys.o(.bss) }   /* 0x1950 bytes; section-relative refs */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -89,35 +92,22 @@ GsWSMATRIX_ORG = 0x800E4838;   /* libgs/gs_123 */
 GsIDMATRIX = 0x800E4858;   /* libgs/gs_123 */
 GsWSMATRIX = 0x800E4878;   /* libgs/gs_123 */
 GsIDMATRIX2 = 0x800E4898;   /* libgs/gs_123 */
+_que = 0x800E8F78;   /* libgpu/sys */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
-GsTMDfastG3GL = 0x80065C54;
-GsTMDfastG3GLFG = 0x80065E54;
-GsTMDfastG3GNL = 0x80066054;
-GsTMDfastF3GL = 0x800661C4;
-GsTMDfastF3GLFG = 0x800663E4;
-GsTMDfastF3GNL = 0x80066604;
-GsTMDfastF4GL = 0x80066784;
-GsTMDfastF4GLFG = 0x80066A14;
-GsTMDfastF4GNL = 0x80066CA4;
-GsTMDfastG4GL = 0x80066E74;
-GsTMDfastG4GLFG = 0x800670F4;
-GsTMDfastG4GNL = 0x80067374;
-SetDispMask = 0x80068298;
-ClearOTagR = 0x8006881C;
-DrawOTag = 0x80068924;
-PutDrawEnv = 0x80068994;
-PutDispEnv = 0x80068B60;
 puts = 0x8006C15C;
 setjmp = 0x8006C174;
 strcmp = 0x8006C184;
 strncmp = 0x8006C194;
+strlen = 0x8006C1B4;
 memcpy = 0x8006C1D4;
+memset = 0x8006C1E4;
 printf = 0x8006C204;
 DsReadyCallback = 0x8006C228;
 DsDataCallback = 0x8006C250;
 FlushCache = 0x8006C284;
+GPU_cw = 0x8006C294;
 _96_remove = 0x8006C2AC;
 DeliverEvent = 0x8006C2C4;
 OpenEvent = 0x8006C2D4;

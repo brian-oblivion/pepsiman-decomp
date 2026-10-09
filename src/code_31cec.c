@@ -124,7 +124,22 @@ s32 func_80042058(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042150);
+s32 func_80042150(u16 song) {
+    u32 *hdr;
+
+    SsSeqStop(D_800E0570[0]);
+    SsSeqClose(D_800E0570[0]);
+    if (D_8009579C != 0) {
+        return -1;
+    }
+    hdr = (u32 *)0x80101000;
+    hdr += song * 4;
+    D_800E0570[0] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), D_80095B14);
+    SsSeqPlay(D_800E0570[0], 1, 0);
+    D_80095B18 = 100;
+    SsSeqSetVol(D_800E0570[0], 100, 100);
+    D_80095AF0 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042208);
 

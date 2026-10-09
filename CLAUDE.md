@@ -106,9 +106,10 @@ literal (declare the existing `extern const char D_…[]` instead).
   -mno-abicalls`, then maspsx with the flags in the Makefile's
   `MASPSX_FLAGS`. Anything that compiles in isolation reads the flags from
   the Makefile and never retypes them.
-- The compiler is GCC 2.8.1, not lsddecomp's 2.6.3. Lessons in
-  `docs/lsd-reference/` about 2.6.3's codegen (most of
-  `DECOMPILATION_LEARNINGS.md`) are hypotheses here, not rules.
+- The compiler is GCC 2.8.1, not lsddecomp's 2.6.3. `docs/LEARNINGS.md`
+  holds the source shapes proven on it; lessons in `docs/lsd-reference/`
+  about 2.6.3's codegen (most of `DECOMPILATION_LEARNINGS.md`) are
+  hypotheses here, not rules.
 - **A global's declaration decides how it is reached; read retail's access
   to choose it.** A small complete object (scalar, pointer, struct of at
   most 8 bytes) stays a symbolic load that maspsx makes `%gp_rel` if the

@@ -238,7 +238,35 @@ Slot *func_800196E4(SlotList *list, s32 key) {
     return s;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80019730);
+Slot *func_80019730(SlotList *list, s32 key) {
+    Slot *s;
+    s32 i;
+
+    s = list->slots;
+    for (i = 0; i < list->count; i++) {
+        if (s->unkC == -1) {
+            break;
+        }
+        s++;
+    }
+    if (i < list->count) {
+        s->unkC = key;
+        s->unk0 = 0;
+        GsInitCoordinate2(NULL, (GsCOORDINATE2 *)s->unk4);
+        s->unk8 = 0;
+        return s;
+    }
+    if (i < list->capacity) {
+        s = &list->slots[list->count];
+        list->count++;
+        s->unkC = key;
+        s->unk0 = 0;
+        GsInitCoordinate2(NULL, (GsCOORDINATE2 *)s->unk4);
+        s->unk8 = 0;
+        return s;
+    }
+    return NULL;
+}
 
 Slot *func_800197E4(SlotList *list) {
     Slot *s;

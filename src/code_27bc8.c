@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libapi.h"
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800373C8);
 
@@ -28,9 +29,6 @@ extern s32 D_800959FC;
 extern s32 D_80095A00;
 extern s32 D_80095A04;
 extern s32 D_80095A08;
-
-long TestEvent(long event);
-long _card_info(long chan);
 
 void func_80038730(void);
 void func_800387A8(void);

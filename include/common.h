@@ -150,4 +150,10 @@ extern s32 D_800DD070[]; /**< 3 units, 4 functions */
  *  @param id what to start, by number */
 void func_80042538(s32 id);
 
+/** @brief Defined in code_31cec; called from main. */
+void func_800428B0(void);
+
+/** @brief Defined in code_7d74; called from main. */
+void func_80018CB4(void);
+
 #endif

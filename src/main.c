@@ -3,6 +3,12 @@
 #include "libgpu.h"
 #include "libetc.h"
 #include "libpad.h"
+#include "libgs.h"
+#include "libapi.h"
+#include "libcd.h"
+#include "libsnd.h"
+#include "libmcrd.h"
+#include "memory.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -18,13 +24,121 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80014044);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800148B0);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_800149D0);
-
-INCLUDE_ASM("asm/nonmatchings/main", func_80014AC8);
-
+void func_80013EE4(void);
 void func_800142EC(s32 arg);
+void func_80014B8C(s16 frames);
+void func_80018094(void);
+
+/* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
+extern s32 D_80095850[2];
+extern s32 D_80095870[2];
+extern s32 D_80095848[2];
+
+void func_800148B0(void) {
+    s32 x;
+    s32 y;
+    s32 pad;
+
+    x = 0;
+    y = 0;
+    func_80014B8C(20);
+    for (;;) {
+        pad = D_80095848[0];
+        if (pad & 0x2000) {
+            x += 8;
+        }
+        if (pad & 0x8000) {
+            x -= 8;
+        }
+        if (pad & 0x1000) {
+            y -= 8;
+        }
+        if (pad & 0x4000) {
+            y += 8;
+        }
+        if (pad & 0x800) {
+            break;
+        }
+        x = x < 0 ? 0 : x > 0x2C0 ? 0x2C0 : x;
+        y = y < 0 ? 0 : y > 0x110 ? 0x110 : y;
+        GsDefDispBuff(x, y, x, y);
+        func_800142EC(0);
+        DrawSync(0);
+        VSync(0);
+        GsSwapDispBuff();
+    }
+    func_80013EE4();
+    GsInit3D();
+    func_80018CB4();
+    func_80018094();
+    func_80014B8C(5);
+}
+
+extern char D_800954C8[];
+extern char D_800954CC[];
+extern char D_800954D0[];
+extern char D_800954D8[];
+extern char D_800954DC[];
+extern s32 D_80095788;
+
+void func_800149D0(u8 *base) {
+    u8 *p;
+    s32 row;
+    s32 col;
+    s16 i;
+    s16 j;
+
+    D_80095788 = 0;
+    FntPrint(D_800954D0);
+    p = base + D_80095788;
+    FntPrint(D_800954D8, p);
+    for (i = 0; i < 1; i++) {
+        FntPrint(D_800954CC);
+    }
+    for (row = 0; row < 16; row++) {
+        for (col = 0; col < 8; col++) {
+            FntPrint(D_800954DC, *p);
+            p++;
+        }
+        FntPrint(D_800954C8);
+        for (j = 0; j < 1; j++) {
+            FntPrint(D_800954CC);
+        }
+    }
+}
+
+void func_8001534C(void);
+void func_80014D20(void);
+void func_80014D6C(void);
+
+extern s32 D_800957A8;
+extern u8 D_8009574C;
+extern u8 D_80095754;
+extern u8 D_8009575C;
+extern u8 D_80095820;
+
+void func_80014AC8(void) {
+    ResetCallback();
+    bzero((u8 *)0x80101000, 0xFC800);
+    InitCARD(1);
+    StartCARD();
+    MemCardInit(1);
+    MemCardStart();
+    ChangeClearPAD(0);
+    _bu_init();
+    func_8001534C();
+    func_800428B0();
+    CdInit();
+    SsStart();
+    D_8009574C = 0;
+    D_80095754 = 0;
+    D_8009575C = 0;
+    func_80013EE4();
+    GsInit3D();
+    func_80014D20();
+    D_80095820 = 0;
+    func_80014D6C();
+}
 
 void func_80014B8C(s16 frames) {
     s16 i;
@@ -35,8 +149,6 @@ void func_80014B8C(s16 frames) {
     }
 }
 
-extern char D_800954CC[];
-
 void func_80014BF0(s16 count) {
     s16 i;
 
@@ -45,12 +157,30 @@ void func_80014BF0(s16 count) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014C58);
+/** @brief 15 bytes copied as one block, for a local copy of a table. */
+typedef struct {
+    u8 b[15]; /**< the bytes */
+} Bytes15;
 
-extern s32 D_800957A8;
-extern u8 D_8009574C;
-extern u8 D_80095754;
-extern u8 D_8009575C;
+#ifdef NON_MATCHING
+extern u8 D_80010000[];
+extern s16 D_80095AF0;
+
+void func_80017440(s32 a, s32 b);
+
+void func_80014C58(u8 idx) {
+    Bytes15 tbl;
+
+    tbl = *(Bytes15 *)D_80010000;
+    /* MATCHING: retail reaches this through `lui`, other units through $gp. */
+    if (D_80095AF0 != 0) {
+        D_80095AF0 = 0;
+    }
+    func_80017440(tbl.b[idx], 1);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", func_80014C58);
+#endif
 
 void func_80014CF0(void) {
     /* MATCHING: retail reserves an 8-byte frame it never touches. */
@@ -91,15 +221,41 @@ void func_80015328(s32 offset, u8 a, u8 b) {
     D_80095704[offset + 3] = b;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8001534C);
+void func_8001552C(u8 *a, u8 *b);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800153CC);
+extern u8 D_80095BA0[];
+extern u8 D_80095BE8[];
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
+void func_8001534C(void) {
+    s16 i;
+
+    func_8001552C(D_80095BA0, D_80095BE8);
+    for (i = 0; i < 6; i++) {
+        D_80095850[i] = 0;
+        D_80095870[i] = 0;
+        D_80095848[i] = 0;
+    }
+}
+
+extern s32 D_800958CC;
+
+void func_800153CC(s32 mode) {
+    mode &= 1;
+    D_800958CC = 0;
+    do {
+        VSync(0);
+        if (PadGetState(0) == 6) {
+            PadSetMainMode(0, mode, 0);
+            return;
+        }
+        D_800958CC++;
+    } while (D_800958CC < 10);
+}
 
 /**
- * @brief A 10-byte header at the start of a table in initialized data,
- *        unpacked field by field into small globals. Meanings not yet known.
+ * @brief A 10-byte record of a table in initialized data (the table
+ *        starts with one), unpacked field by field into small globals.
+ *        Meanings not yet known.
  */
 typedef struct {
     u16 unk0; /**< not yet known */
@@ -119,6 +275,26 @@ extern u16 D_80095764;
 extern u16 D_80095766;
 extern u16 D_800957D8;
 extern u16 D_800957E0;
+
+#ifdef NON_MATCHING
+void func_80015450(TableHeader *tbl, u16 index) {
+    u8 *rec;
+
+    D_80095930 = tbl;
+    tbl += index;
+    D_8009576C = index;
+    D_8009586A = tbl->unk0;
+    D_800958E6 = tbl->unk2;
+    /* MATCHING: byte-pointer reads keep each load below the prior store. */
+    rec = (u8 *)tbl;
+    D_80095764 = rec[5];
+    D_80095766 = rec[4];
+    D_800957D8 = *(u16 *)(rec + 8);
+    D_800957E0 = rec[6];
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", func_80015450);
+#endif
 
 void func_800154C4(void) {
     TableHeader *hdr;
@@ -152,7 +328,22 @@ INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80015584);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015754);
+extern char D_80010148[];
+
+void func_80015754(char *name, void *buf) {
+    s32 fd;
+
+    fd = open(name, 1);
+    if (fd == -1) {
+        for (;;) {
+            GsSwapDispBuff();
+            FntPrint(D_80010148, name);
+            FntFlush(-1);
+        }
+    }
+    read(fd, buf, 0x100000);
+    close(fd);
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800157DC);
 

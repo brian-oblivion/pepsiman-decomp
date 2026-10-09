@@ -310,7 +310,17 @@ INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011B64);
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C24);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80039580);
+s16 func_80039580(void) {
+    s16 i;
+
+    D_80095A1C = "BISLPS-67890PEPTOOL";
+    for (i = 0; i < D_800959DC; i++) {
+        if (func_8003828C(D_800DF858[i].unk0, (u8 *)D_80095A1C, 0x14) == 0) {
+            return 0;
+        }
+    }
+    return -1;
+}
 
 s16 func_80039618(void) {
     s16 sum;

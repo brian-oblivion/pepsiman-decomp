@@ -35,12 +35,13 @@ typedef struct {
 /** @brief A 0x78-byte record of an 80-entry table; two pairs of halfwords
  *         are reset together. */
 typedef struct {
-    u8 unk0[0x6E]; /**< not yet known */
-    s16 unk6E;     /**< zeroed when the second buffer is cleared */
-    s16 unk70;     /**< -1 when the second buffer is cleared */
-    s16 unk72;     /**< zeroed when the first buffer is cleared */
-    s16 unk74;     /**< -1 when the first buffer is cleared */
-    u8 unk76[2];   /**< not yet known */
+    u8 unk0[0x10];  /**< not yet known */
+    u8 unk10[0x5E]; /**< handed to the dispatch's object on entering state 1 */
+    s16 unk6E;      /**< zeroed when the second buffer is cleared */
+    s16 unk70;      /**< -1 when the second buffer is cleared */
+    s16 unk72;      /**< zeroed when the first buffer is cleared */
+    s16 unk74;      /**< -1 when the first buffer is cleared */
+    u8 unk76[2];    /**< not yet known */
 } Rec78;
 
 extern u8 D_800D3CA8[];    /**< 0x44C0-byte buffer, cleared as a whole */
@@ -55,6 +56,21 @@ extern s16 D_8009588E; /**< number of entries */
 
 void func_80034F38(void);
 void func_80036F50(void);
+
+/** @brief An object reset when the two-state dispatch enters state 1. */
+typedef struct {
+    u8 unk0[0x48]; /**< not yet known */
+    void *unk48;   /**< points into the current entry's record */
+} Obj48;
+
+extern Obj48 D_800DF9C0; /**< reset by the dispatch's state 0 */
+extern u8 D_8009EEC0[];  /**< passed with it */
+extern u8 D_80095A59;    /**< state of the second dispatch: 0 or 1 */
+extern s16 D_80095A54;   /**< set to 100 on entering state 1 */
+extern s16 D_80095A56;   /**< set to 100 on entering state 1 */
+
+void func_80034BCC(void);
+void func_8002A98C(Obj48 *obj, u8 *p, s32 a, s32 b);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 
@@ -225,7 +241,21 @@ void func_80036EF0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036F50);
+void func_80036F50(void) {
+    switch (D_80095A59) {
+        case 0:
+            D_80095A54 = 100;
+            D_80095A56 = 100;
+            D_800DF9C0.unk48 = D_800D8D20[D_80095A30].unk10;
+            func_8002A98C(&D_800DF9C0, D_8009EEC0, 100, 100);
+            D_80095A59 = 1;
+            break;
+        case 1:
+            func_80034BCC();
+            D_80095A59 = 0;
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036FE8);
 

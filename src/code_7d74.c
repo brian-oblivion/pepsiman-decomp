@@ -37,7 +37,14 @@ void func_80017574(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800175AC);
+s32 func_800175AC(u8 com) {
+    CdIntToPos(D_80095720, &D_80095728);
+    while (CdControl(com, (u_char *)&D_80095728, 0) == 0) {
+    }
+    D_80095714 = D_80095720;
+    D_8009571C++;
+    return 0;
+}
 
 void func_80017614(u8 mode) {
     if (mode == 4) {

@@ -87,7 +87,25 @@ s32 func_80040130(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
 
 INCLUDE_ASM("asm/nonmatchings/code_308ec", func_800401F0);
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040628);
+void func_80040628(void) {
+    SVECTOR pos;
+    CVECTOR color;
+
+    pos.vx = -0x40;
+    pos.vy = -0x10;
+    color.r = 1;
+    color.g = color.b = color.cd = 0x80;
+    func_8001B354(0x15F, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    color.g = color.b = color.cd = 0x40;
+    pos.vx = -0xA0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FE, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FF, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_308ec", func_8004079C);
 

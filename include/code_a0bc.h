@@ -22,4 +22,13 @@ extern GsOT D_800ACEA8[]; /**< the ordering tables the sprite drawer is handed *
  *  @param ot    the ordering table */
 void func_8001A3D4(s32 id, SVECTOR *size, CVECTOR *color, s32 mode, GsOT *ot);
 
+/** @brief Draws a numbered sprite at a screen position into an ordering
+ *         table.
+ *  @param id    which sprite
+ *  @param pos   its screen position
+ *  @param color its colour, or NULL
+ *  @param mode  how it is drawn
+ *  @param ot    the ordering table */
+void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
+
 #endif

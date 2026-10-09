@@ -100,8 +100,6 @@ void func_80036EA0(void);
 
 extern u32 D_8009585C; /**< a frame counter driving the marker's bob */
 
-void func_8001B354(u16 id, SVECTOR *pos, s32 a, s32 b, GsOT *ot);
-
 extern u8 D_80095774; /**< set while the reset below runs */
 
 void func_8002A7D8(Rec78 *rec);

@@ -30,6 +30,21 @@ extern s32 D_80095A00;
 extern s32 D_80095A04;
 extern s32 D_80095A08;
 
+/** @brief A 0x18-byte record; the halfword at 0x14 is summed. */
+typedef struct {
+    u8 unk0[0x14]; /**< not yet known */
+    u16 unk14;     /**< summed over the records in use */
+    u8 unk16[2];   /**< not yet known */
+} Rec18;
+
+extern Rec18 D_800DF858[];
+extern s32 D_800959DC;    /**< number of records in use */
+extern s16 D_800959D0;    /**< 11 after a failed format, 12 after a failed erase */
+extern char *D_80095A1C;  /**< name of the file last erased */
+extern char D_800956A8[]; /**< "bu10:" */
+extern char D_80011998[]; /**< "bu10:BISLPS-12345PEPTOOL" */
+extern char D_80011C24[]; /**< "bu10:BISLPS-67890PEPTOOL" */
+
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
@@ -112,7 +127,19 @@ INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800384DC);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038574);
+s16 func_80038574(void) {
+    s16 sum;
+    s16 i;
+
+    sum = 0;
+    for (i = 0; i < D_800959DC; i++) {
+        sum += D_800DF858[i].unk14;
+    }
+    if (sum > 0) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800385E0);
 

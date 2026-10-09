@@ -228,7 +228,27 @@ void func_8002C47C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C4D8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C540);
+/** @brief Sets the four corners of a box `w` wide and `d` deep, centred on
+ *         the origin at height 0. */
+void func_8002C540(Box4 *b, s16 w, s16 d) {
+    s16 x;
+    s16 z;
+
+    x = w / 2;
+    b->v[0][0] = x;
+    b->v[1][0] = x;
+    b->v[2][0] = -x;
+    b->v[3][0] = -x;
+    z = d / 2;
+    b->v[0][2] = z;
+    b->v[1][2] = -z;
+    b->v[2][2] = z;
+    b->v[3][2] = -z;
+    b->v[0][1] = 0;
+    b->v[1][1] = 0;
+    b->v[2][1] = 0;
+    b->v[3][1] = 0;
+}
 
 /** @brief Clears byte 0 of the first `count` records of a Rec5C table. */
 void func_8002C5A4(Rec5C *recs, u16 count) {

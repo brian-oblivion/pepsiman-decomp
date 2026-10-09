@@ -10,4 +10,6 @@ code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
 code_24748: warning: unused variable `unused'
 code_31cec: warning: control reaches end of non-void function
+code_7d74: warning: control reaches end of non-void function
+code_7d74: warning: `return' with no value, in function returning non-void
 main: warning: unused variable `unused'

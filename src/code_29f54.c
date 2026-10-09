@@ -1,4 +1,7 @@
 #include "common.h"
+#include "libgte.h"
+#include "libgpu.h"
+#include "libgs.h"
 
 typedef struct {
     u8 b[8];
@@ -131,7 +134,18 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F664);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F834);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F8D4);
+void func_8003F8D4(s16 x, s16 y, s16 z) {
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = x;
+    coord.coord.t[1] = y;
+    coord.coord.t[2] = z;
+    coord.flg = 0;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F960);
 

@@ -61,7 +61,25 @@ u16 func_800382DC(void) {
     return sum;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003831C);
+s16 func_8003831C(u16 expected) {
+    u8 *p;
+    u16 sum;
+    s32 i;
+    u8 lo;
+    u8 hi;
+
+    p = D_80095A18;
+    sum = 0;
+    for (i = 0; i < 0xEFFF; i++) {
+        lo = *p++;
+        hi = *p++;
+        sum += lo | (hi << 8);
+    }
+    if (sum != expected) {
+        return -1;
+    }
+    return 0;
+}
 
 void func_80038374(void) {
     D_800959D4 = (u8 *)0x8018D000;

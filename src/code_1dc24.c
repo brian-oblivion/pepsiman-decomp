@@ -396,7 +396,21 @@ s32 func_80033680(s16 i) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800336F8);
+/** @brief Runs a step on the tool buffer, then restores the game state
+ *         the save step put in the tool state block. */
+void func_800336F8(s16 a) {
+    func_80032C28(a, (u8 *)0x8016D000);
+    sGameSave.unk348[0] = sToolSave.unk38[0];
+    sGameSave.unk348[1] = sToolSave.unk38[1];
+    sGameSave.unk348[2] = sToolSave.unk38[2];
+    D_800A7682[0] = sToolSave.unk44;
+    D_800DB2A0[0] = sToolSave.unk48[0];
+    D_800DB2A0[1] = sToolSave.unk48[1];
+    D_800DB2A0[2] = sToolSave.unk48[2];
+    D_800DB2A0[3] = sToolSave.unk48[3];
+    D_800DB2A0[4] = sToolSave.unk48[4];
+    D_800DB2A0[5] = sToolSave.unk48[5];
+}
 
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
  *         then clears and resets the Rec3C table. */

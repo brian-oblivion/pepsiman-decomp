@@ -50,7 +50,8 @@ void func_800387A8(void);
 s16 func_80038820(void);
 void func_80038900(void);
 
-s16 func_8003828C(u8 *a, u8 *b, s16 n) {
+/* MATCHING: s32, not s16: both callers test the result unextended. */
+s32 func_8003828C(u8 *a, u8 *b, s16 n) {
     s16 i;
 
     for (i = 0; i < n; i++) {
@@ -150,7 +151,17 @@ s32 func_80038468(void) {
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800384DC);
+s16 func_800384DC(void) {
+    s16 i;
+
+    D_80095A1C = "BISLPS-12345PEPTOOL";
+    for (i = 0; i < D_800959DC; i++) {
+        if (func_8003828C(D_800DF858[i].unk0, (u8 *)D_80095A1C, 0x14) == 0) {
+            return 0;
+        }
+    }
+    return -1;
+}
 
 s16 func_80038574(void) {
     s16 sum;

@@ -2,6 +2,7 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "code_a0bc.h"
 #include "code_13068.h"
 #include "rand.h"
 
@@ -23,7 +24,10 @@ typedef struct {
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
     s32 unk350; /**< pushed back along the cosine of an angle */
-    u8 pad354[0x38E - 0x354];
+    u8 pad354[0x380 - 0x354];
+    s32 unk380; /**< an angle that follows the camera's yaw in bounded steps */
+    s32 unk384; /**< decays towards 0 by one a step */
+    u8 pad388[0x38E - 0x388];
     u8 unk38E;  /**< cleared on a reset */
     u8 unk38F;  /**< 1 also gates a check on unk398 */
     s16 unk390; /**< set to 2 together with clearing unk398 */
@@ -65,6 +69,36 @@ extern s32 D_800957EC;
  * from the lw), so it is an array here, though both halves use one register. */
 extern s32 D_8009EF44[];
 
+/** @brief A point of a 21-by-16 grid spanning the 320x240 screen, 16
+ *         pixels apart, stored row by row. */
+typedef struct {
+    s32 x; /**< column offset from the screen centre */
+    s32 y; /**< row offset from the screen centre */
+    s32 z; /**< always 0 */
+} GridPoint;
+
+extern s32 D_800958D0;
+extern s32 D_800959A8;
+extern GridPoint D_800DE5E0[];
+
+extern u8 D_80095784;
+extern u8 *D_80095790;
+extern u16 D_8009576A;
+
+/** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */
+typedef struct {
+    GsF_LIGHT l[3]; /**< one per light index */
+} LightTable;
+
+/* MATCHING: a struct lvalue keeps the table's base in a register. */
+#define sLights (*(LightTable *)D_800DD070)
+extern s16 D_800957BC;
+extern s32 D_8009EEF8[];
+
+void func_80023834(u8 mode, u16 a, u16 b);
+void func_80023B20(void);
+void func_80028650(void);
+
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
@@ -72,7 +106,22 @@ void func_80015450(u16 *table, s32 index);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022868);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800229A8);
+void func_800229A8(void) {
+    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
+        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].x = D_800958CC * 16 - 160;
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].y = D_800958D0 * 16 - 120;
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = 0;
+        }
+    }
+    D_800DB2A0[0] = 0;
+    D_800959A8 = 0;
+    D_800DB2A0[1] = 0;
+    D_800DB2A0[2] = 1000;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = 0;
+    D_800DB2A0[5] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022A74);
 
@@ -85,7 +134,10 @@ void func_80022F68(VECTOR *pos) {
                   (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023020);
+void func_80023020(VECTOR *pos) {
+    func_8003F834(6, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+                  (s16)pos->vz + (rand() % 160 - 80), 1);
+}
 
 void func_800230D8(void) {}
 
@@ -137,11 +189,74 @@ void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023228);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023764);
+void func_80023764(void) {
+    if (sGame.unk0 != 0) {
+        switch (D_80095784) {
+            case 0x73:
+                if (D_80095964 & 0x8000) {
+                    func_80023834(3, 16, 15);
+                } else if (D_80095964 & 0x2000) {
+                    func_80023834(2, 16, 15);
+                } else {
+                    func_80023B20();
+                }
+                break;
+            case 0x41:
+                if (D_80095964 & 0x8000) {
+                    func_80023834(3, 16, 15);
+                } else if (D_80095964 & 0x2000) {
+                    func_80023834(2, 16, 15);
+                } else {
+                    func_80023B20();
+                }
+                break;
+            default:
+                func_80023B20();
+                break;
+        }
+        if (sGame.unk0 != 0) {
+            return;
+        }
+    }
+    D_8009EEF8[0] = D_800A7680[0].vy;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023834);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023B20);
+/* MATCHING: the inline ternary abs (not an if on d) lets the first +56 test reuse the
+ * loaded value when it skips the store. */
+void func_80023B20(void) {
+    u16 i;
+    s32 yaw;
+    s32 d;
+
+    for (i = 0; i < 3; i++) {
+        if (sGame.unk384 < 0) {
+            sGame.unk384++;
+        }
+        if (sGame.unk384 > 0) {
+            sGame.unk384--;
+        }
+        yaw = D_800A7680->vy;
+        d = sGame.unk380 - yaw;
+        if ((d < 0 ? -d : d) > 56) {
+            if (sGame.unk380 < yaw) {
+                sGame.unk380 += 56;
+            }
+            if (sGame.unk380 > yaw) {
+                sGame.unk380 -= 56;
+            }
+        } else {
+            if (sGame.unk380 < yaw) {
+                sGame.unk380 += 11;
+            }
+            if (sGame.unk380 > yaw) {
+                sGame.unk380 -= 11;
+            }
+        }
+        D_800957BC = sGame.unk380;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023BFC);
 
@@ -159,7 +274,30 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026848);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026A60);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026C70);
+/* MATCHING: the index-first integer sum gives retail's addu operand order. */
+void func_80026C70(void) {
+    u8 *c;
+
+    c = (u8 *)((((u32)D_80095864 >> 12) & 3) * 4 + (s32)D_80095790);
+    sLights.l[0].r = sLights.l[1].r = sLights.l[2].r = c[0];
+    sLights.l[0].g = sLights.l[1].g = sLights.l[2].g = c[1];
+    sLights.l[0].b = sLights.l[1].b = sLights.l[2].b = c[2];
+    sLights.l[0].vx = 0;
+    sLights.l[0].vy = 100;
+    sLights.l[0].vz = 100;
+    GsSetFlatLight(0, &sLights.l[0]);
+    sLights.l[1].vx = 86;
+    sLights.l[1].vy = 100;
+    sLights.l[1].vz = -50;
+    GsSetFlatLight(1, &sLights.l[1]);
+    sLights.l[2].vx = -86;
+    sLights.l[2].vy = 100;
+    sLights.l[2].vz = -50;
+    GsSetFlatLight(2, &sLights.l[2]);
+    if (D_8009576A == 100 || D_80095830 % 3 == 2) {
+        func_80028650();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026D9C);
 
@@ -171,9 +309,58 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_800278B0);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027A00);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027BEC);
+/* MATCHING: the unsigned range test is the single subtract-and-compare retail does. */
+void func_80027BEC(void) {
+    s16 v;
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027D04);
+    if (sGame.unk0 != 0 && (u32)(sGame.unk6 - 0x33) < 3) {
+        v = sGame.unk3A8;
+        if (v < 35) {
+            D_800957D2 += 16;
+        } else if (D_80095964 & 0x1000) {
+            D_800957D2 += 32;
+            if ((s16)D_800957D2 >> 4 > 35) {
+                D_800957D2 = 560;
+            }
+        } else if (D_80095964 & 0x4000) {
+            D_800957D2 -= 32;
+            if ((s16)D_800957D2 >> 4 < 35) {
+                D_800957D2 = 560;
+            }
+        } else if (v > 35) {
+            D_800957D2 -= 16;
+        } else {
+            D_800957D2 += 16;
+        }
+        D_8009EF20[0] = (s16)D_800957D2 >> 4;
+    }
+}
+
+void func_80027D04(void) {
+    s16 v;
+
+    if (sGame.unk0 != 0 && sGame.unk6 == 0x33) {
+        v = sGame.unk3A8;
+        if (v < 30) {
+            D_800957D2 += 16;
+        } else if (D_80095964 & 0x1000) {
+            D_800957D2 += 32;
+            if ((s16)D_800957D2 >> 4 > 30) {
+                D_800957D2 = 480;
+            }
+        } else if (D_80095964 & 0x4000) {
+            D_800957D2 -= 32;
+            if ((s16)D_800957D2 >> 4 < 30) {
+                D_800957D2 = 480;
+            }
+        } else if (v > 30) {
+            D_800957D2 -= 16;
+        } else {
+            D_800957D2 += 16;
+        }
+        D_8009EF20[0] = (s16)D_800957D2 >> 4;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
 
@@ -313,7 +500,28 @@ void func_80028650(void) {
     SetFarColor(D_800958FC[i * 4], D_800958FC[i * 4 + 1], D_800958FC[i * 4 + 2]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800286B0);
+/* MATCHING: the red channel through its own local moves the spill to y2, as retail. */
+void func_800286B0(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
+    POLY_F4 poly;
+    POLY_F4 *p;
+    s32 r;
+
+    p = &poly;
+    SetPolyF4(p);
+    r = col & 0x1F;
+    p->r0 = r << 3;
+    p->g0 = ((col >> 5) & 0x1F) << 3;
+    p->b0 = ((col >> 10) & 0x1F) << 3;
+    p->x0 = x0;
+    p->y0 = y0;
+    p->x1 = x1;
+    p->y1 = y1;
+    p->x2 = x3;
+    p->y2 = y3;
+    p->x3 = x2;
+    p->y3 = y2;
+    GsSortPoly(p, &D_800ACEA8[D_80095750], pri);
+}
 
 void func_800287C0(void) {
     D_8009EF20[0] = 0;

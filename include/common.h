@@ -111,6 +111,7 @@ extern u16 D_80095768; /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D5;  /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D6;  /**< 2 units, 3 functions; never loaded, sign unknown */
 extern u8 D_800958EC;  /**< 2 units, 4 functions; never loaded, sign unknown */
+extern s32 D_800958CC; /**< 2 units, 2 functions; a loop counter kept in a global */
 extern s32 D_800959B4; /**< 2 units, 2 functions */
 extern s32 D_800959B8; /**< 2 units, 2 functions */
 extern s16 D_800959E0; /**< 2 units, 2 functions */

@@ -115,7 +115,7 @@ def token_rx(old):
 def text_files():
     """rename.py's files, the README (its code map names paths) and the
     warnings baseline."""
-    return [q for q in rename.text_files() if q.exists()] + [ROOT / "README.md", WARNINGS]
+    return [q for q in rename.text_files() + [ROOT / "README.md", WARNINGS] if q.exists()]
 
 
 def rename_map(old, new, old_c, new_c, header_moved, paths_only):

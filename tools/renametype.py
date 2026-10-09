@@ -71,7 +71,7 @@ def class_header(name):
 
 
 def files():
-    return [p for p in rename.text_files() if p.exists()] + [WARNINGS]
+    return [p for p in rename.text_files() + [WARNINGS] if p.exists()]
 
 
 def occurrences(stem, upper):

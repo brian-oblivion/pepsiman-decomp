@@ -39,6 +39,10 @@ typedef struct {
 extern s32 D_800D8440[];
 extern u8 D_800D8960[];
 extern s16 D_800D38DE[];
+extern s8 D_8009EF4D[];
+
+extern s32 D_800958A8;
+extern s32 D_800958AC;
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022868);
 
@@ -106,7 +110,23 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028008);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800281B8);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028260);
+s32 func_80028260(s32 n) {
+    D_800958A8 += n;
+    if (D_800958AC == 1) {
+        if (D_800958A8 >= 2) {
+            D_800958A8 = 2;
+        }
+    } else if (D_800958A8 >= 3) {
+        D_800958A8 = 3;
+    }
+    if (D_800958A8 <= 0) {
+        D_800958A8 = 0;
+    }
+    if (D_8009EF4D[0] == 1) {
+        D_800958A8 = 0;
+    }
+    return D_800958A8;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800282F0);
 

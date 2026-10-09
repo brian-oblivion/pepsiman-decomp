@@ -15,6 +15,20 @@ function's match report, not here.
   including a `.sdata` string reached `lui`/`addiu` (`extern char
   D_800954CC[];`, func_80014BF0) and a halfword table head stored through
   `lui $v0` (`extern u16 D_80095B4C[];`, func_800338D8).
+- **A LOAD whose `lui` and destination are the same register is a scalar**,
+  `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
+  load. cc1's split of an array puts the address and the value in different
+  registers (`lui $v0` / `lbu $v1`). Check every retail load before declaring.
+  (func_800414EC, `u8 D_80095830`; func_80028650, `s32 D_80095864`)
+- **A large global's base in a register (`lui`/`addiu`) with fields at
+  `off($reg)`: the source used a struct lvalue or a local pointer.** Byte
+  arithmetic on the array, `*(s16 *)(D + 0x398)`, folds the offset into
+  `%hi/%lo(sym+0x398)`. A unit-local typedef and `#define sX (*(T *)D)`
+  works without a shared-header change. (func_800285B0, func_800283E4)
+- **A trailing array's offset added to the base early, the scaled index
+  last: the array base went into its own local**, `T *recs = p->recs; return
+  &recs[i];`. `&p->recs[i]` folds the offset into the final add.
+  (func_80036A50)
 - **Sony's prototypes come from Sony's headers.** They include cleanly after
   `common.h`; `libgpu.h` needs `libgte.h` first (SVECTOR, MATRIX). A local
   prototype of a Sony function fails declcheck as soon as a header declares
@@ -57,7 +71,17 @@ function's match report, not here.
   with no `return`** (likely K&R implicit int). The live return register
   blocks the fill. Triggers "control reaches end of non-void function",
   baselined likewise. (func_8002D140; func_8002D16C and func_8002D1CC show the
-  same slot)
+  same slot) The same holds for a forward branch: the first `beqz` of an
+  if/else-if chain keeps its `nop` slot only as `s32` with no return.
+  (func_800283A0)
+- **A clamp whose one store of the global sits at a join every path reaches,
+  the unchanged path included: one assignment of a nested ternary**, `x = x <
+  0 ? 0 : x > n - 1 ? n - 1 : x;`. An if/else-if clamp stores per branch.
+  (func_8003708C)
+- **`== 1`, then `slti < 2`, then `== 0` on a byte: nested `if`s on an `s32`
+  copy.** A `u8` copy gives `sltu`; a `switch` on {0, 1} and an `&&` chain
+  both fold to one `bnez`, so the empty-case lever above does not apply.
+  (func_800414EC)
 
 ## Scheduling
 
@@ -67,3 +91,6 @@ function's match report, not here.
   place, the order of the global stores decides the rest. Why the second form
   rises is not understood; treat the alias explanation as a hypothesis.
   (func_8002D0C4)
+- **Independent stores to a local struct come out in source order.** Retail
+  writing `val3`..`val0` of a `CdlATV` means the source assigned them in that
+  order. (func_80042C14, func_80042968)

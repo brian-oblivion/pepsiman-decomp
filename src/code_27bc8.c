@@ -30,6 +30,21 @@ extern s32 D_80095A00;
 extern s32 D_80095A04;
 extern s32 D_80095A08;
 
+/** @brief A 0x18-byte record; the halfword at 0x14 is summed. */
+typedef struct {
+    u8 unk0[0x14]; /**< not yet known */
+    u16 unk14;     /**< summed over the records in use */
+    u8 unk16[2];   /**< not yet known */
+} Rec18;
+
+extern Rec18 D_800DF858[];
+extern s32 D_800959DC;    /**< number of records in use */
+extern s16 D_800959D0;    /**< 11 after a failed format, 12 after a failed erase */
+extern char *D_80095A1C;  /**< name of the file last erased */
+extern char D_800956A8[]; /**< "bu10:" */
+extern char D_80011998[]; /**< "bu10:BISLPS-12345PEPTOOL" */
+extern char D_80011C24[]; /**< "bu10:BISLPS-67890PEPTOOL" */
+
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
@@ -104,27 +119,112 @@ s16 func_80038394(void) {
     return result;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800383F8);
+s32 func_800383F8(void) {
+    s32 ret;
+    s16 i;
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038468);
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        if (format(D_800956A8) != 0) {
+            return ret;
+        }
+    }
+    D_800959D0 = 11;
+    return -1;
+}
+
+s32 func_80038468(void) {
+    s32 ret;
+    s16 i;
+
+    ret = 0;
+    D_80095A1C = D_80011998;
+    for (i = 0; i < 10; i++) {
+        if (erase(D_80095A1C) != 0) {
+            return ret;
+        }
+    }
+    D_800959D0 = 12;
+    return -1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800384DC);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038574);
+s16 func_80038574(void) {
+    s16 sum;
+    s16 i;
+
+    sum = 0;
+    for (i = 0; i < D_800959DC; i++) {
+        sum += D_800DF858[i].unk14;
+    }
+    if (sum > 0) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800385E0);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800386A8);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038730);
+void func_80038730(void) {
+    EnableEvent(D_800959E8);
+    EnableEvent(D_800959EC);
+    EnableEvent(D_800959F0);
+    EnableEvent(D_800959F4);
+    EnableEvent(D_800959FC);
+    EnableEvent(D_80095A00);
+    EnableEvent(D_80095A04);
+    EnableEvent(D_80095A08);
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800387A8);
+void func_800387A8(void) {
+    DisableEvent(D_800959E8);
+    DisableEvent(D_800959EC);
+    DisableEvent(D_800959F0);
+    DisableEvent(D_800959F4);
+    DisableEvent(D_800959FC);
+    DisableEvent(D_80095A00);
+    DisableEvent(D_80095A04);
+    DisableEvent(D_80095A08);
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038820);
+s16 func_80038820(void) {
+    while (1) {
+        if (TestEvent(D_800959E8) == 1) {
+            return 0;
+        }
+        if (TestEvent(D_800959EC) == 1) {
+            return 1;
+        }
+        if (TestEvent(D_800959F0) == 1) {
+            return 2;
+        }
+        if (TestEvent(D_800959F4) == 1) {
+            return 3;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038890);
+s16 func_80038890(void) {
+    while (1) {
+        if (TestEvent(D_800959FC) == 1) {
+            return 0;
+        }
+        if (TestEvent(D_80095A00) == 1) {
+            return 1;
+        }
+        if (TestEvent(D_80095A04) == 1) {
+            return 2;
+        }
+        if (TestEvent(D_80095A08) == 1) {
+            return 3;
+        }
+    }
+}
 
 void func_80038900(void) {
     TestEvent(D_800959E8);
@@ -163,7 +263,20 @@ void func_800394EC(void) {
     D_80095A18 = (u8 *)0x8018D000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003950C);
+s32 func_8003950C(void) {
+    s32 ret;
+    s16 i;
+
+    ret = 0;
+    D_80095A1C = D_80011C24;
+    for (i = 0; i < 10; i++) {
+        if (erase(D_80095A1C) != 0) {
+            return ret;
+        }
+    }
+    D_800959D0 = 12;
+    return -1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_800119C8);
 
@@ -177,7 +290,19 @@ INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C24);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80039580);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80039618);
+s16 func_80039618(void) {
+    s16 sum;
+    s16 i;
+
+    sum = 0;
+    for (i = 0; i < D_800959DC; i++) {
+        sum += D_800DF858[i].unk14;
+    }
+    if (sum >= 4) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003968C);
 

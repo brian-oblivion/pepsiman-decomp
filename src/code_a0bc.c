@@ -24,6 +24,22 @@ typedef struct {
     u16 v3;      /**< fourth vertex index */
 } TmdF4;
 
+/** @brief A gouraud unlit TMD triangle: a header, three colours and
+ *  three vertex indices. */
+typedef struct {
+    u8 olen;    /**< the TMD header: output length */
+    u8 ilen;    /**< input length */
+    u8 flag;    /**< flags */
+    u8 mode;    /**< the primitive code, copied into the packet */
+    CVECTOR c0; /**< first vertex colour */
+    CVECTOR c1; /**< second vertex colour */
+    CVECTOR c2; /**< third vertex colour */
+    u16 v0;     /**< first vertex index */
+    u16 v1;     /**< second vertex index */
+    u16 v2;     /**< third vertex index */
+    u16 pad;    /**< padding */
+} TmdG3;
+
 /** @brief An eight-byte table entry: two halfwords and four bytes. */
 typedef struct {
     u16 unk0; /**< a byte and a bit packed together */
@@ -58,7 +74,7 @@ PACKET *func_80020520();
 PACKET *func_8002097C();
 PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_800210B4();
+PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80021240();
 PACKET *func_80021434();
 
@@ -97,7 +113,37 @@ void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 cl
     D_800DD0A0[id].unk7 = h;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B354);
+void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
+    Sprite8 *e;
+    u32 *p;
+    u32 *q;
+    u32 *tag;
+    u32 c;
+
+    e = &D_800DD0A0[id];
+    p = (u32 *)D_800E48D0;
+    /* MATCHING: a ternary, and the semi-transparency term through a local,
+     * keep cc1 from regrouping the constants. */
+    p[1] = color != NULL ? 0x64000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x65000000;
+    if (color != NULL && (s8)color->r != -1) {
+        p[1] |= 0x02000000;
+    }
+    p[2] = (pos->vy << 16) | (u16)pos->vx;
+    p[3] = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    p[4] = (e->unk7 << 16) | e->unk6;
+    tag = (u32 *)ot->org + (u16)mode;
+    p[0] = (*tag & 0xFFFFFF) | 0x04000000;
+    q = p + 5;
+    if (color != NULL && (s8)color->r != -1) {
+        c = (s8)color->r << 5 | 0xE1000600;
+        q[1] = e->unk0 | c;
+    } else {
+        q[1] = e->unk0 | 0xE1000600;
+    }
+    q[0] = ((u32)p & 0xFFFFFF) | 0x01000000;
+    *tag = (u32)q & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(q + 2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B4BC);
 

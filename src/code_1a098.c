@@ -778,7 +778,12 @@ void func_80033930(void) {
     *(Page64K *)0x8017D000 = *(Page64K *)0x8016D000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003399C);
+/** @brief Copies the second 64 KiB of the tool buffer back over the first,
+ *         then runs a step on it. */
+void func_8003399C(void) {
+    *(Page64K *)0x8016D000 = *(Page64K *)0x8017D000;
+    func_80032C28(0, (u8 *)0x8016D000);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033A08);
 

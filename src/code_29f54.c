@@ -384,39 +384,21 @@ s32 func_8003FA88(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
-    GsCOORDINATE2 coord;
-    MATRIX ls;
-    s32 ret;
 
-    if (p->unk2 != 0) {
-        p->unk2--;
-        ret = 0;
-    } else {
-        x += p->unkC;
-        y += p->unkE;
-        z += p->unk10;
-        GsInitCoordinate2(WORLD, &coord);
-        coord.coord.t[0] = x;
-        coord.coord.t[1] = y;
-        coord.coord.t[2] = z;
-        coord.flg = 0;
-        GsGetLs(&coord, &ls);
-        GsSetLsMatrix(&ls);
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
         size.vy = size.vx = 0x32;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
         func_8001A3D4(0x11A, &size, &color, 2, ot);
-        ret = ++p->unk0 == 8;
+        return ++p->unk0 == 8;
     }
-    return ret;
+    p->unk2--;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FBE0);
-#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003FD0C);
 

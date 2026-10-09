@@ -1,4 +1,30 @@
-# func_8003FBE0 — STALL: 4 words long (79/75), raw 0/75 (shifted; the only differing instructions are 4 insertions), first diff at the prologue `addiu sp, sp, -0xB8` (retail -0xB0) — round 5, bravo
+# func_8003FBE0 — MATCHED (75/75), round 6, runner echo (stalled in round 5, bravo: 4 words long)
+
+## Round 6: matched (echo)
+
+Same lever as func_8003FA88 and func_8003F960: the matrix set-up is the
+inlined `setLs` helper (func_8003F8D4's body), which rebuilds `&coord`
+and `&ls` at every call. First build:
+
+```c
+s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vy = size.vx = 0x32;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        func_8001A3D4(0x11A, &size, &color, 2, ot);
+        return ++p->unk0 == 8;
+    }
+    p->unk2--;
+    return 0;
+}
+```
+
+## Round 5 (bravo)
 
 Unit `src/code_29f54.c`. The fading twin of func_8003F960: same countdown
 and matrix set-up, then sprite 0x11A at size 0x32 in colour

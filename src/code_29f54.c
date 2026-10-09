@@ -134,7 +134,28 @@ void func_8003C014(void) {
     func_8001B354(0x1FF, &pos, &color, 0, &D_800ACEA8[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C17C);
+void func_8003C17C(u8 level) {
+    RECT rect;
+    SVECTOR pos;
+    CVECTOR color;
+
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    /* MATCHING: an s8 store gives li -1; a u_char one gives li 0xFF. */
+    *(s8 *)&color.r = -1;
+    color.g = color.b = color.cd = level;
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C2E8);
 

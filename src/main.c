@@ -5,6 +5,10 @@
 #include "libpad.h"
 #include "libgs.h"
 #include "libapi.h"
+#include "libcd.h"
+#include "libsnd.h"
+#include "libmcrd.h"
+#include "memory.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -24,7 +28,39 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800148B0);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800149D0);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014AC8);
+void func_80013EE4(void);
+void func_8001534C(void);
+void func_80014D20(void);
+void func_80014D6C(void);
+
+extern s32 D_800957A8;
+extern u8 D_8009574C;
+extern u8 D_80095754;
+extern u8 D_8009575C;
+extern u8 D_80095820;
+
+void func_80014AC8(void) {
+    ResetCallback();
+    bzero((u8 *)0x80101000, 0xFC800);
+    InitCARD(1);
+    StartCARD();
+    MemCardInit(1);
+    MemCardStart();
+    ChangeClearPAD(0);
+    _bu_init();
+    func_8001534C();
+    func_800428B0();
+    CdInit();
+    SsStart();
+    D_8009574C = 0;
+    D_80095754 = 0;
+    D_8009575C = 0;
+    func_80013EE4();
+    GsInit3D();
+    func_80014D20();
+    D_80095820 = 0;
+    func_80014D6C();
+}
 
 void func_800142EC(s32 arg);
 
@@ -71,11 +107,6 @@ void func_80014C58(u8 idx) {
 #else
 INCLUDE_ASM("asm/nonmatchings/main", func_80014C58);
 #endif
-
-extern s32 D_800957A8;
-extern u8 D_8009574C;
-extern u8 D_80095754;
-extern u8 D_8009575C;
 
 void func_80014CF0(void) {
     /* MATCHING: retail reserves an 8-byte frame it never touches. */

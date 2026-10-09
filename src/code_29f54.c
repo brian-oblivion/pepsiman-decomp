@@ -69,7 +69,11 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E29C);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E360);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E40C);
+void func_8003E40C(void) {
+    D_80095A78 = 0;
+    D_80095A94 = 1;
+    func_80042538(0x19);
+}
 
 s32 func_8003E438(void) {
     return D_80095A94;

@@ -563,7 +563,14 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033680);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800336F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033790);
+/** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
+ *         then clears and resets the Rec3C table. */
+void func_80033790(void) {
+    bzero((u8 *)0x801FD000, 0x800);
+    func_800337E4((u8 *)0x801FD000);
+    bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
+    func_8003390C(D_800A7898);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800337E4);
 

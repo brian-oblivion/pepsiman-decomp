@@ -1,6 +1,7 @@
 #include "common.h"
 #include "memory.h"
 #include "libapi.h"
+#include "libgte.h"
 #include "sys/file.h"
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
@@ -112,6 +113,21 @@ typedef struct {
     u16 unk26;     /**< a sum over the current block's entries */
 } Totals28;
 
+/** @brief 64 KiB of the tool buffer, copied whole. */
+typedef struct {
+    u8 b[0x10000]; /**< not yet known */
+} Page64K;
+
+/** @brief A 0xB774-byte slot of the tool buffer; a tag byte and an owner
+ *         byte known. */
+typedef struct {
+    u8 unk0[0x200];    /**< not yet known */
+    u8 unk200;         /**< 0x38 when the slot is valid */
+    u8 unk201;         /**< not yet known */
+    u8 unk202;         /**< the owner; compared with a global */
+    u8 unk203[0xB571]; /**< not yet known */
+} SaveSlot;
+
 extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;      /**< the BlockHeader's second part */
 extern s32 D_800959C8;      /**< the BlockHeader's first word */
@@ -143,6 +159,11 @@ s32 func_80028260(s32 n);
 void func_8002C4D8(void);
 s32 func_800183B0(Rec48 *r);
 s32 func_8002C650(void);
+/* MATCHING: a per-unit view of the squared-distance helper; it takes two
+ * VECTOR pointers. */
+s32 func_800297A4(void *a, void *b);
+void func_80032964(s32 a, u8 *buf);
+void func_80032C28(s32 a, u8 *buf);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
@@ -198,7 +219,14 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C044);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C0EC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C188);
+/** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
+void func_8002C188(s32 r, s16 deg, Vec3 *out) {
+    s32 a;
+
+    a = deg * 4096 / 360;
+    out->x = rsin(a) * r;
+    out->z = rcos(a) * r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C20C);
 
@@ -272,7 +300,20 @@ void func_8002C5A4(Rec5C *recs, u16 count) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C5D0);
+/** @brief For each odd-numbered Rec5C record whose byte 0 is 1, sets byte 0
+ *         of it and of the record before it to 2.
+ *  @return nothing; the value is undefined. */
+s32 func_8002C5D0(void) {
+    u16 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    for (i = 1; i < 200; i += 2) {
+        if (D_800CF080[(s16)i].unk0 == 1) {
+            D_800CF080[(s16)i].unk0 = 2;
+            D_800CF080[(s16)i - 1].unk0 = 2;
+        }
+    }
+}
 
 /** @brief Clears unk40 and unk24 of all 200 Rec48 records and all but bit 0
  *         of unk41.
@@ -290,7 +331,23 @@ s32 func_8002C650(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C6A4);
+/** @brief Latches bit 1 of `r->unk41` once the record comes within `range`
+ *         of a fixed object.
+ *  @return 1 when the bit was set by this call, else 0. */
+s32 func_8002C6A4(Rec48 *r, s32 range) {
+    s32 ret;
+    s32 sq;
+
+    ret = 0;
+    if (!((r->unk41 >> 1) & 1)) {
+        sq = range * range;
+        if (func_800297A4(D_8009EEC0, r) < sq) {
+            r->unk41 |= 2;
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C724);
 
@@ -687,11 +744,40 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033224);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033388);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003356C);
+/** @brief Wraps the highlighted line at `n` lines, resets the edited value
+ *         and runs an update.
+ *  @return the highlighted line when flag bit 5 is set, else -1. */
+s32 func_8003356C(s16 n) {
+    D_80095748 = 0;
+    D_800958B2 = n;
+    D_800958B0 = 1;
+    D_8009574A = D_8009574A % n;
+    func_800330D4();
+    if (D_80095970 & 0x20) {
+        return D_8009574A;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800335E8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033680);
+/** @brief Checks that save slot `i` of the tool buffer is valid and
+ *         belongs to the current owner.
+ *  @return 0 when it does, -1 when not. */
+s32 func_80033680(s16 i) {
+    SaveSlot *slot;
+
+    slot = &((SaveSlot *)0x8016D000)[i];
+    /* MATCHING: two guards, each returning -1; an && test lays the success
+     * path out as the branch target. */
+    if (slot->unk200 != 0x38) {
+        return -1;
+    }
+    if (slot->unk202 != D_80095830) {
+        return -1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800336F8);
 
@@ -704,7 +790,25 @@ void func_80033790(void) {
     func_8003390C(D_800A7898);
 }
 
+#ifdef NON_MATCHING
+/** @brief Builds an empty block header in `buf` for the current entry
+ *         count and points the current-block globals at it. */
+void func_800337E4(u8 *buf) {
+    s32 n;
+
+    func_8002D0C4((BlockHeader *)buf);
+    n = D_80095794;
+    D_800959C0 = buf + 8;
+    D_800959C8 = n;
+    D_800959C4 = buf + (n * 8 + 8);
+    /* MATCHING: byte-pointer stores, not BlockHeader members: a member
+     * store does not alias the globals, so the reload below would go. */
+    *(s32 *)buf = n;
+    *(s32 *)(buf + 4) = D_800959C8 * 8 + 8;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800337E4);
+#endif
 
 /** @brief Sets byte 0 of all 200 records of a Rec5C table to -1. */
 void func_80033854(Rec5C *recs) {
@@ -764,9 +868,19 @@ void func_8003390C(Rec3C *recs) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033930);
+/** @brief Runs a step on the tool buffer, then copies its first 64 KiB to
+ *         the next 64 KiB. */
+void func_80033930(void) {
+    func_80032964(0, (u8 *)0x8016D000);
+    *(Page64K *)0x8017D000 = *(Page64K *)0x8016D000;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8003399C);
+/** @brief Copies the second 64 KiB of the tool buffer back over the first,
+ *         then runs a step on it. */
+void func_8003399C(void) {
+    *(Page64K *)0x8016D000 = *(Page64K *)0x8017D000;
+    func_80032C28(0, (u8 *)0x8016D000);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033A08);
 

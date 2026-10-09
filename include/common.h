@@ -101,6 +101,8 @@ extern s32 D_80095714; /**< 2 units, 2 functions */
 extern s32 D_8009571C; /**< 2 units, 2 functions */
 extern s32 D_80095720; /**< 2 units, 2 functions */
 extern u16 D_80095748; /**< 2 units, 2 functions */
+extern s16 D_8009574A; /**< the highlighted line of a three-line menu */
+extern s32 D_80095794; /**< an entry count */
 extern s32 D_80095750; /**< 2 units, 3 functions */
 extern u16 D_80095768; /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D5;  /**< 2 units, 2 functions; never loaded, sign unknown */
@@ -120,6 +122,9 @@ extern s32 D_80095864; /**< 3 units, 5 functions */
 extern u8 D_80095AA8;  /**< 2 units, 2 functions */
 extern u8 D_80095AA9;  /**< 2 units, 2 functions */
 extern u16 D_800958E8; /**< 5 units, 7 functions */
+extern s16 D_800958B0; /**< limit of the value being edited */
+extern s16 D_800958B2; /**< the count a menu line wraps at */
+extern s32 D_80095970; /**< flag word; bit 5 enables a two-state dispatch */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
@@ -131,6 +136,8 @@ extern u16 D_8009EAB8[]; /**< 2 units, 3 functions; never loaded, sign unknown *
 extern s16 D_8009EABA[]; /**< 2 units, 2 functions */
 extern u8 D_8009EB78[];  /**< 8 units, 69 functions */
 extern u8 D_8009EB7E[];  /**< 2 units, 2 functions */
+extern u8 D_8009EEC0[];  /**< an object with a position; passed to
+                          *   distance tests */
 extern s16 D_8009EF20[]; /**< 2 units, 6 functions */
 extern u8 D_8009EF48[];  /**< 4 units, 7 functions */
 extern s8 D_8009EF4A[];  /**< 2 units, 2 functions */

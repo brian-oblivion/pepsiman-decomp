@@ -59,7 +59,31 @@ void func_800400EC(void) {
     D_80095AA8 = 0xFF;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040130);
+/* MATCHING: arg0 is only stored with sb, yet s32; as u8 it takes the first
+ * temporary and shifts every other argument register. */
+s32 func_80040130(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7,
+                  s16 arg8) {
+    u8 old;
+
+    if ((s8)D_80095AA9 < 0) {
+        return -1;
+    }
+    old = D_80095AA8;
+    D_80095AA8 = D_80095AA9;
+    D_80095AA9 = sSlots[D_80095AA8].next;
+    sSlots[D_80095AA8].next = old;
+    sSlots[D_80095AA8].unk12 = arg0;
+    sSlots[D_80095AA8].unkC = arg1;
+    sSlots[D_80095AA8].unkE = arg2;
+    sSlots[D_80095AA8].unk10 = arg3;
+    sSlots[D_80095AA8].unk4 = arg5;
+    sSlots[D_80095AA8].unk6 = arg6;
+    sSlots[D_80095AA8].unk8 = arg7;
+    sSlots[D_80095AA8].unkA = arg8;
+    sSlots[D_80095AA8].unk0 = 0;
+    sSlots[D_80095AA8].unk2 = arg4;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_308ec", func_800401F0);
 

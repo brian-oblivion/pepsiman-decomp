@@ -85,7 +85,6 @@ typedef struct {
 extern u8 *D_800959C0;      /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;      /**< the BlockHeader's second part */
 extern s32 D_800959C8;      /**< the BlockHeader's first word */
-extern u16 D_800958E8;      /**< zeroed with the block; never loaded here */
 extern u8 D_800A74D0[];     /**< 128 byte flags; cleared together */
 extern u16 D_80095748;      /**< a halfword copied into the run below */
 extern u16 D_80095B4C[];    /**< first of a run of halfwords */

@@ -117,6 +117,7 @@ extern u8 D_80095830;  /**< 8 units, 24 functions */
 extern s32 D_80095864; /**< 3 units, 5 functions */
 extern u8 D_80095AA8;  /**< 2 units, 2 functions */
 extern u8 D_80095AA9;  /**< 2 units, 2 functions */
+extern u16 D_800958E8; /**< 5 units, 7 functions */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

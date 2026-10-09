@@ -189,7 +189,15 @@ void func_80036E50(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036EA0);
+void func_80036EA0(void) {
+    u32 i;
+
+    bzero(D_800DB2C0, 0x1DB0);
+    for (i = 0; i < 80; i++) {
+        D_800D8D20[i].unk6E = 0;
+        D_800D8D20[i].unk70 = -1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036EF0);
 

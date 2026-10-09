@@ -95,7 +95,22 @@ void func_80042958(u8 value) {
     D_80095AF0 = value;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042968);
+void func_80042968(u8 vol) {
+    CdlATV atv;
+
+    if (D_80095AEE) {
+        atv.val2 = vol;
+        atv.val0 = vol;
+        atv.val3 = 0;
+        atv.val1 = 0;
+    } else {
+        atv.val2 = vol;
+        atv.val0 = vol;
+        atv.val3 = vol;
+        atv.val1 = vol;
+    }
+    CdMix(&atv);
+}
 
 void func_800429B4(void) {
     SsSeqStop(D_800E0570[0]);

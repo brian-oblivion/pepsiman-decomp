@@ -19,7 +19,36 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80013B38);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80013CDC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80013EE4);
+/* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
+void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
+
+extern GsOT_TAG D_80096A78[2][0x1000];
+extern GsOT_TAG D_8009F278[2][0x1000];
+extern PACKET D_800ACF00[2][67200];
+extern GsOT *D_80095884;
+
+void func_80013EE4(void) {
+    s32 i;
+
+    func_80056774(320, 240, 4, 1, 0);
+    GsDefDispBuff(0, 0, 0, 240);
+    for (i = 0; i < 2; i++) {
+        D_800ACEA8[i].length = 12;
+        D_800ACEA8[i].org = D_8009F278[i];
+        D_800ACEA8[i].point = 0;
+        D_800ACEA8[i].offset = 0;
+        D_800A7318[i].length = 12;
+        D_800A7318[i].org = D_80096A78[i];
+        /* MATCHING: retail stores this field twice. */
+        D_800ACEA8[i].point = 300;
+        D_800A7318[i].offset = 0;
+    }
+    D_80095750 = GsGetActiveBuff();
+    GsSetWorkBase(D_800ACF00[D_80095750]);
+    GsClearOt(0, 300, &D_800A7318[D_80095750]);
+    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
+    D_80095884 = &D_800A7318[D_80095750];
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014044);
 

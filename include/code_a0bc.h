@@ -13,6 +13,7 @@
 #include "libgs.h"
 
 extern GsOT D_800ACEA8[]; /**< the ordering tables the sprite drawer is handed */
+extern GsOT D_800A7318[]; /**< a second pair of ordering tables, cleared to depth 300 */
 
 /** @brief Draws a sprite into an ordering table.
  *  @param id    which sprite

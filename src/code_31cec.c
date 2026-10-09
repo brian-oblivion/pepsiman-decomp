@@ -22,6 +22,7 @@ typedef struct {
 extern volatile s32 D_80095AD0;
 
 u_long *func_80041A6C(DECENV *dec);
+void func_80041F28(s16 arg0);
 
 extern s16 D_800E0570[];
 extern char D_800E0588[];
@@ -34,6 +35,11 @@ extern s16 D_80095B14;
 extern s16 D_80095B18;
 extern s16 D_80095B16;
 extern s16 D_80095AEA;
+extern u16 D_80095AFC;
+extern s16 D_80095960;
+extern s8 D_8009596C;
+extern s32 D_8007B6A4[];
+extern s32 D_8007B6CC[];
 extern s16 D_800956C2;
 extern s16 D_80095AC8;
 
@@ -216,7 +222,35 @@ void func_800429EC(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042A88);
+s32 func_80042A88(u16 bank) {
+    s32 ret = 0;
+
+    if (bank == 0) {
+        return 1;
+    }
+    if (bank == D_80095AFC) {
+        return 1;
+    }
+    switch (D_80095B0E) {
+        case 0:
+            D_80096748[0] = (s32)&D_8007B6A4[bank];
+            D_8009F248[0] = D_8007B6CC[bank + 6];
+            D_8009F090[0] = 0x8016D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_80095B0E++;
+            break;
+        case 1:
+            if (D_8009596C == 6) {
+                SsVabClose(D_80095B16);
+                D_80095AFC = bank;
+                func_80041F28(1);
+                ret = 1;
+            }
+            break;
+    }
+    return ret;
+}
 
 void func_80042B80(u8 chan) {
     CdlFILTER filter;

@@ -439,7 +439,34 @@ void func_80036F50(void) {
     }
 }
 
+#ifdef NON_MATCHING
+/* MATCHING: s32 with no return keeps the index shift in the bound check's
+ * delay slot. Under the current split the jump table lands 4 bytes late
+ * (the unit's rodata starts at the wrong place; see its match report). */
+s32 func_80036FE8(void) {
+    if (D_80095970 & 0x100) {
+        switch (D_80095A26) {
+            case 10:
+                D_80095A26 = 20;
+                break;
+            case 20:
+                D_80095A26 = 30;
+                break;
+            case 30:
+                D_80095A26 = 40;
+                break;
+            case 40:
+                D_80095A26 = 50;
+                break;
+            case 50:
+                D_80095A26 = 10;
+                break;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036FE8);
+#endif
 
 void func_8003708C(void) {
     s32 flags = D_80095970;

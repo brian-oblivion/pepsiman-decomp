@@ -1,5 +1,11 @@
 #include "common.h"
 
+/** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
+typedef struct {
+    s8 unk0;       /**< -1 when the record is free (a guess) */
+    u8 unk1[0x5B]; /**< not yet known */
+} Rec5C;
+
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
@@ -396,17 +402,26 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033790);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800337E4);
 
-/** @brief Sets byte 0 of each of 200 consecutive 0x5C-byte records to -1. */
-void func_80033854(s8 *p) {
+/** @brief Sets byte 0 of all 200 records of a Rec5C table to -1. */
+void func_80033854(Rec5C *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        *p = -1;
-        p += 0x5C;
+        recs->unk0 = -1;
+        recs++;
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033878);
+/** @brief Sets byte 0 of records 100 to 199 of a 200-entry table to -1. */
+void func_80033878(Rec5C *recs) {
+    u32 i;
+
+    recs += 100;
+    for (i = 100; i < 200; i++) {
+        recs->unk0 = -1;
+        recs++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800338A0);
 

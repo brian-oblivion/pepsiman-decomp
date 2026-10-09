@@ -774,7 +774,17 @@ s32 func_80033DE8(void) {
     return n;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033E40);
+/** @brief Reads the tool file on the host into the tool buffer.
+ *  @return the count read. */
+s32 func_80033E40(void) {
+    s32 fd;
+    s32 n;
+
+    fd = open(D_80011260, O_RDONLY);
+    n = read(fd, (void *)0x8016D000, 0x2285C);
+    close(fd);
+    return n;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80033E98);
 

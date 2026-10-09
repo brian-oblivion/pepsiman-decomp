@@ -26,7 +26,20 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80014BF0);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014C58);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014CF0);
+extern s32 D_800957A8;
+extern u8 D_8009574C;
+extern u8 D_80095754;
+extern u8 D_8009575C;
+
+void func_80014CF0(void) {
+    /* MATCHING: retail reserves an 8-byte frame it never touches. */
+    s32 unused[2];
+
+    D_800957A8 = 2;
+    D_8009574C = 0;
+    D_80095754 = 0;
+    D_8009575C = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014D20);
 

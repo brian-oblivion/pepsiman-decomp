@@ -181,7 +181,16 @@ void func_80038730(void) {
     EnableEvent(D_80095A08);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800387A8);
+void func_800387A8(void) {
+    DisableEvent(D_800959E8);
+    DisableEvent(D_800959EC);
+    DisableEvent(D_800959F0);
+    DisableEvent(D_800959F4);
+    DisableEvent(D_800959FC);
+    DisableEvent(D_80095A00);
+    DisableEvent(D_80095A04);
+    DisableEvent(D_80095A08);
+}
 
 s16 func_80038820(void) {
     while (1) {

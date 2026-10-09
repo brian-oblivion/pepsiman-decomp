@@ -95,6 +95,31 @@ typedef struct {
 #define sLights (*(LightTable *)D_800DD070)
 extern s32 D_8009EEF8[];
 
+/** @brief A 72-byte record of the shared slot table, as the item
+ *         spawner fills it; code_1902c's Slot48 is the same record. */
+typedef struct {
+    u8 pad0[0x24];
+    s16 unk24; /**< cleared on a spawn */
+    s16 unk26; /**< cleared on a spawn */
+    u8 pad28[0x34 - 0x28];
+    s16 unk34; /**< 0xBA on a spawn */
+    s16 unk36; /**< -1 when the record is free, else its kind */
+    u8 pad38[0x42 - 0x38];
+    u8 unk42; /**< 0xFF on a spawn */
+    u8 unk43; /**< 0x69 on a spawn */
+    u8 pad44[0x48 - 0x44];
+} SlotRec;
+
+/* MATCHING: retail reaches these through a split lui/%lo pair. */
+extern u8 D_8009EF49[];
+extern s32 D_800D85A8[];
+extern s32 D_800D83C8[];
+extern s32 D_800D8530[];
+extern s32 D_800D8698[];
+extern s32 D_800D84B8[];
+extern s32 D_800D8620[];
+extern u8 D_800D3358[];
+
 void func_80023834(u8 mode, u16 a, u16 b);
 void func_80023B20(void);
 void func_80028650(void);
@@ -400,7 +425,63 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_800272D4);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027714);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800278B0);
+static __inline__ s16 findFreeSlot(SlotRec *slot) {
+    u32 i;
+
+    for (i = 0; i < D_800959B4 / sizeof(SlotRec); i++) {
+        if (slot->unk36 == -1) {
+            return i;
+        }
+        slot++;
+    }
+    return -1;
+}
+
+void func_800278B0(void) {
+    SlotRec *slot;
+    s16 idx;
+
+    slot = (SlotRec *)D_800959B8;
+    if (D_8009EF49[0] == 1) {
+        idx = findFreeSlot(slot);
+        if (idx != -1) {
+            slot += idx;
+            switch (D_80095830) {
+                case 0:
+                    D_800D85A8[0] = 0;
+                    slot->unk36 = 4;
+                    break;
+                case 1:
+                    D_800D83C8[0] = 0;
+                    slot->unk36 = 0;
+                    break;
+                case 3:
+                    D_800D8530[0] = 0;
+                    slot->unk36 = 3;
+                    break;
+                case 10:
+                    D_800D8698[0] = 0;
+                    slot->unk36 = 6;
+                    break;
+                case 12:
+                    D_800D84B8[0] = 0;
+                    slot->unk36 = 2;
+                    break;
+                case 13:
+                    D_800D8620[0] = 0;
+                    slot->unk36 = 5;
+                    break;
+            }
+            slot->unk34 = 0xBA;
+            slot->unk42 = 0xFF;
+            slot->unk43 = 0x69;
+            slot->unk26 = 0;
+            slot->unk24 = 0;
+            D_800D3358[0] = 1;
+        }
+        D_8009EF49[0] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027A00);
 

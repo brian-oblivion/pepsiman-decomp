@@ -242,7 +242,7 @@ void func_80036704(void);
 void func_80036878(void);
 
 /** @brief Defined in code_13068; called from code_308ec. Resets the
- *         value func_80027BEC steers. */
+ *         stepped value two mode handlers steer, to 40 whole units. */
 void func_800287C0(void);
 
 #endif

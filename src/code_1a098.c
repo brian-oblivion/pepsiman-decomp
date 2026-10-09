@@ -79,11 +79,21 @@ typedef struct {
     s8 coord; /**< index into the coordinate-system table */
 } LocalPos;
 
-/** @brief The head of the game state; only byte 5 is used here. */
+/** @brief The head of the game state, as far as this unit reaches. */
 typedef struct {
-    u8 unk0[5]; /**< not yet known */
-    u8 unk5;    /**< a mode byte: 0x42 and 0x43 seen */
+    u8 unk0[5];      /**< not yet known */
+    u8 unk5;         /**< a mode byte: 0x42 and 0x43 seen */
+    u8 unk6[0x1A];   /**< not yet known */
+    s32 unk20[100];  /**< first word of each loaded entry */
+    s32 unk1B0[100]; /**< third word of each loaded entry */
 } GameHead;
+
+/** @brief A 16-byte directory entry of a loaded file. */
+typedef struct {
+    s32 offset;   /**< byte offset of the entry from the directory */
+    u8 unk4[0xA]; /**< not yet known */
+    u16 count;    /**< entry count; read from the first entry only */
+} DirEnt16;
 
 extern u8 D_800A74D0[];            /**< 128 byte flags; cleared together */
 extern s16 D_80096738[];           /**< filled by the lookup: a height, then a direction */
@@ -91,6 +101,7 @@ extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
 extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */
 extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems */
+extern s32 *D_800D81B0[];          /**< per-entry data pointers */
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
@@ -202,7 +213,27 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BEC0);
 
+/** @brief Registers the entries of the directory loaded at a fixed address
+ *         from slot 0x33 on. */
+#ifdef NON_MATCHING
+void func_8002C044(void) {
+    DirEnt16 *e;
+    s32 *p;
+
+    e = (DirEnt16 *)0x8017D708;
+    D_800958CC = 0x33;
+    D_800958D0 = e->count;
+    for (; D_800958CC < D_800958D0 + 0x33; D_800958CC++) {
+        D_800D81B0[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
+        e++;
+        sGameHead.unk20[D_800958CC] = *D_800D81B0[D_800958CC];
+        D_800D81B0[D_800958CC]++;
+        sGameHead.unk1B0[D_800958CC] = D_800D81B0[D_800958CC][1];
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C044);
+#endif
 
 /** @brief Looks up the height under `p`; on success sets its current and
  *         stored y and two angles from the result.

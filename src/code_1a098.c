@@ -87,6 +87,9 @@ s32 func_8002C650(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
 s32 func_800297A4(void *a, void *b);
+/* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
+ * unextended, so its prototype takes s32. */
+s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029898);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029930);
@@ -378,6 +381,24 @@ s32 func_8002D1CC(s16 n) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D230);
+/** @brief On even frames, launches effect 4 at the first block entry marked
+ *         1 and marks it 2. */
+void func_8002D230(void) {
+    u32 i;
+    Ent8 *e;
+
+    if (D_8009585C & 1) {
+        return;
+    }
+    for (i = 0; i < 200; i++) {
+        if ((s8)D_800A7550[i] == 1) {
+            /* MATCHING: an integer sum puts the scaled index first. */
+            e = (Ent8 *)(i * 8 + (u32)D_800959C4);
+            func_8003F834(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
+            D_800A7550[i] = 2;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D2C0);

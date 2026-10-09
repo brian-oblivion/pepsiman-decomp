@@ -149,6 +149,7 @@ extern u8 *D_800959C0; /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4; /**< the BlockHeader's second part */
 extern s32 D_800959C8; /**< the BlockHeader's first word */
 extern s16 D_80095AF0; /**< 2 units, 2 functions */
+extern u32 D_8009585C; /**< a frame counter; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

@@ -94,6 +94,20 @@ typedef struct {
 
 extern NumberedSlot D_800DFAB0[]; /**< the 128 records; 2 units */
 
+/** @brief A 0x78-byte record of an 80-entry table; two pairs of halfwords
+ *         are reset together. */
+typedef struct {
+    u8 unk0[0x10];  /**< not yet known */
+    u8 unk10[0x5E]; /**< handed to the dispatch's object on entering state 1 */
+    s16 unk6E;      /**< zeroed when the second buffer is cleared */
+    s16 unk70;      /**< -1 when the second buffer is cleared */
+    s16 unk72;      /**< zeroed when the first buffer is cleared, -1 when banks are installed */
+    s16 unk74;      /**< -1 when the first buffer is cleared, zeroed when banks are installed */
+    u8 unk76[2];    /**< not yet known */
+} Rec78;
+
+extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
+
 /* Small: a plain extern. */
 extern s32 D_800956D4; /**< 2 units, 4 functions */
 extern u8 D_8009574C;  /**< fog colour, red; 2 units */
@@ -120,6 +134,8 @@ extern s16 D_80095A0C; /**< 2 units, 4 functions */
 extern u16 D_80095A14; /**< 3 units, 3 functions; never loaded, sign unknown */
 extern s32 D_80095A4C; /**< 2 units, 7 functions */
 extern s32 D_80095A50; /**< 2 units, 7 functions */
+extern s32 D_80095780; /**< entry count of the first record bank; 2 units */
+extern s32 D_80095810; /**< entry count of the second record bank; 2 units */
 extern u16 D_80095B0E; /**< 2 units, 3 functions */
 extern u8 D_80095830;  /**< 8 units, 24 functions */
 extern s32 D_80095864; /**< 3 units, 5 functions */
@@ -185,5 +201,11 @@ void func_8002980C(void);
 
 /** @brief Defined in code_1902c. */
 void func_80029838(void);
+
+/** @brief Defined in code_24748; called from code_27bc8. */
+void func_80036704(void);
+
+/** @brief Defined in code_24748; called from code_27bc8. */
+void func_80036878(void);
 
 #endif

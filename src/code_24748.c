@@ -37,21 +37,8 @@ typedef struct {
     Rec4C recs[1];         /**< the records; real count unknown */
 } Bank4C;
 
-/** @brief A 0x78-byte record of an 80-entry table; two pairs of halfwords
- *         are reset together. */
-typedef struct {
-    u8 unk0[0x10];  /**< not yet known */
-    u8 unk10[0x5E]; /**< handed to the dispatch's object on entering state 1 */
-    s16 unk6E;      /**< zeroed when the second buffer is cleared */
-    s16 unk70;      /**< -1 when the second buffer is cleared */
-    s16 unk72;      /**< zeroed when the first buffer is cleared */
-    s16 unk74;      /**< -1 when the first buffer is cleared */
-    u8 unk76[2];    /**< not yet known */
-} Rec78;
-
-extern u8 D_800D3CA8[];    /**< 0x44C0-byte buffer, cleared as a whole */
-extern u8 D_800DB2C0[];    /**< 0x1DB0-byte buffer, cleared as a whole */
-extern Rec78 D_800D8D20[]; /**< 80 records */
+extern u8 D_800D3CA8[]; /**< 0x44C0-byte buffer, cleared as a whole */
+extern u8 D_800DB2C0[]; /**< 0x1DB0-byte buffer, cleared as a whole */
 
 extern u8 D_80095A29; /**< state of that dispatch: 0 or 1 */
 
@@ -96,8 +83,6 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGamePos (*(GameStatePos *)D_8009EB78)
 
-extern s32 D_80095780; /**< entry count of the first record bank */
-extern s32 D_80095810; /**< entry count of the second record bank */
 extern u8 D_80095A61;
 extern u8 D_80095A24;
 extern s16 D_80095A26;

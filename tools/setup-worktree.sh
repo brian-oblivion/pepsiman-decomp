@@ -60,6 +60,11 @@ ln -s "$MAIN/disk/SLPS_017.62" "$dest/disk/SLPS_017.62"
 ln -s "$MAIN/.venv" "$dest/.venv"
 ln -s "$MAIN/lib" "$dest/lib"
 ln -s "$MAIN/include/psyq" "$dest/include/psyq"
+# The broadcast channel (tools/broadcast.sh): one file every worktree shares.
+# Without this link each worktree's first post creates a private .round/ and
+# nobody else ever reads it.
+mkdir -p "$MAIN/.round"
+ln -s "$MAIN/.round" "$dest/.round"
 # The SDK discs and everything unpacked from them. sdk/.gitkeep is tracked, so
 # sdk/ itself is a real directory in the worktree; link its CONTENTS (the zips
 # and the work/ tree with match.txt and the ELF objects). An SDK-object

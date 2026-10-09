@@ -166,7 +166,12 @@ void func_800287DC(void) {
     D_800957D2 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800287F4);
+void func_800287F4(void) {
+    if ((D_8009EF48[0] >> 4) == 5) {
+        D_800D8440[0] = (s32)D_800D8960;
+        D_800D38DE[0] = 1;
+    }
+}
 
 INCLUDE_RODATA("asm/nonmatchings/code_13068", D_80010950);
 

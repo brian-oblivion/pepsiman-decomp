@@ -91,7 +91,25 @@ void func_80015328(s32 offset, u8 a, u8 b) {
     D_80095704[offset + 3] = b;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8001534C);
+void func_8001552C(u8 *a, u8 *b);
+
+extern u8 D_80095BA0[];
+extern u8 D_80095BE8[];
+/* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
+extern s32 D_80095850[2];
+extern s32 D_80095870[2];
+extern s32 D_80095848[2];
+
+void func_8001534C(void) {
+    s16 i;
+
+    func_8001552C(D_80095BA0, D_80095BE8);
+    for (i = 0; i < 6; i++) {
+        D_80095850[i] = 0;
+        D_80095870[i] = 0;
+        D_80095848[i] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800153CC);
 

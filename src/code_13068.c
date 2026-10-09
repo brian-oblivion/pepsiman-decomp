@@ -23,7 +23,9 @@ typedef struct {
     s32 unk354; /**< added to unk348 for a drawn position */
     u8 pad358[0x35C - 0x358];
     s32 unk35C; /**< added to unk350 for a drawn position */
-    u8 pad360[0x380 - 0x360];
+    u8 pad360[0x374 - 0x360];
+    s16 unk374; /**< cleared when unk34C passes the goal line */
+    u8 pad376[0x380 - 0x376];
     s32 unk380; /**< an angle that follows the camera's yaw in bounded steps */
     s32 unk384; /**< decays towards 0 by one a step */
     u8 pad388[0x38C - 0x388];
@@ -35,7 +37,8 @@ typedef struct {
     s16 unk398; /**< cleared together with setting unk390 */
     u8 pad39A[0x39C - 0x39A];
     s32 unk39C; /**< with unk3CC, picks which cap unk34C gets */
-    u8 pad3A0[0x3A8 - 0x3A0];
+    u8 pad3A0[0x3A6 - 0x3A0];
+    s16 unk3A6; /**< raised by 2 when unk34C passes the goal line */
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
     s16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
@@ -45,7 +48,7 @@ typedef struct {
     s32 unk3C0; /**< the usual cap for unk34C */
     u8 pad3C4[0x3C8 - 0x3C4];
     s16 unk3C8; /**< set to 60 on a reset when the flag byte is 1 */
-    u8 pad3CA[0x3CC - 0x3CA];
+    s16 unk3CA; /**< set to 1 when the stage ends */
     s32 unk3CC; /**< with unk39C, picks which cap unk34C gets */
     u8 unk3D0;  /**< low nibble read on a reset */
     u8 pad3D1[0x3D3 - 0x3D1];
@@ -63,6 +66,7 @@ extern s16 D_800D38DE[];
 extern s8 D_8009EF4D[];
 
 extern s32 D_80095964;
+extern s32 D_800AC860;
 extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
  * from the lw), so it is an array here, though both halves use one register. */
@@ -277,7 +281,42 @@ void func_80023B20(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023BFC);
+/* MATCHING: non-void with no return keeps the last beqz delay slot a nop. */
+s32 func_80023BFC(void) {
+    s32 unused[2];
+
+    if ((D_800AC860 & 0x40) && sGame.unk6 != 0xE) {
+        if (sGame.unk3D0 & 0xF) {
+            sGame.unk3CA = 1;
+            if ((sGame.unk3D0 & 0xF) != 3) {
+                sGame.unk398 = 20;
+                sGame.unk3D0 &= 0xF0;
+            }
+            func_800287C0();
+            sGame.unk0 = 0;
+        }
+        sGame.unk3C0 = 30000;
+        if (sGame.unk34C >= D_800AC858[0] + 100) {
+            if (D_80095858 == 0) {
+                D_80095858 = 2;
+            }
+            D_800958EC = 1;
+            sGame.unk0 = 0;
+            sGame.unk3A6 += 2;
+            func_800287C0();
+            sGame.unk374 = 0;
+            if (sGame.unk34C > D_800AC858[0] + 0x8C && (sGame.unk3D0 & 0xF) == 3) {
+                sGame.unk3D0 &= 0xF0;
+            }
+            sGame.unk3CA = 1;
+            if (sGame.unk34C > D_800AC858[0] + 1000) {
+                sGame.unk6 = 12;
+                sGame.unk3A6 = 0;
+                sGame.unk3D0 &= 0xF0;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
 

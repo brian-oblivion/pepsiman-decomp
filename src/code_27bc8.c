@@ -18,9 +18,37 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003828C);
-
 extern u8 *D_80095A18;
+extern u8 *D_800959D4;
+extern s32 D_800959E8;
+extern s32 D_800959EC;
+extern s32 D_800959F0;
+extern s32 D_800959F4;
+extern s32 D_800959FC;
+extern s32 D_80095A00;
+extern s32 D_80095A04;
+extern s32 D_80095A08;
+
+long TestEvent(long event);
+long _card_info(long chan);
+
+void func_80038730(void);
+void func_800387A8(void);
+s16 func_80038820(void);
+void func_80038900(void);
+
+s16 func_8003828C(u8 *a, u8 *b, s16 n) {
+    s16 i;
+
+    for (i = 0; i < n; i++) {
+        if (*a != *b) {
+            return -1;
+        }
+        a++;
+        b++;
+    }
+    return 0;
+}
 
 u16 func_800382DC(void) {
     u8 *p;
@@ -39,11 +67,44 @@ u16 func_800382DC(void) {
     return sum;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003831C);
+s16 func_8003831C(u16 expected) {
+    u8 *p;
+    u16 sum;
+    s32 i;
+    u8 lo;
+    u8 hi;
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038374);
+    p = D_80095A18;
+    sum = 0;
+    for (i = 0; i < 0xEFFF; i++) {
+        lo = *p++;
+        hi = *p++;
+        sum += lo | (hi << 8);
+    }
+    if (sum != expected) {
+        return -1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038394);
+void func_80038374(void) {
+    D_800959D4 = (u8 *)0x8018D000;
+    D_80095A18 = (u8 *)0x8016D000;
+}
+
+s16 func_80038394(void) {
+    s16 result;
+
+    result = 0;
+    func_80038730();
+    func_80038900();
+    _card_info(0x10);
+    if (func_80038820() == 2) {
+        result = -1;
+    }
+    func_800387A8();
+    return result;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800383F8);
 
@@ -67,11 +128,27 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038820);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038890);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038900);
+void func_80038900(void) {
+    TestEvent(D_800959E8);
+    TestEvent(D_800959EC);
+    TestEvent(D_800959F0);
+    TestEvent(D_800959F4);
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038948);
+void func_80038948(void) {
+    TestEvent(D_800959FC);
+    TestEvent(D_80095A00);
+    TestEvent(D_80095A04);
+    TestEvent(D_80095A08);
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038990);
+void func_80038990(u8 *p, s32 n) {
+    s32 i;
+
+    for (i = 0; i < n; i++) {
+        *p++ = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800389B4);
 
@@ -83,7 +160,10 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038F70);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800390B8);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800394EC);
+void func_800394EC(void) {
+    D_800959D4 = (u8 *)0x80195000;
+    D_80095A18 = (u8 *)0x8018D000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003950C);
 

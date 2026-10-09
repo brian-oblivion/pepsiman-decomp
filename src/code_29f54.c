@@ -47,7 +47,6 @@ typedef struct {
 
 extern Edge *D_800958D4;
 
-extern u32 D_80095794;
 extern GsDOBJ2 D_800AC868[];
 extern u32 D_80095798;
 extern GsDOBJ2 D_800ACB88[];

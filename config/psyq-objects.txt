@@ -8,5 +8,12 @@
 # `o` segments must agree with this file: `tools/psyq_sdk.py check`.
 #
 # Which disc holds which build of a library is MEASURED by
-# `tools/psyq_sdk.py match`, not assumed -- the game mixed library versions
-# .
+# `tools/psyq_sdk.py match`, not assumed. Pepsiman links one release,
+# Runtime Library 4.4 (GAME_SDK in tools/psyq_sdk.py, with the evidence).
+
+4.4  libmath/fltsidf   0x33514
+4.4  libmath/dbshiftu  0x33634
+4.4  libmath/ltdf2     0x336F4
+4.4  libmath/muldf3    0x337D4
+4.4  libmath/addmant   0x33BD4
+4.4  libmath/ferr      0x33C84

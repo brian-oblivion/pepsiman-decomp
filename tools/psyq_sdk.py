@@ -77,7 +77,55 @@ def _all_placements():
         m = re.match(r"(\S+)\.o\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
         if m:
             out[m.group(1)] = (GAME_SDK, int(m.group(3), 16), int(m.group(2), 16))
+    from elftools.elf.elffile import ELFFile
+    for name, off in RESOLVED.items():
+        with open(WORK / GAME_SDK / "elf" / f"{name}.o", "rb") as f:
+            size = ELFFile(f).get_section_by_name(".text").data_size
+        # the decision replaces whatever else match put on exactly these bytes
+        for other in [n for n, (_v, o, s) in out.items() if (o, s) == (off, size)]:
+            del out[other]
+        out[name] = (GAME_SDK, off, size)
     return out
+
+
+# Placements `match` cannot make, decided by hand (2026-10-09) and verified
+# against retail: {'lib/module': .text file offset}. Each one is either
+# AMBIGUOUS in match.txt (its masked bytes occur more than once) and decided
+# by calls -- references from placed objects to its symbols land on this
+# offset and its own calls land where placed objects define their targets,
+# while at every other candidate one of its calls is wrong -- or too short
+# for match's 8-byte anchor and found by an exact masked compare at the gap.
+RESOLVED = {
+    "libspu/s_i": 0x33FA4,          # SpuInit; ut_roff is the other candidate
+    "libsnd/de_15": 0x36934,
+    "libsnd/de_17": 0x36994,
+    "libsnd/de_18": 0x369C4,
+    "libsnd/de_19": 0x369F4,
+    "libsnd/play": 0x38394,
+    "libsnd/ut_roff": 0x3A5E4,
+    "libsnd/ut_ron": 0x3A604,       # not libspu/s_ih: its call would be wrong
+    "libsnd/vm_doff": 0x3A7F4,      # 0x10 bytes, no anchor; writes _svm_damper
+    "libsnd/vm_don": 0x3A804,       # 0x10 bytes, no anchor
+    "libsnd/vs_mono": 0x3E984,      # no anchor
+    "libcd/c_010": 0x43FB4,         # StSetMask, no anchor
+    "libgs/gs_106": 0x48294,        # GsSetProjection, the one candidate whose call agrees
+    "libgs/gs_124": 0x48E54,        # GsSetWorkBase: writes GsOUT_PACKET_P (0x800E48D0),
+                                    # which 2d_lin0/2d_prim read; gs_101/102 write others
+    "libgte/dvf3_00": 0x4E124,      # each _00 at the lower slot: 3 calls agree there,
+    "libgte/dvf3_01": 0x4E454,      # one disagrees at the other
+    "libgte/dvg3_00": 0x4F9D4,
+    "libgte/dvg3_01": 0x4FC14,
+    "libgte/dvgt3_00": 0x50354,
+    "libgte/dvgt3_01": 0x505D4,
+    # Byte-identical, nothing placed calls either: link order (objt2 first in
+    # the library) is the guess, and the image is the same both ways. Game
+    # code's calls to GsSortObject4 / GsSortObject4J will confirm or swap it.
+    "libgs/objt2": 0x4A744,
+    "libgs/objt3": 0x55BC4,
+    # s_r and s_w share a span; s_r's call to _spu_Fr lands 0x84 bytes away
+    # from where libspu/spu defines it, so the object there is s_w.
+    "libspu/s_w": 0x3F664,
+}
 
 
 def placed_objects():
@@ -472,15 +520,7 @@ def yaml_segments():
 def cmd_coverage(_args):
     """Per psyq_* segment: how many of its functions a placed object owns."""
     import glob
-    placed = {}
-    for mfile in sorted(WORK.glob("*/match.txt")):
-        ver = mfile.parent.name
-        for line in mfile.read_text().splitlines():
-            m = re.match(r"(\S+)\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
-            if m:
-                placed.setdefault(int(m.group(3), 16), (ver, m.group(1), int(m.group(2), 16)))
-    if not placed:
-        die("no sdk/work/*/match.txt -- run `psyq_sdk.py match` first")
+    placed = {off: (ver, name, size) for name, (ver, off, size) in placed_objects().items()}
 
     def owner(fileoff):
         for off, (ver, name, size) in placed.items():

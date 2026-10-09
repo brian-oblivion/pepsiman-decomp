@@ -69,8 +69,17 @@ segments:
       # Runtime Library objects (tools/psyq_sdk.py, GAME_SDK). One asm block
       # until the objects are converted in runs (docs/lsd-reference/
       # SDK-OBJECTS-GUIDE.md).
-      - [0x33458, asm, psyq_33458]
+      - [0x33458, asm, psyq_33458]            # __SN_ENTRY_POINT (libsn/snmain)
+      - [0x33514, o, libmath/fltsidf]         # __floatsidf
+      - [0x33634, o, libmath/dbshiftu]        # _dbl_shift_us
+      - [0x336F4, o, libmath/ltdf2]           # __ltdf2
+      - [0x337D4, o, libmath/muldf3]          # __muldf3, _mul_mant_d
+      - [0x33BD4, o, libmath/addmant]         # _add_mant_d
+      - [0x33C84, o, libmath/ferr]            # _err_math
+      - [0x33CF4, asm, psyq_33CF4]
       - [0x62C84, data]
+      - [0x6C42C, o, libmath/ferr, .data]
+      - [0x6C43C, data]
       # $gp is 0x800954C4 and the lowest gp-relative access in the code is
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside

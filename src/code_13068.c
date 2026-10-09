@@ -228,7 +228,26 @@ void func_800283E4(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028448);
+/* MATCHING: `one` is the 1 retail keeps in $a0 for both compares. */
+void func_80028448(void) {
+    s32 one;
+
+    if (D_800958E8 != 0 && D_800958E8 % 10 == 0) {
+        one = 1;
+        if (D_800958AC == one) {
+            if (D_800958A8 == 2) {
+                goto skip;
+            }
+        } else if (D_800958A8 == 3) {
+            goto skip;
+        }
+        if (D_8009EF4D[0] != one) {
+            func_80042538(34);
+        }
+    skip:
+        func_80028260(1);
+    }
+}
 
 void func_800284F8(void) {}
 

@@ -44,7 +44,16 @@ typedef struct {
  * pointer local, picks retail's registers. */
 #define sTim ((TimInfo *)D_800956D4)
 
+/** @brief A position as three words. */
+typedef struct {
+    s32 x; /**< x */
+    s32 y; /**< y */
+    s32 z; /**< z */
+} Vec3i;
+
 extern u8 D_800958C9;
+extern s32 D_800958B4;
+s32 func_800299D8(s32 *out, s32 index, Vec3i *pos, s32 data);
 extern CdlLOC D_80095728;
 extern MATRIX D_800E4858;
 
@@ -207,7 +216,43 @@ void func_80018094(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001819C);
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800183B0);
+s32 func_800183B0(Vec3i *pos) {
+    Vec3i p;
+    s32 out[4];
+    u32 i;
+    s32 found;
+    u8 *blob;
+    u8 *e;
+    s32 verts;
+    s16 *v;
+    s32 dx;
+    s32 dz;
+    s32 d;
+
+    p.x = pos->x;
+    p.y = pos->y;
+    p.z = pos->z;
+    found = -1;
+    for (i = 0; i < D_80095794; i++) {
+        blob = (u8 *)D_800958B4;
+        /* MATCHING: integer sums, offset first, and the vertex base in
+         * its own statement give retail's operand and load order. */
+        e = (u8 *)(*(s32 *)(blob + i * 8 + 8) + (s32)blob);
+        verts = *(s32 *)(blob + 4) + (s32)blob;
+        v = (s16 *)(*(u16 *)(e + 4) * 8 + verts);
+        dx = v[0] - p.x;
+        dz = v[2] - p.z;
+        d = dx * dx + dz * dz;
+        if ((d < 0 ? -d : d) > 100000000) {
+            continue;
+        }
+        if (func_800299D8(out, i, &p, D_800958B4) != 0x7FFF) {
+            found = i;
+            break;
+        }
+    }
+    return found;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800184BC);
 

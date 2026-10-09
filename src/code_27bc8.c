@@ -178,7 +178,22 @@ s16 func_80038820(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038890);
+s16 func_80038890(void) {
+    while (1) {
+        if (TestEvent(D_800959FC) == 1) {
+            return 0;
+        }
+        if (TestEvent(D_80095A00) == 1) {
+            return 1;
+        }
+        if (TestEvent(D_80095A04) == 1) {
+            return 2;
+        }
+        if (TestEvent(D_80095A08) == 1) {
+            return 3;
+        }
+    }
+}
 
 void func_80038900(void) {
     TestEvent(D_800959E8);

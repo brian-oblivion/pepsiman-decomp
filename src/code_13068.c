@@ -8,7 +8,6 @@
 
 extern u16 D_800957D2;
 extern s8 D_8009599C;
-extern u8 *D_800958FC;
 
 /** @brief The game-wide state record, as far as this unit reads it. The
  *         shared header declares it as a byte array; the rest of the layout
@@ -83,7 +82,6 @@ extern GridPoint D_800DE5E0[];
 
 extern u8 D_80095784;
 extern u8 *D_80095790;
-extern u16 D_8009576A;
 
 /** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */
 typedef struct {

@@ -151,6 +151,8 @@ extern s32 D_800959C8; /**< the BlockHeader's first word */
 extern s16 D_80095AF0; /**< 2 units, 2 functions */
 extern s32 D_800958A8; /**< 2 units; 3 when a stage starts */
 extern s16 D_800957BC; /**< 2 units; a heading */
+extern u8 *D_800958FC; /**< 2 units; far (fog) colours, four bytes each */
+extern u16 D_8009576A; /**< 2 units; fog fade-in step: 0..31, then 100 */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

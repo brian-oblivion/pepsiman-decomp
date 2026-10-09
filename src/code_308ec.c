@@ -124,6 +124,8 @@ void func_80040998(void);
 void func_800412DC(void);
 void func_80041118(u8 arg0);
 
+extern u8 *D_800E48D0; /**< the next free byte of the primitive buffer */
+
 void func_800400EC(void) {
     s32 i;
 
@@ -330,7 +332,31 @@ u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_80040F14);
+void func_80040F14(void) {
+    POLY_F4 *p;
+    s32 i;
+
+    if (D_8009576A != 100) {
+        if (D_8009576A == 0) {
+            p = (POLY_F4 *)D_800E48D0;
+            setPolyF4(p);
+            p->r0 = p->g0 = p->b0 = 0xFF;
+            setXY4(p, -160, -120, 160, -120, -160, 120, 160, 120);
+            addPrim(D_800ACEA8[D_80095750].org, p);
+            p++;
+            D_800E48D0 = (u8 *)p;
+        }
+        i = ((u32)D_80095864 >> 8) & 3;
+        SetFogNearFar(D_8009576A * 3000 * 2048 / 0x10000, D_8009576A * 8000 * 2048 / 0x10000, 250);
+        SetFarColor(D_800958FC[i * 4] * (D_8009576A << 11) / 0x10000,
+                    D_800958FC[i * 4 + 1] * (D_8009576A << 11) / 0x10000,
+                    D_800958FC[i * 4 + 2] * (D_8009576A << 11) / 0x10000);
+        D_8009576A++;
+        if (D_8009576A == 32) {
+            D_8009576A = 100;
+        }
+    }
+}
 
 void func_80041118(u8 arg0) {
     s32 mode = arg0;

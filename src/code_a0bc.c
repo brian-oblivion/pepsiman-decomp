@@ -1,6 +1,19 @@
 #include "common.h"
 #include "code_a0bc.h"
 
+/** @brief An eight-byte table entry: two halfwords and four bytes. */
+typedef struct {
+    u16 unk0; /**< a byte and a bit packed together */
+    u16 unk2; /**< a CLUT-style packed position */
+    u8 unk4;  /**< not yet known */
+    u8 unk5;  /**< not yet known */
+    u8 unk6;  /**< not yet known */
+    u8 unk7;  /**< not yet known */
+} Sprite8;
+
+/* MATCHING: this unit's view of the table code_1a098 copies as halfwords. */
+extern Sprite8 D_800DD0A0[];
+
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800198BC);
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80019CD8);
@@ -17,7 +30,14 @@ INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001ACB4);
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B004);
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B2F4);
+void func_8001B2F4(u16 idx, u8 a1, u8 a2, u8 a3, s32 a4, u8 a5, u8 a6, u16 a7, s32 a8) {
+    D_800DD0A0[idx].unk0 = (u8)a4 | (a1 << 7);
+    D_800DD0A0[idx].unk2 = (a8 << 6) | (a7 >> 4);
+    D_800DD0A0[idx].unk4 = a5;
+    D_800DD0A0[idx].unk5 = a6;
+    D_800DD0A0[idx].unk6 = a2;
+    D_800DD0A0[idx].unk7 = a3;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B354);
 

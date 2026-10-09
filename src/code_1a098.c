@@ -239,7 +239,17 @@ void func_8002D0C4(BlockHeader *hdr) {
     D_800958E8 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D0F0);
+/** @brief Runs the position query for `pos` with a range of 50. */
+s8 func_8002D0F0(Vec3 *pos) {
+    Query30 q;
+
+    q.pos.x = pos->x;
+    q.pos.y = pos->y;
+    q.pos.z = pos->z;
+    q.unk18 = 0;
+    q.unk14 = 50;
+    return func_80028AE4(&q);
+}
 
 /** @brief Clears a 128-byte table of flags.
  *  @return nothing; the value is undefined. */

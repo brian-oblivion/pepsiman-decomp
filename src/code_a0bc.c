@@ -90,6 +90,14 @@ typedef struct {
     u16 v3;  /**< fourth vertex index */
 } TmdGT4;
 
+/** @brief One TMD texture coordinate word: u, v and the halfword packed
+ *  above them (the CLUT, the texture page, or padding). */
+typedef struct {
+    u8 u;   /**< u */
+    u8 v;   /**< v */
+    u16 hi; /**< the CLUT, the texture page, or padding */
+} TmdUV;
+
 /** @brief A flat-textured unlit TMD triangle: a header, three UV words
  *  (the CLUT, the texture page, padding in their top halves), a colour and
  *  three vertex indices. */
@@ -98,10 +106,9 @@ typedef struct {
     u8 ilen;     /**< input length */
     u8 flag;     /**< flags */
     u8 mode;     /**< the primitive code, copied into the packet */
-    u32 uv0;     /**< u0, v0 and the CLUT, copied whole */
-    u32 uv1;     /**< u1, v1 and the texture page, copied whole */
-    u16 uv2;     /**< u2, v2 */
-    u16 pad0;    /**< padding */
+    TmdUV uv0;   /**< u0, v0 and the CLUT */
+    TmdUV uv1;   /**< u1, v1 and the texture page */
+    TmdUV uv2;   /**< u2, v2 and padding */
     CVECTOR rgb; /**< the colour, depth-cued per frame */
     u16 v0;      /**< first vertex index */
     u16 v1;      /**< second vertex index */
@@ -150,11 +157,11 @@ typedef PACKET *(*PrimFunc)();
 /* The handler table, eight rows of eight handlers. */
 extern PrimFunc D_800E48E8[8][8];
 
-PACKET *func_8001B4BC();
-PACKET *func_8001B9A4();
-PACKET *func_8001C13C();
+PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001C878();
-PACKET *func_8001D39C();
+PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001DAD4();
 PACKET *func_8001E558();
 PACKET *func_8001EE30();
@@ -164,7 +171,8 @@ PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT
                       s32 shift, GsOT *ot);
 PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot);
-PACKET *func_80020520();
+PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                      GsOT *ot);
 PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot);
 PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
@@ -290,7 +298,76 @@ void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT
     D_800E48D0 = (u8 *)(p + 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80019F24);
+void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *ot) {
+    Sprite8 *e;
+    POLY_FT4 *p;
+    u32 *tag;
+    s16 x0, x1, x2, x3;
+    s16 y0, y1, y2, y3;
+    u8 w;
+    u8 h;
+    s32 sn;
+    s32 cs;
+
+    e = &D_800DD0A0[id];
+    p = (POLY_FT4 *)D_800E48D0;
+    *(u32 *)&p->r0 =
+        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->r0 |= 0x02000000;
+    }
+    w = e->unk6;
+    h = e->unk7;
+    if (s->centred) {
+        x0 = x2 = ((s->x - (w >> 1) - s->cx) * s->sx) >> 12;
+        y0 = y1 = ((s->y - (h >> 1) - s->cy) * s->sy) >> 12;
+    } else {
+        x0 = x2 = ((s->x - s->cx) * s->sx) >> 12;
+        y0 = y1 = ((s->y - s->cy) * s->sy) >> 12;
+    }
+    x1 = x3 = x0 + ((w * s->sx) >> 12);
+    y2 = y3 = y0 + ((h * s->sy) >> 12);
+    sn = rsin(s->rot);
+    cs = rcos(s->rot);
+    p->x0 = s->cx + ((x0 * cs - y0 * sn) >> 12);
+    p->y0 = s->cy + ((x0 * sn + y0 * cs) >> 12);
+    p->x1 = s->cx + ((x1 * cs - y1 * sn) >> 12);
+    p->y1 = s->cy + ((x1 * sn + y1 * cs) >> 12);
+    p->x2 = s->cx + ((x2 * cs - y2 * sn) >> 12);
+    p->y2 = s->cy + ((x2 * sn + y2 * cs) >> 12);
+    p->x3 = s->cx + ((x3 * cs - y3 * sn) >> 12);
+    p->y3 = s->cy + ((x3 * sn + y3 * cs) >> 12);
+    /* MATCHING: the s16 corners reused for the UVs, which packs them with
+     * sll/sra 16. */
+    x0 = x2 = e->unk4;
+    y0 = y1 = e->unk5;
+    x1 = x3 = e->unk4 + w - 1;
+    y2 = y3 = e->unk5 + h - 1;
+    if (mode & 1) {
+        x0 = x1;
+        x3 = x2;
+        x1 = x3;
+        x2 = x0;
+    }
+    if (mode & 2) {
+        y0 = y2;
+        y3 = y1;
+        y2 = y3;
+        y1 = y0;
+    }
+    *(u32 *)&p->u0 = (y0 << 8) | x0 | (e->unk2 << 16);
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->u1 = (y1 << 8) | x1 | ((e->unk0 | ((s8)color->r << 5)) << 16);
+    } else {
+        *(u32 *)&p->u1 = (y1 << 8) | x1 | (e->unk0 << 16);
+    }
+    *(u32 *)&p->u2 = (y2 << 8) | x2;
+    *(u32 *)&p->u3 = (y3 << 8) | x3;
+    tag = (u32 *)ot->org + otz;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
+    *tag = (u32)p & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(p + 1);
+}
 
 void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
@@ -633,15 +710,341 @@ void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
     D_800E48D0 = (u8 *)(q + 2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B4BC);
+PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+    SVECTOR m[3];
+    s32 sz[3];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B9A4);
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_f3(pkt);
+        gte_stsz3c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        /* MATCHING: sz[2] first, so it is loaded before v. */
+        if (sz[2] > v) {
+            v = sz[2];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb(&prim->rgb);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r0);
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v2].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v2].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v2].vz) >> 1;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &m[2], &m[1]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[1], &m[2], &vtx[prim->v2]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_f3(pkt);
+                gte_avsz3();
+                gte_stotz(&v);
+                *(u32 *)&pkt->r0 = *(u32 *)&prim->rgb;
+                tag = (u32 *)ot->org + (v >> shift);
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
+
+PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
+    SVECTOR m[5];
+    s32 sz[4];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_f4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        gte_stsxy2(&pkt->x3);
+        gte_stsz4c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        if (sz[2] > v) {
+            v = sz[2];
+        } else if (sz[3] > v) {
+            v = sz[3];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb(&prim->rgb);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r0);
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x05000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        tag = (u32 *)ot->org + (v >> shift);
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v3].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v3].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v3].vz) >> 1;
+            m[3].vx = (vtx[prim->v2].vx + vtx[prim->v3].vx) >> 1;
+            m[3].vy = (vtx[prim->v2].vy + vtx[prim->v3].vy) >> 1;
+            m[3].vz = (vtx[prim->v2].vz + vtx[prim->v3].vz) >> 1;
+            m[4].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx + vtx[prim->v2].vx + vtx[prim->v3].vx) >> 2;
+            m[4].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy + vtx[prim->v2].vy + vtx[prim->v3].vy) >> 2;
+            m[4].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz + vtx[prim->v2].vz + vtx[prim->v3].vz) >> 2;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[4]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[1], &m[4], &vtx[prim->v2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[4], &m[2], &m[3]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_f4(pkt);
+                switch (j) {
+                    case 0:
+                        gte_ldv0(&m[4]);
+                        break;
+                    case 1:
+                        gte_ldv0(&m[2]);
+                        break;
+                    case 2:
+                        gte_ldv0(&m[3]);
+                        break;
+                    case 3:
+                        gte_ldv0(&vtx[prim->v3]);
+                        break;
+                }
+                gte_rtps();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy2(&pkt->x3);
+                *(u32 *)&pkt->r0 = *(u32 *)&prim->rgb;
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x05000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001C13C);
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001C878);
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001D39C);
+PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+    POLY_FT3 *pkt;
+    SVECTOR m[3];
+    s32 sz[3];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
+    /* MATCHING: u01 and u02 s16 (permuter find), which reorders the
+     * allocation so u02 is the one reload spills. */
+    s16 u01;
+    u32 v01;
+    s16 u02;
+    u32 v02;
+    u32 u12, v12;
+
+    /* MATCHING: the packet pointer is a copy of the parameter, so the
+     * loop starts its reduced pointer from it, not from $a2. */
+    pkt = (POLY_FT3 *)packet;
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_ft3(pkt);
+        gte_stsz3c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        if (sz[2] > v) {
+            v = sz[2];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb(&prim->rgb);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r0);
+            /* MATCHING: volatile code stores stay on the packet base. */
+            ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+            *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
+            *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
+            *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        tag = (u32 *)ot->org + (v >> shift);
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v2].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v2].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v2].vz) >> 1;
+            u01 = (u32)(prim->uv0.u + prim->uv1.u) >> 1;
+            v01 = (u32)(prim->uv0.v + prim->uv1.v) >> 1;
+            v02 = (u32)(prim->uv0.v + prim->uv2.v) >> 1;
+            u02 = (u32)(prim->uv0.u + prim->uv2.u) >> 1;
+            v12 = (u32)(prim->uv1.v + prim->uv2.v) >> 1;
+            u12 = (u32)(prim->uv1.u + prim->uv2.u) >> 1;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &m[2], &m[1]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[1], &m[2], &vtx[prim->v2]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_ft3(pkt);
+                switch (j) {
+                    case 0:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (prim->uv0.v << 8) | prim->uv0.u;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u2 = (v02 << 8) | u02;
+                        break;
+                    case 1:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v12 << 8) | u12;
+                        *(u32 *)&pkt->u2 = (v02 << 8) | u02;
+                        break;
+                    case 2:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (prim->uv1.v << 8) | prim->uv1.u;
+                        *(u32 *)&pkt->u2 = (v12 << 8) | u12;
+                        break;
+                    case 3:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v02 << 8) | u02;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v12 << 8) | u12;
+                        *(u32 *)&pkt->u2 = (prim->uv2.v << 8) | prim->uv2.u;
+                        break;
+                }
+                gte_ldrgb(&prim->rgb);
+                gte_lddp(dp);
+                gte_dpcs();
+                gte_strgb(&pkt->r0);
+                ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001DAD4);
 
@@ -859,7 +1262,95 @@ PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020520);
+PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                      GsOT *ot) {
+    volatile POLY_FT4 *pkt;
+    VECTOR mac;
+    CVECTOR c;
+    s32 v;
+    POLY_GT4 *g;
+    s32 i;
+    u32 *tag;
+
+    pkt = (POLY_FT4 *)packet;
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_ft4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_stsxy2(&pkt->x3);
+        gte_avsz4();
+        gte_stotz(&v);
+        pkt->r0 = sLights[0].r;
+        pkt->g0 = sLights[0].g;
+        pkt->b0 = sLights[0].b;
+        pkt->code = 0x2E;
+        pkt->tpage = 0x7B;
+        pkt->clut = 0x722D;
+        gte_ldv0(&nrm[prim->n0]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u0 = (mac.vx >> 7) + 0x20;
+        pkt->v0 = (mac.vy >> 7) - 0x20;
+        gte_ldv0(&nrm[prim->n1]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u1 = (mac.vx >> 7) + 0x20;
+        pkt->v1 = (mac.vy >> 7) - 0x20;
+        gte_ldv0(&nrm[prim->n2]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u2 = (mac.vx >> 7) + 0x20;
+        pkt->v2 = (mac.vy >> 7) - 0x20;
+        gte_ldv0(&nrm[prim->n3]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u3 = (mac.vx >> 7) + 0x20;
+        pkt->v3 = (mac.vy >> 7) - 0x20;
+        g = (POLY_GT4 *)(pkt + 1);
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        c.r = c.g = c.b = 0x80;
+        gte_ldrgb(&c);
+        gte_ldv3(&nrm[prim->n0], &nrm[prim->n1], &nrm[prim->n2]);
+        gte_ncct();
+        *(u32 *)&g->u0 = prim->uv0;
+        *(u32 *)&g->u1 = prim->uv1;
+        *(u16 *)&g->u2 = prim->uv2;
+        *(u16 *)&g->u3 = prim->uv3;
+        *(u32 *)&g->x0 = *(u32 *)&pkt->x0;
+        *(u32 *)&g->x1 = *(u32 *)&pkt->x1;
+        *(u32 *)&g->x2 = *(u32 *)&pkt->x2;
+        *(u32 *)&g->x3 = *(u32 *)&pkt->x3;
+        gte_strgb3_gt3(g);
+        gte_ldv0(&nrm[prim->n3]);
+        gte_nccs();
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)g = (*tag & 0xFFFFFF) | 0x0C000000;
+        *tag = (u32)g & 0xFFFFFF;
+        gte_strgb(&g->r3);
+        /* MATCHING: a volatile store, which loop cannot rebase onto its
+         * reduced pointer. */
+        ((volatile POLY_GT4 *)g)->code = 0x3C;
+        pkt = (POLY_FT4 *)(g + 1);
+    }
+    return (PACKET *)pkt;
+}
 
 PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
@@ -1180,9 +1671,9 @@ PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer; it still pays for reducing &pkt->u2. */
         ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
-        *(u32 *)&pkt->u0 = prim->uv0;
-        *(u32 *)&pkt->u1 = prim->uv1;
-        *(u16 *)&pkt->u2 = prim->uv2;
+        *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
+        *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
+        *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
         tag = (u32 *)ot->org + (v >> shift);
         *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
         *tag = (u32)pkt & 0xFFFFFF;

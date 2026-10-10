@@ -147,6 +147,19 @@
 /* clang-format on */
 
 /**
+ * @brief Stores SZ1-SZ3 (data 17-19) as three consecutive words at `r1`:
+ * Sony's gte_stsz3c. Operand: `r1` by "r"; clobbers memory.
+ */
+/* clang-format off */
+#define gte_stsz3c(r1) \
+    __asm__ volatile ( \
+        "swc2 $17, 0x0(%0)\n\t" \
+        "swc2 $18, 0x4(%0)\n\t" \
+        "swc2 $19, 0x8(%0)" \
+        : : "r" (r1) : "memory")
+/* clang-format on */
+
+/**
  * @brief Stores all four screen-Z FIFO entries, SZ0-SZ3 (data 16-19), at
  * `r1` to `r4`. Operands: four pointers by "r"; clobbers memory.
  */
@@ -158,6 +171,20 @@
         "swc2 $18, 0x0(%2)\n\t" \
         "swc2 $19, 0x0(%3)" \
         : : "r" (r1), "r" (r2), "r" (r3), "r" (r4) : "memory")
+/* clang-format on */
+
+/**
+ * @brief Stores SZ0-SZ3 (data 16-19) as four consecutive words at `r1`:
+ * Sony's gte_stsz4c. Operand: `r1` by "r"; clobbers memory.
+ */
+/* clang-format off */
+#define gte_stsz4c(r1) \
+    __asm__ volatile ( \
+        "swc2 $16, 0x0(%0)\n\t" \
+        "swc2 $17, 0x4(%0)\n\t" \
+        "swc2 $18, 0x8(%0)\n\t" \
+        "swc2 $19, 0xC(%0)" \
+        : : "r" (r1) : "memory")
 /* clang-format on */
 
 /** @brief Stores SXY0-SXY2 into a POLY_F4's first three vertices: a quad

@@ -55,6 +55,8 @@ typedef struct {
     u8 unk203[0xB571]; /**< not yet known */
 } SaveSlot;
 
+/* MATCHING: D_800A7898 and D_80095B28 are also declared in code_1a098, each
+ * unit through its own view (Rec3C, Totals28 here; Rec3C, Progress6E there). */
 extern u16 D_80095B4C[];   /**< first of a run of halfwords */
 extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
 extern u8 D_80095B28[];    /**< a Totals28 */
@@ -94,6 +96,7 @@ typedef struct {
 
 #define sGameSave (*(GameSave *)D_8009EB78)
 
+/* MATCHING: also declared in code_1a098, which only zeroes it. */
 extern s32 D_80095824; /**< the current entry of the block, -1 for none */
 extern s32 D_80095950; /**< a pad word; bits step the edited value */
 extern s32 D_80095958; /**< a pad word; bits step the highlighted line */
@@ -146,10 +149,14 @@ typedef struct {
     u8 unk44[4];   /**< not yet known */
 } Obj48;
 
+/* MATCHING: code_1a098 declares D_800959D8 as u8 (it only zeroes it); this
+ * unit tests it as s8. */
 extern Obj48 D_80096788[]; /**< records waiting to be placed */
 extern u16 D_8009596E;     /**< number of records waiting */
 extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
+/* MATCHING: declared per unit with code_1a098 while Rec3C is local to each
+ * unit; func_8002B8F8 takes s16 here, u16 there (retail masks it there). */
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);

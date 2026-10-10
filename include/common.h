@@ -132,7 +132,6 @@ extern s32 D_800958CC; /**< 2 units, 2 functions; a loop counter kept in a globa
 extern s32 D_800959B4; /**< 2 units, 2 functions */
 extern s32 D_800959B8; /**< 2 units, 2 functions */
 extern u8 D_800958C9;  /**< 1 while CD audio is playing; 2 units */
-extern s16 D_80095760; /**< 2 units */
 extern u16 D_80095880; /**< 2 units */
 extern s16 D_80095960; /**< 2 units */
 extern s8 D_8009596C;  /**< 2 units */

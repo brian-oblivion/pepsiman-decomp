@@ -106,7 +106,6 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg);
 
 void func_80017DD4(void);
 void func_8001819C(void);
-void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord);
 void func_80018BD8(void);
 s8 func_80017640(u16 *tim);
 u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);

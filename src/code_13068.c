@@ -780,20 +780,20 @@ s32 func_80023BFC(void) {
     }
 }
 
-#ifdef NON_MATCHING
-/* MATCHING: 129/134; retail copies unk34C to a second register ($a0) for the unk39C and
- * closeness tests and keeps the first ($a2) for the step. */
+/* MATCHING: y reloaded, reused for unk3CC and killed by the dead y = 0 keeps retail's copy. */
 s32 func_80023D68(void) {
     s32 x;
     s32 d;
     s32 y;
+    s32 z;
 
     x = sGame.unk34C;
     if (x < D_800956E4) {
         D_800956E4 = x;
     }
-    if (x < sGame.unk39C) {
-        sGame.unk39C = x;
+    y = sGame.unk34C;
+    if (y < sGame.unk39C) {
+        sGame.unk39C = y;
     }
     if ((u32)(sGame.unk6 - 8) < 4) {
         goto end;
@@ -801,7 +801,8 @@ s32 func_80023D68(void) {
     if ((u32)(sGame.unk6 - 0x38) < 2 && (sGame.unk3D0 & 0xF) != 3) {
         goto end;
     }
-    d = sGame.unk3C0 - x;
+    d = sGame.unk3C0 - y;
+    y = 0;
     if ((d >= 0 ? d : -d) < 50) {
         sGame.unk34C = sGame.unk3C0;
     } else {
@@ -813,9 +814,11 @@ s32 func_80023D68(void) {
         sGame.unk34C = sGame.unk3CC;
         goto end;
     }
-    if (sGame.unk39C <= sGame.unk3CC && sGame.unk3B8 == 1) {
-        if (sGame.unk34C >= sGame.unk3CC) {
-            sGame.unk34C = sGame.unk3CC;
+    d = sGame.unk39C;
+    y = sGame.unk3CC;
+    if (d <= y && sGame.unk3B8 == 1) {
+        if (sGame.unk34C >= y) {
+            sGame.unk34C = y;
             sGame.unk3A6 = 0;
             sGame.unk39C = 0;
             sGame.unk3BC = sGame.unk3B8;
@@ -825,14 +828,14 @@ s32 func_80023D68(void) {
         goto end;
     }
     if (sGame.unk34C >= sGame.unk3C0) {
-        y = D_800AC858[0];
+        z = D_800AC858[0];
         sGame.unk3A6 = 0;
         sGame.unk39C = 0;
         sGame.unk3BC = 0;
-        sGame.unk34C = y;
+        sGame.unk34C = z;
         if (D_800956E0 == 0) {
             D_800DF5B0[0] = sGame.unk348;
-            D_800DF5B0[1] = y;
+            D_800DF5B0[1] = z;
             D_800DF5B0[2] = sGame.unk350;
             D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
             if (D_80095900 == 0) {
@@ -844,9 +847,6 @@ s32 func_80023D68(void) {
     }
 end:;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
-#endif
 
 /* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
 void func_80023F80(u8 *state) {

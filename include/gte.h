@@ -268,6 +268,30 @@
 /* clang-format on */
 
 /**
+ * @brief NCCS: normal colour colour for vertex 0's normal and the colour
+ * RGB (data 6); the result is RGB2. No operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_nccs() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4B08041B")
+/* clang-format on */
+
+/**
+ * @brief NCCT: normal colour colour for the normals of vertices 0-2 and the
+ * colour RGB (data 6); the results are RGB0-RGB2. No operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_ncct() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4B18043F")
+/* clang-format on */
+
+/**
  * @brief DPCS: depth-cues the single colour RGB (data 6) by IR0 into RGB2.
  * No operands, no clobbers.
  */

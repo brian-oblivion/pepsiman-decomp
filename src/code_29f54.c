@@ -160,7 +160,38 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003CC94);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003D960);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003DE34);
+/** @brief Sixteen signed bytes, copied together as one unaligned block. */
+typedef struct {
+    s8 b[4][4]; /**< four rows of four */
+} Bytes16;
+
+extern Bytes16 D_80011EB0;
+extern s8 D_80095908;
+extern s32 D_800957B4;
+
+void func_8003DE34(void) {
+    Bytes16 tbl;
+    s32 k;
+    u32 a;
+    u32 b;
+
+    /* MATCHING: the row index in a local, indexed per use; a row pointer
+     * moves the address add above the first andi. */
+    tbl = D_80011EB0;
+    a = D_80095970;
+    b = D_80095964;
+    k = D_80095908;
+    D_800957EC = a;
+    D_800957B4 = b;
+    D_800957EC = a & ~0xE0;
+    D_800957B4 = b & ~0xE0;
+    D_800957EC |= ((a & 0x20) >> 5) << (tbl.b[k][0] + 5);
+    D_800957EC |= ((a & 0x40) >> 6) << (tbl.b[k][1] + 5);
+    D_800957EC |= ((a & 0x80) >> 7) << (tbl.b[k][2] + 5);
+    D_800957B4 |= ((b & 0x20) >> 5) << (tbl.b[k][0] + 5);
+    D_800957B4 |= ((b & 0x40) >> 6) << (tbl.b[k][1] + 5);
+    D_800957B4 |= ((b & 0x80) >> 7) << (tbl.b[k][2] + 5);
+}
 
 void func_8003DFB8(unsigned long *tmd) {
     u32 i;

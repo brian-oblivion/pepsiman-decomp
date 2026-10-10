@@ -70,7 +70,6 @@ extern s8 D_8009EF4D[];
 
 extern s32 D_800AC860;
 extern s16 D_800959B2;
-extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
  * from the lw), so it is an array here, though both halves use one register. */
 extern s32 D_8009EF44[];

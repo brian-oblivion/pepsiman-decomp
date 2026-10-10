@@ -16,7 +16,422 @@
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
-INCLUDE_ASM("asm/nonmatchings/main", main);
+/** @brief Two words, cleared or copied as a pair (a unit-local view). */
+typedef struct {
+    s32 a; /**< first word */
+    s32 b; /**< second word */
+} Pair8;
+
+extern Pair8 D_80096A58[];
+extern Pair8 D_800D8340[];
+extern Pair8 D_80010454[];
+extern u8 D_800957DA;
+extern u8 D_800958C8;
+extern s8 D_800957A0;
+extern s32 D_80095758;
+extern s8 D_80095908;
+extern u8 D_800958A5;
+extern s32 D_80095984;
+extern s32 D_80095998;
+extern s8 D_800956D0;
+extern u16 D_80095764;
+extern u16 D_80095766;
+extern s32 D_80095968;
+extern s16 D_800958E2;
+extern char D_800954C8[];
+
+void func_80020C14(void);
+/* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
+void func_80018DE8(s32 arg);
+s8 func_80013B38(void);
+s32 func_800426A4(void);
+void func_80014AC8(void);
+void func_80014CF0(void);
+s32 func_80014DB0(void);
+s8 func_80015584(void);
+void func_80014044(void);
+void func_80016D14(void);
+void func_80016FC0(void);
+void func_80017124(void);
+/* Defined in code_31958. */
+void func_8004121C(u16 sel);
+void func_800401F0(u8 stage);
+void func_800229A8(void);
+void func_80022A74(void);
+void func_80017B38(void);
+s16 func_80040CD0(u8 stage);
+void func_8002B04C(void);
+void func_8002B220(void);
+s32 func_8002D424(void);
+void func_80034070(void);
+void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4);
+void func_80042208(void);
+void func_800F026C(void);
+void func_800F6670(void);
+void func_800F03B4(void);
+void func_800F03BC(void);
+void func_800F0414(void);
+void func_800F0480(void);
+
+/* MATCHING: cc1's own `jal __main` in main is retail's call of func_80042C50. */
+__asm__(".set __main, func_80042C50");
+
+/**
+ * @brief The game's entry, called from crt0: initialises the system and the
+ *        globals, then steps the top-level game state once
+ *        per frame, forever.
+ */
+int main(void) {
+    u8 world;
+    Pair8 *dst;
+    s32 a;
+    s32 b;
+
+    func_80014AC8();
+    func_80020C14();
+    func_80018DE8(1);
+    func_80018CB4();
+    func_80018094();
+    SetFogNearFar(3000, 8000, 250);
+    SetFarColor(0x40, 0x60, 0xFF);
+    D_800957DA = 1;
+    D_80095AEE = 1;
+    D_800958C8 = 1;
+    D_800957A0 = -1;
+    ClipF = 0;
+    D_80095758 = 0;
+    D_80095908 = 0;
+    D_800957D5 = 0;
+    D_800958A5 = 0;
+    D_800958AC = -1;
+    D_80095984 = 0;
+    D_80095998 = 0;
+    for (D_800958CC = 0; D_800958CC < 4; D_800958CC++) {
+        D_80096A58[D_800958CC].a = 0;
+        D_80096A58[D_800958CC].b = 0;
+        dst = &D_800D8340[D_800958CC];
+        a = D_80010454[D_800958CC].a;
+        b = D_80010454[D_800958CC].b;
+        dst->a = a;
+        dst->b = b;
+    }
+    D_800956D0 = 0;
+    D_80095760 = 0;
+    D_80095880 = 0;
+    D_8009586C = 0;
+    D_80095766 = 0;
+    D_80095764 = 0;
+    D_800957DA = 0;
+    D_80095968 = 0;
+    D_800958F8 = 0;
+    D_800958C9 = 0;
+    for (;;) {
+        FntPrint(D_800954C8);
+        if (D_8009586C == 1) {
+            func_80014CF0();
+        }
+        switch (D_80095880) {
+            case 0:
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_800958A6 = 0;
+                D_80095880 = 1;
+                D_800957A8 = 2;
+                break;
+            case 1:
+                if (func_80013B38() == 1) {
+                    D_800958A6 = 0;
+                    D_80095880 = 2;
+                }
+                break;
+            case 2:
+                if (func_800426A4() == 1) {
+                    D_80095880 = 6;
+                }
+                break;
+            case 3:
+                D_8009586C = 1;
+                D_80095880 = 4;
+                func_80022554(0);
+                break;
+            case 4:
+                if (D_8009596C == 6) {
+                    D_80095880 = 5;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 5:
+                func_800F026C();
+                break;
+            case 6:
+                D_8009586C = 1;
+                D_800958F8 = 0;
+                D_80095880 = 7;
+                func_80022554(2);
+                break;
+            case 7:
+                if (D_8009596C == 6) {
+                    D_80095880 = 8;
+                    if (D_80095760 == 0xFFFF) {
+                        D_80095760 = 50;
+                    } else {
+                        D_80095760 = 0;
+                    }
+                    D_8009586C = 0;
+                }
+                break;
+            case 8:
+                func_800F6670();
+                func_80014DB0();
+                break;
+            case 38:
+                world = D_80095830 / 3;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 39;
+                func_80022554(world + 18);
+                break;
+            case 39:
+                if (D_8009596C == 6) {
+                    D_80095880 = 40;
+                }
+                D_80095760 = 0;
+                D_80095768 = 0;
+                break;
+            case 40:
+                switch ((u8)(D_80095830 / 3)) {
+                    case 0:
+                        func_800F03BC();
+                        break;
+                    case 1:
+                        func_800F03B4();
+                        break;
+                    case 2:
+                        func_800F0480();
+                        break;
+                    case 3:
+                        /* MATCHING: keeps cross-jumping off case 0's call. */
+                        func_800F03BC();
+                        __asm__("");
+                        break;
+                    case 4:
+                        func_800F0414();
+                        break;
+                }
+                break;
+            case 12:
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_800958F8 = 0;
+                D_8009586C = 1;
+                D_80095880 = 13;
+                func_8004121C(D_80095830);
+                break;
+            case 13:
+                if (D_8009596C == 6) {
+                    D_80095880 = 14;
+                }
+                D_80095760 = 0;
+                break;
+            case 14:
+                func_800401F0(D_80095830);
+                break;
+            case 15:
+                D_80095880 = 16;
+                func_800229A8();
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_800957A8 = 2;
+                break;
+            case 16:
+                func_80022A74();
+                break;
+            case 17:
+                D_800957A8 = 2;
+                D_80095880 = 19;
+                D_80095760 = 0;
+                break;
+            case 19:
+                func_80017B38();
+                break;
+            case 20:
+                D_80095880 = 23;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 21;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 0;
+                break;
+            case 21:
+                if (D_8009596C == 6) {
+                    D_80095880 = 22;
+                }
+                break;
+            case 22:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 23;
+                    D_8009586C = 0;
+                }
+                break;
+            case 23:
+                func_8002B04C();
+                break;
+            case 24:
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 25;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 0;
+                break;
+            case 25:
+                if (D_8009596C == 6) {
+                    D_80095880 = 26;
+                }
+                break;
+            case 26:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 27;
+                    D_8009586C = 0;
+                    D_80095760 = 0;
+                }
+                break;
+            case 27:
+                func_8002B220();
+                break;
+            case 28:
+                D_800958F8 = 1;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 29;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 2;
+                break;
+            case 29:
+                if (D_8009596C == 6) {
+                    D_80095880 = 30;
+                }
+                break;
+            case 30:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 32;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 31:
+                if (D_8009596C == 6) {
+                    D_80095880 = 32;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 32:
+                func_8002D424();
+                break;
+            case 33:
+                D_800958F8 = 1;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 34;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 2;
+                break;
+            case 34:
+                if (D_8009596C == 6) {
+                    D_80095880 = 35;
+                }
+                break;
+            case 35:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 37;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 36:
+                if (D_8009596C == 6) {
+                    D_80095880 = 37;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 37:
+                func_80034070();
+                break;
+            case 41:
+                func_80016D14();
+                break;
+            case 42:
+                func_80016FC0();
+                break;
+            case 43:
+                func_80017124();
+                break;
+            case 44:
+                switch ((u8)(D_80095830 / 3)) {
+                    case 0:
+                        func_80041BAC("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 1:
+                        func_80041BAC("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 2:
+                        func_80041BAC("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 3:
+                        func_80041BAC("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 4:
+                        func_80041BAC("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 5:
+                        func_80041BAC("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
+                        if (D_800958AC == 0) {
+                            D_800958A5 = 1;
+                            D_800958C8 |= 2;
+                        } else if (D_800958AC == 1) {
+                            D_800958C8 |= 8;
+                        }
+                        D_800957A0 = -1;
+                        D_80095880 = 6;
+                        D_80095760 = 0;
+                        break;
+                }
+                break;
+        }
+        FntFlush(-1);
+        func_80015584();
+        func_80042208();
+        func_80014044();
+    }
+}
 
 extern s32 D_80072484[];
 extern s32 D_800724C4[];
@@ -24,9 +439,6 @@ void func_80013CDC(void);
 
 /* MATCHING: code_7d74 types the pack as its own PackEntry. */
 void func_8001797C(void *pack);
-
-/* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
-void func_80018DE8(s32 arg);
 
 s8 func_80013B38(void) {
     /* MATCHING: a byte, so the later constant 1 is not copied from it. */
@@ -255,15 +667,64 @@ void func_80014044(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
-
-void func_80013EE4(void);
-void func_80014B8C(s16 frames);
-
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
 extern s32 D_80095850[2];
 extern s32 D_80095870[2];
 extern s32 D_80095848[2];
+
+extern s8 D_8009575D;
+extern u8 D_80095784;
+extern u32 D_800957C8;
+extern u32 D_800957C0;
+extern u8 D_800956EA;
+extern u8 D_800956DB;
+extern u8 D_800956E8[2];
+extern u8 D_800956D8[3];
+
+void func_80014FA8(void);
+
+/**
+ * @brief Auto-repeat for one held button: once @p cnt has counted 30
+ *        frames (scaled by the speed byte), @p bit repeats into the
+ *        pressed-flags word every few frames. A release clears @p cnt.
+ */
+/* MATCHING: a bare block; `do { } while (0)` changes the branch layout. */
+#define REPEAT(bit, cnt)                                                          \
+    {                                                                             \
+        if (D_80095964 & (bit)) {                                                 \
+            if ((cnt) >= 30 / D_8009575D && D_8009585C % (4 / D_8009575D) == 0) { \
+                D_80095970 |= (bit);                                              \
+            } else if ((cnt) < 30 / D_8009575D) {                                 \
+                (cnt)++;                                                          \
+            }                                                                     \
+        } else {                                                                  \
+            (cnt) = 0;                                                            \
+        }                                                                         \
+    }
+
+void func_800142EC(s32 arg) {
+    D_8009575D = 4;
+    func_80014FA8();
+    if (D_80095784 == 0x41) {
+        D_800957C0 = D_800957C8 = 0x80;
+    }
+    /* MATCHING: this order builds D_80095870's address first, as retail;
+     * the stores still come out D_80095964 first. */
+    D_80095970 = D_80095870[(u16)arg];
+    D_80095964 = D_80095848[(u16)arg];
+    REPEAT(0x1000, D_800956EA)
+    REPEAT(0x4000, D_800956DB)
+    REPEAT(0x8000, D_800956E8[0])
+    REPEAT(0x2000, D_800956E8[1])
+    if (D_800956F7 == 1) {
+        REPEAT(0x80, D_800956D8[0])
+        REPEAT(0x40, D_800956D8[1])
+        REPEAT(0x20, D_800956D8[2])
+    }
+}
+
+void func_80013EE4(void);
+void func_80014B8C(s16 frames);
 
 void func_800148B0(void) {
     s32 x;
@@ -305,7 +766,6 @@ void func_800148B0(void) {
     func_80014B8C(5);
 }
 
-extern char D_800954C8[];
 extern char D_800954CC[];
 extern char D_800954D0[];
 extern char D_800954D8[];
@@ -448,12 +908,9 @@ extern TableHeader *D_80095930;
 extern u16 D_8009576C;
 extern u16 D_8009586A;
 extern u16 D_800958E6;
-extern u16 D_80095764;
-extern u16 D_80095766;
 /* MATCHING: signed, so the zero test in func_80014DB0 is its own `lh`. */
 extern s16 D_800957D8;
 extern u16 D_800957E0;
-extern u8 D_800957DA;
 
 void func_80015328(s32 offset, u8 a, u8 b);
 
@@ -814,9 +1271,552 @@ void func_80015B78(void) {
     D_80095880 = 0x2B;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015CC8);
+/* Each stage's disc directory (the names are guesses): file positions,
+ * then their sizes in sectors, one pair of arrays per stage. */
+extern CdlLOC D_80073D00[];
+extern s32 D_80073D24[];
+extern CdlLOC D_80073DD8[];
+extern s32 D_80073DFC[];
+extern CdlLOC D_80073EB0[];
+extern s32 D_80073ED4[];
+extern CdlLOC D_80073F88[];
+extern s32 D_80073FAC[];
+extern CdlLOC D_80074060[];
+extern s32 D_80074084[];
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800160E8);
+/* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
+ * unextended, so its view is s32. */
+s32 func_80042A88(s32 bank);
+void func_80039C3C(unsigned long *p);
+void func_80040998(void);
+void func_800F6C60(void);
+void func_800F6A44(void);
+void func_800F642C(void);
+void func_800F46D8(void);
+void func_800F377C(void);
+
+void func_80015CC8(void) {
+    s32 bank;
+
+    switch (D_800958A6) {
+        case 0:
+            D_80095B0E = 0;
+            D_800958A6++;
+            break;
+        case 1:
+            switch (D_80095830) {
+                case 2:
+                    bank = 2;
+                    break;
+                case 5:
+                    bank = 3;
+                    break;
+                case 8:
+                    bank = 4;
+                    break;
+                case 11:
+                    bank = 5;
+                    break;
+                case 14:
+                    bank = 6;
+                    break;
+            }
+            if (func_80042A88(bank) == 1) {
+                D_800958A6++;
+            }
+            break;
+        case 2:
+            func_8004121C(D_80095830);
+            D_800958A6++;
+            break;
+        case 3:
+            if (D_8009596C == 6) {
+                D_800958A6++;
+            }
+            break;
+        case 4:
+            func_80018DE8(0);
+            switch (D_80095830) {
+                case 2:
+                    D_80096748[0] = (s32)&D_80073D00[0];
+                    D_8009F248[0] = D_80073D24[0];
+                    break;
+                case 5:
+                    D_80096748[0] = (s32)&D_80073DD8[0];
+                    D_8009F248[0] = D_80073DFC[0];
+                    break;
+                case 8:
+                    D_80096748[0] = (s32)&D_80073EB0[0];
+                    D_8009F248[0] = D_80073ED4[0];
+                    break;
+                case 11:
+                    D_80096748[0] = (s32)&D_80073F88[0];
+                    D_8009F248[0] = D_80073FAC[0];
+                    break;
+                case 14:
+                    D_80096748[0] = (s32)&D_80074060[0];
+                    D_8009F248[0] = D_80074084[0];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 5:
+            if (D_8009596C == 6) {
+                func_8003E13C((unsigned long *)0x8019D000);
+                D_800958A6++;
+            }
+            break;
+        case 6:
+            switch (D_80095830) {
+                case 2:
+                    D_80096748[0] = (s32)&D_80073D00[1];
+                    D_8009F248[0] = D_80073D24[1];
+                    break;
+                case 5:
+                    D_80096748[0] = (s32)&D_80073DD8[1];
+                    D_8009F248[0] = D_80073DFC[1];
+                    break;
+                case 8:
+                    D_80096748[0] = (s32)&D_80073EB0[1];
+                    D_8009F248[0] = D_80073ED4[1];
+                    break;
+                case 11:
+                    D_80096748[0] = (s32)&D_80073F88[1];
+                    D_8009F248[0] = D_80073FAC[1];
+                    break;
+                case 14:
+                    D_80096748[0] = (s32)&D_80074060[1];
+                    D_8009F248[0] = D_80074084[1];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 7:
+            if (D_8009596C == 6) {
+                func_80039C3C((unsigned long *)0x8019D000);
+                switch (D_80095830) {
+                    case 2:
+                        func_800F6C60();
+                        break;
+                    case 5:
+                        func_800F6A44();
+                        break;
+                    case 8:
+                        func_800F642C();
+                        break;
+                    case 11:
+                        func_800F46D8();
+                        break;
+                    case 14:
+                        func_800F377C();
+                        break;
+                }
+                func_80040998();
+                D_800958A6 = 100;
+            }
+            break;
+    }
+}
+
+/* The other stages' directories (see the stage loader above): file positions, and
+ * sizes in sectors counted from an extra leading word, one pair per stage. */
+extern CdlLOC D_80073C70[];
+extern s32 D_80073C90[];
+extern CdlLOC D_80073CB8[];
+extern s32 D_80073CD8[];
+extern CdlLOC D_80073D48[];
+extern s32 D_80073D68[];
+extern CdlLOC D_80073D90[];
+extern s32 D_80073DB0[];
+extern CdlLOC D_80073E20[];
+extern s32 D_80073E40[];
+extern CdlLOC D_80073E68[];
+extern s32 D_80073E88[];
+extern CdlLOC D_80073EF8[];
+extern s32 D_80073F18[];
+extern CdlLOC D_80073F40[];
+extern s32 D_80073F60[];
+extern CdlLOC D_80073FD0[];
+extern s32 D_80073FF0[];
+extern CdlLOC D_80074018[];
+extern s32 D_80074038[];
+
+s32 func_80041178(u8 stage);
+void func_800399A8(unsigned long *p);
+void func_8002B7C8(DirEnt16 *dir, u16 id);
+void func_8002CC24(void);
+/* MATCHING: code_1dc24 types both as its own BankFile. */
+void func_800373C8(void *a, void *b);
+void func_8002C2B4(void);
+s32 func_8002C044(void);
+void func_8002C47C(void);
+void func_800412DC(void);
+
+void func_800160E8(void) {
+    switch (D_800958A6) {
+        case 0:
+            D_80095B0E = 0;
+            D_800958A6++;
+        case 1:
+            if (func_80042A88(func_80041178(D_80095830)) == 1) {
+                D_800958A6++;
+            }
+            break;
+        case 2:
+            func_8004121C(D_80095830);
+            D_800958A6++;
+            break;
+        case 3:
+            if (D_8009596C == 6) {
+                D_800958A6++;
+            }
+            break;
+        case 4:
+            func_80018DE8(0);
+            switch (D_80095830) {
+                case 0:
+                    D_80096748[0] = (s32)&D_80073C70[0];
+                    D_8009F248[0] = D_80073C90[1];
+                    break;
+                case 1:
+                    D_80096748[0] = (s32)&D_80073CB8[0];
+                    D_8009F248[0] = D_80073CD8[1];
+                    break;
+                case 3:
+                    D_80096748[0] = (s32)&D_80073D48[0];
+                    D_8009F248[0] = D_80073D68[1];
+                    break;
+                case 4:
+                    D_80096748[0] = (s32)&D_80073D90[0];
+                    D_8009F248[0] = D_80073DB0[1];
+                    break;
+                case 6:
+                    D_80096748[0] = (s32)&D_80073E20[0];
+                    D_8009F248[0] = D_80073E40[1];
+                    break;
+                case 7:
+                    D_80096748[0] = (s32)&D_80073E68[0];
+                    D_8009F248[0] = D_80073E88[1];
+                    break;
+                case 9:
+                    D_80096748[0] = (s32)&D_80073EF8[0];
+                    D_8009F248[0] = D_80073F18[1];
+                    break;
+                case 10:
+                    D_80096748[0] = (s32)&D_80073F40[0];
+                    D_8009F248[0] = D_80073F60[1];
+                    break;
+                case 12:
+                    D_80096748[0] = (s32)&D_80073FD0[0];
+                    D_8009F248[0] = D_80073FF0[1];
+                    break;
+                case 13:
+                    D_80096748[0] = (s32)&D_80074018[0];
+                    D_8009F248[0] = D_80074038[1];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 5:
+            if (D_8009596C == 6) {
+                func_8003E13C((unsigned long *)0x8019D000);
+                D_800958A6++;
+            }
+            break;
+        case 6:
+            switch (D_80095830) {
+                case 0:
+                    D_80096748[0] = (s32)&D_80073C70[1];
+                    D_8009F248[0] = D_80073C90[2];
+                    break;
+                case 1:
+                    D_80096748[0] = (s32)&D_80073CB8[1];
+                    D_8009F248[0] = D_80073CD8[2];
+                    break;
+                case 3:
+                    D_80096748[0] = (s32)&D_80073D48[1];
+                    D_8009F248[0] = D_80073D68[2];
+                    break;
+                case 4:
+                    D_80096748[0] = (s32)&D_80073D90[1];
+                    D_8009F248[0] = D_80073DB0[2];
+                    break;
+                case 6:
+                    D_80096748[0] = (s32)&D_80073E20[1];
+                    D_8009F248[0] = D_80073E40[2];
+                    break;
+                case 7:
+                    D_80096748[0] = (s32)&D_80073E68[1];
+                    D_8009F248[0] = D_80073E88[2];
+                    break;
+                case 9:
+                    D_80096748[0] = (s32)&D_80073EF8[1];
+                    D_8009F248[0] = D_80073F18[2];
+                    break;
+                case 10:
+                    D_80096748[0] = (s32)&D_80073F40[1];
+                    D_8009F248[0] = D_80073F60[2];
+                    break;
+                case 12:
+                    D_80096748[0] = (s32)&D_80073FD0[1];
+                    D_8009F248[0] = D_80073FF0[2];
+                    break;
+                case 13:
+                    D_80096748[0] = (s32)&D_80074018[1];
+                    D_8009F248[0] = D_80074038[2];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 7:
+            if (D_8009596C == 6) {
+                func_8001797C((void *)0x8019D000);
+                D_800958A6++;
+            }
+            break;
+        case 8:
+            switch (D_80095830) {
+                case 0:
+                    D_80096748[0] = (s32)&D_80073C70[2];
+                    D_80096748[1] = (s32)&D_80073C70[3];
+                    D_8009F248[0] = D_80073C90[3];
+                    D_8009F248[1] = D_80073C90[4];
+                    break;
+                case 1:
+                    D_80096748[0] = (s32)&D_80073CB8[2];
+                    D_80096748[1] = (s32)&D_80073CB8[3];
+                    D_8009F248[0] = D_80073CD8[3];
+                    D_8009F248[1] = D_80073CD8[4];
+                    break;
+                case 3:
+                    D_80096748[0] = (s32)&D_80073D48[2];
+                    D_80096748[1] = (s32)&D_80073D48[3];
+                    D_8009F248[0] = D_80073D68[3];
+                    D_8009F248[1] = D_80073D68[4];
+                    break;
+                case 4:
+                    D_80096748[0] = (s32)&D_80073D90[2];
+                    D_80096748[1] = (s32)&D_80073D90[3];
+                    D_8009F248[0] = D_80073DB0[3];
+                    D_8009F248[1] = D_80073DB0[4];
+                    break;
+                case 6:
+                    D_80096748[0] = (s32)&D_80073E20[2];
+                    D_80096748[1] = (s32)&D_80073E20[3];
+                    D_8009F248[0] = D_80073E40[3];
+                    D_8009F248[1] = D_80073E40[4];
+                    break;
+                case 7:
+                    D_80096748[0] = (s32)&D_80073E68[2];
+                    D_80096748[1] = (s32)&D_80073E68[3];
+                    D_8009F248[0] = D_80073E88[3];
+                    D_8009F248[1] = D_80073E88[4];
+                    break;
+                case 9:
+                    D_80096748[0] = (s32)&D_80073EF8[2];
+                    D_80096748[1] = (s32)&D_80073EF8[3];
+                    D_8009F248[0] = D_80073F18[3];
+                    D_8009F248[1] = D_80073F18[4];
+                    break;
+                case 10:
+                    D_80096748[0] = (s32)&D_80073F40[2];
+                    D_80096748[1] = (s32)&D_80073F40[3];
+                    D_8009F248[0] = D_80073F60[3];
+                    D_8009F248[1] = D_80073F60[4];
+                    break;
+                case 12:
+                    D_80096748[0] = (s32)&D_80073FD0[2];
+                    D_80096748[1] = (s32)&D_80073FD0[3];
+                    D_8009F248[0] = D_80073FF0[3];
+                    D_8009F248[1] = D_80073FF0[4];
+                    break;
+                case 13:
+                    D_80096748[0] = (s32)&D_80074018[2];
+                    D_80096748[1] = (s32)&D_80074018[3];
+                    D_8009F248[0] = D_80074038[3];
+                    D_8009F248[1] = D_80074038[4];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_8009F090[1] = 0x80155000;
+            D_80095960 = 2;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 9:
+            if (D_8009596C == 6) {
+                func_800399A8((unsigned long *)0x8019D000);
+                D_800958A6++;
+            }
+            break;
+        case 10:
+            switch (D_80095830) {
+                case 0:
+                    D_80096748[0] = (s32)&D_80073C70[4];
+                    D_8009F248[0] = D_80073C90[5];
+                    break;
+                case 1:
+                    D_80096748[0] = (s32)&D_80073CB8[4];
+                    D_8009F248[0] = D_80073CD8[5];
+                    break;
+                case 3:
+                    D_80096748[0] = (s32)&D_80073D48[4];
+                    D_8009F248[0] = D_80073D68[5];
+                    break;
+                case 4:
+                    D_80096748[0] = (s32)&D_80073D90[4];
+                    D_8009F248[0] = D_80073DB0[5];
+                    break;
+                case 6:
+                    D_80096748[0] = (s32)&D_80073E20[4];
+                    D_8009F248[0] = D_80073E40[5];
+                    break;
+                case 7:
+                    D_80096748[0] = (s32)&D_80073E68[4];
+                    D_8009F248[0] = D_80073E88[5];
+                    break;
+                case 9:
+                    D_80096748[0] = (s32)&D_80073EF8[4];
+                    D_8009F248[0] = D_80073F18[5];
+                    break;
+                case 10:
+                    D_80096748[0] = (s32)&D_80073F40[4];
+                    D_8009F248[0] = D_80073F60[5];
+                    break;
+                case 12:
+                    D_80096748[0] = (s32)&D_80073FD0[4];
+                    D_8009F248[0] = D_80073FF0[5];
+                    break;
+                case 13:
+                    D_80096748[0] = (s32)&D_80074018[4];
+                    D_8009F248[0] = D_80074038[5];
+                    break;
+            }
+            D_8009F090[0] = 0x8016D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 11:
+            if (D_8009596C == 6) {
+                func_8002B7C8((DirEnt16 *)0x8016D000, 30);
+                D_800958A6++;
+            }
+            break;
+        case 12:
+            func_8002CC24();
+            D_800958A6++;
+            break;
+        case 13:
+            switch (D_80095830) {
+                case 0:
+                    D_80096748[0] = (s32)&D_80073C70[5];
+                    D_8009F248[0] = D_80073C90[6];
+                    break;
+                case 1:
+                    D_80096748[0] = (s32)&D_80073CB8[5];
+                    D_8009F248[0] = D_80073CD8[6];
+                    break;
+                case 3:
+                    D_80096748[0] = (s32)&D_80073D48[5];
+                    D_8009F248[0] = D_80073D68[6];
+                    break;
+                case 4:
+                    D_80096748[0] = (s32)&D_80073D90[5];
+                    D_8009F248[0] = D_80073DB0[6];
+                    break;
+                case 6:
+                    D_80096748[0] = (s32)&D_80073E20[5];
+                    D_8009F248[0] = D_80073E40[6];
+                    break;
+                case 7:
+                    D_80096748[0] = (s32)&D_80073E68[5];
+                    D_8009F248[0] = D_80073E88[6];
+                    break;
+                case 9:
+                    D_80096748[0] = (s32)&D_80073EF8[5];
+                    D_8009F248[0] = D_80073F18[6];
+                    break;
+                case 10:
+                    D_80096748[0] = (s32)&D_80073F40[5];
+                    D_8009F248[0] = D_80073F60[6];
+                    break;
+                case 12:
+                    D_80096748[0] = (s32)&D_80073FD0[5];
+                    D_8009F248[0] = D_80073FF0[6];
+                    break;
+                case 13:
+                    D_80096748[0] = (s32)&D_80074018[5];
+                    D_8009F248[0] = D_80074038[6];
+                    break;
+            }
+            D_8009F090[0] = 0x8016D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 14:
+            if (D_8009596C == 6) {
+                func_800373C8((void *)0x8016D000, (void *)0x80171744);
+                func_8002C2B4();
+                func_8002C044();
+                D_800958A6++;
+            }
+            break;
+        case 15:
+            if ((u8)(D_80095830 % 3) == 1) {
+                switch (D_80095830) {
+                    case 1:
+                        D_80096748[0] = (s32)&D_80073CB8[6];
+                        D_8009F248[0] = D_80073CD8[7];
+                        break;
+                    case 4:
+                        D_80096748[0] = (s32)&D_80073D90[6];
+                        D_8009F248[0] = D_80073DB0[7];
+                        break;
+                    case 7:
+                        D_80096748[0] = (s32)&D_80073E68[6];
+                        D_8009F248[0] = D_80073E88[7];
+                        break;
+                    case 10:
+                        D_80096748[0] = (s32)&D_80073F40[6];
+                        D_8009F248[0] = D_80073F60[7];
+                        break;
+                    case 13:
+                        D_80096748[0] = (s32)&D_80074018[6];
+                        D_8009F248[0] = D_80074038[7];
+                        break;
+                }
+                D_8009F090[0] = 0x8018D000;
+            }
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 16:
+            if (D_8009596C == 6) {
+                func_8002C47C();
+                func_800412DC();
+                func_80018DE8(1);
+                D_800D86B8[0] = 0;
+                func_80040998();
+                D_800958A6 = 100;
+            }
+            break;
+    }
+}
 
 /** @brief A list of models drawn together (a unit-local view). */
 typedef struct {
@@ -827,7 +1827,6 @@ typedef struct {
 /* MATCHING: a struct lvalue over the shared array declaration. */
 #define sModels (*(ModelSet *)D_800D8360)
 
-extern s32 D_80095758;
 
 void func_800160E8(void);
 

@@ -350,6 +350,17 @@ void func_80033388(VECTOR *pos, s16 deg);
 /* MATCHING: defined in code_1902c, which has no header. */
 s32 func_800297A4(VECTOR *a, VECTOR *b);
 
+/* MATCHING: defined in code_27bc8, which has no header. */
+s32 func_80037440(s16 mode);
+/* MATCHING: s16 in code_27bc8; its result is compared here unextended. */
+s32 func_80038394(void);
+s32 func_80032EE4(void);
+s32 func_80033680(s16 i);
+void func_800335E8(s16 a);
+void func_800336F8(s16 a);
+s32 func_80033DE8(void);
+s32 func_80033E40(void);
+
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B8C);
@@ -1702,7 +1713,226 @@ s32 func_80031AEC(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
+/** @brief The tool's data-mode state machine: opens the memory card,
+ *         steps the data-mode screen (yes/no menus, card and host-file
+ *         reads and writes, the save slots of the tool buffer), maps a
+ *         card error to a message screen, and closes the card.
+ *  @return nothing; the value is undefined. */
+s32 func_80031EF4(void) {
+    s32 err;
+    /* MATCHING: an s16 answer, both menus a switch on it: case 4's tail
+     * then cross-jumps into case 6's. */
+    s16 r;
+
+    /* MATCHING: non-void with no return keeps the error table's index
+     * shift in its bound check's delay slot. */
+    err = 0;
+    switch (D_800958A6) {
+        case 0:
+            func_80038124();
+            D_800959E4 = 0;
+            D_8009574A = 0;
+            D_80095748 = 0;
+            D_800958A6++;
+            break;
+        case 1:
+            switch (D_800959E4) {
+                case 0:
+                    D_80095A14 = 0;
+                    err = func_80037440(0);
+                    if (err == 0) {
+                        D_800959E4 = 1;
+                    }
+                    break;
+                case 1:
+                    if (func_80038394() == -1 || (D_80095970 & 0x40)) {
+                        D_800959E4 = 18;
+                        break;
+                    }
+                    D_800959E0 = func_8003356C(2);
+                    switch (D_800959E0) {
+                        case 2:
+                            if (func_80033DE8() == -1) {
+                                D_800959E4 = 11;
+                            } else if (func_80032EE4() == -1) {
+                                D_800959E4 = 11;
+                            } else {
+                                D_800959E4 = 10;
+                            }
+                            break;
+                        case 3:
+                            if (func_80033E40() == -1) {
+                                D_800959E4 = 11;
+                            } else {
+                                D_800959E0 = 1;
+                                D_800959E4 = 2;
+                            }
+                            break;
+                        case -1:
+                            break;
+                        default:
+                            D_800959E4 = 2;
+                            break;
+                    }
+                    break;
+                case 2:
+                    if (D_80095970 & 0x40) {
+                        D_800959E4 = 1;
+                        break;
+                    }
+                    D_80095A0C = func_8003356C(3);
+                    if (D_80095A0C == -1) {
+                        break;
+                    }
+                    switch (D_800959E0) {
+                        case 0:
+                            D_800959E4 = 3;
+                            break;
+                        case 1:
+                            D_800959E4 = 5;
+                            break;
+                    }
+                    break;
+                case 10:
+                    if (D_80095970 & 0x60) {
+                        sGameSave.unk348[0] = sRotPos.pos[0];
+                        sGameSave.unk348[1] = sRotPos.pos[1];
+                        sGameSave.unk348[2] = sRotPos.pos[2];
+                        sRotPos.rot.vy = sRotPos.rot.vz;
+                        D_800957F4 = func_800183B0(sGameSave.unk348);
+                        D_8009578C = 0;
+                        D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
+                        func_8002D0C4((BlockHeader *)0x801FD000);
+                        D_800959E4 = 1;
+                    }
+                    break;
+                case 3:
+                    if ((s16)func_80033680(D_80095A0C) == -1) {
+                        D_800959E4 = 8;
+                    } else {
+                        D_800959E4 = 4;
+                        D_8009574A = 0;
+                    }
+                    break;
+                case 4:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 8;
+                            break;
+                        case 1:
+                            D_800959E4 = 1;
+                            break;
+                    }
+                    break;
+                case 8:
+                    func_800335E8(D_80095A0C);
+                    err = func_80037440(1);
+                    if (err == 0) {
+                        D_800959E4 = 10;
+                    }
+                    break;
+                case 5:
+                    if ((s16)func_80033680(D_80095A0C) == -1) {
+                        D_800959E4 = 7;
+                    } else {
+                        D_800959E4 = 6;
+                        D_8009574A = 0;
+                    }
+                    break;
+                case 6:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 9;
+                            break;
+                        case 1:
+                            D_800959E4 = 1;
+                            break;
+                    }
+                    break;
+                case 7:
+                    if (D_80095970 & 0x20) {
+                        D_800959E4 = 5;
+                    }
+                    break;
+                case 9:
+                    func_800336F8(D_80095A0C);
+                    D_800959E4 = 10;
+                    break;
+                case 11:
+                case 13:
+                    if (D_80095970 & 0x40) {
+                        D_800959E4 = 18;
+                    }
+                    break;
+                case 14:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 16;
+                            break;
+                        case 1:
+                            D_800959E4 = 18;
+                            break;
+                        case -1:
+                            break;
+                    }
+                    break;
+                case 15:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 17;
+                            break;
+                        case 1:
+                            D_800959E4 = 18;
+                            break;
+                        case -1:
+                            break;
+                    }
+                    break;
+                case 16:
+                    err = func_80037440(2);
+                    if (err == 0) {
+                        D_800959E4 = 0;
+                    }
+                    break;
+                case 17:
+                    err = func_80037440(3);
+                    if (err == 0) {
+                        D_800959E4 = 0;
+                    }
+                    break;
+                case 18:
+                    D_800958A6++;
+                    break;
+            }
+            switch (err) {
+                case -2:
+                case -1:
+                    D_800959E4 = 11;
+                    break;
+                case 1:
+                    D_800959E4 = 12;
+                    break;
+                case 2:
+                    D_800959E4 = 13;
+                    break;
+                case 3:
+                    D_800959E4 = 14;
+                    break;
+                case 4:
+                    D_800959E4 = 15;
+                    break;
+            }
+            break;
+        case 2:
+            func_800386A8();
+            D_800958DA = 0;
+            break;
+    }
+}
 
 /** @brief Prints the data mode's screen for the current memory-card
  *         state, with the save-slot list or a yes/no menu where the state

@@ -150,7 +150,7 @@ typedef PACKET *(*PrimFunc)();
 /* The handler table, eight rows of eight handlers. */
 extern PrimFunc D_800E48E8[8][8];
 
-PACKET *func_8001B4BC();
+PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001B9A4();
 PACKET *func_8001C13C();
 PACKET *func_8001C878();
@@ -703,7 +703,91 @@ void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
     D_800E48D0 = (u8 *)(q + 2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B4BC);
+PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+    SVECTOR m[3];
+    s32 sz[3];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_f3(pkt);
+        gte_stsz3c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        /* MATCHING: sz[2] first, so it is loaded before v. */
+        if (sz[2] > v) {
+            v = sz[2];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb(&prim->rgb);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r0);
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v2].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v2].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v2].vz) >> 1;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &m[2], &m[1]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[1], &m[2], &vtx[prim->v2]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_f3(pkt);
+                gte_avsz3();
+                gte_stotz(&v);
+                *(u32 *)&pkt->r0 = *(u32 *)&prim->rgb;
+                tag = (u32 *)ot->org + (v >> shift);
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001B9A4);
 

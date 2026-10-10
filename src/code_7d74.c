@@ -358,13 +358,13 @@ void func_80017DD4(void) {
 
 extern u8 D_800760EC[];
 
-#ifdef NON_MATCHING
 u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     u8 ret;
     s32 seq;
 
     ret = 1;
     if (obj->want[0] == 1) {
+        /* MATCHING: keeps this return from cross-jumping into a later one. */
         __asm__("");
         return 0;
     }
@@ -384,6 +384,10 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
             obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
         } else if ((s16)seq == 26) {
             ret = 2;
+            /* MATCHING: lengthens &obj->start[seq]'s live range (global-alloc). */
+            __asm__("");
+            __asm__("");
+            __asm__("");
             obj->time[index] = obj->start[seq];
             obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
         } else {
@@ -396,9 +400,6 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
                                      (s32)D_800760EC, D_80095904, 0, arg);
     return ret;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017F0C);
-#endif
 
 void func_80018094(void) {
     GsFOGPARAM fog;

@@ -18,7 +18,15 @@ typedef struct {
 
 /** @brief A 0x2C-byte record of the first of two record banks. */
 typedef struct {
-    u8 unk0[0x2C]; /**< not yet known */
+    u8 unk0[0x14]; /**< not yet known */
+    s32 unk14;     /**< ten times the menu's line-0 value */
+    u8 unk18;      /**< the menu's line-1 value */
+    u8 pad19[3];   /**< not yet known */
+    s32 unk1C;     /**< negated x of the game state's position */
+    s32 unk20;     /**< y of the game state's position */
+    s32 unk24;     /**< negated z of the game state's position */
+    s16 unk28;     /**< index of the owning entry */
+    u8 pad2A[2];   /**< not yet known */
 } Rec2C;
 
 /** @brief Three halfwords copied as one 6-byte unit. */
@@ -69,6 +77,7 @@ typedef struct {
 
 extern Obj48 D_800DF9C0;  /**< reset by the dispatch's state 0 */
 extern Rec4C *D_80095A34; /**< the second-bank record inserted last */
+extern Rec2C *D_80095A44; /**< the first-bank record inserted last */
 extern u8 D_80095A59;     /**< state of the second dispatch: 0 or 1 */
 extern s16 D_80095A54;    /**< set to 100 on entering state 1 */
 extern s16 D_80095A56;    /**< set to 100 on entering state 1 */
@@ -271,7 +280,54 @@ void func_80034BCC(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034D5C);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034F38);
+/* MATCHING: the last loop enters at its test (a for or while is rotated). */
+void func_80034F38(void) {
+    Bank2C *bank;
+    BankEntry *e;
+    Rec2C *recs;
+    Rec2C *src;
+    Rec2C *dst;
+    Rec2C *rec;
+    s32 k;
+    s32 n;
+
+    bank = (Bank2C *)D_80095A50;
+    e = bank->entries;
+    e += D_80095A30;
+    recs = (Rec2C *)&bank->entries[D_8009588E];
+    src = &recs[398];
+    dst = &recs[399];
+    for (k = e->first + e->unk4; k < 400; k++) {
+        *dst = *src;
+        dst--;
+        src--;
+    }
+    bank = (Bank2C *)D_80095A50;
+    e = bank->entries;
+    e += D_80095A30;
+    rec = func_80036A50(D_80095A30, e->unk4);
+    rec->unk1C = -sGamePos.unk348;
+    rec->unk20 = sGamePos.unk34C;
+    D_80095A44 = rec;
+    rec->unk24 = -sGamePos.unk350;
+    rec->unk14 = (s16)D_80095A3C * 10;
+    rec->unk28 = D_80095A30;
+    rec->unk18 = D_80095A48;
+    e = (BankEntry *)D_80095A50;
+    e += D_80095A30;
+    e->unk4++;
+    n = D_8009588E;
+    k = D_80095A30 + 1;
+    goto test;
+    do {
+        e++;
+        e->first++;
+        k++;
+    test:;
+    } while (k < n);
+    D_80095A38++;
+    func_80036704();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
 

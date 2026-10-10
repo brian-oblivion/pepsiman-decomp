@@ -25,6 +25,16 @@ extern MATRIX D_800E4858; /**< the rotation matrix the billboard sprites are dra
  *  @param ot    the ordering table */
 void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
 
+/** @brief Draws a sprite as a billboard standing on the current
+ *         transformation's origin (bottom edge there, centred across),
+ *         into an ordering table.
+ *  @param id    which sprite
+ *  @param size  its size
+ *  @param color its colour, or NULL
+ *  @param shift how far its depth is shifted down to an OT index
+ *  @param ot    the ordering table */
+void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
+
 /** @brief Draws a numbered sprite at a screen position into an ordering
  *         table.
  *  @param id    which sprite

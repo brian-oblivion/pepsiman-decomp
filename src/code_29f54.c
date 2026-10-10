@@ -352,7 +352,44 @@ s32 func_8003E544(void) {
     return D_80095A80;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E550);
+/* MATCHING: inlined, so each call rebuilds the two struct addresses. */
+/**
+ * @brief Sets the GS local-screen matrix to a pure translation (x, y, z);
+ *        the sprite steps below expand it in place.
+ * @param x translation x
+ * @param y translation y
+ * @param z translation z
+ */
+static __inline__ void setLs(s16 x, s16 y, s16 z) {
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = x;
+    coord.coord.t[1] = y;
+    coord.coord.t[2] = z;
+    coord.flg = 0;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+}
+
+s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        /* MATCHING: retail shifts the scaled sine with srl. */
+        size.vx = (u32)(rcos((p->unk0 * 3 << 13) / 360) * 25) >> 9;
+        size.vy = (u32)(rsin((p->unk0 << 15) / 360) * 25) >> 8;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80;
+        func_8001A69C(0x11F, &size, &color, 2, ot);
+        return ++p->unk0 == 15;
+    }
+    p->unk2--;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E6F8);
 
@@ -387,27 +424,6 @@ s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     slot->unk0 = 0;
     slot->unk2 = arg4;
     return 0;
-}
-
-/* MATCHING: inlined, so each call rebuilds the two struct addresses. */
-/**
- * @brief Sets the GS local-screen matrix to a pure translation (x, y, z);
- *        the sprite steps below expand it in place.
- * @param x translation x
- * @param y translation y
- * @param z translation z
- */
-static __inline__ void setLs(s16 x, s16 y, s16 z) {
-    GsCOORDINATE2 coord;
-    MATRIX ls;
-
-    GsInitCoordinate2(WORLD, &coord);
-    coord.coord.t[0] = x;
-    coord.coord.t[1] = y;
-    coord.coord.t[2] = z;
-    coord.flg = 0;
-    GsGetLs(&coord, &ls);
-    GsSetLsMatrix(&ls);
 }
 
 void func_8003F8D4(s16 x, s16 y, s16 z) {

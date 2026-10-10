@@ -584,3 +584,8 @@ function's match report, not here.
   them). (func_80037C2C)
 - **Copies `move sN, sM` after a loop guard: assign the loop's pointer locals
   inside the loop body**, not before it. (func_8002B220)
+- **A redundant `andi 0xFFFF` after `xori 0xFFFF` of two shifted bytes, which
+  combine would drop: build the value in one local over three statements**,
+  `b = D[k + 2] << 8; b |= D[k + 3]; b ^= 0xFFFF;`. A narrowed copy reused in
+  one block goes in a new local (`n = (u16)b;`), which local-alloc places and
+  which moves a neighbouring load. (func_80014FA8)

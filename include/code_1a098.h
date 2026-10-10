@@ -12,10 +12,17 @@
 #include "libgpu.h"
 #include "libgs.h"
 
-/** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
+/** @brief A 0x5C-byte record of a 200-entry table: a box whose corners
+ *         are tested against the player or placed in the world. */
 typedef struct {
-    s8 unk0;       /**< -1 when the record is free (a guess) */
-    u8 unk1[0x5B]; /**< not yet known */
+    s8 unk0;              /**< -1 when free (a guess); 1 once the box is hit */
+    u8 unk1[3];           /**< not yet known */
+    s16 v[4][3];          /**< local corners, around the box centre */
+    s32 w[4][3];          /**< world corners */
+    GsCOORDINATE2 *coord; /**< the coordinate system of the corners */
+    s32 x;                /**< x of the box */
+    s32 y;                /**< y */
+    s32 z;                /**< z */
 } Rec5C;
 
 /** @brief A 0x48-byte record of a 200-entry table; a few fields known. */

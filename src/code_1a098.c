@@ -425,15 +425,72 @@ s32 func_800299D8(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
     return 0x7FFF;
 }
 
-#undef VTX
+/** @brief Finds the face of zone `zone` of the wall data `hdr` whose centre
+ *         is nearest `pos` and tells which side of it `pos` is on.
+ *  @return -1 behind the nearest face, 0 in front of it or with no face */
+s32 func_80029E74(s32 zone, VECTOR *pos, FloorHdr *hdr) {
+    VECTOR a;
+    VECTOR b;
+    VECTOR n;
+    FloorVtx *v;
+    FloorFace *f;
+    FloorFace *best;
+    u32 k;
+    s32 d;
+    s32 min;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
+    min = 1000000;
+    f = (FloorFace *)(((FloorZone *)(zone * 8 + (s32)hdr))[1].offset + (s32)hdr);
+    v = (FloorVtx *)(hdr->vtx + (s32)hdr);
+    for (k = 0; k < ((FloorZone *)(zone * 8 + (s32)hdr))[1].count; k++, f++) {
+        if (f->flag != 0) {
+            continue;
+        }
+        if (f->v[3] == 0xFFFF) {
+            a.vx = (VTX(f->v[0])->x + VTX(f->v[1])->x + VTX(f->v[2])->x) / 3;
+            a.vy = (VTX(f->v[0])->y + VTX(f->v[1])->y + VTX(f->v[2])->y) / 3;
+            a.vz = (VTX(f->v[0])->z + VTX(f->v[1])->z + VTX(f->v[2])->z) / 3;
+        } else {
+            a.vx = (VTX(f->v[0])->x + VTX(f->v[1])->x + VTX(f->v[2])->x + VTX(f->v[3])->x) >> 2;
+            a.vy = (VTX(f->v[0])->y + VTX(f->v[1])->y + VTX(f->v[2])->y + VTX(f->v[3])->y) >> 2;
+            a.vz = (VTX(f->v[0])->z + VTX(f->v[1])->z + VTX(f->v[2])->z + VTX(f->v[3])->z) >> 2;
+        }
+        d = (a.vx - pos->vx) * (a.vx - pos->vx) + (a.vy - pos->vy) * (a.vy - pos->vy) +
+            (a.vz - pos->vz) * (a.vz - pos->vz);
+        if (d <= min) {
+            min = d;
+            best = f;
+        }
+    }
+    if (min == 1000000) {
+        return 0;
+    }
+    f = best;
+    a.vx = VTX(f->v[2])->x - VTX(f->v[0])->x;
+    a.vy = VTX(f->v[2])->y - VTX(f->v[0])->y;
+    a.vz = VTX(f->v[2])->z - VTX(f->v[0])->z;
+    b.vx = VTX(f->v[1])->x - VTX(f->v[0])->x;
+    b.vy = VTX(f->v[1])->y - VTX(f->v[0])->y;
+    b.vz = VTX(f->v[1])->z - VTX(f->v[0])->z;
+    OuterProduct0(&a, &b, &n);
+    n.vx >>= 6;
+    n.vy >>= 6;
+    n.vz >>= 6;
+    VectorNormal(&n, &a);
+    if (a.vx * (pos->vx - VTX(f->v[0])->x) + a.vy * (pos->vy - VTX(f->v[0])->y) +
+            a.vz * (pos->vz - VTX(f->v[0])->z) <
+        0) {
+        return -1;
+    }
+    return 0;
+}
+
+#undef VTX
 
 /* MATCHING: code_29f54 defines x and y as s16; this unit passes them
  * unextended. */
 void func_8003A3F4(s32 *index, s32 x, s32 y);
 
-s32 func_80029E74(s32 index, VECTOR *pos, u8 *data);
 s32 func_8002A558(void);
 
 /** @brief Probes 50 units ahead of the player, 45 degrees either side of
@@ -448,7 +505,7 @@ void func_8002A328(void) {
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
     func_8003A3F4(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+    if (func_80029E74(idx, &pos, (FloorHdr *)D_800958B4)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
     }
@@ -457,7 +514,7 @@ void func_8002A328(void) {
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
     func_8003A3F4(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+    if (func_80029E74(idx, &pos, (FloorHdr *)D_800958B4)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
     }
@@ -482,7 +539,8 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 extern s8 D_80095898;  /**< 1 on a hit */
 extern s32 D_8009589C; /**< the word reported with a hit */
 /* code_1902c's tests of a 0x4C-byte record; types not yet known. */
-void func_80028F0C(void *rec, s8 *out);
+/* MATCHING: s32 (its body leaves a value); void moves a register. */
+s32 func_80028F0C(void *rec, s8 *out);
 
 /** @brief Updates the entry `rec` and places and tests its records: the
  *         first-buffer ones collect a hit bit into `r->unk40`, and, when
@@ -547,7 +605,91 @@ void func_8002A98C(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
     v[3][1] = c->vy;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
+/** @brief Tests every box not yet hit. With the mode byte clear, a box is
+ *         hit when the player stands inside its corners (halved); with it
+ *         set, its corners are placed in the world around it and the
+ *         record test decides.
+ *  @return nothing; the value is undefined. */
+/* MATCHING: non-void with no return keeps two delay slots nops. */
+s32 func_8002AA58(void) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR sv;
+    VECTOR t;
+    s32 unused[2];
+    GsCOORDINATE2 coord;
+    long flag;
+    u16 i;
+    s16 j;
+    Rec5C *b;
+    s16(*v)[3];
+    s16 px;
+    s16 pz;
+
+    if (D_80095858 > 0) {
+        return;
+    }
+    i = 0;
+    if (D_800958F8 == 0) {
+        for (; i < 200; i++) {
+            b = &D_800CF080[(s16)i];
+            v = D_800CF080[(s16)i].v;
+            if (b->unk0 != 0) {
+                continue;
+            }
+            px = sGameHead.unk348 - b->x;
+            pz = sGameHead.unk350 - b->z;
+            if ((px - v[0][0] / 2) * ((v[1][2] - v[0][2]) / 2) +
+                    (pz - v[0][2] / 2) * -((v[1][0] - v[0][0]) / 2) <
+                0) {
+                continue;
+            }
+            if ((px - v[1][0] / 2) * ((v[3][2] - v[1][2]) / 2) +
+                    (pz - v[1][2] / 2) * -((v[3][0] - v[1][0]) / 2) <
+                0) {
+                continue;
+            }
+            if ((px - v[2][0] / 2) * ((v[0][2] - v[2][2]) / 2) +
+                    (pz - v[2][2] / 2) * -((v[0][0] - v[2][0]) / 2) <
+                0) {
+                continue;
+            }
+            if ((px - v[3][0] / 2) * ((v[2][2] - v[3][2]) / 2) +
+                    ((pz - v[3][2]) / 2) * -((v[2][0] - v[3][0]) / 2) <
+                0) {
+                continue;
+            }
+            b->unk0 = 1;
+        }
+    } else {
+        for (; i < 200; i++) {
+            if (D_800CF080[(s16)i].unk0 != 0) {
+                continue;
+            }
+            GsInitCoordinate2(WORLD, &coord);
+            coord.coord.t[0] = D_800CF080[(s16)i].x;
+            coord.coord.t[1] = D_800CF080[(s16)i].y;
+            coord.coord.t[2] = D_800CF080[(s16)i].z;
+            D_800CF080[(s16)i].coord = &coord;
+            GsGetLws(D_800CF080[(s16)i].coord, &local, &world);
+            GsSetLsMatrix(&local);
+            for (j = 0; j < 4; j++) {
+                sv.vx = D_800CF080[(s16)i].v[j][0];
+                sv.vy = D_800CF080[(s16)i].v[j][1];
+                sv.vz = D_800CF080[(s16)i].v[j][2];
+                RotTrans(&sv, &t, &flag);
+                D_800CF080[(s16)i].w[j][0] = t.vx + D_800A7308[0];
+                D_800CF080[(s16)i].w[j][1] = t.vy;
+                D_800CF080[(s16)i].w[j][2] = t.vz + D_800A7308[2];
+            }
+            GsSetLsMatrix(&world);
+            func_80028F0C(D_800CF080[(s16)i].v, &D_80095898);
+            if (D_80095898 == 1) {
+                D_800CF080[(s16)i].unk0 = 1;
+            }
+        }
+    }
+}
 
 /** @brief Moves `u` to the next or previous path segment once it has
  *         passed the next point or not yet reached its own.
@@ -1138,7 +1280,103 @@ void func_8002CC24(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CCEC);
+/** @brief A zone's run of group indices. */
+typedef struct {
+    s16 start; /**< first index into the group list */
+    s16 count; /**< how many */
+} Zone4;
+
+/** @brief A run of block entries. */
+typedef struct {
+    u32 first; /**< first entry */
+    u32 count; /**< how many */
+} Group8;
+
+extern Zone4 *D_80095934; /**< the zones */
+extern s8 *D_8009593C;    /**< the group list the zones index */
+void func_800414EC(s16 n);
+
+/** @brief The magnitude of `x`. */
+/* MATCHING: this ternary is cc1's abs, a bgez with its delay slot a nop. */
+static __inline__ s32 absInt(s32 x) {
+    return x >= 0 ? x : -x;
+}
+
+s8 func_8002D0F0(Vec3 *pos);
+void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
+
+/** @brief Draws the markers of the current zone: each block entry marked 2
+ *         whose flag is set and not yet collected gets a sprite, near or
+ *         far by its distance, and when the player is over it it is
+ *         collected (its effect, a sound, bit 15 of its flag index). */
+void func_8002CCEC(void) {
+    GsCOORDINATE2 coord;
+    MATRIX mat;
+    SVECTOR size;
+    Vec3 pos;
+    s32 j;
+    u32 i;
+    u32 k;
+    u16 n;
+    Ent8 *e;
+    s16 m;
+
+    GsInitCoordinate2(WORLD, &coord);
+    for (j = 0; j < D_80095934[D_8009578C].count; j++) {
+        if (D_8009593C[D_80095934[D_8009578C].start + j] < D_800959C8) {
+            for (i = 0;
+                 i < ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].count; i++) {
+                k = ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].first + i;
+                if ((s8)D_800A7550[k] != 2) {
+                    continue;
+                }
+                e = (Ent8 *)(k * 8 + (u32)D_800959C4);
+                n = e->unk6;
+                if ((s8)D_800A74D0[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
+                    continue;
+                }
+                coord.coord.t[0] = -sGameHead.unk348 + e->unk0;
+                coord.coord.t[1] = e->unk2;
+                coord.coord.t[2] = -sGameHead.unk350 + (s16)e->unk4;
+                coord.flg = 0;
+                GsGetLs(&coord, &mat);
+                GsSetLsMatrix(&mat);
+                size.vy = 75;
+                size.vx = 75;
+                if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
+                    func_8001B004(0xFA, &size, NULL, 2, &D_800A7318[D_80095750]);
+                } else {
+                    func_8001A69C(0xFA, &size, NULL, 2, &D_800ACEA8[D_80095750]);
+                }
+                pos.x = coord.coord.t[0] - D_800A7308[0];
+                pos.y = coord.coord.t[1] - 50;
+                pos.z = coord.coord.t[2] - D_800A7308[2];
+                if (func_8002D0F0(&pos)) {
+                    m = n;
+                    func_800414EC(m);
+                    switch (m) {
+                        case 0:
+                            break;
+                        case 1:
+                        default:
+                            func_80042538(0x35);
+                            func_8003F834(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
+                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            break;
+                        case 2:
+                            func_80042538(0x35);
+                            func_8003F834(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
+                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            break;
+                    }
+                    ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk6 |= 0x8000;
+                }
+            }
+        }
+    }
+}
 
 /** @brief Points the current-block globals at the block `hdr` heads. */
 void func_8002D0C4(BlockHeader *hdr) {

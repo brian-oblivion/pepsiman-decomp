@@ -11,6 +11,8 @@ code_13068: warning: unused variable `unused'
 code_13068: warning: unused variable `unused'
 code_13068: warning: unused variable `unused'
 code_13068: warning: unused variable `unused'
+code_1a098: warning: `best' might be used uninitialized in this function
+code_1a098: warning: `return' with no value, in function returning non-void
 code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
@@ -19,6 +21,8 @@ code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
+code_1a098: warning: control reaches end of non-void function
+code_1a098: warning: unused variable `unused'
 code_1a098: warning: unused variable `unused'
 code_1a098: warning: unused variable `unused'
 code_1a098: warning: unused variable `unused'

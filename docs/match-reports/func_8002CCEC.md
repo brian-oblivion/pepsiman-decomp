@@ -1,4 +1,4 @@
-# func_8002CCEC — STALL: length exact, 242/246 raw, first real diff at 0x8002CE84 (a range test's delay slot) (round 9, charlie)
+# func_8002CCEC — MATCHED 246/246 (round 11, echo; round 9 stall by charlie)
 
 Unit `src/code_1a098.c`. Draws the markers of the current zone: for
 each group of the zone (`D_80095934[D_8009578C]`, group list
@@ -10,7 +10,37 @@ and when func_8002D0F0 reports the player 50 units above it, runs
 func_800414EC, plays 0x35 and func_8003F834 (7, or 8 for state 2, none
 for 0), and sets bit 15.
 
-Best body (built this session: 242/246, length exact, `insertions 4 /
+## Round 11 (echo): matched
+
+REVISIT. The body below, rebuilt exactly as preserved (with
+`func_8001B004`'s prototype), still scored 242/246, `insertions 4 /
+deletions 4` (positional skeleton diffs 4): the residue under "Residue" below, unchanged.
+
+Round 9's abs lever closed it on the first build: the abs written as
+`v >= 0 ? v : -v` (LEARNINGS, func_8003B780: "`bgez r; nop; negu r` with
+the delay slot unfilled is cc1's abs"). The `absInt` helper became
+
+```c
+static __inline__ s32 absInt(s32 x) {
+    return x >= 0 ? x : -x;
+}
+```
+
+and nothing else changed: 246/246, image OK. The `if (x < 0) x = -x;`
+form let the scheduler fill the `bgez` slot with `size.vx = 75`; the
+ternary leaves it empty, so the store falls to the range test's slot as
+in retail. Round 10's `s32`-with-no-return lever was not needed. The
+unused `Group8 *g` local of the preserved body was dropped (no code
+change).
+
+Declarations left in the unit for the head (declcheck LOCAL/MULTI):
+`D_80095934` and `D_8009593C` (code_29f54.c declares both too, with its
+own `Run` type for the first), `func_8001B004` (defined in code_a0bc,
+not in `code_a0bc.h`) and `func_800414EC` (defined in code_31cec).
+
+The round 9 body follows as it was preserved.
+
+Best body (built in round 9: 242/246, length exact, `insertions 4 /
 deletions 4` opcode-level, i.e. two words moved). It needs, besides the
 unit's declarations, `func_8001B004`'s prototype (`void func_8001B004(u16
 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);`) and the unit's

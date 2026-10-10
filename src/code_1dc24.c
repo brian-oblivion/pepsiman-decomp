@@ -37,7 +37,7 @@ typedef struct {
     u8 unk10[2];    /**< not yet known */
     u16 unk12;      /**< the edited value saved for menu line 0 */
     u16 unk14;      /**< the edited value saved for menu line 1 */
-    u8 unk16[2];    /**< not yet known */
+    u16 unk16;      /**< number of 0x5C-byte records in use */
     u16 unk18;      /**< number of Obj48 records in use */
     u16 unk1A;      /**< number of Obj48 records counted live */
     u16 unk1C;      /**< unk38 of the first record placed */
@@ -237,6 +237,32 @@ extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 
 /* MATCHING: code_1a098 declares it as its Rec5C records. */
 extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
+
+/** @brief A 0x5C-byte record of the 200-entry table at D_800CF080, as this
+ *         unit places it. */
+typedef struct {
+    s8 unk0;       /**< -1 when the record is free */
+    u8 unk1[0x4F]; /**< not yet known */
+    s32 unk50[3];  /**< a position */
+} Rec5Cv;
+
+#define sRecs5C ((Rec5Cv *)D_800CF080)
+
+/** @brief A width and a depth. */
+typedef struct {
+    s16 w; /**< the width */
+    s16 d; /**< the depth */
+} Size2;
+
+/** @brief Three sizes, copied whole. */
+typedef struct {
+    Size2 s[3]; /**< the sizes */
+} Sizes3;
+
+extern Sizes3 D_800110EC; /**< the three box sizes, 2000, 1000 and 4000 */
+
+/* MATCHING: code_1a098 defines it on its Box4. */
+void func_8002C540(Rec5Cv *b, s16 w, s16 d);
 
 /* MATCHING: code_308ec defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
@@ -635,7 +661,64 @@ void func_8002FDB4(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FF74);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030278);
+/** @brief Counts the used 0x5C-byte records (clearing them to 0), picks a
+ *         free slot if the current one is taken, sizes a box there at the
+ *         game position, and on flag bit 5 places it and moves the slot on
+ *         to the next free one (error 7 with no entry, 8 when full).
+ *  @return nothing; the value is undefined. */
+s32 func_80030278(void) {
+    Sizes3 sizes;
+    u32 i;
+
+    /* MATCHING: non-void with no return value keeps the flag test's delay
+     * slot a nop. */
+    sizes = D_800110EC;
+    sTotals.unk16 = 0;
+    for (i = 0; i < 200; i++) {
+        if (sRecs5C[i].unk0 != -1) {
+            sRecs5C[i].unk0 = 0;
+            sTotals.unk16++;
+        }
+    }
+    if (sTotals.unk16 == 200) {
+        D_800958DA = 8;
+        return;
+    }
+    if (sRecs5C[sTotals.unk12].unk0 != -1) {
+        for (i = 0; i < 200; i++) {
+            if (sRecs5C[i].unk0 == -1) {
+                break;
+            }
+        }
+        if (i == 200) {
+            D_800958DA = 8;
+            return;
+        }
+        sTotals.unk12 = i;
+    }
+    func_8002C540(&sRecs5C[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
+    sRecs5C[sTotals.unk12].unk50[0] = sGameSave.unk348[0];
+    sRecs5C[sTotals.unk12].unk50[1] = sGameSave.unk348[1];
+    sRecs5C[sTotals.unk12].unk50[2] = sGameSave.unk348[2];
+    sRecs5C[sTotals.unk12].unk0 = -1;
+    if (D_80095970 & 0x20) {
+        if (D_80095824 == -1) {
+            D_800958DA = 7;
+            return;
+        }
+        sRecs5C[sTotals.unk12].unk0 = 0;
+        for (i = 0; i < 200; i++) {
+            if (sRecs5C[i].unk0 == -1) {
+                break;
+            }
+        }
+        if (i == 200) {
+            D_800958DA = 8;
+            return;
+        }
+        sTotals.unk12 = i;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030548);
 

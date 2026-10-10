@@ -77,6 +77,9 @@ extern u8 D_80011C54[]; /**< title of the second save file */
 extern u8 D_800119E4[]; /**< first save file's icon frames, three TIMs */
 extern u8 D_80011AA4[];
 extern u8 D_80011B64[];
+extern u8 D_80011C70[]; /**< second save file's icon frames, three TIMs */
+extern u8 D_80011D30[];
+extern u8 D_80011DF0[];
 extern u8 D_800DF630[]; /**< the card header's icon CLUT and first frame */
 extern u8 D_800DF6D0[]; /**< the card header's second icon frame */
 extern u8 D_800DF750[]; /**< the card header's third icon frame */
@@ -937,7 +940,18 @@ end:
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800390B8);
+/** @brief Copies the second save file's three icon TIMs into the card header's CLUT and frames. */
+void func_800390B8(void) {
+    IconTim tim[3];
+
+    tim[0] = *(IconTim *)D_80011C70;
+    tim[1] = *(IconTim *)D_80011D30;
+    tim[2] = *(IconTim *)D_80011DF0;
+    *(IconClut *)D_800DF630 = tim[0].clut;
+    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
+    *(IconBits *)D_800DF6D0 = tim[1].bits;
+    *(IconBits *)D_800DF750 = tim[2].bits;
+}
 
 void func_800394EC(void) {
     D_800959D4 = (u8 *)0x80195000;

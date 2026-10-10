@@ -266,7 +266,33 @@ s32 func_8002AEB8(PathUser *u) {
     return i;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AF6C);
+/** @brief Finds the path segment `u` is on, as the segment update above
+ *         does, without storing it.
+ *  @return the direction of that segment, from ratan2 */
+/* MATCHING: the unused pair gives the frame its 0x20 bytes; a third point
+ * local for the last segment, where reusing either colours $a0 differently. */
+s16 func_8002AF6C(PathUser *u) {
+    s32 unused[2];
+    s32 i;
+    s32 d;
+    PathPt *next;
+    PathPt *pt;
+    PathPt *seg;
+
+    i = u->seg;
+    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
+    if (d >= 0) {
+        i++;
+    }
+    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
+    if (d >= 0) {
+        i--;
+    }
+    seg = (PathPt *)(i * 8 + (u32)D_800958A0);
+    return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B04C);
 

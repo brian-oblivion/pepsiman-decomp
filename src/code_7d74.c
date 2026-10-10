@@ -7,6 +7,7 @@
 #include "code_7d74.h"
 #include "code_a0bc.h"
 #include "code_1a098.h"
+#include "spad.h"
 
 /** @brief A 16-byte entry of a pack's directory; the first entry's count is
  *         the number of entries. */
@@ -90,7 +91,7 @@ typedef struct {
 u8 func_80017F0C(Player *obj, u16 index, s8 arg);
 
 void func_80017DD4(void);
-void func_8001819C(void);
+s32 func_8001819C(void);
 void func_80018BD8(void);
 s8 func_80017640(u16 *tim);
 u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
@@ -364,6 +365,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
 
     ret = 1;
     if (obj->want[0] == 1) {
+        __asm__("");
         return 0;
     }
     if (obj->want[index] != obj->cur[index]) {
@@ -432,7 +434,73 @@ void func_80018094(void) {
     GsSetFogParam(&fog);
 }
 
+#ifdef NON_MATCHING
+/** @brief The game state's fields the model draw reads. */
+typedef struct {
+    u8 unk0[2];     /**< not yet known */
+    u8 unk2;        /**< draw every frame when set */
+    u8 unk3[2];     /**< not yet known */
+    u8 unk5;        /**< the mode; 0 and 0x5E draw only half the frames */
+    u8 unk6[0x3C4]; /**< not yet known */
+    u16 unk3CA;     /**< selects the second ordering tables when set */
+    u8 unk3CC[8];   /**< not yet known */
+    s8 unk3D4;      /**< 1 swaps object 10's model */
+} DrawHead;
+
+/** @brief The model list as the model draw walks it. */
+typedef struct {
+    GsDOBJ2 *objs; /**< the models */
+    s32 count;     /**< how many */
+} DrawList;
+
+extern s32 D_800963A0[];
+
+s32 func_8001819C(void) {
+    GsDOBJ2 save;
+    MATRIX m;
+    GsDOBJ2 *o;
+    GsDOBJ2 *q;
+    s32 i;
+
+    if ((*(DrawHead *)D_8009EB78).unk2 == 0 && (D_8009585C & 3) < 2) {
+        if ((*(DrawHead *)D_8009EB78).unk5 == 0 || (*(DrawHead *)D_8009EB78).unk5 == 0x5E) {
+            return;
+        }
+    }
+    o = (*(DrawList *)D_800D8360).objs;
+    for (i = 0; i < (*(DrawList *)D_800D8360).count; o++, i++) {
+        o->coord2->flg = 0;
+        if (o->id == -1) {
+            continue;
+        }
+        if (o->tmd != NULL) {
+            save = *o;
+            q = o;
+            if (o->id == 10 && (*(DrawHead *)D_8009EB78).unk3D4 == 1) {
+                o->tmd = (unsigned long *)D_800963A0[2];
+            }
+            GsGetLs(o->coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(o->coord2, &m);
+            GsSetLightMatrix(&m);
+            SetSpadStack();
+            if ((*(DrawHead *)D_8009EB78).unk3CA == 0) {
+                GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+            } else {
+                GsSortObject4J(o, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+            }
+            ResetSpadStack();
+            /* MATCHING: the loop pointer is reloaded from the copy. */
+            o = q;
+            *o = save;
+        }
+        /* MATCHING: a barrier keeps the tmd branch's label off the loop test. */
+        __asm__("");
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001819C);
+#endif
 
 s32 func_800183B0(Vec3i *pos) {
     Vec3i p;
@@ -472,7 +540,79 @@ s32 func_800183B0(Vec3i *pos) {
     return found;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800184BC);
+/** @brief A sky band's four corner colours. */
+typedef struct {
+    CVECTOR c[4]; /**< top and bottom of the upper band, then of the lower */
+} SkyColors;
+
+extern SkyColors *D_8009590C;
+
+void func_800184BC(u32 arg) {
+    /* MATCHING: volatile keeps every store in source order and in place. */
+    volatile POLY_G4 *p;
+    u32 *tag;
+    s32 set;
+    s32 dx;
+    s32 dz;
+    s32 y;
+
+    dx = D_80096768[3] - D_80096768[0];
+    dz = D_80096768[5] - D_80096768[2];
+    /* MATCHING: two steps keep the shift and the mask in one register. */
+    set = arg >> 10;
+    set &= 3;
+    y = D_80096768[4] - D_80096768[1];
+    p = (volatile POLY_G4 *)D_800E48D0;
+    y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
+    if (D_8009576A != 100 && D_80095830 % 3 != 2) {
+        p->r0 = p->r1 = D_8009590C[set].c[0].r * (D_8009576A << 11) / 0x10000;
+        p->g0 = p->g1 = D_8009590C[set].c[0].g * (D_8009576A << 11) / 0x10000;
+        p->b0 = p->b1 = D_8009590C[set].c[0].b * (D_8009576A << 11) / 0x10000;
+        p->r2 = p->r3 = D_8009590C[set].c[1].r * (D_8009576A << 11) / 0x10000;
+        p->g2 = p->g3 = D_8009590C[set].c[1].g * (D_8009576A << 11) / 0x10000;
+        p->b2 = p->b3 = D_8009590C[set].c[1].b * (D_8009576A << 11) / 0x10000;
+    } else {
+        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&D_8009590C[set].c[0];
+        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&D_8009590C[set].c[1];
+    }
+    p->x0 = -160;
+    p->y0 = -160;
+    p->x1 = 159;
+    p->y1 = -160;
+    p->x2 = -160;
+    p->y2 = 8 - y;
+    p->x3 = 159;
+    p->y3 = 8 - y;
+    setcode(p, 0x38);
+    tag = (u32 *)D_800A7318[D_80095750].org + 0xFFF;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
+    *tag = (u32)p & 0xFFFFFF;
+    p++;
+    if (D_8009576A != 100 && D_80095830 % 3 != 2) {
+        p->r0 = p->r1 = D_8009590C[set].c[2].r * (D_8009576A << 11) / 0x10000;
+        p->g0 = p->g1 = D_8009590C[set].c[2].g * (D_8009576A << 11) / 0x10000;
+        p->b0 = p->b1 = D_8009590C[set].c[2].b * (D_8009576A << 11) / 0x10000;
+        p->r2 = p->r3 = D_8009590C[set].c[3].r * (D_8009576A << 11) / 0x10000;
+        p->g2 = p->g3 = D_8009590C[set].c[3].g * (D_8009576A << 11) / 0x10000;
+        p->b2 = p->b3 = D_8009590C[set].c[3].b * (D_8009576A << 11) / 0x10000;
+    } else {
+        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&D_8009590C[set].c[2];
+        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&D_8009590C[set].c[3];
+    }
+    p->x0 = -160;
+    p->y0 = 8 - y;
+    p->x1 = 159;
+    p->y1 = 8 - y;
+    p->x2 = -160;
+    p->y2 = 119;
+    p->x3 = 159;
+    p->y3 = 119;
+    setcode(p, 0x38);
+    tag = (u32 *)D_800A7318[D_80095750].org + 0xFFF;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
+    *tag = (u32)p & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(p + 1);
+}
 
 void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord) {
     MATRIX m;
@@ -565,7 +705,280 @@ s32 func_80018D70(void *pos, void *arg, s32 cur) {
 
 void func_80018DE8(void) {}
 
+#ifdef NON_MATCHING
+/** @brief The game state's camera target, as the key interpreter reads it. */
+typedef struct {
+    u8 unk0[0x368]; /**< not yet known */
+    s32 unk368;     /**< the target's x */
+    s32 unk36C;     /**< the target's y */
+    s32 unk370;     /**< the target's z */
+} CamHead;
+
+extern s32 D_80095740;
+extern s32 D_80095744;
+extern s32 D_8009EF00[];
+
+Slot *func_800196E4(SlotList *list, s32 key);
+Slot *func_80019730(SlotList *list, s32 key);
+Slot *func_800197E4(SlotList *list, s32 key);
+s32 *func_80019874(s32 *table, s32 *keys, s32 key);
+
+u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
+    s16 mask[3];
+    s32 rot[3];
+    s32 unused[6];
+    GsDOBJ2 dummy;
+    MATRIX dummyM;
+    GsCOORD2PARAM dummyP;
+    s16 k;
+    s16 j;
+    u32 w;
+    u32 bits;
+    s16 sign;
+    s32 id;
+    u32 type;
+    GsDOBJ2 *obj;
+    u32 flags;
+    u32 words;
+    u8 *p;
+    s16 h;
+    s32 *r;
+    GsCOORDINATE2 *c;
+    MATRIX *m;
+    GsCOORD2PARAM *prm;
+    s32 a;
+    s32 v;
+    Slot *s;
+
+    w = *(u32 *)data;
+    p = data + 4;
+    bits = w & 0x7000;
+    sign = w & 0x8000;
+    id = w & 0xFFF;
+    if (sign == 0 || id == 1) {
+        type = (w >> 16) & 0xF;
+        flags = (w >> 20) & 0xF;
+        words = w >> 24;
+    } else {
+        type = 1;
+        flags = 2;
+        k = 0;
+        words = 0;
+        for (; k < 3; k++) {
+            mask[k] = bits & (0x4000 >> k);
+            if (mask[k] != 0) {
+                words++;
+            }
+        }
+        if (words != 0) {
+            words = 1;
+        } else {
+            words = 2;
+        }
+    }
+    if (arg5 & 0x7F) {
+        switch (id) {
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+                if ((arg5 & 0x7F) == 1) {
+                    return data + words * 4;
+                }
+                break;
+            case 1:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+                if ((arg5 & 0x7F) == 2) {
+                    return data + words * 4;
+                }
+                break;
+        }
+    }
+    obj = (GsDOBJ2 *)func_800196E4((SlotList *)arg1, id);
+    if (obj == NULL) {
+        obj = &dummy;
+        m = &dummyM;
+        prm = &dummyP;
+    } else {
+        c = obj->coord2;
+        prm = c->param;
+        m = &c->coord;
+        c->flg = 0;
+    }
+    switch (type) {
+        case 1:
+            if (flags & 1) {
+                break;
+            }
+            if (flags & 2) {
+                if (sign != 0) {
+                    if (id == type) {
+                        for (k = 0; k < 3; k++) {
+                            rot[k] = (h = ((s16 *)p)[k]) & 0xFFFF;
+                            if (h & 0x8000) {
+                                rot[k] |= 0xFFFF0000;
+                            }
+                            rot[k] <<= 12;
+                        }
+                        p += 8;
+                    } else if ((id != 2 && id != 10) || !(arg5 & 0x80)) {
+                        if (words == 2) {
+                            for (k = 0; k < 3; k++) {
+                                rot[k] = (h = ((s16 *)p)[k - 1]) & 0xFFFF;
+                                if (h & 0x8000) {
+                                    rot[k] |= 0xFFFF0000;
+                                }
+                                rot[k] <<= 12;
+                            }
+                            p += 4;
+                        } else {
+                            j = 0;
+                            for (k = 0; k < 3; k++) {
+                                r = &rot[k];
+                                if (mask[k] != 0) {
+                                    *r = 0;
+                                } else {
+                                    *r = (h = ((s16 *)p)[j - 1]) & 0xFFFF;
+                                    if (h & 0x8000) {
+                                        *r |= 0xFFFF0000;
+                                    }
+                                    j++;
+                                    *r <<= 12;
+                                }
+                            }
+                        }
+                    } else {
+                        a = (ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)D_8009EB78).unk368,
+                                    D_800D86E0[0].coord.t[2] - (*(CamHead *)D_8009EB78).unk370) -
+                             D_8009EABA[0]) &
+                            0xFFF;
+                        if (id == 2) {
+                            if (a < 0x800) {
+                                if (a > 0x2AA) {
+                                    a = 0x2AA;
+                                }
+                            } else if (a < 0xD55) {
+                                a = 0xD55;
+                            }
+                            v = a;
+                            if (v > 0x800) {
+                                v -= 0x1000;
+                            }
+                            if (D_80095740 < v) {
+                                D_80095740 += 8;
+                            } else if (v < D_80095740) {
+                                D_80095740 -= 8;
+                            }
+                            v = D_80095740;
+                            D_8009EF00[0] = v;
+                        } else {
+                            if (a < 0x800) {
+                                if (a > 0x38E) {
+                                    a = 0x38E;
+                                }
+                            } else if (a < 0xC71) {
+                                a = 0xC71;
+                            }
+                            v = a;
+                            if (v > 0x800) {
+                                v -= 0x1000;
+                            }
+                            if (D_80095744 < v) {
+                                D_80095744 += 50;
+                            } else if (v < D_80095744) {
+                                D_80095744 -= 50;
+                            }
+                            v = D_80095744;
+                        }
+                        rot[1] = v * 360;
+                    }
+                    prm->rotate.vx = rot[0] / 360;
+                    prm->rotate.vy = rot[1] / 360;
+                    prm->rotate.vz = rot[2] / 360;
+                } else {
+                    prm->rotate.vx = ((s32 *)p)[0] / 360;
+                    prm->rotate.vy = ((s32 *)p)[1] / 360;
+                    prm->rotate.vz = ((s32 *)p)[2] / 360;
+                    p += 12;
+                }
+                obj->coord2->flg = 0;
+                RotMatrix(&prm->rotate, m);
+            }
+            if (flags & 4) {
+                prm->scale.vx = ((s16 *)p)[0];
+                prm->scale.vy = ((s16 *)p)[1];
+                prm->scale.vz = ((s16 *)p)[2];
+                p += 8;
+            } else {
+                if (D_8009EF4A[0] == 0) {
+                    prm->scale.vx = 0x1000;
+                    prm->scale.vy = 0x1000;
+                    prm->scale.vz = 0x1000;
+                } else {
+                    prm->scale.vx = 0x1000;
+                    prm->scale.vy = 0x1000;
+                    prm->scale.vz = 0;
+                }
+                if ((D_8009EF48[0] & 0xF) == 3 && (u32)id < 11 && (u32)id >= 2) {
+                    prm->scale.vx = 0;
+                    prm->scale.vy = 0;
+                    prm->scale.vz = 0;
+                }
+            }
+            if (!(flags & 2)) {
+                RotMatrix(&prm->rotate, m);
+            }
+            ScaleMatrix(m, &prm->scale);
+            if (flags & 8) {
+                prm->trans.vx = ((s32 *)p)[0] / 5;
+                prm->trans.vy = ((s32 *)p)[1] / 5;
+                prm->trans.vz = ((s32 *)p)[2] / 5;
+                TransMatrix(m, &prm->trans);
+            }
+            break;
+        case 2:
+            if (arg3 != 0) {
+                GsLinkObject4((u_long)func_80019874((s32 *)arg3, (s32 *)arg2, *(u16 *)p), obj, 0);
+            }
+            break;
+        case 3:
+            if (arg4 != 2) {
+                if (*(s32 *)p == 0 || *(s32 *)p == 0xFFFF) {
+                    obj->coord2->super = NULL;
+                } else {
+                    s = func_800196E4((SlotList *)arg1, *(s32 *)p);
+                    obj->coord2->super = (GsCOORDINATE2 *)s->unk4;
+                }
+            }
+            break;
+        case 8:
+            if (arg1 != 0) {
+                switch (flags) {
+                    case 0:
+                        func_80019730((SlotList *)arg1, id);
+                        break;
+                    case 1:
+                        func_800197E4((SlotList *)arg1, id);
+                        break;
+                }
+            }
+            break;
+    }
+    return data + words * 4;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018DF0);
+#endif
 
 u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6) {
     u32 i;
@@ -647,7 +1060,7 @@ Slot *func_80019730(SlotList *list, s32 key) {
     return NULL;
 }
 
-Slot *func_800197E4(SlotList *list) {
+Slot *func_800197E4(SlotList *list, s32 key) {
     Slot *s;
     s32 i;
 

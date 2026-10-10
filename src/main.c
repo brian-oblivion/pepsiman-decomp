@@ -207,12 +207,62 @@ void func_80013EE4(void) {
     D_80095884 = &D_800A7318[D_80095750];
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014044);
+/* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
+void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
+void func_80039754(s32 clip);
+void func_8003DE34(void);
+void func_800142EC(s32 arg);
+
+extern s32 D_800959A0;
+extern DR_STP D_800CEBD0;
+extern DR_STP D_800CEBC0;
+
+void func_80014044(void) {
+    GsRVIEW2 view;
+
+    switch (D_8009586C) {
+        case 0:
+            if (D_80095880 != 14) {
+                GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+            }
+            break;
+        case 1:
+            view.vpx = 0;
+            view.vpy = 0;
+            view.vpz = 400;
+            view.rz = 0;
+            view.vrx = 0;
+            view.vry = 0;
+            view.vrz = 0;
+            GsSetRefView2(&view);
+            break;
+    }
+    D_800959A0 = VSync(D_800957A8);
+    DrawSync(0);
+    GsSwapDispBuff();
+    func_80056B8C(D_8009575C, D_80095754, D_8009574C, &D_800A7318[D_80095750]);
+    SetDrawStp(&D_800CEBD0, 1);
+    AddPrim(&D_800A7318[D_80095750].org[0xFFF], &D_800CEBD0);
+    func_80039754(ClipF);
+    GsDrawOt(&D_800A7318[D_80095750]);
+    D_80095750 = GsGetActiveBuff();
+    GsSetWorkBase(D_800ACF00[D_80095750]);
+    GsClearOt(0, 300, &D_800A7318[D_80095750]);
+    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
+    GsSortOt(&D_800ACEA8[D_80095750], &D_800A7318[D_80095750]);
+    D_80095884 = &D_800A7318[D_80095750];
+    SetDrawStp(&D_800CEBC0, 0);
+    AddPrim(D_800ACEA8[D_80095750].org, &D_800CEBC0);
+    func_800142EC(0);
+    func_8003DE34();
+    if (D_80095974 == 0) {
+        D_8009585C++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
 
 void func_80013EE4(void);
-void func_800142EC(s32 arg);
 void func_80014B8C(s16 frames);
 
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */

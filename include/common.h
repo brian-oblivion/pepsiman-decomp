@@ -134,6 +134,9 @@ extern s32 D_800959B8; /**< 2 units, 2 functions */
 extern u8 D_800958C9;  /**< 1 while CD audio is playing; 2 units */
 extern u16 D_80095880; /**< 2 units */
 extern s16 D_80095960; /**< 2 units */
+extern u8 D_8009586C;  /**< the view mode: 0 the game's reference view, 1 a fixed one; 2 units */
+extern s8 D_80095974;  /**< nonzero stops the frame counter; 2 units */
+extern s32 ClipF;      /**< a word inside libgte's clipf object, as a variable; 2 units */
 extern s32 D_80095904; /**< the mapped model data's TMD address; 2 units */
 extern s8 D_8009596C;  /**< 2 units */
 extern u8 D_80095AEE;  /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */

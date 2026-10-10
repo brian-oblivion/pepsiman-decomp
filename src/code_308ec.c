@@ -165,15 +165,11 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sSaved (*(SavedStart *)D_800D86B8)
 
-extern u8 D_8009586C;
-extern u8 D_80095974;
 extern s32 D_800957A4;
 extern u16 D_80095868;
 extern s32 D_80095988;
 extern s32 D_8007B038[][3];
 extern s32 D_8007AF84[][3];
-/* A word inside libgte's clipf object, written as a variable. */
-extern s32 ClipF;
 
 void func_800413BC(void);
 /* MATCHING: main.c types the object as its Stepper; here it is the game

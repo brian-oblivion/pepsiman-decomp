@@ -16,7 +16,422 @@
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
-INCLUDE_ASM("asm/nonmatchings/main", main);
+/** @brief Two words, cleared or copied as a pair (a unit-local view). */
+typedef struct {
+    s32 a; /**< first word */
+    s32 b; /**< second word */
+} Pair8;
+
+extern Pair8 D_80096A58[];
+extern Pair8 D_800D8340[];
+extern Pair8 D_80010454[];
+extern u8 D_800957DA;
+extern u8 D_800958C8;
+extern s8 D_800957A0;
+extern s32 D_80095758;
+extern s8 D_80095908;
+extern u8 D_800958A5;
+extern s32 D_80095984;
+extern s32 D_80095998;
+extern s8 D_800956D0;
+extern u16 D_80095764;
+extern u16 D_80095766;
+extern s32 D_80095968;
+extern s16 D_800958E2;
+extern char D_800954C8[];
+
+void func_80020C14(void);
+/* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
+void func_80018DE8(s32 arg);
+s8 func_80013B38(void);
+s32 func_800426A4(void);
+void func_80014AC8(void);
+void func_80014CF0(void);
+s32 func_80014DB0(void);
+s8 func_80015584(void);
+void func_80014044(void);
+void func_80016D14(void);
+void func_80016FC0(void);
+void func_80017124(void);
+/* Defined in code_31958. */
+void func_8004121C(u16 sel);
+void func_800401F0(u8 stage);
+void func_800229A8(void);
+void func_80022A74(void);
+void func_80017B38(void);
+s16 func_80040CD0(u8 stage);
+void func_8002B04C(void);
+void func_8002B220(void);
+s32 func_8002D424(void);
+void func_80034070(void);
+void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4);
+void func_80042208(void);
+void func_800F026C(void);
+void func_800F6670(void);
+void func_800F03B4(void);
+void func_800F03BC(void);
+void func_800F0414(void);
+void func_800F0480(void);
+
+/* MATCHING: cc1's own `jal __main` in main is retail's call of func_80042C50. */
+__asm__(".set __main, func_80042C50");
+
+/**
+ * @brief The game's entry, called from crt0: initialises the system and the
+ *        globals, then steps the top-level game state once
+ *        per frame, forever.
+ */
+int main(void) {
+    u8 world;
+    Pair8 *dst;
+    s32 a;
+    s32 b;
+
+    func_80014AC8();
+    func_80020C14();
+    func_80018DE8(1);
+    func_80018CB4();
+    func_80018094();
+    SetFogNearFar(3000, 8000, 250);
+    SetFarColor(0x40, 0x60, 0xFF);
+    D_800957DA = 1;
+    D_80095AEE = 1;
+    D_800958C8 = 1;
+    D_800957A0 = -1;
+    ClipF = 0;
+    D_80095758 = 0;
+    D_80095908 = 0;
+    D_800957D5 = 0;
+    D_800958A5 = 0;
+    D_800958AC = -1;
+    D_80095984 = 0;
+    D_80095998 = 0;
+    for (D_800958CC = 0; D_800958CC < 4; D_800958CC++) {
+        D_80096A58[D_800958CC].a = 0;
+        D_80096A58[D_800958CC].b = 0;
+        dst = &D_800D8340[D_800958CC];
+        a = D_80010454[D_800958CC].a;
+        b = D_80010454[D_800958CC].b;
+        dst->a = a;
+        dst->b = b;
+    }
+    D_800956D0 = 0;
+    D_80095760 = 0;
+    D_80095880 = 0;
+    D_8009586C = 0;
+    D_80095766 = 0;
+    D_80095764 = 0;
+    D_800957DA = 0;
+    D_80095968 = 0;
+    D_800958F8 = 0;
+    D_800958C9 = 0;
+    for (;;) {
+        FntPrint(D_800954C8);
+        if (D_8009586C == 1) {
+            func_80014CF0();
+        }
+        switch (D_80095880) {
+            case 0:
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_800958A6 = 0;
+                D_80095880 = 1;
+                D_800957A8 = 2;
+                break;
+            case 1:
+                if (func_80013B38() == 1) {
+                    D_800958A6 = 0;
+                    D_80095880 = 2;
+                }
+                break;
+            case 2:
+                if (func_800426A4() == 1) {
+                    D_80095880 = 6;
+                }
+                break;
+            case 3:
+                D_8009586C = 1;
+                D_80095880 = 4;
+                func_80022554(0);
+                break;
+            case 4:
+                if (D_8009596C == 6) {
+                    D_80095880 = 5;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 5:
+                func_800F026C();
+                break;
+            case 6:
+                D_8009586C = 1;
+                D_800958F8 = 0;
+                D_80095880 = 7;
+                func_80022554(2);
+                break;
+            case 7:
+                if (D_8009596C == 6) {
+                    D_80095880 = 8;
+                    if (D_80095760 == 0xFFFF) {
+                        D_80095760 = 50;
+                    } else {
+                        D_80095760 = 0;
+                    }
+                    D_8009586C = 0;
+                }
+                break;
+            case 8:
+                func_800F6670();
+                func_80014DB0();
+                break;
+            case 38:
+                world = D_80095830 / 3;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 39;
+                func_80022554(world + 18);
+                break;
+            case 39:
+                if (D_8009596C == 6) {
+                    D_80095880 = 40;
+                }
+                D_80095760 = 0;
+                D_80095768 = 0;
+                break;
+            case 40:
+                switch ((u8)(D_80095830 / 3)) {
+                    case 0:
+                        func_800F03BC();
+                        break;
+                    case 1:
+                        func_800F03B4();
+                        break;
+                    case 2:
+                        func_800F0480();
+                        break;
+                    case 3:
+                        /* MATCHING: keeps cross-jumping off case 0's call. */
+                        func_800F03BC();
+                        __asm__("");
+                        break;
+                    case 4:
+                        func_800F0414();
+                        break;
+                }
+                break;
+            case 12:
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_800958F8 = 0;
+                D_8009586C = 1;
+                D_80095880 = 13;
+                func_8004121C(D_80095830);
+                break;
+            case 13:
+                if (D_8009596C == 6) {
+                    D_80095880 = 14;
+                }
+                D_80095760 = 0;
+                break;
+            case 14:
+                func_800401F0(D_80095830);
+                break;
+            case 15:
+                D_80095880 = 16;
+                func_800229A8();
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_800957A8 = 2;
+                break;
+            case 16:
+                func_80022A74();
+                break;
+            case 17:
+                D_800957A8 = 2;
+                D_80095880 = 19;
+                D_80095760 = 0;
+                break;
+            case 19:
+                func_80017B38();
+                break;
+            case 20:
+                D_80095880 = 23;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 21;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 0;
+                break;
+            case 21:
+                if (D_8009596C == 6) {
+                    D_80095880 = 22;
+                }
+                break;
+            case 22:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 23;
+                    D_8009586C = 0;
+                }
+                break;
+            case 23:
+                func_8002B04C();
+                break;
+            case 24:
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 25;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 0;
+                break;
+            case 25:
+                if (D_8009596C == 6) {
+                    D_80095880 = 26;
+                }
+                break;
+            case 26:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 27;
+                    D_8009586C = 0;
+                    D_80095760 = 0;
+                }
+                break;
+            case 27:
+                func_8002B220();
+                break;
+            case 28:
+                D_800958F8 = 1;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 29;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 2;
+                break;
+            case 29:
+                if (D_8009596C == 6) {
+                    D_80095880 = 30;
+                }
+                break;
+            case 30:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 32;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 31:
+                if (D_8009596C == 6) {
+                    D_80095880 = 32;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 32:
+                func_8002D424();
+                break;
+            case 33:
+                D_800958F8 = 1;
+                D_8009574C = 0;
+                D_80095754 = 0;
+                D_8009575C = 0;
+                D_8009586C = 1;
+                D_80095880 = 34;
+                D_800958A6 = 0;
+                D_800958E2 = 0;
+                func_8004121C(D_80095830);
+                D_800957A8 = 2;
+                break;
+            case 34:
+                if (D_8009596C == 6) {
+                    D_80095880 = 35;
+                }
+                break;
+            case 35:
+                if (func_80040CD0(D_80095830) == 1) {
+                    D_80095880 = 37;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 36:
+                if (D_8009596C == 6) {
+                    D_80095880 = 37;
+                    D_80095760 = 0;
+                    D_8009586C = 0;
+                }
+                break;
+            case 37:
+                func_80034070();
+                break;
+            case 41:
+                func_80016D14();
+                break;
+            case 42:
+                func_80016FC0();
+                break;
+            case 43:
+                func_80017124();
+                break;
+            case 44:
+                switch ((u8)(D_80095830 / 3)) {
+                    case 0:
+                        func_80041BAC("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 1:
+                        func_80041BAC("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 2:
+                        func_80041BAC("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 3:
+                        func_80041BAC("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 4:
+                        func_80041BAC("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
+                        D_80095880 = 38;
+                        break;
+                    case 5:
+                        func_80041BAC("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
+                        if (D_800958AC == 0) {
+                            D_800958A5 = 1;
+                            D_800958C8 |= 2;
+                        } else if (D_800958AC == 1) {
+                            D_800958C8 |= 8;
+                        }
+                        D_800957A0 = -1;
+                        D_80095880 = 6;
+                        D_80095760 = 0;
+                        break;
+                }
+                break;
+        }
+        FntFlush(-1);
+        func_80015584();
+        func_80042208();
+        func_80014044();
+    }
+}
 
 extern s32 D_80072484[];
 extern s32 D_800724C4[];
@@ -24,9 +439,6 @@ void func_80013CDC(void);
 
 /* MATCHING: code_7d74 types the pack as its own PackEntry. */
 void func_8001797C(void *pack);
-
-/* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
-void func_80018DE8(s32 arg);
 
 s8 func_80013B38(void) {
     /* MATCHING: a byte, so the later constant 1 is not copied from it. */
@@ -354,7 +766,6 @@ void func_800148B0(void) {
     func_80014B8C(5);
 }
 
-extern char D_800954C8[];
 extern char D_800954CC[];
 extern char D_800954D0[];
 extern char D_800954D8[];
@@ -497,12 +908,9 @@ extern TableHeader *D_80095930;
 extern u16 D_8009576C;
 extern u16 D_8009586A;
 extern u16 D_800958E6;
-extern u16 D_80095764;
-extern u16 D_80095766;
 /* MATCHING: signed, so the zero test in func_80014DB0 is its own `lh`. */
 extern s16 D_800957D8;
 extern u16 D_800957E0;
-extern u8 D_800957DA;
 
 void func_80015328(s32 offset, u8 a, u8 b);
 
@@ -879,8 +1287,6 @@ extern s32 D_80074084[];
 /* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
 s32 func_80042A88(s32 bank);
-/* Defined in code_31958. */
-void func_8004121C(u16 sel);
 void func_80039C3C(unsigned long *p);
 void func_80040998(void);
 void func_800F6C60(void);
@@ -1029,7 +1435,6 @@ typedef struct {
 /* MATCHING: a struct lvalue over the shared array declaration. */
 #define sModels (*(ModelSet *)D_800D8360)
 
-extern s32 D_80095758;
 
 void func_800160E8(void);
 

@@ -57,6 +57,7 @@ code_24748: warning: unused variable `unused'
 code_27bc8: warning: unused variable `unused'
 code_27bc8: warning: unused variable `unused'
 code_29f54: warning: `rank' might be used uninitialized in this function
+code_29f54: warning: `rank' might be used uninitialized in this function
 code_29f54: warning: unused variable `unused'
 code_29f54: warning: unused variable `unused'
 code_29f54: warning: unused variable `unused'

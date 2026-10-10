@@ -428,7 +428,57 @@ void func_8001552C(u8 *a, u8 *b) {
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015584);
+extern s16 D_800954EC;
+extern s32 D_8009582C;
+extern u8 D_800957F0;
+
+s8 func_80015584(void) {
+    s32 r;
+
+    switch (D_8009596C) {
+        case 0:
+            break;
+        case 1:
+            CdControlF(CdlSetloc, (u_char *)D_80096748[D_800954EC]);
+            D_8009596C++;
+            break;
+        case 2:
+            r = CdSync(1, NULL);
+            if (r == 2) {
+                D_8009596C++;
+            } else if (r == 5) {
+                D_8009596C = 1;
+                D_800957F0++;
+            }
+            break;
+        case 3:
+            D_8009582C = D_8009F248[D_800954EC] + 1;
+            if (CdRead(D_8009582C, (u_long *)D_8009F090[D_800954EC], 0x80) == 0) {
+                D_800957F0++;
+            } else {
+                D_8009596C++;
+            }
+            break;
+        case 4:
+            r = CdReadSync(1, NULL);
+            if (r == 0) {
+                D_8009596C++;
+            } else if (r == -1) {
+                D_8009596C = 1;
+                D_800957F0++;
+            }
+            break;
+        case 5:
+            if (++D_800954EC >= D_80095960) {
+                D_8009596C = 6;
+                D_800954EC = 0;
+            } else {
+                D_8009596C = 1;
+            }
+            break;
+    }
+    return D_8009596C;
+}
 
 extern char D_80010148[];
 

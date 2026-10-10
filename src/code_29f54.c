@@ -5,6 +5,7 @@
 #include "libgs.h"
 #include "code_a0bc.h"
 #include "code_7d74.h"
+#include "spad.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
 typedef struct {
@@ -25,17 +26,17 @@ extern u8 D_800956B8[];
 /** @brief The 0x14-byte records of common.h's NumberedSlot table, as this
  *         unit writes them. */
 typedef struct {
-    s16 unk0;   /**< animation frame; cleared when the record is taken */
-    s16 unk2;   /**< frames to wait before the animation starts */
-    s16 unk4;   /**< per-frame step of the rising sprite's y offset */
-    s16 unk6;   /**< the rising sprite's end distance */
-    s16 unk8;   /**< per-frame step subtracted from the y offset */
-    u8 unkA[2]; /**< not yet known */
-    s16 unkC;   /**< x offset added to the drawing position */
-    s16 unkE;   /**< y offset added to the drawing position */
-    s16 unk10;  /**< z offset added to the drawing position */
-    u8 unk12;   /**< not yet known */
-    u8 next;    /**< free-list link: the next record's index */
+    s16 unk0;  /**< animation frame; cleared when the record is taken */
+    s16 unk2;  /**< frames to wait before the animation starts */
+    s16 unk4;  /**< per-frame step of the rising sprite's y offset */
+    s16 unk6;  /**< the rising sprite's end distance */
+    s16 unk8;  /**< per-frame step subtracted from the y offset */
+    s16 unkA;  /**< per-frame turn of a spinning piece, in degrees */
+    s16 unkC;  /**< x offset added to the drawing position */
+    s16 unkE;  /**< y offset added to the drawing position */
+    s16 unk10; /**< z offset added to the drawing position */
+    u8 unk12;  /**< not yet known */
+    u8 next;   /**< free-list link: the next record's index */
 } Slot;
 
 #define sSlots ((Slot *)D_800DFAB0)
@@ -62,13 +63,80 @@ extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
+/** @brief A run of entries in a draw list: where it starts and how long. */
+typedef struct {
+    s16 start; /**< the first entry's index */
+    s16 count; /**< the number of entries */
+} Run;
+
+extern Run *D_80095934;
+extern Run *D_80095938;
+extern s8 *D_8009593C;
+extern s8 *D_80095940;
+
+extern DR_STP D_800DFA90;
+extern DR_ENV D_800DFA10;
+extern DR_STP D_800DFAA0;
+extern DR_ENV D_800DFA50;
+
+void func_80039754(s32 clip) {
+    DRAWENV env;
+    /* MATCHING: retail's frame has 8 more bytes above the environment. */
+    s32 unused[2];
+
+    if (clip) {
+        GetDrawEnv(&env);
+        env.clip.x = 0;
+        env.clip.y = D_800E474C * 240 + 32;
+        env.clip.w = 319;
+        env.clip.h = 175;
+        SetDrawStp(&D_800DFA90, 1);
+        addPrim(D_800A7318[D_80095750].org + 0xFFF, &D_800DFA90);
+        SetDrawEnv(&D_800DFA10, &env);
+        addPrim(D_800A7318[D_80095750].org + 0xFFF, &D_800DFA10);
+        env.clip.x = 0;
+        env.clip.y = D_800E474C * 240;
+        env.clip.w = 319;
+        env.clip.h = 239;
+        SetDrawStp(&D_800DFAA0, 1);
+        addPrim(D_800ACEA8[D_80095750].org, &D_800DFAA0);
+        SetDrawEnv(&D_800DFA50, &env);
+        addPrim(D_800ACEA8[D_80095750].org, &D_800DFA50);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039C3C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A008);
+void func_8003A008(s16 x, s16 y, s16 z) {
+    s32 i;
+    s32 k;
+    SVECTOR rot;
+    MATRIX ls;
+
+    D_800A72B8.coord.t[0] = x;
+    D_800A72B8.coord.t[1] = y;
+    D_800A72B8.coord.t[2] = z;
+    rot.vx = rot.vy = rot.vz = 0;
+    func_80018AE0(&rot, &D_800A72B8);
+    GsGetLs(&D_800A72B8, &ls);
+    GsSetLsMatrix(&ls);
+    SetSpadStack();
+    for (i = 0; i < D_80095934[D_8009578C].count; i++) {
+        k = D_8009593C[D_80095934[D_8009578C].start + i];
+        if ((u32)k < D_80095794) {
+            GsSortObject4J(&D_800AC868[k], D_80095884, 2, (u_long *)0x1F800000);
+        }
+    }
+    for (i = 0; i < D_80095938[D_8009578C].count; i++) {
+        k = D_80095940[D_80095938[D_8009578C].start + i];
+        if ((u32)k < D_80095798 && k != -1) {
+            GsSortObject4J(&D_800ACB88[k], D_80095884, 2, (u_long *)0x1F800000);
+        }
+    }
+    ResetSpadStack();
+}
 
 void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
     s32 i;
@@ -133,17 +201,163 @@ void func_8003A3F4(s32 *index, s16 x, s16 y) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A4B4);
+/**
+ * @brief Draws one glyph of the time display and steps the pen left.
+ * @param pos the pen position
+ * @param id  the glyph's sprite id
+ */
+static __inline__ void putDigit(SVECTOR *pos, u16 id) {
+    pos->vx -= 6;
+    func_8001B354(id, pos, NULL, 0, &D_800ACEA8[D_80095750]);
+}
+
+void func_8003A4B4(SVECTOR *pos, s32 frames) {
+    s32 n;
+    s32 m;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 sec;
+
+    n = frames * 100 / 30;
+    /* MATCHING: d copied from n, then divided; d = n / 10 gives d a
+     * different register. */
+    d = n;
+    d /= 10;
+    putDigit(pos, n % 10 + 0x10F);
+    putDigit(pos, d % 10 + 0x10F);
+    putDigit(pos, 0x119);
+    sec = frames / 30;
+    m = sec / 60;
+    n = sec % 60;
+    k = 1;
+    d = n;
+    d /= 10;
+    putDigit(pos, n % 10 + 0x10F);
+    putDigit(pos, d % 10 + 0x10F);
+    /* MATCHING: the minutes move into n between the digit and the colon. */
+    n = m;
+    putDigit(pos, 0x119);
+    for (; k < 11; k *= 10) {
+        t = n / k;
+        if (t != 0 || (k == 1 && n == 0)) {
+            putDigit(pos, t % 10 + 0x10F);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A84C);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003AFAC);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B780);
+/**
+ * @brief Absolute value.
+ * @param v the value
+ * @return |v|
+ */
+static __inline__ s32 iabs(s32 v) {
+    return v >= 0 ? v : -v;
+}
+
+void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+    s32 swapped;
+    s32 t;
+    s32 m;
+    s32 b;
+    s32 c;
+    s32 a;
+    s32 r0;
+    s32 r1;
+    s32 h;
+    s32 nb;
+    s32 sq;
+
+    swapped = 0;
+    if (iabs(x1 - x0) < iabs(y1 - y0)) {
+        t = x0;
+        x0 = y0;
+        y0 = -t;
+        t = x1;
+        /* MATCHING: the negation goes through m (free until the slope). */
+        m = -t;
+        x1 = y1;
+        y1 = m;
+        swapped = 1;
+    }
+    m = ((y1 - y0) << 16) / (x1 - x0);
+    a = (y1 - y0) * (y1 - y0) * 4 / ((x1 - x0) * (x1 - x0));
+    c = y0 - ((m * x0) >> 16);
+    b = (m * c) >> 15;
+    a += 4;
+    /* MATCHING: one local carries the discriminant and then the half
+     * leading coefficient, b * b computed into it first. */
+    h = b * b;
+    h -= a * (c * c - 250000);
+    if (h >= 0) {
+        sq = SquareRoot0(h);
+        h = a >> 1;
+        nb = -b;
+        r1 = (nb + sq) / h;
+        r0 = (nb - sq) / h;
+        if (iabs(x0 - r1) <= iabs(x0 - r0)) {
+            if (swapped) {
+                out[1] = r1;
+                out[0] = -(((m * r1) >> 16) + c);
+            } else {
+                out[0] = r1;
+                out[1] = ((m * r1) >> 16) + c;
+            }
+        } else {
+            if (swapped) {
+                out[1] = r0;
+                out[0] = -(((m * r0) >> 16) + c);
+            } else {
+                out[0] = r0;
+                out[1] = ((m * r0) >> 16) + c;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003BDF4);
+void func_8003BDF4(void) {
+    POLY_F4 *p;
+    s32 i;
+
+    for (i = 0; i < D_80095968; i++) {
+        if (D_800A7278[i] != 0xFF) {
+            p = (POLY_F4 *)D_800E48D0;
+            setPolyF4(p);
+            p->x0 = p->x2 = -160;
+            p->x1 = p->x3 = -152;
+            p->y0 = p->y1 = (D_800A7278[i] >> 1) - 120;
+            if (i != 0) {
+                p->y3 = (D_800A7278[i - 1] >> 1) - 120;
+            } else {
+                p->y3 = -120;
+            }
+            p->y2 = p->y3;
+            p->r0 = D_800AC848[i];
+            p->g0 = D_800A7888[i];
+            p->b0 = D_800A76E8[i];
+            addPrim(D_80095884->org, p);
+            p++;
+            D_800E48D0 = (u8 *)p;
+        }
+    }
+    p = (POLY_F4 *)D_800E48D0;
+    setPolyF4(p);
+    p->x0 = p->x2 = -160;
+    p->x1 = p->x3 = -144;
+    p->y0 = p->y1 = 8;
+    p->y2 = p->y3 = 9;
+    setRGB0(p, 0xFF, 0xFF, 0xFF);
+    D_80095968 = 0;
+    addPrim(D_80095884->org, p);
+    p++;
+    D_800E48D0 = (u8 *)p;
+}
 
 void func_8003C014(void) {
     RECT rect;
@@ -222,7 +436,60 @@ void func_8003C2E8(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C8D0);
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+void func_8003C8D0(SVECTOR *pos, s32 frames) {
+    s32 n;
+    s32 m;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 sec;
+    SColor color;
+    /* MATCHING: retail fills a second colour at sp+0x20 it never passes. */
+    SColor shadow;
+
+    color.r = -1;
+    shadow.r = 2;
+    shadow.g = shadow.b = shadow.cd = 0x80;
+    color.g = color.b = color.cd = 0x80;
+    n = frames * 100 / 30;
+    /* MATCHING: d copied from n, then divided (as in func_8003A4B4). */
+    d = n;
+    d /= 10;
+    pos->vx -= 16;
+    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    sec = frames / 30;
+    m = sec / 60;
+    n = sec % 60;
+    k = 1;
+    d = n;
+    d /= 10;
+    pos->vx -= 12;
+    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    n = m;
+    pos->vx -= 12;
+    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    for (; k < 11; k *= 10) {
+        t = n / k;
+        if (t != 0 || (k == 1 && n == 0)) {
+            pos->vx -= 12;
+            func_8001B354(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003CC94);
 
@@ -459,7 +726,41 @@ s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E6F8);
+s32 func_8003E6F8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 c[2];
+    POLY_F4 *f;
+    DR_TPAGE *t;
+
+    c[0] = p->unkC + (p->unk10 >> 1) + 2;
+    c[1] = p->unkE + 4;
+    f = (POLY_F4 *)D_800E48D0;
+    setPolyF4(f);
+    setSemiTrans(f, 1);
+    f->x0 = p->unkC;
+    f->x1 = p->unkC + p->unk10;
+    f->x2 = f->x0 + 4;
+    f->x3 = f->x1 + 4;
+    f->y0 = f->y1 = p->unkE;
+    f->y2 = f->y3 = p->unkE + 8;
+    f->x0 = c[0] + ((c[0] - f->x0) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x1 = c[0] + ((c[0] - f->x1) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x2 = c[0] + ((c[0] - f->x2) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x3 = c[0] + ((c[0] - f->x3) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->y0 = c[1] + ((c[1] - f->y0) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y1 = c[1] + ((c[1] - f->y1) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y2 = c[1] + ((c[1] - f->y2) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y3 = c[1] + ((c[1] - f->y3) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->r0 = f->g0 = f->b0 = ~(p->unk0 << 5);
+    addPrim(ot->org, f);
+    f++;
+    D_800E48D0 = (u8 *)f;
+    t = (DR_TPAGE *)D_800E48D0;
+    setDrawTPage(t, 1, 1, getTPage(0, 1, 0, 0));
+    addPrim(ot->org, t);
+    t++;
+    D_800E48D0 = (u8 *)t;
+    return ++p->unk0 == 8;
+}
 
 /* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
@@ -496,15 +797,41 @@ s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EC04);
+s32 func_8003EC04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 q[8];
+    CVECTOR color;
+    s32 unused[2];
+    s32 i;
 
-/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
-typedef struct {
-    s8 r;  /**< red, or -1 */
-    u8 g;  /**< green */
-    u8 b;  /**< blue */
-    u8 cd; /**< code byte */
-} SColor;
+    if (p->unk2 == 0) {
+        if (p->unk0 == 0) {
+            setLs(x, y, z);
+            RotTransPers((SVECTOR *)&p->unkC, (long *)q, NULL, NULL);
+            p->unkC = q[0];
+            p->unkE = q[1];
+        }
+        for (i = 0; i < 5; i++) {
+            q[0] = p->unkC + ((-136 - p->unkC) * p->unk0 >> 3);
+            q[1] = p->unkE + ((-88 - p->unkE) * p->unk0 >> 3);
+            q[0] = q[2] = q[0] + rsin(((p->unk0 * 20 + i * 72) << 12) / 360) * (64 - p->unk0 * 8) / 4096;
+            q[1] = q[3] = q[1] + rcos(((p->unk0 * 20 + i * 72) << 12) / 360) * (64 - p->unk0 * 8) / 4096;
+            q[4] = q[5] = 0x1000 - (p->unk0 << 8);
+            q[6] = -(((p->unk0 * 20 + i * 72 + 90) << 12) / 360);
+            q[7] = 1;
+            color.r = 0;
+            color.g = color.b = color.cd = ~(p->unk0 << 4);
+            func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
+        }
+        if (++p->unk0 == 8) {
+            D_800958E8 += 5;
+            func_80028448();
+            return 1;
+        }
+        return 0;
+    }
+    p->unk2--;
+    return 0;
+}
 
 s32 func_8003EF40(Slot *p) {
     SVECTOR pos;

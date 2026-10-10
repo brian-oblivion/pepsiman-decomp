@@ -13,6 +13,6 @@
                      "addiu $8,$8,-24\n\tmove $29,$8")
 
 /** Restores the stack pointer that SetSpadStack saved. */
-#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $29,0($29)")
+#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $sp,0($sp)")
 
 #endif

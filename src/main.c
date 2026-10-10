@@ -207,7 +207,6 @@ void func_80013EE4(void) {
 
 /* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
 void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
-void func_80039754(s32 clip);
 void func_800142EC(s32 arg);
 
 extern DR_STP D_800CEBD0;

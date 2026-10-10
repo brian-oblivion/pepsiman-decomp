@@ -255,6 +255,11 @@ void func_8003E13C(unsigned long *p);
 /** @brief Defined in code_29f54 (still asm); called from main. */
 void func_8003A84C(void);
 
+/** @brief Defined in code_29f54: queues the draw-mode and clipped
+ *         draw-environment packets that split the screen.
+ *  @param clip nonzero to queue them; zero does nothing */
+void func_80039754(s32 clip);
+
 /** @brief Defined in code_7d74; issues one CD command.
  *  @param com the CdlXXX command
  *  @return always 0 */

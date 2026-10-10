@@ -319,6 +319,9 @@ typedef struct {
 void func_8002C85C(s32 i, Bytes8 *out);
 void func_80033388(VECTOR *pos, s16 deg);
 
+/* MATCHING: defined in code_1902c, which has no header. */
+s32 func_800297A4(VECTOR *a, VECTOR *b);
+
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B8C);
@@ -1101,7 +1104,95 @@ s32 func_80030DA0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031064);
+/** @brief Record picker: counts the live Obj48 records; on the first pass
+ *         selects the one nearest the game position (error 9 with none,
+ *         11 when none is in range); then moves the game position to the
+ *         selection, frees it on flag bit 5 and steps the selection over
+ *         the free records on flag bits 0 and 1.
+ *  @return nothing; the value is undefined. */
+s32 func_80031064(void) {
+    VECTOR pos;
+    VECTOR at;
+    VECTOR sel;
+    Obj48 *r;
+    u32 i;
+    s32 best;
+    s32 d;
+
+    /* MATCHING: non-void with no return keeps the last test's delay slot a
+     * nop; the counter cleared before the count, as retail's prologue. */
+    i = 0;
+    sTotals.unk1A = 0;
+    for (; i < 200; i++) {
+        if (((Obj48 *)D_800A9008)[i].unk36 != -1) {
+            sTotals.unk1A++;
+        }
+    }
+    switch (D_800958A6) {
+        case 0:
+            if (sTotals.unk1A == 0) {
+                D_800958DA = 9;
+                break;
+            }
+            best = 25000000;
+            pos.vx = sGameSave.unk348[0];
+            pos.vy = sGameSave.unk348[1];
+            pos.vz = sGameSave.unk348[2];
+            /* MATCHING: the record pointer taken inside the body keeps -1
+             * rebuilt every pass. */
+            for (i = 0; i < 200; i++) {
+                r = &((Obj48 *)D_800A9008)[i];
+                if (r->unk36 != -1) {
+                    at.vx = r->unk0[0];
+                    at.vy = r->unk0[1];
+                    at.vz = r->unk0[2];
+                    d = func_800297A4(&pos, &at);
+                    if (d < best) {
+                        sTotals.unk18 = i;
+                        best = d;
+                    }
+                }
+            }
+            if (best == 25000000) {
+                D_800958DA = 11;
+            } else {
+                D_800958A6++;
+            }
+            break;
+        case 1:
+            sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
+            sel.vx = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
+            sel.vy = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
+            sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
+            func_80033F48(&sel);
+            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+                D_800958A6 = 0;
+                ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
+            }
+            if (D_80095970 & 1) {
+                if (--sTotals.unk18 >= 200) {
+                    sTotals.unk18 = 199;
+                }
+                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                    if (--sTotals.unk18 >= 200) {
+                        sTotals.unk18 = 199;
+                    }
+                }
+            }
+            if (D_80095970 & 2) {
+                /* the first step up clamps to 199, the later ones wrap to 0 */
+                if (++sTotals.unk18 >= 200) {
+                    sTotals.unk18 = 199;
+                }
+                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                    if (++sTotals.unk18 >= 200) {
+                        sTotals.unk18 = 0;
+                    }
+                }
+            }
+            break;
+    }
+}
 
 /** @brief Runs the Rec3C template's menu editor: on a line change loads
  *         the new line's value and limit, else stores the edited value

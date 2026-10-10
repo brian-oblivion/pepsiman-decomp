@@ -5,6 +5,7 @@
 #include "code_a0bc.h"
 #include "code_13068.h"
 #include "code_1a098.h"
+#include "code_7d74.h"
 #include "rand.h"
 
 /** @brief The game-wide state record, as far as this unit reads it. The
@@ -19,12 +20,13 @@ typedef struct {
     u8 unk6; /**< 2 on a reset, 0x33 when unk3D0's low nibble is 3 */
     u8 pad7[0x340 - 0x7];
     s8 unk340; /**< 2 lets the band in unk3AC pick the next mode */
-    u8 pad341[0x348 - 0x341];
+    u8 pad341[0x344 - 0x341];
+    s32 unk344; /**< (40 - unk3A8) / 3 + 1 */
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
     s32 unk350; /**< pushed back along the cosine of an angle */
     s32 unk354; /**< added to unk348 for a drawn position */
-    u8 pad358[0x35C - 0x358];
+    s32 unk358; /**< added to unk34C for the drawn position */
     s32 unk35C; /**< added to unk350 for a drawn position */
     u8 pad360[0x374 - 0x360];
     s16 unk374; /**< cleared when unk34C passes the goal line */
@@ -47,7 +49,9 @@ typedef struct {
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
     u16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
-    u8 pad3AE[0x3B4 - 0x3AE];
+    s16 unk3AE; /**< unk3A8 along the sine of the heading */
+    s16 unk3B0; /**< unk3A8 along the cosine of the heading */
+    u8 pad3B2[0x3B4 - 0x3B2];
     s32 unk3B4; /**< moved by 50 a step while steering */
     s32 unk3B8; /**< 1 selects the global cap for unk34C */
     s32 unk3BC; /**< 1 with unk3B8 also starts the unk390 sequence */
@@ -160,6 +164,30 @@ extern s16 D_800D39FE[];
 extern s16 D_800D3A46[];
 
 void func_80023834(u8 mode, u16 a, s16 b);
+void func_80023764(void);
+s32 func_80023BFC(void);
+s32 func_80023D68(void);
+s32 func_80026548(void);
+s32 func_8002670C(void);
+void func_80026848(void);
+s32 func_80027714(void);
+void func_800278B0(void);
+void func_80027A00(void);
+void func_80027BEC(void);
+void func_80027D04(void);
+void func_80028008(void);
+s32 func_800283A0(void);
+void func_800285C8(s32 deg, s32 radius, VECTOR *out);
+void func_800287F4(void);
+s32 func_80028508(void);
+extern s8 D_80095962;
+/* Overlay entry points: the stage modes' own code. */
+void func_800F8A58(void);
+void func_800F8B60(void);
+void func_800F6FA0(void);
+void func_800F70A8(void);
+void func_800F8D64(void);
+void func_800F729C(void);
 void func_80023B20(void);
 void func_80028650(void);
 void func_80028500(void);
@@ -308,7 +336,144 @@ void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     GsSetLsMatrix(&world);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023228);
+/* MATCHING: g keeps the sGame base in a register for the clamp's store at the join;
+ * cases 1 and 2 of the second switch are separate arms, merged by cross-jumping. */
+void func_80023228(void) {
+    s32 t;
+    s32 x;
+    s32 v;
+    s32 hi;
+    GameState *g;
+
+    if (D_80095962 != 1) {
+        func_80023BFC();
+    }
+    func_800283A0();
+    func_80023D68();
+    if (sGame.unk0 == 1) {
+        func_80027714();
+    }
+    func_800287F4();
+    func_800278B0();
+    switch (sGame.unk3D0 & 0xF) {
+        case 0:
+            func_80026548();
+            func_8002670C();
+            func_80026848();
+            func_80028508();
+            break;
+        case 1:
+            func_800F8A58();
+            func_800F8B60();
+            break;
+        case 4:
+            func_800F6FA0();
+            func_800F70A8();
+            break;
+        case 2:
+            func_80027BEC();
+            break;
+        case 3:
+            func_80027D04();
+            break;
+    }
+    sGame.unk344 = (40 - sGame.unk3A8) / 3 + 1;
+    t = sGame.unk3A8;
+    switch (((u32)D_80095864 >> 22) & 3) {
+        case 1:
+            if (t != 0) {
+                t = 70;
+            }
+            break;
+        case 2:
+            if (t != 0) {
+                t = 90;
+            }
+            break;
+        case 3:
+            if (sGame.unk34C >= sGame.unk3C0) {
+                func_800285C8(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
+                sGame.unk348 += D_800D39C8[0];
+                sGame.unk350 += D_800D39C8[2];
+            }
+            break;
+    }
+    switch (((u32)D_80095864 >> 20) & 3) {
+        case 1:
+            if (D_8009EF20[0] != 0) {
+                t = 30;
+            }
+            break;
+        case 2:
+            if (D_8009EF20[0] != 0) {
+                t = 30;
+            }
+            break;
+        case 3:
+            if (sGame.unk34C >= sGame.unk3C0) {
+                func_800285C8(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
+                sGame.unk348 += D_800D39C8[0];
+                sGame.unk350 += D_800D39C8[2];
+            }
+            break;
+    }
+    D_800957D2 = t << 4;
+    switch (D_8009EF48[0] & 0xF) {
+        case 0:
+        case 1:
+        case 3:
+        case 4:
+            sGame.unk3AE = rsin(D_800A7680->vy) * sGame.unk3A8 >> 12;
+            sGame.unk3B0 = rcos(D_800A7680->vy) * sGame.unk3A8 >> 12;
+            sGame.unk348 -= sGame.unk3AE;
+            sGame.unk350 -= sGame.unk3B0;
+            break;
+        case 2:
+            sGame.unk3AE = rsin(sGame.unk380) * sGame.unk3A8 >> 12;
+            sGame.unk3B0 = rcos(sGame.unk380) * sGame.unk3A8 >> 12;
+            sGame.unk348 -= sGame.unk3AE;
+            sGame.unk350 -= sGame.unk3B0;
+            break;
+    }
+    switch (D_8009EF48[0] & 0xF) {
+        case 0:
+            func_80023764();
+            break;
+        case 1:
+            func_800F8D64();
+            break;
+        case 4:
+            func_800F729C();
+            break;
+        case 2:
+            func_80027A00();
+            break;
+        case 3:
+            func_80028008();
+            break;
+    }
+    g = &sGame;
+    x = g->unk380;
+    v = D_800A7680->vy - 0x155;
+    if (x >= v) {
+        hi = D_800A7680->vy + 0x155;
+        if (x <= hi) {
+            v = x;
+        } else {
+            v = hi;
+        }
+    }
+    g->unk380 = v;
+    D_8009EAB8[1] = sGame.unk380;
+    D_8009EAB8[2] = sGame.unk384;
+    D_800D86E0[0].coord.t[0] = sGame.unk354;
+    D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+    D_800D86E0[0].coord.t[2] = sGame.unk35C;
+    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+    D_800A7308[1] = 0;
+    D_800A7308[0] = -sGame.unk348;
+    D_800A7308[2] = -sGame.unk350;
+}
 
 void func_80023764(void) {
     if (sGame.unk0 != 0) {

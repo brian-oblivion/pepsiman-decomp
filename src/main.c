@@ -210,7 +210,6 @@ void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
 void func_80039754(s32 clip);
 void func_800142EC(s32 arg);
 
-extern s32 D_800959A0;
 extern DR_STP D_800CEBD0;
 extern DR_STP D_800CEBC0;
 

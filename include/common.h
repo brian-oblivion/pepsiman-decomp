@@ -132,6 +132,8 @@ extern s16 D_80095858; /**< 2 units; set to 2 at the goal when 0 */
 extern s32 D_800958CC; /**< 2 units, 2 functions; a loop counter kept in a global */
 extern s32 D_800959B4; /**< 2 units, 2 functions */
 extern s32 D_800959B8; /**< 2 units, 2 functions */
+extern s32 D_80095958; /**< a pad word; its bits step a position or a highlighted line; 2 units */
+extern s32 D_800959A0; /**< printed first on the status panel; 2 units */
 extern u8 D_800958C9;  /**< 1 while CD audio is playing; 2 units */
 extern u16 D_80095880; /**< 2 units */
 extern s16 D_80095960; /**< 2 units */
@@ -297,5 +299,29 @@ void func_80036878(void);
 /** @brief Defined in code_13068; called from code_308ec. Resets the
  *         stepped value two mode handlers steer, to 40 whole units. */
 void func_800287C0(void);
+
+/** @brief Defined in code_1dc24. */
+void func_80033C90(void);
+
+/** @brief Defined in code_1dc24. */
+void func_80033D3C(void);
+
+/** @brief Defined in code_1dc24: wraps the highlighted line at `n` lines
+ *         and runs an update.
+ *  @param n the number of lines
+ *  @return the highlighted line when flag bit 5 is set, else -1. */
+s32 func_8003356C(s16 n);
+
+/** @brief Defined in code_27bc8. */
+void func_80038124(void);
+
+/** @brief Defined in code_27bc8. */
+void func_800386A8(void);
+
+/** @brief Defined in code_27bc8: runs one memory card operation on the
+ *         second save file.
+ *  @param mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks
+ *  @return 0 or -1 */
+s32 func_800389B4(s16 mode);
 
 #endif

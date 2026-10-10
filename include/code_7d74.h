@@ -34,4 +34,18 @@ void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord);
  *  @return not yet known */
 s32 func_80017774(void *data);
 
+/** @brief Defined in code_7d74: sorts a semi-transparent flat quad in a
+ *         15-bit colour into the current ordering table.
+ *  @param col a 15-bit colour, red in the low bits
+ *  @param x0 the first corner's x
+ *  @param y0 the first corner's y
+ *  @param x1 the second corner's x
+ *  @param y1 the second corner's y
+ *  @param x2 the third corner's x, drawn last
+ *  @param y2 the third corner's y, drawn last
+ *  @param x3 the fourth corner's x, drawn third
+ *  @param y3 the fourth corner's y, drawn third
+ *  @param pri the ordering-table priority */
+void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
+
 #endif

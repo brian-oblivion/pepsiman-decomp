@@ -6,6 +6,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "code_a0bc.h"
+#include "code_7d74.h"
 #include "code_13068.h"
 #include "code_1a098.h"
 
@@ -168,8 +169,6 @@ void func_800371A0(void);
 void func_80037280(void);
 s32 func_80037318(void);
 s32 func_80037370(void);
-/* Defined by code_7d74, whose header does not declare it yet. */
-void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
 
 /* MATCHING: the bob gets its own statement, or cc1 adds -200 to pos->vy. */
 void func_80033F48(VECTOR *pos) {
@@ -365,8 +364,6 @@ void func_80034070(void) {
     }
 }
 
-extern s32 D_80095958; /**< a pad word; bits 12 and 14 step the position's y */
-
 void func_80034388(void) {
     s32 flags;
 
@@ -466,7 +463,6 @@ void func_800345C8(void) {
     }
 }
 
-extern s32 D_800959A0; /**< printed first on the status panel */
 extern char D_800114DC[];
 extern char D_800114E8[];
 extern char D_800114F4[];
@@ -974,11 +970,6 @@ void func_800356FC(void) {
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
 #endif
 
-/* Defined by code_27bc8 and code_1dc24, which have no header. */
-void func_80038124(void);
-void func_800386A8(void);
-s32 func_800389B4(s32 slot);
-s32 func_8003356C(s16 n);
 
 /* MATCHING: a per-unit view; code_27bc8 defines it returning s16, and
  * func_80035970 compares the result with -1 unextended. */
@@ -1203,10 +1194,6 @@ extern char D_8001171C[];
 extern char D_80011728[];
 extern char D_8001173C[];
 extern char D_8001174C[];
-
-/* Defined by code_1dc24, which has no header. */
-void func_80033C90(void);
-void func_80033D3C(void);
 
 void func_80035E24(void) {
     func_80014BF0(5);

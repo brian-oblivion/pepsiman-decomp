@@ -7,6 +7,7 @@
 #include "code_1a098.h"
 #include "code_13068.h"
 #include "code_a0bc.h"
+#include "code_7d74.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
@@ -153,7 +154,6 @@ typedef struct {
 /* MATCHING: also declared in code_1a098, which only zeroes it. */
 extern s32 D_80095824; /**< the current entry of the block, -1 for none */
 extern s32 D_80095950; /**< a pad word; bits step the edited value */
-extern s32 D_80095958; /**< a pad word; bits step the highlighted line */
 
 s32 func_80033E98(void);
 
@@ -279,11 +279,7 @@ void func_80033A08(s32 deg, s32 dist);
 extern u32 D_800957C8; /**< an analogue stick axis, 0x80 at rest */
 extern u32 D_800957C0; /**< the other analogue stick axis, 0x80 at rest */
 
-/* MATCHING: code_7d74 defines it; its header does not declare it. */
-void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
 void func_800327BC(void);
-void func_80033C90(void);
-void func_80033D3C(void);
 extern char D_80095528[]; /**< "\n\n\n" */
 extern char D_80095620[]; /**< "CHECK" */
 extern char D_800110F8[]; /**< "DATA MODE" */

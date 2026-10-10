@@ -957,7 +957,78 @@ s32 func_80014DB0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014FA8);
+extern u8 D_80072F44[];
+extern u8 D_80095BA0[];
+extern s32 D_80095928;
+extern s32 D_80095920;
+/* MATCHING: code_1dc24 declares it too; both reach it the same way. */
+extern s32 D_80095950;
+
+extern s32 D_80095854;
+extern s32 D_8009584C;
+extern s32 D_80095874;
+
+u32 func_80015180(void);
+
+/**
+ * @brief Per-frame pad read: polls both pads, keeps port 0's id byte,
+ *        latches each port's buttons (active high) and the
+ *        newly pressed ones, and for an analog pad (id 0x73) turns the
+ *        stick's extremes into direction bits and keeps the raw axes.
+ */
+void func_80014FA8(void) {
+    u8 id;
+    s32 btn;
+    s32 m;
+    s32 b;
+
+    func_80015180();
+    id = D_80095BA0[1];
+    D_80095784 = id;
+    /* MATCHING: built up in one local over three statements; as one
+     * expression, combine drops port 1's `andi 0xFFFF`. */
+    btn = D_80095BA0[D_80072F44[0] + 2] << 8;
+    btn |= D_80095BA0[D_80072F44[0] + 3];
+    btn ^= 0xFFFF;
+    if (id == 0) {
+        btn = 0;
+    }
+    m = D_80095850[0] ^ 0xFFFF;
+    /* MATCHING: a new local, not `btn = (u16)btn;`: it takes $v1 in
+     * local-alloc, so the D_80095854 load lands in $a0 and is hoisted. */
+    b = (u16)btn;
+    D_80095848[0] = D_80095850[0] = b;
+    D_80095870[0] = b & m;
+    m = D_80095854 ^ 0xFFFF;
+    btn = D_80095BA0[D_80072F44[1] + 0x24] << 8;
+    btn |= D_80095BA0[D_80072F44[1] + 0x25];
+    btn ^= 0xFFFF;
+    D_8009584C = D_80095854 = (u16)btn;
+    btn = (u16)btn & m;
+    D_80095874 = btn;
+    if (id == 0x73) {
+        m = D_80095928 ^ 0xFFFF;
+        if (D_80095BA0[7] < 10) {
+            D_80095928 = 0x1000;
+        } else if (D_80095BA0[7] >= 0xF6) {
+            D_80095928 = 0x4000;
+        } else {
+            D_80095928 = 0;
+        }
+        D_80095958 = D_80095928 & m;
+        m = D_80095920 ^ 0xFFFF;
+        if (D_80095BA0[6] < 10) {
+            D_80095920 = 0x8000;
+        } else if (D_80095BA0[6] >= 0xF6) {
+            D_80095920 = 0x2000;
+        } else {
+            D_80095920 = 0;
+        }
+        D_80095950 = D_80095920 & m;
+        D_800957C0 = D_80095BA0[6];
+        D_800957C8 = D_80095BA0[7];
+    }
+}
 
 extern u8 *D_80095700;
 extern u8 *D_80095704;
@@ -1006,7 +1077,6 @@ void func_80015328(s32 offset, u8 a, u8 b) {
 
 void func_8001552C(u8 *a, u8 *b);
 
-extern u8 D_80095BA0[];
 extern u8 D_80095BE8[];
 
 void func_8001534C(void) {

@@ -8,6 +8,7 @@
 #include "code_1a098.h"
 #include "code_7d74.h"
 #include "code_13068.h"
+#include "code_a0bc.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -109,11 +110,21 @@ typedef struct {
 
 /** @brief The head of the game state, as far as this unit reaches. */
 typedef struct {
-    u8 unk0[5];      /**< not yet known */
+    u8 unk0[2];      /**< not yet known */
+    u8 unk2;         /**< nonzero to place the second-buffer records */
+    u8 unk3[2];      /**< not yet known */
     u8 unk5;         /**< a mode byte: 0x42 and 0x43 seen */
     u8 unk6[0x1A];   /**< not yet known */
     s32 unk20[100];  /**< first word of each loaded entry */
     s32 unk1B0[100]; /**< third word of each loaded entry */
+    u8 unk340[8];    /**< not yet known */
+    s32 unk348;      /**< x of the player (a guess) */
+    s32 unk34C;      /**< y */
+    s32 unk350;      /**< z */
+    u8 unk354[0x64]; /**< not yet known */
+    s32 unk3B8;      /**< 1 once a placed record reports a hit */
+    u8 unk3BC[0x10]; /**< not yet known */
+    s32 unk3CC;      /**< the word reported with that hit */
 } GameHead;
 
 /** @brief A 16-byte directory entry of a loaded file. */
@@ -126,21 +137,23 @@ typedef struct {
 /** @brief A 0x3C-byte record of a 100-entry table (code_1dc24 has the same
  *         record, with fewer fields known). */
 typedef struct {
-    u16 unk0;       /**< a counter; bumped on a state change */
-    u8 unk2[2];     /**< not yet known */
-    s32 unk4;       /**< x */
-    s32 unk8;       /**< y */
-    s32 unkC;       /**< z */
-    s32 unk10;      /**< zeroed on a state change */
-    s32 unk14;      /**< set from a fixed object's y on a state change */
-    s32 unk18;      /**< zeroed on a state change */
-    u8 unk1C[2];    /**< not yet known */
-    u16 unk1E;      /**< a height; the query is centred half of it lower */
-    s32 unk20;      /**< a third of its magnitude is the query's range */
-    u8 unk24;       /**< set to 1 before the query */
-    u8 unk25;       /**< bit 0 of the query's result */
-    u8 unk26;       /**< flags: bit 7, bit 6, and a state in bits 0..5 */
-    u8 unk27[0x15]; /**< not yet known */
+    u16 unk0;      /**< a counter; bumped on a state change */
+    u8 unk2[2];    /**< not yet known */
+    s32 unk4;      /**< x */
+    s32 unk8;      /**< y */
+    s32 unkC;      /**< z */
+    s32 unk10;     /**< zeroed on a state change */
+    s32 unk14;     /**< set from a fixed object's y on a state change */
+    s32 unk18;     /**< zeroed on a state change */
+    u16 unk1C;     /**< a width */
+    u16 unk1E;     /**< a height; the query is centred half of it lower */
+    s32 unk20;     /**< a third of its magnitude is the query's range */
+    u8 unk24;      /**< set to 1 before the query */
+    u8 unk25;      /**< bit 0 of the query's result */
+    u8 unk26;      /**< flags: bit 7, bit 6, and a state in bits 0..5 */
+    u8 unk27[5];   /**< not yet known */
+    s16 unk2C;     /**< index of the Rec5C record it belongs to */
+    u8 unk2E[0xE]; /**< not yet known */
 } Rec3C;
 
 /** @brief Something that bobs up and down while it drifts. */
@@ -241,6 +254,7 @@ s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_8002A5B0(Rec78 *rec, Rec48 *r);
 void func_8002B8F8(u16 id, Rec3C *r);
+s32 func_8002BEC0(Drifter *d);
 void func_8002C188(s32 r, s32 deg, Vec3 *out);
 /* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
  * unit until a shared header holds it. */
@@ -292,11 +306,167 @@ void func_80029930(LocalPos *lp, VECTOR *out) {
     out->vz = t.vz;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800299D8);
+/** @brief A vertex of the floor data. */
+typedef struct {
+    s16 x;   /**< x */
+    s16 y;   /**< height */
+    s16 z;   /**< z */
+    s16 pad; /**< unused */
+} FloorVtx;
+
+/** @brief A face of the floor data: a triangle when v[3] is 0xFFFF. */
+typedef struct {
+    s32 flag; /**< zero for a face that is skipped; reported on a hit */
+    u16 v[4]; /**< vertex indices */
+} FloorFace;
+
+/** @brief A zone's run of faces. */
+typedef struct {
+    s32 offset; /**< byte offset of the faces from the header */
+    u32 count;  /**< how many */
+} FloorZone;
+
+/** @brief The head of the floor data. */
+typedef struct {
+    s32 unk0;          /**< not yet known */
+    s32 vtx;           /**< byte offset of the vertices from the header */
+    FloorZone zone[1]; /**< the zones */
+} FloorHdr;
+
+/** @brief What a floor query reports. */
+typedef struct {
+    s16 y;    /**< the floor height */
+    s16 nx;   /**< the floor normal */
+    s16 ny;   /**< the floor normal */
+    s16 nz;   /**< the floor normal */
+    s32 flag; /**< the face's flag */
+} FloorHit;
+
+/* MATCHING: integer sums put the scaled index first. */
+#define VTX(i) ((FloorVtx *)((i) * 8 + (s32)v))
+
+/** @brief Finds the face of zone `zone` of the floor data `hdr` under `pos`
+ *         (x and z) and reports its height there, its normal and its flag.
+ *  @return the height, 0 for a vertical face, 0x7FFF when no face is
+ *          under `pos` */
+/* MATCHING: every vertex read spelled out; pointer locals move registers. */
+s32 func_800299D8(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
+    VECTOR a;
+    VECTOR b;
+    VECTOR n;
+    FloorVtx *v;
+    FloorFace *f;
+    u32 k;
+    s32 d;
+
+    f = (FloorFace *)(((FloorZone *)(zone * 8 + (s32)hdr))[1].offset + (s32)hdr);
+    v = (FloorVtx *)(hdr->vtx + (s32)hdr);
+    for (k = 0; k < ((FloorZone *)(zone * 8 + (s32)hdr))[1].count; k++, f++) {
+        if (f->flag == 0) {
+            continue;
+        }
+        if (f->v[3] == 0xFFFF) {
+            if ((pos->vx - VTX(f->v[0])->x) * (VTX(f->v[1])->z - VTX(f->v[0])->z) +
+                    (pos->vz - VTX(f->v[0])->z) * (VTX(f->v[0])->x - VTX(f->v[1])->x) <
+                0) {
+                continue;
+            }
+            if ((pos->vx - VTX(f->v[1])->x) * (VTX(f->v[2])->z - VTX(f->v[1])->z) +
+                    (pos->vz - VTX(f->v[1])->z) * (VTX(f->v[1])->x - VTX(f->v[2])->x) <
+                0) {
+                continue;
+            }
+            d = (pos->vx - VTX(f->v[2])->x) * (VTX(f->v[0])->z - VTX(f->v[2])->z) +
+                (pos->vz - VTX(f->v[2])->z) * (VTX(f->v[2])->x - VTX(f->v[0])->x);
+        } else {
+            if ((pos->vx - VTX(f->v[0])->x) * (VTX(f->v[1])->z - VTX(f->v[0])->z) +
+                    (pos->vz - VTX(f->v[0])->z) * (VTX(f->v[0])->x - VTX(f->v[1])->x) <
+                0) {
+                continue;
+            }
+            if ((pos->vx - VTX(f->v[1])->x) * (VTX(f->v[3])->z - VTX(f->v[1])->z) +
+                    (pos->vz - VTX(f->v[1])->z) * (VTX(f->v[1])->x - VTX(f->v[3])->x) <
+                0) {
+                continue;
+            }
+            if ((pos->vx - VTX(f->v[2])->x) * (VTX(f->v[0])->z - VTX(f->v[2])->z) +
+                    (pos->vz - VTX(f->v[2])->z) * (VTX(f->v[2])->x - VTX(f->v[0])->x) <
+                0) {
+                continue;
+            }
+            d = (pos->vx - VTX(f->v[3])->x) * (VTX(f->v[2])->z - VTX(f->v[3])->z) +
+                (pos->vz - VTX(f->v[3])->z) * (VTX(f->v[3])->x - VTX(f->v[2])->x);
+        }
+        if (d < 0) {
+            continue;
+        }
+        a.vx = VTX(f->v[2])->x - VTX(f->v[0])->x;
+        a.vy = VTX(f->v[2])->y - VTX(f->v[0])->y;
+        a.vz = VTX(f->v[2])->z - VTX(f->v[0])->z;
+        b.vx = VTX(f->v[1])->x - VTX(f->v[0])->x;
+        b.vy = VTX(f->v[1])->y - VTX(f->v[0])->y;
+        b.vz = VTX(f->v[1])->z - VTX(f->v[0])->z;
+        OuterProduct0(&a, &b, &n);
+        a.vx = pos->vx - VTX(f->v[0])->x;
+        a.vz = pos->vz - VTX(f->v[0])->z;
+        if (n.vy == 0) {
+            return 0;
+        }
+        d = n.vx * a.vx + n.vz * a.vz;
+        out->y = VTX(f->v[0])->y + ((n.vy >> 1) - d) / n.vy;
+        n.vx >>= 6;
+        n.vy >>= 6;
+        n.vz >>= 6;
+        VectorNormal(&n, &a);
+        out->nx = a.vx;
+        out->ny = a.vy;
+        out->nz = a.vz;
+        out->flag = f->flag;
+        return out->y;
+    }
+    return 0x7FFF;
+}
+
+#undef VTX
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A328);
+/* MATCHING: code_29f54 defines x and y as s16; this unit passes them
+ * unextended. */
+void func_8003A3F4(s32 *index, s32 x, s32 y);
+
+s32 func_80029E74(s32 index, VECTOR *pos, u8 *data);
+s32 func_8002A558(void);
+extern s32 D_800957F4; /**< a path index the probe starts from */
+extern s32 D_800958B4; /**< the address of the data the probe tests */
+
+/** @brief Probes 50 units ahead of the player, 45 degrees either side of
+ *         the heading; each probe that hits pushes the player 25 units
+ *         back from that side. Then runs the mode check. */
+void func_8002A328(void) {
+    VECTOR pos;
+    s32 idx;
+
+    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vy = sGameHead.unk34C;
+    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    idx = D_800957F4;
+    func_8003A3F4(&idx, pos.vx, pos.vz);
+    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+        sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
+        sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
+    }
+    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vy = sGameHead.unk34C;
+    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    idx = D_800957F4;
+    func_8003A3F4(&idx, pos.vx, pos.vz);
+    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+        sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
+        sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
+    }
+    func_8002A558();
+}
 
 /** @brief Switches the game mode byte to 0x42 and resets, when a status
  *         field is 1 and the mode is not already 0x43.
@@ -312,7 +482,57 @@ s32 func_8002A558(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A7D8);
+/* The result of a second-buffer record's test: a flag, then a word. */
+extern s8 D_80095898;  /**< 1 on a hit */
+extern s32 D_8009589C; /**< the word reported with a hit */
+/* MATCHING: per unit this round; code_24748 declares both the same way. */
+extern u8 D_800D3CA8[]; /**< 0x2C-byte placed records (Placed2C) */
+extern u8 D_800DB2C0[]; /**< 0x4C-byte records */
+
+/* code_1902c's tests of a 0x4C-byte record; types not yet known. */
+void func_80028888(void *rec);
+void func_80028F0C(void *rec, s8 *out);
+
+/** @brief Updates the entry `rec` and places and tests its records: the
+ *         first-buffer ones collect a hit bit into `r->unk40`, and, when
+ *         the game head allows, the second-buffer ones report a hit to it.
+ *  @return nothing; the value is undefined. */
+/* MATCHING: non-void with no return keeps two delay slots nops (the
+ * unk2 test and the second loop's back branch). */
+s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
+    s16 i;
+    s16 start;
+    s16 n;
+    Placed2C *p;
+    u8 *q;
+
+    func_8002A5B0(rec, r);
+    start = rec->unk72;
+    n = rec->unk74;
+    r->unk40 = 0;
+    if (n != -1) {
+        for (i = start; i < start + n; i++) {
+            p = &((Placed2C *)D_800D3CA8)[i];
+            func_80029898(p);
+            r->unk40 |= func_80028AE4((Query30 *)p) & 1;
+        }
+    }
+    if (sGameHead.unk2 != 0) {
+        start = rec->unk6E;
+        n = rec->unk70;
+        if (n != -1) {
+            for (i = start; i < start + n; i++) {
+                q = D_800DB2C0 + i * 0x4C;
+                func_80028888(q);
+                func_80028F0C(q, &D_80095898);
+                if (D_80095898 == 1) {
+                    sGameHead.unk3B8 = D_80095898;
+                    sGameHead.unk3CC = D_8009589C;
+                }
+            }
+        }
+    }
+}
 
 /** @brief Sets the four corners of a box `w` wide and `d` deep around the
  *         position `c`, at its height, relative to it. */
@@ -394,11 +614,102 @@ s16 func_8002AF6C(PathUser *u) {
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B04C);
+extern s16 D_800958E2;    /**< the selected Rec78 entry */
+extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
+void func_80023F80(u8 *state);
+
+/** @brief A trap viewer frame: fixed view, no fog, steps the selected
+ *         Rec78 entry with the pad, places and draws it on a turning
+ *         record, draws the axes and prints the entry number. */
+void func_8002B04C(void) {
+    s32 flags;
+
+    D_800A7308[0] = 0;
+    D_800A7308[2] = 0;
+    D_800DB2A0[0] = 100;
+    D_800DB2A0[1] = -200;
+    D_800DB2A0[2] = 1000;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = 0;
+    D_800DB2A0[5] = 0;
+    flags = D_80095970;
+    D_8009574C = 0;
+    D_80095754 = 0;
+    D_8009575C = 0;
+    if (flags & 2) {
+        D_800958E2++;
+    }
+    if (flags & 1) {
+        D_800958E2--;
+    }
+    D_800958E2 = D_800958E2 < 0 ? 0 : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1 : D_800958E2;
+    func_8002980C();
+    D_800A9008[0] = 0;
+    D_800A9008[1] = 0;
+    D_800A9008[2] = 0;
+    ((s16 *)D_800A9008)[12] = 0;
+    ((s16 *)D_800A9008)[13] = D_8009585C % 360 * 4096 / 360;
+    ((s16 *)D_800A9008)[14] = 0;
+    func_8002A7D8(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
+    func_80023F80(D_8009EB78);
+    func_80029838();
+    func_8002B5FC();
+    FntPrint(D_80010B34, D_800958E2, D_8009588E);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B220);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B5FC);
+/** @brief Sorts three white lines 400 units long through the origin, one
+ *         along each axis, into the current ordering table. */
+void func_8002B5FC(void) {
+    VECTOR world;
+    SVECTOR screen;
+    GsLINE line;
+
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = 0xFF;
+    line.b = 0xFF;
+    world.vx = 0;
+    world.vy = -200;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vx = 0;
+    world.vy = 200;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    world.vx = -200;
+    world.vy = 0;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vx = 200;
+    world.vy = 0;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    world.vx = 0;
+    world.vy = 0;
+    world.vz = -200;
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vx = 0;
+    world.vy = 0;
+    world.vz = 200;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], world.vz >> 2);
+}
 
 /** @brief Loads every image of the directory `dir` and registers each as a
  *         texture, numbered from `id` on. */
@@ -439,7 +750,58 @@ void func_8002BC4C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
+/** @brief Updates `r` (id `id`) and queries around it; a hit in state 2
+ *         of a flagged record moves it to state 3. Inlined here and by the
+ *         out-of-line copy below. */
+static __inline__ void queryRec(s16 id, Rec3C *r) {
+    Query30 q;
+    s32 v;
+
+    func_8002B8F8(id, r);
+    q.pos.x = r->unk4;
+    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
+    q.pos.z = r->unkC;
+    r->unk24 = 1;
+    q.unk18 = 1;
+    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
+    v = func_80028AE4(&q) & 1;
+    r->unk25 = v;
+    if (v) {
+        if (r->unk26 & 0x80) {
+            if ((r->unk26 & 0x3F) == 2) {
+                r->unk10 = 0;
+                r->unk0++;
+                r->unk26 = (r->unk26 & 0x40) | 3;
+                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
+                r->unk18 = 0;
+            }
+        }
+    }
+}
+
+/** @brief Steps every live Rec3C record whose Rec5C record is marked 1:
+ *         a flagged one is updated and queried, a state-3 one drifts and is
+ *         updated on a drift step, any other one is updated. */
+/* MATCHING: the record pointer is taken inside the body. */
+void func_8002BD00(void) {
+    u32 i;
+    Rec3C *r;
+    s8 k;
+
+    for (i = 0; i < 100; i++) {
+        r = &D_800A7898[i];
+        if ((s16)r->unk0 != -1) {
+            k = D_800CF080[r->unk2C].unk0;
+            if (k == 1) {
+                if (r->unk26 & 0x80) {
+                    queryRec(r->unk0, r);
+                } else if ((r->unk26 & 0x3F) != 3 || (s8)func_8002BEC0((Drifter *)r) == 1) {
+                    func_8002B8F8(r->unk0, r);
+                }
+            }
+        }
+    }
+}
 
 /** @brief Takes one of the first 15 drift steps of `d`: moves it 20 units
  *         along the current heading and bobs it.
@@ -722,29 +1084,7 @@ void func_8002C85C(u16 i, Quad16 *out) {
 /* MATCHING: the fixed object's y read as a VECTOR member; a plain word
  * read lets the scheduler hoist the r->unk18 store above it. */
 void func_8002C894(s16 id, Rec3C *r) {
-    Query30 q;
-    s32 v;
-
-    func_8002B8F8(id, r);
-    q.pos.x = r->unk4;
-    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
-    q.pos.z = r->unkC;
-    r->unk24 = 1;
-    q.unk18 = 1;
-    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
-    v = func_80028AE4(&q) & 1;
-    r->unk25 = v;
-    if (v) {
-        if (r->unk26 & 0x80) {
-            if ((r->unk26 & 0x3F) == 2) {
-                r->unk10 = 0;
-                r->unk0++;
-                r->unk26 = (r->unk26 & 0x40) | 3;
-                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
-                r->unk18 = 0;
-            }
-        }
-    }
+    queryRec(id, r);
 }
 
 /** @brief Interpolates three angles by `t`/`n` into `out`: out[1] is `r`

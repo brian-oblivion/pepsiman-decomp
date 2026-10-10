@@ -57,8 +57,9 @@ void func_8002D0C4(BlockHeader *hdr);
 
 /** @brief Updates a Rec78 entry and the Rec48 record it belongs to.
  *  @param rec the Rec78 entry
- *  @param r the Rec48 record; its byte at 0x40 collects a result bit */
-void func_8002A7D8(Rec78 *rec, Rec48 *r);
+ *  @param r the Rec48 record; its byte at 0x40 collects a result bit
+ *  @return nothing; the value is undefined (non-void for the match) */
+s32 func_8002A7D8(Rec78 *rec, Rec48 *r);
 
 extern SVECTOR D_800957E4; /**< a local position to transform to world */
 extern VECTOR D_8009F268;  /**< the world position of that local one */

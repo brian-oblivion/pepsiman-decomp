@@ -316,7 +316,31 @@ void func_80036478(VECTOR *pos) {
     func_8001B354(0x15E, &size, 0, 5, &D_800ACEA8[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800365A0);
+/* MATCHING: an s16 colour local keeps 0xFF loaded after the sine. */
+void func_800365A0(VECTOR *pos) {
+    s32 unused[2];
+    VECTOR world;
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
+
+    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = -pos->vx + D_800A7308[0];
+    world.vy = pos->vy;
+    world.vz = -pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vy = pos->vy - 200;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
 

@@ -173,6 +173,20 @@
         : : "r" (r1), "r" (r2), "r" (r3), "r" (r4) : "memory")
 /* clang-format on */
 
+/**
+ * @brief Stores SZ0-SZ3 (data 16-19) as four consecutive words at `r1`:
+ * Sony's gte_stsz4c. Operand: `r1` by "r"; clobbers memory.
+ */
+/* clang-format off */
+#define gte_stsz4c(r1) \
+    __asm__ volatile ( \
+        "swc2 $16, 0x0(%0)\n\t" \
+        "swc2 $17, 0x4(%0)\n\t" \
+        "swc2 $18, 0x8(%0)\n\t" \
+        "swc2 $19, 0xC(%0)" \
+        : : "r" (r1) : "memory")
+/* clang-format on */
+
 /** @brief Stores SXY0-SXY2 into a POLY_F4's first three vertices: a quad
  * begins as its triangle, so this is gte_stsxy3_f3(). The fourth vertex
  * (+0x14) is stored with gte_stsxy2() after a second transform. */

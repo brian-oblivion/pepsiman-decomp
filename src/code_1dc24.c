@@ -923,7 +923,99 @@ s32 func_80030278(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030548);
+/** @brief Box picker: counts the used 0x5C-byte records (clearing them to
+ *         0); on the first pass selects the one nearest the game position
+ *         (error 9 with none, 11 when none is in range); then moves the
+ *         game position to the selection, frees it on flag bit 5, or else
+ *         steps the selection over the free records on flag bits 0 and 1.
+ *  @return nothing; the value is undefined. */
+s32 func_80030548(void) {
+    VECTOR pos;
+    VECTOR at;
+    VECTOR sel;
+    Rec5Cv *r;
+    u32 i;
+    s32 best;
+    s32 d;
+
+    /* MATCHING: non-void with no return keeps the last test's delay slot a
+     * nop; the counter cleared before the count, as retail's prologue. */
+    i = 0;
+    sTotals.unk16 = 0;
+    for (; i < 200; i++) {
+        if (sRecs5C[i].unk0 != -1) {
+            sRecs5C[i].unk0 = 0;
+            sTotals.unk16++;
+        }
+    }
+    switch (D_800958A6) {
+        case 0:
+            if (sTotals.unk16 == 0) {
+                D_800958DA = 9;
+                break;
+            }
+            best = 25000000;
+            pos.vx = sGameSave.unk348[0];
+            pos.vy = sGameSave.unk348[1];
+            pos.vz = sGameSave.unk348[2];
+            /* MATCHING: the record pointer taken inside the body keeps -1
+             * rebuilt every pass. */
+            for (i = 0; i < 200; i++) {
+                r = &sRecs5C[i];
+                if (r->unk0 != -1) {
+                    at.vx = r->unk50[0];
+                    at.vy = r->unk50[1];
+                    at.vz = r->unk50[2];
+                    d = func_800297A4(&pos, &at);
+                    if (d < best) {
+                        sTotals.unk12 = i;
+                        best = d;
+                    }
+                }
+            }
+            if (best == 25000000) {
+                D_800958DA = 11;
+            } else {
+                D_800958A6++;
+            }
+            break;
+        case 1:
+            /* MATCHING: the table base in the record pointer first; indexing
+             * sRecs5C directly builds the totals' address first. */
+            r = sRecs5C;
+            sel.vx = r[sTotals.unk12].unk50[0];
+            sel.vy = r[sTotals.unk12].unk50[1];
+            sel.vz = r[sTotals.unk12].unk50[2];
+            func_80033F48(&sel);
+            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+                sRecs5C[sTotals.unk12].unk0 = -1;
+                D_800958A6 = 0;
+                break;
+            }
+            if (D_80095970 & 1) {
+                if (--sTotals.unk12 >= 200) {
+                    sTotals.unk12 = 199;
+                }
+                while (sRecs5C[sTotals.unk12].unk0 == -1) {
+                    if (--sTotals.unk12 >= 200) {
+                        sTotals.unk12 = 199;
+                    }
+                }
+            }
+            if (D_80095970 & 2) {
+                /* the first step up clamps to 199, the later ones wrap to 0 */
+                if (++sTotals.unk12 >= 200) {
+                    sTotals.unk12 = 199;
+                }
+                while (sRecs5C[sTotals.unk12].unk0 == -1) {
+                    if (++sTotals.unk12 >= 200) {
+                        sTotals.unk12 = 0;
+                    }
+                }
+            }
+            break;
+    }
+}
 
 /** @brief Counts the live Obj48 records; on flag bit 5, places every
  *         waiting record into the table (error 8 when it is full). */

@@ -461,7 +461,38 @@ s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E6F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EA04);
+void func_800198BC(u16 id, s16 *quad, CVECTOR *color, s32 mode, GsOT *ot);
+
+s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 q[8];
+    CVECTOR color;
+    s32 unused[2];
+
+    if (p->unk2 == 0) {
+        if (p->unk0 == 0) {
+            setLs(x, y, z);
+            RotTransPers((SVECTOR *)&p->unkC, (long *)q, NULL, NULL);
+            p->unkC = q[0];
+            p->unkE = q[1];
+        }
+        q[0] = q[2] = p->unkC + ((-136 - p->unkC) * p->unk0 >> 3);
+        q[1] = q[3] = p->unkE + ((-88 - p->unkE) * p->unk0 >> 3);
+        q[4] = q[5] = 0x1000 - (p->unk0 << 8);
+        q[6] = p->unk0 << 8;
+        q[7] = 1;
+        color.r = 0;
+        color.g = color.b = color.cd = ~(p->unk0 << 4);
+        func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
+        if (++p->unk0 == 8) {
+            D_800958E8++;
+            func_80028448();
+            return 1;
+        }
+        return 0;
+    }
+    p->unk2--;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EC04);
 

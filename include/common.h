@@ -232,6 +232,10 @@ void func_80018094(void);
  *  @param count how many times it prints its fixed string */
 void func_80014BF0(s16 count);
 
+/** @brief Defined in code_13068: on every tenth pickup, plays a cue
+ *         (unless the stage forbids it) and updates the pickup display. */
+void func_80028448(void);
+
 /** @brief Defined in code_29f54; loads a run of TIM images (each starting
  *         with the word 0x10) into VRAM.
  *  @param p the first TIM */

@@ -26,6 +26,24 @@ typedef struct {
     s32 radius; /**< summed with the other body's radius */
 } Body;
 
+/** @brief A 0x4C-byte record: four local corners, their world positions
+ *         and the coordinate system that places them. */
+typedef struct {
+    struct {
+        s16 vx;
+        s16 vy;
+        s16 vz;
+    } local[4]; /**< corners in the record's own space */
+
+    struct {
+        s32 vx;
+        s32 vy;
+        s32 vz;
+    } world[4]; /**< the corners placed in the world */
+
+    GsCOORDINATE2 *coord; /**< places the corners */
+} Rec4C;
+
 void func_80028984(void);
 void func_8002985C(void);
 void func_8002988C(void);
@@ -43,7 +61,32 @@ s16 func_8002882C(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028888);
+/** @brief Places the four corners of the record `rec` in the world: each
+ *         is rotated by its coordinate system and offset by the world
+ *         origin shift in x and z. */
+void func_80028888(void *rec) {
+    Rec4C *r = rec;
+    MATRIX ls;
+    MATRIX lw;
+    SVECTOR v;
+    VECTOR out;
+    s32 unused[2]; /* MATCHING: retail leaves 8 bytes between out and flag */
+    long flag;
+    s16 i;
+
+    GsGetLws(r->coord, &lw, &ls);
+    GsSetLsMatrix(&lw);
+    for (i = 0; i < 4; i++) {
+        v.vx = r->local[i].vx;
+        v.vy = r->local[i].vy;
+        v.vz = r->local[i].vz;
+        RotTrans(&v, &out, &flag);
+        r->world[i].vx = out.vx + D_800A7308[0];
+        r->world[i].vy = out.vy;
+        r->world[i].vz = out.vz + D_800A7308[2];
+    }
+    GsSetLsMatrix(&ls);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028984);
 

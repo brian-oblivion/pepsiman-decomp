@@ -849,7 +849,129 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035970);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035E24);
+extern char D_80095698[]; /**< a line prefix */
+extern char D_8009569C[]; /**< not yet known */
+extern char D_80011618[];
+extern char D_80011624[];
+extern char D_80011634[];
+extern char D_80011644[];
+extern char D_80011654[];
+extern char D_80011664[];
+extern char D_80011678[];
+extern char D_80011688[];
+extern char D_80011698[];
+extern char D_800116AC[];
+extern char D_800116BC[];
+extern char D_800116D4[];
+extern char D_800116E0[];
+extern char D_800116F4[];
+extern char D_8001170C[];
+extern char D_8001171C[];
+extern char D_80011728[];
+extern char D_8001173C[];
+extern char D_8001174C[];
+
+/* Defined by code_1dc24, which has no header. */
+void func_80033C90(void);
+void func_80033D3C(void);
+
+void func_80035E24(void) {
+    func_80014BF0(5);
+    FntPrint(D_80011618);
+    FntPrint(D_80095698);
+    switch (D_800959E4) {
+        case 0:
+            FntPrint(D_80095698);
+            func_80014BF0(4);
+            FntPrint(D_8009569C);
+            break;
+        case 1:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011624);
+            func_80033D3C();
+            break;
+        case 2:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011634);
+            func_80037280();
+            break;
+        case 16:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011644);
+            break;
+        case 17:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011654);
+            break;
+        case 4:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011664, D_80095A0C + 1);
+            func_80014BF0(3);
+            FntPrint(D_80011678);
+            func_80033C90();
+            break;
+        case 8:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011688);
+            break;
+        case 6:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_80011698, D_80095A0C + 1);
+            func_80014BF0(3);
+            FntPrint(D_800116AC);
+            func_80033C90();
+            break;
+        case 7:
+            FntPrint(D_80095698);
+            func_80014BF0(2);
+            FntPrint(D_800116BC, D_80095A0C + 1);
+            break;
+        case 10:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_800116D4);
+            break;
+        case 11:
+            FntPrint(D_80095698);
+            func_80014BF0(2);
+            FntPrint(D_800116E0);
+            break;
+        case 12:
+            FntPrint(D_80095698);
+            func_80014BF0(2);
+            FntPrint(D_800116F4);
+            break;
+        case 13:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_8001170C);
+            break;
+        case 14:
+            FntPrint(D_80095698);
+            func_80014BF0(4);
+            FntPrint(D_8001171C);
+            func_80014BF0(3);
+            FntPrint(D_80011728);
+            func_80033C90();
+            break;
+        case 15:
+            FntPrint(D_80095698);
+            func_80014BF0(3);
+            FntPrint(D_8001173C);
+            func_80014BF0(3);
+            FntPrint(D_8001174C);
+            func_80033C90();
+            break;
+    }
+    func_800179F8(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
+}
 
 /** @brief The first block of one hit-data slot. */
 typedef struct {

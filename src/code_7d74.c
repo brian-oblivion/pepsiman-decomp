@@ -545,6 +545,7 @@ typedef struct {
     CVECTOR c[4]; /**< top and bottom of the upper band, then of the lower */
 } SkyColors;
 
+/* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
 extern SkyColors *D_8009590C;
 
 void func_800184BC(u32 arg) {

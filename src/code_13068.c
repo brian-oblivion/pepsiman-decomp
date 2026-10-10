@@ -5,6 +5,7 @@
 #include "code_a0bc.h"
 #include "code_13068.h"
 #include "code_1a098.h"
+#include "code_7d74.h"
 #include "rand.h"
 
 /** @brief The game-wide state record, as far as this unit reads it. The
@@ -12,19 +13,20 @@
  *         is still unknown. */
 typedef struct {
     u8 unk0; /**< set to 1 on a reset; not yet known */
-    u8 pad1;
+    u8 unk1; /**< the steering mode last applied; a repeat only resets unk380 */
     u8 unk2; /**< cleared on a reset when the flag byte is 1 */
     u8 pad3[2];
     u8 unk5; /**< cleared on a reset */
     u8 unk6; /**< 2 on a reset, 0x33 when unk3D0's low nibble is 3 */
     u8 pad7[0x340 - 0x7];
     s8 unk340; /**< 2 lets the band in unk3AC pick the next mode */
-    u8 pad341[0x348 - 0x341];
+    u8 pad341[0x344 - 0x341];
+    s32 unk344; /**< (40 - unk3A8) / 3 + 1 */
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
     s32 unk350; /**< pushed back along the cosine of an angle */
     s32 unk354; /**< added to unk348 for a drawn position */
-    u8 pad358[0x35C - 0x358];
+    s32 unk358; /**< added to unk34C for the drawn position */
     s32 unk35C; /**< added to unk350 for a drawn position */
     u8 pad360[0x374 - 0x360];
     s16 unk374; /**< cleared when unk34C passes the goal line */
@@ -35,27 +37,35 @@ typedef struct {
     s16 unk38C; /**< cleared whenever unk38E changes */
     u8 unk38E;  /**< cleared on a reset; a small state (0, 1, 2) */
     u8 unk38F;  /**< 1 also gates a check on unk398 */
-    s16 unk390; /**< set to 2 together with clearing unk398 */
-    u8 pad392[0x398 - 0x392];
+    u16 unk390; /**< set to 2 together with clearing unk398 */
+    s16 unk392; /**< counts the steps while unk390 is 1 */
+    s32 unk394; /**< takes unk34C when unk390 goes to 1 */
     s16 unk398; /**< cleared together with setting unk390 */
     u8 pad39A[0x39C - 0x39A];
     s32 unk39C; /**< with unk3CC, picks which cap unk34C gets */
-    u8 pad3A0[0x3A6 - 0x3A0];
+    s32 unk3A0; /**< 0, 1 or 2, set as unk390 goes to 2 */
+    u8 pad3A4[0x3A6 - 0x3A4];
     s16 unk3A6; /**< raised by 2 when unk34C passes the goal line */
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
     u16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
-    u8 pad3AE[0x3B8 - 0x3AE];
+    s16 unk3AE; /**< unk3A8 along the sine of the heading */
+    s16 unk3B0; /**< unk3A8 along the cosine of the heading */
+    u8 pad3B2[0x3B4 - 0x3B2];
+    s32 unk3B4; /**< moved by 50 a step while steering */
     s32 unk3B8; /**< 1 selects the global cap for unk34C */
-    u8 pad3BC[0x3C0 - 0x3BC];
+    s32 unk3BC; /**< 1 with unk3B8 also starts the unk390 sequence */
     s32 unk3C0; /**< the usual cap for unk34C */
     u8 pad3C4[0x3C8 - 0x3C4];
     s16 unk3C8; /**< set to 60 on a reset when the flag byte is 1 */
     s16 unk3CA; /**< set to 1 when the stage ends */
     s32 unk3CC; /**< with unk39C, picks which cap unk34C gets */
     u8 unk3D0;  /**< low nibble read on a reset */
-    u8 pad3D1[0x3D3 - 0x3D1];
+    u8 unk3D1;  /**< set to 1 when a stage ends with a mode in unk3D0 */
+    u8 pad3D2;
     s8 unk3D3; /**< nonzero draws the gauge sprite */
+    u8 pad3D4;
+    u8 unk3D5; /**< set to 1 by some pickups */
 } GameState;
 
 /* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
@@ -84,6 +94,12 @@ typedef struct {
 
 extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
+extern DVECTOR D_800DE0A0[];
+extern s32 D_800DED50[];
+extern s32 D_800957F8;
+extern s32 D_80095800;
+extern s32 D_80095804;
+extern s32 D_8009580C;
 
 extern u8 D_80095784;
 extern u8 *D_80095790;
@@ -100,7 +116,14 @@ extern s32 D_8009EEF8[];
 /** @brief A 72-byte record of the shared slot table, as the item
  *         spawner fills it; code_1902c's Slot48 is the same record. */
 typedef struct {
-    u8 pad0[0x24];
+    s32 unk0; /**< set to minus the view offset's x when a stage object is placed */
+    s32 unk4; /**< cleared, or 0x3C or 0x32, when a stage object is placed */
+    s32 unk8; /**< set to minus the view offset's z when a stage object is placed */
+    u8 padC[0x18 - 0xC];
+    s16 unk18; /**< -0x88, or turned by half of unk3A8 degrees */
+    s16 unk1A; /**< 0xAA when a stage object is placed */
+    s16 unk1C; /**< -0x88 for one stage object */
+    u8 pad1E[0x24 - 0x1E];
     s16 unk24; /**< cleared on a spawn */
     s16 unk26; /**< cleared on a spawn */
     u8 pad28[0x34 - 0x28];
@@ -111,6 +134,20 @@ typedef struct {
     u8 unk43; /**< 0x69 on a spawn */
     u8 pad44[0x48 - 0x44];
 } SlotRec;
+
+/** @brief A 0x78-byte model slot, paired with the SlotRec of the same
+ *         index; main's ModelSlot is the same record. */
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58; /**< the address of the coordinate system the model hangs from */
+    u8 pad5C[0x78 - 0x5C];
+} ObjRec;
+
+extern SlotRec D_800D3860[];
+/* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
+extern ObjRec D_800D8370[];
+/* MATCHING: code_1a098 types these Rec78 and Rec48; this unit's records are views of them. */
+void func_8002A5B0(Rec78 *rec, Rec48 *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
 extern u8 D_8009EF49[];
@@ -128,7 +165,52 @@ extern s16 D_800D39B6[];
 extern s16 D_800D39FE[];
 extern s16 D_800D3A46[];
 
-void func_80023834(u8 mode, u16 a, u16 b);
+void func_80023834(u8 mode, u16 a, s16 b);
+void func_80023764(void);
+s32 func_80023BFC(void);
+s32 func_80023D68(void);
+s32 func_80026548(void);
+s32 func_8002670C(void);
+void func_80026848(void);
+s32 func_80027714(void);
+void func_800278B0(void);
+void func_80027A00(void);
+void func_80027BEC(void);
+void func_80027D04(void);
+void func_80028008(void);
+s32 func_800283A0(void);
+void func_800285C8(s32 deg, s32 radius, VECTOR *out);
+void func_800287F4(void);
+s32 func_80028508(void);
+extern s8 D_80095962;
+
+/** @brief A 10-byte pickup slot; three live ones are checked each frame. */
+typedef struct {
+    s8 unk0; /**< nonzero when the slot is live */
+    u8 pad1;
+    u8 unk2; /**< the pickup's kind, a row of the PickupKind table */
+    u8 pad3[7];
+} Pickup;
+
+/* MATCHING: common.h declares the table as bytes; this unit reads its records. */
+#define sPickups ((Pickup *)D_8009F0B0)
+
+/** @brief Eight bytes of a pickup kind's effects. */
+typedef struct {
+    u8 b[8]; /**< per stage mode and flag */
+} PickupKind;
+
+extern PickupKind D_8007714C[];
+extern s8 D_8009575F;
+s32 func_80028260(s32 n);
+void func_800285B0(void);
+/* Overlay entry points: the stage modes' own code. */
+void func_800F8A58(void);
+void func_800F8B60(void);
+void func_800F6FA0(void);
+void func_800F70A8(void);
+void func_800F8D64(void);
+void func_800F729C(void);
 void func_80023B20(void);
 void func_80028650(void);
 void func_80028500(void);
@@ -137,6 +219,40 @@ void func_80028500(void);
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
+extern s32 D_800957B4;
+extern u16 D_8009587E;
+extern s16 D_800957B0;
+extern s32 D_800956E4;
+extern s32 D_800956E0;
+extern s32 D_800DF5A0[];
+extern s32 D_800DF5B0[];
+
+/** @brief Three words moved as one, for a block copy. */
+typedef struct {
+    s32 w[3]; /**< the words */
+} Words3;
+
+extern s32 D_800DF5C0[];
+extern s32 D_80095980;
+extern s32 D_80095988;
+extern u8 D_800958F8;
+extern Rec5C D_800CF080[];
+extern u8 D_800959B0;
+extern s16 D_800957DC;
+extern s32 D_80095770;
+void func_8003AFAC(void);
+void func_80040F14(void);
+void func_80042958(u8 value);
+void func_8003C014(void);
+/* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
+void func_8004079C();
+void func_8003E360(s32 level);
+/* MATCHING: code_308ec stores this as u8; this unit's test loads it lb. */
+extern s8 D_80095900;
+s32 func_800297A4(VECTOR *a, VECTOR *b);
+/* MATCHING: code_7d74 defines this as an empty void(void); this unit's call
+ * passes the state block in $a0. */
+void func_80018CA4(GameState *g);
 
 void func_80022868(void) {
     GsCOORDINATE2 coord;
@@ -179,7 +295,104 @@ void func_800229A8(void) {
     D_800DB2A0[5] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022A74);
+/* MATCHING: the parity mask through y, the first loop's local, keeps 0xFF out of the preheader. */
+void func_80022A74(void) {
+    DVECTOR sxy;
+    SVECTOR v;
+    MATRIX ls;
+    GsCOORDINATE2 coord;
+    GsLINE line;
+    POLY_F4 poly;
+    long p;
+    long flag;
+    s32 x;
+    s32 y;
+    POLY_F4 *pp;
+
+    if (D_80095970 & 0x10) {
+        D_800959A8 = 0;
+    }
+    if (D_80095964 & 4) {
+        D_800959A8 += 2;
+    }
+    if (D_80095964 & 8) {
+        D_800959A8 -= 2;
+    }
+    if (D_80095970 & 0x800) {
+        D_80095880 = 3;
+    }
+    if (D_80095964 & 0x8000) {
+        D_800DB2A0[0]++;
+    }
+    if (D_80095964 & 0x2000) {
+        D_800DB2A0[0]--;
+    }
+    if (D_80095964 & 0x1000) {
+        D_800DB2A0[1]++;
+    }
+    if (D_80095964 & 0x4000) {
+        D_800DB2A0[1]--;
+    }
+    line.attribute = 0;
+    line.b = line.g = line.r = 0xFF;
+    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
+        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
+            x = D_800DE5E0[D_800958D0 * 21 + D_800958CC].x;
+            y = D_800DE5E0[D_800958D0 * 21 + D_800958CC].y;
+            GsInitCoordinate2(WORLD, &coord);
+            coord.coord.t[2] = 0;
+            coord.flg = 0;
+            coord.coord.t[0] = x;
+            coord.coord.t[1] = y;
+            GsGetLs(&coord, &ls);
+            GsSetLsMatrix(&ls);
+            v.vx = v.vy = v.vz = 0;
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
+            D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx = line.x0 = line.x1 = sxy.vx;
+            D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy = line.y0 = line.y1 = sxy.vy;
+            GsSortLine(&line, &D_800A7318[D_80095750], 0);
+        }
+    }
+    pp = &poly;
+    for (D_800958D0 = 0; D_800958D0 < 15; D_800958D0++) {
+        for (D_800958CC = 0; D_800958CC < 20; D_800958CC++) {
+            SetPolyF4(pp);
+            pp->x0 = D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx;
+            pp->y0 = D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy;
+            pp->x1 = D_800DE0A0[D_800958D0 * 21 + (D_800958CC + 1)].vx;
+            pp->y1 = D_800DE0A0[D_800958D0 * 21 + (D_800958CC + 1)].vy;
+            pp->x3 = D_800DE0A0[(D_800958D0 + 1) * 21 + (D_800958CC + 1)].vx;
+            pp->y3 = D_800DE0A0[(D_800958D0 + 1) * 21 + (D_800958CC + 1)].vy;
+            pp->x2 = D_800DE0A0[(D_800958D0 + 1) * 21 + D_800958CC].vx;
+            pp->y2 = D_800DE0A0[(D_800958D0 + 1) * 21 + D_800958CC].vy;
+            y = 1;
+            if (D_800958D0 & y) {
+                if (D_800958CC & y) {
+                    pp->r0 = 0x70;
+                    pp->g0 = 0x70;
+                    pp->b0 = 0x80;
+                } else {
+                    pp->r0 = 0xFF;
+                    pp->g0 = 0xFF;
+                    pp->b0 = 0xFF;
+                }
+            } else if (D_800958CC & 1) {
+                pp->r0 = 0xFF;
+                pp->g0 = 0xFF;
+                pp->b0 = 0xFF;
+            } else {
+                pp->r0 = 0x70;
+                pp->g0 = 0x70;
+                pp->b0 = 0x80;
+            }
+            GsSortPoly(pp, &D_800A7318[D_80095750], D_800DE5E0[D_800958D0 * 21 + D_800958CC].z >> 6);
+        }
+    }
+    D_800957F8 = D_800959A8;
+    D_80095800 = D_800DED50[0];
+    D_80095804 = D_800DE0A0[0].vx;
+    D_8009580C = D_800DE0A0[0].vy;
+}
 
 void func_80022F58(void) {}
 
@@ -243,7 +456,144 @@ void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     GsSetLsMatrix(&world);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023228);
+/* MATCHING: g keeps the sGame base in a register for the clamp's store at the join;
+ * cases 1 and 2 of the second switch are separate arms, merged by cross-jumping. */
+void func_80023228(void) {
+    s32 t;
+    s32 x;
+    s32 v;
+    s32 hi;
+    GameState *g;
+
+    if (D_80095962 != 1) {
+        func_80023BFC();
+    }
+    func_800283A0();
+    func_80023D68();
+    if (sGame.unk0 == 1) {
+        func_80027714();
+    }
+    func_800287F4();
+    func_800278B0();
+    switch (sGame.unk3D0 & 0xF) {
+        case 0:
+            func_80026548();
+            func_8002670C();
+            func_80026848();
+            func_80028508();
+            break;
+        case 1:
+            func_800F8A58();
+            func_800F8B60();
+            break;
+        case 4:
+            func_800F6FA0();
+            func_800F70A8();
+            break;
+        case 2:
+            func_80027BEC();
+            break;
+        case 3:
+            func_80027D04();
+            break;
+    }
+    sGame.unk344 = (40 - sGame.unk3A8) / 3 + 1;
+    t = sGame.unk3A8;
+    switch (((u32)D_80095864 >> 22) & 3) {
+        case 1:
+            if (t != 0) {
+                t = 70;
+            }
+            break;
+        case 2:
+            if (t != 0) {
+                t = 90;
+            }
+            break;
+        case 3:
+            if (sGame.unk34C >= sGame.unk3C0) {
+                func_800285C8(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
+                sGame.unk348 += D_800D39C8[0];
+                sGame.unk350 += D_800D39C8[2];
+            }
+            break;
+    }
+    switch (((u32)D_80095864 >> 20) & 3) {
+        case 1:
+            if (D_8009EF20[0] != 0) {
+                t = 30;
+            }
+            break;
+        case 2:
+            if (D_8009EF20[0] != 0) {
+                t = 30;
+            }
+            break;
+        case 3:
+            if (sGame.unk34C >= sGame.unk3C0) {
+                func_800285C8(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
+                sGame.unk348 += D_800D39C8[0];
+                sGame.unk350 += D_800D39C8[2];
+            }
+            break;
+    }
+    D_800957D2 = t << 4;
+    switch (D_8009EF48[0] & 0xF) {
+        case 0:
+        case 1:
+        case 3:
+        case 4:
+            sGame.unk3AE = rsin(D_800A7680->vy) * sGame.unk3A8 >> 12;
+            sGame.unk3B0 = rcos(D_800A7680->vy) * sGame.unk3A8 >> 12;
+            sGame.unk348 -= sGame.unk3AE;
+            sGame.unk350 -= sGame.unk3B0;
+            break;
+        case 2:
+            sGame.unk3AE = rsin(sGame.unk380) * sGame.unk3A8 >> 12;
+            sGame.unk3B0 = rcos(sGame.unk380) * sGame.unk3A8 >> 12;
+            sGame.unk348 -= sGame.unk3AE;
+            sGame.unk350 -= sGame.unk3B0;
+            break;
+    }
+    switch (D_8009EF48[0] & 0xF) {
+        case 0:
+            func_80023764();
+            break;
+        case 1:
+            func_800F8D64();
+            break;
+        case 4:
+            func_800F729C();
+            break;
+        case 2:
+            func_80027A00();
+            break;
+        case 3:
+            func_80028008();
+            break;
+    }
+    g = &sGame;
+    x = g->unk380;
+    v = D_800A7680->vy - 0x155;
+    if (x >= v) {
+        hi = D_800A7680->vy + 0x155;
+        if (x <= hi) {
+            v = x;
+        } else {
+            v = hi;
+        }
+    }
+    g->unk380 = v;
+    D_8009EAB8[1] = sGame.unk380;
+    D_8009EAB8[2] = sGame.unk384;
+    D_800D86E0[0].coord.t[0] = sGame.unk354;
+    D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+    D_800D86E0[0].coord.t[2] = sGame.unk35C;
+    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+    D_800A7308[1] = 0;
+    D_800A7308[0] = -sGame.unk348;
+    D_800A7308[2] = -sGame.unk350;
+}
 
 void func_80023764(void) {
     if (sGame.unk0 != 0) {
@@ -277,7 +627,80 @@ void func_80023764(void) {
     D_8009EEF8[0] = D_800A7680[0].vy;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023834);
+static __inline__ void pushBack(s32 deg, s32 dist) {
+    s32 angle;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    angle = ANGLE_DEG(deg);
+    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+}
+
+/* MATCHING: the (u16) read is the separate lhu retail stores when the heading is in range. */
+void func_80023834(u8 mode, u16 a, s16 b) {
+    s16 yaw;
+    s32 w;
+
+    if (sGame.unk1 != mode) {
+        switch (mode) {
+            case 3:
+                yaw = D_800A7680->vy;
+                if (yaw - 0x2D < sGame.unk380) {
+                    sGame.unk380 = yaw - 0x2D;
+                }
+                D_800957BC -= a * 2;
+                D_800957B0 -= a;
+                sGame.unk380 = D_800957BC;
+                if ((sGame.unk3D0 & 0xF) != 2 && yaw < sGame.unk380) {
+                    sGame.unk380 = yaw;
+                }
+                if (sGame.unk384 < 0) {
+                    sGame.unk384 += 0x22;
+                }
+                if (sGame.unk384 < 16) {
+                    w = sGame.unk384;
+                } else {
+                    w = 15;
+                }
+                sGame.unk384 = w;
+                sGame.unk3B4 -= 50;
+                pushBack(-90, b);
+                break;
+            case 2:
+                yaw = D_800A7680->vy;
+                if (sGame.unk380 < yaw + 0x4000) {
+                    sGame.unk380 = yaw + 0x2D;
+                }
+                D_800957BC += a * 2;
+                D_800957B0 += a;
+                sGame.unk380 = D_800957BC;
+                if ((sGame.unk3D0 & 0xF) != 2 && sGame.unk380 < yaw) {
+                    sGame.unk380 = yaw;
+                }
+                if (sGame.unk384 > 0) {
+                    sGame.unk384 -= 0x22;
+                }
+                if (sGame.unk384 >= -15) {
+                    w = sGame.unk384;
+                } else {
+                    w = -15;
+                }
+                sGame.unk384 = w;
+                sGame.unk3B4 += 50;
+                pushBack(90, b);
+                break;
+        }
+        D_800957BC = D_800957BC < D_800A7680->vy - 0x100   ? D_800A7680->vy - 0x100
+                     : D_800A7680->vy + 0x100 < D_800957BC ? D_800A7680->vy + 0x100
+                                                           : (u16)D_800957BC;
+        if (sGame.unk3B8 == 1 && sGame.unk3BC == 1 && sGame.unk38F == 0) {
+            sGame.unk34C = sGame.unk3C0;
+        }
+    } else {
+        sGame.unk380 = D_800A7680->vy;
+    }
+}
 
 /* MATCHING: the inline ternary abs (not an if on d) lets the first +56 test reuse the
  * loaded value when it skips the store. */
@@ -351,9 +774,205 @@ s32 func_80023BFC(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
+#ifdef NON_MATCHING
+/* MATCHING: 129/134; retail copies unk34C to a second register ($a0) for the unk39C and
+ * closeness tests and keeps the first ($a2) for the step. */
+s32 func_80023D68(void) {
+    s32 x;
+    s32 d;
+    s32 y;
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023F80);
+    x = sGame.unk34C;
+    if (x < D_800956E4) {
+        D_800956E4 = x;
+    }
+    if (x < sGame.unk39C) {
+        sGame.unk39C = x;
+    }
+    if ((u32)(sGame.unk6 - 8) < 4) {
+        goto end;
+    }
+    if ((u32)(sGame.unk6 - 0x38) < 2 && (sGame.unk3D0 & 0xF) != 3) {
+        goto end;
+    }
+    d = sGame.unk3C0 - x;
+    if ((d >= 0 ? d : -d) < 50) {
+        sGame.unk34C = sGame.unk3C0;
+    } else {
+        sGame.unk34C = x + (u16)sGame.unk3A6 * 5;
+    }
+    if (sGame.unk3B8 == 1 && sGame.unk3BC == 1) {
+        sGame.unk3A6 = 0;
+        sGame.unk39C = 0;
+        sGame.unk34C = sGame.unk3CC;
+        goto end;
+    }
+    if (sGame.unk39C <= sGame.unk3CC && sGame.unk3B8 == 1) {
+        if (sGame.unk34C >= sGame.unk3CC) {
+            sGame.unk34C = sGame.unk3CC;
+            sGame.unk3A6 = 0;
+            sGame.unk39C = 0;
+            sGame.unk3BC = sGame.unk3B8;
+        } else {
+            sGame.unk3A6++;
+        }
+        goto end;
+    }
+    if (sGame.unk34C >= sGame.unk3C0) {
+        y = D_800AC858[0];
+        sGame.unk3A6 = 0;
+        sGame.unk39C = 0;
+        sGame.unk3BC = 0;
+        sGame.unk34C = y;
+        if (D_800956E0 == 0) {
+            D_800DF5B0[0] = sGame.unk348;
+            D_800DF5B0[1] = y;
+            D_800DF5B0[2] = sGame.unk350;
+            D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+            if (D_80095900 == 0) {
+                func_80015450(D_800734AC, 13);
+            }
+        }
+    } else {
+        sGame.unk3A6++;
+    }
+end:;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
+#endif
+
+/* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
+void func_80023F80(u8 *state) {
+    u8 v;
+    s16 i;
+    u8 m;
+    Pickup *p;
+
+    v = 0;
+    if (((GameState *)state)->unk2 == 0) {
+        return;
+    }
+    if (D_80095962 == 1) {
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        p = &sPickups[i];
+        if (p->unk0 == 0) {
+            continue;
+        }
+        D_8009599C = 0;
+        if ((u32)(*(volatile u8 *)&p->unk2 - 15) >= 4) {
+            m = ((GameState *)state)->unk6;
+            switch (((GameState *)state)->unk5) {
+                case 0:
+                case 0x5E:
+                    switch (m) {
+                        case 0x33:
+                            if ((sGame.unk3D0 & 0xF) != 3) {
+                                break;
+                            }
+                        case 2:
+                        case 3:
+                        case 4:
+                            v = D_8007714C[sPickups[i].unk2].b[0];
+                            break;
+                        case 8:
+                        case 9:
+                        case 10:
+                        case 11:
+                            v = D_8007714C[sPickups[i].unk2].b[1];
+                            break;
+                        case 5:
+                        case 6:
+                        case 7:
+                            v = D_8007714C[sPickups[i].unk2].b[2];
+                            break;
+                    }
+                    break;
+                case 0x39:
+                case 0x3A:
+                    v = D_8007714C[p->unk2].b[3];
+                    break;
+                case 0x3B:
+                case 0x3C:
+                    v = D_8007714C[p->unk2].b[0];
+                    break;
+                default:
+                    switch (sGame.unk3D0 & 0xF) {
+                        case 1:
+                        case 2:
+                        case 4:
+                            v = 0x42;
+                            break;
+                        case 3:
+                        default:
+                            v = D_8007714C[sPickups[i].unk2].b[4];
+                            break;
+                    }
+                    break;
+            }
+            switch (sGame.unk3D0 & 0xF) {
+                case 1:
+                case 2:
+                case 4:
+                    v = 0x42;
+                    break;
+            }
+        } else {
+            v = D_8007714C[p->unk2].b[2 - i];
+            if (sGame.unk3D0 & 0xF) {
+                v = 0x42;
+            }
+        }
+        switch (sGame.unk3D0 & 0xF) {
+            case 1:
+            case 2:
+            case 4:
+                sGame.unk3D1 = 1;
+                sGame.unk3D5 = 1;
+                D_800958A8 = 0;
+                sGame.unk3D0 &= 0xF0;
+                ((GameState *)state)->unk2 = 0;
+                D_8009599C = 1;
+                ((GameState *)state)->unk3C8 = 750;
+                ((GameState *)state)->unk5 = v;
+                if (sPickups[i].unk2 != 0) {
+                    func_800285B0();
+                }
+                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                return;
+            case 0:
+            default:
+                if (v == 0) {
+                    continue;
+                }
+                if (D_8007714C[sPickups[i].unk2].b[5] == 1) {
+                    ((GameState *)state)->unk2 = 0;
+                    ((GameState *)state)->unk3C8 = 150;
+                    D_8009599C = 1;
+                } else {
+                    ((GameState *)state)->unk2 = 0;
+                    ((GameState *)state)->unk3C8 = 18;
+                }
+                if (D_8007714C[sPickups[i].unk2].b[6] == 1) {
+                    sGame.unk3D5 = 1;
+                    D_800958A8 = 0;
+                }
+                if (D_8007714C[sPickups[i].unk2].b[7] == 1 &&
+                    (s8)(sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) != D_8009575F) {
+                    func_80028260(-1);
+                }
+                ((GameState *)state)->unk5 = v;
+                if (sPickups[i].unk2 != 0) {
+                    func_800285B0();
+                }
+                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                return;
+        }
+    }
+    D_8009575F = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
 
@@ -437,9 +1056,86 @@ s32 func_8002670C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026848);
+/* MATCHING: as func_80027E14 for the switch; the volatile read keeps the unk348 and
+ * unk350 loads below the stores to D_800956E0, D_800DF5A0[1] and D_800956E4. */
+void func_80026848(void) {
+    s16 n;
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026A60);
+    if (sGame.unk0 != 0) {
+        if ((D_800957EC & 0x20) &&
+            (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
+            sGame.unk390 == 0) {
+            D_800956E0 = 0;
+            D_800DF5A0[1] = sGame.unk34C;
+            D_800956E4 = sGame.unk34C;
+            D_800DF5A0[0] = *(volatile s32 *)&sGame.unk348;
+            D_800DF5A0[2] = sGame.unk350;
+            sGame.unk38F = 1;
+            sGame.unk3BC = 0;
+            sGame.unk390 = 1;
+            sGame.unk392 = 0;
+            sGame.unk39C = 0;
+            func_80018CA4(&sGame);
+            sGame.unk6 = 8;
+            sGame.unk398 = 0x23;
+            sGame.unk394 = sGame.unk34C;
+            func_80022F68((VECTOR *)&sGame.unk348);
+            func_80042538(0x17);
+        }
+        if (sGame.unk390 == 1) {
+            n = ++sGame.unk392;
+            if (n < 3) {
+                sGame.unk398 = 0x19;
+            } else if ((u16)(n - 4) < 3) {
+                sGame.unk398 = 0x12;
+            } else if (n >= 9) {
+                sGame.unk398 = 0x14;
+                sGame.unk390 = 2;
+                sGame.unk6 = 9;
+                sGame.unk3A0 = 2;
+            } else if (D_800957B4 & 0x20) {
+                sGame.unk398 = 0x14;
+            } else {
+                sGame.unk390 = 2;
+                switch (n) {
+                    case 3:
+                        sGame.unk6 = 0xB;
+                        sGame.unk3A0 = 0;
+                        break;
+                    case 7:
+                        sGame.unk6 = 0xA;
+                        sGame.unk3A0 = 1;
+                        break;
+                    default:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 2;
+                        break;
+                }
+            }
+        }
+        if (sGame.unk390 == 2) {
+            sGame.unk390 = 0;
+        }
+    }
+}
+
+/* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
+s32 func_80026A60(void) {
+    D_800DB2A0[0] = 0;
+    D_800DB2A0[1] = rsin((D_80095914 << 12) / 360) * 500 / 4096 + sGame.unk3C0;
+    D_800DB2A0[2] = rcos((D_80095914 << 12) / 360) * 600 / 4096;
+    D_800DB2A0[4] = sGame.unk34C;
+    D_800DB2A0[0] = rsin(D_800A7680->vy) * 400 / 4096;
+    D_800DB2A0[2] = rcos(D_800A7680->vy) * 400 / 4096;
+    D_800DB2A0[3] = rsin(D_800A7680->vy - 0x800) * 900 / 4096;
+    D_800DB2A0[5] = rcos(D_800A7680->vy - 0x800) * 900 / 4096;
+    if (D_8009587E < sGame.unk3A8) {
+        D_8009587E++;
+    }
+    if (D_8009587E > sGame.unk3A8) {
+        D_8009587E--;
+    }
+}
 
 /* MATCHING: the index-first integer sum gives retail's addu operand order. */
 void func_80026C70(void) {
@@ -466,9 +1162,216 @@ void func_80026C70(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026D9C);
+/* MATCHING: the empty case -2 sets the switch's compare tree; non-void with no return keeps
+ * the guards' delay slots nops; the unused words give retail's frame. */
+s32 func_80026D9C(void) {
+    s32 unused[4];
+    u16 i;
+    s32 x;
+    s16 t;
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800272D4);
+    if (D_80095830 % 3 == 2) {
+        goto end;
+    }
+top:
+    switch (D_80095858) {
+        case -2:
+            break;
+        case -1:
+            func_8003AFAC();
+            break;
+        case 0:
+            x = D_800958A8;
+            if (D_800958AC == 1) {
+                if (x >= 2) {
+                    D_800958A8 = 2;
+                }
+            } else if (x >= 3) {
+                D_800958A8 = 3;
+            }
+            if (D_800958A8 <= 0) {
+                D_800958A8 = 0;
+            }
+            if (D_8009EF4D[0] == 1) {
+                D_800958A8 = 0;
+            }
+            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (D_80095830 != 4 || D_8009578C != 0)) {
+                D_80095980++;
+                D_80095988--;
+            }
+            if (D_80095830 % 3 == 2) {
+                break;
+            }
+            func_80040F14();
+            func_8003AFAC();
+            if (D_800958F8 == 1) {
+                break;
+            }
+            if (D_80095988 > 0) {
+                break;
+            }
+            D_80095988 = 0;
+            sGame.unk0 = 0;
+            sGame.unk2 = 0;
+            sGame.unk3C8 = 500;
+            sGame.unk38E = 0;
+            sGame.unk38C = 0;
+            if (sGame.unk3D0 & 0xF) {
+                sGame.unk5 = 0;
+                sGame.unk3D0 &= 0xF0;
+                sGame.unk3D1 = 1;
+                sGame.unk398 = 0;
+                sGame.unk390 = 0;
+            }
+            if (D_800CF080[196].unk0 == 1) {
+                break;
+            }
+            if (D_800CF080[198].unk0 == 1) {
+                break;
+            }
+            if (sGame.unk5 == 0 || sGame.unk5 == 0x3A || sGame.unk5 == 0x3C) {
+                if ((s16)D_800957D2 >> 4 < 15) {
+                    D_800957D2 = 0xF0;
+                }
+                sGame.unk5 = 0x23;
+                D_80095858 = 1;
+                D_800959B0 = 0;
+                D_800957DC = 0;
+                sGame.unk3A8 = (s16)D_800957D2 >> 4;
+                func_80042958(4);
+                goto top;
+            }
+            break;
+        case 1:
+            D_800957DC++;
+            func_8003C014();
+            if (D_800957DC == 10) {
+                for (i = 0; i < 200; i++) {
+                    D_800CF080[i].unk0 = 2;
+                }
+                D_800958EC = 0;
+                D_800957D6 = 0;
+                *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
+            }
+            if (D_800957DC >= 10) {
+                sGame.unk3A8 = 0;
+                D_800957D2 = 0;
+                *(Words3 *)&sGame.unk348 = *(Words3 *)D_800DF5C0;
+            }
+            if (D_800957DC > 100) {
+                t = D_800957DC - 100;
+                if (t > 60) {
+                    D_80095858 = 100;
+                }
+            }
+            break;
+        case 2:
+            func_80017574();
+            func_80042538(0x1B);
+            D_800957DC = 0;
+            D_80095858 = 3;
+            break;
+        case 3:
+            t = ++D_800957DC;
+            if (t > 60) {
+                D_80095858 = 100;
+            }
+            break;
+        case 100:
+            ClipF = 0;
+            if (D_80095770 == 0) {
+                D_8009EF4A[0] = 0;
+                D_80095880 = 6;
+                D_80095760 = 0xFFFF;
+            } else {
+                func_8004079C();
+                D_80095770--;
+            }
+            break;
+        case 110:
+            t = ++D_800957DC;
+            func_8003E360(t);
+            if (t == 0x180) {
+                D_80095880 = 6;
+            }
+            break;
+    }
+end:;
+}
+
+void func_800272D4(void) {
+    switch (sGame.unk3D0 & 0xF) {
+        case 1:
+            D_800D3860[0].unk18 = -0x88;
+            D_800D3860[0].unk1A = 0xAA;
+            D_800D3860[0].unk4 = 0;
+            D_800D8370[0].unk58 = (s32)&D_800D86E0[16];
+            D_800D3860[0].unk0 = -D_800A7308[0];
+            D_800D3860[0].unk8 = -D_800A7308[2];
+            func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
+            break;
+        case 4:
+            D_800D3860[5].unk18 = -0x88;
+            D_800D3860[5].unk1C = -0x88;
+            D_800D3860[5].unk1A = 0xAA;
+            D_800D3860[5].unk4 = 0;
+            D_800D8370[5].unk58 = (s32)&D_800D86E0[16];
+            D_800D3860[5].unk0 = -D_800A7308[0];
+            D_800D3860[5].unk8 = -D_800A7308[2];
+            func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
+            break;
+        case 2:
+            switch (D_80095830) {
+                case 3:
+                    D_800D3860[3].unk4 = 0x3C;
+                    D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
+                    D_800D3860[3].unk0 = -D_800A7308[0];
+                    D_800D3860[3].unk8 = -D_800A7308[2];
+                    D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
+                    if (D_8009585C % 20 == 0) {
+                        func_80042538(0x81);
+                    }
+                    break;
+                case 10:
+                    D_800D3860[6].unk4 = 0x32;
+                    D_800D8370[6].unk58 = (s32)&D_800D86E0[0];
+                    D_800D3860[6].unk0 = -D_800A7308[0];
+                    D_800D3860[6].unk8 = -D_800A7308[2];
+                    D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
+                    if (D_8009585C % 20 == 0) {
+                        func_80042538(0x81);
+                    }
+                    break;
+            }
+            break;
+        case 3:
+            switch (D_80095830) {
+                case 0:
+                    D_800D3860[4].unk4 = 0;
+                    D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
+                    D_800D3860[4].unk0 = -D_800A7308[0];
+                    D_800D3860[4].unk8 = -D_800A7308[2];
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
+                    break;
+                case 12:
+                    D_800D3860[2].unk4 = 0;
+                    D_800D8370[2].unk58 = (s32)&D_800D86E0[1];
+                    D_800D3860[2].unk0 = -D_800A7308[0];
+                    D_800D3860[2].unk8 = -D_800A7308[2];
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
+                    break;
+            }
+            break;
+    }
+    if ((D_8009EF48[0] >> 4) == 5) {
+        D_800D3860[1].unk4 = 0;
+        D_800D3860[1].unk0 = -D_800A7308[0];
+        D_800D3860[1].unk8 = -D_800A7308[2];
+        func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[1].unk36], (Rec48 *)&D_800D3860[1]);
+    }
+}
 
 /* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
 s32 func_80027714(void) {
@@ -577,16 +1480,6 @@ void func_800278B0(void) {
 
 /* MATCHING: func_800282F0's body as an inline helper; calling it with the s16 step
  * keeps the step's sign extension ahead of the rsin call. */
-static __inline__ void pushBack(s32 deg, s32 dist) {
-    s32 angle;
-    SVECTOR *rot;
-
-    rot = D_800A7680;
-    angle = ANGLE_DEG(deg);
-    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
-}
-
 void func_80027A00(void) {
     s16 step;
     s32 v;
@@ -692,7 +1585,62 @@ void func_80027D04(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
+/* MATCHING: the switch lays the default arm out last, after its own base reload, as retail. */
+void func_80027E14(void) {
+    s16 n;
+
+    if (sGame.unk0 != 0) {
+        if ((D_800957EC & 0x20) &&
+            (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
+            sGame.unk390 == 0) {
+            sGame.unk38F = 1;
+            sGame.unk3BC = 0;
+            sGame.unk390 = 1;
+            sGame.unk392 = 0;
+            sGame.unk39C = 0;
+            func_80018CA4(&sGame);
+            sGame.unk6 = 8;
+            sGame.unk398 = 0x23;
+            sGame.unk394 = sGame.unk34C;
+            func_80022F68((VECTOR *)&sGame.unk348);
+            func_80042538(0x17);
+        }
+        if (sGame.unk390 == 1) {
+            n = ++sGame.unk392;
+            if (n < 3) {
+                sGame.unk398 = 0x19;
+            } else if ((u16)(n - 4) < 3) {
+                sGame.unk398 = 0x12;
+            } else if (n >= 9) {
+                sGame.unk398 = 0x14;
+                sGame.unk390 = 2;
+                sGame.unk6 = 8;
+                sGame.unk3A0 = 2;
+            } else if (D_800957B4 & 0x20) {
+                sGame.unk398 = 0x14;
+            } else {
+                sGame.unk390 = 2;
+                switch (n) {
+                    case 3:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 0;
+                        break;
+                    case 7:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 1;
+                        break;
+                    default:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 2;
+                        break;
+                }
+            }
+        }
+        if (sGame.unk390 == 2) {
+            sGame.unk390 = 0;
+        }
+    }
+}
 
 void func_80028008(void) {
     s16 step;

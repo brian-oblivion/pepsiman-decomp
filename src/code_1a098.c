@@ -132,21 +132,23 @@ typedef struct {
 /** @brief A 0x3C-byte record of a 100-entry table (code_1dc24 has the same
  *         record, with fewer fields known). */
 typedef struct {
-    u16 unk0;       /**< a counter; bumped on a state change */
-    u8 unk2[2];     /**< not yet known */
-    s32 unk4;       /**< x */
-    s32 unk8;       /**< y */
-    s32 unkC;       /**< z */
-    s32 unk10;      /**< zeroed on a state change */
-    s32 unk14;      /**< set from a fixed object's y on a state change */
-    s32 unk18;      /**< zeroed on a state change */
-    u8 unk1C[2];    /**< not yet known */
-    u16 unk1E;      /**< a height; the query is centred half of it lower */
-    s32 unk20;      /**< a third of its magnitude is the query's range */
-    u8 unk24;       /**< set to 1 before the query */
-    u8 unk25;       /**< bit 0 of the query's result */
-    u8 unk26;       /**< flags: bit 7, bit 6, and a state in bits 0..5 */
-    u8 unk27[0x15]; /**< not yet known */
+    u16 unk0;      /**< a counter; bumped on a state change */
+    u8 unk2[2];    /**< not yet known */
+    s32 unk4;      /**< x */
+    s32 unk8;      /**< y */
+    s32 unkC;      /**< z */
+    s32 unk10;     /**< zeroed on a state change */
+    s32 unk14;     /**< set from a fixed object's y on a state change */
+    s32 unk18;     /**< zeroed on a state change */
+    u8 unk1C[2];   /**< not yet known */
+    u16 unk1E;     /**< a height; the query is centred half of it lower */
+    s32 unk20;     /**< a third of its magnitude is the query's range */
+    u8 unk24;      /**< set to 1 before the query */
+    u8 unk25;      /**< bit 0 of the query's result */
+    u8 unk26;      /**< flags: bit 7, bit 6, and a state in bits 0..5 */
+    u8 unk27[5];   /**< not yet known */
+    s16 unk2C;     /**< index of the Rec5C record it belongs to */
+    u8 unk2E[0xE]; /**< not yet known */
 } Rec3C;
 
 /** @brief Something that bobs up and down while it drifts. */
@@ -247,6 +249,7 @@ s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_8002A5B0(Rec78 *rec, Rec48 *r);
 void func_8002B8F8(u16 id, Rec3C *r);
+s32 func_8002BEC0(Drifter *d);
 void func_8002C188(s32 r, s32 deg, Vec3 *out);
 /* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
  * unit until a shared header holds it. */
@@ -497,7 +500,58 @@ void func_8002BC4C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
+/** @brief Updates `r` (id `id`) and queries around it; a hit in state 2
+ *         of a flagged record moves it to state 3. Inlined here and by the
+ *         out-of-line copy below. */
+static __inline__ void queryRec(s16 id, Rec3C *r) {
+    Query30 q;
+    s32 v;
+
+    func_8002B8F8(id, r);
+    q.pos.x = r->unk4;
+    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
+    q.pos.z = r->unkC;
+    r->unk24 = 1;
+    q.unk18 = 1;
+    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
+    v = func_80028AE4(&q) & 1;
+    r->unk25 = v;
+    if (v) {
+        if (r->unk26 & 0x80) {
+            if ((r->unk26 & 0x3F) == 2) {
+                r->unk10 = 0;
+                r->unk0++;
+                r->unk26 = (r->unk26 & 0x40) | 3;
+                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
+                r->unk18 = 0;
+            }
+        }
+    }
+}
+
+/** @brief Steps every live Rec3C record whose Rec5C record is marked 1:
+ *         a flagged one is updated and queried, a state-3 one drifts and is
+ *         updated on a drift step, any other one is updated. */
+/* MATCHING: the record pointer is taken inside the body. */
+void func_8002BD00(void) {
+    u32 i;
+    Rec3C *r;
+    s8 k;
+
+    for (i = 0; i < 100; i++) {
+        r = &D_800A7898[i];
+        if ((s16)r->unk0 != -1) {
+            k = D_800CF080[r->unk2C].unk0;
+            if (k == 1) {
+                if (r->unk26 & 0x80) {
+                    queryRec(r->unk0, r);
+                } else if ((r->unk26 & 0x3F) != 3 || (s8)func_8002BEC0((Drifter *)r) == 1) {
+                    func_8002B8F8(r->unk0, r);
+                }
+            }
+        }
+    }
+}
 
 /** @brief Takes one of the first 15 drift steps of `d`: moves it 20 units
  *         along the current heading and bobs it.
@@ -780,29 +834,7 @@ void func_8002C85C(u16 i, Quad16 *out) {
 /* MATCHING: the fixed object's y read as a VECTOR member; a plain word
  * read lets the scheduler hoist the r->unk18 store above it. */
 void func_8002C894(s16 id, Rec3C *r) {
-    Query30 q;
-    s32 v;
-
-    func_8002B8F8(id, r);
-    q.pos.x = r->unk4;
-    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
-    q.pos.z = r->unkC;
-    r->unk24 = 1;
-    q.unk18 = 1;
-    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
-    v = func_80028AE4(&q) & 1;
-    r->unk25 = v;
-    if (v) {
-        if (r->unk26 & 0x80) {
-            if ((r->unk26 & 0x3F) == 2) {
-                r->unk10 = 0;
-                r->unk0++;
-                r->unk26 = (r->unk26 & 0x40) | 3;
-                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
-                r->unk18 = 0;
-            }
-        }
-    }
+    queryRec(id, r);
 }
 
 /** @brief Interpolates three angles by `t`/`n` into `out`: out[1] is `r`

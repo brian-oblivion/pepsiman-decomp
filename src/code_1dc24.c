@@ -64,6 +64,8 @@ typedef struct {
     s16 unk6A;      /**< an angle in degrees; copied into a placed Rec3C's unk2A */
     u8 unk6C;       /**< copied into a placed Rec3C's unk27 */
     u8 unk6D;       /**< copied into a placed Rec3C's unk28 */
+    u8 unk6E[2];    /**< not yet known */
+    s32 unk70;      /**< the global stamp, saved on leaving the tool */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -177,7 +179,8 @@ typedef struct {
 typedef struct {
     u8 unk0[0x348];  /**< not yet known */
     s32 unk348[3];   /**< saved into sToolSave.unk38 */
-    u8 unk354[0x70]; /**< not yet known */
+    u8 unk354[0x6C]; /**< not yet known */
+    s32 unk3C0;      /**< handed to the view setup with the position */
     s32 unk3C4;      /**< a copy of unk348[1] */
 } GameSave;
 
@@ -333,6 +336,45 @@ extern char D_800111FC[]; /**< "NO FILE\n\n" */
 extern char D_80011208[]; /**< "CREATE NEW FILE ?" */
 extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
 extern char D_8001122C[]; /**< "   FORMAT OK ?" */
+
+/* Defined in other units, without a header. */
+void func_8002D2C0(Rec48 *recs);
+s32 func_8002D16C(void);
+void func_8002AA58(void);
+/* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
+void func_8002CCEC(GsOT *ot);
+void func_8002C47C(void);
+void func_800413BC(void);
+void func_800184BC(void);
+void func_8003A008(s16 x, s16 y, s16 z);
+void func_8003B9B4(s16 x, s16 y, s16 z, s16 w);
+
+s32 func_8002F6A0(void);
+void func_8002F8FC(void);
+s32 func_8002FA78(void);
+void func_8002FDB4(void);
+s32 func_8002FF74(void);
+s32 func_80030278(void);
+s32 func_80030548(void);
+void func_80030984(void);
+s32 func_80030B6C(void);
+s32 func_80030DA0(void);
+s32 func_80031064(void);
+void func_8003146C(void);
+s32 func_800317D0(void);
+void func_80031A48(void);
+s32 func_80031AEC(void);
+s32 func_80031EF4(void);
+void func_80033224(VECTOR *pos);
+void func_80033930(void);
+void func_80033AB8(void);
+void func_80033B08(void);
+void func_80033B34(void);
+void func_80033BF8(void);
+void func_8002DC44(void);
+extern u8 D_800A74D0[]; /**< 128 byte flags */
+extern s32 D_80095770;  /**< set to 0xFF on leaving the tool */
+extern u8 D_80095962;   /**< set on leaving the tool */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
@@ -591,7 +633,211 @@ INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112A8);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112CC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002D424);
+/** @brief The tool's main step: sets the tool up on the first pass;
+ *         then runs the current tool mode's editor, the camera and the
+ *         view, and handles the flag bits that leave the tool and step
+ *         the move distance.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D424(void) {
+    /* MATCHING: an unused 16-byte local gives retail's 0x30 frame. */
+    s32 unused[4];
+    Obj48 *r;
+    s32 i;
+
+    /* MATCHING: non-void with no return keeps the move-distance test's
+     * delay slot for the constant 100. */
+    switch (D_80095760) {
+        case 0:
+            func_8002D2C0((Rec48 *)0x8016D000);
+            D_800958DA = 0;
+            func_800413BC();
+            D_800956F7 = 1;
+            D_80095760++;
+            break;
+        case 1:
+            func_80033AB8();
+            for (i = 1; i < 128; i++) {
+                D_800A74D0[i] = 1;
+            }
+            func_8002D16C();
+            /* MATCHING: the s16 error code switched as u16 (lhu). */
+            switch ((u16)D_800958DA) {
+                case 0:
+                    func_8002FA78();
+                    if (D_800958D8 == 0) {
+                        switch (sTotals.unk3) {
+                            case 0:
+                                func_8002FDB4();
+                                break;
+                            case 1:
+                                func_80030278();
+                                func_8002AA58();
+                                break;
+                            case 2:
+                                func_80030984();
+                                func_80030DA0();
+                                break;
+                            case 3:
+                                func_800317D0();
+                                break;
+                        }
+                    } else {
+                        switch (sTotals.unk3) {
+                            case 0:
+                                func_8002FF74();
+                                break;
+                            case 1:
+                                func_80030548();
+                                func_8002AA58();
+                                break;
+                            case 2:
+                                func_80031064();
+                                if (D_800959D8 == 1 && (D_80095970 & 0x20)) {
+                                    sGameSave.unk348[0] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
+                                    sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
+                                    sGameSave.unk348[2] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
+                                    sTotals.unk1C = ((Obj48 *)D_800A9008)[sTotals.unk18].unk38;
+                                    D_800958DA = 4;
+                                    sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
+                                    sTotals.unk68 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk42;
+                                    sTotals.unk69 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk43;
+                                    sTotals.unk20 =
+                                        ((Obj48 *)D_800A9008)[sTotals.unk18].unk1A * 360 / 4096;
+                                    D_8009596E = func_80040E04(sTotals.unk1C, D_80096788, D_80096788);
+                                    for (i = 1; i < D_8009596E; i++) {
+                                        /* MATCHING: base taken in the body */
+                                        r = (Obj48 *)D_800A9008;
+                                        r[sTotals.unk18 + i].unk36 = -1;
+                                    }
+                                    D_800958B0 = 200;
+                                    D_800958D8 = 0;
+                                    D_800958B2 = 5;
+                                    D_8009574A = 0;
+                                    D_800958A6 = 0;
+                                    D_80095748 = sTotals.unk18;
+                                }
+                                break;
+                            case 3:
+                                func_80031AEC();
+                                if (D_800959D8 == 1 && (D_80095970 & 0x20)) {
+                                    sGameSave.unk348[0] = D_800A7898[sTotals.unk28].unk4[0];
+                                    sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
+                                    sGameSave.unk348[2] = D_800A7898[sTotals.unk28].unk4[2];
+                                    sTotals.unk2C = D_800A7898[sTotals.unk28].unk0 - 30;
+                                    D_800958DA = 5;
+                                    sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
+                                    sTotals.unk6D = D_800A7898[sTotals.unk28].unk28;
+                                    sTotals.unk6C = D_800A7898[sTotals.unk28].unk27;
+                                    D_800958B0 = 100;
+                                    D_800958D8 = 0;
+                                    D_800958B2 = 9;
+                                    D_80095748 = sTotals.unk28;
+                                    D_8009574A = 0;
+                                    D_800958A6 = 0;
+                                    sTotals.unk6A = D_800A7898[sTotals.unk28].unk2A;
+                                }
+                                break;
+                        }
+                    }
+                    if (D_80095970 & 0x10) {
+                        D_800958DA = 1;
+                        D_80095748 = 0;
+                        D_8009574A = 0;
+                    }
+                    break;
+                case 1:
+                    func_8002F6A0();
+                    if (D_80095970 & 0x40) {
+                        if (D_8009574A == 2) {
+                            D_800958A6 = 0;
+                        }
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 2:
+                    func_80033B08();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 3:
+                    func_80033B34();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 4:
+                    func_80030B6C();
+                    func_80030DA0();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 5:
+                    func_8003146C();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 6:
+                    func_80031EF4();
+                    break;
+                case 7:
+                case 8:
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 9:
+                case 10:
+                case 11:
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                        D_800958D8 = 0;
+                        D_800959D8 = 0;
+                    }
+                    break;
+            }
+            if (D_800958D8 == 0) {
+                func_80033F48((VECTOR *)D_8009EEC0);
+                func_80033224((VECTOR *)D_8009EEC0);
+            }
+            func_8002CCEC(&D_800ACEA8[D_80095750]);
+            func_80033BF8();
+            func_80031A48();
+            func_8003A008(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
+            func_800184BC();
+            func_8003B9B4(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
+            func_8002F8FC();
+            func_8002DC44();
+            break;
+    }
+    if (D_80095970 & 0x800) {
+        sTotals.unk70 = D_8009578C;
+        func_80033930();
+        D_80095770 = 0xFF;
+        D_80095962 = 1;
+        func_8002C47C();
+        D_80095760 = 3;
+        D_80095880 = 14;
+    }
+    if (D_80095970 & 0x100) {
+        switch (sTotals.unk4) {
+            case 50:
+                sTotals.unk4 = 100;
+                break;
+            case 100:
+                sTotals.unk4 = 2;
+                break;
+            case 1000:
+                sTotals.unk4 = 10;
+                break;
+            default:
+                sTotals.unk4 = 50;
+                break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002DC44);
 

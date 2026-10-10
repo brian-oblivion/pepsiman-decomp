@@ -44,7 +44,17 @@ typedef struct {
     GsCOORDINATE2 *coord; /**< places the corners */
 } Rec4C;
 
+/** @brief A point of three words, as the six-point table holds them. */
+typedef struct {
+    s32 x; /**< position */
+    s32 y; /**< position */
+    s32 z; /**< position */
+} Point12;
+
+extern Point12 D_8009F0D0[];
+
 void func_80028984(void);
+s32 func_800297A4(VECTOR *a, VECTOR *b);
 void func_8002985C(void);
 void func_8002988C(void);
 
@@ -92,7 +102,39 @@ INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028984);
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028AE4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028DBC);
+/** @brief Finds which of the six table points from `start` is nearest
+ *         `pos`.
+ *  @return the point's offset from `start`, 0..5 */
+/* MATCHING: `i++, k++` in the step; `dist[k++]` in the body gives the two
+ * increments the other way round. */
+u8 func_80028DBC(u16 start, VECTOR *pos) {
+    VECTOR a;
+    VECTOR b;
+    s32 dist[6];
+    s16 i;
+    u8 k;
+    s32 min;
+
+    k = 0;
+    for (i = start; i < start + 6; i++, k++) {
+        a.vx = D_8009F0D0[i].x;
+        a.vy = D_8009F0D0[i].y;
+        a.vz = D_8009F0D0[i].z;
+        b.vx = pos->vx;
+        b.vy = pos->vy;
+        b.vz = pos->vz;
+        dist[k] = func_800297A4(&a, &b);
+    }
+    min = dist[0];
+    k = 0;
+    for (i = 1; i < 6; i++) {
+        if (dist[i] < min) {
+            min = dist[i];
+            k = i;
+        }
+    }
+    return k;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028F0C);
 

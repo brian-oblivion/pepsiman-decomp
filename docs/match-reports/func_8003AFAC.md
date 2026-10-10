@@ -25,7 +25,7 @@ typedef struct {
 /* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
 void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
-s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+s32 SpawnEffect(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 
 void func_8003AFAC(void) {
     s32 n;
@@ -90,7 +90,7 @@ void func_8003AFAC(void) {
     }
     if (D_80095988 == 0x14A) {
         func_80042538(0x28);
-        func_8003F834(10, 0, 0, 0, 0);
+        SpawnEffect(10, 0, 0, 0, 0);
     }
     n = D_80095988;
     n /= 30;

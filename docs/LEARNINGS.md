@@ -29,7 +29,7 @@ function's match report, not here.
   it over two registers. (func_8003E444, func_800175AC) This holds even for
   a loop base the loop writes past: `extern s32 D[2];` (func_8001534C).
 - **A global every access reloads right after storing it: `volatile`**, in
-  the unit, with a `MATCHING:` note. (D_80095AD0, code_31cec)
+  the unit, with a `MATCHING:` note. (gMovieTimeout, code_31cec)
 - **A global reached `$gp` in one stretch of a unit and `lui` in another
   marks a source-file seam**: maspsx applies one gp list to the whole build,
   so no C spelling closes it. Report it with the addresses; it is a
@@ -70,9 +70,9 @@ function's match report, not here.
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
   with a `MATCHING:` note. (func_8002CAA4, func_8002CAE4; func_80028260's
-  calls to func_8003F834)
+  calls to SpawnEffect)
 - **A `u8` parameter that is only ever stored with `sb` may be `s32`**; the
-  narrower type reorders the argument copies. (func_8003F834)
+  narrower type reorders the argument copies. (SpawnEffect)
 - **A large global's base in a register (`lui`/`addiu`) with fields at
   `off($reg)`: the source used a struct lvalue or a local pointer.** Byte
   arithmetic on the array, `*(s16 *)(D + 0x398)`, folds the offset into
@@ -103,7 +103,7 @@ function's match report, not here.
 - **A global reached `lui` in one function of a unit and `$gp` in the rest:
   read it by literal address there**, `*(u8 *)0x80095AEE`, with a
   `MATCHING:` note. cc1 splits a constant address itself and maspsx leaves
-  it alone. Probably a source-file seam inside the unit. (func_80041BAC)
+  it alone. Probably a source-file seam inside the unit. (PlayMovie)
 - **`swc2 $17..$19` (or `$16..$19`) off one base: `gte_stsz3c` /
   `gte_stsz4c`** (include/gte.h). (func_8001B4BC)
 
@@ -146,7 +146,7 @@ function's match report, not here.
 - **A byte store of `addiu $x, $zero, -1`: the value is `s8` -1.** A `u8` 0xFF
   gives `addiu ..., 0xFF`. (func_80033854)
 - **A byte loaded twice, `lb` then `lbu`: read once through an `(s8)` cast
-  for the test, once plainly for the value.** (func_8003F834)
+  for the test, once plainly for the value.** (SpawnEffect)
 - **An 8-byte local filled with `lwl`/`lwr` from a global: a struct copy**,
   `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (func_8003E444)
 - **Four `lw` then four `sw`, both pointers bumped by 16 to an end pointer:
@@ -197,9 +197,9 @@ function's match report, not here.
 - **A redundant `andi 0xFFFF` on an `lhu`-loaded index: an `s16` local
   indexed through `(u16)i`.** (func_80042538)
 - **A constant local copied before a `sb` (`li sN, 1; move v1, sN`): the
-  local is `s16` or `u8`, not `s32`.** (func_80041534)
+  local is `s16` or `u8`, not `s32`.** (PlayMovieFile)
 - **`lb` of a `char *` argument's first byte: `*(s8 *)name`;** `(s8)name[0]`
-  folds to `lbu`. (func_80041534)
+  folds to `lbu`. (PlayMovieFile)
 - **A constant narrowed to a halfword add (`li 0xFE0C`) where retail has
   `addiu -500`: give each offset its own `s32` local.** (func_8003146C)
 
@@ -327,7 +327,7 @@ function's match report, not here.
   (x > hi) v = hi; } else v = lo; x = v;`. (func_800355D8)
 - **A call at a loop head, then `beqz` forward to a countdown that branches
   back**: `while ((x = f()) == NULL) { if (--cnt == 0) return -1; }`.
-  Do/while lays the blocks out the other way round. (func_80041D88)
+  Do/while lays the blocks out the other way round. (DecodeNextMovieFrame)
 - **A redundant `li $v0, 1` while `$v0` already holds 1: `state++`** (the
   value known from the `switch` case), not `state = 1`. (func_80042A88)
 - **Two `.sdata` strings sharing a `%hi`, each arm building its own `lui`
@@ -343,12 +343,12 @@ function's match report, not here.
 - **`beq K` / `slti K+1` / `beq K+1`: a switch with an empty `case K-1:
   break;`.** (func_80037700)
 - **A NULL return as the last block: `if (found) { ...; return p; } return
-  NULL;`.** (func_800197E4)
+  NULL;`.** (RemoveTodObj)
 - **An `abs` that must not move a later branch target: write it inline**,
   `(d < 0 ? -d : d) > 56`, not as a statement. (func_80023B20)
 - **A parameter copied out of its register at entry (`move a3, a1`): the
   source duplicated the tail that uses it**; cross-jumping merged the copies.
-  (func_80019730)
+  (CreateTodObj)
 - **A constant kept in one register across basic blocks: a local**, `s32 one
   = 1;`. Literals are rematerialised per block. A global reloaded in each arm
   with one shared branch is two compares that `goto` one label. (func_80028448)
@@ -525,9 +525,9 @@ function's match report, not here.
   s32 *)&sGame.f`. A field re-loaded at every use after one test was read
   through `*(volatile u8 *)&p->f`. (func_80026848, func_80023F80)
 - **`lw x; move y, x; sltu y` with x stored afterwards: the source read the
-  member twice**, `G = p->f; if (p->f >= L)`. (func_80041A6C)
+  member twice**, `G = p->f; if (p->f >= L)`. (GetNextMovieFrame)
 - **A dead `lhu` of a field just before a store to its neighbour: a
-  self-assignment**, `x.f = x.f;`. (func_80041534)
+  self-assignment**, `x.f = x.f;`. (PlayMovieFile)
 - **A table index shifted before the table's `lui`: the table address went
   into a pointer local first.** (func_80042538, func_80030548, func_8002F270)
 - **Two loop-invariant base copies in swapped registers: assign the pointer
@@ -578,7 +578,7 @@ function's match report, not here.
   what `stmt` touches; an array indexed in both arms of an `if` instead of a
   pointer taken before it doubles the base's refs. Compute
   `floor_log2(refs) * refs / live_length` from `cc1 -dl`.
-  (func_80017F0C, func_80018DF0, func_8002B220)
+  (func_80017F0C, SetTodPacket, func_8002B220)
 - **`do { i++; } while (0)` keeps an independent instruction from being
   hoisted** inside its block (loop notes split cse1 paths; cse2 ignores
   them). (func_80037C2C)

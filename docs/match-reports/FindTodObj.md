@@ -1,4 +1,6 @@
-# func_800196E4 — MATCHED (19/19), round 3, runner charlie
+# FindTodObj — MATCHED (19/19), round 3, runner charlie
+
+> Renamed from `func_800196E4` on 2026-10-10 (tools/rename.py). Address 0x800196e4.
 
 Unit `src/code_7d74.c`. Linear search of a `SlotList` for the 16-byte slot
 whose `+0xC` word equals `key`; returns the slot or NULL.
@@ -17,7 +19,7 @@ typedef struct {
     s32 capacity;
 } SlotList;
 
-Slot *func_800196E4(SlotList *list, s32 key) {
+Slot *FindTodObj(SlotList *list, s32 key) {
     Slot *s;
     s32 i;
 
@@ -39,5 +41,5 @@ Slot *func_800196E4(SlotList *list, s32 key) {
 
 1. As above: 19/19 first build. The loop keeps `count` in a register and
    the test after the loop reloads `list->count`, both from the plain
-   member access. `SlotList` is the shape `func_80019684` initialises
+   member access. `SlotList` is the shape `InitTodObjTable` initialises
    (`slots`, `count`, `capacity`).

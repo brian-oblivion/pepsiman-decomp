@@ -1,4 +1,6 @@
-# func_80019730 — MATCHED (45/45), round 5, runner charlie
+# CreateTodObj — MATCHED (45/45), round 5, runner charlie
+
+> Renamed from `func_80019730` on 2026-10-10 (tools/rename.py). Address 0x80019730.
 
 Unit `src/code_7d74.c`. Takes a slot for `key` from a SlotList: the first
 free slot (key -1) among the used ones, else the next unused slot if the
@@ -7,7 +9,7 @@ its flag word and `unk8` cleared, and its coordinate system (`unk4`)
 reinitialised with `GsInitCoordinate2(NULL, ...)`.
 
 ```c
-Slot *func_80019730(SlotList *list, s32 key) {
+Slot *CreateTodObj(SlotList *list, s32 key) {
     Slot *s;
     s32 i;
 
@@ -65,4 +67,4 @@ Slot *func_80019730(SlotList *list, s32 key) {
   a1`) where your build leaves it there and stores it before the call
   argument load into that register: the source duplicated the tail that
   uses it in two paths**, which cross-jumping merged back into one block.
-  (func_80019730)
+  (CreateTodObj)

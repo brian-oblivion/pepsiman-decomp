@@ -1,21 +1,23 @@
-# func_8003F664 — MATCHED (116/116), round 8, runner charlie
+# UpdateEffects — MATCHED (116/116), round 8, runner charlie
+
+> Renamed from `func_8003F664` on 2026-10-10 (tools/rename.py). Address 0x8003f664.
 
 Unit `src/code_29f54.c`. Runs every active slot once a frame: walks the
-active list from `D_80095AA8` through each record's `next` byte (a negative
-link ends it), calls the record's step function from the table `D_8007A7C4`
+active list from `gEffectActive` through each record's `next` byte (a negative
+link ends it), calls the record's step function from the table `gEffectSteps`
 (func_8003F960, func_8003E550, ... indexed by `unk12`) with the drawing
 position, and picks the ordering table by distance (`2*d*d > 0x77A0F`, `d`
 the x offset: far records go to `D_800A7318`). A step that returns nonzero
-is unlinked and pushed onto the free list `D_80095AA9`, the reverse of
-func_8003F834. The first parameter is never read.
+is unlinked and pushed onto the free list `gEffectFree`, the reverse of
+SpawnEffect. The first parameter is never read.
 
 ```c
 /** @brief One step of a slot's animation; returns nonzero when it ends. */
 typedef s32 (*SlotStep)(Slot *p, GsOT *ot, s16 x, s16 y, s16 z);
 
-extern SlotStep D_8007A7C4[];
+extern SlotStep gEffectSteps[];
 
-void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
+void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
     u8 i;
     u8 prev;
     u8 next;
@@ -24,27 +26,27 @@ void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
     Slot *slot;
 
     prev = 0xFF;
-    if ((s8)D_80095AA8 < 0) {
+    if ((s8)gEffectActive < 0) {
         return;
     }
-    i = D_80095AA8;
+    i = gEffectActive;
     do {
         slot = &sSlots[i];
         d = x + slot->unkC;
         next = slot->next;
         if (d * (d * 2) > 0x77A0F) {
-            done = D_8007A7C4[slot->unk12](slot, &D_800A7318[D_80095750], x, y, z);
+            done = gEffectSteps[slot->unk12](slot, &D_800A7318[D_80095750], x, y, z);
         } else {
-            done = D_8007A7C4[slot->unk12](slot, &D_800ACEA8[D_80095750], x, y, z);
+            done = gEffectSteps[slot->unk12](slot, &D_800ACEA8[D_80095750], x, y, z);
         }
         if (done) {
             if (prev == 0xFF) {
-                D_80095AA8 = sSlots[i].next;
+                gEffectActive = sSlots[i].next;
             } else {
                 sSlots[prev].next = sSlots[i].next;
             }
-            sSlots[i].next = D_80095AA9;
-            D_80095AA9 = i;
+            sSlots[i].next = gEffectFree;
+            gEffectFree = i;
         } else {
             prev = i;
         }
@@ -58,9 +60,9 @@ void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
 ## Levers
 
 - **The list head read twice, `lb` for the test and `lbu` for the walk:
-  the guard first, then the assignment** (`if ((s8)D_80095AA8 < 0)
-  return; i = D_80095AA8;`). With `i` assigned first (or a `for` from
-  `D_80095AA8`) cc1 reused the `lb` value.
+  the guard first, then the assignment** (`if ((s8)gEffectActive < 0)
+  return; i = gEffectActive;`). With `i` assigned first (or a `for` from
+  `gEffectActive`) cc1 reused the `lb` value.
 - **The loop test on `next` with `i = next` in the back-branch delay slot:
   `if ((s8)next < 0) break; i = next;`** at the bottom of an endless loop.
   `i = next; } while ((s8)next >= 0);` and `while ((s8)(i = next) >= 0)`
@@ -79,7 +81,7 @@ void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
 ### Proposed learning
 
 - **A byte global read `lb` (test) then `lbu` (value): test it before
-  assigning it.** (func_8003F664)
+  assigning it.** (UpdateEffects)
 - **A loop whose back branch tests the next link and copies it in the delay
   slot: `if ((s8)next < 0) break; i = next;` inside `do { } while (1)`.**
-  (func_8003F664)
+  (UpdateEffects)

@@ -229,7 +229,7 @@ void func_80028500(void);
 
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
-s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
+s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void func_80015450(u16 *table, s32 index);
 extern s32 D_800957B4;
 extern u16 D_8009587E;
@@ -406,13 +406,13 @@ void func_80022F58(void) {}
 void func_80022F60(void) {}
 
 void func_80022F68(VECTOR *pos) {
-    func_8003F834(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
-                  (s16)pos->vz + (rand() % 160 - 80), 1);
+    SpawnEffect(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+                (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
 void func_80023020(VECTOR *pos) {
-    func_8003F834(6, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
-                  (s16)pos->vz + (rand() % 160 - 80), 1);
+    SpawnEffect(6, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+                (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
 void func_800230D8(void) {}

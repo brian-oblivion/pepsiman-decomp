@@ -371,27 +371,27 @@ int main(void) {
             case 44:
                 switch ((u8)(D_80095830 / 3)) {
                     case 0:
-                        func_80041BAC("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
+                        PlayMovie("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
                         D_80095880 = 38;
                         break;
                     case 1:
-                        func_80041BAC("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
+                        PlayMovie("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
                         D_80095880 = 38;
                         break;
                     case 2:
-                        func_80041BAC("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
+                        PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
                         D_80095880 = 38;
                         break;
                     case 3:
-                        func_80041BAC("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
+                        PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
                         D_80095880 = 38;
                         break;
                     case 4:
-                        func_80041BAC("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
+                        PlayMovie("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
                         D_80095880 = 38;
                         break;
                     case 5:
-                        func_80041BAC("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
+                        PlayMovie("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
                         if (D_800958AC == 0) {
                             D_800958A5 = 1;
                             D_800958C8 |= 2;
@@ -524,7 +524,7 @@ extern u8 D_80096418[];
 /* MATCHING: code_1a098 defines it on its own Model70 view. */
 void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: code_7d74 types the list, slots and data as its own records. */
-void func_80019684(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
+void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 /* MATCHING: code_308ec passes the game state's head in its own view. */
 u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
 
@@ -546,7 +546,7 @@ void func_80013CDC(void) {
     func_8002C20C(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
     func_8002C20C(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
     func_8002C20C(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
-    func_80019684(D_800D8360, D_8009EF50, D_800D86E0, D_80096418, 20);
+    InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
     p = (s32 *)0x80123000;
     D_800958CC = 0;
     D_800958D0 = ((DirEnt16 *)p)->count;
@@ -1870,7 +1870,7 @@ typedef struct {
 } ModelSet;
 
 /* MATCHING: a struct lvalue over the shared array declaration. */
-#define sModels (*(ModelSet *)D_800D8360)
+#define sModels (*(ModelSet *)gTodObjTable)
 
 
 void func_800160E8(void);

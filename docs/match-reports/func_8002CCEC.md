@@ -7,7 +7,7 @@ each group of the zone (`D_80095934[D_8009578C]`, group list
 non-zero and not yet done (bit 15): places a 75x75 sprite 0xFA at the
 entry relative to the player, sorts it near or far as func_8002B8F8 does,
 and when func_8002D0F0 reports the player 50 units above it, runs
-func_800414EC, plays 0x35 and func_8003F834 (7, or 8 for state 2, none
+func_800414EC, plays 0x35 and SpawnEffect (7, or 8 for state 2, none
 for 0), and sets bit 15.
 
 ## Round 11 (echo): matched
@@ -124,13 +124,13 @@ void func_8002CCEC(void) {
                         case 1:
                         default:
                             func_80042538(0x35);
-                            func_8003F834(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
                                           ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
                                           (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
                             break;
                         case 2:
                             func_80042538(0x35);
-                            func_8003F834(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
                                           ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
                                           (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
                             break;

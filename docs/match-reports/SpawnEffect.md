@@ -1,11 +1,13 @@
-# func_8003F834 — MATCHED (40/40), round 3, runner bravo
+# SpawnEffect — MATCHED (40/40), round 3, runner bravo
+
+> Renamed from `func_8003F834` on 2026-10-10 (tools/rename.py). Address 0x8003f834.
 
 Unit `src/code_29f54.c`. Takes a record off the free list of the 128-entry
-0x14-byte table `D_800DFAB0` and fills it. `D_80095AA9` is the free-list
-head (negative as `s8` when empty: return -1), `D_80095AA8` the
+0x14-byte table `gEffects` and fills it. `gEffectFree` is the free-list
+head (negative as `s8` when empty: return -1), `gEffectActive` the
 most recently taken record; byte 0x13 of a record is the link that
-`func_800400EC` (unit `code_308ec`) initialises to `i + 1`. The taken record
-is linked to the previous `D_80095AA8`, gets `arg0` at 0x12, three halfwords
+`InitEffects` (unit `code_308ec`) initialises to `i + 1`. The taken record
+is linked to the previous `gEffectActive`, gets `arg0` at 0x12, three halfwords
 at 0xC..0x10, 0 at 0x0 and the fifth argument at 0x2. Returns 0.
 
 ```c
@@ -20,25 +22,25 @@ typedef struct {
     u8 next;
 } Slot;
 
-#define sSlots ((Slot *)D_800DFAB0)
+#define sSlots ((Slot *)gEffects)
 
-extern NumberedSlot D_800DFAB0[]; /* include/common.h */
-extern u8 D_80095AA8;             /* include/common.h (moved there) */
-extern u8 D_80095AA9;             /* include/common.h (moved there) */
+extern NumberedSlot gEffects[]; /* include/common.h */
+extern u8 gEffectActive;             /* include/common.h (moved there) */
+extern u8 gEffectFree;             /* include/common.h (moved there) */
 
-s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
+s32 SpawnEffect(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     u8 prev;
     Slot *slot;
 
-    if ((s8)D_80095AA9 < 0) {
+    if ((s8)gEffectFree < 0) {
         return -1;
     }
-    prev = D_80095AA8;
-    D_80095AA8 = D_80095AA9;
-    D_80095AA9 = sSlots[D_80095AA8].next;
-    sSlots[D_80095AA8].next = prev;
-    sSlots[D_80095AA8].unk12 = arg0;
-    slot = &sSlots[D_80095AA8];
+    prev = gEffectActive;
+    gEffectActive = gEffectFree;
+    gEffectFree = sSlots[gEffectActive].next;
+    sSlots[gEffectActive].next = prev;
+    sSlots[gEffectActive].unk12 = arg0;
+    slot = &sSlots[gEffectActive];
     slot->unkC = arg1;
     slot->unkE = arg2;
     slot->unk10 = arg3;
@@ -54,7 +56,7 @@ s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
 unit views the records through a local `Slot` and a cast macro (the
 func_800285B0 pattern); no shared struct was edited.
 
-`D_80095AA8` and `D_80095AA9` were declared `extern u8` in
+`gEffectActive` and `gEffectFree` were declared `extern u8` in
 `src/code_308ec.c`. Two units now reach them, both as `%gp_rel` byte
 scalars, so declcheck wanted them shared: they MOVED to `include/common.h`
 (an additive edit there) and the two lines left `src/code_308ec.c`. The
@@ -70,7 +72,7 @@ whole image stays OK.
 - **`lb` then `lbu` of the same byte**: one read cast to `s8` for the empty
   test, a second, plain read for the value. cc1 does not merge the two
   extensions.
-- Each `sSlots[D_80095AA8]` re-reads the global after a store through the
+- Each `sSlots[gEffectActive]` re-reads the global after a store through the
   table (2.8.1 has no type-based alias analysis); the last five stores share
   one base, so the source held the record in a pointer.
 
@@ -79,4 +81,4 @@ whole image stays OK.
 - **Argument copies in temporaries allocated in an order that does not
   follow the argument order: try a wider type for the argument that lands
   out of place.** A `u8` parameter stored only by `sb` was `s32` in the
-  source (func_8003F834).
+  source (SpawnEffect).

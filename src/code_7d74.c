@@ -17,20 +17,13 @@ typedef struct {
     u16 count;    /**< number of entries (read from the first one) */
 } PackEntry;
 
-/** @brief A slot of a SlotList, found by its key. */
+/** @brief The objects a TOD animation drives: an array of GsDOBJ2, each
+ *         found by its TOD object id, filled from the front. */
 typedef struct {
-    s32 unk0; /**< only the sign bit set when the slot is initialised */
-    s32 unk4; /**< the slot's 0x50-byte object */
-    s32 unk8; /**< cleared when the slot is initialised */
-    s32 unkC; /**< the key; -1 when free */
-} Slot;
-
-/** @brief A fixed-capacity list of Slots. */
-typedef struct {
-    Slot *slots;  /**< the slot array */
-    s32 count;    /**< slots in use */
-    s32 capacity; /**< slots in the array */
-} SlotList;
+    GsDOBJ2 *top; /**< the object array */
+    s32 count;    /**< objects in use, free ones included */
+    s32 capacity; /**< objects in the array */
+} TodObjTable;
 
 /* MATCHING: reading the TimInfo through the global each time, not a
  * pointer local, picks retail's registers. */
@@ -94,8 +87,8 @@ void func_80017DD4(void);
 s32 func_8001819C(void);
 void func_80018BD8(void);
 s8 func_80017640(u16 *tim);
-u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
-u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6);
+u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
+u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 
 void func_80017574(void) {
     if (D_800958C9 != 0) {
@@ -397,8 +390,8 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     } else {
         obj->time[index]++;
     }
-    obj->data[index] = func_800195CC(obj->time[index], obj->data[index], (s32)D_800D8360,
-                                     (s32)D_800760EC, D_80095904, 0, arg);
+    obj->data[index] = SetTodFrame(obj->time[index], obj->data[index], (s32)gTodObjTable,
+                                   (s32)D_800760EC, D_80095904, 0, arg);
     return ret;
 }
 
@@ -469,8 +462,8 @@ s32 func_8001819C(void) {
             return;
         }
     }
-    o = (*(DrawList *)D_800D8360).objs;
-    for (i = 0; i < (*(DrawList *)D_800D8360).count; o++, i++) {
+    o = (*(DrawList *)gTodObjTable).objs;
+    for (i = 0; i < (*(DrawList *)gTodObjTable).count; o++, i++) {
         o->coord2->flg = 0;
         if (o->id == -1) {
             continue;
@@ -715,12 +708,12 @@ typedef struct {
 
 extern s32 D_8009EF00[];
 
-Slot *func_800196E4(SlotList *list, s32 key);
-Slot *func_80019730(SlotList *list, s32 key);
-Slot *func_800197E4(SlotList *list, s32 key);
-s32 *func_80019874(s32 *table, s32 *keys, s32 key);
+GsDOBJ2 *FindTodObj(TodObjTable *list, s32 key);
+GsDOBJ2 *CreateTodObj(TodObjTable *list, s32 key);
+GsDOBJ2 *RemoveTodObj(TodObjTable *list, s32 key);
+s32 *FindTmdById(s32 *table, s32 *keys, s32 key);
 
-u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
+u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter) {
     s16 mask[3];
     s32 rot[3];
     s32 unused[6];
@@ -744,7 +737,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     GsCOORD2PARAM *prm;
     s32 a;
     s32 v;
-    Slot *s;
+    GsDOBJ2 *s;
 
     w = *(u32 *)data;
     p = data + 4;
@@ -777,7 +770,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
             words = 2;
         }
     }
-    if (arg5 & 0x7F) {
+    if (filter & 0x7F) {
         switch (id) {
             case 2:
             case 3:
@@ -788,7 +781,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
             case 8:
             case 9:
             case 10:
-                if ((arg5 & 0x7F) == 1) {
+                if ((filter & 0x7F) == 1) {
                     return data + words * 4;
                 }
                 break;
@@ -799,13 +792,13 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
             case 14:
             case 15:
             case 16:
-                if ((arg5 & 0x7F) == 2) {
+                if ((filter & 0x7F) == 2) {
                     return data + words * 4;
                 }
                 break;
         }
     }
-    obj = (GsDOBJ2 *)func_800196E4((SlotList *)arg1, id);
+    obj = FindTodObj((TodObjTable *)objTable, id);
     if (obj == NULL) {
         obj = &dummy;
         m = &dummyM;
@@ -832,7 +825,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                             rot[k] <<= 12;
                         }
                         p += 8;
-                    } else if ((id != 2 && id != 10) || !(arg5 & 0x80)) {
+                    } else if ((id != 2 && id != 10) || !(filter & 0x80)) {
                         if (words == 2) {
                             for (k = 0; k < 3; k++) {
                                 rot[k] = (h = ((s16 *)p)[k - 1]) & 0xFFFF;
@@ -948,28 +941,28 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
             }
             break;
         case 2:
-            if (arg3 != 0) {
-                GsLinkObject4((u_long)func_80019874((s32 *)arg3, (s32 *)arg2, *(u16 *)p), obj, 0);
+            if (tmdTable != 0) {
+                GsLinkObject4((u_long)FindTmdById((s32 *)tmdTable, (s32 *)tmdIds, *(u16 *)p), obj, 0);
             }
             break;
         case 3:
-            if (arg4 != 2) {
+            if (mode != 2) {
                 if (*(s32 *)p == 0 || *(s32 *)p == 0xFFFF) {
                     obj->coord2->super = NULL;
                 } else {
-                    s = func_800196E4((SlotList *)arg1, *(s32 *)p);
-                    obj->coord2->super = (GsCOORDINATE2 *)s->unk4;
+                    s = FindTodObj((TodObjTable *)objTable, *(s32 *)p);
+                    obj->coord2->super = s->coord2;
                 }
             }
             break;
         case 8:
-            if (arg1 != 0) {
+            if (objTable != 0) {
                 switch (flags) {
                     case 0:
-                        func_80019730((SlotList *)arg1, id);
+                        CreateTodObj((TodObjTable *)objTable, id);
                         break;
                     case 1:
-                        func_800197E4((SlotList *)arg1, id);
+                        RemoveTodObj((TodObjTable *)objTable, id);
                         break;
                 }
             }
@@ -978,7 +971,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     return data + words * 4;
 }
 
-u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6) {
+u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter) {
     u32 i;
     u32 n;
 
@@ -988,36 +981,37 @@ u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8
     }
     data += 8;
     for (i = 0; i < n; i++) {
-        data = func_80018DF0(data, arg2, arg3, arg4, arg5, arg6);
+        data = SetTodPacket(data, objTable, tmdIds, tmdTable, mode, filter);
     }
     return data;
 }
 
-void func_80019684(SlotList *list, Slot *slots, u8 *objs, s32 data, s32 n) {
+void InitTodObjTable(TodObjTable *table, GsDOBJ2 *objs, GsCOORDINATE2 *coords,
+                     GsCOORD2PARAM *params, s32 n) {
     s32 i;
 
-    list->count = 0;
-    list->slots = slots;
-    list->capacity = n;
+    table->count = 0;
+    table->top = objs;
+    table->capacity = n;
     for (i = 0; i < n; i++) {
-        slots->unk0 = 0x80000000;
-        slots->unkC = -1;
-        slots->unk4 = (s32)objs;
-        *(s32 *)(objs + 0x44) = data;
-        slots->unk8 = 0;
-        slots++;
-        objs += 0x50;
-        data += 0x28;
+        objs->attribute = GsDOFF;
+        objs->id = -1;
+        objs->coord2 = coords;
+        coords->param = params;
+        objs->tmd = 0;
+        objs++;
+        coords++;
+        params++;
     }
 }
 
-Slot *func_800196E4(SlotList *list, s32 key) {
-    Slot *s;
+GsDOBJ2 *FindTodObj(TodObjTable *list, s32 key) {
+    GsDOBJ2 *s;
     s32 i;
 
-    s = list->slots;
+    s = list->top;
     for (i = 0; i < list->count; i++) {
-        if (key == s->unkC) {
+        if (key == s->id) {
             break;
         }
         s++;
@@ -1028,61 +1022,63 @@ Slot *func_800196E4(SlotList *list, s32 key) {
     return s;
 }
 
-Slot *func_80019730(SlotList *list, s32 key) {
-    Slot *s;
+GsDOBJ2 *CreateTodObj(TodObjTable *list, s32 key) {
+    GsDOBJ2 *s;
     s32 i;
 
-    s = list->slots;
+    s = list->top;
     for (i = 0; i < list->count; i++) {
-        if (s->unkC == -1) {
+        if (s->id == -1) {
             break;
         }
         s++;
     }
     if (i < list->count) {
-        s->unkC = key;
-        s->unk0 = 0;
-        GsInitCoordinate2(NULL, (GsCOORDINATE2 *)s->unk4);
-        s->unk8 = 0;
+        s->id = key;
+        s->attribute = 0;
+        GsInitCoordinate2(NULL, s->coord2);
+        s->tmd = 0;
         return s;
     }
     if (i < list->capacity) {
-        s = &list->slots[list->count];
+        s = &list->top[list->count];
         list->count++;
-        s->unkC = key;
-        s->unk0 = 0;
-        GsInitCoordinate2(NULL, (GsCOORDINATE2 *)s->unk4);
-        s->unk8 = 0;
+        s->id = key;
+        s->attribute = 0;
+        GsInitCoordinate2(NULL, s->coord2);
+        s->tmd = 0;
         return s;
     }
     return NULL;
 }
 
-Slot *func_800197E4(SlotList *list, s32 key) {
-    Slot *s;
+/* The key is never compared: the search stops at the first free object, not
+ * at the one a kill packet names, so no live object is ever freed. */
+GsDOBJ2 *RemoveTodObj(TodObjTable *list, s32 key) {
+    GsDOBJ2 *s;
     s32 i;
 
-    s = list->slots;
+    s = list->top;
     for (i = 0; i < list->count; i++) {
-        if (s->unkC == -1) {
+        if (s->id == -1) {
             break;
         }
         s++;
     }
     if (i < list->count) {
-        s->unkC = -1;
+        s->id = -1;
         if (i == list->count - 1) {
             do {
                 list->count--;
                 s--;
-            } while (s->unkC == -1);
+            } while (s->id == -1);
         }
         return s;
     }
     return NULL;
 }
 
-s32 *func_80019874(s32 *table, s32 *keys, s32 key) {
+s32 *FindTmdById(s32 *table, s32 *keys, s32 key) {
     s32 n;
 
     table++;

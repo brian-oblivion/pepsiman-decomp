@@ -1,9 +1,11 @@
-# func_80041D88 — MATCHED 38/38 (round 4, echo)
+# DecodeNextMovieFrame — MATCHED 38/38 (round 4, echo)
+
+> Renamed from `func_80041D88` on 2026-10-10 (tools/rename.py). Address 0x80041d88.
 
 Unit `src/code_31cec.c`. Waits for the next movie frame's bitstream
-(`func_80041A6C`, Sony's sample `strNext`), flips the VLC buffer index,
+(`GetNextMovieFrame`, Sony's sample `strNext`), flips the VLC buffer index,
 VLC-decodes the frame into it and frees the ring sector. Returns -1 when
-the volatile countdown `D_80095AD0` (0x800000) runs out. This is the
+the volatile countdown `gMovieTimeout` (0x800000) runs out. This is the
 `strNextVlc` routine of Sony's movie playback sample, compiled into the
 game's unit (not a linked Sony object).
 
@@ -22,15 +24,15 @@ typedef struct {
     s32 isdone;        /* 0x2C */
 } DECENV;
 
-extern volatile s32 D_80095AD0;
-u_long *func_80041A6C(DECENV *dec);
+extern volatile s32 gMovieTimeout;
+u_long *GetNextMovieFrame(DECENV *dec);
 
-s32 func_80041D88(DECENV *dec) {
+s32 DecodeNextMovieFrame(DECENV *dec) {
     u_long *next;
 
-    D_80095AD0 = 0x800000;
-    while ((next = func_80041A6C(dec)) == NULL) {
-        if (--D_80095AD0 == 0) {
+    gMovieTimeout = 0x800000;
+    while ((next = GetNextMovieFrame(dec)) == NULL) {
+        if (--gMovieTimeout == 0) {
             return -1;
         }
     }
@@ -43,8 +45,8 @@ s32 func_80041D88(DECENV *dec) {
 
 ## Levers
 
-- **`D_80095AD0` is volatile.** Every retail access (here and in
-  func_80041A6C, func_80041E20) stores the decremented value and loads it
+- **`gMovieTimeout` is volatile.** Every retail access (here and in
+  GetNextMovieFrame, WaitMovieFrameDecoded) stores the decremented value and loads it
   again before the test. Declared unit-locally with a `MATCHING:` note.
 - **Loop shape: `while ((next = f()) == NULL) { if (--cnt == 0) return
   -1; }` then the success code.** Retail has the call at the loop head,
@@ -58,4 +60,4 @@ s32 func_80041D88(DECENV *dec) {
 - **Call at a loop's head, `beqz` forward to a block that branches back:
   a `while ((x = f()) == 0) { ... }` with the work after the loop.** A
   `do`/`while` whose body returns on success lays the blocks out the
-  other way round. (func_80041D88)
+  other way round. (DecodeNextMovieFrame)

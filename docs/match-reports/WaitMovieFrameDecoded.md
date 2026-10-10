@@ -1,20 +1,22 @@
-# func_80041E20 — MATCHED 48/48 (round 4, echo)
+# WaitMovieFrameDecoded — MATCHED 48/48 (round 4, echo)
+
+> Renamed from `func_80041E20` on 2026-10-10 (tools/rename.py). Address 0x80041e20.
 
 Unit `src/code_31cec.c`. Waits for the current movie frame to finish
-decoding (`dec->isdone`), with the volatile countdown `D_80095AD0`
+decoding (`dec->isdone`), with the volatile countdown `gMovieTimeout`
 (0x800000). On a time-out it prints "time out in decoding !", forces
 `isdone`, flips the frame area index and points the decode slice at the
 new area. Clears `isdone` on exit. Sony's movie sample `strSync`,
-compiled into the game's unit. Called from func_80041534.
+compiled into the game's unit. Called from PlayMovieFile.
 
 ```c
 #include "stdio.h"
-/* DECENV, D_80095AD0: see func_80041D88.md */
+/* DECENV, gMovieTimeout: see DecodeNextMovieFrame.md */
 
-void func_80041E20(DECENV *dec) {
-    D_80095AD0 = 0x800000;
+void WaitMovieFrameDecoded(DECENV *dec) {
+    gMovieTimeout = 0x800000;
     while (dec->isdone == 0) {
-        if (--D_80095AD0 == 0) {
+        if (--gMovieTimeout == 0) {
             printf("time out in decoding !\n");
             dec->isdone = 1;
             dec->rectid = dec->rectid == 0;

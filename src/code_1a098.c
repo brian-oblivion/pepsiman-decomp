@@ -251,7 +251,7 @@ s32 func_8002C650(void);
 s32 func_800297A4(void *a, void *b);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
-s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
+s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_8002A5B0(Rec78 *rec, Rec48 *r);
 void func_8002B8F8(u16 id, Rec3C *r);
@@ -1544,15 +1544,15 @@ void func_8002CCEC(void) {
                         case 1:
                         default:
                             func_80042538(0x35);
-                            func_8003F834(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
-                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
-                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                                        ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
+                                        (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
                             break;
                         case 2:
                             func_80042538(0x35);
-                            func_8003F834(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
-                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
-                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                                        ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
+                                        (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
                             break;
                     }
                     ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk6 |= 0x8000;
@@ -1637,7 +1637,7 @@ void func_8002D230(void) {
         if ((s8)D_800A7550[i] == 1) {
             /* MATCHING: an integer sum puts the scaled index first. */
             e = (Ent8 *)(i * 8 + (u32)D_800959C4);
-            func_8003F834(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
+            SpawnEffect(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
             D_800A7550[i] = 2;
             return;
         }

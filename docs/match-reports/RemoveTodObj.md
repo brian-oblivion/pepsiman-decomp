@@ -1,4 +1,6 @@
-# func_800197E4 — MATCHED (36/36), round 5, runner charlie
+# RemoveTodObj — MATCHED (36/36), round 5, runner charlie
+
+> Renamed from `func_800197E4` on 2026-10-10 (tools/rename.py). Address 0x800197e4.
 
 Unit `src/code_7d74.c`. Finds the first free slot (key -1) among the
 SlotList's used slots; when there is one it marks it free again, and if it
@@ -7,7 +9,7 @@ was the last used slot it pops the free slots off the end of the list
 or NULL when no used slot is free.
 
 ```c
-Slot *func_800197E4(SlotList *list) {
+Slot *RemoveTodObj(SlotList *list) {
     Slot *s;
     s32 i;
 
@@ -48,4 +50,4 @@ the function takes only the list.
 - **The NULL return as the function's last block (`beqz` forward to a
   trailing `jr ra` / `move v0, zero`): the work sits inside `if (found) {
   ...; return p; } return NULL;`.** An early `if (!found) return NULL;`
-  puts the NULL return in the middle. (func_800197E4)
+  puts the NULL return in the middle. (RemoveTodObj)

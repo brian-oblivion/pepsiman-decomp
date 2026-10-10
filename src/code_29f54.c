@@ -23,24 +23,6 @@ extern s8 D_80095AA0[8];
 extern u8 D_800956B0[];
 extern u8 D_800956B8[];
 
-/** @brief The 0x14-byte records of common.h's NumberedSlot table, as this
- *         unit writes them. */
-typedef struct {
-    s16 unk0;  /**< animation frame; cleared when the record is taken */
-    s16 unk2;  /**< frames to wait before the animation starts */
-    s16 unk4;  /**< per-frame step of the rising sprite's y offset */
-    s16 unk6;  /**< the rising sprite's end distance */
-    s16 unk8;  /**< per-frame step subtracted from the y offset */
-    s16 unkA;  /**< per-frame turn of a spinning piece, in degrees */
-    s16 unkC;  /**< x offset added to the drawing position */
-    s16 unkE;  /**< y offset added to the drawing position */
-    s16 unk10; /**< z offset added to the drawing position */
-    u8 unk12;  /**< not yet known */
-    u8 next;   /**< free-list link: the next record's index */
-} Slot;
-
-#define sSlots ((Slot *)D_800DFAB0)
-
 /** @brief An 8-byte boundary record: a point and the direction its sign
  *         test projects onto. */
 typedef struct {
@@ -473,7 +455,7 @@ typedef struct {
 /* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
 void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
-s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);
 
 void func_8003AFAC(void) {
     s32 n;
@@ -538,7 +520,7 @@ void func_8003AFAC(void) {
     }
     if (D_80095988 == 0x14A) {
         func_80042538(0x28);
-        func_8003F834(10, 0, 0, 0, 0);
+        SpawnEffect(10, 0, 0, 0, 0);
     }
     n = D_80095988;
     n /= 30;
@@ -1592,49 +1574,49 @@ static __inline__ void setLs(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003E550(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
         /* MATCHING: retail shifts the scaled sine with srl. */
-        size.vx = (u32)(rcos((p->unk0 * 3 << 13) / 360) * 25) >> 9;
-        size.vy = (u32)(rsin((p->unk0 << 15) / 360) * 25) >> 8;
+        size.vx = (u32)(rcos((p->frame * 3 << 13) / 360) * 25) >> 9;
+        size.vy = (u32)(rsin((p->frame << 15) / 360) * 25) >> 8;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
         func_8001A69C(0x11F, &size, &color, 2, ot);
-        return ++p->unk0 == 15;
+        return ++p->frame == 15;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003E6F8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003E6F8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 c[2];
     POLY_F4 *f;
     DR_TPAGE *t;
 
-    c[0] = p->unkC + (p->unk10 >> 1) + 2;
-    c[1] = p->unkE + 4;
+    c[0] = p->x + (p->z >> 1) + 2;
+    c[1] = p->y + 4;
     f = (POLY_F4 *)D_800E48D0;
     setPolyF4(f);
     setSemiTrans(f, 1);
-    f->x0 = p->unkC;
-    f->x1 = p->unkC + p->unk10;
+    f->x0 = p->x;
+    f->x1 = p->x + p->z;
     f->x2 = f->x0 + 4;
     f->x3 = f->x1 + 4;
-    f->y0 = f->y1 = p->unkE;
-    f->y2 = f->y3 = p->unkE + 8;
-    f->x0 = c[0] + ((c[0] - f->x0) * ((p->unk0 << 9) + 0x1000) >> 12);
-    f->x1 = c[0] + ((c[0] - f->x1) * ((p->unk0 << 9) + 0x1000) >> 12);
-    f->x2 = c[0] + ((c[0] - f->x2) * ((p->unk0 << 9) + 0x1000) >> 12);
-    f->x3 = c[0] + ((c[0] - f->x3) * ((p->unk0 << 9) + 0x1000) >> 12);
-    f->y0 = c[1] + ((c[1] - f->y0) * ((p->unk0 << 10) + 0x1000) >> 12);
-    f->y1 = c[1] + ((c[1] - f->y1) * ((p->unk0 << 10) + 0x1000) >> 12);
-    f->y2 = c[1] + ((c[1] - f->y2) * ((p->unk0 << 10) + 0x1000) >> 12);
-    f->y3 = c[1] + ((c[1] - f->y3) * ((p->unk0 << 10) + 0x1000) >> 12);
-    f->r0 = f->g0 = f->b0 = ~(p->unk0 << 5);
+    f->y0 = f->y1 = p->y;
+    f->y2 = f->y3 = p->y + 8;
+    f->x0 = c[0] + ((c[0] - f->x0) * ((p->frame << 9) + 0x1000) >> 12);
+    f->x1 = c[0] + ((c[0] - f->x1) * ((p->frame << 9) + 0x1000) >> 12);
+    f->x2 = c[0] + ((c[0] - f->x2) * ((p->frame << 9) + 0x1000) >> 12);
+    f->x3 = c[0] + ((c[0] - f->x3) * ((p->frame << 9) + 0x1000) >> 12);
+    f->y0 = c[1] + ((c[1] - f->y0) * ((p->frame << 10) + 0x1000) >> 12);
+    f->y1 = c[1] + ((c[1] - f->y1) * ((p->frame << 10) + 0x1000) >> 12);
+    f->y2 = c[1] + ((c[1] - f->y2) * ((p->frame << 10) + 0x1000) >> 12);
+    f->y3 = c[1] + ((c[1] - f->y3) * ((p->frame << 10) + 0x1000) >> 12);
+    f->r0 = f->g0 = f->b0 = ~(p->frame << 5);
     addPrim(ot->org, f);
     f++;
     D_800E48D0 = (u8 *)f;
@@ -1643,105 +1625,107 @@ s32 func_8003E6F8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     addPrim(ot->org, t);
     t++;
     D_800E48D0 = (u8 *)t;
-    return ++p->unk0 == 8;
+    return ++p->frame == 8;
 }
 
-s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003EA04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];
 
-    if (p->unk2 == 0) {
-        if (p->unk0 == 0) {
+    if (p->delay == 0) {
+        if (p->frame == 0) {
             setLs(x, y, z);
-            RotTransPers((SVECTOR *)&p->unkC, (long *)q, NULL, NULL);
-            p->unkC = q[0];
-            p->unkE = q[1];
+            RotTransPers((SVECTOR *)&p->x, (long *)q, NULL, NULL);
+            p->x = q[0];
+            p->y = q[1];
         }
-        q[0] = q[2] = p->unkC + ((-136 - p->unkC) * p->unk0 >> 3);
-        q[1] = q[3] = p->unkE + ((-88 - p->unkE) * p->unk0 >> 3);
-        q[4] = q[5] = 0x1000 - (p->unk0 << 8);
-        q[6] = p->unk0 << 8;
+        q[0] = q[2] = p->x + ((-136 - p->x) * p->frame >> 3);
+        q[1] = q[3] = p->y + ((-88 - p->y) * p->frame >> 3);
+        q[4] = q[5] = 0x1000 - (p->frame << 8);
+        q[6] = p->frame << 8;
         q[7] = 1;
         color.r = 0;
-        color.g = color.b = color.cd = ~(p->unk0 << 4);
+        color.g = color.b = color.cd = ~(p->frame << 4);
         func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
-        if (++p->unk0 == 8) {
+        if (++p->frame == 8) {
             D_800958E8++;
             func_80028448();
             return 1;
         }
         return 0;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003EC04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003EC04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];
     s32 i;
 
-    if (p->unk2 == 0) {
-        if (p->unk0 == 0) {
+    if (p->delay == 0) {
+        if (p->frame == 0) {
             setLs(x, y, z);
-            RotTransPers((SVECTOR *)&p->unkC, (long *)q, NULL, NULL);
-            p->unkC = q[0];
-            p->unkE = q[1];
+            RotTransPers((SVECTOR *)&p->x, (long *)q, NULL, NULL);
+            p->x = q[0];
+            p->y = q[1];
         }
         for (i = 0; i < 5; i++) {
-            q[0] = p->unkC + ((-136 - p->unkC) * p->unk0 >> 3);
-            q[1] = p->unkE + ((-88 - p->unkE) * p->unk0 >> 3);
-            q[0] = q[2] = q[0] + rsin(((p->unk0 * 20 + i * 72) << 12) / 360) * (64 - p->unk0 * 8) / 4096;
-            q[1] = q[3] = q[1] + rcos(((p->unk0 * 20 + i * 72) << 12) / 360) * (64 - p->unk0 * 8) / 4096;
-            q[4] = q[5] = 0x1000 - (p->unk0 << 8);
-            q[6] = -(((p->unk0 * 20 + i * 72 + 90) << 12) / 360);
+            q[0] = p->x + ((-136 - p->x) * p->frame >> 3);
+            q[1] = p->y + ((-88 - p->y) * p->frame >> 3);
+            q[0] = q[2] =
+                q[0] + rsin(((p->frame * 20 + i * 72) << 12) / 360) * (64 - p->frame * 8) / 4096;
+            q[1] = q[3] =
+                q[1] + rcos(((p->frame * 20 + i * 72) << 12) / 360) * (64 - p->frame * 8) / 4096;
+            q[4] = q[5] = 0x1000 - (p->frame << 8);
+            q[6] = -(((p->frame * 20 + i * 72 + 90) << 12) / 360);
             q[7] = 1;
             color.r = 0;
-            color.g = color.b = color.cd = ~(p->unk0 << 4);
+            color.g = color.b = color.cd = ~(p->frame << 4);
             func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
         }
-        if (++p->unk0 == 8) {
+        if (++p->frame == 8) {
             D_800958E8 += 5;
             func_80028448();
             return 1;
         }
         return 0;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003EF40(Slot *p) {
+s32 func_8003EF40(Effect *p) {
     SVECTOR pos;
     SColor color;
 
-    if (p->unk2 == 0) {
-        if (p->unk0 < 16) {
-            pos.vx = -72 - (16 - p->unk0) * 15;
+    if (p->delay == 0) {
+        if (p->frame < 16) {
+            pos.vx = -72 - (16 - p->frame) * 15;
             pos.vy = -12;
             color.r = -1;
             color.g = color.b = color.cd = 0x80;
             func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
-        } else if (p->unk0 < 32) {
+        } else if (p->frame < 32) {
             pos.vx = -72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
-            color.b = color.cd = (8 - (p->unk0 - 16) % 8) * 16;
+            color.b = color.cd = (8 - (p->frame - 16) % 8) * 16;
             func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
         } else {
-            pos.vx = (p->unk0 - 32) * 15 - 72;
+            pos.vx = (p->frame - 32) * 15 - 72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = 0;
             func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
         }
-        return ++p->unk0 == 48;
+        return ++p->frame == 48;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
@@ -1750,94 +1734,93 @@ extern SVECTOR D_800CEBE0[];
 extern GsDOBJ2 D_800960A8[];
 
 /* MATCHING: D_800CDC00 is the coordinate table's true start (undefined_syms.*.txt). */
-s32 func_8003F100(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003F100(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     MATRIX m;
 
-    if (p->unk2 == 0) {
-        GsInitCoordinate2(WORLD, &D_800CDC00[p->unk4 + 10]);
-        D_800CDC00[p->unk4 + 10].coord.t[0] = p->unkC + x;
-        D_800CDC00[p->unk4 + 10].coord.t[1] =
-            p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096 + y;
-        D_800CDC00[p->unk4 + 10].coord.t[2] = p->unk10 + z;
-        D_800CDC00[p->unk4 + 10].flg = 0;
-        D_800CEBE0[p->unk4 + 10].vx = (p->unk0 * p->unkA << 12) / 360;
-        D_800CEBE0[p->unk4 + 10].vy = 0;
-        D_800CEBE0[p->unk4 + 10].vz = 0;
-        func_80018AE0(&D_800CEBE0[p->unk4 + 10], &D_800CDC00[p->unk4 + 10]);
-        GsGetLs(&D_800CDC00[p->unk4 + 10], &m);
+    if (p->delay == 0) {
+        GsInitCoordinate2(WORLD, &D_800CDC00[p->param0 + 10]);
+        D_800CDC00[p->param0 + 10].coord.t[0] = p->x + x;
+        D_800CDC00[p->param0 + 10].coord.t[1] =
+            p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096 + y;
+        D_800CDC00[p->param0 + 10].coord.t[2] = p->z + z;
+        D_800CDC00[p->param0 + 10].flg = 0;
+        D_800CEBE0[p->param0 + 10].vx = (p->frame * p->param3 << 12) / 360;
+        D_800CEBE0[p->param0 + 10].vy = 0;
+        D_800CEBE0[p->param0 + 10].vz = 0;
+        func_80018AE0(&D_800CEBE0[p->param0 + 10], &D_800CDC00[p->param0 + 10]);
+        GsGetLs(&D_800CDC00[p->param0 + 10], &m);
         GsSetLsMatrix(&m);
-        GsGetLw(&D_800CDC00[p->unk4 + 10], &m);
+        GsGetLw(&D_800CDC00[p->param0 + 10], &m);
         GsSetLightMatrix(&m);
-        if (p->unk0 % 5 == 0) {
-            func_8003F834(4, p->unkC, p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096,
-                          p->unk10, 0);
+        if (p->frame % 5 == 0) {
+            SpawnEffect(4, p->x, p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096, p->z, 0);
         }
-        p->unkC += p->unk6;
-        GsSortObject4(&D_800960A8[p->unk4], ot, 2, (u_long *)0x1F800000);
-        return ++p->unk0 > 29;
+        p->x += p->param1;
+        GsSortObject4(&D_800960A8[p->param0], ot, 2, (u_long *)0x1F800000);
+        return ++p->frame > 29;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003F488(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003F488(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
-        size.vx = p->unk0 * 10 + 100;
-        size.vy = p->unk0 * 10 + 100;
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
+        size.vx = p->frame * 10 + 100;
+        size.vy = p->frame * 10 + 100;
         color.r = 1;
-        color.g = color.b = color.cd = 0x80 - (p->unk0 << 2);
+        color.g = color.b = color.cd = 0x80 - (p->frame << 2);
         func_8001A3D4(0x12D, &size, &color, 2, ot);
-        if (p->unk6 != 0) {
-            p->unk6--;
+        if (p->param1 != 0) {
+            p->param1--;
         }
-        p->unkC += rsin(p->unk4) * p->unk6 / 4096;
-        p->unk10 += rcos(p->unk4) * p->unk6 / 4096;
-        p->unkE -= p->unk8;
-        return ++p->unk0 == 32;
+        p->x += rsin(p->param0) * p->param1 / 4096;
+        p->z += rcos(p->param0) * p->param1 / 4096;
+        p->y -= p->param2;
+        return ++p->frame == 32;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-/** @brief One step of a slot's animation; returns nonzero when it ends. */
-typedef s32 (*SlotStep)(Slot *p, GsOT *ot, s16 x, s16 y, s16 z);
+/** @brief One frame of an effect; returns nonzero when it ends. */
+typedef s32 (*EffectStep)(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
 
-extern SlotStep D_8007A7C4[];
+extern EffectStep gEffectSteps[];
 
-void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
+void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
     u8 i;
     u8 prev;
     u8 next;
     s32 d;
     s32 done;
-    Slot *slot;
+    Effect *slot;
 
     prev = 0xFF;
-    if ((s8)D_80095AA8 < 0) {
+    if ((s8)gEffectActive < 0) {
         return;
     }
-    i = D_80095AA8;
+    i = gEffectActive;
     do {
-        slot = &sSlots[i];
-        d = x + slot->unkC;
+        slot = &gEffects[i];
+        d = x + slot->x;
         next = slot->next;
         if (d * (d * 2) > 0x77A0F) {
-            done = D_8007A7C4[slot->unk12](slot, &D_800A7318[D_80095750], x, y, z);
+            done = gEffectSteps[slot->kind](slot, &D_800A7318[D_80095750], x, y, z);
         } else {
-            done = D_8007A7C4[slot->unk12](slot, &D_800ACEA8[D_80095750], x, y, z);
+            done = gEffectSteps[slot->kind](slot, &D_800ACEA8[D_80095750], x, y, z);
         }
         if (done) {
             if (prev == 0xFF) {
-                D_80095AA8 = sSlots[i].next;
+                gEffectActive = gEffects[i].next;
             } else {
-                sSlots[prev].next = sSlots[i].next;
+                gEffects[prev].next = gEffects[i].next;
             }
-            sSlots[i].next = D_80095AA9;
-            D_80095AA9 = i;
+            gEffects[i].next = gEffectFree;
+            gEffectFree = i;
         } else {
             prev = i;
         }
@@ -1848,24 +1831,24 @@ void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
     } while (1);
 }
 
-s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
+s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay) {
     u8 prev;
-    Slot *slot;
+    Effect *slot;
 
-    if ((s8)D_80095AA9 < 0) {
+    if ((s8)gEffectFree < 0) {
         return -1;
     }
-    prev = D_80095AA8;
-    D_80095AA8 = D_80095AA9;
-    D_80095AA9 = sSlots[D_80095AA8].next;
-    sSlots[D_80095AA8].next = prev;
-    sSlots[D_80095AA8].unk12 = arg0;
-    slot = &sSlots[D_80095AA8];
-    slot->unkC = arg1;
-    slot->unkE = arg2;
-    slot->unk10 = arg3;
-    slot->unk0 = 0;
-    slot->unk2 = arg4;
+    prev = gEffectActive;
+    gEffectActive = gEffectFree;
+    gEffectFree = gEffects[gEffectActive].next;
+    gEffects[gEffectActive].next = prev;
+    gEffects[gEffectActive].kind = kind;
+    slot = &gEffects[gEffectActive];
+    slot->x = x;
+    slot->y = y;
+    slot->z = z;
+    slot->frame = 0;
+    slot->delay = delay;
     return 0;
 }
 
@@ -1882,103 +1865,103 @@ void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 func_8003F960(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003F960(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
         size.vy = size.vx = 0x96;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
-        func_8001A3D4((u16)(p->unk0 + 0x11A), &size, &color, 2, ot);
-        return ++p->unk0 == 8;
+        func_8001A3D4((u16)(p->frame + 0x11A), &size, &color, 2, ot);
+        return ++p->frame == 8;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003FA88(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003FA88(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
-        size.vx = p->unk0 + 0x14;
-        size.vy = p->unk0 + 0x14;
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
+        size.vx = p->frame + 0x14;
+        size.vy = p->frame + 0x14;
         color.r = 1;
-        color.g = color.b = color.cd = 0x80 - (p->unk0 << 2);
+        color.g = color.b = color.cd = 0x80 - (p->frame << 2);
         func_8001A3D4(0x11F, &size, &color, 2, ot);
-        p->unkE -= 4;
-        p->unk10 += p->unk0 >> 2;
-        return ++p->unk0 == 0x20;
+        p->y -= 4;
+        p->z += p->frame >> 2;
+        return ++p->frame == 0x20;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003FBE0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
         size.vy = size.vx = 0x32;
         color.r = 1;
-        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        color.g = color.b = color.cd = 0x80 - (p->frame << 4);
         func_8001A3D4(0x11A, &size, &color, 2, ot);
-        return ++p->unk0 == 8;
+        return ++p->frame == 8;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003FD0C(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003FD0C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
-        size.vx = p->unk0 * 10 + 100;
-        size.vy = p->unk0 * 10 + 100;
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
+        size.vx = p->frame * 10 + 100;
+        size.vy = p->frame * 10 + 100;
         color.r = 1;
-        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        color.g = color.b = color.cd = 0x80 - (p->frame << 4);
         func_8001A3D4(0x12D, &size, &color, 2, ot);
-        return ++p->unk0 == 8;
+        return ++p->frame == 8;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003FE5C(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003FE5C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
-        size.vx = p->unk0 * 10 + 100;
-        size.vy = p->unk0 * 10 + 100;
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y, z + p->z);
+        size.vx = p->frame * 10 + 100;
+        size.vy = p->frame * 10 + 100;
         color.r = 2;
-        color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
+        color.g = color.b = color.cd = 0x80 - (p->frame << 4);
         func_8001A3D4(0x12D, &size, &color, 2, ot);
-        return ++p->unk0 == 8;
+        return ++p->frame == 8;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }
 
-s32 func_8003FFAC(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 func_8003FFAC(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
-    if (p->unk2 == 0) {
-        setLs(x + p->unkC, y + p->unkE + p->unk4 * p->unk0, z + p->unk10);
+    if (p->delay == 0) {
+        setLs(x + p->x, y + p->y + p->param0 * p->frame, z + p->z);
         size.vy = size.vx = 100;
         color.r = 0;
         color.g = color.b = color.cd = 0x80;
         func_8001A3D4(0x134, &size, &color, 2, ot);
-        return ++p->unk0 * p->unk4 >= p->unk6;
+        return ++p->frame * p->param0 >= p->param1;
     }
-    p->unk2--;
+    p->delay--;
     return 0;
 }

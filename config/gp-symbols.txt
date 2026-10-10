@@ -2,9 +2,6 @@
 # through $gp, and the symbols of C-owned .sdata/.sbss ranges in
 # config/splat.slps01762.pepsiman.yaml. maspsx --gp-symbols addresses
 # these off $gp. Regenerate after any sdata/sbss carve.
-D_800956C2
-D_800956C4
-D_800956C8
 D_800956D0
 D_800956D4
 D_800956D8
@@ -101,20 +98,9 @@ D_80095AA4
 D_80095AA5
 D_80095AA6
 D_80095AA7
-D_80095AA8
-D_80095AA9
-D_80095AB0
 D_80095AB1
 D_80095AB2
-D_80095AB4
-D_80095ABC
 D_80095AC0
-D_80095AC8
-D_80095ACC
-D_80095AD0
-D_80095AD4
-D_80095AD8
-D_80095AE0
 D_80095AE2
 D_80095AE4
 D_80095AE6
@@ -130,3 +116,17 @@ D_80095B14
 D_80095B16
 D_80095B18
 D_80095B1A
+gEffectActive
+gEffectFree
+gMovieAddr
+gMovieClearRect
+gMovieDisplayHeight
+gMovieEnded
+gMovieFrameNo
+gMovieHeader
+gMovieHeight
+gMovieLastFrame
+gMovieLoc
+gMovieOffsetX
+gMovieTimeout
+gMovieWidth

@@ -3,7 +3,7 @@
 Unit `src/main.c`. Loads the stage's model data: maps the TMD pack at
 0x8014D000 (`GsMapModelingData`, address kept in `D_80095904`), sets up the
 model `D_800963A0` and seven model slots from it (`func_8002C20C`), builds
-the slot list (`func_80019684`), registers the entries of the directory at
+the slot list (`InitTodObjTable`), registers the entries of the directory at
 0x80123000 into `D_800D81B0` and the stepper's two word tables (the same
 loop as code_1a098's func_8002C044, from slot 0), then resets the stepper
 (bytes 5..9) and runs its first step.
@@ -52,7 +52,7 @@ extern u8 D_80096418[];
 /* MATCHING: code_1a098 defines it on its own Model70 view. */
 void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: code_7d74 types the list, slots and data as its own records. */
-void func_80019684(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
+void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 /* MATCHING: code_308ec passes the game state's head in its own view. */
 u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
 
@@ -74,7 +74,7 @@ void func_80013CDC(void) {
     func_8002C20C(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
     func_8002C20C(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
     func_8002C20C(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
-    func_80019684(D_800D8360, D_8009EF50, D_800D86E0, D_80096418, 20);
+    InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
     p = (s32 *)0x80123000;
     D_800958CC = 0;
     D_800958D0 = ((DirEnt16 *)p)->count;

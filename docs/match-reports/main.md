@@ -48,7 +48,7 @@ declcheck MULTI: `D_800956D0` (code_7d74), `D_800958E2` (code_1a098),
 well. LOCAL: prototypes for other units' functions (func_80017B38,
 func_80020C14, func_800229A8, func_80022A74, func_8002B04C,
 func_8002D424, func_80034070, func_80040CD0, func_8004121C,
-func_80041BAC, func_80042208).
+PlayMovie, func_80042208).
 
 ### Proposed learning
 

@@ -1,30 +1,32 @@
-# func_80041BAC — MATCHED 52/52 (round 10, delta)
+# PlayMovie — MATCHED 52/52 (round 10, delta)
+
+> Renamed from `func_80041BAC` on 2026-10-10 (tools/rename.py). Address 0x80041bac.
 
 Unit `src/code_31cec.c`. Movie start-up: records the stream length
-(`D_80095AD8`) and slice height (`D_80095AC8`), copies the start position
-into the unit's `CdlLOC` (`D_80095AB0`, minute/second/sector), clears a
-480x480 VRAM area through the unit's `RECT` (`D_80095AE0`), sets the CD
+(`gMovieLastFrame`) and slice height (`gMovieDisplayHeight`), copies the start position
+into the unit's `CdlLOC` (`gMovieLoc`, minute/second/sector), clears a
+480x480 VRAM area through the unit's `RECT` (`gMovieClearRect`), sets the CD
 mix (no cross-feed when the stereo flag `D_80095AEE` is set) and hands
-the file name to func_80041534.
+the file name to PlayMovieFile.
 
 ```c
-void func_80041534(char *name, s16 arg1);
+void PlayMovieFile(char *name, s16 arg1);
 
-extern CdlLOC D_80095AB0;
-extern s32 D_80095AD8;
-extern RECT D_80095AE0;
-extern s16 D_80095AC8;
+extern CdlLOC gMovieLoc;
+extern s32 gMovieLastFrame;
+extern RECT gMovieClearRect;
+extern s16 gMovieDisplayHeight;
 
-void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
+void PlayMovie(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
     CdlATV atv;
 
-    D_80095AD8 = arg2;
-    D_80095AC8 = arg3;
-    D_80095AB0.minute = loc->minute;
-    D_80095AB0.second = loc->second;
-    D_80095AB0.sector = loc->sector;
-    setRECT(&D_80095AE0, 0, 0, 480, 480);
-    ClearImage(&D_80095AE0, 0, 0, 0);
+    gMovieLastFrame = arg2;
+    gMovieDisplayHeight = arg3;
+    gMovieLoc.minute = loc->minute;
+    gMovieLoc.second = loc->second;
+    gMovieLoc.sector = loc->sector;
+    setRECT(&gMovieClearRect, 0, 0, 480, 480);
+    ClearImage(&gMovieClearRect, 0, 0, 0);
     DrawSync(0);
     /* MATCHING: D_80095AEE by its address (see below). */
     if (*(u8 *)0x80095AEE) {
@@ -39,7 +41,7 @@ void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
         atv.val1 = 80;
     }
     CdMix(&atv);
-    func_80041534(name, arg4);
+    PlayMovieFile(name, arg4);
 }
 ```
 
@@ -64,7 +66,7 @@ void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
   with 80 (stores `val2, val0, val3, val1` in source order), and the
   stack fifth argument read `lhu` then re-extended for the call is an
   `s16` parameter.
-- Declarations from retail: `D_80095AB0` and `D_80095AE0` are stored
+- Declarations from retail: `gMovieLoc` and `gMovieClearRect` are stored
   `%gp_rel` and passed `lui`/`addiu`, so complete objects of size at most 8
   (`CdlLOC`, `RECT`).
 
@@ -74,4 +76,4 @@ void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
   another: read the `lui` one through its literal address**, `*(u8
   *)0x80095AEE`, with a `MATCHING:` note. cc1 splits a constant address
   `%hi`/`%lo` and maspsx leaves it; no unit split is needed for a few
-  accesses. (func_80041BAC)
+  accesses. (PlayMovie)

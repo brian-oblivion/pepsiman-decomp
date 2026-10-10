@@ -85,14 +85,23 @@ typedef GTE_LONG_BASE GteLong;
  * loads; a 4-byte one is s32 until a unit shows it is a pointer.
  */
 
-/** @brief A record of a 128-entry table. Only one byte is known: the
- *         record's 1-based number, written at start-up. */
+/** @brief A short-lived effect from the 128-record pool: a sprite or model
+ *         drawn at a point for a few frames, then handed back. */
 typedef struct {
-    u8 unk0[0x13]; /**< not yet known */
-    u8 unk13;      /**< set to the record's index + 1 */
-} NumberedSlot;
+    s16 frame;  /**< frames drawn so far; the step function ends it */
+    s16 delay;  /**< frames to wait before the first one is drawn */
+    s16 param0; /**< meaning depends on the kind */
+    s16 param1; /**< meaning depends on the kind */
+    s16 param2; /**< meaning depends on the kind */
+    s16 param3; /**< meaning depends on the kind */
+    s16 x;      /**< offset added to the drawing position */
+    s16 y;      /**< offset added to the drawing position */
+    s16 z;      /**< offset added to the drawing position */
+    u8 kind;    /**< index into the step-function table */
+    u8 next;    /**< the next record on the active or free list */
+} Effect;
 
-extern NumberedSlot D_800DFAB0[]; /**< the 128 records; 2 units */
+extern Effect gEffects[]; /**< the 128-record pool */
 
 /** @brief A 0x78-byte record of an 80-entry table; two pairs of halfwords
  *         are reset together. */
@@ -109,101 +118,101 @@ typedef struct {
 extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
 
 /* Small: a plain extern. */
-extern s32 D_800956D4;  /**< 2 units, 4 functions */
-extern u8 D_8009574C;   /**< fog colour, red; 2 units */
-extern u8 D_80095754;   /**< fog colour, green; 2 units */
-extern u8 D_8009575C;   /**< fog colour, blue; 2 units */
-extern u8 D_800956F7;   /**< 3 units, 3 functions */
-extern s32 D_80095714;  /**< 2 units, 2 functions */
-extern s32 D_8009571C;  /**< 2 units, 2 functions */
-extern s32 D_80095720;  /**< 2 units, 2 functions */
-extern s32 D_80095740;  /**< camera-facing y angle, eased by 8; 2 units */
-extern s32 D_80095744;  /**< camera-facing y angle, eased by 50; 2 units */
-extern u16 D_80095748;  /**< 2 units, 2 functions */
-extern s16 D_8009574A;  /**< the highlighted line of a three-line menu */
-extern u32 D_80095794;  /**< an entry count */
-extern s32 D_80095750;  /**< 2 units, 3 functions */
-extern s32 D_80095964;  /**< button flags; 2 units */
-extern s32 D_800957EC;  /**< remapped button flags; 2 units */
-extern u16 D_80095760;  /**< the model viewer's state; 2 units */
-extern u16 D_80095768;  /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D5;   /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D6;   /**< 2 units, 3 functions; never loaded, sign unknown */
-extern u8 D_800958EC;   /**< 2 units, 4 functions; never loaded, sign unknown */
-extern s16 D_80095858;  /**< 2 units; set to 2 at the goal when 0 */
-extern s32 D_800958CC;  /**< 2 units, 2 functions; a loop counter kept in a global */
-extern s32 D_800959B4;  /**< 2 units, 2 functions */
-extern s32 D_800959B8;  /**< 2 units, 2 functions */
-extern s32 D_80095958;  /**< a pad word; its bits step a position or a highlighted line; 2 units */
-extern s32 D_800959A0;  /**< printed first on the status panel; 2 units */
-extern s32 D_80095770;  /**< set to 0xFF on leaving the tool; 2 units */
-extern u8 D_800958F8;   /**< 2 units */
-extern s32 D_80095980;  /**< 2 units */
-extern s32 D_80095988;  /**< 2 units */
-extern s16 D_800957B0;  /**< 2 units */
-extern s32 D_800957B4;  /**< 2 units */
-extern s8 D_800956D0;   /**< a level, kept within 0..120; 2 units */
-extern u8 D_80095784;   /**< 2 units */
-extern u32 D_800957C8;  /**< an analogue stick axis, 0x80 at rest; 2 units */
-extern u32 D_800957C0;  /**< the other analogue stick axis, 0x80 at rest; 2 units */
-extern s16 D_800958E2;  /**< the selected Rec78 entry; 2 units */
-extern u16 D_80095868;  /**< 2 units */
-extern s8 D_80095908;   /**< 2 units */
-extern s8 *D_8009593C;  /**< the group list the zones index; 2 units */
-extern s32 D_80095968;  /**< 2 units */
-extern u8 D_800958C8;   /**< 2 units */
-extern s32 D_800958B4;  /**< the address of the floor data a probe tests; 2 units */
-extern u8 D_800D3CA8[]; /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
-extern u8 D_800DB2C0[]; /**< a 0x1DB0-byte buffer of 0x4C-byte records */
-extern u8 D_800958C9;   /**< 1 while CD audio is playing; 2 units */
-extern u16 D_80095880;  /**< 2 units */
-extern s16 D_80095960;  /**< 2 units */
-extern u8 D_8009586C;   /**< the view mode: 0 the game's reference view, 1 a fixed one; 2 units */
-extern s8 D_80095974;   /**< nonzero stops the frame counter; 2 units */
-extern s32 ClipF;       /**< a word inside libgte's clipf object, as a variable; 2 units */
-extern s32 D_80095904;  /**< the mapped model data's TMD address; 2 units */
-extern s8 D_8009596C;   /**< 2 units */
-extern u8 D_80095AEE;   /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
-extern s16 D_800959E0;  /**< 2 units, 2 functions */
-extern u16 D_800959E4;  /**< 2 units, 4 functions */
-extern s16 D_80095A0C;  /**< 2 units, 4 functions */
-extern u16 D_80095A14;  /**< 3 units, 3 functions; never loaded, sign unknown */
-extern s32 D_80095A4C;  /**< 2 units, 7 functions */
-extern s32 D_80095A50;  /**< 2 units, 7 functions */
-extern s32 D_80095780;  /**< entry count of the first record bank; 2 units */
-extern s32 D_80095810;  /**< entry count of the second record bank; 2 units */
-extern u16 D_80095B0E;  /**< 2 units, 3 functions */
-extern u8 D_80095830;   /**< 8 units, 24 functions */
-extern s32 D_80095864;  /**< 3 units, 5 functions */
-extern u8 D_80095AA8;   /**< 2 units, 2 functions */
-extern u8 D_80095AA9;   /**< 2 units, 2 functions */
-extern u16 D_800958E8;  /**< 5 units, 7 functions */
-extern s16 D_800958B0;  /**< limit of the value being edited */
-extern s16 D_800958B2;  /**< the count a menu line wraps at */
-extern s32 D_80095970;  /**< flag word; bit 5 enables a two-state dispatch */
-extern s16 D_800E474C;  /**< libgs's PSDIDX; 2 units */
-extern u8 *D_800959C0;  /**< the bytes after a BlockHeader */
-extern u8 *D_800959C4;  /**< the BlockHeader's second part */
-extern u8 *D_800E48D0;  /**< the next free byte of the primitive buffer; 5 units */
-extern s32 D_800959C8;  /**< the BlockHeader's first word */
-extern s16 D_80095AF0;  /**< 2 units, 2 functions */
-extern s32 D_800958A8;  /**< 2 units; 3 when a stage starts */
-extern s16 D_800957BC;  /**< 2 units; a heading */
-extern u8 *D_800958FC;  /**< 2 units; far (fog) colours, four bytes each */
-extern u16 D_8009576A;  /**< 2 units; fog fade-in step: 0..31, then 100 */
-extern s32 D_800957A8;  /**< 2 units */
-extern s32 D_800958AC;  /**< 2 units; 1 picks the second set of stage tables */
-extern s8 D_8009599C;   /**< 2 units */
-extern u16 D_800957D2;  /**< 2 units */
-extern u32 D_8009585C;  /**< a frame counter; 2 units */
-extern s32 D_800958D0;  /**< a loop counter or count kept in a global; 2 units */
-extern s16 D_8009588E;  /**< number of entries; 2 units */
-extern s16 D_80095914;  /**< the view's orbit angle, in degrees; 2 units */
-extern s32 D_8009578C;  /**< stamped on placed records; 2 units */
-extern u16 D_800958A6;  /**< a state switched on in main; cleared after placing; 2 units */
-extern s16 D_800958DA;  /**< an error code; cleared when flag bit 6 is set; 2 units */
-extern s32 D_800957F4;  /**< the result of the start-position lookup; 2 units */
-extern s32 D_80095758;  /**< 2 units */
+extern s32 D_800956D4;   /**< 2 units, 4 functions */
+extern u8 D_8009574C;    /**< fog colour, red; 2 units */
+extern u8 D_80095754;    /**< fog colour, green; 2 units */
+extern u8 D_8009575C;    /**< fog colour, blue; 2 units */
+extern u8 D_800956F7;    /**< 3 units, 3 functions */
+extern s32 D_80095714;   /**< 2 units, 2 functions */
+extern s32 D_8009571C;   /**< 2 units, 2 functions */
+extern s32 D_80095720;   /**< 2 units, 2 functions */
+extern s32 D_80095740;   /**< camera-facing y angle, eased by 8; 2 units */
+extern s32 D_80095744;   /**< camera-facing y angle, eased by 50; 2 units */
+extern u16 D_80095748;   /**< 2 units, 2 functions */
+extern s16 D_8009574A;   /**< the highlighted line of a three-line menu */
+extern u32 D_80095794;   /**< an entry count */
+extern s32 D_80095750;   /**< 2 units, 3 functions */
+extern s32 D_80095964;   /**< button flags; 2 units */
+extern s32 D_800957EC;   /**< remapped button flags; 2 units */
+extern u16 D_80095760;   /**< the model viewer's state; 2 units */
+extern u16 D_80095768;   /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D5;    /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D6;    /**< 2 units, 3 functions; never loaded, sign unknown */
+extern u8 D_800958EC;    /**< 2 units, 4 functions; never loaded, sign unknown */
+extern s16 D_80095858;   /**< 2 units; set to 2 at the goal when 0 */
+extern s32 D_800958CC;   /**< 2 units, 2 functions; a loop counter kept in a global */
+extern s32 D_800959B4;   /**< 2 units, 2 functions */
+extern s32 D_800959B8;   /**< 2 units, 2 functions */
+extern s32 D_80095958;   /**< a pad word; its bits step a position or a highlighted line; 2 units */
+extern s32 D_800959A0;   /**< printed first on the status panel; 2 units */
+extern s32 D_80095770;   /**< set to 0xFF on leaving the tool; 2 units */
+extern u8 D_800958F8;    /**< 2 units */
+extern s32 D_80095980;   /**< 2 units */
+extern s32 D_80095988;   /**< 2 units */
+extern s16 D_800957B0;   /**< 2 units */
+extern s32 D_800957B4;   /**< 2 units */
+extern s8 D_800956D0;    /**< a level, kept within 0..120; 2 units */
+extern u8 D_80095784;    /**< 2 units */
+extern u32 D_800957C8;   /**< an analogue stick axis, 0x80 at rest; 2 units */
+extern u32 D_800957C0;   /**< the other analogue stick axis, 0x80 at rest; 2 units */
+extern s16 D_800958E2;   /**< the selected Rec78 entry; 2 units */
+extern u16 D_80095868;   /**< 2 units */
+extern s8 D_80095908;    /**< 2 units */
+extern s8 *D_8009593C;   /**< the group list the zones index; 2 units */
+extern s32 D_80095968;   /**< 2 units */
+extern u8 D_800958C8;    /**< 2 units */
+extern s32 D_800958B4;   /**< the address of the floor data a probe tests; 2 units */
+extern u8 D_800D3CA8[];  /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
+extern u8 D_800DB2C0[];  /**< a 0x1DB0-byte buffer of 0x4C-byte records */
+extern u8 D_800958C9;    /**< 1 while CD audio is playing; 2 units */
+extern u16 D_80095880;   /**< 2 units */
+extern s16 D_80095960;   /**< 2 units */
+extern u8 D_8009586C;    /**< the view mode: 0 the game's reference view, 1 a fixed one; 2 units */
+extern s8 D_80095974;    /**< nonzero stops the frame counter; 2 units */
+extern s32 ClipF;        /**< a word inside libgte's clipf object, as a variable; 2 units */
+extern s32 D_80095904;   /**< the mapped model data's TMD address; 2 units */
+extern s8 D_8009596C;    /**< 2 units */
+extern u8 D_80095AEE;    /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
+extern s16 D_800959E0;   /**< 2 units, 2 functions */
+extern u16 D_800959E4;   /**< 2 units, 4 functions */
+extern s16 D_80095A0C;   /**< 2 units, 4 functions */
+extern u16 D_80095A14;   /**< 3 units, 3 functions; never loaded, sign unknown */
+extern s32 D_80095A4C;   /**< 2 units, 7 functions */
+extern s32 D_80095A50;   /**< 2 units, 7 functions */
+extern s32 D_80095780;   /**< entry count of the first record bank; 2 units */
+extern s32 D_80095810;   /**< entry count of the second record bank; 2 units */
+extern u16 D_80095B0E;   /**< 2 units, 3 functions */
+extern u8 D_80095830;    /**< 8 units, 24 functions */
+extern s32 D_80095864;   /**< 3 units, 5 functions */
+extern u8 gEffectActive; /**< 2 units, 2 functions */
+extern u8 gEffectFree;   /**< 2 units, 2 functions */
+extern u16 D_800958E8;   /**< 5 units, 7 functions */
+extern s16 D_800958B0;   /**< limit of the value being edited */
+extern s16 D_800958B2;   /**< the count a menu line wraps at */
+extern s32 D_80095970;   /**< flag word; bit 5 enables a two-state dispatch */
+extern s16 D_800E474C;   /**< libgs's PSDIDX; 2 units */
+extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4;   /**< the BlockHeader's second part */
+extern u8 *D_800E48D0;   /**< the next free byte of the primitive buffer; 5 units */
+extern s32 D_800959C8;   /**< the BlockHeader's first word */
+extern s16 D_80095AF0;   /**< 2 units, 2 functions */
+extern s32 D_800958A8;   /**< 2 units; 3 when a stage starts */
+extern s16 D_800957BC;   /**< 2 units; a heading */
+extern u8 *D_800958FC;   /**< 2 units; far (fog) colours, four bytes each */
+extern u16 D_8009576A;   /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern s32 D_800957A8;   /**< 2 units */
+extern s32 D_800958AC;   /**< 2 units; 1 picks the second set of stage tables */
+extern s8 D_8009599C;    /**< 2 units */
+extern u16 D_800957D2;   /**< 2 units */
+extern u32 D_8009585C;   /**< a frame counter; 2 units */
+extern s32 D_800958D0;   /**< a loop counter or count kept in a global; 2 units */
+extern s16 D_8009588E;   /**< number of entries; 2 units */
+extern s16 D_80095914;   /**< the view's orbit angle, in degrees; 2 units */
+extern s32 D_8009578C;   /**< stamped on placed records; 2 units */
+extern u16 D_800958A6;   /**< a state switched on in main; cleared after placing; 2 units */
+extern s16 D_800958DA;   /**< an error code; cleared when flag bit 6 is set; 2 units */
+extern s32 D_800957F4;   /**< the result of the start-position lookup; 2 units */
+extern s32 D_80095758;   /**< 2 units */
 
 /* Per-stage tables, three words per stage; a global flag picks the set. */
 extern s32 D_8007AF84[][3]; /**< 2 units */
@@ -211,30 +220,30 @@ extern s32 D_8007B038[][3]; /**< the second set; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
-extern u16 D_800734AC[]; /**< 3 units, 6 functions */
-extern s32 D_80096748[]; /**< 3 units, 7 functions */
-extern s32 D_80096768[]; /**< 4 units, 4 functions */
-extern s32 D_8009676C[]; /**< 2 units, 3 functions */
-extern u16 D_8009EAB8[]; /**< 2 units, 3 functions; never loaded, sign unknown */
-extern s16 D_8009EABA[]; /**< 2 units, 2 functions */
-extern u8 D_8009EB78[];  /**< 8 units, 69 functions */
-extern u8 D_8009EB7E[];  /**< 2 units, 2 functions */
-extern u8 D_8009EEC0[];  /**< an object with a position; passed to
+extern u16 D_800734AC[];   /**< 3 units, 6 functions */
+extern s32 D_80096748[];   /**< 3 units, 7 functions */
+extern s32 D_80096768[];   /**< 4 units, 4 functions */
+extern s32 D_8009676C[];   /**< 2 units, 3 functions */
+extern u16 D_8009EAB8[];   /**< 2 units, 3 functions; never loaded, sign unknown */
+extern s16 D_8009EABA[];   /**< 2 units, 2 functions */
+extern u8 D_8009EB78[];    /**< 8 units, 69 functions */
+extern u8 D_8009EB7E[];    /**< 2 units, 2 functions */
+extern u8 D_8009EEC0[];    /**< an object with a position; passed to
                           *   distance tests */
-extern s16 D_8009EF20[]; /**< 2 units, 6 functions */
-extern u8 D_8009EF48[];  /**< 4 units, 7 functions */
-extern s8 D_8009EF4A[];  /**< 2 units, 2 functions */
-extern s32 D_8009F090[]; /**< 3 units, 7 functions */
-extern u8 D_8009F0B0[];  /**< 2 units, 4 functions */
-extern s32 D_8009F248[]; /**< 3 units, 7 functions */
-extern s32 D_800A7308[]; /**< 5 units, 22 functions */
-extern s32 D_800A9008[]; /**< 3 units, 17 functions */
-extern s16 D_800AC858[]; /**< 2 units, 6 functions */
-extern s32 D_800D39C8[]; /**< 2 units, 2 functions */
-extern s32 D_800D8360[]; /**< 2 units, 5 functions */
-extern s32 D_800D86B8[]; /**< 2 units, 3 functions */
-extern s32 D_800DB2A0[]; /**< 5 units, 15 functions */
-extern s32 D_800DD070[]; /**< 3 units, 4 functions */
+extern s16 D_8009EF20[];   /**< 2 units, 6 functions */
+extern u8 D_8009EF48[];    /**< 4 units, 7 functions */
+extern s8 D_8009EF4A[];    /**< 2 units, 2 functions */
+extern s32 D_8009F090[];   /**< 3 units, 7 functions */
+extern u8 D_8009F0B0[];    /**< 2 units, 4 functions */
+extern s32 D_8009F248[];   /**< 3 units, 7 functions */
+extern s32 D_800A7308[];   /**< 5 units, 22 functions */
+extern s32 D_800A9008[];   /**< 3 units, 17 functions */
+extern s16 D_800AC858[];   /**< 2 units, 6 functions */
+extern s32 D_800D39C8[];   /**< 2 units, 2 functions */
+extern s32 gTodObjTable[]; /**< 2 units, 5 functions */
+extern s32 D_800D86B8[];   /**< 2 units, 3 functions */
+extern s32 D_800DB2A0[];   /**< 5 units, 15 functions */
+extern s32 D_800DD070[];   /**< 3 units, 4 functions */
 
 extern s32 *D_800D81B0[]; /**< per-sequence data pointers; 2 units */
 

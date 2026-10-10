@@ -10,17 +10,17 @@
 #include "common.h"
 #include "libcd.h"
 
-/** @brief Defined in code_31cec.
- *  @param arg0 not yet known */
-void func_800414EC(s16 arg0);
+/** @brief Hands an index to stage 0's overlay; other stages ignore it.
+ *  @param index passed through unchanged */
+void func_800414EC(s16 index);
 
-/** @brief Defined in code_31cec: starts a movie.
- *  @param name the movie file's name
- *  @param loc  where the file is on the disc
- *  @param arg2 not yet known
- *  @param arg3 not yet known
- *  @param arg4 not yet known */
-void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4);
+/** @brief Plays a streamed movie to its end, or until START skips it.
+ *  @param name      the movie file's name; empty to play from @p loc
+ *  @param loc       where the file is on the disc
+ *  @param lastFrame the frame number the movie ends at
+ *  @param height    the picture's height in lines, centred on 240
+ *  @param skippable 1 when START may end the movie early */
+void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable);
 
 /** @brief Defined in code_31cec. */
 void func_80042208(void);

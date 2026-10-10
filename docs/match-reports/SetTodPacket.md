@@ -1,4 +1,6 @@
-# func_80018DF0 — MATCHED (round 13, bravo)
+# SetTodPacket — MATCHED (round 13, bravo)
+
+> Renamed from `func_80018DF0` on 2026-10-10 (tools/rename.py). Address 0x80018df0.
 
 Unit `src/code_7d74.c`, live C. Round 12 (bravo, 460/503), matched in
 round 13 (bravo).
@@ -12,7 +14,7 @@ rotation whose three 16-bit angles start in the header's upper half; bits
 left out, else 2. `arg5 & 0x7F` filters keys: 1 skips objects 2..10, 2
 skips objects 1 and 11..16.
 
-The object is looked up in the slot list `arg1` (`func_800196E4`; a missing
+The object is looked up in the slot list `arg1` (`FindTodObj`; a missing
 one gets a scratch `GsDOBJ2`, matrix and `GsCOORD2PARAM` on the stack).
 
 - Type 1 (unless flag 1): flag 2 sets the rotation, either three words
@@ -24,12 +26,12 @@ one gets a scratch `GsDOBJ2`, matrix and `GsCOORD2PARAM` on the stack).
   objects 2..10 when `D_8009EF48 & 0xF` is 3. Then `RotMatrix`,
   `ScaleMatrix`, and with flag 8 the translation (words / 5) and
   `TransMatrix`.
-- Type 2: links the model `func_80019874(arg3, arg2, key)` to the object
+- Type 2: links the model `FindTmdById(arg3, arg2, key)` to the object
   (`GsLinkObject4`).
 - Type 3 (unless `arg4` is 2): parents the object to another slot's
   coordinate system (`super`), or to none for key 0 or 0xFFFF.
-- Type 8: flag 0 allocates a slot for the id (`func_80019730`), flag 1
-  frees one (`func_800197E4`).
+- Type 8: flag 0 allocates a slot for the id (`CreateTodObj`), flag 1
+  frees one (`RemoveTodObj`).
 
 ## Where round 12 left it
 
@@ -75,7 +77,7 @@ about 170,000 iterations under load (load average about 15), best 805:
   word read before `p = data + 4;`** fix the entry block's registers and
   the order of the home stores.
 - `s32 unused[6];` after `rot` puts the frame at retail's 0xD8.
-- `func_800197E4` now takes the key as a second (unused) parameter: retail
+- `RemoveTodObj` now takes the key as a second (unused) parameter: retail
   passes it (`move $a1, $s5` in the call's delay slot). Its own code is
   unchanged (36/36).
 
@@ -119,7 +121,7 @@ each closed with one change (whole build `OK` after the third):
 Lint needed `D_80095740` / `D_80095744` in one place once this body was
 live: both are now in `include/common.h`, and the two `extern` lines in
 `src/code_13068.c` (which used them only under `NON_MATCHING`) are gone.
-This commit also gives `func_800195CC` a prototype in the unit (round
+This commit also gives `SetTodFrame` a prototype in the unit (round
 13's func_80017F0C called it undeclared); both functions still match.
 
 ### Proposed learning
@@ -128,10 +130,10 @@ This commit also gives `func_800195CC` a prototype in the unit (round
   one's refs and live length (`cc1 -dl`) and raise the low one's refs
   with `do { x = ...; } while (0);`**, nested for more. flow weights every
   reference by loop depth and the empty loop emits nothing. Wrap a
-  statement that touches nothing else. (func_80018DF0)
+  statement that touches nothing else. (SetTodPacket)
 - **A loop-invariant base added in both arms of an `if`: index the array
   in each arm**; a pointer taken before the `if` gives the base one
-  reference, and global-alloc ranks it below a sibling. (func_80018DF0)
+  reference, and global-alloc ranks it below a sibling. (SetTodPacket)
 
 ## Final source (with the view and externs it needs)
 
@@ -146,12 +148,12 @@ typedef struct {
 
 extern s32 D_8009EF00[];
 
-Slot *func_800196E4(SlotList *list, s32 key);
-Slot *func_80019730(SlotList *list, s32 key);
-Slot *func_800197E4(SlotList *list, s32 key);
-s32 *func_80019874(s32 *table, s32 *keys, s32 key);
+Slot *FindTodObj(SlotList *list, s32 key);
+Slot *CreateTodObj(SlotList *list, s32 key);
+Slot *RemoveTodObj(SlotList *list, s32 key);
+s32 *FindTmdById(s32 *table, s32 *keys, s32 key);
 
-u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
+u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     s16 mask[3];
     s32 rot[3];
     s32 unused[6];
@@ -236,7 +238,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                 break;
         }
     }
-    obj = (GsDOBJ2 *)func_800196E4((SlotList *)arg1, id);
+    obj = (GsDOBJ2 *)FindTodObj((SlotList *)arg1, id);
     if (obj == NULL) {
         obj = &dummy;
         m = &dummyM;
@@ -380,7 +382,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
             break;
         case 2:
             if (arg3 != 0) {
-                GsLinkObject4((u_long)func_80019874((s32 *)arg3, (s32 *)arg2, *(u16 *)p), obj, 0);
+                GsLinkObject4((u_long)FindTmdById((s32 *)arg3, (s32 *)arg2, *(u16 *)p), obj, 0);
             }
             break;
         case 3:
@@ -388,7 +390,7 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                 if (*(s32 *)p == 0 || *(s32 *)p == 0xFFFF) {
                     obj->coord2->super = NULL;
                 } else {
-                    s = func_800196E4((SlotList *)arg1, *(s32 *)p);
+                    s = FindTodObj((SlotList *)arg1, *(s32 *)p);
                     obj->coord2->super = (GsCOORDINATE2 *)s->unk4;
                 }
             }
@@ -397,10 +399,10 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
             if (arg1 != 0) {
                 switch (flags) {
                     case 0:
-                        func_80019730((SlotList *)arg1, id);
+                        CreateTodObj((SlotList *)arg1, id);
                         break;
                     case 1:
-                        func_800197E4((SlotList *)arg1, id);
+                        RemoveTodObj((SlotList *)arg1, id);
                         break;
                 }
             }
@@ -414,4 +416,4 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
 
 - **A table index computed once in a branch's delay slot and used by both
   arms: a pointer to the element taken before the `if`**, `r = &rot[k]; if
-  (mask[k]) *r = 0; else { *r = ...; }`. (func_80018DF0)
+  (mask[k]) *r = 0; else { *r = ...; }`. (SetTodPacket)

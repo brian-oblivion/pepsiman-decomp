@@ -5,33 +5,15 @@
 #include "code_a0bc.h"
 #include "code_1a098.h"
 
-/** @brief The 0x14-byte records of common.h's NumberedSlot table, as the
- *         free list here hands them out. */
-typedef struct {
-    s16 unk0;  /**< cleared when the record is taken */
-    s16 unk2;  /**< set when the record is taken */
-    s16 unk4;  /**< set when the record is taken */
-    s16 unk6;  /**< set when the record is taken */
-    s16 unk8;  /**< set when the record is taken */
-    s16 unkA;  /**< set when the record is taken */
-    s16 unkC;  /**< set when the record is taken */
-    s16 unkE;  /**< set when the record is taken */
-    s16 unk10; /**< set when the record is taken */
-    u8 unk12;  /**< set when the record is taken */
-    u8 next;   /**< free-list link: the next record's index */
-} Slot;
-
-#define sSlots ((Slot *)D_800DFAB0)
-
-u16 func_800FAD08(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800FAD04(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800FA894(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800FA580(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800F1A48(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800F9ABC(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800F9CA4(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800FA060(s16 arg0, s32 arg1, s32 arg2);
-u16 func_800F922C(s16 arg0, s32 arg1, s32 arg2);
+u16 func_800FAD08(s16 id, s32 a, s32 b);
+u16 func_800FAD04(s16 id, s32 a, s32 b);
+u16 func_800FA894(s16 id, s32 a, s32 b);
+u16 func_800FA580(s16 id, s32 a, s32 b);
+u16 func_800F1A48(s16 id, s32 a, s32 b);
+u16 func_800F9ABC(s16 id, s32 a, s32 b);
+u16 func_800F9CA4(s16 id, s32 a, s32 b);
+u16 func_800FA060(s16 id, s32 a, s32 b);
+u16 func_800F922C(s16 id, s32 a, s32 b);
 
 s32 func_800FA6C8(void);
 s32 func_800FA804(void);
@@ -148,7 +130,7 @@ void func_8003399C(void);
 void func_80014C58(u8 idx);
 void func_80040998(void);
 void func_800412DC(void);
-void func_80041118(u8 arg0);
+void func_80041118(u8 stage);
 
 /** @brief The saved state a stage can resume from. */
 typedef struct {
@@ -191,39 +173,39 @@ u8 func_80017F0C(StageState *obj, u16 index, u8 arg);
  * here, as in code_13068. */
 void func_80015450(u16 *table, s32 index);
 
-void func_800400EC(void) {
+void InitEffects(void) {
     s32 i;
 
     for (i = 0; i < 128; i++) {
-        D_800DFAB0[i].unk13 = i + 1;
+        gEffects[i].next = i + 1;
     }
-    D_80095AA9 = 0;
-    D_80095AA8 = 0xFF;
+    gEffectFree = 0;
+    gEffectActive = 0xFF;
 }
 
-/* MATCHING: arg0 is only stored with sb, yet s32; as u8 it takes the first
+/* MATCHING: kind is only stored with sb, yet s32; as u8 it takes the first
  * temporary and shifts every other argument register. */
-s32 func_80040130(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7,
-                  s16 arg8) {
+s32 SpawnEffectWithParams(s32 kind, s16 x, s16 y, s16 z, s16 delay, s16 param0, s16 param1,
+                          s16 param2, s16 param3) {
     u8 old;
 
-    if ((s8)D_80095AA9 < 0) {
+    if ((s8)gEffectFree < 0) {
         return -1;
     }
-    old = D_80095AA8;
-    D_80095AA8 = D_80095AA9;
-    D_80095AA9 = sSlots[D_80095AA8].next;
-    sSlots[D_80095AA8].next = old;
-    sSlots[D_80095AA8].unk12 = arg0;
-    sSlots[D_80095AA8].unkC = arg1;
-    sSlots[D_80095AA8].unkE = arg2;
-    sSlots[D_80095AA8].unk10 = arg3;
-    sSlots[D_80095AA8].unk4 = arg5;
-    sSlots[D_80095AA8].unk6 = arg6;
-    sSlots[D_80095AA8].unk8 = arg7;
-    sSlots[D_80095AA8].unkA = arg8;
-    sSlots[D_80095AA8].unk0 = 0;
-    sSlots[D_80095AA8].unk2 = arg4;
+    old = gEffectActive;
+    gEffectActive = gEffectFree;
+    gEffectFree = gEffects[gEffectActive].next;
+    gEffects[gEffectActive].next = old;
+    gEffects[gEffectActive].kind = kind;
+    gEffects[gEffectActive].x = x;
+    gEffects[gEffectActive].y = y;
+    gEffects[gEffectActive].z = z;
+    gEffects[gEffectActive].param0 = param0;
+    gEffects[gEffectActive].param1 = param1;
+    gEffects[gEffectActive].param2 = param2;
+    gEffects[gEffectActive].param3 = param3;
+    gEffects[gEffectActive].frame = 0;
+    gEffects[gEffectActive].delay = delay;
     return 0;
 }
 
@@ -374,13 +356,13 @@ void func_80040628(void) {
 
 /* MATCHING: an unused 8-byte local gives retail's 0x20 frame; the start
  * position is copied field by field, not as a struct. */
-void func_8004079C(u8 arg0) {
+void func_8004079C(u8 stage) {
     s32 unused[2];
     s16 yaw;
     u32 i;
 
     D_80095900 = 1;
-    if (arg0 % 3 == 2) {
+    if (stage % 3 == 2) {
         D_80095760 = 2;
         return;
     }
@@ -439,7 +421,7 @@ void func_80040998(void) {
         r.h = 240;
         MoveImage(&r, 0x280, 0);
     }
-    func_800400EC();
+    InitEffects();
     D_8009586C = 0;
     D_800957A8 = 2;
     func_800413BC();
@@ -514,10 +496,10 @@ void func_80040998(void) {
 
 /* MATCHING: ret has no default; out-of-range numbers return whatever $a1
  * held. */
-s16 func_80040CD0(u8 arg0) {
+s16 func_80040CD0(u8 stage) {
     s32 ret;
 
-    switch (arg0) {
+    switch (stage) {
         case 0:
             ret = func_800FA6C8();
             break;
@@ -567,41 +549,41 @@ s16 func_80040CD0(u8 arg0) {
     return ret;
 }
 
-/* MATCHING: arg1 and arg2 go through to every callee untouched; they keep
+/* MATCHING: a and b go through to every callee untouched; they keep
  * $a1 and $a2 live, which puts ret in $a3. */
-u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2) {
+u16 func_80040E04(s16 id, s32 a, s32 b) {
     u16 ret = 1;
 
     switch (D_80095830) {
         case 0:
-            ret = func_800FAD08(arg0, arg1, arg2);
+            ret = func_800FAD08(id, a, b);
             break;
         case 1:
-            ret = func_800FAD04(arg0, arg1, arg2);
+            ret = func_800FAD04(id, a, b);
             break;
         case 3:
-            ret = func_800FA894(arg0, arg1, arg2);
+            ret = func_800FA894(id, a, b);
             break;
         case 4:
-            ret = func_800FA580(arg0, arg1, arg2);
+            ret = func_800FA580(id, a, b);
             break;
         case 6:
-            ret = func_800F1A48(arg0, arg1, arg2);
+            ret = func_800F1A48(id, a, b);
             break;
         case 7:
-            ret = func_800F1A48(arg0, arg1, arg2);
+            ret = func_800F1A48(id, a, b);
             break;
         case 9:
-            ret = func_800F9ABC(arg0, arg1, arg2);
+            ret = func_800F9ABC(id, a, b);
             break;
         case 10:
-            ret = func_800F9CA4(arg0, arg1, arg2);
+            ret = func_800F9CA4(id, a, b);
             break;
         case 12:
-            ret = func_800FA060(arg0, arg1, arg2);
+            ret = func_800FA060(id, a, b);
             break;
         case 13:
-            ret = func_800F922C(arg0, arg1, arg2);
+            ret = func_800F922C(id, a, b);
             break;
     }
     return ret;
@@ -633,8 +615,8 @@ void func_80040F14(void) {
     }
 }
 
-void func_80041118(u8 arg0) {
-    s32 mode = arg0;
+void func_80041118(u8 stage) {
+    s32 mode = stage;
 
     if (mode != 1) {
         if (mode < 2) {

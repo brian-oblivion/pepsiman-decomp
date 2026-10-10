@@ -1,4 +1,6 @@
-# func_80041EE0 — MATCHED 18/18 (round 2, bravo)
+# StartMovieRead — MATCHED 18/18 (round 2, bravo)
+
+> Renamed from `func_80041EE0` on 2026-10-10 (tools/rename.py). Address 0x80041ee0.
 
 Unit `src/code_31cec.c`. Seeks to a CD position and starts a streaming
 read (`CdlModeStream | CdlModeSpeed | CdlModeRT` = 0x1C0), retrying
@@ -8,7 +10,7 @@ the `CdlSetloc` until it is accepted and the whole sequence until
 ```c
 #include "libcd.h"
 
-void func_80041EE0(CdlLOC *loc) {
+void StartMovieRead(CdlLOC *loc) {
     do {
         while (CdControl(CdlSetloc, (u_char *)loc, 0) == 0) {
         }

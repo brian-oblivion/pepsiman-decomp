@@ -22,14 +22,14 @@ typedef struct {
 } DECENV;
 
 /* MATCHING: every access reloads after the store, as a volatile does. */
-extern volatile s32 D_80095AD0;
+extern volatile s32 gMovieTimeout;
 
-u_long *func_80041A6C(DECENV *dec);
+u_long *GetNextMovieFrame(DECENV *dec);
 s32 func_80041F28(s16 bank);
 
 extern s16 D_800E0570[];
 extern char D_800E0588[];
-extern s32 D_80095AB4;
+extern s32 gMovieEnded;
 extern u16 D_80095B1A;
 extern s32 D_8009579C;
 extern s16 D_80095B14;
@@ -40,39 +40,39 @@ extern s16 D_80095AEA;
 extern u16 D_80095AFC;
 extern s32 D_8007B6A4[];
 extern s32 D_8007B6CC[];
-extern s16 D_800956C2;
-extern s16 D_80095AC8;
+extern s16 gMovieOffsetX;
+extern s16 gMovieDisplayHeight;
 
-void func_800FA610(s16 arg0);
-void func_80041EE0(CdlLOC *loc);
+void func_800FA610(s16 index);
+void StartMovieRead(CdlLOC *loc);
 
-void func_800414EC(s16 arg0) {
+void func_800414EC(s16 index) {
     s32 mode = D_80095830;
 
     if (mode != 1) {
         if (mode < 2) {
             if (mode == 0) {
-                func_800FA610(arg0);
+                func_800FA610(index);
             }
         }
     }
 }
 
-void func_80041964(void);
-void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1);
-void func_80041D18(CdlLOC *loc, void (*callback)());
-s32 func_80041D88(DECENV *dec);
-void func_80041E20(DECENV *dec, s32 mode);
+void OnMovieSliceDecoded(void);
+void InitMovieDecoder(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1);
+void InitMovieStream(CdlLOC *loc, void (*callback)());
+s32 DecodeNextMovieFrame(DECENV *dec);
+void WaitMovieFrameDecoded(DECENV *dec, s32 mode);
 
-extern CdlLOC D_80095AB0;
-extern s32 D_80095AD8;
-extern RECT D_80095AE0;
-extern DECENV D_800E04B0;
-extern CdlFILE D_800E04E0;
-extern DRAWENV D_800E04F8;
-extern DISPENV D_800E0558;
+extern CdlLOC gMovieLoc;
+extern s32 gMovieLastFrame;
+extern RECT gMovieClearRect;
+extern DECENV gMovieDec;
+extern CdlFILE gMovieFile;
+extern DRAWENV gMovieDrawEnv;
+extern DISPENV gMovieDispEnv;
 
-s32 func_80041534(char *name, s16 skip) {
+s32 PlayMovieFile(char *name, s16 skippable) {
     CdlATV atv;
     s16 one;
     s32 id;
@@ -80,40 +80,40 @@ s32 func_80041534(char *name, s16 skip) {
 
     ret = 0;
     if (*(s8 *)name != 0) {
-        while (CdSearchFile(&D_800E04E0, name) == 0) {
+        while (CdSearchFile(&gMovieFile, name) == 0) {
         }
-        D_80095AB0.minute = D_800E04E0.pos.minute;
-        D_80095AB0.second = D_800E04E0.pos.second;
-        D_80095AB0.sector = D_800E04E0.pos.sector;
+        gMovieLoc.minute = gMovieFile.pos.minute;
+        gMovieLoc.second = gMovieFile.pos.second;
+        gMovieLoc.sector = gMovieFile.pos.sector;
     }
-    func_80041C7C(&D_800E04B0, 0, 0, 0, 240);
-    func_80041D18(&D_80095AB0, func_80041964);
-    func_80041D88(&D_800E04B0);
-    SetDefDispEnv(&D_800E0558, 0, 0, 0, 0);
-    SetDefDrawEnv(&D_800E04F8, 0, 0, 0, 0);
+    InitMovieDecoder(&gMovieDec, 0, 0, 0, 240);
+    InitMovieStream(&gMovieLoc, OnMovieSliceDecoded);
+    DecodeNextMovieFrame(&gMovieDec);
+    SetDefDispEnv(&gMovieDispEnv, 0, 0, 0, 0);
+    SetDefDrawEnv(&gMovieDrawEnv, 0, 0, 0, 0);
     one = 1;
-    D_800E0558.disp.w = D_800E0558.disp.w * 2 / 3;
-    D_800E0558.isrgb24 = one;
-    PutDispEnv(&D_800E0558);
-    PutDrawEnv(&D_800E04F8);
+    gMovieDispEnv.disp.w = gMovieDispEnv.disp.w * 2 / 3;
+    gMovieDispEnv.isrgb24 = one;
+    PutDispEnv(&gMovieDispEnv);
+    PutDrawEnv(&gMovieDrawEnv);
     SetDispMask(0);
     while (1) {
-        DecDCTin(D_800E04B0.vlcbuf[D_800E04B0.vlcid], 3);
-        DecDCTout((u_long *)D_800E04B0.imgbuf, D_800E04B0.slice.w * D_800E04B0.slice.h / 2);
-        func_80041D88(&D_800E04B0);
-        func_80041E20(&D_800E04B0, 0);
+        DecDCTin(gMovieDec.vlcbuf[gMovieDec.vlcid], 3);
+        DecDCTout((u_long *)gMovieDec.imgbuf, gMovieDec.slice.w * gMovieDec.slice.h / 2);
+        DecodeNextMovieFrame(&gMovieDec);
+        WaitMovieFrameDecoded(&gMovieDec, 0);
         VSync(0);
-        id = D_800E04B0.rectid == 0;
-        SetDefDispEnv(&D_800E0558, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y,
-                      D_800E04B0.rect[id].w, D_800E04B0.rect[id].h);
-        SetDefDrawEnv(&D_800E04F8, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y,
-                      D_800E04B0.rect[id].w, D_800E04B0.rect[id].h);
-        D_800E0558.disp.w = D_800E0558.disp.w * 2 / 3;
-        D_800E0558.isrgb24 = 1;
-        PutDispEnv(&D_800E0558);
-        PutDrawEnv(&D_800E04F8);
+        id = gMovieDec.rectid == 0;
+        SetDefDispEnv(&gMovieDispEnv, gMovieDec.rect[id].x, gMovieDec.rect[id].y,
+                      gMovieDec.rect[id].w, gMovieDec.rect[id].h);
+        SetDefDrawEnv(&gMovieDrawEnv, gMovieDec.rect[id].x, gMovieDec.rect[id].y,
+                      gMovieDec.rect[id].w, gMovieDec.rect[id].h);
+        gMovieDispEnv.disp.w = gMovieDispEnv.disp.w * 2 / 3;
+        gMovieDispEnv.isrgb24 = 1;
+        PutDispEnv(&gMovieDispEnv);
+        PutDrawEnv(&gMovieDrawEnv);
         SetDispMask(1);
-        if (D_80095AB4 == one) {
+        if (gMovieEnded == one) {
             atv.val3 = 0;
             atv.val2 = 0;
             atv.val1 = 0;
@@ -122,13 +122,13 @@ s32 func_80041534(char *name, s16 skip) {
             VSync(0);
             while (CdControl(CdlPause, 0, 0) == 0) {
             }
-            setRECT(&D_80095AE0, 0, 0, 480, 480);
-            ClearImage(&D_80095AE0, 0, 0, 0);
+            setRECT(&gMovieClearRect, 0, 0, 480, 480);
+            ClearImage(&gMovieClearRect, 0, 0, 0);
             DrawSync(0);
             break;
         }
         func_800142EC(0);
-        if ((D_80095970 & 0x800) && skip == one) {
+        if ((D_80095970 & 0x800) && skippable == one) {
             atv.val3 = 0;
             atv.val2 = 0;
             atv.val1 = 0;
@@ -137,14 +137,14 @@ s32 func_80041534(char *name, s16 skip) {
             VSync(0);
             while (CdControl(CdlPause, 0, 0) == 0) {
             }
-            setRECT(&D_80095AE0, 0, 0, 480, 480);
-            ClearImage(&D_80095AE0, 0, 0, 0);
+            setRECT(&gMovieClearRect, 0, 0, 480, 480);
+            ClearImage(&gMovieClearRect, 0, 0, 0);
             DrawSync(0);
             ret = 1;
             break;
         }
     }
-    MoveImage(&D_800E04B0.rect[D_800E04B0.rectid], D_800E04B0.rect[id].x, D_800E04B0.rect[id].y);
+    MoveImage(&gMovieDec.rect[gMovieDec.rectid], gMovieDec.rect[id].x, gMovieDec.rect[id].y);
     DrawSync(0);
     DecDCToutCallback(0);
     StUnSetRing();
@@ -152,74 +152,73 @@ s32 func_80041534(char *name, s16 skip) {
     }
     ChangeClearPAD(0);
     /* MATCHING: retail keeps this load and drops the store. */
-    D_800E0558.disp.w = D_800E0558.disp.w;
-    D_800E0558.isrgb24 = 0;
-    SetDefDispEnv(&D_800E0558, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y, D_800E04B0.rect[id].w,
-                  D_800E04B0.rect[id].h);
-    SetDefDrawEnv(&D_800E04F8, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y, D_800E04B0.rect[id].w,
-                  D_800E04B0.rect[id].h);
+    gMovieDispEnv.disp.w = gMovieDispEnv.disp.w;
+    gMovieDispEnv.isrgb24 = 0;
+    SetDefDispEnv(&gMovieDispEnv, gMovieDec.rect[id].x, gMovieDec.rect[id].y, gMovieDec.rect[id].w,
+                  gMovieDec.rect[id].h);
+    SetDefDrawEnv(&gMovieDrawEnv, gMovieDec.rect[id].x, gMovieDec.rect[id].y, gMovieDec.rect[id].w,
+                  gMovieDec.rect[id].h);
     return ret;
 }
 
 extern s32 D_800E1F1C;
 
-void func_80041964(void) {
+void OnMovieSliceDecoded(void) {
     if (D_800E1F1C) {
         StCdInterrupt();
         D_800E1F1C = 0;
     }
-    LoadImage(&D_800E04B0.slice, (u_long *)D_800E04B0.imgbuf);
-    D_800E04B0.slice.x += D_800E04B0.slice.w;
-    if (D_800E04B0.slice.x <
-        D_800E04B0.rect[D_800E04B0.rectid].x + D_800E04B0.rect[D_800E04B0.rectid].w) {
-        DecDCTout((u_long *)D_800E04B0.imgbuf, D_800E04B0.slice.w * D_800E04B0.slice.h / 2);
+    LoadImage(&gMovieDec.slice, (u_long *)gMovieDec.imgbuf);
+    gMovieDec.slice.x += gMovieDec.slice.w;
+    if (gMovieDec.slice.x < gMovieDec.rect[gMovieDec.rectid].x + gMovieDec.rect[gMovieDec.rectid].w) {
+        DecDCTout((u_long *)gMovieDec.imgbuf, gMovieDec.slice.w * gMovieDec.slice.h / 2);
     } else {
-        D_800E04B0.isdone = 1;
-        D_800E04B0.rectid = D_800E04B0.rectid == 0;
-        D_800E04B0.slice.x = D_800E04B0.rect[D_800E04B0.rectid].x + D_800956C2;
-        D_800E04B0.slice.y = D_800E04B0.rect[D_800E04B0.rectid].y + (240 - D_80095AC8) / 2;
+        gMovieDec.isdone = 1;
+        gMovieDec.rectid = gMovieDec.rectid == 0;
+        gMovieDec.slice.x = gMovieDec.rect[gMovieDec.rectid].x + gMovieOffsetX;
+        gMovieDec.slice.y = gMovieDec.rect[gMovieDec.rectid].y + (240 - gMovieDisplayHeight) / 2;
     }
 }
 
-extern u_long D_80095ABC;
-extern StHEADER *D_80095ACC;
-extern u_long *D_80095AD4;
-extern s32 D_800956C4;
-extern s32 D_800956C8;
+extern u_long gMovieFrameNo;
+extern StHEADER *gMovieHeader;
+extern u_long *gMovieAddr;
+extern s32 gMovieWidth;
+extern s32 gMovieHeight;
 
-u_long *func_80041A6C(DECENV *dec) {
-    D_80095AD0 = 0x800000;
-    while (StGetNext(&D_80095AD4, (u_long **)&D_80095ACC)) {
-        if (--D_80095AD0 == 0) {
+u_long *GetNextMovieFrame(DECENV *dec) {
+    gMovieTimeout = 0x800000;
+    while (StGetNext(&gMovieAddr, (u_long **)&gMovieHeader)) {
+        if (--gMovieTimeout == 0) {
             return NULL;
         }
     }
-    D_80095ABC = D_80095ACC->frameCount;
-    if (D_80095ACC->frameCount >= D_80095AD8) {
-        D_80095AB4 = 1;
+    gMovieFrameNo = gMovieHeader->frameCount;
+    if (gMovieHeader->frameCount >= gMovieLastFrame) {
+        gMovieEnded = 1;
     }
-    if (D_800956C4 != D_80095ACC->width || D_800956C8 != D_80095ACC->height) {
-        setRECT(&D_80095AE0, 0, 0, 480, 480);
-        ClearImage(&D_80095AE0, 0, 0, 0);
+    if (gMovieWidth != gMovieHeader->width || gMovieHeight != gMovieHeader->height) {
+        setRECT(&gMovieClearRect, 0, 0, 480, 480);
+        ClearImage(&gMovieClearRect, 0, 0, 0);
         DrawSync(0);
-        D_800956C4 = D_80095ACC->width;
-        D_800956C8 = D_80095ACC->height;
+        gMovieWidth = gMovieHeader->width;
+        gMovieHeight = gMovieHeader->height;
     }
-    dec->rect[0].w = dec->rect[1].w = D_800956C4 * 3 / 2;
-    dec->slice.h = dec->rect[0].h = dec->rect[1].h = D_800956C8;
-    return D_80095AD4;
+    dec->rect[0].w = dec->rect[1].w = gMovieWidth * 3 / 2;
+    dec->slice.h = dec->rect[0].h = dec->rect[1].h = gMovieHeight;
+    return gMovieAddr;
 }
 
-void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
+void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable) {
     CdlATV atv;
 
-    D_80095AD8 = arg2;
-    D_80095AC8 = arg3;
-    D_80095AB0.minute = loc->minute;
-    D_80095AB0.second = loc->second;
-    D_80095AB0.sector = loc->sector;
-    setRECT(&D_80095AE0, 0, 0, 480, 480);
-    ClearImage(&D_80095AE0, 0, 0, 0);
+    gMovieLastFrame = lastFrame;
+    gMovieDisplayHeight = height;
+    gMovieLoc.minute = loc->minute;
+    gMovieLoc.second = loc->second;
+    gMovieLoc.sector = loc->sector;
+    setRECT(&gMovieClearRect, 0, 0, 480, 480);
+    ClearImage(&gMovieClearRect, 0, 0, 0);
     DrawSync(0);
     /* MATCHING: D_80095AEE by address; retail reaches it `lui` only here. */
     if (*(u8 *)0x80095AEE) {
@@ -234,10 +233,10 @@ void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
         atv.val1 = 80;
     }
     CdMix(&atv);
-    func_80041534(name, arg4);
+    PlayMovieFile(name, skippable);
 }
 
-void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
+void InitMovieDecoder(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
     dec->vlcbuf[0] = (u_long *)0x8015D000;
     dec->vlcbuf[1] = (u_long *)0x80171000;
     dec->vlcid = 0;
@@ -246,24 +245,25 @@ void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
     dec->isdone = 0;
     setRECT(&dec->rect[0], x0, y0, 480, 240);
     setRECT(&dec->rect[1], x1, y1, 480, 240);
-    setRECT(&dec->slice, x0 + D_800956C2, y0 + (240 - D_80095AC8) / 2, 24, D_80095AC8);
+    setRECT(&dec->slice, x0 + gMovieOffsetX, y0 + (240 - gMovieDisplayHeight) / 2, 24,
+            gMovieDisplayHeight);
 }
 
-void func_80041D18(CdlLOC *loc, void (*callback)()) {
+void InitMovieStream(CdlLOC *loc, void (*callback)()) {
     DecDCTReset(0);
-    D_80095AB4 = 0;
+    gMovieEnded = 0;
     DecDCToutCallback(callback);
     StSetRing((u_long *)0x80185000, 32);
     StSetStream(1, 1, -1, 0, 0);
-    func_80041EE0(loc);
+    StartMovieRead(loc);
 }
 
-s32 func_80041D88(DECENV *dec) {
+s32 DecodeNextMovieFrame(DECENV *dec) {
     u_long *next;
 
-    D_80095AD0 = 0x800000;
-    while ((next = func_80041A6C(dec)) == NULL) {
-        if (--D_80095AD0 == 0) {
+    gMovieTimeout = 0x800000;
+    while ((next = GetNextMovieFrame(dec)) == NULL) {
+        if (--gMovieTimeout == 0) {
             return -1;
         }
     }
@@ -273,10 +273,10 @@ s32 func_80041D88(DECENV *dec) {
     return 0;
 }
 
-void func_80041E20(DECENV *dec, s32 mode) {
-    D_80095AD0 = 0x800000;
+void WaitMovieFrameDecoded(DECENV *dec, s32 mode) {
+    gMovieTimeout = 0x800000;
     while (dec->isdone == 0) {
-        if (--D_80095AD0 == 0) {
+        if (--gMovieTimeout == 0) {
             printf("time out in decoding !\n");
             dec->isdone = 1;
             dec->rectid = dec->rectid == 0;
@@ -287,7 +287,7 @@ void func_80041E20(DECENV *dec, s32 mode) {
     dec->isdone = 0;
 }
 
-void func_80041EE0(CdlLOC *loc) {
+void StartMovieRead(CdlLOC *loc) {
     do {
         while (CdControl(CdlSetloc, (u_char *)loc, 0) == 0) {
         }

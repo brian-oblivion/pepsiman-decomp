@@ -1,17 +1,19 @@
-# func_800195CC — MATCHED (46/46), round 5, runner charlie
+# SetTodFrame — MATCHED (46/46), round 5, runner charlie
+
+> Renamed from `func_800195CC` on 2026-10-10 (tools/rename.py). Address 0x800195cc.
 
 Unit `src/code_7d74.c`. A block header of 8 bytes: a halfword count at +2
 and a start time at +4. Before the start time the block is returned
 unchanged; otherwise each of its `count` records is handed to
-`func_80018DF0`, which returns the address after the record, and the
+`SetTodPacket`, which returns the address after the record, and the
 address after the last one is returned. The other five arguments pass
 through; the last is an `s8`, sign-extended once before the loop.
 Called from func_80017F0C.
 
 ```c
-u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
+u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
 
-u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6) {
+u8 *SetTodFrame(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6) {
     u32 i;
     u32 n;
 
@@ -21,13 +23,13 @@ u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8
     }
     data += 8;
     for (i = 0; i < n; i++) {
-        data = func_80018DF0(data, arg2, arg3, arg4, arg5, arg6);
+        data = SetTodPacket(data, arg2, arg3, arg4, arg5, arg6);
     }
     return data;
 }
 ```
 
-The prototype of `func_80018DF0` (same unit, defined still as
+The prototype of `SetTodPacket` (same unit, defined still as
 `INCLUDE_ASM`) is the caller's view: its own prologue reads the last
 argument with `lbu` from the stack slot.
 
@@ -43,4 +45,4 @@ argument with `lbu` from the stack slot.
 - **A load retail issues before an early-return test, into a saved
   register, with no `andi`: the source read it into a full-width local
   before the `if`.** cc1 does not hoist a load above a branch, and a
-  `u16` local adds the mask. (func_800195CC)
+  `u16` local adds the mask. (SetTodFrame)

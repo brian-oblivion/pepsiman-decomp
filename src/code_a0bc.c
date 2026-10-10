@@ -161,7 +161,7 @@ PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift,
 PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001C878();
-PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, POLY_FT3 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001DAD4();
 PACKET *func_8001E558();
 PACKET *func_8001EE30();
@@ -915,7 +915,136 @@ INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001C13C);
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001C878);
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001D39C);
+PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+    POLY_FT3 *pkt;
+    SVECTOR m[3];
+    s32 sz[3];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
+    /* MATCHING: u01 and u02 s16 (permuter find), which reorders the
+     * allocation so u02 is the one reload spills. */
+    s16 u01;
+    u32 v01;
+    s16 u02;
+    u32 v02;
+    u32 u12, v12;
+
+    /* MATCHING: the packet pointer is a copy of the parameter, so the
+     * loop starts its reduced pointer from it, not from $a2. */
+    pkt = (POLY_FT3 *)packet;
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_ft3(pkt);
+        gte_stsz3c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        if (sz[2] > v) {
+            v = sz[2];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb(&prim->rgb);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r0);
+            /* MATCHING: volatile code stores stay on the packet base. */
+            ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+            *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
+            *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
+            *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        tag = (u32 *)ot->org + (v >> shift);
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v2].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v2].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v2].vz) >> 1;
+            u01 = (u32)(prim->uv0.u + prim->uv1.u) >> 1;
+            v01 = (u32)(prim->uv0.v + prim->uv1.v) >> 1;
+            v02 = (u32)(prim->uv0.v + prim->uv2.v) >> 1;
+            u02 = (u32)(prim->uv0.u + prim->uv2.u) >> 1;
+            v12 = (u32)(prim->uv1.v + prim->uv2.v) >> 1;
+            u12 = (u32)(prim->uv1.u + prim->uv2.u) >> 1;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &m[2], &m[1]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[1], &m[2], &vtx[prim->v2]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_ft3(pkt);
+                switch (j) {
+                    case 0:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (prim->uv0.v << 8) | prim->uv0.u;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u2 = (v02 << 8) | u02;
+                        break;
+                    case 1:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v12 << 8) | u12;
+                        *(u32 *)&pkt->u2 = (v02 << 8) | u02;
+                        break;
+                    case 2:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (prim->uv1.v << 8) | prim->uv1.u;
+                        *(u32 *)&pkt->u2 = (v12 << 8) | u12;
+                        break;
+                    case 3:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v02 << 8) | u02;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v12 << 8) | u12;
+                        *(u32 *)&pkt->u2 = (prim->uv2.v << 8) | prim->uv2.u;
+                        break;
+                }
+                gte_ldrgb(&prim->rgb);
+                gte_lddp(dp);
+                gte_dpcs();
+                gte_strgb(&pkt->r0);
+                ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001DAD4);
 

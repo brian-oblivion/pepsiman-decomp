@@ -68,12 +68,25 @@ extern s16 D_80095A30; /**< current index, clamped to the entry count */
 void func_80034F38(void);
 void func_80036F50(void);
 
+/** @brief Three words, of which the drawing reads the low halves. */
+typedef struct {
+    s32 x; /**< not yet known */
+    s32 y; /**< not yet known */
+    s32 z; /**< not yet known */
+} Vec3W;
+
 /** @brief An object reset when the two-state dispatch enters state 1. */
 typedef struct {
     Pt6 pts[4];     /**< copied into a new second-bank record */
-    u8 unk18[0x30]; /**< not yet known */
+    Vec3W unk18[4]; /**< corner offsets drawn around the owner */
     void *unk48;    /**< points into the current entry's record */
 } Obj48;
+
+/** @brief What an Obj48's unk48 points at, as the drawing reads it. */
+typedef struct {
+    u8 pad0[0x18]; /**< not reached here */
+    VECTOR pos;    /**< the owner's position */
+} ObjOwner;
 
 extern Obj48 D_800DF9C0;  /**< reset by the dispatch's state 0 */
 extern Rec4C *D_80095A34; /**< the second-bank record inserted last */
@@ -341,7 +354,46 @@ void func_80034BCC(void) {
     func_80036878();
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034D5C);
+void func_80028888(Obj48 *obj);
+/* Defined by code_7d74, whose header does not declare it yet. */
+void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
+
+void func_80034D5C(Obj48 *obj) {
+    VECTOR tmp;
+    Pt6 scr[4];
+    VECTOR world;
+    Pt6 pts[4];
+    s32 unused[6];
+    s16 i;
+
+    func_80028888(obj);
+    world.vx = ((ObjOwner *)obj->unk48)->pos.vx + D_800A7308[0];
+    world.vy = ((ObjOwner *)obj->unk48)->pos.vy;
+    world.vz = ((ObjOwner *)obj->unk48)->pos.vz + D_800A7308[2];
+    for (i = 0; i < 4; i++) {
+        pts[i].x = obj->unk18[i].x;
+        pts[i].y = obj->unk18[i].y;
+        pts[i].z = obj->unk18[i].z;
+    }
+    tmp.vx = world.vx + pts[0].x;
+    tmp.vy = pts[0].y;
+    tmp.vz = world.vz + pts[0].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[0]);
+    tmp.vx = world.vx + pts[1].x;
+    tmp.vy = pts[1].y;
+    tmp.vz = world.vz + pts[1].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[1]);
+    tmp.vx = world.vx + pts[3].x;
+    tmp.vy = pts[3].y;
+    tmp.vz = world.vz + pts[3].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[2]);
+    tmp.vx = world.vx + pts[2].x;
+    tmp.vy = pts[2].y;
+    tmp.vz = world.vz + pts[2].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[3]);
+    func_800179F8(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y, scr[3].x,
+                  scr[3].y, 0x32);
+}
 
 /* MATCHING: the last loop enters at its test (a for or while is rotated). */
 void func_80034F38(void) {

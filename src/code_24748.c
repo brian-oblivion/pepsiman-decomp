@@ -919,9 +919,6 @@ extern s32 D_800DB2B8[]; /**< cleared on every step */
  * returning s16. */
 s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
 
-#ifdef NON_MATCHING
-/* MATCHING: case 2 stores the switch value ($v1); retail stores the compare
- * constant ($v0). */
 void func_800356FC(void) {
     Rows5 rows;
 
@@ -947,7 +944,7 @@ void func_800356FC(void) {
             break;
         case 2:
             D_800958DA = D_80095A22;
-            D_80095A24 = 2;
+            D_80095A24++;
             break;
         case 3:
             D_800DB2A0[0] = rows.v[(s8)D_80095A60][0] * (s8)D_80095A61;
@@ -960,10 +957,6 @@ void func_800356FC(void) {
     }
     D_800DB2B8[0] = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
-#endif
-
 
 /* MATCHING: a per-unit view; code_27bc8 defines it returning s16, and
  * func_80035970 compares the result with -1 unextended. */

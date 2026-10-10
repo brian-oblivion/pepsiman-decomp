@@ -1,7 +1,9 @@
-# func_8001B2F4 — MATCHED (24/24), round 6, runner charlie
+# DefineSprite — MATCHED (24/24), round 6, runner charlie
+
+> Renamed from `func_8001B2F4` on 2026-10-10 (tools/rename.py). Address 0x8001b2f4.
 
 Unit `src/code_a0bc.c`. Fills entry `idx` of the eight-byte table
-`D_800DD0A0`: a halfword packing a byte with a bit-7 flag, a halfword packed
+`gSpriteDefs`: a halfword packing a byte with a bit-7 flag, a halfword packed
 like a CLUT id (`y << 6 | x >> 4`), then four bytes.
 
 ```c
@@ -14,21 +16,21 @@ typedef struct {
     u8 unk7;
 } Sprite8;
 
-extern Sprite8 D_800DD0A0[];
+extern Sprite8 gSpriteDefs[];
 
-void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY) {
-    D_800DD0A0[id].unk0 = (u8)page | (mode << 7);
-    D_800DD0A0[id].unk2 = (clutY << 6) | (clutX >> 4);
-    D_800DD0A0[id].unk4 = u;
-    D_800DD0A0[id].unk5 = v;
-    D_800DD0A0[id].unk6 = w;
-    D_800DD0A0[id].unk7 = h;
+void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY) {
+    gSpriteDefs[id].unk0 = (u8)page | (mode << 7);
+    gSpriteDefs[id].unk2 = (clutY << 6) | (clutX >> 4);
+    gSpriteDefs[id].unk4 = u;
+    gSpriteDefs[id].unk5 = v;
+    gSpriteDefs[id].unk6 = w;
+    gSpriteDefs[id].unk7 = h;
 }
 ```
 
 ## Attempts (6)
 
-1. Local pointer `e = &D_800DD0A0[idx]`, all `u8` stack parameters: 12/24,
+1. Local pointer `e = &gSpriteDefs[idx]`, all `u8` stack parameters: 12/24,
    base in `$v0` instead of `$t0`, an extra `andi 0xFF` after `lbu 0x10(sp)`.
 2. Indexed stores in retail's store order (6, 7, 0, 2, 4, 5): one word long,
    the same extra `andi`.
@@ -47,7 +49,7 @@ void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 cl
 
 ## Declarations
 
-`code_1a098.c` declares `D_800DD0A0` locally as `Quad16[]` (four `s16`,
+`code_1a098.c` declares `gSpriteDefs` locally as `Quad16[]` (four `s16`,
 copied whole). This unit's stores need the halfword/byte view, kept local
 with a `MATCHING:` note. Referencing it from here makes code_1a098's
 declaration a declcheck LOCAL; that unit is in this round, so it is left for
@@ -57,4 +59,4 @@ the head (add a `MATCHING:` note there or share one declaration).
 
 - **`lbu` of a stack parameter with no `andi 0xFF` after it: an `s32`
   parameter read as `(u8)p`.** A `u8` parameter gives `lbu` then `andi`, as
-  retail's `u16` parameter here does (`lhu` + `andi 0xFFFF`). (func_8001B2F4)
+  retail's `u16` parameter here does (`lhu` + `andi 0xFFFF`). (DefineSprite)

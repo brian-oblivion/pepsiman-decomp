@@ -1,7 +1,9 @@
-# func_80019F24 — MATCHED (300/300), round 10, runner charlie
+# DrawSpriteTransformedFlip — MATCHED (300/300), round 10, runner charlie
+
+> Renamed from `func_80019F24` on 2026-10-10 (tools/rename.py). Address 0x80019f24.
 
 Unit `src/code_a0bc.c`. The rotated-and-scaled sprite drawer
-(func_800198BC) with func_80019CD8's flip modes: it places a Sprite8 as a
+(DrawSpriteTransformed) with DrawSpriteFlip's flip modes: it places a Sprite8 as a
 POLY_FT4 through a `Sprite2D` (pivot, 4.12 scale, angle, centring flag),
 then builds the UVs and mirrors them across u (`mode & 1`) and v
 (`mode & 2`) before linking the packet at `otz`.
@@ -9,7 +11,7 @@ then builds the UVs and mirrors them across u (`mode & 1`) and v
 No header or declaration changed (the unit had no prototype for it).
 
 ```c
-void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *ot) {
+void DrawSpriteTransformedFlip(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *ot) {
     Sprite8 *e;
     POLY_FT4 *p;
     u32 *tag;
@@ -20,8 +22,8 @@ void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *
     s32 sn;
     s32 cs;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     *(u32 *)&p->r0 =
         color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
     if (color != NULL && (s8)color->r != -1) {
@@ -77,19 +79,19 @@ void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *
     tag = (u32 *)ot->org + otz;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 ```
 
 ## How it went
 
 1. Read the asm: the frame, the products and the corner arithmetic are
-   func_800198BC's; the UV block with its two swap arms is
-   func_80019CD8's, except that the UVs are packed through `sll 16 / sra
+   DrawSpriteTransformed's; the UV block with its two swap arms is
+   DrawSpriteFlip's, except that the UVs are packed through `sll 16 / sra
    16` (and `sra 8` for the v term), i.e. they are `s16`. The registers of
    the UVs are the ones the corners held (`$fp`, `$s7`, `$s3`, `$s6`), so
    the source reused the corner locals for the UVs.
-2. One body: func_800198BC's top half, then func_80019CD8's UV block on
+2. One body: DrawSpriteTransformed's top half, then DrawSpriteFlip's UV block on
    `x0..x3` / `y0..y3`, `u8 mode` (retail spills it with `sb`), `u16 otz`.
    300/300 on the first build.
 

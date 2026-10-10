@@ -241,10 +241,10 @@ void func_80039C3C(s32 *pack) {
         D_800D81B0[i + 51]++;
         sSeqHead.unk1B0[i + 51] = D_800D81B0[i + 51][1];
     }
-    func_8001B2F4(0x1E, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
-    func_8001B2F4(0x1F, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);
-    func_8001B2F4(0x20, 0, 0xFF, 0x40, 0x1C, 0, 0x80, 0, 0x1FE);
-    func_8001B2F4(0x21, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
+    DefineSprite(0x1E, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
+    DefineSprite(0x1F, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);
+    DefineSprite(0x20, 0, 0xFF, 0x40, 0x1C, 0, 0x80, 0, 0x1FE);
+    DefineSprite(0x21, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
 }
 
 void func_8003A008(s16 x, s16 y, s16 z) {
@@ -346,7 +346,7 @@ void func_8003A3F4(s32 *index, s16 x, s16 y) {
  */
 static __inline__ void putDigit(SVECTOR *pos, u16 id) {
     pos->vx -= 6;
-    func_8001B354(id, pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(id, pos, NULL, 0, &gSubOt[gActiveBuff]);
 }
 
 void func_8003A4B4(SVECTOR *pos, s32 frames) {
@@ -387,59 +387,59 @@ void func_8003A4B4(SVECTOR *pos, s32 frames) {
 void func_8003A84C(void) {
     s32 i;
 
-    func_8001B2F4(0xFA, 0, 0x40, 0x40, 0x1E, 0, 0, 0, 0x1F9);
+    DefineSprite(0xFA, 0, 0x40, 0x40, 0x1E, 0, 0, 0, 0x1F9);
     /* MATCHING: the u ternary tests i >= 6 first; i < 6 swaps the two
      * strength-reduced registers. */
     for (i = 0; i < 10; i++) {
-        func_8001B2F4(i + 0xFB, 0, 0x20, 0x20, 0x1E, (u8)(i >= 6 ? i * 32 - 0x80 : i * 32 + 0x40),
-                      i < 6 ? 0 : 0x20, 0x10, 0x1F9);
+        DefineSprite(i + 0xFB, 0, 0x20, 0x20, 0x1E, (u8)(i >= 6 ? i * 32 - 0x80 : i * 32 + 0x40),
+                     i < 6 ? 0 : 0x20, 0x10, 0x1F9);
     }
     for (i = 0; i < 10; i++) {
-        func_8001B2F4(i + 0x105, 0, 0x10, 0x10, 0x1E, (u8)(i * 16), 0x40, 0x20, 0x1F9);
+        DefineSprite(i + 0x105, 0, 0x10, 0x10, 0x1E, (u8)(i * 16), 0x40, 0x20, 0x1F9);
     }
     for (i = 0; i < 11; i++) {
-        func_8001B2F4(i + 0x10F, 0, 8, 8, 0x1E, (u8)(i * 8), 0x58, 0x30, 0x1F9);
+        DefineSprite(i + 0x10F, 0, 8, 8, 0x1E, (u8)(i * 8), 0x58, 0x30, 0x1F9);
     }
     for (i = 0; i < 8; i++) {
-        func_8001B2F4(i + 0x11A, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x60, 0x40, 0x1F9);
+        DefineSprite(i + 0x11A, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x60, 0x40, 0x1F9);
     }
-    func_8001B2F4(0x12D, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
-    func_8001B2F4(0x133, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
-    func_8001B2F4(0x134, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
-    func_8001B2F4(0x135, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
-    func_8001B2F4(0x136, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
-    func_8001B2F4(0x122, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
+    DefineSprite(0x12D, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
+    DefineSprite(0x133, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
+    DefineSprite(0x134, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
+    DefineSprite(0x135, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
+    DefineSprite(0x136, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
+    DefineSprite(0x122, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
     for (i = 0; i < 8; i++) {
-        func_8001B2F4(i + 0x123, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x80, 0x80, 0x1F9);
+        DefineSprite(i + 0x123, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x80, 0x80, 0x1F9);
     }
     for (i = 0; i < 2; i++) {
-        func_8001B2F4(i + 0x12B, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0xA0, 0x80, 0x1F9);
+        DefineSprite(i + 0x12B, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0xA0, 0x80, 0x1F9);
     }
-    func_8001B2F4(0x12E, 0, 0x60, 0x10, 0x1E, 0x60, 0xE0, 0xA0, 0x1F9);
+    DefineSprite(0x12E, 0, 0x60, 0x10, 0x1E, 0x60, 0xE0, 0xA0, 0x1F9);
     for (i = 0; i < 4; i++) {
-        func_8001B2F4(i + 0x12F, 0, 8, 0x10, 0x1E, (u8)(i * 8 - 0x40), 0xE0, 0xA0, 0x1F9);
+        DefineSprite(i + 0x12F, 0, 8, 0x10, 0x1E, (u8)(i * 8 - 0x40), 0xE0, 0xA0, 0x1F9);
     }
     for (i = 0; i < 12; i++) {
-        func_8001B2F4(i + 0x137, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xB0, 0x2D0, 0x1CA);
+        DefineSprite(i + 0x137, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xB0, 0x2D0, 0x1CA);
     }
     for (i = 0; i < 12; i++) {
-        func_8001B2F4(i + 0x143, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xA0, 0x2D0, 0x1CA);
+        DefineSprite(i + 0x143, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xA0, 0x2D0, 0x1CA);
     }
-    func_8001B2F4(0x14F, 0, 0x50, 0x10, 0x1B, 0x80, 0xC0, 0x2D0, 0x1C9);
-    func_8001B2F4(0x150, 0, 0x50, 0x10, 0x1B, 0x80, 0xD0, 0x2D0, 0x1C9);
-    func_8001B2F4(0x151, 0, 0x80, 0x20, 0x1B, 0x80, 0xE0, 0x2D0, 0x1C9);
-    func_8001B2F4(0x152, 0, 0x80, 0x20, 0x1C, 0x80, 0xC0, 0x2D0, 0x1C9);
+    DefineSprite(0x14F, 0, 0x50, 0x10, 0x1B, 0x80, 0xC0, 0x2D0, 0x1C9);
+    DefineSprite(0x150, 0, 0x50, 0x10, 0x1B, 0x80, 0xD0, 0x2D0, 0x1C9);
+    DefineSprite(0x151, 0, 0x80, 0x20, 0x1B, 0x80, 0xE0, 0x2D0, 0x1C9);
+    DefineSprite(0x152, 0, 0x80, 0x20, 0x1C, 0x80, 0xC0, 0x2D0, 0x1C9);
     for (i = 0; i < 4; i++) {
-        func_8001B2F4(i + 0x153, 0, 0x20, 0x20, 0x1C, (u8)(i * 32 - 0x80), 0xE0, 0x2D0, 0x1C9);
+        DefineSprite(i + 0x153, 0, 0x20, 0x20, 0x1C, (u8)(i * 32 - 0x80), 0xE0, 0x2D0, 0x1C9);
     }
     for (i = 0; i < 4; i++) {
-        func_8001B2F4(i + 0x157, 0, 0x80, 0x10, 0x1C, 0, (u8)(i * 16 - 0x40), 0x2D0, 0x1C9);
+        DefineSprite(i + 0x157, 0, 0x80, 0x10, 0x1C, 0, (u8)(i * 16 - 0x40), 0x2D0, 0x1C9);
     }
-    func_8001B2F4(0x15B, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
-    func_8001B2F4(0x15C, 0, 0x80, 0x10, 0x1E, 0, 0xF0, 0xC0, 0x1F9);
-    func_8001B2F4(0x15D, 0, 0x10, 0x10, 0x0F, 0, 0xC0, 0x3C0, 0xFF);
-    func_8001B2F4(0x15E, 0, 0x20, 0x20, 0x0F, 0, 0xD0, 0x3D0, 0xFF);
-    func_8001B2F4(0x15F, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
+    DefineSprite(0x15B, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
+    DefineSprite(0x15C, 0, 0x80, 0x10, 0x1E, 0, 0xF0, 0xC0, 0x1F9);
+    DefineSprite(0x15D, 0, 0x10, 0x10, 0x0F, 0, 0xC0, 0x3C0, 0xFF);
+    DefineSprite(0x15E, 0, 0x20, 0x20, 0x0F, 0, 0xD0, 0x3D0, 0xFF);
+    DefineSprite(0x15F, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
 }
 
 extern u32 D_80095A84;
@@ -454,7 +454,7 @@ typedef struct {
 
 /* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
-void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
+void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);
 
 void func_8003AFAC(void) {
@@ -477,7 +477,7 @@ void func_8003AFAC(void) {
     if (n == 0) {
         pos.vx = -120;
         pos.vy = -96;
-        func_8001B354(0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     }
     k = 1;
     pos.vx = (digits - 1) * 12 - 120;
@@ -485,7 +485,7 @@ void func_8003AFAC(void) {
     for (; k < 101; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -494,7 +494,7 @@ void func_8003AFAC(void) {
     quad[4] = quad[5] = 0x800;
     quad[6] = 0;
     quad[7] = 0;
-    func_800198BC(0xFA, quad, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSpriteTransformed(0xFA, quad, NULL, 0, &gSubOt[gActiveBuff]);
     quad[0] = quad[2] = -0x40;
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
@@ -504,18 +504,18 @@ void func_8003AFAC(void) {
         case 1:
             quad[4] = quad[5] = 0x800;
             if ((gFrameCount >> 1) & 1) {
-                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+                DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
     if (gTimeLeft == 0x14A) {
@@ -542,7 +542,7 @@ void func_8003AFAC(void) {
         if (n == 0) {
             pos.vx = 4;
             pos.vy = -0x68;
-            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         k = 1;
         pos.vx = 4;
@@ -550,7 +550,7 @@ void func_8003AFAC(void) {
         for (; k < 101; k *= 10) {
             q = n / k;
             if (q != 0) {
-                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
                 pos.vx -= 18;
             }
         }
@@ -559,14 +559,14 @@ void func_8003AFAC(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = (D_8009578C * 11 << 15) / ((s32 *)D_800958A0)[-1] / 4096 + 0x34;
     pos.vy = -0x69;
-    func_8001B354(((gFrameCount >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(((gFrameCount >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     k = 1;
     pos.vx = 0x34;
     pos.vy = -0x64;
-    func_8001B354(0x12E, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x12E, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x34;
     pos.vy = -0x54;
-    func_8001B354(0x122, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x122, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x90;
     pos.vy = -0x54;
     func_8003A4B4(&pos, D_80095980);
@@ -576,7 +576,7 @@ void func_8003AFAC(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -584,7 +584,7 @@ void func_8003AFAC(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
-    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
 }
 
 /**
@@ -791,7 +791,7 @@ void func_8003BDF4(void) {
 
     for (i = 0; i < D_80095968; i++) {
         if (D_800A7278[i] != 0xFF) {
-            p = (POLY_F4 *)D_800E48D0;
+            p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->x0 = p->x2 = -160;
             p->x1 = p->x3 = -152;
@@ -807,10 +807,10 @@ void func_8003BDF4(void) {
             p->b0 = D_800A76E8[i];
             addPrim(gCurOt->org, p);
             p++;
-            D_800E48D0 = (u8 *)p;
+            GsOUT_PACKET_P = (u8 *)p;
         }
     }
-    p = (POLY_F4 *)D_800E48D0;
+    p = (POLY_F4 *)GsOUT_PACKET_P;
     setPolyF4(p);
     p->x0 = p->x2 = -160;
     p->x1 = p->x3 = -144;
@@ -820,7 +820,7 @@ void func_8003BDF4(void) {
     D_80095968 = 0;
     addPrim(gCurOt->org, p);
     p++;
-    D_800E48D0 = (u8 *)p;
+    GsOUT_PACKET_P = (u8 *)p;
 }
 
 void func_8003C014(void) {
@@ -828,8 +828,8 @@ void func_8003C014(void) {
     SVECTOR pos;
     CVECTOR color;
 
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = D_800E474C * 240;
     rect.w = 320;
@@ -839,10 +839,10 @@ void func_8003C014(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
 void func_8003C17C(u8 level) {
@@ -850,8 +850,8 @@ void func_8003C17C(u8 level) {
     SVECTOR pos;
     CVECTOR color;
 
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = D_800E474C * 240;
     rect.w = 320;
@@ -862,10 +862,10 @@ void func_8003C17C(u8 level) {
     color.g = color.b = color.cd = level;
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
 }
 
 void func_8003C2E8(void) {
@@ -878,7 +878,7 @@ void func_8003C2E8(void) {
             return;
         }
         n = D_80095A78 / 3;
-        p = (POLY_FT4 *)D_800E48D0;
+        p = (POLY_FT4 *)GsOUT_PACKET_P;
         setPolyFT4(p);
         p->r0 = p->g0 = p->b0 = 0x80;
         p->x0 = p->x2 = -160;
@@ -894,7 +894,7 @@ void func_8003C2E8(void) {
         addPrim(gSubOt[gActiveBuff].org, p);
         D_80095A78++;
         p++;
-        D_800E48D0 = (u8 *)p;
+        GsOUT_PACKET_P = (u8 *)p;
     }
 }
 
@@ -912,34 +912,34 @@ void func_8003C494(SVECTOR *pos, s32 n) {
     shadow.g = shadow.b = shadow.cd = 0x80;
     color.g = color.b = color.cd = 0x80;
     pos->vx -= 16;
-    func_8001B354(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B354(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B354(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x138, pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B354(0x144, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x138, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x144, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x142, pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B354(0x14E, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x142, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x14E, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
     t = n / 10;
     x = (u32)n / 100;
     d = n % 10;
-    func_8001B354(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B354(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     if (t != 0) {
         pos->vx -= 12;
         d = t % 10;
-        func_8001B354(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-        func_8001B354(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     }
     if (n / 100 != 0) {
         pos->vx -= 12;
         d = n / 100 % 10;
-        func_8001B354(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-        func_8001B354(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -963,11 +963,11 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 16;
-    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     sec = frames / 30;
     m = sec / 60;
     n = sec % 60;
@@ -975,17 +975,17 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 12;
-    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     n = m;
     pos->vx -= 12;
-    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     for (; k < 11; k *= 10) {
         t = n / k;
         if (t != 0 || (k == 1 && n == 0)) {
             pos->vx -= 12;
-            func_8001B354(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
     }
 }
@@ -1207,7 +1207,7 @@ void func_8003CC94(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -1215,21 +1215,21 @@ void func_8003CC94(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = -0x58;
-    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = 0x80;
     color.cd = 0;
     pos.vy = -16;
     pos.vx = D_80095AA0[6] * 32 - 0x34;
-    func_8001B354(0x15B, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x15B, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -16;
     pos.vx = D_80095AA0[7] * 32 - 0x40;
-    func_8001B354(0x15C, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x15C, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
     pos.vx = -0x28;
     pos.vy = D_80095AA0[0] * 4 - 0x48;
-    func_8001B354(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     if (D_80095AA0[1] != -25) {
         quad[1] = -0x20;
         quad[3] = -0x40;
@@ -1238,26 +1238,26 @@ void func_8003CC94(void) {
         quad[2] = 0;
         quad[6] = 0;
         quad[7] = 1;
-        func_800198BC(0x151, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        DrawSpriteTransformed(0x151, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     pos.vy = 0;
     pos.vx = D_80095AA0[2] * 32 - 0x80;
-    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[2] * 32 + 0x80;
     func_8003C494(&pos, D_80095A7C);
     pos.vy = 0x18;
     pos.vx = D_80095AA0[3] * 32 - 0x80;
-    func_8001B354(0x158, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x158, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[3] * 32 + 0x80;
     func_8003C494(&pos, D_80096A58[rank / 3][rank % 3]);
     pos.vy = 0x38;
     pos.vx = D_80095AA0[4] * 32 - 0x80;
-    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[4] * 32 + 0x80;
     func_8003C8D0(&pos, D_80095980);
     pos.vy = 0x50;
     pos.vx = D_80095AA0[5] * 32 - 0x80;
-    func_8001B354(0x15A, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x15A, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[5] * 32 + 0x80;
     func_8003C8D0(&pos, D_800D8340[rank / 3][rank % 3]);
 }
@@ -1332,33 +1332,33 @@ void func_8003D960(void) {
     }
     pos.vx = -80;
     pos.vy = D_80095AA0[0] * 4 - 88;
-    func_8001B354(0x152, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x152, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 48;
-    func_8001B354(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -48;
     pos.vx = D_80095AA0[1] * 32 - 40;
-    func_8001B354(0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -24;
     pos.vx = D_80095AA0[2] * 32 - 128;
-    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[2] * 32 + 128;
     func_8003C494(&pos, D_800958F0[0]);
     pos.vy = 0;
     pos.vx = D_80095AA0[3] * 32 - 128;
-    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[3] * 32 + 128;
     func_8003C8D0(&pos, D_80095838[0]);
     pos.vy = 24;
     pos.vx = D_80095AA0[4] * 32 - 40;
-    func_8001B354(0x150, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x150, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = 48;
     pos.vx = D_80095AA0[5] * 32 - 128;
-    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[5] * 32 + 128;
     func_8003C494(&pos, D_800958F4);
     pos.vy = 72;
     pos.vx = D_80095AA0[6] * 32 - 128;
-    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[6] * 32 + 128;
     func_8003C8D0(&pos, D_8009583C);
 }
@@ -1585,7 +1585,7 @@ s32 func_8003E550(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = (u32)(rsin((p->frame << 15) / 360) * 25) >> 8;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
-        func_8001A69C(0x11F, &size, &color, 2, ot);
+        DrawStandingBillboard(0x11F, &size, &color, 2, ot);
         return ++p->frame == 15;
     }
     p->delay--;
@@ -1599,7 +1599,7 @@ s32 func_8003E6F8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
     c[0] = p->x + (p->z >> 1) + 2;
     c[1] = p->y + 4;
-    f = (POLY_F4 *)D_800E48D0;
+    f = (POLY_F4 *)GsOUT_PACKET_P;
     setPolyF4(f);
     setSemiTrans(f, 1);
     f->x0 = p->x;
@@ -1619,12 +1619,12 @@ s32 func_8003E6F8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     f->r0 = f->g0 = f->b0 = ~(p->frame << 5);
     addPrim(ot->org, f);
     f++;
-    D_800E48D0 = (u8 *)f;
-    t = (DR_TPAGE *)D_800E48D0;
+    GsOUT_PACKET_P = (u8 *)f;
+    t = (DR_TPAGE *)GsOUT_PACKET_P;
     setDrawTPage(t, 1, 1, getTPage(0, 1, 0, 0));
     addPrim(ot->org, t);
     t++;
-    D_800E48D0 = (u8 *)t;
+    GsOUT_PACKET_P = (u8 *)t;
     return ++p->frame == 8;
 }
 
@@ -1647,7 +1647,7 @@ s32 func_8003EA04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         q[7] = 1;
         color.r = 0;
         color.g = color.b = color.cd = ~(p->frame << 4);
-        func_800198BC(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->frame == 8) {
             D_800958E8++;
             func_80028448();
@@ -1684,7 +1684,7 @@ s32 func_8003EC04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
             q[7] = 1;
             color.r = 0;
             color.g = color.b = color.cd = ~(p->frame << 4);
-            func_800198BC(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         }
         if (++p->frame == 8) {
             D_800958E8 += 5;
@@ -1707,21 +1707,21 @@ s32 func_8003EF40(Effect *p) {
             pos.vy = -12;
             color.r = -1;
             color.g = color.b = color.cd = 0x80;
-            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else if (p->frame < 32) {
             pos.vx = -72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = (8 - (p->frame - 16) % 8) * 16;
-            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else {
             pos.vx = (p->frame - 32) * 15 - 72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = 0;
-            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         return ++p->frame == 48;
     }
@@ -1773,7 +1773,7 @@ s32 func_8003F488(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame * 10 + 100;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 2);
-        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        DrawBillboard(0x12D, &size, &color, 2, ot);
         if (p->param1 != 0) {
             p->param1--;
         }
@@ -1874,7 +1874,7 @@ s32 func_8003F960(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 0x96;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
-        func_8001A3D4((u16)(p->frame + 0x11A), &size, &color, 2, ot);
+        DrawBillboard((u16)(p->frame + 0x11A), &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1891,7 +1891,7 @@ s32 func_8003FA88(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame + 0x14;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 2);
-        func_8001A3D4(0x11F, &size, &color, 2, ot);
+        DrawBillboard(0x11F, &size, &color, 2, ot);
         p->y -= 4;
         p->z += p->frame >> 2;
         return ++p->frame == 0x20;
@@ -1909,7 +1909,7 @@ s32 func_8003FBE0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 0x32;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
-        func_8001A3D4(0x11A, &size, &color, 2, ot);
+        DrawBillboard(0x11A, &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1926,7 +1926,7 @@ s32 func_8003FD0C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame * 10 + 100;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
-        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        DrawBillboard(0x12D, &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1943,7 +1943,7 @@ s32 func_8003FE5C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame * 10 + 100;
         color.r = 2;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
-        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        DrawBillboard(0x12D, &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1959,7 +1959,7 @@ s32 func_8003FFAC(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 100;
         color.r = 0;
         color.g = color.b = color.cd = 0x80;
-        func_8001A3D4(0x134, &size, &color, 2, ot);
+        DrawBillboard(0x134, &size, &color, 2, ot);
         return ++p->frame * p->param0 >= p->param1;
     }
     p->delay--;

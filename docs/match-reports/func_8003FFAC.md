@@ -16,7 +16,7 @@ s32 func_8003FFAC(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 100;
         color.r = 0;
         color.g = color.b = color.cd = 0x80;
-        func_8001A3D4(0x134, &size, &color, 2, ot);
+        DrawBillboard(0x134, &size, &color, 2, ot);
         return ++p->unk0 * p->unk4 >= p->unk6;
     }
     p->unk2--;

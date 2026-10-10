@@ -218,9 +218,9 @@ typedef struct {
 
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
-extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
-extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
-extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
+extern Quad16 gSpriteDefs[]; /**< a table of eight-byte entries */
+extern Rec5C D_800CF080[];   /**< 200 Rec5C records */
+extern u8 D_800A7550[];      /**< 200 byte marks, one per block entry */
 /* MATCHING: a per-unit view; code_29f54 reads the same path as Edge. */
 extern PathPt *D_800958A0; /**< the current path */
 extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
@@ -1002,9 +1002,9 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
         tp = GetTPage(0, 0, sTim->pixRect.x, sTim->pixRect.y);
         t = sTim;
         /* MATCHING: x mod 64 spelled out; % narrows to a halfword. */
-        func_8001B2F4(id, 0, (u8)t->unk1C, (u8)t->pixRect.h, (u8)tp,
-                      (u8)((t->pixRect.x - t->pixRect.x / 64 * 64) * t->unk1E),
-                      (u8)(t->pixRect.y % 256), t->clutRect.x, (u16)t->clutRect.y);
+        DefineSprite(id, 0, (u8)t->unk1C, (u8)t->pixRect.h, (u8)tp,
+                     (u8)((t->pixRect.x - t->pixRect.x / 64 * 64) * t->unk1E),
+                     (u8)(t->pixRect.y % 256), t->clutRect.x, (u16)t->clutRect.y);
         id++;
         e++;
     }
@@ -1057,9 +1057,9 @@ void func_8002B8F8(u16 id, Rec3C *r) {
         size.vx *= -1;
     }
     if (absInt(r->unk4 + D_800A7308[0]) > 700 || absInt(r->unkC + D_800A7308[2]) > 700) {
-        func_8001B004(k, &size, NULL, 2, &gOt[gActiveBuff]);
+        DrawStandingBillboardFog(k, &size, NULL, 2, &gOt[gActiveBuff]);
     } else {
-        func_8001A69C(k, &size, NULL, 2, &gSubOt[gActiveBuff]);
+        DrawStandingBillboard(k, &size, NULL, 2, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -1399,7 +1399,7 @@ void func_8002C85C(u16 i, Quad16 *out) {
 
     /* MATCHING: the base in its own local, then advanced by i; indexing
      * gives the sum the index register. */
-    src = D_800DD0A0;
+    src = gSpriteDefs;
     src += i;
     *out = *src;
 }
@@ -1528,9 +1528,9 @@ void func_8002CCEC(void) {
                 size.vy = 75;
                 size.vx = 75;
                 if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
-                    func_8001B004(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
+                    DrawStandingBillboardFog(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
                 } else {
-                    func_8001A69C(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
+                    DrawStandingBillboard(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
                 pos.x = coord.coord.t[0] - D_800A7308[0];
                 pos.y = coord.coord.t[1] - 50;

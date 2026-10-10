@@ -1,10 +1,12 @@
-# func_80019CD8 — MATCHED (147/147), round 7, runner charlie
+# DrawSpriteFlip — MATCHED (147/147), round 7, runner charlie
 
-Unit `src/code_a0bc.c`. The POLY_FT4 sibling of func_8001B354: draws sprite
-`id` of the table `D_800DD0A0` at `pos` as a textured quad (code 0x2C with a
+> Renamed from `func_80019CD8` on 2026-10-10 (tools/rename.py). Address 0x80019cd8.
+
+Unit `src/code_a0bc.c`. The POLY_FT4 sibling of DrawSprite: draws sprite
+`id` of the table `gSpriteDefs` at `pos` as a textured quad (code 0x2C with a
 colour, 0x2D raw without one, semi-transparent when the colour's first byte
 is not -1), its UVs mirrored by bit 0 (horizontal) and bit 1 (vertical) of
-`mode`, linked into `ot->org[otz]`; the primitive buffer `D_800E48D0`
+`mode`, linked into `ot->org[otz]`; the primitive buffer `GsOUT_PACKET_P`
 advances by one packet.
 
 ## Levers
@@ -31,4 +33,4 @@ Three builds.
   store (`sh`, `lhu` of the same slot, `sh`): the target is volatile.**
   `store_expr` keeps the value in a register for a non-volatile memory
   target, so neither a plain chain nor two statements reproduce it. A
-  `volatile T *p` packet pointer did. (func_80019CD8)
+  `volatile T *p` packet pointer did. (DrawSpriteFlip)

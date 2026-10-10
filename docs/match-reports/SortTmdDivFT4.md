@@ -1,8 +1,10 @@
-# func_8001DAD4 — MATCHED (673/673), round 11, runner bravo
+# SortTmdDivFT4 — MATCHED (673/673), round 11, runner bravo
+
+> Renamed from `func_8001DAD4` on 2026-10-10 (tools/rename.py). Address 0x8001dad4.
 
 Unit `src/code_a0bc.c`. The flat-textured quad member of the subdividing
-family (handler table row 6, column 7): func_8001D39C's FT3 body on
-func_8001B9A4's quad skeleton. Depth-cued POLY_FT4 with the TMD's four
+family (handler table row 6, column 7): SortTmdDivFT3's FT3 body on
+SortTmdDivF4's quad skeleton. Depth-cued POLY_FT4 with the TMD's four
 UV words one OT slot further in unless the transform overflowed; under
 depth 250 a split into four quads at the edge midpoints and the centre,
 with the midpoint and centre UVs averaged, each sub-quad depth-cued again
@@ -11,7 +13,7 @@ and linked at the parent's depth.
 New unit-local type `TmdFT4` (header, four `TmdUV` words, a `CVECTOR`,
 four vertex indices; 0x20 bytes). code_11dc4 has its own `TmdFT4` with
 `u32`/`u16` UV members; this unit needs the bytes. The local prototype
-changed from `PACKET *func_8001DAD4();` to the full one.
+changed from `PACKET *SortTmdDivFT4();` to the full one.
 
 The source is in `src/code_a0bc.c`.
 
@@ -21,7 +23,7 @@ The source is in `src/code_a0bc.c`.
    centre values: `andi 0xFF`, and `sll 6; andi 0xFF00` for `vc << 8`):
    one word long, frame 8 bytes too big.
 2. `s16` on u01, u13 and u23 (retail has each as the first operand of
-   its OR, func_8001E558's lever): one word short, 3097. A scan over the
+   its OR, SortTmdDivGT3's lever): one word short, 3097. A scan over the
    24 store orders in the UV switch (`timeout 300`, rc 0) kept the
    natural u0..u3 order.
 3. Precompute order with every u before every v: 2852.
@@ -42,5 +44,5 @@ The source is in `src/code_a0bc.c`.
 - **Averages of TMD bytes in this family are `u8` locals**: `(u32)(a +
   b) >> 1` into a `u8` gives `srl` with no mask (the sum of two bytes
   halved fits), and the narrow pseudo puts the value first in its ORs.
-  A `>> 2` centre of four bytes keeps its `andi 0xFF`. (func_8001DAD4,
-  func_8001E558; func_8001D39C's `s16` pair is likely the same thing)
+  A `>> 2` centre of four bytes keeps its `andi 0xFF`. (SortTmdDivFT4,
+  SortTmdDivGT3; SortTmdDivFT3's `s16` pair is likely the same thing)

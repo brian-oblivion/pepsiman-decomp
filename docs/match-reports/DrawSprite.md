@@ -1,22 +1,24 @@
-# func_8001B354 — MATCHED (90/90), round 6, runner charlie
+# DrawSprite — MATCHED (90/90), round 6, runner charlie
 
-Unit `src/code_a0bc.c`. Draws sprite `id` of the table `D_800DD0A0` at
+> Renamed from `func_8001B354` on 2026-10-10 (tools/rename.py). Address 0x8001b354.
+
+Unit `src/code_a0bc.c`. Draws sprite `id` of the table `gSpriteDefs` at
 `pos`: builds a SPRT (0x64 with a colour, 0x65 raw-textured without one,
 semi-transparent when the colour's first byte is not -1) and a DR_TPAGE
-after it in the primitive buffer `D_800E48D0`, links both into
+after it in the primitive buffer `GsOUT_PACKET_P`, links both into
 `ot->org[mode]` and advances the buffer. The first colour byte doubles as
 the blend mode (`<< 5` into the tpage word).
 
 ```c
-void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
+void DrawSprite(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
     Sprite8 *e;
     u32 *p;
     u32 *q;
     u32 *tag;
     u32 c;
 
-    e = &D_800DD0A0[id];
-    p = (u32 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (u32 *)GsOUT_PACKET_P;
     p[1] = color != NULL ? 0x64000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x65000000;
     if (color != NULL && (s8)color->r != -1) {
         p[1] |= 0x02000000;
@@ -35,7 +37,7 @@ void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
     }
     q[0] = ((u32)p & 0xFFFFFF) | 0x01000000;
     *tag = (u32)q & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(q + 2);
+    GsOUT_PACKET_P = (u8 *)(q + 2);
 }
 ```
 
@@ -57,8 +59,8 @@ on runner/delta); this definition agrees with it.
 5. The colour word as a ternary, `color ? K | cd<<16 | b<<8 | g :
    0x65000000`: 90/90.
 
-`D_800E48D0` (the primitive buffer cursor, reached by five units) was
-added to `include/common.h` as `extern u8 *D_800E48D0;`, the type runner
+`GsOUT_PACKET_P` (the primitive buffer cursor, reached by five units) was
+added to `include/common.h` as `extern u8 *GsOUT_PACKET_P;`, the type runner
 delta declared locally in code_308ec this round; that local becomes a
 declcheck MULTI at merge and should be deleted then.
 
@@ -67,4 +69,4 @@ declcheck MULTI at merge and should be deleted then.
 - **An OR of shifted bytes and a constant that cc1 regroups (the constant
   OR'd into the wrong term) in an if/else: write the value as a ternary**,
   `x = p ? K | a<<16 | b<<8 | c : K2;`. A local holding `term | K` fixes the
-  same regrouping in a plain statement. (func_8001B354)
+  same regrouping in a plain statement. (DrawSprite)

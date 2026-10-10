@@ -1,4 +1,6 @@
-# func_80020DD8 — MATCHED (83/83), round 6, runner charlie
+# SortTmdFastF3 — MATCHED (83/83), round 6, runner charlie
+
+> Renamed from `func_80020DD8` on 2026-10-10 (tools/rename.py). Address 0x80020dd8.
 
 Unit `src/code_a0bc.c`. A primitive handler (row 0, column 6 of the
 handler table): for each of `n` flat unlit TMD triangles it transforms the
@@ -18,7 +20,7 @@ typedef struct {
     u16 pad;
 } TmdF3;
 
-PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
     s32 v;
     s32 dp;
     s32 i;
@@ -67,4 +69,4 @@ flag, then the outer product, then the OT depth: one reused local.
 
 - **An asm file splat marks "Handwritten function" with `cfc2 $t4, $31` /
   `nop` / `sw $t4`: compiled C using Sony's `gte_stflg`**, not handwritten
-  code; `mtc2 <any reg>, $8` is `gte_lddp(value)`. (func_80020DD8)
+  code; `mtc2 <any reg>, $8` is `gte_lddp(value)`. (SortTmdFastF3)

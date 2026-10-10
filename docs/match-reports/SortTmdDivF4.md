@@ -1,6 +1,8 @@
-# func_8001B9A4 — MATCHED (486/486), round 10, runner charlie
+# SortTmdDivF4 — MATCHED (486/486), round 10, runner charlie
 
-Unit `src/code_a0bc.c`. The quad twin of func_8001B4BC: the subdividing
+> Renamed from `func_8001B9A4` on 2026-10-10 (tools/rename.py). Address 0x8001b9a4.
+
+Unit `src/code_a0bc.c`. The quad twin of SortTmdDivF3: the subdividing
 handler for flat unlit quads (`TmdF4`, handler table row 4, column 7). Per
 front-facing quad: depth from the screen Zs over 4, a depth-cued POLY_F4
 one OT slot further in unless the transform overflowed, and under depth
@@ -9,10 +11,10 @@ each drawn with the TMD colour copied as a word.
 
 New: `gte_stsz4c(r1)` in `include/gte.h` (additive; Sony's name, SZ0-SZ3
 at +0, +4, +8, +0xC from one base). The local prototype changed from
-`PACKET *func_8001B9A4();` to the full one.
+`PACKET *SortTmdDivF4();` to the full one.
 
 ```c
-PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
     SVECTOR m[5];
     s32 sz[4];
     s32 flg;
@@ -130,7 +132,7 @@ PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
 
 ## How it went
 
-1. func_8001B4BC's body transposed to quads after reading the asm for the
+1. SortTmdDivF3's body transposed to quads after reading the asm for the
    differences: the second `rtps` for vertex 3 stores the flag into `v`
    with no test; `swc2 $16..$19` off one base (`gte_stsz4c`); five
    midpoints (`m[4]` the centre, `>> 2` of a four-term sum); a second

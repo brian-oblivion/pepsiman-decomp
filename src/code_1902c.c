@@ -496,7 +496,7 @@ void func_8002964C(VECTOR *pos, u16 scale) {
     size.vx = size.vy = scale * 2;
     color.r = 0;
     color.g = color.b = color.cd = 0x80;
-    func_8001A3D4(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
 }
 
 s32 func_8002971C(Body *a, Body *b) {

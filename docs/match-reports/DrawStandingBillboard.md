@@ -1,21 +1,23 @@
-# func_8001A69C — MATCHED (173/173), round 7, runner charlie
+# DrawStandingBillboard — MATCHED (173/173), round 7, runner charlie
 
-Unit `src/code_a0bc.c`. Draws sprite `id` of the table `D_800DD0A0` as a
+> Renamed from `func_8001A69C` on 2026-10-10 (tools/rename.py). Address 0x8001a69c.
+
+Unit `src/code_a0bc.c`. Draws sprite `id` of the table `gSpriteDefs` as a
 billboard in 3D: a `size` (vx wide, vy tall) quad centred on x and standing
-on y = 0, transformed with the rotation matrix `D_800E4858` (loaded with
+on y = 0, transformed with the rotation matrix `GsIDMATRIX` (loaded with
 `gte_SetRotMatrix`) and the current translation, into a POLY_FT4 in the
-primitive buffer `D_800E48D0` (0x2C with a colour, 0x2D raw, semi-
-transparent when the colour's first byte is not -1, as func_80019CD8), linked
+primitive buffer `GsOUT_PACKET_P` (0x2C with a colour, 0x2D raw, semi-
+transparent when the colour's first byte is not -1, as DrawSpriteFlip), linked
 at its average depth `>> shift`. Returns early if either projection
 overflows.
 
-`D_800E4858` (`MATRIX`, no defining C unit) is now declared in
+`GsIDMATRIX` (`MATRIX`, no defining C unit) is now declared in
 `include/code_a0bc.h`; `src/code_7d74.c` still declares it locally, which
 declcheck reports (MULTI/LOCAL) until that copy is deleted at merge
 (code_7d74 is another runner's unit this round).
 
 ```c
-void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
+void DrawStandingBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     s32 v;
     s32 z;
@@ -23,9 +25,9 @@ void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     POLY_FT4 *p;
     u32 *tag;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
-    gte_SetRotMatrix(&D_800E4858);
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
+    gte_SetRotMatrix(&GsIDMATRIX);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
     sv[0].vy = sv[1].vy = -size->vy + 1;
     sv[1].vx = sv[3].vx = sv[0].vx + size->vx - 1;
@@ -69,7 +71,7 @@ void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 ```
 
@@ -94,4 +96,4 @@ Six builds.
 - **One sign-bit test as `bltz` and a second as `and`/`bnez` with the mask
   built in the first branch's delay slot: both were `x & 0x80000000`.**
   CSE shares the mask register; combine folds only the test in the mask's
-  own block. (func_8001A69C)
+  own block. (DrawStandingBillboard)

@@ -13,7 +13,7 @@ void func_8003BDF4(void) {
 
     for (i = 0; i < D_80095968; i++) {
         if (D_800A7278[i] != 0xFF) {
-            p = (POLY_F4 *)D_800E48D0;
+            p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->x0 = p->x2 = -160;
             p->x1 = p->x3 = -152;
@@ -29,10 +29,10 @@ void func_8003BDF4(void) {
             p->b0 = D_800A76E8[i];
             addPrim(gCurOt->org, p);
             p++;
-            D_800E48D0 = (u8 *)p;
+            GsOUT_PACKET_P = (u8 *)p;
         }
     }
-    p = (POLY_F4 *)D_800E48D0;
+    p = (POLY_F4 *)GsOUT_PACKET_P;
     setPolyF4(p);
     p->x0 = p->x2 = -160;
     p->x1 = p->x3 = -144;
@@ -42,7 +42,7 @@ void func_8003BDF4(void) {
     D_80095968 = 0;
     addPrim(gCurOt->org, p);
     p++;
-    D_800E48D0 = (u8 *)p;
+    GsOUT_PACKET_P = (u8 *)p;
 }
 ```
 

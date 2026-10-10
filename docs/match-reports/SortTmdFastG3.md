@@ -1,6 +1,8 @@
-# func_800210B4 — MATCHED (99/99), round 7, runner charlie
+# SortTmdFastG3 — MATCHED (99/99), round 7, runner charlie
 
-Unit `src/code_a0bc.c`. The gouraud sibling of func_80020DD8 (row 1, column 6 of the handler
+> Renamed from `func_800210B4` on 2026-10-10 (tools/rename.py). Address 0x800210b4.
+
+Unit `src/code_a0bc.c`. The gouraud sibling of SortTmdFastF3 (row 1, column 6 of the handler
 table): unlit gouraud TMD triangles into POLY_G3 packets, three colours
 depth-cued with `dpct`, the packet's code byte copied from the TMD header's
 mode byte, linked with length 6.
@@ -22,7 +24,7 @@ typedef struct {
     u16 pad;    /**< padding */
 } TmdG3;
 
-PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_G3 *pkt;
     s32 v;
     s32 dp;
@@ -106,7 +108,7 @@ Both are needed; either alone leaves the round-6 residue.
   (`validate_change` under `init_recog_no_volatile`), yet the giv still
   counts it. Spell it through a volatile-qualified struct pointer cast,
   `((volatile T *)p)->f = x;`; `*(volatile u8 *)&p->f` folds and loses the
-  qualifier. (func_800210B4, func_80021240, func_80021434, func_8002097C)
+  qualifier. (SortTmdFastG3, SortTmdFastG4, SortTmdFastFT3, func_8002097C)
 - **A loop pointer copied out of its argument register at entry (`move
   $t0, $a2`) while a reduced giv takes `$a2`: the source looped on a local
   copy of the parameter**, `pkt = (POLY_G3 *)packet;`. (same functions)

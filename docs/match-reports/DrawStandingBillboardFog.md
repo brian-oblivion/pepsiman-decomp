@@ -1,14 +1,16 @@
-# func_8001B004 — MATCHED (188/188), round 8, runner delta
+# DrawStandingBillboardFog — MATCHED (188/188), round 8, runner delta
 
-Unit `src/code_a0bc.c`. The depth-cued twin of func_8001A69C: draws sprite
-`id` of `D_800DD0A0` as a billboard quad standing on y = 0, rotated by
-`D_800E4858`, into a POLY_FT4 in `D_800E48D0`, but its colour (`color`'s
+> Renamed from `func_8001B004` on 2026-10-10 (tools/rename.py). Address 0x8001b004.
+
+Unit `src/code_a0bc.c`. The depth-cued twin of DrawStandingBillboard: draws sprite
+`id` of `gSpriteDefs` as a billboard quad standing on y = 0, rotated by
+`GsIDMATRIX`, into a POLY_FT4 in `GsOUT_PACKET_P`, but its colour (`color`'s
 r/g/b, or 0x808080 with no colour) goes through the GTE's depth cue
 (`gte_dpcs` with the projection's own depth interpolation) instead of being
 stored raw. No callers in C yet; the prototype is local to the unit.
 
 ```c
-void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
+void DrawStandingBillboardFog(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     CVECTOR c;
     s32 v;
@@ -18,9 +20,9 @@ void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     POLY_FT4 *p;
     u32 *tag;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
-    gte_SetRotMatrix(&D_800E4858);
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
+    gte_SetRotMatrix(&GsIDMATRIX);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
     sv[0].vy = sv[1].vy = -size->vy + 1;
     sv[1].vx = sv[3].vx = sv[0].vx + size->vx - 1;
@@ -67,13 +69,13 @@ void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 ```
 
 ## How it went
 
-func_8001A69C's body with the colour word replaced by a depth-cue sequence
+DrawStandingBillboard's body with the colour word replaced by a depth-cue sequence
 was one word short and had two stack slots swapped:
 
 - The colour as a `u32` local landed after the two `s32` locals; as a

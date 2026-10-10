@@ -73,7 +73,7 @@ void UpdateStagePlay(u8 stage) {
             break;
         case 4:
             if (gPauseState == 0) {
-                func_80020CF8(D_80095758);
+                SetTmdSortMode(D_80095758);
                 func_80026D9C();
                 UpdateRumble();
                 switch (stage) {

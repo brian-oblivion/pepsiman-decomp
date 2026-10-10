@@ -1,12 +1,14 @@
-# func_800198BC — MATCHED (263/263), round 8, runner delta
+# DrawSpriteTransformed — MATCHED (263/263), round 8, runner delta
 
-Unit `src/code_a0bc.c`. Draws sprite `id` of `D_800DD0A0` as a screen-space
+> Renamed from `func_800198BC` on 2026-10-10 (tools/rename.py). Address 0x800198bc.
+
+Unit `src/code_a0bc.c`. Draws sprite `id` of `gSpriteDefs` as a screen-space
 POLY_FT4 that is scaled and rotated about a pivot: the placement (new
 unit-local `Sprite2D`) gives the top-left corner (or the centre when its flag
 is set), the pivot, a 4.12 scale per axis and an angle. The corners are
 scaled relative to the pivot, rotated with `rsin`/`rcos`, and the packet is
 linked at the fixed OT index `otz`. Colour and UV words as in
-func_80019CD8. No callers in C yet.
+DrawSpriteFlip. No callers in C yet.
 
 ```c
 /** @brief A 2D sprite placement: a position, the pivot it is scaled and
@@ -22,7 +24,7 @@ typedef struct {
     s16 centred; /**< nonzero: (x, y) is the sprite's centre */
 } Sprite2D;
 
-void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
+void DrawSpriteTransformed(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
     Sprite8 *e;
     POLY_FT4 *p;
     u32 *tag;
@@ -35,8 +37,8 @@ void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
     s32 sn;
     s32 cs;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     *(u32 *)&p->r0 =
         color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
     if (color != NULL && (s8)color->r != -1) {
@@ -76,7 +78,7 @@ void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
     tag = (u32 *)ot->org + otz;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 ```
 

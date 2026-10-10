@@ -1,16 +1,18 @@
-# func_8001A3D4 — MATCHED (178/178), round 7, runner charlie
+# DrawBillboard — MATCHED (178/178), round 7, runner charlie
 
-Unit `src/code_a0bc.c`. The centred twin of func_8001A69C: draws sprite `id`
-of `D_800DD0A0` as a billboard quad centred on the current transformation's
-origin in both x and y (func_8001A69C stands it on y = 0), rotated by
-`D_800E4858`, into a POLY_FT4 in `D_800E48D0`, linked at its average depth
+> Renamed from `func_8001A3D4` on 2026-10-10 (tools/rename.py). Address 0x8001a3d4.
+
+Unit `src/code_a0bc.c`. The centred twin of DrawStandingBillboard: draws sprite `id`
+of `gSpriteDefs` as a billboard quad centred on the current transformation's
+origin in both x and y (DrawStandingBillboard stands it on y = 0), rotated by
+`GsIDMATRIX`, into a POLY_FT4 in `GsOUT_PACKET_P`, linked at its average depth
 `>> shift`. Its prototype in `include/code_a0bc.h` was corrected: `u16 id`
 (retail masks it, `andi 0xFFFF`) and the fourth argument is the OT shift,
 not a mode; the callers in code_1902c, code_24748 and code_29f54 build
 unchanged (whole image OK).
 
 ```c
-void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
+void DrawBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     s32 v;
     s32 z;
@@ -18,9 +20,9 @@ void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     POLY_FT4 *p;
     u32 *tag;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
-    gte_SetRotMatrix(&D_800E4858);
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
+    gte_SetRotMatrix(&GsIDMATRIX);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
     sv[0].vy = sv[1].vy = -(size->vy >> 1);
     sv[1].vx = sv[3].vx = sv[0].vx + size->vx - 1;
@@ -64,13 +66,13 @@ void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 ```
 
 ## How it went
 
-func_8001A69C's body with the vertex setup changed matched on the first
+DrawStandingBillboard's body with the vertex setup changed matched on the first
 build: the three levers carry over unchanged (both flag tests `v &
 0x80000000`, the zero vertex stores last, the OT index read before the last
 UV store).

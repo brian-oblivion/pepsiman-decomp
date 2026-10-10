@@ -13,7 +13,7 @@ for 0), and sets bit 15.
 ## Round 11 (echo): matched
 
 REVISIT. The body below, rebuilt exactly as preserved (with
-`func_8001B004`'s prototype), still scored 242/246, `insertions 4 /
+`DrawStandingBillboardFog`'s prototype), still scored 242/246, `insertions 4 /
 deletions 4` (positional skeleton diffs 4): the residue under "Residue" below, unchanged.
 
 Round 9's abs lever closed it on the first build: the abs written as
@@ -35,14 +35,14 @@ change).
 
 Declarations left in the unit for the head (declcheck LOCAL/MULTI):
 `D_80095934` and `D_8009593C` (code_29f54.c declares both too, with its
-own `Run` type for the first), `func_8001B004` (defined in code_a0bc,
+own `Run` type for the first), `DrawStandingBillboardFog` (defined in code_a0bc,
 not in `code_a0bc.h`) and `func_800414EC` (defined in code_31cec).
 
 The round 9 body follows as it was preserved.
 
 Best body (built in round 9: 242/246, length exact, `insertions 4 /
 deletions 4` opcode-level, i.e. two words moved). It needs, besides the
-unit's declarations, `func_8001B004`'s prototype (`void func_8001B004(u16
+unit's declarations, `DrawStandingBillboardFog`'s prototype (`void DrawStandingBillboardFog(u16
 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);`) and the unit's
 `GameHead` with `unk348`/`unk350` (in the tree since func_8002A328):
 
@@ -108,9 +108,9 @@ void func_8002CCEC(void) {
                 size.vy = 75;
                 size.vx = 75;
                 if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
-                    func_8001B004(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
+                    DrawStandingBillboardFog(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
                 } else {
-                    func_8001A69C(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
+                    DrawStandingBillboard(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
                 pos.x = coord.coord.t[0] - D_800A7308[0];
                 pos.y = coord.coord.t[1] - 50;

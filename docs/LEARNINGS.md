@@ -51,7 +51,7 @@ function's match report, not here.
   touches: extra arguments passed straight through to callees.**
   (CallStageHook)
 - **`lbu` of a stack parameter with no `andi 0xFF`: an `s32` parameter read
-  as `(u8)p`.** A `u8` parameter adds the `andi`. (func_8001B2F4)
+  as `(u8)p`.** A `u8` parameter adds the `andi`. (DefineSprite)
 - **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain
   assignment gives `li 0xFF`. (func_8003FFAC)
 - **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
@@ -105,7 +105,7 @@ function's match report, not here.
   `MATCHING:` note. cc1 splits a constant address itself and maspsx leaves
   it alone. Probably a source-file seam inside the unit. (PlayMovie)
 - **`swc2 $17..$19` (or `$16..$19`) off one base: `gte_stsz3c` /
-  `gte_stsz4c`** (include/gte.h). (func_8001B4BC)
+  `gte_stsz4c`** (include/gte.h). (SortTmdDivF3)
 
 - **A `jal` to an empty function as main's first call: cc1's `__main`.**
   Name that address `__main`; the C does not call it. (main)
@@ -190,10 +190,10 @@ function's match report, not here.
   (func_8003F100, still open)
 
 - **A `u8` field average compiled to `srl`: `(u32)(a + b) >> 1`.** `s32`
-  locals give `sra`. (func_8001B4BC)
+  locals give `sra`. (SortTmdDivF3)
 - **A spill-choice residue with identical code otherwise: declare values
   that need no extension `s16`**; only the allocation changes (permuter
-  find). (func_8001D39C)
+  find). (SortTmdDivFT3)
 - **A redundant `andi 0xFFFF` on an `lhu`-loaded index: an `s16` local
   indexed through `(u16)i`.** (PlaySe)
 - **A constant local copied before a `sb` (`li sN, 1; move v1, sN`): the
@@ -212,7 +212,7 @@ function's match report, not here.
   at the call.** (code_29f54, round 11)
 - **Byte averages that need `srl` with no mask: `u8` locals assigned
   `(u32)(a + b) >> 1`**; tell: the value is the first operand of its OR.
-  (func_8001E558)
+  (SortTmdDivGT3)
 
 - **`addiu 1; andi 0xFFFF; sltiu 2` on a halfword global:
   `(u16)(x + 1) < 2`.** (UpdateStagePlay)
@@ -266,9 +266,9 @@ function's match report, not here.
   `for`/`while` is rotated into a guarded loop. (func_80034BCC, func_80034F38)
 - **A store left on the loop variable beside a strength-reduced pointer: a
   volatile store**, `((volatile T *)p)->code = x;`. `*(volatile u8 *)&p->code`
-  loses the volatile. (func_800210B4, func_80021434, func_80021240)
+  loses the volatile. (SortTmdFastG3, SortTmdFastFT3, SortTmdFastG4)
 - **A loop pointer copied out of its argument register: the source looped on
-  a local copy of the parameter.** (func_800210B4)
+  a local copy of the parameter.** (SortTmdFastG3)
 - **The order of stores in a strength-reduced loop sets the order of the
   pointer setup before it**, and `o++, i++` differs from `i++, o++`.
   (InitGraphics, DrawStepper)
@@ -369,7 +369,7 @@ function's match report, not here.
   (UpdateCdLoad)
 - **Products recomputed per arm that CSE would merge: assign the copies in
   each arm** (`x0 = x2 = (...) >> 12;`), so the join loses the equality.
-  (func_800198BC)
+  (DrawSpriteTransformed)
 - **A function repeating another's body on a fixed object: one `static
   __inline__` helper, both callers wrappers.** (UpdateLoadScreenModel,
   StepStepper, DrawStepper)
@@ -466,11 +466,11 @@ function's match report, not here.
   __inline__ setLs(x, y, z)` holding the shared body. (func_8003F960,
   func_8003FA88, func_8003FBE0, func_8003FD0C, func_8003FE5C, func_8003FFAC)
 - **A jump table whose bound check's delay slot holds the index `sll`, not
-  the table's `lui`: non-void with no return.** (func_80020CF8)
+  the table's `lui`: non-void with no return.** (SetTmdSortMode)
 - **`A[g] = (p = expr) + 1;` loads `g` before `expr`.** (func_8002C044)
 - **Asm splat calls handwritten, with `cfc2 $t4, $31` / `mtc2 x, $8`:
   compiled C using `gte_stflg` / `gte_lddp`** (include/gte.h).
-  (func_80020DD8, func_80020F24)
+  (SortTmdFastF3, SortTmdFastF4)
 - **A near-miss that differs only in delay slots: try `s32` with no return
   first.** It closed four of round 7's code_13068 functions; the permuter
   finds it as `volatile int`. (func_8002670C, func_80027714)
@@ -492,14 +492,14 @@ function's match report, not here.
   (func_800286B0)
 - **A store retail keeps above a branch that the build moves into the
   delay slot: a volatile store**, `((volatile T *)p)->code = K;`.
-  (func_8001B004)
+  (DrawStandingBillboardFog)
 - **A frame address (`addiu $sN, $sp, K`) hoisted into the prologue: put an
   unrelated statement before the struct copy that uses it.** A pointer
-  local fixes only the register. (func_8001ACB4, func_8001A950)
+  local fixes only the register. (DrawStandingBillboardRotated, DrawBillboardRotated)
 - **`*(u32 *)&volatile_p->x` drops the volatile**, and the order of such
   reads decides the register assignment. (func_800201BC)
 - **Spill slots follow the declaration order of the spilled locals.**
-  (func_800198BC)
+  (DrawSpriteTransformed)
 - **`-fschedule-insns` is byte-inert on this cc1**: only the pass after
   register allocation schedules, so register reuse decides load and store
   order. (code_1dc24, round 8)
@@ -541,9 +541,9 @@ function's match report, not here.
 - **The order of stores inside switch cases decides which ORs `loop.c`
   hoists**, and so the length: it hoists invariants in instruction order and
   lowers its threshold by 3 per move. `cc1 -dL` shows each candidate.
-  (func_8001E558)
+  (SortTmdDivGT3)
 - **A swapped prologue store pair (`sw zero` for `i`, `sw aN` home): the
-  `PACKET *packet` parameter with a typed local copy.** (func_8001C13C)
+  `PACKET *packet` parameter with a typed local copy.** (SortTmdDivG3)
 - **A stack store retail keeps that cc1 deletes as dead: `*(volatile s32
   *)&x.f = t;`, then use `t`.** (func_80028AE4)
 - **Two counters in one loop: `for (...; i++, k++)` with `a[k] = f()`**;

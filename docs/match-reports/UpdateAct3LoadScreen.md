@@ -18,13 +18,13 @@ void UpdateAct3LoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    func_8001B354(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     LoadAct3Stage();
     if (gSubStep == 100) {
         gModeStep = 4;
@@ -39,7 +39,7 @@ cc1 keeps the repeated `-0x78` in `$s1` across the calls on its own.
 
 ## Declarations
 
-- `src/main.c` now includes `code_a0bc.h` (for `func_8001B354` and
+- `src/main.c` now includes `code_a0bc.h` (for `DrawSprite` and
   `gSubOt`).
 - `gModeStep` (s16) and `gGameMode` (u16) moved to `include/common.h`
   (additive); their local externs in `src/code_308ec.c` were removed.

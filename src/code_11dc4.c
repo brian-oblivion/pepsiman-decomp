@@ -148,7 +148,7 @@ typedef struct {
     u16 v3;  /**< fourth vertex index */
 } TmdGT4;
 
-PACKET *func_800215C4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_FT4 *pkt;
     s32 v;
     s32 dp;
@@ -201,7 +201,7 @@ PACKET *func_800215C4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
     return (PACKET *)pkt;
 }
 
-PACKET *func_800217A8(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT3 *pkt;
     s32 v;
     s32 dp;
@@ -246,7 +246,7 @@ PACKET *func_800217A8(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     return (PACKET *)pkt;
 }
 
-PACKET *func_80021958(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT4 *pkt;
     s32 v;
     s32 dp;

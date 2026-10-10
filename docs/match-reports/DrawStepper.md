@@ -35,7 +35,7 @@ void DrawStepper(Stepper *obj) {
     GsDOBJ2 *o;
     s32 i;
 
-    func_80020CF8(D_80095758);
+    SetTmdSortMode(D_80095758);
     o = sModels.objs;
     o->coord2->coord.t[0] = obj->unk348;
     o->coord2->coord.t[1] = obj->unk34C;
@@ -89,7 +89,7 @@ in `src/main.c` until the head decides.
 - `include/code_7d74.h` is new (Doxygen-documented) and declares
   `func_80018AE0`; `src/code_7d74.c` and `src/main.c` include it (one added
   `#include` line in code_7d74.c).
-- `func_80020CF8` added to `include/code_a0bc.h` (additive).
+- `SetTmdSortMode` added to `include/code_a0bc.h` (additive).
 - `gTodObjTable` keeps its shared `s32 []` declaration; a unit-local
   `ModelSet` view through a `#define` reaches it.
 

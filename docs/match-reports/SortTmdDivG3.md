@@ -1,6 +1,8 @@
-# func_8001C13C — MATCHED (463/463), round 11, runner bravo (round 10 stall by charlie)
+# SortTmdDivG3 — MATCHED (463/463), round 11, runner bravo (round 10 stall by charlie)
 
-Unit `src/code_a0bc.c`. The gouraud twin of func_8001B4BC: the subdividing
+> Renamed from `func_8001C13C` on 2026-10-10 (tools/rename.py). Address 0x8001c13c.
+
+Unit `src/code_a0bc.c`. The gouraud twin of SortTmdDivF3: the subdividing
 handler for gouraud unlit triangles (`TmdG3`, handler table row 1,
 column 7). Depth-cued POLY_G3 one OT slot further in unless the transform
 overflowed; under depth 250 a split into four sub-triangles at the edge
@@ -15,10 +17,10 @@ third parameter (unit-local; the only use is the handler table).
 1. The round-10 body below, rebuilt in place unchanged: 461/463,
    `insertions 2 / deletions 2`, positional skeleton diffs 2. The two
    words are the prologue swap described below; nothing else moved.
-2. The `PACKET *packet` parameter with a local copy, as on func_8001D39C:
+2. The `PACKET *packet` parameter with a local copy, as on SortTmdDivFT3:
 
    ```c
-   PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+   PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
        POLY_G3 *pkt;
        ...
        pkt = (POLY_G3 *)packet;
@@ -36,7 +38,7 @@ The source in `src/code_a0bc.c` is the round-10 body plus that change.
   (`sw zero` after `sw aN`): the function's pointer parameter was copied
   into a typed local** (`PACKET *packet; pkt = (T *)packet;`). The copy
   changes which pseudo is set first, and the count's home-slot store moves
-  under the `blez`. (func_8001C13C; same lever as func_8001D39C's loop
+  under the `blez`. (SortTmdDivG3; same lever as SortTmdDivFT3's loop
   pointer)
 
 ## Round 10 report (charlie), kept for the history
@@ -72,7 +74,7 @@ func_8001EE30) show the same retail order, so it is a shape, not a one-off.
 ```c
 #if 0
 /* needs the unit's TmdG3 typedef and gte_stsz3c from include/gte.h */
-PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot) {
     SVECTOR m[3];
     s32 sz[3];
     s32 flg;

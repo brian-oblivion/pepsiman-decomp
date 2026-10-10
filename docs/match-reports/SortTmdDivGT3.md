@@ -1,7 +1,9 @@
-# func_8001E558 — MATCHED (566/566), round 11, runner bravo
+# SortTmdDivGT3 — MATCHED (566/566), round 11, runner bravo
 
-Unit `src/code_a0bc.c`. The gouraud-textured twin of func_8001D39C and
-func_8001C13C: the subdividing handler for gouraud-textured unlit
+> Renamed from `func_8001E558` on 2026-10-10 (tools/rename.py). Address 0x8001e558.
+
+Unit `src/code_a0bc.c`. The gouraud-textured twin of SortTmdDivFT3 and
+SortTmdDivG3: the subdividing handler for gouraud-textured unlit
 triangles (handler table row 3, column 7). Depth-cued POLY_GT3 with the
 TMD's UV words one OT slot further in unless the transform overflowed;
 under depth 250 a split into four at the edge midpoints, with the
@@ -13,10 +15,10 @@ store then overwrites.
 New unit-local type `TmdGT3U` (header, three `TmdUV` words, three
 `CVECTOR`s, three vertex indices; 0x24 bytes). code_11dc4 has its own
 `TmdGT3U` with `u32` UV words; this unit needs the bytes. The local
-prototype changed from `PACKET *func_8001E558();` to the full one.
+prototype changed from `PACKET *SortTmdDivGT3();` to the full one.
 
-The source is in `src/code_a0bc.c`; it is func_8001D39C's body with
-func_8001C13C's `gte_ldrgb3`/`dpct`/`strgb3` and a six-store switch.
+The source is in `src/code_a0bc.c`; it is SortTmdDivFT3's body with
+SortTmdDivG3's `gte_ldrgb3`/`dpct`/`strgb3` and a six-store switch.
 
 ## How it went
 
@@ -34,12 +36,12 @@ func_8001C13C's `gte_ldrgb3`/`dpct`/`strgb3` and a six-store switch.
    u02`, `rgb01`, `rgb02`, `0x34000000 | rgb01` and `0x34000000 | rgb02`,
    and none of the 12 combinations.
 3. Precompute order (12s first, D39C's order): 2222, 4 long.
-4. func_8001D39C's lever, `s16 u01, u02`: length exact, ins/del 0,
+4. SortTmdDivFT3's lever, `s16 u01, u02`: length exact, ins/del 0,
    563/566. The three words left were `or a0, s8, a0` against `or a0, a0,
    s8`: u12 is the first operand of every OR that uses it.
 5. `s16 u12` too: 566/566. With the s16 types in place the natural
    precompute order matches, so step 3 was reverted.
-6. After func_8001DAD4 matched with `u8` midpoints, the same spelling
+6. After SortTmdDivFT4 matched with `u8` midpoints, the same spelling
    here: `u8 u01, v01, u02, v02, u12, v12;` (colours still `u32`) is
    also 566/566, and is what the source now uses. The s16 mix was a
    stand-in for it. All-`u8` colours as well: 13 words long.
@@ -54,8 +56,8 @@ why; it is the fastest way to read this family's length residue.
   invariant subexpressions in insn order with a threshold that drops by
   3 per move, so the order decides what is hoisted (from 11 short to 10
   long here). `cc1 -dL` lists every movable and whether it moved.
-  (func_8001E558)
+  (SortTmdDivGT3)
 - **An OR with a register value as the FIRST operand (`or a0, s8, a0`)
   where the build has it second: that value's local is narrower than
-  `u32`** (`u8` here; `s16` also matched). (func_8001E558,
-  func_8001DAD4)
+  `u32`** (`u8` here; `s16` also matched). (SortTmdDivGT3,
+  SortTmdDivFT4)

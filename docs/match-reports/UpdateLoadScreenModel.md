@@ -57,7 +57,7 @@ static __inline__ void drawObj(Stepper *obj) {
     GsDOBJ2 *o;
     s32 i;
 
-    func_80020CF8(D_80095758);
+    SetTmdSortMode(D_80095758);
     o = sModels.objs;
     o->coord2->coord.t[0] = obj->unk348;
     o->coord2->coord.t[1] = obj->unk34C;

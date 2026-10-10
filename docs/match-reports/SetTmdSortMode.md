@@ -1,32 +1,34 @@
-# func_80020CF8 — MATCHED (56/56), round 6, runner charlie
+# SetTmdSortMode — MATCHED (56/56), round 6, runner charlie
+
+> Renamed from `func_80020CF8` on 2026-10-10 (tools/rename.py). Address 0x80020cf8.
 
 Unit `src/code_a0bc.c`. Selects one of five pairs of handlers for row 3 and
-row 7 column 0 of the handler table `D_800E48E8` by `mode` (0 and 1 share
+row 7 column 0 of the handler table `gTmdSortFuncs` by `mode` (0 and 1 share
 the first pair); any other mode leaves them.
 
 ```c
-s32 func_80020CF8(s32 mode) {
+s32 SetTmdSortMode(s32 mode) {
     switch (mode) {
         case 0:
         case 1:
-            D_800E48E8[3][0] = func_800201BC;
-            D_800E48E8[7][0] = func_80020520;
+            gTmdSortFuncs[3][0] = func_800201BC;
+            gTmdSortFuncs[7][0] = func_80020520;
             break;
         case 2:
-            D_800E48E8[3][0] = func_80021F80;
-            D_800E48E8[7][0] = func_8002097C;
+            gTmdSortFuncs[3][0] = func_80021F80;
+            gTmdSortFuncs[7][0] = func_8002097C;
             break;
         case 3:
-            D_800E48E8[3][0] = func_8001FBBC;
-            D_800E48E8[7][0] = func_8001FE5C;
+            gTmdSortFuncs[3][0] = func_8001FBBC;
+            gTmdSortFuncs[7][0] = func_8001FE5C;
             break;
         case 4:
-            D_800E48E8[3][0] = func_80022150;
-            D_800E48E8[7][0] = func_8002230C;
+            gTmdSortFuncs[3][0] = func_80022150;
+            gTmdSortFuncs[7][0] = func_8002230C;
             break;
         case 5:
-            D_800E48E8[3][0] = func_80021B88;
-            D_800E48E8[7][0] = func_80021D3C;
+            gTmdSortFuncs[3][0] = func_80021B88;
+            gTmdSortFuncs[7][0] = func_80021D3C;
             break;
     }
 }
@@ -49,4 +51,4 @@ Triggers `-Wall`'s "control reaches end of non-void function" (NEW in
 - **A jump table whose bound-check delay slot holds the index `sll`, not
   the table's `lui $v0`: the function is non-void with no `return`.** The
   live `$v0` keeps the `lui` out of the slot. Same mechanism as
-  func_8002D140's loop slot. (func_80020CF8)
+  func_8002D140's loop slot. (SetTmdSortMode)

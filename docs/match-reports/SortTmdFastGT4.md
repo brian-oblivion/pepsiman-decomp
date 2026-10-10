@@ -1,8 +1,10 @@
-# func_80021958 — MATCHED (140/140), round 10, runner alpha
+# SortTmdFastGT4 — MATCHED (140/140), round 10, runner alpha
+
+> Renamed from `func_80021958` on 2026-10-10 (tools/rename.py). Address 0x80021958.
 
 Unit `src/code_11dc4.c`. The gouraud-textured unlit quad handler (row 7,
-column 6 of the handler table func_80020C14 fills): the quad twin of
-func_800217A8. Unlit textured TMD quads with a colour per corner into
+column 6 of the handler table InitTmdSortFuncs fills): the quad twin of
+SortTmdFastGT3. Unlit textured TMD quads with a colour per corner into
 POLY_GT4 packets, three colours depth-cued with `dpct` and the fourth with
 `dpcs`, the code the TMD mode with bit 0 cleared, the UV words copied, linked
 with length 12.
@@ -31,7 +33,7 @@ typedef struct {
     u16 v3;     /**< fourth vertex index */
 } TmdGT4U;
 
-PACKET *func_80021958(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT4 *pkt;
     s32 v;
     s32 dp;

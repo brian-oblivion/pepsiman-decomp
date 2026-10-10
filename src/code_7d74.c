@@ -555,7 +555,7 @@ void func_800184BC(u32 arg) {
     set = arg >> 10;
     set &= 3;
     y = D_80096768[4] - D_80096768[1];
-    p = (volatile POLY_G4 *)D_800E48D0;
+    p = (volatile POLY_G4 *)GsOUT_PACKET_P;
     y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
     if (D_8009576A != 100 && gStage % 3 != 2) {
         p->r0 = p->r1 = D_8009590C[set].c[0].r * (D_8009576A << 11) / 0x10000;
@@ -604,14 +604,14 @@ void func_800184BC(u32 arg) {
     tag = (u32 *)gOt[gActiveBuff].org + 0xFFF;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
 void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord) {
     MATRIX m;
     SVECTOR r;
 
-    m = D_800E4858;
+    m = GsIDMATRIX;
     m.t[0] = coord->coord.t[0];
     m.t[1] = coord->coord.t[1];
     m.t[2] = coord->coord.t[2];

@@ -281,7 +281,7 @@ void func_80022868(void) {
         size.vx = 100 - d;
         size.vy = size.vx / 2;
         color.g = color.b = color.cd = 0x40 - d;
-        func_8001A3D4(0x12D, &size, &color, 2, &gSubOt[gActiveBuff]);
+        DrawBillboard(0x12D, &size, &color, 2, &gSubOt[gActiveBuff]);
     }
 }
 

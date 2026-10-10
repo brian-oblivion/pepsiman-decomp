@@ -3,13 +3,13 @@
 > Renamed from `func_80040628` on 2026-10-10 (tools/rename.py). Address 0x80040628.
 
 Unit `src/code_308ec.c`. Draws sprite 0x15F at (-0x40, -0x10), fills sprite
-records 0x1FE and 0x1FF through func_8001B2F4, then draws those two at
+records 0x1FE and 0x1FF through DefineSprite, then draws those two at
 (-0xA0, -0x78) and (0, -0x78) with half-intensity colour, all into the
 current ordering table.
 
 ```c
-#include "code_a0bc.h" /* gSubOt, func_8001B354 */
-/* common.h: func_8001B2F4, gActiveBuff */
+#include "code_a0bc.h" /* gSubOt, DrawSprite */
+/* common.h: DefineSprite, gActiveBuff */
 
 void DrawPausedFrame(void) {
     SVECTOR pos;
@@ -19,16 +19,16 @@ void DrawPausedFrame(void) {
     pos.vy = -0x10;
     color.r = 1;
     color.g = color.b = color.cd = 0x80;
-    func_8001B354(0x15F, &pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DrawSprite(0x15F, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     color.g = color.b = color.cd = 0x40;
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 ```
 
@@ -39,15 +39,15 @@ void DrawPausedFrame(void) {
 
 ## Declarations
 
-- `func_8001B354` was declared in `src/code_24748.c` as `(u16, SVECTOR *,
+- `DrawSprite` was declared in `src/code_24748.c` as `(u16, SVECTOR *,
   s32, s32, GsOT *)`. It is defined in code_a0bc, and its third argument is
   a colour pointer here (0 there), so it moved to `include/code_a0bc.h` as
   `(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot)` and the
   duplicate in code_24748.c was deleted; code_24748 already includes
   code_a0bc.h and still matches.
-- `func_8001B2F4` (code_a0bc, needs no Sony types) was added to
+- `DefineSprite` (code_a0bc, needs no Sony types) was added to
   `include/common.h` (additive), with `page` as `s32` to agree with
   charlie's definition in code_a0bc (its callee reads the byte with no `andi`).
   Parameter names are read off its asm: an
-  8-byte record of `D_800DD0A0` with the page and mode packed into the
+  8-byte record of `gSpriteDefs` with the page and mode packed into the
   first halfword, the CLUT into the second, and four bytes.

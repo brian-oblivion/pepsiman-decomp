@@ -1,10 +1,12 @@
-# func_80020F24 — MATCHED (100/100), round 6, runner charlie
+# SortTmdFastF4 — MATCHED (100/100), round 6, runner charlie
 
-Unit `src/code_a0bc.c`. The quad sibling of func_80020DD8 (row 4, column
+> Renamed from `func_80020F24` on 2026-10-10 (tools/rename.py). Address 0x80020f24.
+
+Unit `src/code_a0bc.c`. The quad sibling of SortTmdFastF3 (row 4, column
 6 of the handler table): flat unlit TMD quads into POLY_F4 packets. The
 first three vertices go through `rtpt`, the flag and `nclip` tests; the
 fourth through `rtps` and a second flag test before its XY is stored;
-`avsz4` gives the depth; the colour is depth-cued as in func_80020DD8 and
+`avsz4` gives the depth; the colour is depth-cued as in SortTmdFastF3 and
 the packet linked with length 5.
 
 ```c
@@ -17,7 +19,7 @@ typedef struct {
     u16 v3;
 } TmdF4;
 
-PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
     s32 v;
     s32 dp;
     s32 i;
@@ -61,10 +63,10 @@ PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
 
 ## Attempts (1)
 
-1. func_80020DD8's body with the quad steps: 100/100 on the first build.
+1. SortTmdFastF3's body with the quad steps: 100/100 on the first build.
    Added Sony's `gte_avsz4` (`.word 0x4B68002E`) to `include/gte.h`
    (additive).
 
-Unlike func_80020DD8, retail rebuilds `&dp` (`addiu $v0, $sp, 4`) inside
+Unlike SortTmdFastF3, retail rebuilds `&dp` (`addiu $v0, $sp, 4`) inside
 the loop instead of hoisting it; cc1 does the same from the same source,
 so it needs nothing special.

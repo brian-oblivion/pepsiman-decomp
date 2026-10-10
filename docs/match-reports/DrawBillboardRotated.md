@@ -1,13 +1,15 @@
-# func_8001A950 — MATCHED (217/217), round 8, runner delta
+# DrawBillboardRotated — MATCHED (217/217), round 8, runner delta
 
-Unit `src/code_a0bc.c`. The rotating twin of func_8001A3D4: copies the
-billboard matrix `D_800E4858`, rotates the copy by `angle` about Z
-(`RotMatrixZ`), loads it, and draws sprite `id` of `D_800DD0A0` centred on
-the origin in x and y into a POLY_FT4 in `D_800E48D0`, linked at its
+> Renamed from `func_8001A950` on 2026-10-10 (tools/rename.py). Address 0x8001a950.
+
+Unit `src/code_a0bc.c`. The rotating twin of DrawBillboard: copies the
+billboard matrix `GsIDMATRIX`, rotates the copy by `angle` about Z
+(`RotMatrixZ`), loads it, and draws sprite `id` of `gSpriteDefs` centred on
+the origin in x and y into a POLY_FT4 in `GsOUT_PACKET_P`, linked at its
 average depth `>> shift`. No callers in C yet.
 
 ```c
-void func_8001A950(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, GsOT *ot) {
+void DrawBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     MATRIX m;
     s32 v;
@@ -18,9 +20,9 @@ void func_8001A950(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, 
 
     /* MATCHING: the entry before the matrix copy, so the matrix address is
      * built late and gets $s0. */
-    e = &D_800DD0A0[id];
-    m = D_800E4858;
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    m = GsIDMATRIX;
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     RotMatrixZ(angle, &m);
     gte_SetRotMatrix(&m);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
@@ -66,12 +68,12 @@ void func_8001A950(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, 
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 ```
 
 ## How it went
 
-func_8001A3D4's body with func_8001ACB4's prologue (the entry computed
+DrawBillboard's body with DrawStandingBillboardRotated's prologue (the entry computed
 before the matrix copy, then `RotMatrixZ` and `gte_SetRotMatrix(&m)`)
 matched on the first build.

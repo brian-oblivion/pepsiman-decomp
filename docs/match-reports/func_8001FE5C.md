@@ -1,7 +1,7 @@
 # func_8001FE5C — MATCHED (216/216), round 8, runner delta
 
 Unit `src/code_a0bc.c`. The quad twin of func_8001FBBC, installed by
-func_80020CF8's mode 3 as the TMD handler for lit gouraud-textured quads:
+SetTmdSortMode's mode 3 as the TMD handler for lit gouraud-textured quads:
 projects each TmdGT4, culls on the GTE flags and on back faces, and writes a
 POLY_FT4 (code 0x2D, texture page 0x161 plus the page flip of `D_800E474C`)
 whose UVs come from each corner's normal rotated by the current matrix

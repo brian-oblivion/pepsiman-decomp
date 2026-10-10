@@ -67,7 +67,7 @@ int main(void) {
     s32 b;
 
     InitSystem();
-    func_80020C14();
+    InitTmdSortFuncs();
     func_80018DE8(1);
     func_80018CB4();
     func_80018094();
@@ -1241,8 +1241,8 @@ void BeginLoadScreenModel(void) {
     SVECTOR pos;
     RECT rect;
 
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = D_800E474C * 240;
     rect.w = 320;
@@ -1250,10 +1250,10 @@ void BeginLoadScreenModel(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gLoadScreenModel = *(StateCopy *)D_8009EB78;
     gLoadScreenModel.unk380 = 0x800;
     gLoadScreenModel.unk6 = 3;
@@ -1277,8 +1277,8 @@ void BeginLoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = D_800E474C * 240;
     rect.w = 320;
@@ -1286,10 +1286,10 @@ void BeginLoadScreen(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
     gGameMode = 0x2A;
 }
@@ -1298,8 +1298,8 @@ void BeginAct3LoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = D_800E474C * 240;
     rect.w = 320;
@@ -1307,10 +1307,10 @@ void BeginAct3LoadScreen(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
     gGameMode = 0x2B;
 }
@@ -1901,7 +1901,7 @@ static __inline__ void drawObj(Stepper *obj) {
     GsDOBJ2 *o;
     s32 i;
 
-    func_80020CF8(D_80095758);
+    SetTmdSortMode(D_80095758);
     o = sModels.objs;
     o->coord2->coord.t[0] = obj->unk348;
     o->coord2->coord.t[1] = obj->unk34C;
@@ -1955,13 +1955,13 @@ void UpdateLoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    func_8001B354(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     LoadStage();
     if (gSubStep == 100) {
         gModeStep = 4;
@@ -1979,13 +1979,13 @@ void UpdateAct3LoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    func_8001B354(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     LoadAct3Stage();
     if (gSubStep == 100) {
         gModeStep = 4;

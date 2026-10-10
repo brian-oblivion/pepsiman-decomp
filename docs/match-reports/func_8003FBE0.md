@@ -16,7 +16,7 @@ s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 0x32;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
-        func_8001A3D4(0x11A, &size, &color, 2, ot);
+        DrawBillboard(0x11A, &size, &color, 2, ot);
         return ++p->unk0 == 8;
     }
     p->unk2--;
@@ -56,7 +56,7 @@ s32 func_8003FBE0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 0x32;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
-        func_8001A3D4(0x11A, &size, &color, 2, ot);
+        DrawBillboard(0x11A, &size, &color, 2, ot);
         ret = ++p->unk0 == 8;
     }
     return ret;

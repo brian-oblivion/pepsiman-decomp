@@ -1,8 +1,10 @@
-# func_8001B4BC — MATCHED (314/314), round 10, runner charlie
+# SortTmdDivF3 — MATCHED (314/314), round 10, runner charlie
+
+> Renamed from `func_8001B4BC` on 2026-10-10 (tools/rename.py). Address 0x8001b4bc.
 
 Unit `src/code_a0bc.c`. The TMD handler for flat unlit triangles in
-column 7 of the handler table (func_80020C14, row 0): the near-depth twin
-of func_80020DD8. Per front-facing triangle it takes the deepest of the
+column 7 of the handler table (InitTmdSortFuncs, row 0): the near-depth twin
+of SortTmdFastF3. Per front-facing triangle it takes the deepest of the
 three screen Zs over 4 as the depth; unless the transform overflowed it
 links a depth-cued POLY_F3 one OT slot further in; and when the depth is
 under 250 it also splits the triangle at its edge midpoints into four
@@ -11,10 +13,10 @@ and draws each (undepth-cued, the TMD colour copied as a word) at its own
 
 New: `gte_stsz3c(r1)` in `include/gte.h` (additive; Sony's name, SZ1-SZ3
 stored at +0, +4, +8 from one base). The local prototype changed from
-`PACKET *func_8001B4BC();` to the full one.
+`PACKET *SortTmdDivF3();` to the full one.
 
 ```c
-PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
     SVECTOR m[3];
     s32 sz[3];
     s32 flg;

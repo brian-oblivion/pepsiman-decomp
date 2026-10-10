@@ -1,7 +1,7 @@
 # func_8001FBBC — MATCHED (168/168), round 7, runner charlie
 
 Unit `src/code_a0bc.c`. The environment-map handler (row 3, column 0 of the
-handler table in one of func_80020C14's modes): each lit gouraud-textured
+handler table in one of InitTmdSortFuncs's modes): each lit gouraud-textured
 TMD triangle becomes a raw-textured POLY_FT3 (code 0x25) whose UVs come from
 the rotated vertex normals (`rtv0`, MAC1/MAC2 >> 8) offset by the screen
 position, on texture page 0x161 plus a 256-line offset picked by the
@@ -107,4 +107,4 @@ Twelve builds.
 - **A packet filled field by field with every access on the incoming
   pointer, reads interleaved with writes in source order, and no reduced
   loop pointer: the packet pointer is `volatile`.** (func_8001FBBC; also
-  func_80019CD8 outside a loop)
+  DrawSpriteFlip outside a loop)

@@ -180,7 +180,7 @@ void func_80033F48(VECTOR *pos) {
     func_800230E0(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
-    func_8001B354(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
+    DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114DC);
@@ -1358,7 +1358,7 @@ void func_80036478(VECTOR *pos) {
     func_800230E0(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
-    func_8001B354(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
+    DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: an s16 colour local keeps 0xFF loaded after the sine. */
@@ -1463,7 +1463,7 @@ void func_80036AB8(VECTOR *pos, u16 scale) {
     size.vx = size.vy = scale * 2;
     color.r = 0;
     color.g = color.b = color.cd = 0x80;
-    func_8001A3D4(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: (&slot)->b puts the second address sum offset-first. */

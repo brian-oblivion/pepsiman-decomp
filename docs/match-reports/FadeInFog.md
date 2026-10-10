@@ -4,7 +4,7 @@
 
 Unit `src/code_308ec.c`. Fog fade-in, one step a frame. While the step
 `D_8009576A` is below 100: on step 0 it adds a full-screen white
-`POLY_F4` (from the primitive buffer `D_800E48D0`) to the current ordering
+`POLY_F4` (from the primitive buffer `GsOUT_PACKET_P`) to the current ordering
 table; every step it sets the fog near/far planes and the far colour
 scaled by step/32 (the colour picked by bits 8-9 of `D_80095864`, as
 func_80028650 does at full strength), then advances the step and parks it
@@ -12,7 +12,7 @@ at 100 after 32.
 
 ```c
 /* libgte.h, libgpu.h, libgs.h; code_a0bc.h for gSubOt.
- * extern u8 *D_800E48D0; common.h: D_8009576A (u16), D_800958FC (u8 *),
+ * extern u8 *GsOUT_PACKET_P; common.h: D_8009576A (u16), D_800958FC (u8 *),
  * D_80095864, gActiveBuff. */
 void FadeInFog(void) {
     POLY_F4 *p;
@@ -20,13 +20,13 @@ void FadeInFog(void) {
 
     if (D_8009576A != 100) {
         if (D_8009576A == 0) {
-            p = (POLY_F4 *)D_800E48D0;
+            p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->r0 = p->g0 = p->b0 = 0xFF;
             setXY4(p, -160, -120, 160, -120, -160, 120, 160, 120);
             addPrim(gSubOt[gActiveBuff].org, p);
             p++;
-            D_800E48D0 = (u8 *)p;
+            GsOUT_PACKET_P = (u8 *)p;
         }
         i = ((u32)D_80095864 >> 8) & 3;
         SetFogNearFar(D_8009576A * 3000 * 2048 / 0x10000, D_8009576A * 8000 * 2048 / 0x10000, 250);
@@ -43,12 +43,12 @@ void FadeInFog(void) {
 
 ## Levers
 
-- **`p++; D_800E48D0 = (u8 *)p;` after `addPrim`.** With `D_800E48D0 =
+- **`p++; GsOUT_PACKET_P = (u8 *)p;` after `addPrim`.** With `GsOUT_PACKET_P =
   (u8 *)(p + 1);` (before or after `addPrim`, or between the two
   `setaddr`s) the build computes `p + 1` into a fresh register before
   `p & 0xFFFFFF` (116/129: registers only). Bumping the pointer variable
   itself gives retail's `and a2, a1, a2` then `addiu a1, a1, 0x18`.
-  `D_800E48D0 += sizeof(POLY_F4)` reloads the global (worse).
+  `GsOUT_PACKET_P += sizeof(POLY_F4)` reloads the global (worse).
 - **Libgpu's `setPolyF4` and `addPrim` macros as they are.** `SetPolyF4`
   (the function) breaks it; a hand-written `addPrim` on `u32` words
   reloads the table index (the word store aliases the global) or, with a

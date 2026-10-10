@@ -1,20 +1,22 @@
-# func_8001EE30 — MATCHED (867/867), round 11, runner bravo
+# SortTmdDivGT4 — MATCHED (867/867), round 11, runner bravo
+
+> Renamed from `func_8001EE30` on 2026-10-10 (tools/rename.py). Address 0x8001ee30.
 
 Unit `src/code_a0bc.c`. The gouraud-textured quad member of the
 subdividing family (handler table row 7, column 7), and its largest:
-func_8001C878's quad colours and func_8001DAD4's quad UVs in one body.
+SortTmdDivG4's quad colours and SortTmdDivFT4's quad UVs in one body.
 Depth-cued POLY_GT4 (three colours through `gte_dpct`, the fourth through
 `gte_dpcs`) with the TMD's four UV words one OT slot further in unless
 the transform overflowed; under depth 250 a split into four quads at the
 edge midpoints and the centre, with the midpoint and centre UVs and
 colours averaged and every sub-quad linked at the parent's depth. As in
-func_8001E558 the sub-quads are not depth-cued again: r0 carries a
+SortTmdDivGT3 the sub-quads are not depth-cued again: r0 carries a
 constant 0x3C code byte that the volatile code store overwrites.
 
 New unit-local type `TmdGT4U` (header, four `TmdUV` words, four
 `CVECTOR`s, four vertex indices; 0x2C bytes). code_11dc4 has its own
 `TmdGT4U` with `u32`/`u16` UV members; this unit needs the bytes. The
-local prototype changed from `PACKET *func_8001EE30();` to the full one.
+local prototype changed from `PACKET *SortTmdDivGT4();` to the full one.
 
 The source is in `src/code_a0bc.c`.
 

@@ -241,7 +241,7 @@ void UpdateStagePlay(u8 stage) {
             break;
         case 4:
             if (gPauseState == 0) {
-                func_80020CF8(D_80095758);
+                SetTmdSortMode(D_80095758);
                 func_80026D9C();
                 UpdateRumble();
                 switch (stage) {
@@ -342,16 +342,16 @@ void DrawPausedFrame(void) {
     pos.vy = -0x10;
     color.r = 1;
     color.g = color.b = color.cd = 0x80;
-    func_8001B354(0x15F, &pos, &color, 0, &gSubOt[gActiveBuff]);
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DrawSprite(0x15F, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     color.g = color.b = color.cd = 0x40;
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: an unused 8-byte local gives retail's 0x20 frame; the start
@@ -595,13 +595,13 @@ void FadeInFog(void) {
 
     if (D_8009576A != 100) {
         if (D_8009576A == 0) {
-            p = (POLY_F4 *)D_800E48D0;
+            p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->r0 = p->g0 = p->b0 = 0xFF;
             setXY4(p, -160, -120, 160, -120, -160, 120, 160, 120);
             addPrim(gSubOt[gActiveBuff].org, p);
             p++;
-            D_800E48D0 = (u8 *)p;
+            GsOUT_PACKET_P = (u8 *)p;
         }
         i = ((u32)D_80095864 >> 8) & 3;
         SetFogNearFar(D_8009576A * 3000 * 2048 / 0x10000, D_8009576A * 8000 * 2048 / 0x10000, 250);

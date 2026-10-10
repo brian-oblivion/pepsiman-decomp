@@ -1,7 +1,9 @@
-# func_800217A8 — MATCHED (108/108), round 10, runner alpha
+# SortTmdFastGT3 — MATCHED (108/108), round 10, runner alpha
+
+> Renamed from `func_800217A8` on 2026-10-10 (tools/rename.py). Address 0x800217a8.
 
 Unit `src/code_11dc4.c`. The gouraud-textured unlit handler (row 3,
-column 6 of the handler table func_80020C14 fills): unlit textured TMD
+column 6 of the handler table InitTmdSortFuncs fills): unlit textured TMD
 triangles with a colour per corner into POLY_GT3 packets, the colours
 depth-cued with `dpct`, the code byte the TMD mode with bit 0 cleared, the
 three UV words copied whole, linked with length 9. splat called it
@@ -28,7 +30,7 @@ typedef struct {
     u16 pad1;   /**< padding */
 } TmdGT3U;
 
-PACKET *func_800217A8(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT3 *pkt;
     s32 v;
     s32 dp;

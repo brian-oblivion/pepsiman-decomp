@@ -177,18 +177,18 @@ typedef struct {
     u16 v3;     /**< fourth vertex index */
 } TmdGT4U;
 
-/** @brief An eight-byte table entry: two halfwords and four bytes. */
+/** @brief A sprite's place in VRAM, set by DefineSprite. */
 typedef struct {
-    u16 unk0; /**< a byte and a bit packed together */
-    u16 unk2; /**< a CLUT-style packed position */
-    u8 unk4;  /**< not yet known */
-    u8 unk5;  /**< not yet known */
-    u8 unk6;  /**< not yet known */
-    u8 unk7;  /**< not yet known */
-} Sprite8;
+    u16 tpage; /**< texture page, with the semi-transparency bit at bit 7 */
+    u16 clut;  /**< the CLUT's packed VRAM position */
+    u8 u;      /**< left edge in the page */
+    u8 v;      /**< top edge in the page */
+    u8 w;      /**< width */
+    u8 h;      /**< height */
+} SpriteDef;
 
 /* MATCHING: this unit's view of the table code_1a098 copies as halfwords. */
-extern Sprite8 D_800DD0A0[];
+extern SpriteDef gSpriteDefs[];
 
 /** @brief A 2D sprite placement: a position, the pivot it is scaled and
  *  rotated about, a 4.12 scale per axis, an angle and a centring flag. */
@@ -216,16 +216,16 @@ typedef struct {
 typedef PACKET *(*PrimFunc)();
 
 /* The handler table, eight rows of eight handlers. */
-extern PrimFunc D_800E48E8[8][8];
+extern PrimFunc gTmdSortFuncs[8][8];
 
-PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001C878(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001EE30(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot);
 PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
@@ -236,25 +236,25 @@ PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
                       GsOT *ot);
 PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot);
-PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdFastF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdFastG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
+PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 
 /* Handlers code_11dc4 defines; their parameter types are that unit's. */
 /* MATCHING: a per-unit view; here they only fill the PrimFunc table. */
-PACKET *func_800215C4();
-PACKET *func_800217A8();
-PACKET *func_80021958();
+PACKET *SortTmdFastFT4();
+PACKET *SortTmdFastGT3();
+PACKET *SortTmdFastGT4();
 PACKET *func_80021B88();
 PACKET *func_80021D3C();
 PACKET *func_80021F80();
 PACKET *func_80022150();
 PACKET *func_8002230C();
 
-void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
-    Sprite8 *e;
+void DrawSpriteTransformed(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
     /* MATCHING: the corners declared before the sprite size, so the spilled
@@ -266,15 +266,15 @@ void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
     s32 sn;
     s32 cs;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     *(u32 *)&p->r0 =
         color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    w = e->unk6;
-    h = e->unk7;
+    w = e->w;
+    h = e->h;
     /* MATCHING: both corners assigned in each arm; CSE then cannot see
      * that x0 == x2 and y0 == y1, and cross-jumping merges the tails. */
     if (s->centred) {
@@ -296,22 +296,22 @@ void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
     p->y2 = s->cy + ((x2 * sn + y2 * cs) >> 12);
     p->x3 = s->cx + ((x3 * cs - y3 * sn) >> 12);
     p->y3 = s->cy + ((x3 * sn + y3 * cs) >> 12);
-    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + w - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + w - 1) & 0xFFFF) | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + w - 1) & 0xFFFF) | (e->unk0 << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + w - 1) & 0xFFFF) | (e->tpage << 16);
     }
-    *(u32 *)&p->u2 = ((e->unk5 + h - 1) << 8) | e->unk4;
+    *(u32 *)&p->u2 = ((e->v + h - 1) << 8) | e->u;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + w - 1;
     tag = (u32 *)ot->org + otz;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT *ot) {
-    Sprite8 *e;
+void DrawSpriteFlip(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT *ot) {
+    SpriteDef *e;
     /* MATCHING: volatile, so each chained vertex store reads its
      * first target back. */
     volatile POLY_FT4 *p;
@@ -319,8 +319,8 @@ void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT
     u8 u0, u1, u2, u3;
     u8 v0, v1, v2, v3;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     *(u32 *)&p->r0 =
         color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
     if (color != NULL && (s8)color->r != -1) {
@@ -328,12 +328,12 @@ void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT
     }
     p->x0 = p->x2 = pos->vx;
     p->y0 = p->y1 = pos->vy;
-    p->x1 = p->x3 = pos->vx + e->unk6 - 1;
-    p->y2 = p->y3 = pos->vy + e->unk7 - 1;
-    u0 = u2 = e->unk4;
-    v0 = v1 = e->unk5;
-    u1 = u3 = e->unk4 + e->unk6 - 1;
-    v2 = v3 = e->unk5 + e->unk7 - 1;
+    p->x1 = p->x3 = pos->vx + e->w - 1;
+    p->y2 = p->y3 = pos->vy + e->h - 1;
+    u0 = u2 = e->u;
+    v0 = v1 = e->v;
+    u1 = u3 = e->u + e->w - 1;
+    v2 = v3 = e->v + e->h - 1;
     if (mode & 1) {
         u0 = u1;
         u3 = u2;
@@ -346,22 +346,22 @@ void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT
         v2 = v3;
         v1 = v0;
     }
-    *(u32 *)&p->u0 = (v0 << 8) | u0 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (v0 << 8) | u0 | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->u1 = (v1 << 8) | u1 | ((e->unk0 | ((s8)color->r << 5)) << 16);
+        *(u32 *)&p->u1 = (v1 << 8) | u1 | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = (v1 << 8) | u1 | (e->unk0 << 16);
+        *(u32 *)&p->u1 = (v1 << 8) | u1 | (e->tpage << 16);
     }
     *(u32 *)&p->u2 = (v2 << 8) | u2;
     *(u32 *)&p->u3 = (v3 << 8) | u3;
     tag = (u32 *)ot->org + otz;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *ot) {
-    Sprite8 *e;
+void DrawSpriteTransformedFlip(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *ot) {
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
     s16 x0, x1, x2, x3;
@@ -371,15 +371,15 @@ void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *
     s32 sn;
     s32 cs;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     *(u32 *)&p->r0 =
         color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    w = e->unk6;
-    h = e->unk7;
+    w = e->w;
+    h = e->h;
     if (s->centred) {
         x0 = x2 = ((s->x - (w >> 1) - s->cx) * s->sx) >> 12;
         y0 = y1 = ((s->y - (h >> 1) - s->cy) * s->sy) >> 12;
@@ -401,10 +401,10 @@ void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *
     p->y3 = s->cy + ((x3 * sn + y3 * cs) >> 12);
     /* MATCHING: the s16 corners reused for the UVs, which packs them with
      * sll/sra 16. */
-    x0 = x2 = e->unk4;
-    y0 = y1 = e->unk5;
-    x1 = x3 = e->unk4 + w - 1;
-    y2 = y3 = e->unk5 + h - 1;
+    x0 = x2 = e->u;
+    y0 = y1 = e->v;
+    x1 = x3 = e->u + w - 1;
+    y2 = y3 = e->v + h - 1;
     if (mode & 1) {
         x0 = x1;
         x3 = x2;
@@ -417,31 +417,31 @@ void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *
         y2 = y3;
         y1 = y0;
     }
-    *(u32 *)&p->u0 = (y0 << 8) | x0 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (y0 << 8) | x0 | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->u1 = (y1 << 8) | x1 | ((e->unk0 | ((s8)color->r << 5)) << 16);
+        *(u32 *)&p->u1 = (y1 << 8) | x1 | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = (y1 << 8) | x1 | (e->unk0 << 16);
+        *(u32 *)&p->u1 = (y1 << 8) | x1 | (e->tpage << 16);
     }
     *(u32 *)&p->u2 = (y2 << 8) | x2;
     *(u32 *)&p->u3 = (y3 << 8) | x3;
     tag = (u32 *)ot->org + otz;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
+void DrawBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     s32 v;
     s32 z;
-    Sprite8 *e;
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
-    gte_SetRotMatrix(&D_800E4858);
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
+    gte_SetRotMatrix(&GsIDMATRIX);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
     sv[0].vy = sv[1].vy = -(size->vy >> 1);
     sv[1].vx = sv[3].vx = sv[0].vx + size->vx - 1;
@@ -470,35 +470,35 @@ void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->u1 =
-            ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+            ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | (e->unk0 << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | (e->tpage << 16);
     }
-    *(u32 *)&p->u2 = ((e->unk5 + e->unk7 - 1) << 8) | e->unk4;
+    *(u32 *)&p->u2 = ((e->v + e->h - 1) << 8) | e->u;
     /* MATCHING: the index read before the last UV store, as retail
      * schedules it. */
     z = v >> shift;
-    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->unk6 - 1;
+    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
+void DrawStandingBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     s32 v;
     s32 z;
-    Sprite8 *e;
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
-    gte_SetRotMatrix(&D_800E4858);
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
+    gte_SetRotMatrix(&GsIDMATRIX);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
     sv[0].vy = sv[1].vy = -size->vy + 1;
     sv[1].vx = sv[3].vx = sv[0].vx + size->vx - 1;
@@ -527,38 +527,38 @@ void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->u1 =
-            ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+            ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | (e->unk0 << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | (e->tpage << 16);
     }
-    *(u32 *)&p->u2 = ((e->unk5 + e->unk7 - 1) << 8) | e->unk4;
+    *(u32 *)&p->u2 = ((e->v + e->h - 1) << 8) | e->u;
     /* MATCHING: the index read before the last UV store, as retail
      * schedules it. */
     z = v >> shift;
-    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->unk6 - 1;
+    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_8001A950(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, GsOT *ot) {
+void DrawBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     MATRIX m;
     s32 v;
     s32 z;
-    Sprite8 *e;
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
 
     /* MATCHING: the entry before the matrix copy, so the matrix address is
      * built late and gets $s0. */
-    e = &D_800DD0A0[id];
-    m = D_800E4858;
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    m = GsIDMATRIX;
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     RotMatrixZ(angle, &m);
     gte_SetRotMatrix(&m);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
@@ -589,38 +589,38 @@ void func_8001A950(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, 
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->u1 =
-            ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+            ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | (e->unk0 << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | (e->tpage << 16);
     }
-    *(u32 *)&p->u2 = ((e->unk5 + e->unk7 - 1) << 8) | e->unk4;
+    *(u32 *)&p->u2 = ((e->v + e->h - 1) << 8) | e->u;
     /* MATCHING: the index read before the last UV store, as retail
      * schedules it. */
     z = v >> shift;
-    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->unk6 - 1;
+    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_8001ACB4(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, GsOT *ot) {
+void DrawStandingBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     MATRIX m;
     s32 v;
     s32 z;
-    Sprite8 *e;
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
 
     /* MATCHING: the entry before the matrix copy, so the matrix address is
      * built late and gets $s0. */
-    e = &D_800DD0A0[id];
-    m = D_800E4858;
-    p = (POLY_FT4 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    m = GsIDMATRIX;
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
     RotMatrixZ(angle, &m);
     gte_SetRotMatrix(&m);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
@@ -651,37 +651,37 @@ void func_8001ACB4(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 shift, 
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->u1 =
-            ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+            ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | (e->unk0 << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | (e->tpage << 16);
     }
-    *(u32 *)&p->u2 = ((e->unk5 + e->unk7 - 1) << 8) | e->unk4;
+    *(u32 *)&p->u2 = ((e->v + e->h - 1) << 8) | e->u;
     /* MATCHING: the index read before the last UV store, as retail
      * schedules it. */
     z = v >> shift;
-    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->unk6 - 1;
+    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
+void DrawStandingBillboardFog(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];
     CVECTOR c;
     s32 v;
     s32 dp;
     s32 z;
-    Sprite8 *e;
+    SpriteDef *e;
     POLY_FT4 *p;
     u32 *tag;
 
-    e = &D_800DD0A0[id];
-    p = (POLY_FT4 *)D_800E48D0;
-    gte_SetRotMatrix(&D_800E4858);
+    e = &gSpriteDefs[id];
+    p = (POLY_FT4 *)GsOUT_PACKET_P;
+    gte_SetRotMatrix(&GsIDMATRIX);
     sv[0].vx = sv[2].vx = -(size->vx >> 1);
     sv[0].vy = sv[1].vy = -size->vy + 1;
     sv[1].vx = sv[3].vx = sv[0].vx + size->vx - 1;
@@ -715,40 +715,40 @@ void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->r0 |= 0x02000000;
     }
-    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
         *(u32 *)&p->u1 =
-            ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+            ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | ((e->tpage | ((s8)color->r << 5)) << 16);
     } else {
-        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->unk6 - 1) & 0xFFFF) | (e->unk0 << 16);
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + e->w - 1) & 0xFFFF) | (e->tpage << 16);
     }
-    *(u32 *)&p->u2 = ((e->unk5 + e->unk7 - 1) << 8) | e->unk4;
+    *(u32 *)&p->u2 = ((e->v + e->h - 1) << 8) | e->u;
     z = v >> shift;
-    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->unk6 - 1;
+    *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
     *tag = (u32)p & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(p + 1);
+    GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY) {
-    D_800DD0A0[id].unk0 = (u8)page | (mode << 7);
-    D_800DD0A0[id].unk2 = (clutY << 6) | (clutX >> 4);
-    D_800DD0A0[id].unk4 = u;
-    D_800DD0A0[id].unk5 = v;
-    D_800DD0A0[id].unk6 = w;
-    D_800DD0A0[id].unk7 = h;
+void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY) {
+    gSpriteDefs[id].tpage = (u8)page | (mode << 7);
+    gSpriteDefs[id].clut = (clutY << 6) | (clutX >> 4);
+    gSpriteDefs[id].u = u;
+    gSpriteDefs[id].v = v;
+    gSpriteDefs[id].w = w;
+    gSpriteDefs[id].h = h;
 }
 
-void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
-    Sprite8 *e;
+void DrawSprite(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
+    SpriteDef *e;
     u32 *p;
     u32 *q;
     u32 *tag;
     u32 c;
 
-    e = &D_800DD0A0[id];
-    p = (u32 *)D_800E48D0;
+    e = &gSpriteDefs[id];
+    p = (u32 *)GsOUT_PACKET_P;
     /* MATCHING: a ternary, and the semi-transparency term through a local,
      * keep cc1 from regrouping the constants. */
     p[1] = color != NULL ? 0x64000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x65000000;
@@ -756,23 +756,23 @@ void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
         p[1] |= 0x02000000;
     }
     p[2] = (pos->vy << 16) | (u16)pos->vx;
-    p[3] = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
-    p[4] = (e->unk7 << 16) | e->unk6;
+    p[3] = (e->v << 8) | e->u | (e->clut << 16);
+    p[4] = (e->h << 16) | e->w;
     tag = (u32 *)ot->org + (u16)mode;
     p[0] = (*tag & 0xFFFFFF) | 0x04000000;
     q = p + 5;
     if (color != NULL && (s8)color->r != -1) {
         c = (s8)color->r << 5 | 0xE1000600;
-        q[1] = e->unk0 | c;
+        q[1] = e->tpage | c;
     } else {
-        q[1] = e->unk0 | 0xE1000600;
+        q[1] = e->tpage | 0xE1000600;
     }
     q[0] = ((u32)p & 0xFFFFFF) | 0x01000000;
     *tag = (u32)q & 0xFFFFFF;
-    D_800E48D0 = (u8 *)(q + 2);
+    GsOUT_PACKET_P = (u8 *)(q + 2);
 }
 
-PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
     SVECTOR m[3];
     s32 sz[3];
     s32 flg;
@@ -858,7 +858,7 @@ PACKET *func_8001B4BC(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift,
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
     SVECTOR m[5];
     s32 sz[4];
     s32 flg;
@@ -973,7 +973,7 @@ PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_G3 *pkt;
     SVECTOR m[3];
     s32 sz[3];
@@ -1096,7 +1096,7 @@ PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001C878(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_G4 *pkt;
     SVECTOR m[5];
     s32 sz[4];
@@ -1112,7 +1112,7 @@ PACKET *func_8001C878(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
     u32 r23, g23, b23;
     u32 rc, gc, bc;
 
-    /* MATCHING: a copy of the parameter, as in func_8001D39C. */
+    /* MATCHING: a copy of the parameter, as in SortTmdDivFT3. */
     pkt = (POLY_G4 *)packet;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
@@ -1266,7 +1266,7 @@ PACKET *func_8001C878(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_FT3 *pkt;
     SVECTOR m[3];
     s32 sz[3];
@@ -1397,7 +1397,7 @@ PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_FT4 *pkt;
     SVECTOR m[5];
     s32 sz[4];
@@ -1410,7 +1410,7 @@ PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
     /* MATCHING: u8 midpoints; the averages of two bytes need no mask. */
     u8 u01, v01, u02, v02, u13, v13, u23, v23, uc, vc;
 
-    /* MATCHING: a copy of the parameter, as in func_8001D39C. */
+    /* MATCHING: a copy of the parameter, as in SortTmdDivFT3. */
     pkt = (POLY_FT4 *)packet;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
@@ -1563,7 +1563,7 @@ PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT3 *pkt;
     SVECTOR m[3];
     s32 sz[3];
@@ -1579,7 +1579,7 @@ PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     u32 r02, g02, b02;
     u32 r12, g12, b12;
 
-    /* MATCHING: a copy of the parameter, as in func_8001D39C. */
+    /* MATCHING: a copy of the parameter, as in SortTmdDivFT3. */
     pkt = (POLY_GT3 *)packet;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
@@ -1710,7 +1710,7 @@ PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001EE30(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT4 *pkt;
     SVECTOR m[5];
     s32 sz[4];
@@ -1728,7 +1728,7 @@ PACKET *func_8001EE30(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     u32 g01, g02, g13, g23, gc;
     u32 b01, b02, b13, b23, bc;
 
-    /* MATCHING: a copy of the parameter, as in func_8001D39C. */
+    /* MATCHING: a copy of the parameter, as in SortTmdDivFT3. */
     pkt = (POLY_GT4 *)packet;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
@@ -2280,54 +2280,54 @@ PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-void func_80020C14(void) {
-    D_800E48E8[0][6] = func_80020DD8;
-    D_800E48E8[0][7] = func_8001B4BC;
-    D_800E48E8[1][6] = func_800210B4;
-    D_800E48E8[1][7] = func_8001C13C;
-    D_800E48E8[2][6] = func_80021434;
-    D_800E48E8[2][7] = func_8001D39C;
-    D_800E48E8[3][0] = func_80021F80;
-    D_800E48E8[3][6] = func_800217A8;
-    D_800E48E8[3][7] = func_8001E558;
-    D_800E48E8[4][6] = func_80020F24;
-    D_800E48E8[4][7] = func_8001B9A4;
-    D_800E48E8[5][6] = func_80021240;
-    D_800E48E8[5][7] = func_8001C878;
-    D_800E48E8[6][6] = func_800215C4;
-    D_800E48E8[6][7] = func_8001DAD4;
-    D_800E48E8[7][0] = func_8002097C;
-    D_800E48E8[7][6] = func_80021958;
-    D_800E48E8[7][7] = func_8001EE30;
+void InitTmdSortFuncs(void) {
+    gTmdSortFuncs[0][6] = SortTmdFastF3;
+    gTmdSortFuncs[0][7] = SortTmdDivF3;
+    gTmdSortFuncs[1][6] = SortTmdFastG3;
+    gTmdSortFuncs[1][7] = SortTmdDivG3;
+    gTmdSortFuncs[2][6] = SortTmdFastFT3;
+    gTmdSortFuncs[2][7] = SortTmdDivFT3;
+    gTmdSortFuncs[3][0] = func_80021F80;
+    gTmdSortFuncs[3][6] = SortTmdFastGT3;
+    gTmdSortFuncs[3][7] = SortTmdDivGT3;
+    gTmdSortFuncs[4][6] = SortTmdFastF4;
+    gTmdSortFuncs[4][7] = SortTmdDivF4;
+    gTmdSortFuncs[5][6] = SortTmdFastG4;
+    gTmdSortFuncs[5][7] = SortTmdDivG4;
+    gTmdSortFuncs[6][6] = SortTmdFastFT4;
+    gTmdSortFuncs[6][7] = SortTmdDivFT4;
+    gTmdSortFuncs[7][0] = func_8002097C;
+    gTmdSortFuncs[7][6] = SortTmdFastGT4;
+    gTmdSortFuncs[7][7] = SortTmdDivGT4;
 }
 
-s32 func_80020CF8(s32 mode) {
+s32 SetTmdSortMode(s32 mode) {
     switch (mode) {
         case 0:
         case 1:
-            D_800E48E8[3][0] = func_800201BC;
-            D_800E48E8[7][0] = func_80020520;
+            gTmdSortFuncs[3][0] = func_800201BC;
+            gTmdSortFuncs[7][0] = func_80020520;
             break;
         case 2:
-            D_800E48E8[3][0] = func_80021F80;
-            D_800E48E8[7][0] = func_8002097C;
+            gTmdSortFuncs[3][0] = func_80021F80;
+            gTmdSortFuncs[7][0] = func_8002097C;
             break;
         case 3:
-            D_800E48E8[3][0] = func_8001FBBC;
-            D_800E48E8[7][0] = func_8001FE5C;
+            gTmdSortFuncs[3][0] = func_8001FBBC;
+            gTmdSortFuncs[7][0] = func_8001FE5C;
             break;
         case 4:
-            D_800E48E8[3][0] = func_80022150;
-            D_800E48E8[7][0] = func_8002230C;
+            gTmdSortFuncs[3][0] = func_80022150;
+            gTmdSortFuncs[7][0] = func_8002230C;
             break;
         case 5:
-            D_800E48E8[3][0] = func_80021B88;
-            D_800E48E8[7][0] = func_80021D3C;
+            gTmdSortFuncs[3][0] = func_80021B88;
+            gTmdSortFuncs[7][0] = func_80021D3C;
             break;
     }
 }
 
-PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot) {
     s32 v;
     s32 dp;
     s32 i;
@@ -2361,7 +2361,7 @@ PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift,
     return (PACKET *)pkt;
 }
 
-PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot) {
     s32 v;
     s32 dp;
     s32 i;
@@ -2402,7 +2402,7 @@ PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
     return (PACKET *)pkt;
 }
 
-PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_G3 *pkt;
     s32 v;
     s32 dp;
@@ -2444,7 +2444,7 @@ PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
     return (PACKET *)pkt;
 }
 
-PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_G4 *pkt;
     s32 v;
     s32 dp;
@@ -2497,7 +2497,7 @@ PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
     return (PACKET *)pkt;
 }
 
-PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_FT3 *pkt;
     s32 v;
     s32 dp;

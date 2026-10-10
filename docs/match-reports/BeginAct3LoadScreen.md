@@ -14,8 +14,8 @@ void BeginAct3LoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
-    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = D_800E474C * 240;
     rect.w = 320;
@@ -23,10 +23,10 @@ void BeginAct3LoadScreen(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
     gGameMode = 0x2B;
 }

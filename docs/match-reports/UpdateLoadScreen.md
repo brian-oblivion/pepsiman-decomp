@@ -16,13 +16,13 @@ void UpdateLoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    func_8001B354(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     LoadStage();
     if (gSubStep == 100) {
         gModeStep = 4;

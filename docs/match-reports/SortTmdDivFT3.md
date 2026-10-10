@@ -1,20 +1,22 @@
-# func_8001D39C — MATCHED (462/462), round 10, runner charlie
+# SortTmdDivFT3 — MATCHED (462/462), round 10, runner charlie
 
-Unit `src/code_a0bc.c`. The flat-textured twin of func_8001B4BC: the
+> Renamed from `func_8001D39C` on 2026-10-10 (tools/rename.py). Address 0x8001d39c.
+
+Unit `src/code_a0bc.c`. The flat-textured twin of SortTmdDivF3: the
 subdividing handler for flat-textured unlit triangles (`TmdFT3`, handler
 table row 2, column 7). Depth-cued POLY_FT3 with the TMD's UV words one
 OT slot further in unless the transform overflowed; under depth 250 a
 split into four at the edge midpoints, the midpoint UVs averaged, each
 sub-triangle depth-cued again and linked at the parent's depth.
 
-Struct change (unit-local, committed with func_8001B9A4): `TmdFT3`'s UV
+Struct change (unit-local, committed with SortTmdDivF4): `TmdFT3`'s UV
 words are now `TmdUV { u8 u; u8 v; u16 hi; }`, so this function can read
-the bytes; func_80021434 copies them as `*(u32 *)&prim->uv0` and stays
+the bytes; SortTmdFastFT3 copies them as `*(u32 *)&prim->uv0` and stays
 byte-identical. The local prototype changed from `PACKET
-*func_8001D39C();` to the full one, with a `PACKET *packet` parameter.
+*SortTmdDivFT3();` to the full one, with a `PACKET *packet` parameter.
 
 ```c
-PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_FT3 *pkt;
     SVECTOR m[3];
     s32 sz[3];
@@ -148,13 +150,13 @@ PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
 
 ## How it went
 
-1. func_8001C13C's shape with FT3 parts (the UV copies and `mode & 0xFE`
-   code of func_80021434, `dpcs` with the TMD colour in both halves, UV
+1. SortTmdDivG3's shape with FT3 parts (the UV copies and `mode & 0xFE`
+   code of SortTmdFastFT3, `dpcs` with the TMD colour in both halves, UV
    words per sub-triangle in a second `switch (j)`): 94/462, one word long.
-2. Both code stores `volatile` (func_80021434's lever: the store stays on
+2. Both code stores `volatile` (SortTmdFastFT3's lever: the store stays on
    the packet base while the address still seeds the `pkt + 7` reduced
    pointer the UV stores use): 318.
-3. Averages as `(u32)(a + b) >> 1` (retail's `srl`, as in func_8001C13C)
+3. Averages as `(u32)(a + b) >> 1` (retail's `srl`, as in SortTmdDivG3)
    and the statement order: 324/462, still one word long. What was left was
    allocation: the build kept `u02` and spilled the m12 UV word, so case 3
    carried a load-delay `nop`; retail spills `u02` (sp+0x38). Statement
@@ -167,7 +169,7 @@ PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
    well: 461/462.
 5. The last word was the reduced pointer's start (`addiu $t9, $t3, 7`,
    from the packet copy, not `$a2`): a `PACKET *packet` parameter and
-   `pkt = (POLY_FT3 *)packet;` (round 8's lever for func_80021434).
+   `pkt = (POLY_FT3 *)packet;` (round 8's lever for SortTmdFastFT3).
    462/462. The search was stopped at ~7700 iterations once the tree
    matched.
 

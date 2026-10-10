@@ -193,7 +193,6 @@ extern s32 gPadTrig;     /**< port 1's newly pressed buttons this frame, auto-re
 extern s16 D_800E474C;   /**< libgs's PSDIDX; 2 units */
 extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;   /**< the BlockHeader's second part */
-extern u8 *D_800E48D0;   /**< the next free byte of the primitive buffer; 5 units */
 extern s32 D_800959C8;   /**< the BlockHeader's first word */
 extern s16 gSoundFade;   /**< 2 units, 2 functions */
 extern s32 D_800958A8;   /**< 2 units; 3 when a stage starts */
@@ -316,7 +315,7 @@ void OnCdTrackReady(u8 mode);
  *  @param v     stored in byte 5
  *  @param clutX its top 12 bits form the low bits of the second halfword
  *  @param clutY stored from bit 6 of the second halfword */
-void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
+void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
 
 /** @brief Defined in code_1dc24.
  *  @return 0. */
@@ -410,7 +409,7 @@ void func_800285B0(void);
 void func_80017B38(void);
 
 /** @brief Defined in code_a0bc. */
-void func_80020C14(void);
+void InitTmdSortFuncs(void);
 
 /** @brief Defined in code_13068. */
 void func_800229A8(void);

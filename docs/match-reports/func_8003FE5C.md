@@ -15,7 +15,7 @@ s32 func_8003FE5C(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->unk0 * 10 + 100;
         color.r = 2;
         color.g = color.b = color.cd = 0x80 - (p->unk0 << 4);
-        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        DrawBillboard(0x12D, &size, &color, 2, ot);
         return ++p->unk0 == 8;
     }
     p->unk2--;

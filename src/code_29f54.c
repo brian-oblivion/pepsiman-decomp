@@ -4,6 +4,7 @@
 #include "libetc.h"
 #include "libgs.h"
 #include "code_a0bc.h"
+#include "code_7d74.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
 typedef struct {
@@ -69,7 +70,45 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039C3C);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A008);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A20C);
+void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
+    s32 i;
+    s32 k;
+    s32 d;
+    s32 r;
+    SVECTOR rot;
+    MATRIX ls;
+
+    for (i = -1; i < 2; i++) {
+        k = (((pos + 10000000) / 5000 + i) & 1) + 1;
+        d = pos - i * 5000;
+        if (d >= 0) {
+            if (d >= 5000) {
+                continue;
+            }
+            k = 0;
+        }
+        if (d < -range) {
+            if (d < -(range + 5000)) {
+                continue;
+            }
+            k = 3;
+        }
+        if (pos >= 0) {
+            r = pos % 5000;
+        } else {
+            r = (pos + 10000000) % 5000;
+        }
+        D_800A72B8.coord.t[0] = r + (i - 1) * 5000;
+        D_800A72B8.coord.t[1] = 0;
+        D_800A72B8.coord.t[2] = z;
+        rot.vx = rot.vy = rot.vz = 0;
+        func_80018AE0(&rot, &D_800A72B8);
+        GsGetLs(&D_800A72B8, &ls);
+        GsSetLsMatrix(&ls);
+        GsSortObject4J(&D_800AC868[k], D_80095884, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&D_800ACB88[k], D_80095884, 2, (u_long *)0x1F800000);
+    }
+}
 
 void func_8003A3F4(s32 *index, s16 x, s16 y) {
     s32 i;

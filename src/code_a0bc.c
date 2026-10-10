@@ -122,6 +122,19 @@ typedef struct {
 /* MATCHING: this unit's view of the table code_1a098 copies as halfwords. */
 extern Sprite8 D_800DD0A0[];
 
+/** @brief A 2D sprite placement: a position, the pivot it is scaled and
+ *  rotated about, a 4.12 scale per axis, an angle and a centring flag. */
+typedef struct {
+    s16 x;       /**< screen x of the top-left corner */
+    s16 y;       /**< screen y of the top-left corner */
+    s16 cx;      /**< pivot x */
+    s16 cy;      /**< pivot y */
+    s16 sx;      /**< x scale, 4.12 */
+    s16 sy;      /**< y scale, 4.12 */
+    s16 rot;     /**< rotation angle, 4096 to a turn */
+    s16 centred; /**< nonzero: (x, y) is the sprite's centre */
+} Sprite2D;
+
 /** @brief The three flat lights. */
 typedef struct {
     GsF_LIGHT l[3]; /**< lights 0 to 2 */
@@ -170,7 +183,62 @@ PACKET *func_80021F80();
 PACKET *func_80022150();
 PACKET *func_8002230C();
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800198BC);
+void func_800198BC(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
+    Sprite8 *e;
+    POLY_FT4 *p;
+    u32 *tag;
+    /* MATCHING: the corners declared before the sprite size, so the spilled
+     * x2 takes the lowest stack slot. */
+    s16 x0, x1, x2, x3;
+    s16 y0, y1, y2, y3;
+    u8 w;
+    u8 h;
+    s32 sn;
+    s32 cs;
+
+    e = &D_800DD0A0[id];
+    p = (POLY_FT4 *)D_800E48D0;
+    *(u32 *)&p->r0 =
+        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->r0 |= 0x02000000;
+    }
+    w = e->unk6;
+    h = e->unk7;
+    /* MATCHING: both corners assigned in each arm; CSE then cannot see
+     * that x0 == x2 and y0 == y1, and cross-jumping merges the tails. */
+    if (s->centred) {
+        x0 = x2 = ((s->x - (w >> 1) - s->cx) * s->sx) >> 12;
+        y0 = y1 = ((s->y - (h >> 1) - s->cy) * s->sy) >> 12;
+    } else {
+        x0 = x2 = ((s->x - s->cx) * s->sx) >> 12;
+        y0 = y1 = ((s->y - s->cy) * s->sy) >> 12;
+    }
+    x1 = x3 = x0 + ((w * s->sx) >> 12);
+    y2 = y3 = y0 + ((h * s->sy) >> 12);
+    sn = rsin(s->rot);
+    cs = rcos(s->rot);
+    p->x0 = s->cx + ((x0 * cs - y0 * sn) >> 12);
+    p->y0 = s->cy + ((x0 * sn + y0 * cs) >> 12);
+    p->x1 = s->cx + ((x1 * cs - y1 * sn) >> 12);
+    p->y1 = s->cy + ((x1 * sn + y1 * cs) >> 12);
+    p->x2 = s->cx + ((x2 * cs - y2 * sn) >> 12);
+    p->y2 = s->cy + ((x2 * sn + y2 * cs) >> 12);
+    p->x3 = s->cx + ((x3 * cs - y3 * sn) >> 12);
+    p->y3 = s->cy + ((x3 * sn + y3 * cs) >> 12);
+    *(u32 *)&p->u0 = (e->unk5 << 8) | e->unk4 | (e->unk2 << 16);
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + w - 1) & 0xFFFF) | ((e->unk0 | ((s8)color->r << 5)) << 16);
+    } else {
+        *(u32 *)&p->u1 = ((*(u32 *)&p->u0 + w - 1) & 0xFFFF) | (e->unk0 << 16);
+    }
+    *(u32 *)&p->u2 = ((e->unk5 + h - 1) << 8) | e->unk4;
+    *(u32 *)&p->u3 = *(u32 *)&p->u2 + w - 1;
+    tag = (u32 *)ot->org + otz;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
+    *tag = (u32)p & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(p + 1);
+}
 
 void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT *ot) {
     Sprite8 *e;

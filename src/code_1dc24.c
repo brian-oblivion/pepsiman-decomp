@@ -20,7 +20,10 @@ typedef struct {
 
 /** @brief A state block with a halfword total at 0x26. */
 typedef struct {
-    u8 unk0[0x1E]; /**< not yet known */
+    u8 unk0[0x12]; /**< not yet known */
+    u16 unk12;     /**< the edited value saved for menu line 0 */
+    u16 unk14;     /**< the edited value saved for menu line 1 */
+    u8 unk16[8];   /**< not yet known */
     u16 unk1E;     /**< matched against a Rec48's unk34 */
     u8 unk20[6];   /**< not yet known */
     u16 unk26;     /**< a sum over the current block's entries */
@@ -576,7 +579,36 @@ void func_80033B08(void) {
     D_80095B4C[0] = D_80095748;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033B34);
+/** @brief Runs an update; when the highlighted line moved, loads the
+ *         edited value and its limit for the new line, else saves the
+ *         edited value for the current one. */
+void func_80033B34(void) {
+    s16 old;
+
+    old = D_8009574A;
+    func_800330D4();
+    if (old != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk12;
+                break;
+            case 1:
+                D_800958B0 = 3;
+                D_80095748 = sTotals.unk14;
+                break;
+        }
+    } else {
+        switch (old) {
+            case 0:
+                sTotals.unk12 = D_80095748;
+                break;
+            case 1:
+                sTotals.unk14 = D_80095748;
+                break;
+        }
+    }
+}
 
 /** @brief Applies every used Rec48 whose unk34 equals sTotals.unk1E to the
  *         Rec78 its unk36 names. */

@@ -4,6 +4,8 @@
 #include "libgs.h"
 #include "code_a0bc.h"
 #include "code_1a098.h"
+#include "code_13068.h"
+#include "code_7d74.h"
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
@@ -94,6 +96,44 @@ typedef struct {
 
 extern PointSpec25 D_80010950;
 extern Bytes3 D_800954F0[];
+
+/** @brief Three halfwords, a corner or an edge of a quad. */
+typedef struct {
+    s16 x; /**< x */
+    s16 y; /**< y */
+    s16 z; /**< z */
+} Short3;
+
+/** @brief A quad's four corners and four edge slots. */
+typedef struct {
+    Short3 p[8]; /**< corners 0..3, edges 4..7 */
+} Quad8;
+
+/** @brief A debug line record, filled and never drawn. */
+typedef struct {
+    s32 unk0; /**< zeroed */
+    s16 x0;   /**< screen x of corner 2 */
+    s16 y0;   /**< screen y of corner 2 */
+    s16 x1;   /**< screen x of corner 1 */
+    s16 y1;   /**< screen y of corner 1 */
+    u8 unkC;  /**< 0xFF */
+    u8 unkD;  /**< zeroed */
+    u8 unkE;  /**< zeroed */
+} DebugLine;
+
+/** @brief The player's position, as this unit reads the game state. */
+typedef struct {
+    u8 pad0[0x348];
+    s32 x; /**< position */
+    s32 y; /**< position */
+    s32 z; /**< position */
+} GamePos;
+
+/* MATCHING: a struct lvalue keeps the game state's base in a register. */
+#define sGamePos (*(GamePos *)D_8009EB78)
+
+extern Quad8 D_80010AE0;
+extern Point12 D_80010B10;
 
 void func_80028984(void);
 s32 func_8002971C(Body *a, Body *b);
@@ -286,7 +326,154 @@ u8 func_80028DBC(u16 start, VECTOR *pos) {
     return k;
 }
 
+#ifdef NON_MATCHING
+void func_80028F0C(void *rec, s8 *out) {
+    Quad8 q;
+    Point12 org;
+    VECTOR p;
+    VECTOR v;
+    Short3 scr[4];
+    s32 w[8];
+    VECTOR n;
+    s32 unused[2];
+    DebugLine dbg;
+    u16 k;
+    s32 num;
+
+    q = D_80010AE0;
+    org = D_80010B10;
+    out[0] = 0;
+    *(s32 *)(out + 4) = 0;
+    if ((((Rec4C *)rec)->world[0].vx >= 0 ? ((Rec4C *)rec)->world[0].vx
+                                          : -((Rec4C *)rec)->world[0].vx) > 2000) {
+        return;
+    }
+    if ((((Rec4C *)rec)->world[0].vz >= 0 ? ((Rec4C *)rec)->world[0].vz
+                                          : -((Rec4C *)rec)->world[0].vz) > 2000) {
+        return;
+    }
+    for (k = 0; k < 4; k++) {
+        q.p[k].x = ((Rec4C *)rec)->world[k].vx;
+        q.p[k].y = ((Rec4C *)rec)->world[k].vy;
+        q.p[k].z = ((Rec4C *)rec)->world[k].vz;
+    }
+    org.x = ((Rec4C *)rec)->coord->coord.t[0] + D_800A7308[0];
+    org.y = ((Rec4C *)rec)->coord->coord.t[1];
+    org.z = ((Rec4C *)rec)->coord->coord.t[2] + D_800A7308[2];
+    if (D_800958F8 == 1) {
+        dbg.unk0 = 0;
+        dbg.unkC = 0xFF;
+        dbg.unkD = 0;
+        dbg.unkE = 0;
+        v.vx = q.p[1].x + org.x;
+        v.vy = q.p[1].y + org.y;
+        v.vz = q.p[1].z + org.z;
+        func_800230E0(&v, (SVECTOR *)&scr[0]);
+        dbg.x1 = scr[0].x;
+        dbg.y1 = scr[0].y;
+        v.vx = q.p[2].x + org.x;
+        v.vy = q.p[2].y + org.y;
+        v.vz = q.p[2].z + org.z;
+        func_800230E0(&v, (SVECTOR *)&scr[0]);
+        dbg.x0 = scr[0].x;
+        dbg.y0 = scr[0].y;
+        if (D_800958F8 == 1) {
+            v.vx = org.x + q.p[0].x;
+            v.vy = q.p[0].y;
+            v.vz = org.z + q.p[0].z;
+            func_800230E0(&v, (SVECTOR *)&scr[0]);
+            v.vx = org.x + q.p[1].x;
+            v.vy = q.p[1].y;
+            v.vz = org.z + q.p[1].z;
+            func_800230E0(&v, (SVECTOR *)&scr[1]);
+            v.vx = org.x + q.p[3].x;
+            v.vy = q.p[3].y;
+            v.vz = org.z + q.p[3].z;
+            func_800230E0(&v, (SVECTOR *)&scr[2]);
+            v.vx = org.x + q.p[2].x;
+            v.vy = q.p[2].y;
+            v.vz = org.z + q.p[2].z;
+            func_800230E0(&v, (SVECTOR *)&scr[3]);
+            func_800179F8(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y,
+                          scr[3].x, scr[3].y, 0);
+        }
+    }
+    w[1] = -1;
+    w[0] = 0;
+    p.vx = sGamePos.x + D_800A7308[0];
+    p.vy = sGamePos.y;
+    p.vz = sGamePos.z + D_800A7308[2];
+    w[2] = 0;
+
+    q.p[4].x = 0;
+    q.p[4].z = 0;
+    q.p[5].x = q.p[1].x - q.p[0].x;
+    q.p[5].z = q.p[1].z - q.p[0].z;
+    n.vx = q.p[5].z;
+    n.vy = 0;
+    n.vz = -q.p[5].x;
+    w[3] = n.vx * (p.vx - (org.x + q.p[0].x)) + n.vz * (p.vz - (org.z + q.p[0].z));
+    if (w[3] < 0) {
+        return;
+    }
+    q.p[5].x = 0;
+    q.p[5].z = 0;
+    q.p[7].x = q.p[3].x - q.p[1].x;
+    q.p[7].z = q.p[3].z - q.p[1].z;
+    n.vx = q.p[7].z;
+    n.vy = 0;
+    n.vz = -q.p[7].x;
+    w[4] = n.vx * (p.vx - (org.x + q.p[1].x)) + n.vz * (p.vz - (org.z + q.p[1].z));
+    if (w[4] < 0) {
+        return;
+    }
+    q.p[7].x = 0;
+    q.p[7].z = 0;
+    q.p[6].x = q.p[2].x - q.p[3].x;
+    q.p[6].z = q.p[2].z - q.p[3].z;
+    n.vx = q.p[6].z;
+    n.vy = 0;
+    n.vz = -q.p[6].x;
+    w[5] = n.vx * (p.vx - (org.x + q.p[3].x)) + n.vz * (p.vz - (org.z + q.p[3].z));
+    if (w[5] < 0) {
+        return;
+    }
+    q.p[6].x = 0;
+    q.p[6].z = 0;
+    q.p[4].x = q.p[0].x - q.p[2].x;
+    q.p[4].z = q.p[0].z - q.p[2].z;
+    n.vx = q.p[4].z;
+    n.vy = 0;
+    n.vz = -q.p[4].x;
+    w[6] = n.vx * (p.vx - (org.x + q.p[2].x)) + n.vz * (p.vz - (org.z + q.p[2].z));
+    if (w[6] < 0) {
+        return;
+    }
+
+    w[0] = q.p[1].x - q.p[0].x;
+    w[1] = q.p[1].y - q.p[0].y;
+    w[2] = q.p[1].z - q.p[0].z;
+    w[3] = q.p[2].x - q.p[0].x;
+    w[4] = q.p[2].y - q.p[0].y;
+    w[5] = q.p[2].z - q.p[0].z;
+    p.vx = p.vx - (org.x + q.p[0].x);
+    p.vy = 0;
+    p.vz = p.vz - (org.z + q.p[0].z);
+    n.vx = w[1] * w[5] - w[2] * w[4];
+    n.vy = w[2] * w[3] - w[0] * w[5];
+    num = w[0] * w[4] - w[1] * w[3];
+    *(volatile s32 *)&n.vz = num;
+    n.vz = -n.vx * p.vx + -num * p.vz - q.p[0].y;
+    if (n.vy == 0) {
+        n.vy = 1;
+    }
+    n.pad = n.vz / n.vy + q.p[0].y;
+    out[0] = 1;
+    *(s32 *)(out + 4) = n.pad;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028F0C);
+#endif
 
 void func_8002964C(VECTOR *pos, u16 scale) {
     SVECTOR size;

@@ -5,6 +5,7 @@
 #include "libgs.h"
 #include "code_a0bc.h"
 #include "code_7d74.h"
+#include "spad.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
 typedef struct {
@@ -68,7 +69,45 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039C3C);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A008);
+/** @brief A run of entries in a draw list: where it starts and how long. */
+typedef struct {
+    s16 start; /**< the first entry's index */
+    s16 count; /**< the number of entries */
+} Run;
+
+extern Run *D_80095934;
+extern Run *D_80095938;
+extern s8 *D_8009593C;
+extern s8 *D_80095940;
+
+void func_8003A008(s16 x, s16 y, s16 z) {
+    s32 i;
+    s32 k;
+    SVECTOR rot;
+    MATRIX ls;
+
+    D_800A72B8.coord.t[0] = x;
+    D_800A72B8.coord.t[1] = y;
+    D_800A72B8.coord.t[2] = z;
+    rot.vx = rot.vy = rot.vz = 0;
+    func_80018AE0(&rot, &D_800A72B8);
+    GsGetLs(&D_800A72B8, &ls);
+    GsSetLsMatrix(&ls);
+    SetSpadStack();
+    for (i = 0; i < D_80095934[D_8009578C].count; i++) {
+        k = D_8009593C[D_80095934[D_8009578C].start + i];
+        if ((u32)k < D_80095794) {
+            GsSortObject4J(&D_800AC868[k], D_80095884, 2, (u_long *)0x1F800000);
+        }
+    }
+    for (i = 0; i < D_80095938[D_8009578C].count; i++) {
+        k = D_80095940[D_80095938[D_8009578C].start + i];
+        if ((u32)k < D_80095798 && k != -1) {
+            GsSortObject4J(&D_800ACB88[k], D_80095884, 2, (u_long *)0x1F800000);
+        }
+    }
+    ResetSpadStack();
+}
 
 void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
     s32 i;

@@ -116,6 +116,25 @@ typedef struct {
     u16 pad1;    /**< padding */
 } TmdFT3;
 
+/** @brief A flat-textured unlit TMD quad: a header, four UV words (the
+ *  CLUT, the texture page, padding in their top halves), a colour and
+ *  four vertex indices. */
+typedef struct {
+    u8 olen;     /**< the TMD header: output length */
+    u8 ilen;     /**< input length */
+    u8 flag;     /**< flags */
+    u8 mode;     /**< the primitive code, copied into the packet */
+    TmdUV uv0;   /**< u0, v0 and the CLUT */
+    TmdUV uv1;   /**< u1, v1 and the texture page */
+    TmdUV uv2;   /**< u2, v2 and padding */
+    TmdUV uv3;   /**< u3, v3 and padding */
+    CVECTOR rgb; /**< the colour, depth-cued per frame */
+    u16 v0;      /**< first vertex index */
+    u16 v1;      /**< second vertex index */
+    u16 v2;      /**< third vertex index */
+    u16 v3;      /**< fourth vertex index */
+} TmdFT4;
+
 /** @brief A gouraud-textured unlit TMD triangle: a header, three UV words
  *  (the CLUT, the texture page, padding in their top halves), three
  *  colours and three vertex indices. */
@@ -182,7 +201,7 @@ PACKET *func_8001B9A4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
 PACKET *func_8001C13C(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001C878();
 PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001DAD4();
+PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001EE30();
 PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
@@ -1188,7 +1207,171 @@ PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
     return (PACKET *)pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001DAD4);
+PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+    POLY_FT4 *pkt;
+    SVECTOR m[5];
+    s32 sz[4];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
+    /* MATCHING: u8 midpoints; the averages of two bytes need no mask. */
+    u8 u01, v01, u02, v02, u13, v13, u23, v23, uc, vc;
+
+    /* MATCHING: a copy of the parameter, as in func_8001D39C. */
+    pkt = (POLY_FT4 *)packet;
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_ft4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        gte_stsxy2(&pkt->x3);
+        gte_stsz4c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        if (sz[2] > v) {
+            v = sz[2];
+        } else if (sz[3] > v) {
+            v = sz[3];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb(&prim->rgb);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r0);
+            ((volatile POLY_FT4 *)pkt)->code = prim->mode & 0xFE;
+            *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
+            *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
+            *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
+            *(u16 *)&pkt->u3 = *(u16 *)&prim->uv3;
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        tag = (u32 *)ot->org + (v >> shift);
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v3].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v3].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v3].vz) >> 1;
+            m[3].vx = (vtx[prim->v2].vx + vtx[prim->v3].vx) >> 1;
+            m[3].vy = (vtx[prim->v2].vy + vtx[prim->v3].vy) >> 1;
+            m[3].vz = (vtx[prim->v2].vz + vtx[prim->v3].vz) >> 1;
+            m[4].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx + vtx[prim->v2].vx + vtx[prim->v3].vx) >> 2;
+            m[4].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy + vtx[prim->v2].vy + vtx[prim->v3].vy) >> 2;
+            m[4].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz + vtx[prim->v2].vz + vtx[prim->v3].vz) >> 2;
+            /* MATCHING: every u before every v. */
+            u01 = (u32)(prim->uv0.u + prim->uv1.u) >> 1;
+            u02 = (u32)(prim->uv0.u + prim->uv2.u) >> 1;
+            u13 = (u32)(prim->uv1.u + prim->uv3.u) >> 1;
+            u23 = (u32)(prim->uv2.u + prim->uv3.u) >> 1;
+            uc = (u32)(prim->uv0.u + prim->uv1.u + prim->uv2.u + prim->uv3.u) >> 2;
+            v01 = (u32)(prim->uv0.v + prim->uv1.v) >> 1;
+            v02 = (u32)(prim->uv0.v + prim->uv2.v) >> 1;
+            v13 = (u32)(prim->uv1.v + prim->uv3.v) >> 1;
+            v23 = (u32)(prim->uv2.v + prim->uv3.v) >> 1;
+            vc = (u32)(prim->uv0.v + prim->uv1.v + prim->uv2.v + prim->uv3.v) >> 2;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[4]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[1], &m[4], &vtx[prim->v2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[4], &m[2], &m[3]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_ft4(pkt);
+                switch (j) {
+                    case 0:
+                        gte_ldv0(&m[4]);
+                        break;
+                    case 1:
+                        gte_ldv0(&m[2]);
+                        break;
+                    case 2:
+                        gte_ldv0(&m[3]);
+                        break;
+                    case 3:
+                        gte_ldv0(&vtx[prim->v3]);
+                        break;
+                }
+                gte_rtps();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy2(&pkt->x3);
+                switch (j) {
+                    case 0:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (prim->uv0.v << 8) | prim->uv0.u;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u2 = (v02 << 8) | u02;
+                        *(u32 *)&pkt->u3 = (vc << 8) | uc;
+                        break;
+                    case 1:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (prim->uv1.v << 8) | prim->uv1.u;
+                        *(u32 *)&pkt->u2 = (vc << 8) | uc;
+                        *(u32 *)&pkt->u3 = (v13 << 8) | u13;
+                        break;
+                    case 2:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v02 << 8) | u02;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (vc << 8) | uc;
+                        *(u32 *)&pkt->u2 = (prim->uv2.v << 8) | prim->uv2.u;
+                        *(u32 *)&pkt->u3 = (v23 << 8) | u23;
+                        break;
+                    case 3:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (vc << 8) | uc;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v13 << 8) | u13;
+                        *(u32 *)&pkt->u2 = (v23 << 8) | u23;
+                        *(u32 *)&pkt->u3 = (prim->uv3.v << 8) | prim->uv3.u;
+                        break;
+                }
+                gte_ldrgb(&prim->rgb);
+                gte_lddp(dp);
+                gte_dpcs();
+                gte_strgb(&pkt->r0);
+                ((volatile POLY_FT4 *)pkt)->code = prim->mode & 0xFE;
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
 
 PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_GT3 *pkt;
@@ -1200,14 +1383,8 @@ PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     s32 i;
     s32 j;
     u32 *tag;
-    /* MATCHING: u01, u02 and u12 s16, which moves the allocation so
-     * u12 is the first operand of its ORs and v01 << 8 keeps a register. */
-    s16 u01;
-    u32 v01;
-    s16 u02;
-    u32 v02;
-    s16 u12;
-    u32 v12;
+    /* MATCHING: u8 UV midpoints; the averages of two bytes need no mask. */
+    u8 u01, v01, u02, v02, u12, v12;
     u32 r01, g01, b01;
     u32 r02, g02, b02;
     u32 r12, g12, b12;

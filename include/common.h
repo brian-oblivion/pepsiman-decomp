@@ -218,8 +218,10 @@ extern s32 *D_800D81B0[]; /**< per-sequence data pointers; 2 units */
 /* --- Functions called from more than one unit, with the same prototype ---- */
 
 /** @brief Defined in code_31cec.
- *  @param id what to start, by number */
-void func_80042538(s32 id);
+ *  @param id what to start, by number
+ *  @return -1 when a sound bank failed to open; otherwise nothing is
+ *          returned (callers ignore the result) */
+s32 func_80042538(s32 id);
 
 /** @brief Defined in code_31cec; called from main. */
 void func_800428B0(void);

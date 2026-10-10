@@ -800,7 +800,6 @@ void func_800350C8(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_80035350(void) {
     VECTOR pos;
     Bank4C *bank;
@@ -852,7 +851,11 @@ void func_80035350(void) {
                 for (k = e->first + D_80095A2C; k < 99; k++) {
                     *dst = *src;
                     dst++;
-                    src++;
+                    /* MATCHING: the empty do/while gives the source pointer
+                     * $a1 and the block move's end $a3. */
+                    do {
+                        src++;
+                    } while (0);
                 }
                 n = D_8009588E;
                 /* MATCHING: a byte-pointer store keeps the index load below it. */
@@ -869,9 +872,6 @@ void func_80035350(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035350);
-#endif
 
 /* MATCHING: the first clamp is a preloaded local with nested ifs; a nested
  * ternary like the second one moves the value through another register. */

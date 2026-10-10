@@ -109,7 +109,55 @@ PACKET *func_8002230C();
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800198BC);
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80019CD8);
+void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT *ot) {
+    Sprite8 *e;
+    /* MATCHING: volatile, so each chained vertex store reads its
+     * first target back. */
+    volatile POLY_FT4 *p;
+    u32 *tag;
+    u8 u0, u1, u2, u3;
+    u8 v0, v1, v2, v3;
+
+    e = &D_800DD0A0[id];
+    p = (POLY_FT4 *)D_800E48D0;
+    *(u32 *)&p->r0 =
+        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->r0 |= 0x02000000;
+    }
+    p->x0 = p->x2 = pos->vx;
+    p->y0 = p->y1 = pos->vy;
+    p->x1 = p->x3 = pos->vx + e->unk6 - 1;
+    p->y2 = p->y3 = pos->vy + e->unk7 - 1;
+    u0 = u2 = e->unk4;
+    v0 = v1 = e->unk5;
+    u1 = u3 = e->unk4 + e->unk6 - 1;
+    v2 = v3 = e->unk5 + e->unk7 - 1;
+    if (mode & 1) {
+        u0 = u1;
+        u3 = u2;
+        u1 = u3;
+        u2 = u0;
+    }
+    if (mode & 2) {
+        v0 = v2;
+        v3 = v1;
+        v2 = v3;
+        v1 = v0;
+    }
+    *(u32 *)&p->u0 = (v0 << 8) | u0 | (e->unk2 << 16);
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->u1 = (v1 << 8) | u1 | ((e->unk0 | ((s8)color->r << 5)) << 16);
+    } else {
+        *(u32 *)&p->u1 = (v1 << 8) | u1 | (e->unk0 << 16);
+    }
+    *(u32 *)&p->u2 = (v2 << 8) | u2;
+    *(u32 *)&p->u3 = (v3 << 8) | u3;
+    tag = (u32 *)ot->org + otz;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
+    *tag = (u32)p & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(p + 1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80019F24);
 

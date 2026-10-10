@@ -1309,6 +1309,8 @@ top:
             state->unk6 = 0x23;
             func_800287C0();
             state->unk398 = 300;
+            /* MATCHING: a bare barrier keeps the call's arguments below this store. */
+            __asm__("");
             state->unk37A = 0;
             state->unk378 = 0;
             state->unk376 = 0;

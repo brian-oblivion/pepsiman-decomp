@@ -36,7 +36,7 @@ static __inline__ void stepObj(Stepper *obj) {
     /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
     s8 result;
 
-    result = func_80017F0C(obj, 0, obj->unk4);
+    result = StepAnimation(obj, 0, obj->unk4);
     obj->unk340 = result;
     switch (obj->unk5) {
         case 0x60:
@@ -65,7 +65,7 @@ static __inline__ void drawObj(Stepper *obj) {
     rot.vx = 0;
     rot.vy = obj->unk380;
     rot.vz = 0;
-    func_80018AE0(&rot, o->coord2);
+    SetCoordRotation(&rot, o->coord2);
     for (i = 0; i < sModels.count; o++, i++) {
         o->coord2->flg = 0;
         if (o->id != -1 && o->tmd != NULL) {

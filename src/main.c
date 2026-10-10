@@ -69,8 +69,8 @@ int main(void) {
     InitSystem();
     InitTmdSortFuncs();
     func_80018DE8(1);
-    func_80018CB4();
-    func_80018094();
+    InitView();
+    InitLights();
     SetFogNearFar(3000, 8000, 250);
     SetFarColor(0x40, 0x60, 0xFF);
     gRumbleEnabled = 1;
@@ -94,7 +94,7 @@ int main(void) {
         dst->a = a;
         dst->b = b;
     }
-    D_800956D0 = 0;
+    gViewerMotion = 0;
     gModeStep = 0;
     gGameMode = 0;
     gLoading = 0;
@@ -237,7 +237,7 @@ int main(void) {
                 gModeStep = 0;
                 break;
             case 19:
-                func_80017B38();
+                UpdateMotionViewer();
                 break;
             case 20:
                 gGameMode = 23;
@@ -417,7 +417,7 @@ extern s32 D_800724C4[];
 void func_80013CDC(void);
 
 /* MATCHING: code_7d74 types the pack as its own PackEntry. */
-void func_8001797C(void *pack);
+void LoadTimPack(void *pack);
 
 s8 LoadBootData(void) {
     /* MATCHING: a byte, so the later constant 1 is not copied from it. */
@@ -454,7 +454,7 @@ s8 LoadBootData(void) {
         case 2:
             ret = 1;
             func_80013CDC();
-            func_8001797C((void *)0x8018D000);
+            LoadTimPack((void *)0x8018D000);
             func_8003E13C((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
             func_8003A84C();
             func_80018DE8(1);
@@ -526,7 +526,7 @@ void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: code_7d74 types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 /* MATCHING: code_308ec passes the game state's head in its own view. */
-u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
+u8 StepAnimation(Stepper *obj, u16 index, u8 arg);
 
 void func_80013CDC(void) {
     /* MATCHING: one pointer reused for the pack, its second word and the
@@ -552,11 +552,11 @@ void func_80013CDC(void) {
     D_800958D0 = ((DirEnt16 *)p)->count;
     for (; D_800958CC < D_800958D0; D_800958CC++) {
         /* MATCHING: assigned inside the store, as in func_8002C044. */
-        D_800D81B0[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
+        gAnimations[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
         p += 4;
-        sStepper.unk20[D_800958CC] = *D_800D81B0[D_800958CC];
-        D_800D81B0[D_800958CC]++;
-        sStepper.unk1B0[D_800958CC] = D_800D81B0[D_800958CC][1];
+        sStepper.unk20[D_800958CC] = *gAnimations[D_800958CC];
+        gAnimations[D_800958CC]++;
+        sStepper.unk1B0[D_800958CC] = gAnimations[D_800958CC][1];
     }
     GsInitCoordinate2(WORLD, &D_800D86E0[0]);
     sStepper.unk5 = 0;
@@ -565,7 +565,7 @@ void func_80013CDC(void) {
     sStepper.unk8 = 0xFF;
     sStepper.unk7 = 0;
     sStepper.unk9 = 0xFF;
-    func_80017F0C(&sStepper, 0, 0);
+    StepAnimation(&sStepper, 0, 0);
 }
 
 /* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
@@ -738,8 +738,8 @@ void AdjustScreenPosition(void) {
     }
     InitGraphics();
     GsInit3D();
-    func_80018CB4();
-    func_80018094();
+    InitView();
+    InitLights();
     WaitFrames(5);
 }
 
@@ -1494,7 +1494,7 @@ extern s32 D_80074038[];
 /* MATCHING: code_29f54 defines it and has no header to declare it. */
 void func_800399A8(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
-void func_8002B7C8(DirEnt16 *dir, u16 id);
+void LoadSpritePack(DirEnt16 *dir, u16 id);
 /* MATCHING: code_1dc24 types both as its own BankFile. */
 void func_800373C8(void *a, void *b);
 void func_8002C2B4(void);
@@ -1626,7 +1626,7 @@ void LoadStage(void) {
             break;
         case 7:
             if (gCdLoadState == 6) {
-                func_8001797C((void *)0x8019D000);
+                LoadTimPack((void *)0x8019D000);
                 gSubStep++;
             }
             break;
@@ -1755,7 +1755,7 @@ void LoadStage(void) {
             break;
         case 11:
             if (gCdLoadState == 6) {
-                func_8002B7C8((DirEnt16 *)0x8016D000, 30);
+                LoadSpritePack((DirEnt16 *)0x8016D000, 30);
                 gSubStep++;
             }
             break;
@@ -1880,7 +1880,7 @@ static __inline__ void stepObj(Stepper *obj) {
     /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
     s8 result;
 
-    result = func_80017F0C(obj, 0, obj->unk4);
+    result = StepAnimation(obj, 0, obj->unk4);
     obj->unk340 = result;
     switch (obj->unk5) {
         case 0x60:
@@ -1909,7 +1909,7 @@ static __inline__ void drawObj(Stepper *obj) {
     rot.vx = 0;
     rot.vy = obj->unk380;
     rot.vz = 0;
-    func_80018AE0(&rot, o->coord2);
+    SetCoordRotation(&rot, o->coord2);
     for (i = 0; i < sModels.count; o++, i++) {
         o->coord2->flg = 0;
         if (o->id != -1 && o->tmd != NULL) {

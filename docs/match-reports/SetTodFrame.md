@@ -8,7 +8,7 @@ unchanged; otherwise each of its `count` records is handed to
 `SetTodPacket`, which returns the address after the record, and the
 address after the last one is returned. The other five arguments pass
 through; the last is an `s8`, sign-extended once before the loop.
-Called from func_80017F0C.
+Called from StepAnimation.
 
 ```c
 u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);

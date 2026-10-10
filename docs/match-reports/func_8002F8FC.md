@@ -3,7 +3,7 @@
 Unit `src/code_1dc24.c`. Fills the six camera words `gRefView[0..5]`:
 the sine and cosine of the first rotation's yaw times 500, the game
 height `sGameSave.unk348[1]` plus `sTotals.unkC` plus the sine of the
-view's orbit angle `D_80095914` (degrees, `* 4096 / 360`) times 500, and
+view's orbit angle `gViewerAngle` (degrees, `* 4096 / 360`) times 500, and
 the sine and cosine of the yaw minus 0x800 times 900, all `/ 4096`.
 Second build matched.
 
@@ -15,7 +15,7 @@ Second build matched.
 - `D_80095B34` is reached `lui $v0` / `lw $a1, %lo(..)($v0)`, a cc1 split:
   a member of the `D_80095B28` block. `Totals28` gained `s32 unkC`
   (layout unchanged).
-- `D_80095914` is an `s16` scalar (`lui $a0` / `lh $a0`). It was declared
+- `gViewerAngle` is an `s16` scalar (`lui $a0` / `lh $a0`). It was declared
   in `src/code_7d74.c`; with a second unit using it, the declaration moved
   to `include/common.h` (declcheck MULTI/LOCAL). This is an edit to
   code_7d74.c outside the round's unit, a one-line deletion.
@@ -26,7 +26,7 @@ void func_8002F8FC(void) {
 
     rot = D_800A7680;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
-    gRefView[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 +
+    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 +
                     (sGameSave.unk348[1] + sTotals.unkC);
     gRefView[2] = rcos(rot->vy) * 500 / 4096;
     gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;

@@ -1,7 +1,7 @@
 # func_8002C0EC — MATCHED 39/39 (round 6, alpha)
 
 Unit `src/code_1a098.c`. func_8002C438 with more work on success: calls
-the lookup `func_80018D70(p, D_80096738, p->unk28)`; unless it returns -1,
+the lookup `FindFloorNear(p, D_80096738, p->unk28)`; unless it returns -1,
 stores the result in `unk28`, copies the first halfword the lookup wrote
 into both y words of the object (current `unk4`, stored `unk10`), and sets
 `unk2C`/`unk30` to `ratan2` angles of the next three halfwords. Returns the
@@ -13,7 +13,7 @@ extern s16 D_80096738[];
 s32 func_8002C0EC(Obj34 *p) {
     s32 v;
 
-    v = func_80018D70(p, D_80096738, p->unk28);
+    v = FindFloorNear(p, D_80096738, p->unk28);
     if (v != -1) {
         p->unk28 = v;
         p->unk4 = p->unk10 = D_80096738[0];

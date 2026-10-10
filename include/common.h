@@ -118,7 +118,7 @@ typedef struct {
 extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
 
 /* Small: a plain extern. */
-extern s32 D_800956D4;    /**< 2 units, 4 functions */
+extern s32 gTimInfo;      /**< 2 units, 4 functions */
 extern u8 gClearB;        /**< the screen clear and fog colour, blue */
 extern u8 gClearG;        /**< the screen clear and fog colour, green */
 extern u8 gClearR;        /**< the screen clear and fog colour, red */
@@ -143,27 +143,27 @@ extern s16 D_80095858;    /**< 2 units; set to 2 at the goal when 0 */
 extern s32 D_800958CC;    /**< 2 units, 2 functions; a loop counter kept in a global */
 extern s32 D_800959B4;    /**< 2 units, 2 functions */
 extern s32 D_800959B8;    /**< 2 units, 2 functions */
-extern s32 D_80095958;  /**< a pad word; its bits step a position or a highlighted line; 2 units */
-extern s32 gVSyncTime;  /**< what EndFrame's VSync returned; printed first on the status panel */
-extern s32 gRetries;    /**< set to 0xFF on leaving the tool; 2 units */
-extern u8 D_800958F8;   /**< 2 units */
-extern s32 D_80095980;  /**< 2 units */
-extern s32 gTimeLeft;   /**< 2 units */
-extern s16 D_800957B0;  /**< 2 units */
-extern s32 D_800957B4;  /**< 2 units */
-extern s8 D_800956D0;   /**< a level, kept within 0..120; 2 units */
-extern u8 gPadType;     /**< port 1's controller type byte (0x41 digital, 0x73 analog) */
-extern u32 D_800957C8;  /**< an analogue stick axis, 0x80 at rest; 2 units */
-extern u32 D_800957C0;  /**< the other analogue stick axis, 0x80 at rest; 2 units */
-extern s16 D_800958E2;  /**< the selected Rec78 entry; 2 units */
-extern u16 D_80095868;  /**< 2 units */
-extern s8 D_80095908;   /**< 2 units */
-extern s8 *D_8009593C;  /**< the group list the zones index; 2 units */
-extern s32 D_80095968;  /**< 2 units */
-extern u8 D_800958C8;   /**< 2 units */
-extern s32 D_800958B4;  /**< the address of the floor data a probe tests; 2 units */
-extern u8 D_800D3CA8[]; /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
-extern u8 D_800DB2C0[]; /**< a 0x1DB0-byte buffer of 0x4C-byte records */
+extern s32 D_80095958;   /**< a pad word; its bits step a position or a highlighted line; 2 units */
+extern s32 gVSyncTime;   /**< what EndFrame's VSync returned; printed first on the status panel */
+extern s32 gRetries;     /**< set to 0xFF on leaving the tool; 2 units */
+extern u8 D_800958F8;    /**< 2 units */
+extern s32 D_80095980;   /**< 2 units */
+extern s32 gTimeLeft;    /**< 2 units */
+extern s16 D_800957B0;   /**< 2 units */
+extern s32 D_800957B4;   /**< 2 units */
+extern s8 gViewerMotion; /**< a level, kept within 0..120; 2 units */
+extern u8 gPadType;      /**< port 1's controller type byte (0x41 digital, 0x73 analog) */
+extern u32 D_800957C8;   /**< an analogue stick axis, 0x80 at rest; 2 units */
+extern u32 D_800957C0;   /**< the other analogue stick axis, 0x80 at rest; 2 units */
+extern s16 D_800958E2;   /**< the selected Rec78 entry; 2 units */
+extern u16 D_80095868;   /**< 2 units */
+extern s8 D_80095908;    /**< 2 units */
+extern s8 *D_8009593C;   /**< the group list the zones index; 2 units */
+extern s32 D_80095968;   /**< 2 units */
+extern u8 D_800958C8;    /**< 2 units */
+extern s32 D_800958B4;   /**< the address of the floor data a probe tests; 2 units */
+extern u8 D_800D3CA8[];  /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
+extern u8 D_800DB2C0[];  /**< a 0x1DB0-byte buffer of 0x4C-byte records */
 extern u8 gCdTrackPlaying; /**< 1 while CD audio is playing; 2 units */
 extern u16 gGameMode;      /**< the main loop's state */
 extern s16 gCdLoadCount;   /**< files in the current CD load */
@@ -198,7 +198,7 @@ extern s16 gSoundFade;   /**< 2 units, 2 functions */
 extern s32 D_800958A8;   /**< 2 units; 3 when a stage starts */
 extern s16 D_800957BC;   /**< 2 units; a heading */
 extern u8 *D_800958FC;   /**< 2 units; far (fog) colours, four bytes each */
-extern u16 D_8009576A;   /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern u16 gFogFade;     /**< 2 units; fog fade-in step: 0..31, then 100 */
 extern s32 gVSyncMode;   /**< EndFrame's VSync argument: the frames to wait */
 extern s32 D_800958AC;   /**< 2 units; 1 picks the second set of stage tables */
 extern s8 D_8009599C;    /**< 2 units */
@@ -206,7 +206,7 @@ extern u16 D_800957D2;   /**< 2 units */
 extern u32 gFrameCount;  /**< frames drawn while not paused */
 extern s32 D_800958D0;   /**< a loop counter or count kept in a global; 2 units */
 extern s16 D_8009588E;   /**< number of entries; 2 units */
-extern s16 D_80095914;   /**< the view's orbit angle, in degrees; 2 units */
+extern s16 gViewerAngle; /**< the view's orbit angle, in degrees; 2 units */
 extern s32 D_8009578C;   /**< stamped on placed records; 2 units */
 extern u16 gSubStep;     /**< a state switched on in main; cleared after placing; 2 units */
 extern s16 D_800958DA;   /**< an error code; cleared when flag bit 6 is set; 2 units */
@@ -242,9 +242,9 @@ extern s32 D_800D39C8[];      /**< 2 units, 2 functions */
 extern s32 gTodObjTable[];    /**< 2 units, 5 functions */
 extern s32 D_800D86B8[];      /**< 2 units, 3 functions */
 extern s32 gRefView[];        /**< the game's GsRVIEW2, as words */
-extern s32 D_800DD070[];      /**< 3 units, 4 functions */
+extern s32 gFlatLights[];     /**< 3 units, 4 functions */
 
-extern s32 *D_800D81B0[]; /**< per-sequence data pointers; 2 units */
+extern s32 *gAnimations[]; /**< per-sequence data pointers; 2 units */
 
 /* --- Functions called from more than one unit, with the same prototype ---- */
 
@@ -258,7 +258,7 @@ s32 PlaySe(s32 id);
 void InitSound(void);
 
 /** @brief Defined in code_7d74; called from main. */
-void func_80018CB4(void);
+void InitView(void);
 
 /** @brief Defined in code_7d74: updates an index from a position, then
  *         checks the position against the data blob.
@@ -266,14 +266,14 @@ void func_80018CB4(void);
  *  @param arg a result buffer for the check
  *  @param cur the current index
  *  @return the updated index, or -1 when the check fails */
-s32 func_80018D70(void *pos, void *arg, s32 cur);
+s32 FindFloorNear(void *pos, void *arg, s32 cur);
 
 /** @brief Defined in code_7d74; called when a stage is reset. */
 void StopCdTrack(void);
 
 /** @brief Defined in code_7d74; called from main: sets up the three flat
  *         lights, the ambient light and the fog. */
-void func_80018094(void);
+void InitLights(void);
 
 /** @brief Defined in main.
  *  @param count how many times it prints its fixed string */
@@ -406,7 +406,7 @@ void SetSoundFade(u8 mode);
 void func_800285B0(void);
 
 /** @brief Defined in code_7d74. */
-void func_80017B38(void);
+void UpdateMotionViewer(void);
 
 /** @brief Defined in code_a0bc. */
 void InitTmdSortFuncs(void);

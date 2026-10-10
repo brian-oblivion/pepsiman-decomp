@@ -1,4 +1,6 @@
-# func_80018CB4 — MATCHED (20/20), round 3, runner charlie
+# InitView — MATCHED (20/20), round 3, runner charlie
+
+> Renamed from `func_80018CB4` on 2026-10-10 (tools/rename.py). Address 0x80018cb4.
 
 Unit `src/code_7d74.c`. Sets the projection distance to 250 and a
 reference view at (0, 0, 4000) looking at the origin, then applies it with
@@ -7,7 +9,7 @@ reference view at (0, 0, 4000) looking at the origin, then applies it with
 ```c
 extern s32 gRefView[];   /* common.h */
 
-void func_80018CB4(void) {
+void InitView(void) {
     GsSetProjection(250);
     gRefView[0] = 0;
     gRefView[1] = 0;

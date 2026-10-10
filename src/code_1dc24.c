@@ -271,7 +271,7 @@ typedef struct {
 
 /* MATCHING: declared per unit (code_1a098 and code_308ec give their own
  * views); here the start position is passed as words. */
-s32 func_800183B0(s32 *pos);
+s32 FindFloor(s32 *pos);
 extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 
 /* MATCHING: code_1a098 declares it as its Rec5C records. */
@@ -340,7 +340,7 @@ extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 /* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
 void func_8002CCEC(GsOT *ot);
 void func_8002C47C(void);
-void func_800184BC(void);
+void DrawSky(void);
 void func_8003A008(s16 x, s16 y, s16 z);
 void func_8003B9B4(s16 x, s16 y, s16 z, s16 w);
 
@@ -799,7 +799,7 @@ s32 func_8002D424(void) {
             func_80033BF8();
             func_80031A48();
             func_8003A008(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
-            func_800184BC();
+            DrawSky();
             func_8003B9B4(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
             func_8002F8FC();
             func_8002DC44();
@@ -995,7 +995,7 @@ s32 func_8002DC44(void) {
             break;
     }
     FntPrint(D_800954F4);
-    func_800179F8(0x421, -160, -120, 160, -120, 160, -70, -160, -70, 0);
+    SortSemiQuad(0x421, -160, -120, 160, -120, 160, -70, -160, -70, 0);
     FntPrint(D_80095524);
     if (D_800959D8 == 1) {
         FntPrint(D_80010C08);
@@ -1078,7 +1078,7 @@ s32 func_8002DC44(void) {
             }
             PrintTabs(7);
             FntPrint(D_80095564);
-            func_800179F8(0x421, 60, -68, 130, -68, 130, 12, 60, 12, 0);
+            SortSemiQuad(0x421, 60, -68, 130, -68, 130, 12, 60, 12, 0);
             break;
         case 2:
             PrintTabs(4);
@@ -1088,7 +1088,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_80010C54);
             PrintTabs(3);
             FntPrint(D_80010C68, D_80095B4C[0] + 1);
-            func_800179F8(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
+            SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case 3:
             PrintTabs(4);
@@ -1123,7 +1123,7 @@ s32 func_8002DC44(void) {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80010CB0, sTotals.unk14, 2);
-            func_800179F8(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
+            SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case 4:
             PrintTabs(4);
@@ -1205,7 +1205,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_800954F4);
             PrintTabs(2);
             FntPrint(D_80010D3C, sTotals.unk20);
-            func_800179F8(0x421, -100, -30, 100, -30, 100, 56, -100, 56, 0);
+            SortSemiQuad(0x421, -100, -30, 100, -30, 100, 56, -100, 56, 0);
             break;
         case 5:
             PrintTabs(4);
@@ -1347,7 +1347,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_800954F4);
             PrintTabs(2);
             FntPrint(D_80010D3C, sTotals.unk6A);
-            func_800179F8(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
+            SortSemiQuad(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
             break;
         case 6:
             func_8003245C();
@@ -1374,7 +1374,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_80095524);
             PrintTabs(2);
             FntPrint(D_80010E74);
-            func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
+            SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 8:
             FntPrint(D_80095528);
@@ -1404,7 +1404,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_800955DC);
             PrintTabs(2);
             FntPrint(D_80010E74);
-            func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
+            SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 9:
             FntPrint(D_80095528);
@@ -1431,7 +1431,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_800955DC);
             PrintTabs(2);
             FntPrint(D_80010E74);
-            func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
+            SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 10:
             FntPrint(D_80095528);
@@ -1458,7 +1458,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_800955DC);
             PrintTabs(2);
             FntPrint(D_80010E74);
-            func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
+            SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 11:
             FntPrint(D_80095528);
@@ -1482,7 +1482,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_800955DC);
             PrintTabs(2);
             FntPrint(D_80010E74);
-            func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
+            SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
     }
 }
@@ -1574,7 +1574,7 @@ void func_8002F270(void) {
             FntPrint(D_80095524);
             break;
     }
-    func_800179F8(0x7C21, -160, -70, 160, -70, 160, -44, -160, -44, 0);
+    SortSemiQuad(0x7C21, -160, -70, 160, -70, 160, -44, -160, -44, 0);
 }
 
 /** @brief Runs the menu editor, then on flag bit 5 enters the tool mode
@@ -1646,7 +1646,7 @@ s32 func_8002F6A0(void) {
                 sGameSave.unk348[1] = sRotPos.pos[1];
                 sGameSave.unk348[2] = sRotPos.pos[2];
                 sRotPos.rot.vy = sRotPos.rot.vz;
-                D_800957F4 = func_800183B0(sGameSave.unk348);
+                D_800957F4 = FindFloor(sGameSave.unk348);
                 D_8009578C = 0;
                 D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                 break;
@@ -1665,7 +1665,7 @@ void func_8002F8FC(void) {
 
     rot = D_800A7680;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
-    gRefView[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
+    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
     gRefView[2] = rcos(rot->vy) * 500 / 4096;
     gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;
     gRefView[4] = sGameSave.unk348[1];
@@ -1733,7 +1733,7 @@ s32 func_8002FA78(void) {
         sTotals.unk8 += sTotals.unk4;
     }
     sGameSave.unk3C4 = sGameSave.unk348[1];
-    cur = func_80018D70(sGameSave.unk348, D_800AC858, D_800957F4);
+    cur = FindFloorNear(sGameSave.unk348, D_800AC858, D_800957F4);
     D_80095824 = cur;
     if (cur != -1) {
         D_800957F4 = cur;
@@ -2691,7 +2691,7 @@ s32 func_80031EF4(void) {
                         sGameSave.unk348[1] = sRotPos.pos[1];
                         sGameSave.unk348[2] = sRotPos.pos[2];
                         sRotPos.rot.vy = sRotPos.rot.vz;
-                        D_800957F4 = func_800183B0(sGameSave.unk348);
+                        D_800957F4 = FindFloor(sGameSave.unk348);
                         D_8009578C = 0;
                         D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                         func_8002D0C4((BlockHeader *)0x801FD000);
@@ -2924,7 +2924,7 @@ void func_8003245C(void) {
             func_80033C90();
             break;
     }
-    func_800179F8(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
+    SortSemiQuad(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
 }
 
 /** @brief Prints the three save slots of the tool buffer as a menu, each

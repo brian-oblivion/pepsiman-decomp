@@ -49,7 +49,7 @@ void ResetStage(void) {
     sStage.unk4 = 0;
     sStage.unk5 = 0;
     sStage.unk8 = 0xFF;
-    func_80017F0C(&sStage, 0, 0);
+    StepAnimation(&sStage, 0, 0);
     sStage.unk3A8 = 50;
     sStage.unk38E = 0;
     sStage.unk38C = 0;
@@ -71,7 +71,7 @@ void ResetStage(void) {
     gPauseState = 0;
     D_800957A4 = 0;
     ClipF = 0;
-    D_8009576A = 0;
+    gFogFade = 0;
     func_800287C0();
     if (sSaved.valid != 0) {
         D_8009578C = sSaved.unk10;
@@ -130,7 +130,7 @@ void ResetStage(void) {
 - `gVSyncMode` (from main.c), `D_800958AC`, `D_8009599C`, `D_800957D2`
   (from code_13068.c) moved into `include/common.h` with the same types
   (additive), and `StopCdTrack` (code_7d74) was added there.
-- `func_80017F0C` takes `Stepper *` in main.c's view and `StageState *`
+- `StepAnimation` takes `Stepper *` in main.c's view and `StageState *`
   here; both prototypes carry a `MATCHING:` note (main.c gained the note).
 - `StartRumble` gets a unit-local `(u16 *, s32)` view with a
   `MATCHING:` note, as code_13068 has.

@@ -17,7 +17,7 @@ extern s32 D_800724C4[];
 s32 func_80013CDC(void);
 
 /* MATCHING: code_7d74 types the pack as its own PackEntry. */
-void func_8001797C(void *pack);
+void LoadTimPack(void *pack);
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
 void func_80018DE8(s32 arg);
@@ -57,7 +57,7 @@ s8 LoadBootData(void) {
         case 2:
             ret = 1;
             func_80013CDC();
-            func_8001797C((void *)0x8018D000);
+            LoadTimPack((void *)0x8018D000);
             func_8003E13C((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
             func_8003A84C();
             func_80018DE8(1);
@@ -90,7 +90,7 @@ The five-word copy into `gCdLoadSectors` is five separate assignments
 - `func_8003E13C` and `func_8003A84C` (code_29f54) added to
   `include/common.h` (additive).
 - Per-unit views in `src/main.c` with `MATCHING:` notes:
-  `func_8001797C(void *)` (code_7d74 types it with its local `PackEntry`)
+  `LoadTimPack(void *)` (code_7d74 types it with its local `PackEntry`)
   and `func_80018DE8(s32)` (an empty definition retail calls with one
   argument).
 

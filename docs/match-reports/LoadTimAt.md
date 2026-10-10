@@ -1,7 +1,9 @@
-# func_80017880 — MATCHED (63/63), round 5, runner charlie
+# LoadTimAt — MATCHED (63/63), round 5, runner charlie
 
-Unit `src/code_7d74.c`. Uploads a TIM image to VRAM: `func_80017640`
-unpacks the TIM's header into the record `D_800956D4` points at (returns
+> Renamed from `func_80017880` on 2026-10-10 (tools/rename.py). Address 0x80017880.
+
+Unit `src/code_7d74.c`. Uploads a TIM image to VRAM: `ReadTimHeader`
+unpacks the TIM's header into the record `gTimInfo` points at (returns
 -1 when the TIM is not one), then the pixels go to `(px, py)` unless `px`
 is -1, and the CLUT, if the TIM has one, to `(cx, cy)` unless `cx` is -1.
 The widths and heights come from the TIM.
@@ -19,20 +21,20 @@ typedef struct {
     s16 unk1E;     /**< 4, 2 or not set, by pixel mode */
 } TimInfo;
 
-s8 func_80017640(u16 *tim);
+s8 ReadTimHeader(u16 *tim);
 
 /* MATCHING: s32 with no value returned keeps the return register live,
  * so cc1 leaves the two forward branch delay slots empty. */
-s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
+s32 LoadTimAt(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
     RECT rect;
     RECT clut;
     TimInfo *info;
     TimInfo *clutInfo;
 
-    if (func_80017640(tim) == -1) {
+    if (ReadTimHeader(tim) == -1) {
         return;
     }
-    info = (TimInfo *)D_800956D4;
+    info = (TimInfo *)gTimInfo;
     if (px != -1) {
         rect.x = px;
         rect.y = py;
@@ -41,7 +43,7 @@ s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
         LoadImage(&rect, info->pixel);
     }
     if (cx != -1) {
-        clutInfo = (TimInfo *)D_800956D4;
+        clutInfo = (TimInfo *)gTimInfo;
         if (clutInfo->hasClut == 1) {
             clut.x = cx;
             clut.y = cy;
@@ -52,8 +54,8 @@ s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
     }
 }```
 
-`D_800956D4` stays the shared `s32` of `include/common.h`; the body casts
-it. `TimInfo` is unit-local; its layout comes from func_80017640's stores
+`gTimInfo` stays the shared `s32` of `include/common.h`; the body casts
+it. `TimInfo` is unit-local; its layout comes from ReadTimHeader's stores
 (still `INCLUDE_ASM`), and its return type `s8` from this caller's
 `sll`/`sra 24` of the result.
 
@@ -78,7 +80,7 @@ in code_7d74 from this function.
 - **The no-return `s32` lever (func_8002D140, func_800283A0) also covers a
   `void`-looking function with an early bare `return;`**: forward-branch
   delay slots left as `nop` where your build fills them with a `$v0`
-  write. (func_80017880)
+  write. (LoadTimAt)
 - **Two blocks reading the same global pointer into different registers:
   one local per block.** Reusing one local puts both in the same register.
-  (func_80017880)
+  (LoadTimAt)

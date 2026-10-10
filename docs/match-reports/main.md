@@ -2,7 +2,7 @@
 
 Unit `src/main.c`. The game's entry, called from SN's crt0
 (`__SN_ENTRY_POINT`). It initialises the system (InitSystem,
-InitTmdSortFuncs, func_80018DE8(1), func_80018CB4, func_80018094, fog),
+InitTmdSortFuncs, func_80018DE8(1), InitView, InitLights, fog),
 sets the start-up globals, fills two four-entry tables (clears
 `D_80096A58`, copies `D_80010454` into `D_800D8340`), then loops forever:
 `FntPrint`, the 45-state top-level `switch (gGameMode)` (boot, title,
@@ -43,9 +43,9 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 
 ## Declarations left for the head
 
-declcheck MULTI: `D_800956D0` (code_7d74), `D_800958E2` (code_1a098),
+declcheck MULTI: `gViewerMotion` (code_7d74), `D_800958E2` (code_1a098),
 `D_80095908` and `D_80095968` (code_29f54) are now declared in main.c as
-well. LOCAL: prototypes for other units' functions (func_80017B38,
+well. LOCAL: prototypes for other units' functions (UpdateMotionViewer,
 InitTmdSortFuncs, func_800229A8, func_80022A74, func_8002B04C,
 func_8002D424, func_80034070, InitStageOverlay, LoadStageOverlay,
 PlayMovie, UpdateSoundFade).

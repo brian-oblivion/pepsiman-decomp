@@ -27,7 +27,7 @@ typedef struct {
 
 /* MATCHING: reading the TimInfo through the global each time, not a
  * pointer local, picks retail's registers. */
-#define sTim ((TimInfo *)D_800956D4)
+#define sTim ((TimInfo *)gTimInfo)
 
 /** @brief A position as three words. */
 typedef struct {
@@ -36,7 +36,7 @@ typedef struct {
     s32 z; /**< z */
 } Vec3i;
 
-extern s8 D_800956D1;     /**< set to 1 when the level is applied */
+extern s8 gViewerReplay;  /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */
 /* MATCHING: a per-unit view; code_1a098 defines it on its own floor
@@ -54,7 +54,7 @@ typedef struct {
 
 /* MATCHING: a struct lvalue keeps the base in one register; common.h
  * declares the table as words. */
-#define sLights ((*(FlatLights *)D_800DD070).l)
+#define sLights ((*(FlatLights *)gFlatLights).l)
 
 /** @brief The head of the game state, seen as a two-channel animation
  *         player. */
@@ -81,12 +81,12 @@ typedef struct {
 
 /* MATCHING: each caller declares its own view of the state it passes;
  * this is the defining unit's. */
-u8 func_80017F0C(Player *obj, u16 index, s8 arg);
+u8 StepAnimation(Player *obj, u16 index, s8 arg);
 
-void func_80017DD4(void);
-s32 func_8001819C(void);
-void func_80018BD8(void);
-s8 func_80017640(u16 *tim);
+void OrbitViewerCamera(void);
+s32 DrawTodObjects(void);
+void SelectViewerMotion(void);
+s8 ReadTimHeader(u16 *tim);
 u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 
@@ -112,7 +112,7 @@ void OnCdTrackReady(u8 mode) {
     }
 }
 
-s8 func_80017640(u16 *tim) {
+s8 ReadTimHeader(u16 *tim) {
     u16 *p;
     u16 *start;
     s32 len;
@@ -150,29 +150,29 @@ s8 func_80017640(u16 *tim) {
     sTim->pixel = (u32 *)p;
     switch (sTim->mode) {
         case 0:
-            sTim->unk1E = 4;
+            sTim->perUnit = 4;
             /* MATCHING: a multiply, not a shift, loads the width with lh. */
-            sTim->unk1C = sTim->pixRect.w * 4;
+            sTim->width = sTim->pixRect.w * 4;
             break;
         case 1:
-            sTim->unk1E = 2;
-            sTim->unk1C = sTim->pixRect.w * 2;
+            sTim->perUnit = 2;
+            sTim->width = sTim->pixRect.w * 2;
             break;
         default:
-            sTim->unk1C = sTim->pixRect.w;
+            sTim->width = sTim->pixRect.w;
             break;
     }
     return 0;
 }
 
-s32 func_80017774(void *data) {
+s32 LoadTim(void *data) {
     RECT rect;
     RECT clut;
     TimInfo *info;
     u16 w;
     u16 h;
 
-    if (func_80017640(data) == -1) {
+    if (ReadTimHeader(data) == -1) {
         return -1;
     }
     w = sTim->pixRect.w;
@@ -190,21 +190,21 @@ s32 func_80017774(void *data) {
         clut.h = info->clutRect.h;
         LoadImage(&clut, info->clut);
     }
-    return (s16)w * (s16)h * sTim->unk1E + (s32)sTim->pixel;
+    return (s16)w * (s16)h * sTim->perUnit + (s32)sTim->pixel;
 }
 
 /* MATCHING: s32 with no value returned keeps the return register live,
  * so cc1 leaves the two forward branch delay slots empty. */
-s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
+s32 LoadTimAt(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
     RECT rect;
     RECT clut;
     TimInfo *info;
     TimInfo *clutInfo;
 
-    if (func_80017640(tim) == -1) {
+    if (ReadTimHeader(tim) == -1) {
         return;
     }
-    info = (TimInfo *)D_800956D4;
+    info = (TimInfo *)gTimInfo;
     if (px != -1) {
         rect.x = px;
         rect.y = py;
@@ -213,7 +213,7 @@ s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
         LoadImage(&rect, info->pixel);
     }
     if (cx != -1) {
-        clutInfo = (TimInfo *)D_800956D4;
+        clutInfo = (TimInfo *)gTimInfo;
         if (clutInfo->hasClut == 1) {
             clut.x = cx;
             clut.y = cy;
@@ -224,7 +224,7 @@ s32 func_80017880(s16 px, s16 py, s16 cx, s16 cy, u16 *tim) {
     }
 }
 
-void func_8001797C(PackEntry *pack) {
+void LoadTimPack(PackEntry *pack) {
     PackEntry *e;
     u16 i;
     u16 n;
@@ -232,7 +232,7 @@ void func_8001797C(PackEntry *pack) {
     e = pack;
     n = pack->count;
     for (i = 0; i < n; i++) {
-        func_80017774((u8 *)pack + e->offset);
+        LoadTim((u8 *)pack + e->offset);
         e++;
         DrawSync(0);
     }
@@ -240,7 +240,7 @@ void func_8001797C(PackEntry *pack) {
 
 /* MATCHING: the red channel through its own local moves the colour's copy
  * first in the prologue, as retail. */
-void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
+void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
     POLY_F4 poly;
     POLY_F4 *p;
     s32 r;
@@ -263,11 +263,11 @@ void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 
     GsSortPoly(p, &gSubOt[gActiveBuff], pri);
 }
 
-s32 func_80017B18(void) {
+s32 Random(void) {
     return rand();
 }
 
-void func_80017B38(void) {
+void UpdateMotionViewer(void) {
     /* MATCHING: an unused local gives retail's 0x20-byte frame. */
     s32 unused[2];
 
@@ -282,7 +282,7 @@ void func_80017B38(void) {
             gRefView[3] = 0;
             gRefView[4] = 0;
             gRefView[5] = 0;
-            D_80095914 = -90;
+            gViewerAngle = -90;
             sPlayer.unk380 = 0;
             sPlayer.unk384 = 0;
             sPlayer.unk348 = 0;
@@ -297,20 +297,20 @@ void func_80017B38(void) {
             D_8009EAB8[0] = 0;
             D_8009EAB8[1] = sPlayer.unk380;
             D_8009EAB8[2] = sPlayer.unk384;
-            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             sPlayer.want[0] = 0;
-            func_80017F0C(&sPlayer, 0, 0);
+            StepAnimation(&sPlayer, 0, 0);
             gModeStep++;
             break;
         case 1:
-            if (D_800956D1 == 1) {
-                D_800956D1 = func_80017F0C(&sPlayer, 0, 0);
+            if (gViewerReplay == 1) {
+                gViewerReplay = StepAnimation(&sPlayer, 0, 0);
             } else {
                 D_8009EB7E[0] = 0;
             }
-            func_8001819C();
-            func_80018BD8();
-            func_80017DD4();
+            DrawTodObjects();
+            SelectViewerMotion();
+            OrbitViewerCamera();
             if (gPad & 0x2000) {
                 D_800D86E0[0].coord.t[0]++;
             }
@@ -331,28 +331,28 @@ void func_80017B38(void) {
             }
             break;
     }
-    FntPrint(D_80010404, D_800956D0);
+    FntPrint(D_80010404, gViewerMotion);
 }
 
-void func_80017DD4(void) {
-    gRefView[0] = rcos((D_80095914 << 12) / 360) * 400 / 4096;
+void OrbitViewerCamera(void) {
+    gRefView[0] = rcos((gViewerAngle << 12) / 360) * 400 / 4096;
     gRefView[1] = -100;
-    gRefView[2] = rsin((D_80095914 << 12) / 360) * 400 / 4096;
+    gRefView[2] = rsin((gViewerAngle << 12) / 360) * 400 / 4096;
     gRefView[6] = 0;
     gRefView[3] = 0;
     gRefView[4] = -100;
     gRefView[5] = 0;
     if (gPad & 4) {
-        D_80095914 += 2;
+        gViewerAngle += 2;
     }
     if (gPad & 8) {
-        D_80095914 -= 2;
+        gViewerAngle -= 2;
     }
 }
 
 extern u8 D_800760EC[];
 
-u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
+u8 StepAnimation(Player *obj, u16 index, s8 arg) {
     u8 ret;
     s32 seq;
 
@@ -364,7 +364,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     }
     if (obj->want[index] != obj->cur[index]) {
         obj->time[index] = obj->start[obj->want[index]];
-        obj->data[index] = (u8 *)D_800D81B0[obj->want[index]];
+        obj->data[index] = (u8 *)gAnimations[obj->want[index]];
         obj->cur[index] = obj->want[index];
     }
     seq = obj->cur[index];
@@ -375,7 +375,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
         if (seq < 5) {
             ret = 2;
             obj->time[index] = obj->start[seq];
-            obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
+            obj->data[index] = (u8 *)gAnimations[obj->cur[index]];
         } else if ((s16)seq == 26) {
             ret = 2;
             /* MATCHING: lengthens &obj->start[seq]'s live range (global-alloc). */
@@ -383,7 +383,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
             __asm__("");
             __asm__("");
             obj->time[index] = obj->start[seq];
-            obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
+            obj->data[index] = (u8 *)gAnimations[obj->cur[index]];
         } else {
             return 0;
         }
@@ -395,7 +395,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     return ret;
 }
 
-void func_80018094(void) {
+void InitLights(void) {
     GsFOGPARAM fog;
 
     sLights[0].vx = 0;
@@ -450,7 +450,7 @@ typedef struct {
 /* MATCHING: per-unit view; main.c reads the same slot as a Model70. */
 extern s32 D_800963A0[];
 
-s32 func_8001819C(void) {
+s32 DrawTodObjects(void) {
     GsDOBJ2 save;
     MATRIX m;
     GsDOBJ2 *o;
@@ -494,7 +494,7 @@ s32 func_8001819C(void) {
     }
 }
 
-s32 func_800183B0(Vec3i *pos) {
+s32 FindFloor(Vec3i *pos) {
     Vec3i p;
     s32 out[4];
     u32 i;
@@ -538,9 +538,9 @@ typedef struct {
 } SkyColors;
 
 /* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
-extern SkyColors *D_8009590C;
+extern SkyColors *gSkyColors;
 
-void func_800184BC(u32 arg) {
+void DrawSky(u32 arg) {
     /* MATCHING: volatile keeps every store in source order and in place. */
     volatile POLY_G4 *p;
     u32 *tag;
@@ -557,16 +557,16 @@ void func_800184BC(u32 arg) {
     y = D_80096768[4] - D_80096768[1];
     p = (volatile POLY_G4 *)GsOUT_PACKET_P;
     y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
-    if (D_8009576A != 100 && gStage % 3 != 2) {
-        p->r0 = p->r1 = D_8009590C[set].c[0].r * (D_8009576A << 11) / 0x10000;
-        p->g0 = p->g1 = D_8009590C[set].c[0].g * (D_8009576A << 11) / 0x10000;
-        p->b0 = p->b1 = D_8009590C[set].c[0].b * (D_8009576A << 11) / 0x10000;
-        p->r2 = p->r3 = D_8009590C[set].c[1].r * (D_8009576A << 11) / 0x10000;
-        p->g2 = p->g3 = D_8009590C[set].c[1].g * (D_8009576A << 11) / 0x10000;
-        p->b2 = p->b3 = D_8009590C[set].c[1].b * (D_8009576A << 11) / 0x10000;
+    if (gFogFade != 100 && gStage % 3 != 2) {
+        p->r0 = p->r1 = gSkyColors[set].c[0].r * (gFogFade << 11) / 0x10000;
+        p->g0 = p->g1 = gSkyColors[set].c[0].g * (gFogFade << 11) / 0x10000;
+        p->b0 = p->b1 = gSkyColors[set].c[0].b * (gFogFade << 11) / 0x10000;
+        p->r2 = p->r3 = gSkyColors[set].c[1].r * (gFogFade << 11) / 0x10000;
+        p->g2 = p->g3 = gSkyColors[set].c[1].g * (gFogFade << 11) / 0x10000;
+        p->b2 = p->b3 = gSkyColors[set].c[1].b * (gFogFade << 11) / 0x10000;
     } else {
-        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&D_8009590C[set].c[0];
-        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&D_8009590C[set].c[1];
+        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&gSkyColors[set].c[0];
+        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&gSkyColors[set].c[1];
     }
     p->x0 = -160;
     p->y0 = -160;
@@ -581,16 +581,16 @@ void func_800184BC(u32 arg) {
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
     *tag = (u32)p & 0xFFFFFF;
     p++;
-    if (D_8009576A != 100 && gStage % 3 != 2) {
-        p->r0 = p->r1 = D_8009590C[set].c[2].r * (D_8009576A << 11) / 0x10000;
-        p->g0 = p->g1 = D_8009590C[set].c[2].g * (D_8009576A << 11) / 0x10000;
-        p->b0 = p->b1 = D_8009590C[set].c[2].b * (D_8009576A << 11) / 0x10000;
-        p->r2 = p->r3 = D_8009590C[set].c[3].r * (D_8009576A << 11) / 0x10000;
-        p->g2 = p->g3 = D_8009590C[set].c[3].g * (D_8009576A << 11) / 0x10000;
-        p->b2 = p->b3 = D_8009590C[set].c[3].b * (D_8009576A << 11) / 0x10000;
+    if (gFogFade != 100 && gStage % 3 != 2) {
+        p->r0 = p->r1 = gSkyColors[set].c[2].r * (gFogFade << 11) / 0x10000;
+        p->g0 = p->g1 = gSkyColors[set].c[2].g * (gFogFade << 11) / 0x10000;
+        p->b0 = p->b1 = gSkyColors[set].c[2].b * (gFogFade << 11) / 0x10000;
+        p->r2 = p->r3 = gSkyColors[set].c[3].r * (gFogFade << 11) / 0x10000;
+        p->g2 = p->g3 = gSkyColors[set].c[3].g * (gFogFade << 11) / 0x10000;
+        p->b2 = p->b3 = gSkyColors[set].c[3].b * (gFogFade << 11) / 0x10000;
     } else {
-        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&D_8009590C[set].c[2];
-        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&D_8009590C[set].c[3];
+        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&gSkyColors[set].c[2];
+        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&gSkyColors[set].c[3];
     }
     p->x0 = -160;
     p->y0 = 8 - y;
@@ -607,7 +607,7 @@ void func_800184BC(u32 arg) {
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
-void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord) {
+void SetCoordRotation(SVECTOR *rot, GsCOORDINATE2 *coord) {
     MATRIX m;
     SVECTOR r;
 
@@ -629,25 +629,25 @@ typedef struct {
     u8 unk8;    /**< set to 0xFF when flag 0x20 is set */
 } LevelHead;
 
-void func_80018BD8(void) {
+void SelectViewerMotion(void) {
     s32 flags = gPadTrig;
 
     if (flags & 0x10) {
-        D_800956D0++;
+        gViewerMotion++;
     }
     if (flags & 0x80) {
-        D_800956D0--;
+        gViewerMotion--;
     }
-    if (D_800956D0 < 0) {
-        D_800956D0 = 0;
+    if (gViewerMotion < 0) {
+        gViewerMotion = 0;
     }
-    if (D_800956D0 >= 0x79) {
-        D_800956D0 = 0x78;
+    if (gViewerMotion >= 0x79) {
+        gViewerMotion = 0x78;
     }
     if (flags & 0x20) {
         (*(LevelHead *)D_8009EB78).unk8 = 0xFF;
-        D_800956D1 = 1;
-        (*(LevelHead *)D_8009EB78).unk6 = D_800956D0;
+        gViewerReplay = 1;
+        (*(LevelHead *)D_8009EB78).unk6 = gViewerMotion;
     }
 }
 
@@ -655,7 +655,7 @@ void func_80018CA4(void) {}
 
 void func_80018CAC(void) {}
 
-void func_80018CB4(void) {
+void InitView(void) {
     GsSetProjection(250);
     gRefView[0] = 0;
     gRefView[1] = 0;
@@ -668,7 +668,7 @@ void func_80018CB4(void) {
     GsSetRefView2((GsRVIEW2 *)gRefView);
 }
 
-s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
+s16 Lerp(s16 from, s16 to, u16 step, u16 steps) {
     s32 v;
 
     if (step == steps) {
@@ -683,7 +683,7 @@ s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
     return from + v;
 }
 
-s32 func_80018D70(void *pos, void *arg, s32 cur) {
+s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     Vec3i p;
 
     p.x = ((Vec3i *)pos)->x;

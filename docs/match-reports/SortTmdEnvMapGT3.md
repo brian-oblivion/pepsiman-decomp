@@ -100,7 +100,7 @@ PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packe
 - **The v coordinate built in one local through compound statements**,
   `y = (pkt->y0 >> 3) + 0x78; y += mac.vy >> 8; pkt->v0 = y - page;`.
   As one expression cc1 moves the 0x78 onto the normal term; as
-  `y + (mac.vy >> 8) - page` the registers swap. The func_80018D04 shape.
+  `y + (mac.vy >> 8) - page` the registers swap. The Lerp shape.
 
 Twelve builds.
 

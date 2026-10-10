@@ -1,4 +1,6 @@
-# func_80018D70 — MATCHED (30/30), round 7, runner alpha
+# FindFloorNear — MATCHED (30/30), round 7, runner alpha
+
+> Renamed from `func_80018D70` on 2026-10-10 (tools/rename.py). Address 0x80018d70.
 
 Unit `src/code_7d74.c`. Round 3 (runner charlie) skipped it at the
 budget, 1 word short, 3/30; round 7 matched it. Copies a 3-word position
@@ -18,7 +20,7 @@ s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit's view; code_29f54 defines the coordinates s16. */
 void func_8003A3F4(s32 *index, s32 x, s32 y);
 
-s32 func_80018D70(void *pos, void *arg, s32 cur) {
+s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     Vec3i p;
 
     p.x = ((Vec3i *)pos)->x;
@@ -49,7 +51,7 @@ passed. Round 3 called `func_8003A3F4(&arg2)` with one argument.
 
 ## Declarations
 
-- `func_80018D70`'s prototype moved from code_1a098.c into
+- `FindFloorNear`'s prototype moved from code_1a098.c into
   `include/common.h` (additive); code_1a098.c's local copy is deleted.
 - `func_800299D8`'s first parameter is now `void *` in this unit (both
   callers here pass different buffers).
@@ -58,4 +60,4 @@ passed. Round 3 called `func_8003A3F4(&arg2)` with one argument.
 
 - **Registers of a field copy that look wrong may be call arguments:**
   check whether the copied values sit in `$a1`.. when the next `jal`
-  runs. (func_80018D70)
+  runs. (FindFloorNear)

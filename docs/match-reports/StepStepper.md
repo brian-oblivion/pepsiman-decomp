@@ -2,18 +2,18 @@
 
 > Renamed from `func_800173E8` on 2026-10-10 (tools/rename.py). Address 0x800173e8.
 
-Steps channel 0 of a `Stepper` object through `func_80017F0C` (unit
+Steps channel 0 of a `Stepper` object through `StepAnimation` (unit
 `code_7d74`), keeps the byte result at `+0x340`, and for kind `0x61` marks
 `+0x8` with `0xFF` when the result is zero.
 
 ```c
-u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
+u8 StepAnimation(Stepper *obj, u16 index, u8 arg);
 
 void StepStepper(Stepper *obj) {
     /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
     s8 result;
 
-    result = func_80017F0C(obj, 0, obj->unk4);
+    result = StepAnimation(obj, 0, obj->unk4);
     obj->unk340 = result;
     switch (obj->unk5) {
     case 0x60:

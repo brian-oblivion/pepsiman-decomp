@@ -1,23 +1,25 @@
-# func_80017774 — MATCHED (67/67), round 7, runner alpha
+# LoadTim — MATCHED (67/67), round 7, runner alpha
 
-Unit `src/code_7d74.c`. Unpacks a TIM through `func_80017640` into the
-TimInfo at `D_800956D4`, uploads the pixels and, when present, the CLUT,
+> Renamed from `func_80017774` on 2026-10-10 (tools/rename.py). Address 0x80017774.
+
+Unit `src/code_7d74.c`. Unpacks a TIM through `ReadTimHeader` into the
+TimInfo at `gTimInfo`, uploads the pixels and, when present, the CLUT,
 and returns the address just past the pixel data (width x height x the
 mode's scale, added to the pixel pointer), or -1 when the TIM is bad.
-Its prototype in the unit changed from `void` to `s32` (func_8001797C
+Its prototype in the unit changed from `void` to `s32` (LoadTimPack
 ignores the result; still 31/31).
 
 ```c
-#define sTim ((TimInfo *)D_800956D4)
+#define sTim ((TimInfo *)gTimInfo)
 
-s32 func_80017774(void *data) {
+s32 LoadTim(void *data) {
     RECT rect;
     RECT clut;
     TimInfo *info;
     u16 w;
     u16 h;
 
-    if (func_80017640(data) == -1) {
+    if (ReadTimHeader(data) == -1) {
         return -1;
     }
     w = sTim->pixRect.w;
@@ -56,4 +58,4 @@ the source.
 
 - **A global struct pointer reloaded per block, held in `$v0`/`$v1`
   rather than `$a0`: read it through the global each time**, `#define
-  sTim ((T *)G)`, not a pointer local. (func_80017774)
+  sTim ((T *)G)`, not a pointer local. (LoadTim)

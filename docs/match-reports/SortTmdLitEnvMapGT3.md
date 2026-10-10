@@ -11,7 +11,7 @@ over the same screen coordinates with the TMD's own UVs and colours from
 `gte_ncct` on the three normals, both linked at the triangle's depth.
 
 New in this round: the unit-local `FlatLights` view and `sLights` macro
-(code_7d74's spelling) for `D_800DD070`, and an additive
+(code_7d74's spelling) for `gFlatLights`, and an additive
 `gte_strgb3_gt3(r1)` in `include/gte.h` (Sony's one-pointer store of RGB0-2
 at +0x4, +0x10, +0x1C). The local prototype changed from `PACKET
 *SortTmdLitEnvMapGT3();` to the full one.

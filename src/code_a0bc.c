@@ -210,7 +210,7 @@ typedef struct {
 
 /* MATCHING: a struct lvalue keeps the base in one register; common.h
  * declares the table as words. */
-#define sLights ((*(FlatLights *)D_800DD070).l)
+#define sLights ((*(FlatLights *)gFlatLights).l)
 
 /** @brief A primitive handler: one entry of the handler table. */
 typedef PACKET *(*PrimFunc)();

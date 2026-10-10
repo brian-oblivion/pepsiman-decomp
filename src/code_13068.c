@@ -123,7 +123,7 @@ typedef struct {
 } LightTable;
 
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
-#define sLights (*(LightTable *)D_800DD070)
+#define sLights (*(LightTable *)gFlatLights)
 extern s32 D_8009EEF8[];
 
 /** @brief A 72-byte record of the shared slot table, as the item
@@ -596,7 +596,7 @@ void func_80023228(void) {
     D_800D86E0[0].coord.t[0] = sGame.unk354;
     D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
     D_800D86E0[0].coord.t[2] = sGame.unk35C;
-    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
     D_800A7308[1] = 0;
     D_800A7308[0] = -sGame.unk348;
     D_800A7308[2] = -sGame.unk350;
@@ -982,10 +982,10 @@ void func_80023F80(u8 *state) {
 }
 
 /* MATCHING: code_7d74 types the object as its own view; this unit passes the state block. */
-u8 func_80017F0C(GameState *obj, u16 index, u8 arg);
+u8 StepAnimation(GameState *obj, u16 index, u8 arg);
 /* MATCHING: code_7d74 defines this with s16/u16 parameters and an s16 result; this unit's
  * calls pass halfwords unextended and store the result as a word. */
-s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
+s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 /* MATCHING: empty void(void) in code_7d74; unprototyped here, called with two args and one. */
 void func_80018CAC();
 
@@ -1015,10 +1015,10 @@ s32 func_80024450(GameState *state) {
         sGame.unk2 = 0;
     }
     if (state->unk3 == 0) {
-        state->unk340 = func_80017F0C(state, 0, state->unk4);
+        state->unk340 = StepAnimation(state, 0, state->unk4);
     } else {
-        state->unk340 = func_80017F0C(state, 0, 1);
-        state->unk341 = func_80017F0C(state, 1, 2);
+        state->unk340 = StepAnimation(state, 0, 1);
+        state->unk341 = StepAnimation(state, 1, 2);
     }
 top:
     switch (state->unk5) {
@@ -1050,9 +1050,9 @@ top:
             if (state->unk374 < 60) {
                 state->unk374++;
             }
-            D_80095740 = func_80018D04(D_80095740, 0, state->unk374, 60);
+            D_80095740 = Lerp(D_80095740, 0, state->unk374, 60);
             /* MATCHING: a byte-pointer read keeps the load below the store to D_80095740. */
-            D_80095744 = func_80018D04(D_80095744, 0, *(s16 *)((u8 *)state + 0x374), 60);
+            D_80095744 = Lerp(D_80095744, 0, *(s16 *)((u8 *)state + 0x374), 60);
 
             if (D_80095740 == 0) {
                 state->unk4 = 0;
@@ -1495,13 +1495,13 @@ top:
             D_800D86E0[0].coord.t[0] = sGame.unk354;
             D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
             D_800D86E0[0].coord.t[2] = sGame.unk35C;
-            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             break;
         case 0x10:
             if (state->unk374 < 10) {
                 state->unk374++;
             }
-            state->unk3A8 = func_80018D04(state->unk3AA, 0, state->unk374, 10);
+            state->unk3A8 = Lerp(state->unk3AA, 0, state->unk374, 10);
             switch (state->unk5) {
                 case 0x18:
                     if (state->unk340 == 0) {
@@ -1529,7 +1529,7 @@ top:
             if (state->unk374 < 60) {
                 state->unk374++;
             }
-            state->unk3A8 = func_80018D04(state->unk3AA, 0, state->unk374, 60);
+            state->unk3A8 = Lerp(state->unk3AA, 0, state->unk374, 60);
             break;
         case 0x13:
             state->unk0 = 0;
@@ -1779,9 +1779,9 @@ top:
             break;
         case 0x23:
             if (state->unk5 == 0x55) {
-                sGame.unk354 = func_80018D04(0, D_80096768[0], state->unk378, 5);
-                sGame.unk358 = func_80018D04(0, -50, state->unk378, 5);
-                sGame.unk35C = func_80018D04(0, D_80096768[2], state->unk378, 5);
+                sGame.unk354 = Lerp(0, D_80096768[0], state->unk378, 5);
+                sGame.unk358 = Lerp(0, -50, state->unk378, 5);
+                sGame.unk35C = Lerp(0, D_80096768[2], state->unk378, 5);
                 if (++state->unk378 >= 5) {
                     StartRumble(gRumblePatterns, 5);
                     state->unk6 = 0x28;
@@ -1793,7 +1793,7 @@ top:
                 D_800D86E0[0].coord.t[0] = sGame.unk354;
                 D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
                 D_800D86E0[0].coord.t[2] = sGame.unk35C;
-                func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+                SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
                 break;
             }
             state->unk3A8 += 4;
@@ -1877,7 +1877,7 @@ top:
                     D_800D86E0[0].coord.t[0] = sGame.unk354;
                     D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
                     D_800D86E0[0].coord.t[2] = sGame.unk35C;
-                    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+                    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
                     if (++state->unk378 < 10) {
                         /* MATCHING: x - (5 - r) keeps the -5 on the loaded word. */
                         D_80096768[0] = D_80096768[0] - (5 - rand() % 10);
@@ -1908,7 +1908,7 @@ top:
                     D_800D86E0[0].coord.t[0] = sGame.unk354;
                     D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
                     D_800D86E0[0].coord.t[2] = sGame.unk35C;
-                    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+                    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
                     if (state->unk340 == 0) {
                         sGame.unk360 = 0;
                         D_8009EAB8[0] = 0;
@@ -1999,7 +1999,7 @@ top:
             D_800D86E0[0].coord.t[2] = sGame.unk35C;
             D_800D86E0[0].coord.t[0] = sGame.unk354;
             D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
-            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             sGame.unk35C = 0;
             sGame.unk354 = 0;
         case 0x22:
@@ -2043,11 +2043,10 @@ top:
         case 0x30:
             switch (state->unk5) {
                 case 0x51:
-                    sGame.unk362 = state->unk376 =
-                        func_80018D04(state->unk376, 0x6000, state->unk374, 30);
-                    sGame.unk354 = func_80018D04(0, D_80096768[0], state->unk378, 15);
-                    sGame.unk358 = func_80018D04(0, -50, state->unk378, 15);
-                    sGame.unk35C = func_80018D04(0, D_80096768[2], state->unk378, 15);
+                    sGame.unk362 = state->unk376 = Lerp(state->unk376, 0x6000, state->unk374, 30);
+                    sGame.unk354 = Lerp(0, D_80096768[0], state->unk378, 15);
+                    sGame.unk358 = Lerp(0, -50, state->unk378, 15);
+                    sGame.unk35C = Lerp(0, D_80096768[2], state->unk378, 15);
                     state->unk374++;
                     if (++state->unk378 >= 14) {
                         StartRumble(gRumblePatterns, 5);
@@ -2064,15 +2063,14 @@ top:
                         state->unk6 = 0x31;
                         state->unk374 = 0;
                     }
-                    sGame.unk362 = state->unk376 =
-                        func_80018D04(state->unk376, 0x5800, state->unk378, 60);
+                    sGame.unk362 = state->unk376 = Lerp(state->unk376, 0x5800, state->unk378, 60);
                     break;
             }
             D_8009EAB8[1] = sGame.unk362;
             D_800D86E0[0].coord.t[0] = sGame.unk354;
             D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
             D_800D86E0[0].coord.t[2] = sGame.unk35C;
-            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             break;
         case 0x31:
             if (state->unk340 == 0) {
@@ -2243,8 +2241,8 @@ void func_80026848(void) {
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
 s32 func_80026A60(void) {
     gRefView[0] = 0;
-    gRefView[1] = rsin((D_80095914 << 12) / 360) * 500 / 4096 + sGame.unk3C0;
-    gRefView[2] = rcos((D_80095914 << 12) / 360) * 600 / 4096;
+    gRefView[1] = rsin((gViewerAngle << 12) / 360) * 500 / 4096 + sGame.unk3C0;
+    gRefView[2] = rcos((gViewerAngle << 12) / 360) * 600 / 4096;
     gRefView[4] = sGame.unk34C;
     gRefView[0] = rsin(D_800A7680->vy) * 400 / 4096;
     gRefView[2] = rcos(D_800A7680->vy) * 400 / 4096;
@@ -2278,7 +2276,7 @@ void func_80026C70(void) {
     sLights.l[2].vy = 100;
     sLights.l[2].vz = -50;
     GsSetFlatLight(2, &sLights.l[2]);
-    if (D_8009576A == 100 || gStage % 3 == 2) {
+    if (gFogFade == 100 || gStage % 3 == 2) {
         func_80028650();
     }
 }

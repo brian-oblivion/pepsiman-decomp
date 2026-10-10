@@ -15,7 +15,7 @@ state.
 ```c
 /* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
-s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
+s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 void SetCdVolume(s32 vol);
 
 extern s16 gCdVolume;
@@ -33,7 +33,7 @@ void UpdateSoundFade(void) {
             gCdVolume = 80;
             break;
         case 1:
-            gBgmVolume = func_80018D04(0, 100, --gSoundFadeTimer, 50);
+            gBgmVolume = Lerp(0, 100, --gSoundFadeTimer, 50);
             gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
             if (gSoundFadeTimer == 0) {
                 SsSeqStop(gSeqIds[0]);
@@ -45,7 +45,7 @@ void UpdateSoundFade(void) {
             SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             break;
         case 3:
-            gBgmVolume = func_80018D04(0, 100, --gSoundFadeTimer, 50);
+            gBgmVolume = Lerp(0, 100, --gSoundFadeTimer, 50);
             gSeVolume = gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
             SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             for (i = 2; i < 10; i++) {
@@ -66,7 +66,7 @@ void UpdateSoundFade(void) {
                 gCdVolume = 80;
             }
         case 4:
-            gCdVolume = func_80018D04(0, 80, --gSoundFadeTimer, 50);
+            gCdVolume = Lerp(0, 80, --gSoundFadeTimer, 50);
             gCdVolume = gCdVolume < 0 ? 0 : gCdVolume > 80 ? 80 : gCdVolume;
             SetCdVolume(gCdVolume);
             if (gSoundFadeTimer == 0) {
@@ -88,7 +88,7 @@ void UpdateSoundFade(void) {
 | --- | --- |
 | first write: each clamp as one nested-ternary assignment of the global (LEARNINGS, func_8003708C), state 3 falling into state 4 with no `break`, `s16` loop counters | **204/204 on the first build** |
 
-- `func_80018D04` is defined in code_7d74 as `s16 (s16, s16, u16, u16)`.
+- `Lerp` is defined in code_7d74 as `s16 (s16, s16, u16, u16)`.
   This unit passes the step count sign-extended (`sll`/`sra` 16, so not
   `u16`) and re-extends the stored result before testing it, so its view
   is `s32` throughout, declared in the `.c` with a `MATCHING:` note.

@@ -404,8 +404,8 @@ void func_80028F0C(void *rec, s8 *out) {
             v.vy = q.p[2].y;
             v.vz = org.z + q.p[2].z;
             sProject(&v, (SVECTOR *)&scr[3]);
-            func_800179F8(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y,
-                          scr[3].x, scr[3].y, 0);
+            SortSemiQuad(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y,
+                         scr[3].x, scr[3].y, 0);
         }
     }
     w[1] = -1;

@@ -1,9 +1,11 @@
-# func_80017B18 — MATCHED (8/8), round 3, runner charlie
+# Random — MATCHED (8/8), round 3, runner charlie
+
+> Renamed from `func_80017B18` on 2026-10-10 (tools/rename.py). Address 0x80017b18.
 
 Unit `src/code_7d74.c`. A wrapper that returns Sony's `rand()`.
 
 ```c
-s32 func_80017B18(void) {
+s32 Random(void) {
     return rand();
 }
 ```

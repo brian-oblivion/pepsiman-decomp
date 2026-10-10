@@ -2,8 +2,6 @@
 # through $gp, and the symbols of C-owned .sdata/.sbss ranges in
 # config/splat.slps01762.pepsiman.yaml. maspsx --gp-symbols addresses
 # these off $gp. Regenerate after any sdata/sbss carve.
-D_800956D0
-D_800956D4
 D_800956D8
 D_800956D9
 D_800956DA
@@ -128,5 +126,7 @@ gSeVolume
 gSoundFade
 gSoundFadeTimer
 gStereo
+gTimInfo
 gVabBank
 gVabLoadStep
+gViewerMotion

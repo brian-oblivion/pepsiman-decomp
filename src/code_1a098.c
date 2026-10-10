@@ -229,7 +229,7 @@ extern u8 D_800958D8;      /**< zeroed by the full reset */
 extern u8 D_800959D8;      /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
-#define sTim ((TimInfo *)D_800956D4)
+#define sTim ((TimInfo *)gTimInfo)
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
 /* The Rec48 table; common.h declares it as words. */
@@ -242,9 +242,9 @@ extern u8 D_80095B28[];
 s32 func_80028AE4(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
  * the result nor extends the a and b it passes. */
-s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
+s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 void func_8002C4D8(void);
-s32 func_800183B0(Rec48 *r);
+s32 FindFloor(Rec48 *r);
 s32 func_8002C650(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
@@ -562,7 +562,7 @@ void func_8002A5B0(Rec78 *rec, Rec48 *r) {
     m->rot.vz = o->unk1C;
     m->coord.coord.t[0] += D_800A7308[0];
     m->coord.coord.t[2] += D_800A7308[2];
-    func_80018AE0(&m->rot, &m->coord);
+    SetCoordRotation(&m->rot, &m->coord);
     RotMatrixX(o->unk2C, &m->coord.coord);
     RotMatrixZ(o->unk30, &m->coord.coord);
     m->obj.attribute = 0;
@@ -987,7 +987,7 @@ void func_8002B5FC(void) {
 
 /** @brief Loads every image of the directory `dir` and registers each as a
  *         texture, numbered from `id` on. */
-void func_8002B7C8(DirEnt16 *dir, u16 id) {
+void LoadSpritePack(DirEnt16 *dir, u16 id) {
     DirEnt16 *e;
     u16 i;
     u16 n;
@@ -997,13 +997,13 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
     e = dir;
     n = dir->count;
     for (i = 0; i < n; i++) {
-        func_80017774((u8 *)dir + e->offset);
+        LoadTim((u8 *)dir + e->offset);
         DrawSync(0);
         tp = GetTPage(0, 0, sTim->pixRect.x, sTim->pixRect.y);
         t = sTim;
         /* MATCHING: x mod 64 spelled out; % narrows to a halfword. */
-        DefineSprite(id, 0, (u8)t->unk1C, (u8)t->pixRect.h, (u8)tp,
-                     (u8)((t->pixRect.x - t->pixRect.x / 64 * 64) * t->unk1E),
+        DefineSprite(id, 0, (u8)t->width, (u8)t->pixRect.h, (u8)tp,
+                     (u8)((t->pixRect.x - t->pixRect.x / 64 * 64) * t->perUnit),
                      (u8)(t->pixRect.y % 256), t->clutRect.x, (u16)t->clutRect.y);
         id++;
         e++;
@@ -1170,11 +1170,11 @@ s32 func_8002C044(void) {
     D_800958CC = 0x33;
     D_800958D0 = e->count;
     for (; D_800958CC < D_800958D0 + 0x33; D_800958CC++) {
-        D_800D81B0[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
+        gAnimations[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
         e++;
-        sGameHead.unk20[D_800958CC] = *D_800D81B0[D_800958CC];
-        D_800D81B0[D_800958CC]++;
-        sGameHead.unk1B0[D_800958CC] = D_800D81B0[D_800958CC][1];
+        sGameHead.unk20[D_800958CC] = *gAnimations[D_800958CC];
+        gAnimations[D_800958CC]++;
+        sGameHead.unk1B0[D_800958CC] = gAnimations[D_800958CC][1];
     }
 }
 
@@ -1184,7 +1184,7 @@ s32 func_8002C044(void) {
 s32 func_8002C0EC(Obj34 *p) {
     s32 v;
 
-    v = func_80018D70(p, D_80096738, p->unk28);
+    v = FindFloorNear(p, D_80096738, p->unk28);
     if (v != -1) {
         p->unk28 = v;
         p->unk4 = p->unk10 = D_80096738[0];
@@ -1245,7 +1245,7 @@ void func_8002C2B4(void) {
 void func_8002C438(Obj2C *p) {
     s32 v;
 
-    v = func_80018D70(p, D_80096738, p->unk28);
+    v = FindFloorNear(p, D_80096738, p->unk28);
     if (v != -1) {
         p->unk28 = v;
     }
@@ -1272,7 +1272,7 @@ void func_8002C4D8(void) {
     /* MATCHING: indexed; a walking Rec48 pointer is biased to unk28. */
     for (i = 0; i < 200; i++) {
         if (sRecs48[i].unk36 != -1) {
-            sRecs48[i].unk28 = func_800183B0(&sRecs48[i]);
+            sRecs48[i].unk28 = FindFloor(&sRecs48[i]);
         }
     }
 }
@@ -1416,19 +1416,19 @@ void func_8002C894(s16 id, Rec3C *r) {
  *         times the sine of 0..180 degrees, out[0] -60..60 degrees and
  *         out[2] 0..20 degrees, in 4096ths of a turn. */
 void func_8002C994(s16 r, u16 t, u16 n, s32 *out) {
-    out[1] = rsin((s16)func_80018D04(0, 180, t, n) * 4096 / 360) * r;
-    out[0] = (s16)func_80018D04(-60, 60, t, n) * 4096 / 360;
-    out[2] = (s16)func_80018D04(0, 20, t, n) * 4096 / 360;
+    out[1] = rsin((s16)Lerp(0, 180, t, n) * 4096 / 360) * r;
+    out[0] = (s16)Lerp(-60, 60, t, n) * 4096 / 360;
+    out[2] = (s16)Lerp(0, 20, t, n) * 4096 / 360;
 }
 
 /** @brief Interpolates from 0 towards `b` by `t`/`n`, into out[1]. */
 void func_8002CAA4(s16 b, u16 t, u16 n, s32 *out) {
-    out[1] = func_80018D04(0, b, t, n);
+    out[1] = Lerp(0, b, t, n);
 }
 
 /** @brief Interpolates from `a` towards `b` by `t`/`n`, into out[1]. */
 void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
-    out[1] = func_80018D04(a, b, t, n);
+    out[1] = Lerp(a, b, t, n);
 }
 
 /** @brief Interpolates by `t`/`n` into out[1]: from 0 towards twice `b`
@@ -1436,9 +1436,9 @@ void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
  *         `b`. */
 void func_8002CB24(s16 b, u16 t, u16 n, s32 *out) {
     if ((double)(t * 4096 / 100) < (double)(n * 4096 / 100) * 0.8) {
-        out[1] = func_80018D04(0, b * 2, t, n);
+        out[1] = Lerp(0, b * 2, t, n);
     } else {
-        out[1] = func_80018D04(b * 4, b, t, n);
+        out[1] = Lerp(b * 4, b, t, n);
     }
 }
 

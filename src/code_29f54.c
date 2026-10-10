@@ -91,7 +91,7 @@ extern Edge *D_800958A0;
 extern s32 D_80095840;
 extern s32 D_80095790;
 extern s8 *D_80095808;
-extern s32 D_8009590C;
+extern s32 gSkyColors;
 extern s32 D_80095948;
 extern s32 D_8009594C;
 
@@ -144,7 +144,7 @@ void func_800399A8(unsigned long *hdr) {
     D_80095808 = (s8 *)(hdr[8] + (s32)hdr);
     D_800958FC = (u8 *)(hdr[9] + (s32)hdr);
     D_80095790 = hdr[10] + (s32)hdr;
-    D_8009590C = hdr[11] + (s32)hdr;
+    gSkyColors = hdr[11] + (s32)hdr;
     D_80095940 = (s8 *)(hdr[6] + (s32)hdr + D_8009594C * 4 + 4);
 }
 
@@ -236,10 +236,10 @@ void func_80039C3C(s32 *pack) {
     t = (u8 *)(pack[4] + (s32)pack);
     n = *(s32 *)t / 4;
     for (i = 0; i < n; i++) {
-        D_800D81B0[i + 51] = (s32 *)(((s32 *)t)[i] + (s32)t) + 1;
-        sSeqHead.unk20[i + 51] = *D_800D81B0[i + 51];
-        D_800D81B0[i + 51]++;
-        sSeqHead.unk1B0[i + 51] = D_800D81B0[i + 51][1];
+        gAnimations[i + 51] = (s32 *)(((s32 *)t)[i] + (s32)t) + 1;
+        sSeqHead.unk20[i + 51] = *gAnimations[i + 51];
+        gAnimations[i + 51]++;
+        sSeqHead.unk1B0[i + 51] = gAnimations[i + 51][1];
     }
     DefineSprite(0x1E, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
     DefineSprite(0x1F, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);
@@ -257,7 +257,7 @@ void func_8003A008(s16 x, s16 y, s16 z) {
     D_800A72B8.coord.t[1] = y;
     D_800A72B8.coord.t[2] = z;
     rot.vx = rot.vy = rot.vz = 0;
-    func_80018AE0(&rot, &D_800A72B8);
+    SetCoordRotation(&rot, &D_800A72B8);
     GsGetLs(&D_800A72B8, &ls);
     GsSetLsMatrix(&ls);
     SetSpadStack();
@@ -308,7 +308,7 @@ void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
         D_800A72B8.coord.t[1] = 0;
         D_800A72B8.coord.t[2] = z;
         rot.vx = rot.vy = rot.vz = 0;
-        func_80018AE0(&rot, &D_800A72B8);
+        SetCoordRotation(&rot, &D_800A72B8);
         GsGetLs(&D_800A72B8, &ls);
         GsSetLsMatrix(&ls);
         GsSortObject4J(&D_800AC868[k], gCurOt, 2, (u_long *)0x1F800000);
@@ -1747,7 +1747,7 @@ s32 func_8003F100(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         D_800CEBE0[p->param0 + 10].vx = (p->frame * p->param3 << 12) / 360;
         D_800CEBE0[p->param0 + 10].vy = 0;
         D_800CEBE0[p->param0 + 10].vz = 0;
-        func_80018AE0(&D_800CEBE0[p->param0 + 10], &D_800CDC00[p->param0 + 10]);
+        SetCoordRotation(&D_800CEBE0[p->param0 + 10], &D_800CDC00[p->param0 + 10]);
         GsGetLs(&D_800CDC00[p->param0 + 10], &m);
         GsSetLsMatrix(&m);
         GsGetLw(&D_800CDC00[p->param0 + 10], &m);

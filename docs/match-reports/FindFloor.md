@@ -1,4 +1,6 @@
-# func_800183B0 — MATCHED (67/67), round 7, runner alpha
+# FindFloor — MATCHED (67/67), round 7, runner alpha
+
+> Renamed from `func_800183B0` on 2026-10-10 (tools/rename.py). Address 0x800183b0.
 
 Unit `src/code_7d74.c`. Walks the `D_80095794` entries of the data blob
 at `D_800958B4`; for each, finds the entry's vertex (entry halfword +4
@@ -17,7 +19,7 @@ extern u32 D_80095794; /* common.h */
 extern s32 D_800958B4;
 s32 func_800299D8(s32 *out, s32 index, Vec3i *pos, s32 data);
 
-s32 func_800183B0(Vec3i *pos) {
+s32 FindFloor(Vec3i *pos) {
     Vec3i p;
     s32 out[4];
     u32 i;
@@ -55,7 +57,7 @@ s32 func_800183B0(Vec3i *pos) {
 ```
 
 `D_800958B4` and `func_800299D8` were declared nowhere; both are local to
-this `.c` (no other unit references them; func_80018D70 in this unit
+this `.c` (no other unit references them; FindFloorNear in this unit
 will use the same declarations).
 
 ## Attempts (4)
@@ -74,4 +76,4 @@ will use the same declarations).
 
 - **A 12-byte struct copied word by word through one register: assign
   the fields**; `p = *pos;` is the block move with three temporaries.
-  (func_800183B0, func_80018D70)
+  (FindFloor, FindFloorNear)

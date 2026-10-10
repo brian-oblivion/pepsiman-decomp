@@ -45,8 +45,8 @@ void AdjustScreenPosition(void) {
     }
     InitGraphics();
     GsInit3D();
-    func_80018CB4();
-    func_80018094();
+    InitView();
+    InitLights();
     WaitFrames(5);
 }
 ```
@@ -55,7 +55,7 @@ First build. The clamps are LEARNINGS' nested-ternary clamp (one store at
 the join); `GsDefDispBuff`'s `u_short` parameters give the `andi 0xFFFF`s.
 `gPadHeld` keeps the `s32 [2]` declaration from `InitPads`: its
 known size of 8 makes this load symbolic, `lui $v1` / `lw $v1`, as retail
-has it. `func_80018CB4` is C in code_7d74, so its prototype went into
-`include/common.h` (additive); `func_80018094` is still asm there and is
+has it. `InitView` is C in code_7d74, so its prototype went into
+`include/common.h` (additive); `InitLights` is still asm there and is
 prototyped in main.c. The unit's forward prototypes for its own functions
 now sit together above this function.

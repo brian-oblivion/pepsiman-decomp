@@ -1,4 +1,6 @@
-# func_8001819C — MATCHED (round 13, head): `include/spad.h` now uses Sony's operand form of SetSpadStack (operator decision on hard rule 7)
+# DrawTodObjects — MATCHED (round 13, head): `include/spad.h` now uses Sony's operand form of SetSpadStack (operator decision on hard rule 7)
+
+> Renamed from `func_8001819C` on 2026-10-10 (tools/rename.py). Address 0x8001819c.
 
 **Round 13 (head):** the operator allowed the operand form. `include/spad.h` now carries the macro measured below (an `"r"(0x1F8003FC)` input, `"$8"` and `"memory"` clobbers, and a `"memory"` clobber on ResetSpadStack); the body went live unchanged out of `#ifdef NON_MATCHING`, 133/133, whole build `OK`, DrawStepper and func_8003A008 still match. The rest is the record from when it stalled.
 
@@ -26,14 +28,14 @@ changed to
 ```
 
 and the body below unchanged, the whole build is `OK: build matches
-retail` (tree: the bravo worktree): func_8001819C 133/133, and the two
+retail` (tree: the bravo worktree): DrawTodObjects 133/133, and the two
 existing users, DrawStepper (main) and func_8003A008 (code_29f54), still
 match. cc1 itself puts the operand in `t1` (retail's `lui $t1 / ori $t1 /
 move $t0, $t1`), and the `$8` clobber plus that `t1` pseudo are what make
 reload order the copy scratches `t1..t4` / `t2,t3,t4,t1`. Variants
 measured on this function:
 
-| macro | func_8001819C | DrawStepper |
+| macro | DrawTodObjects | DrawStepper |
 | --- | --- | --- |
 | spad.h today (operand-free, `$9`/`$8` hidden in the text) | 117/133 | match |
 | operand-free text + clobbers `"$8"` | save copy right, restore `t1..t4` | not measured |
@@ -49,8 +51,8 @@ the asm reads and clobbers, which today's macro hides.
 
 - **`s32` with no `return` value** (`return;` in the guard): the early-out
   `beqz`/`beq` keep their `nop` slots because `$v0` is live at the exit.
-  The prototype at the top of the unit is now `s32 func_8001819C(void);`
-  (its one caller, func_80017B38, ignores the value).
+  The prototype at the top of the unit is now `s32 DrawTodObjects(void);`
+  (its one caller, UpdateMotionViewer, ignores the value).
 - **`o = q; *o = save;` after the sort**, `q = o;` right after the save:
   gives retail's `move $s3, $s0` before the id test and `move $s0, $s3`
   before the restore. Restoring through `q` alone keeps one saved
@@ -94,7 +96,7 @@ typedef struct {
 
 extern s32 D_800963A0[];
 
-s32 func_8001819C(void) {
+s32 DrawTodObjects(void) {
     GsDOBJ2 save;
     MATRIX m;
     GsDOBJ2 *o;
@@ -146,10 +148,10 @@ s32 func_8001819C(void) {
   the build steals the loop test's first insn from the target: the target
   label is right before `NOTE_INSN_LOOP_VTOP`, which reorg reads as "jump
   to the loop test, likely taken". A bare `__asm__("")` at the end of the
-  loop body moves the label off the note. (func_8001819C)
+  loop body moves the label off the note. (DrawTodObjects)
 - Block-copy scratch registers (`movstrsi` temporaries) follow which hard
   registers are ever live in the function, so an asm that hides its
-  clobbers in the template shifts them. (func_8001819C)
+  clobbers in the template shifts them. (DrawTodObjects)
 
 ## Round 13 (bravo)
 
@@ -172,7 +174,7 @@ why, in gcc 2.8.1's `reload1.c`, and the answer leaves no C spelling.
 - Pure C cannot do either: `$8` is reached only by a pseudo allocated to
   it, which shows as a visible `$t0` somewhere retail has none, and any
   reload between the copies adds instructions. The lever that matched
-  func_80017F0C this round (empty asm insns to reorder global-alloc) does
+  StepAnimation this round (empty asm insns to reorder global-alloc) does
   not reach reload's spill order.
 
 So the 16 words wait on the operator's `include/spad.h` decision above

@@ -554,7 +554,7 @@ void func_80034788(void) {
             }
             PrintTabs(7);
             FntPrint(D_80095688);
-            func_800179F8(0x2821, 60, -68, 140, -68, 140, 12, 60, 12, 0);
+            SortSemiQuad(0x2821, 60, -68, 140, -68, 140, 12, 60, 12, 0);
             break;
         case 2:
             FntPrint(D_80095690);
@@ -574,7 +574,7 @@ void func_80034788(void) {
                 FntPrint(D_80095670);
             }
             FntPrint(D_800115D0, D_80095A48);
-            func_800179F8(0x2821, -80, -30, 80, -30, 80, 30, -80, 30, 0);
+            SortSemiQuad(0x2821, -80, -30, 80, -30, 80, 30, -80, 30, 0);
             break;
         case 7:
             func_80035E24();
@@ -664,8 +664,8 @@ void func_80034D5C(Obj48 *obj) {
     tmp.vy = pts[2].y;
     tmp.vz = world.vz + pts[2].z;
     func_800230E0(&tmp, (SVECTOR *)&scr[3]);
-    func_800179F8(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y, scr[3].x,
-                  scr[3].y, 0x32);
+    SortSemiQuad(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y, scr[3].x,
+                 scr[3].y, 0x32);
 }
 
 /* MATCHING: the last loop enters at its test (a for or while is rotated). */
@@ -917,7 +917,7 @@ extern s32 D_800DB2B8[]; /**< cleared on every step */
 
 /* MATCHING: a per-unit view; code_7d74 defines it as (s16, s16, u16, u16)
  * returning s16. */
-s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
+s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 
 void func_800356FC(void) {
     Rows5 rows;
@@ -932,12 +932,12 @@ void func_800356FC(void) {
             D_800CEBA0[2] = gRefView[2];
             break;
         case 1:
-            gRefView[0] = func_80018D04(D_800CEBA0[0], rows.v[(s8)D_80095A60][0] * (s8)D_80095A61,
-                                        D_80095A20, 30);
-            gRefView[1] = func_80018D04(D_800CEBA0[1], rows.v[(s8)D_80095A60][1] * (s8)D_80095A61,
-                                        D_80095A20, 30);
-            gRefView[2] = func_80018D04(D_800CEBA0[2], rows.v[(s8)D_80095A60][2] * (s8)D_80095A61,
-                                        D_80095A20, 30);
+            gRefView[0] =
+                Lerp(D_800CEBA0[0], rows.v[(s8)D_80095A60][0] * (s8)D_80095A61, D_80095A20, 30);
+            gRefView[1] =
+                Lerp(D_800CEBA0[1], rows.v[(s8)D_80095A60][1] * (s8)D_80095A61, D_80095A20, 30);
+            gRefView[2] =
+                Lerp(D_800CEBA0[2], rows.v[(s8)D_80095A60][2] * (s8)D_80095A61, D_80095A20, 30);
             if (++D_80095A20 == 30) {
                 D_80095A24++;
             }
@@ -1279,7 +1279,7 @@ void func_80035E24(void) {
             func_80033C90();
             break;
     }
-    func_800179F8(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
+    SortSemiQuad(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
 }
 
 /** @brief The first block of one hit-data slot. */

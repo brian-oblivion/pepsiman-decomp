@@ -1,4 +1,6 @@
-# func_80018AE0 — MATCHED (62/62), round 5, runner charlie
+# SetCoordRotation — MATCHED (62/62), round 5, runner charlie
+
+> Renamed from `func_80018AE0` on 2026-10-10 (tools/rename.py). Address 0x80018ae0.
 
 Unit `src/code_7d74.c`. Rebuilds a coordinate system's matrix from a
 rotation: starts from the matrix `GsIDMATRIX` (a template, read as a
@@ -8,7 +10,7 @@ whole), keeps the coordinate's translation, rotates Y-X-Z by `*rot` with
 ```c
 extern MATRIX GsIDMATRIX;
 
-void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord) {
+void SetCoordRotation(SVECTOR *rot, GsCOORDINATE2 *coord) {
     MATRIX m;
     SVECTOR r;
 

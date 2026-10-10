@@ -3,7 +3,7 @@
 > Renamed from `func_80040F14` on 2026-10-10 (tools/rename.py). Address 0x80040f14.
 
 Unit `src/code_308ec.c`. Fog fade-in, one step a frame. While the step
-`D_8009576A` is below 100: on step 0 it adds a full-screen white
+`gFogFade` is below 100: on step 0 it adds a full-screen white
 `POLY_F4` (from the primitive buffer `GsOUT_PACKET_P`) to the current ordering
 table; every step it sets the fog near/far planes and the far colour
 scaled by step/32 (the colour picked by bits 8-9 of `D_80095864`, as
@@ -12,14 +12,14 @@ at 100 after 32.
 
 ```c
 /* libgte.h, libgpu.h, libgs.h; code_a0bc.h for gSubOt.
- * extern u8 *GsOUT_PACKET_P; common.h: D_8009576A (u16), D_800958FC (u8 *),
+ * extern u8 *GsOUT_PACKET_P; common.h: gFogFade (u16), D_800958FC (u8 *),
  * D_80095864, gActiveBuff. */
 void FadeInFog(void) {
     POLY_F4 *p;
     s32 i;
 
-    if (D_8009576A != 100) {
-        if (D_8009576A == 0) {
+    if (gFogFade != 100) {
+        if (gFogFade == 0) {
             p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->r0 = p->g0 = p->b0 = 0xFF;
@@ -29,13 +29,13 @@ void FadeInFog(void) {
             GsOUT_PACKET_P = (u8 *)p;
         }
         i = ((u32)D_80095864 >> 8) & 3;
-        SetFogNearFar(D_8009576A * 3000 * 2048 / 0x10000, D_8009576A * 8000 * 2048 / 0x10000, 250);
-        SetFarColor(D_800958FC[i * 4] * (D_8009576A << 11) / 0x10000,
-                    D_800958FC[i * 4 + 1] * (D_8009576A << 11) / 0x10000,
-                    D_800958FC[i * 4 + 2] * (D_8009576A << 11) / 0x10000);
-        D_8009576A++;
-        if (D_8009576A == 32) {
-            D_8009576A = 100;
+        SetFogNearFar(gFogFade * 3000 * 2048 / 0x10000, gFogFade * 8000 * 2048 / 0x10000, 250);
+        SetFarColor(D_800958FC[i * 4] * (gFogFade << 11) / 0x10000,
+                    D_800958FC[i * 4 + 1] * (gFogFade << 11) / 0x10000,
+                    D_800958FC[i * 4 + 2] * (gFogFade << 11) / 0x10000);
+        gFogFade++;
+        if (gFogFade == 32) {
+            gFogFade = 100;
         }
     }
 }
@@ -55,10 +55,10 @@ void FadeInFog(void) {
   `GsOT *` local, swaps the two mask registers.
 - **The colour as chained assignment, `p->r0 = p->g0 = p->b0 = 0xFF;`**:
   retail stores b, g, r. `setRGB0` stores r first.
-- **The fog distances fold at tree level.** `D_8009576A * 3000 * 2048 /
+- **The fog distances fold at tree level.** `gFogFade * 3000 * 2048 /
   0x10000` gives retail's `375 * D << 14` and a signed divide;
-  `D_8009576A * 8000 * 2048 / 0x10000` folds the whole divide into `D *
-  250`. `(D_8009576A << 11) * 3000` kept the shift in its own register.
+  `gFogFade * 8000 * 2048 / 0x10000` folds the whole divide into `D *
+  250`. `(gFogFade << 11) * 3000` kept the shift in its own register.
 - The colour index as `D_800958FC[i * 4 + k]` (func_80028650's form). A
   `u8 *c = &D_800958FC[i * 4]` local swaps the operands of the `addu`.
 - `100` lives in `$s1` across the calls with no local: cc1 kept the
@@ -66,7 +66,7 @@ void FadeInFog(void) {
 
 ## Declarations
 
-`D_8009576A` (`u16`) and `D_800958FC` (`u8 *`) move from
+`gFogFade` (`u16`) and `D_800958FC` (`u8 *`) move from
 `src/code_13068.c` into `include/common.h` (additive; same types).
 
 ### Proposed learning

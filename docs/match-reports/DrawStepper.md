@@ -5,7 +5,7 @@
 Draws the model set at `gTodObjTable` for an object: installs the TMD
 handlers for mode `D_80095758`, moves the first model to the object's
 position (`+0x348..+0x350`) and turns it about y (`+0x380`) through
-`func_80018AE0`, then for every model marks its coordinate changed and, if
+`SetCoordRotation`, then for every model marks its coordinate changed and, if
 it has an id and a TMD, sets the GTE matrices and sorts it into the active
 ordering table with `GsSortObject4J`, the stack switched to the scratchpad
 around the call.
@@ -43,7 +43,7 @@ void DrawStepper(Stepper *obj) {
     rot.vx = 0;
     rot.vy = obj->unk380;
     rot.vz = 0;
-    func_80018AE0(&rot, o->coord2);
+    SetCoordRotation(&rot, o->coord2);
     for (i = 0; i < sModels.count; o++, i++) {
         o->coord2->flg = 0;
         if (o->id != -1 && o->tmd != NULL) {
@@ -80,14 +80,14 @@ C value to a register (CLAUDE.md rule 7 is about that). The `li $t1` /
 `move $t0, $t1` pair is copied as retail has it; the original macro
 probably took the address as an `"r"` input, which would be an operand
 constraint and is not used here. The same sequence appears in
-UpdateLoadScreenModel (main), func_8001819C (code_7d74) and func_8003A008
+UpdateLoadScreenModel (main), DrawTodObjects (code_7d74) and func_8003A008
 (code_29f54), so the macro is a candidate for a shared header; it is kept
 in `src/main.c` until the head decides.
 
 ## Declarations
 
 - `include/code_7d74.h` is new (Doxygen-documented) and declares
-  `func_80018AE0`; `src/code_7d74.c` and `src/main.c` include it (one added
+  `SetCoordRotation`; `src/code_7d74.c` and `src/main.c` include it (one added
   `#include` line in code_7d74.c).
 - `SetTmdSortMode` added to `include/code_a0bc.h` (additive).
 - `gTodObjTable` keeps its shared `s32 []` declaration; a unit-local

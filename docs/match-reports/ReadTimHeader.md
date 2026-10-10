@@ -1,15 +1,17 @@
-# func_80017640 — MATCHED (77/77), round 7, runner alpha
+# ReadTimHeader — MATCHED (77/77), round 7, runner alpha
+
+> Renamed from `func_80017640` on 2026-10-10 (tools/rename.py). Address 0x80017640.
 
 Unit `src/code_7d74.c`. Parses a TIM header into the TimInfo at
-`D_800956D4`: checks the 0x10 id, unpacks the pixel mode and the CLUT
+`gTimInfo`: checks the 0x10 id, unpacks the pixel mode and the CLUT
 flag, records the CLUT's rect and data when present, then the image's
 rect and pixels, and the width scaled by mode (x4 at 4 bpp, x2 at 8 bpp,
 x1 otherwise) with that scale in `unk1E`. Returns -1 on a bad id, else 0.
 
 ```c
-#define sTim ((TimInfo *)D_800956D4)
+#define sTim ((TimInfo *)gTimInfo)
 
-s8 func_80017640(u16 *tim) {
+s8 ReadTimHeader(u16 *tim) {
     u16 *p;
     u16 *start;
     s32 len;
@@ -80,7 +82,7 @@ s8 func_80017640(u16 *tim) {
 - **`andi K` + `sltu $v0, $zero, $v0` for a single-bit flag: the masked
   value went through a local, `c = x & K; f = c != 0;`.** Any `(x & K)
   != 0` in one expression becomes `srl`+`andi 1` (expr.c's store-flag
-  bit test). (func_80017640)
+  bit test). (ReadTimHeader)
 - **An `s16` field loaded `lh` before a scale whose result is stored as a
   halfword: a multiply, `w * 4`.** `w << 2` narrows to `lhu`.
-  (func_80017640)
+  (ReadTimHeader)

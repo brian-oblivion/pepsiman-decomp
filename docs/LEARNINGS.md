@@ -35,7 +35,7 @@ function's match report, not here.
   so no C spelling closes it. Report it with the addresses; it is a
   segmentation or toolchain decision. (func_80033AB8, PlayStageMusic)
   Between units this is solved: each unit gets its own gp list,
-  `config/gp/<unit>.txt` (PlayStageMusic, func_80018BD8). Inside one unit it
+  `config/gp/<unit>.txt` (PlayStageMusic, SelectViewerMotion). Inside one unit it
   needs the unit split: code_1a098 split at func_8002D424 into code_1dc24,
   which matched both. (func_80033AB8, func_800337E4)
 - **A word store through a pointer that keeps a later global reload below it:
@@ -59,9 +59,9 @@ function's match report, not here.
 - **A constant rebuilt (`li $a0, 1`) where the build copies it from a saved
   register: the local holding it is narrower than `s32`.** (LoadBootData)
 - **A single-bit flag as `andi K` + `sltu $zero`: `c = x & K; f = c != 0;`.**
-  One-expression spellings give `srl` + `andi 1`. (func_80017640)
+  One-expression spellings give `srl` + `andi 1`. (ReadTimHeader)
 - **An `s16` loaded with `lh` before a halfword store of a scale: `w * 4`,
-  not `w << 2`** (the shift narrows the load to `lhu`). (func_80017640)
+  not `w << 2`** (the shift narrows the load to `lhu`). (ReadTimHeader)
 - **A chained store that reads its first target back (`sh X; lhu X; sh Y`):
   a volatile target.** (SortTmdEnvMapGT3)
 - **Two sign tests, one `bltz` and one `and`/`bnez` sharing a `lui 0x8000`:
@@ -164,7 +164,7 @@ function's match report, not here.
 - **A test result copied to a saved register (`sltu a0; move s3, a0`): the
   result variable is `u8` or `s16`.** (func_8002BEC0)
 - **`s16 % 64` gives `sll/sra 16` around a halfword remainder on 2.8.1;
-  retail's code is `x - x / 64 * 64`.** (func_8002B7C8)
+  retail's code is `x - x / 64 * 64`.** (LoadSpritePack)
 - **`srl` on a product stored to an `s16`: `(u32)(x * 25) >> 9`.**
   (code_29f54, round 8)
 - **A block move with a dead `lwl`/`lwr` path jumped over: the source pointer
@@ -217,7 +217,7 @@ function's match report, not here.
 - **`addiu 1; andi 0xFFFF; sltiu 2` on a halfword global:
   `(u16)(x + 1) < 2`.** (UpdateStagePlay)
 - **`srl sN, a0; andi sN, sN` in one register: `v = a >> k; v &= m;`.**
-  (func_800184BC)
+  (DrawSky)
 - **A word-aligned odd-size block move (16-byte loop, then `lw, lw, lh`):
   `__builtin_memcpy(dst, src, 0x2A)` with 4-aligned pointer types.**
   `-fno-builtin` only stops plain `memcpy`; the alignment comes from the
@@ -244,7 +244,7 @@ function's match report, not here.
   `*a`. (func_8003828C)
 - **A loop bound kept in a saved register across calls, never reloaded: the
   source copied it to a local** before the loop (`n = pack->count;`).
-  Testing the member in the `for` reloads it every pass. (func_8001797C)
+  Testing the member in the `for` reloads it every pass. (LoadTimPack)
 - **The index added into the table base's register (`addu $v0, $a0, $v0`):
   the base went into a local and was advanced**, `src = tbl; src += i;`.
   Every indexed spelling puts the sum in the index register. (func_8002C85C)
@@ -458,7 +458,7 @@ function's match report, not here.
   declaration order. (PlayXa)
 - **A fixed-point chain kept in one register: one local through compound
   statements**, `v = (a - b) << 16; v /= n; v *= k; v /= 0x10000;`.
-  (func_80018D04)
+  (Lerp)
 - **An induction expression cc1 reassociates: put the induction part in its
   own local**, `base = i*3 + 0x40; v = base - level;`. (func_8003E360)
 - **Retail rebuilding local addresses before every call, with those locals
@@ -559,7 +559,7 @@ function's match report, not here.
   (func_80032EE4)
 - **A primitive whose every store stays in source order, colour stores
   reading their first target back: a `volatile T *` packet local.**
-  (func_800184BC)
+  (DrawSky)
 - **A magic-number constant held in a saved register from the prologue:
   a dead division of a different operand by the same divisor in the first
   block**, e.g. `x = (u32)n / 100;`. cse hands the constant's register on;
@@ -578,7 +578,7 @@ function's match report, not here.
   what `stmt` touches; an array indexed in both arms of an `if` instead of a
   pointer taken before it doubles the base's refs. Compute
   `floor_log2(refs) * refs / live_length` from `cc1 -dl`.
-  (func_80017F0C, SetTodPacket, func_8002B220)
+  (StepAnimation, SetTodPacket, func_8002B220)
 - **`do { i++; } while (0)` keeps an independent instruction from being
   hoisted** inside its block (loop notes split cse1 paths; cse2 ignores
   them). (func_80037C2C)

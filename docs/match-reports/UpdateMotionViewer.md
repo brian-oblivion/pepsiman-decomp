@@ -1,19 +1,21 @@
-# func_80017B38 — MATCHED (167/167), round 7, runner alpha
+# UpdateMotionViewer — MATCHED (167/167), round 7, runner alpha
+
+> Renamed from `func_80017B38` on 2026-10-10 (tools/rename.py). Address 0x80017b38.
 
 Unit `src/code_7d74.c`. A model viewer's per-frame step, driven by the
 state `gModeStep`. State 0 sets the fog colour and the reference view,
 clears the model's rotation, translation and player state, applies the
-rotation to the coordinate system `D_800D86E0[0]` (func_80018AE0), starts
-the animation player (func_80017F0C) and moves to state 1. State 1 steps
-the player when `D_800956D1` asks for it, draws (func_8001819C), applies
-the level keys (func_80018BD8) and the orbiting view (func_80017DD4), and
+rotation to the coordinate system `D_800D86E0[0]` (SetCoordRotation), starts
+the animation player (StepAnimation) and moves to state 1. State 1 steps
+the player when `gViewerReplay` asks for it, draws (DrawTodObjects), applies
+the level keys (SelectViewerMotion) and the orbiting view (OrbitViewerCamera), and
 moves the model with six button bits. Every frame ends with
-`FntPrint("\n\n\tMOTION %3d", D_800956D0)`.
+`FntPrint("\n\n\tMOTION %3d", gViewerMotion)`.
 
 ```c
 /* Player: code_7d74's view of the game state's head (D_8009EB78),
  * extended this round with unk340..unk384; sPlayer is its lvalue. */
-void func_80017B38(void) {
+void UpdateMotionViewer(void) {
     /* MATCHING: an unused local gives retail's 0x20-byte frame. */
     s32 unused[2];
 
@@ -28,7 +30,7 @@ void func_80017B38(void) {
             gRefView[3] = 0;
             gRefView[4] = 0;
             gRefView[5] = 0;
-            D_80095914 = -90;
+            gViewerAngle = -90;
             sPlayer.unk380 = 0;
             sPlayer.unk384 = 0;
             sPlayer.unk348 = 0;
@@ -43,20 +45,20 @@ void func_80017B38(void) {
             D_8009EAB8[0] = 0;
             D_8009EAB8[1] = sPlayer.unk380;
             D_8009EAB8[2] = sPlayer.unk384;
-            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             sPlayer.want[0] = 0;
-            func_80017F0C(&sPlayer, 0, 0);
+            StepAnimation(&sPlayer, 0, 0);
             gModeStep++;
             break;
         case 1:
-            if (D_800956D1 == 1) {
-                D_800956D1 = func_80017F0C(&sPlayer, 0, 0);
+            if (gViewerReplay == 1) {
+                gViewerReplay = StepAnimation(&sPlayer, 0, 0);
             } else {
                 D_8009EB7E[0] = 0;
             }
-            func_8001819C();
-            func_80018BD8();
-            func_80017DD4();
+            DrawTodObjects();
+            SelectViewerMotion();
+            OrbitViewerCamera();
             if (gPad & 0x2000) {
                 D_800D86E0[0].coord.t[0]++;
             }
@@ -77,7 +79,7 @@ void func_80017B38(void) {
             }
             break;
     }
-    FntPrint(D_80010404, D_800956D0);
+    FntPrint(D_80010404, gViewerMotion);
 }
 ```
 
@@ -96,8 +98,8 @@ void func_80017B38(void) {
 - `D_800D86E0` (GsCOORDINATE2[]) moved from code_1a098.c into
   `include/code_1a098.h`, which now includes libgte/libgpu/libgs (all
   guarded); code_7d74 includes that header.
-- `D_800956D1` is now `s8` here (retail loads it `lb`; func_80018BD8
-  only stores it), and it and `D_800956D0` moved to the top of the unit.
+- `gViewerReplay` is now `s8` here (retail loads it `lb`; SelectViewerMotion
+  only stores it), and it and `gViewerMotion` moved to the top of the unit.
 - The common.h views fit retail as they are: `D_8009EAB8` (`u16[]`, the
   rotation written as three halfwords and passed as an SVECTOR) and
   `D_8009EB7E` (the player's `want[0]`, which retail reaches through its

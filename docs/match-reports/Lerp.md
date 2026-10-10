@@ -1,10 +1,12 @@
-# func_80018D04 — MATCHED (27/27), round 5, runner charlie
+# Lerp — MATCHED (27/27), round 5, runner charlie
+
+> Renamed from `func_80018D04` on 2026-10-10 (tools/rename.py). Address 0x80018d04.
 
 Unit `src/code_7d74.c`. Linear interpolation in 16.16 fixed point: step
 `step` of `steps` from `from` to `to`, exactly `to` on the last step.
 
 ```c
-s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
+s16 Lerp(s16 from, s16 to, u16 step, u16 steps) {
     s32 v;
 
     if (step == steps) {
@@ -55,4 +57,4 @@ s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
   slot): one local carried through compound statements**, `v = (a - b) <<
   16; v /= n; v *= k; v /= 0x10000;`. A single expression lets the product
   take a dying argument's register and adjust it in place.
-  (func_80018D04)
+  (Lerp)

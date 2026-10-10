@@ -8,7 +8,7 @@ requests the stage's sound bank (LoadVabBank of GetStageVabBank's
 answer), then in turn reads the stage's files 0, 1, 2+3, 4, 5 (and 6 on
 stages 1, 4, 7, 10, 13) through the `gCdLoadLoc` / `gCdLoadSectors` /
 `gCdLoadDest` request slots, handing each to its parser (func_8003E13C,
-func_8001797C, func_800399A8, func_8002B7C8, func_800373C8 ...), and ends
+LoadTimPack, func_800399A8, LoadSpritePack, func_800373C8 ...), and ends
 with `gSubStep = 100`. Called from UpdateLoadScreenModel and UpdateLoadScreen.
 
 The body is in `src/main.c` (first build matched).
@@ -34,7 +34,7 @@ One build: 779/779.
 ## Declarations left for the head
 
 declcheck LOCAL: the new prototypes for other units' functions
-(GetStageVabBank, func_800399A8, func_8002B7C8, func_8002CC24,
+(GetStageVabBank, func_800399A8, LoadSpritePack, func_8002CC24,
 func_800373C8, func_8002C2B4, func_8002C044, func_8002C47C,
 StartStageOverlay). func_800373C8 is declared with `void *` parameters
 (code_1dc24 types them as its own `BankFile *`).

@@ -1,4 +1,6 @@
-# func_800179F8 — MATCHED (72/72), round 7, runner alpha
+# SortSemiQuad — MATCHED (72/72), round 7, runner alpha
+
+> Renamed from `func_800179F8` on 2026-10-10 (tools/rename.py). Address 0x800179f8.
 
 Unit `src/code_7d74.c`. Draws a semi-transparent flat quad: a stack
 POLY_F4 set from a 15-bit colour and four corners, sorted into
@@ -10,7 +12,7 @@ lever.
 ```c
 /* code_a0bc.h: extern GsOT gSubOt[]; common.h: extern s32 gActiveBuff; */
 
-void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
+void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
     POLY_F4 poly;
     POLY_F4 *p;
     s32 r;
@@ -47,4 +49,4 @@ The unit now includes `code_a0bc.h` for `gSubOt`.
 
 - Confirms func_800286B0's lever on a second function: naming the first
   use of a parameter (`r = col & 0x1F;`) moves its prologue copy first.
-  (func_800179F8)
+  (SortSemiQuad)

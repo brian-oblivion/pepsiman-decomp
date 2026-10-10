@@ -122,7 +122,7 @@ Lint needed `D_80095740` / `D_80095744` in one place once this body was
 live: both are now in `include/common.h`, and the two `extern` lines in
 `src/code_13068.c` (which used them only under `NON_MATCHING`) are gone.
 This commit also gives `SetTodFrame` a prototype in the unit (round
-13's func_80017F0C called it undeclared); both functions still match.
+13's StepAnimation called it undeclared); both functions still match.
 
 ### Proposed learning
 

@@ -368,7 +368,7 @@ s32 PlayBgm(u16 song) {
 
 /* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
-s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
+s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 
 extern s16 gCdVolume;
 extern s16 gSoundFadeTimer;
@@ -385,7 +385,7 @@ void UpdateSoundFade(void) {
             gCdVolume = 80;
             break;
         case 1:
-            gBgmVolume = func_80018D04(0, 100, --gSoundFadeTimer, 50);
+            gBgmVolume = Lerp(0, 100, --gSoundFadeTimer, 50);
             gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
             if (gSoundFadeTimer == 0) {
                 SsSeqStop(gSeqIds[0]);
@@ -397,7 +397,7 @@ void UpdateSoundFade(void) {
             SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             break;
         case 3:
-            gBgmVolume = func_80018D04(0, 100, --gSoundFadeTimer, 50);
+            gBgmVolume = Lerp(0, 100, --gSoundFadeTimer, 50);
             gSeVolume = gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
             SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             for (i = 2; i < 10; i++) {
@@ -418,7 +418,7 @@ void UpdateSoundFade(void) {
                 gCdVolume = 80;
             }
         case 4:
-            gCdVolume = func_80018D04(0, 80, --gSoundFadeTimer, 50);
+            gCdVolume = Lerp(0, 80, --gSoundFadeTimer, 50);
             gCdVolume = gCdVolume < 0 ? 0 : gCdVolume > 80 ? 80 : gCdVolume;
             SetCdVolume(gCdVolume);
             if (gSoundFadeTimer == 0) {

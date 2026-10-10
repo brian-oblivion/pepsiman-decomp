@@ -1,15 +1,17 @@
-# func_8002B7C8 — MATCHED 76/76 (round 8, alpha)
+# LoadSpritePack — MATCHED 76/76 (round 8, alpha)
+
+> Renamed from `func_8002B7C8` on 2026-10-10 (tools/rename.py). Address 0x8002b7c8.
 
 Unit `src/code_1a098.c`. Loads every TIM of a packed directory
-(func_80017774), waits for the upload, and registers each as a texture
+(LoadTim), waits for the upload, and registers each as a texture
 through DefineSprite, numbered from `id` on: the texture page from the
 image's VRAM position, u from x within the page scaled by the pixel mode,
 v from y, the size and the CLUT position.
 
 ```c
-#define sTim ((TimInfo *)D_800956D4)
+#define sTim ((TimInfo *)gTimInfo)
 
-void func_8002B7C8(DirEnt16 *dir, u16 id) {
+void LoadSpritePack(DirEnt16 *dir, u16 id) {
     DirEnt16 *e;
     u16 i;
     u16 n;
@@ -19,7 +21,7 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
     e = dir;
     n = dir->count;
     for (i = 0; i < n; i++) {
-        func_80017774((u8 *)dir + e->offset);
+        LoadTim((u8 *)dir + e->offset);
         DrawSync(0);
         tp = GetTPage(0, 0, sTim->pixRect.x, sTim->pixRect.y);
         t = sTim;
@@ -36,7 +38,7 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
 ## Path to the match (6 builds)
 
 - The loop shape (guard, `u16` counter and bound compared after
-  `andi`, entry pointer bumped by 16) and the reload of `D_800956D4`
+  `andi`, entry pointer bumped by 16) and the reload of `gTimInfo`
   after each call came out right from the start.
 - `x % 64 * scale` is two words long: 2.8.1 shortens the `%` of an
   `s16` to a halfword operation and re-extends the result (`sll 16; sra
@@ -49,10 +51,10 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
 
 ## Declarations moved (stated for the head)
 
-- `TimInfo` (the unpacked TIM header that `D_800956D4` points at) moved
+- `TimInfo` (the unpacked TIM header that `gTimInfo` points at) moved
   from `src/code_7d74.c` to `include/code_7d74.h`, unchanged; this unit
   includes the header and has its own `sTim` macro like code_7d74.
-- `s32 func_80017774(void *data);` moved from a forward declaration in
+- `s32 LoadTim(void *data);` moved from a forward declaration in
   `src/code_7d74.c` to `include/code_7d74.h` (declcheck LOCAL once a
   second unit uses it). code_7d74 had no runner this round.
 
@@ -60,4 +62,4 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
 
 `x % 2^k` on an `s16` that feeds a wider multiply, where retail has no
 `sll 16; sra 16` after the `subu`: write `x - x / 2^k * 2^k`. The `%` is
-shortened to a halfword and re-extended. (func_8002B7C8)
+shortened to a halfword and re-extended. (LoadSpritePack)

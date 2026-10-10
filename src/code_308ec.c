@@ -123,7 +123,7 @@ typedef struct {
 extern StartRec *D_80095840;
 
 /* MATCHING: code_1a098 hands it a Rec48; here it gets a position. */
-s32 func_800183B0(Pos3 *pos);
+s32 FindFloor(Pos3 *pos);
 void func_8002C2B4(void);
 void func_8002C47C(void);
 void func_8003399C(void);
@@ -168,7 +168,7 @@ void DrawPausedFrame(void);
 
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */
-u8 func_80017F0C(StageState *obj, u16 index, u8 arg);
+u8 StepAnimation(StageState *obj, u16 index, u8 arg);
 /* MATCHING: main.c defines it on a RumbleStep; the table is a u16 array
  * here, as in code_13068. */
 void StartRumble(u16 *table, s32 index);
@@ -375,7 +375,7 @@ void RestartStage(u8 stage) {
     D_80095858 = 0;
     sStage.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
-        D_800957F4 = func_800183B0(&sStage.unk348);
+        D_800957F4 = FindFloor(&sStage.unk348);
     } else {
         D_800957F4 = 0;
     }
@@ -439,7 +439,7 @@ void ResetStage(void) {
     sStage.unk4 = 0;
     sStage.unk5 = 0;
     sStage.unk8 = 0xFF;
-    func_80017F0C(&sStage, 0, 0);
+    StepAnimation(&sStage, 0, 0);
     sStage.unk3A8 = 50;
     sStage.unk38E = 0;
     sStage.unk38C = 0;
@@ -461,7 +461,7 @@ void ResetStage(void) {
     gPauseState = 0;
     D_800957A4 = 0;
     ClipF = 0;
-    D_8009576A = 0;
+    gFogFade = 0;
     func_800287C0();
     if (sSaved.valid != 0) {
         D_8009578C = sSaved.unk10;
@@ -593,8 +593,8 @@ void FadeInFog(void) {
     POLY_F4 *p;
     s32 i;
 
-    if (D_8009576A != 100) {
-        if (D_8009576A == 0) {
+    if (gFogFade != 100) {
+        if (gFogFade == 0) {
             p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->r0 = p->g0 = p->b0 = 0xFF;
@@ -604,13 +604,13 @@ void FadeInFog(void) {
             GsOUT_PACKET_P = (u8 *)p;
         }
         i = ((u32)D_80095864 >> 8) & 3;
-        SetFogNearFar(D_8009576A * 3000 * 2048 / 0x10000, D_8009576A * 8000 * 2048 / 0x10000, 250);
-        SetFarColor(D_800958FC[i * 4] * (D_8009576A << 11) / 0x10000,
-                    D_800958FC[i * 4 + 1] * (D_8009576A << 11) / 0x10000,
-                    D_800958FC[i * 4 + 2] * (D_8009576A << 11) / 0x10000);
-        D_8009576A++;
-        if (D_8009576A == 32) {
-            D_8009576A = 100;
+        SetFogNearFar(gFogFade * 3000 * 2048 / 0x10000, gFogFade * 8000 * 2048 / 0x10000, 250);
+        SetFarColor(D_800958FC[i * 4] * (gFogFade << 11) / 0x10000,
+                    D_800958FC[i * 4 + 1] * (gFogFade << 11) / 0x10000,
+                    D_800958FC[i * 4 + 2] * (gFogFade << 11) / 0x10000);
+        gFogFade++;
+        if (gFogFade == 32) {
+            gFogFade = 100;
         }
     }
 }

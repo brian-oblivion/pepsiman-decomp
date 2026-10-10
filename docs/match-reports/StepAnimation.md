@@ -1,4 +1,6 @@
-# func_80017F0C — MATCHED (round 13, bravo)
+# StepAnimation — MATCHED (round 13, bravo)
+
+> Renamed from `func_80017F0C` on 2026-10-10 (tools/rename.py). Address 0x80017f0c.
 
 Unit `src/code_7d74.c`, live C. Round 7, runner alpha; rounds 12 and 13, bravo.
 
@@ -13,7 +15,7 @@ when `want[0]` is 1.
 Final source (the `Player` view and externs are in the `.c`):
 
 ```c
-u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
+u8 StepAnimation(Player *obj, u16 index, s8 arg) {
     u8 ret;
     s32 seq;
 
@@ -25,7 +27,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     }
     if (obj->want[index] != obj->cur[index]) {
         obj->time[index] = obj->start[obj->want[index]];
-        obj->data[index] = (u8 *)D_800D81B0[obj->want[index]];
+        obj->data[index] = (u8 *)gAnimations[obj->want[index]];
         obj->cur[index] = obj->want[index];
     }
     seq = obj->cur[index];
@@ -36,7 +38,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
         if (seq < 5) {
             ret = 2;
             obj->time[index] = obj->start[seq];
-            obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
+            obj->data[index] = (u8 *)gAnimations[obj->cur[index]];
         } else if ((s16)seq == 26) {
             ret = 2;
             /* MATCHING: lengthens &obj->start[seq]'s live range (global-alloc). */
@@ -44,7 +46,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
             __asm__("");
             __asm__("");
             obj->time[index] = obj->start[seq];
-            obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
+            obj->data[index] = (u8 *)gAnimations[obj->cur[index]];
         } else {
             return 0;
         }
@@ -88,7 +90,7 @@ layout (29/98).
   refs and live length) and lengthen the one ranked too high with bare
   `__asm__("")` insns where only it and the lower-ranked values are
   live.** Inside one arm of two that cross-jump, the arm that stays
-  inline. (func_80017F0C)
+  inline. (StepAnimation)
 
 ## Round 12 (bravo): the barrier lever
 
@@ -176,4 +178,4 @@ still one word long (asm-differ 395, the `move` kept). Negative.
   not carry the addresses into it, so it recomputes them. If the
   equality test's copy gets constant-folded (the index known equal to
   the constant), test a cast of the variable, `(s16)seq == 26`, so CSE
-  does not learn the value. (func_80017F0C, not yet matched)
+  does not learn the value. (StepAnimation, not yet matched)

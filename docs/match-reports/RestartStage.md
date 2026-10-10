@@ -22,7 +22,7 @@ halfword in each of the 200 Rec48 records.
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, D_8009578C;
  * common.h: D_800958A8 (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
  * D_800957D6, gStage.
- * s32 func_800183B0(Pos3 *pos); the rest void (void) except
+ * s32 FindFloor(Pos3 *pos); the rest void (void) except
  * PlayStageMusic(u8) and func_80041118(u8). */
 void RestartStage(u8 arg0) {
     s32 unused[2];
@@ -43,7 +43,7 @@ void RestartStage(u8 arg0) {
     D_80095858 = 0;
     sStage.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
-        D_800957F4 = func_800183B0(&sStage.unk348);
+        D_800957F4 = FindFloor(&sStage.unk348);
     } else {
         D_800957F4 = 0;
     }
@@ -109,7 +109,7 @@ void RestartStage(u8 arg0) {
   deleted (same types).
 - `D_800A7680` is an `SVECTOR[]` in code_13068 and a `Placement` here;
   both declarations carry a `MATCHING:` note.
-- `func_800183B0` takes a `Rec48 *` in code_1a098's view and a `Pos3 *`
+- `FindFloor` takes a `Rec48 *` in code_1a098's view and a `Pos3 *`
   here (`&sStage.unk348`); this unit's prototype has a `MATCHING:` note.
 - The `unused` local is a deliberate `-Wall` warning, NEW in
   `tools/typeviews.py --warnings`, for the head to baseline.

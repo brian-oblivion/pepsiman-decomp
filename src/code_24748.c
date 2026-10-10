@@ -18,12 +18,29 @@ typedef struct {
 
 /** @brief A 0x2C-byte record of the first of two record banks. */
 typedef struct {
-    u8 unk0[0x2C]; /**< not yet known */
+    u8 unk0[0x14]; /**< not yet known */
+    s32 unk14;     /**< ten times the menu's line-0 value */
+    u8 unk18;      /**< the menu's line-1 value */
+    u8 pad19[3];   /**< not yet known */
+    s32 unk1C;     /**< negated x of the game state's position */
+    s32 unk20;     /**< y of the game state's position */
+    s32 unk24;     /**< negated z of the game state's position */
+    s16 unk28;     /**< index of the owning entry */
+    u8 pad2A[2];   /**< not yet known */
 } Rec2C;
+
+/** @brief Three halfwords copied as one 6-byte unit. */
+typedef struct {
+    s16 x; /**< not yet known */
+    s16 y; /**< not yet known */
+    s16 z; /**< not yet known */
+} Pt6;
 
 /** @brief A 0x4C-byte record of the second of two record banks. */
 typedef struct {
-    u8 unk0[0x4C]; /**< not yet known */
+    Pt6 pts[4];     /**< copied from the dispatch's object */
+    u8 unk18[0x30]; /**< not yet known */
+    void *unk48;    /**< the owning 0x78-byte record's unk10 */
 } Rec4C;
 
 /** @brief The first record bank: 80 entries, then 0x2C-byte records. */
@@ -38,6 +55,9 @@ typedef struct {
     Rec4C recs[1];         /**< the records; real count unknown */
 } Bank4C;
 
+Rec2C *func_80036A50(s32 idx, s32 sub);
+Rec4C *func_80036A84(s32 idx, s32 sub);
+
 extern u8 D_800D3CA8[]; /**< 0x44C0-byte buffer, cleared as a whole */
 extern u8 D_800DB2C0[]; /**< 0x1DB0-byte buffer, cleared as a whole */
 
@@ -50,14 +70,17 @@ void func_80036F50(void);
 
 /** @brief An object reset when the two-state dispatch enters state 1. */
 typedef struct {
-    u8 unk0[0x48]; /**< not yet known */
-    void *unk48;   /**< points into the current entry's record */
+    Pt6 pts[4];     /**< copied into a new second-bank record */
+    u8 unk18[0x30]; /**< not yet known */
+    void *unk48;    /**< points into the current entry's record */
 } Obj48;
 
-extern Obj48 D_800DF9C0; /**< reset by the dispatch's state 0 */
-extern u8 D_80095A59;    /**< state of the second dispatch: 0 or 1 */
-extern s16 D_80095A54;   /**< set to 100 on entering state 1 */
-extern s16 D_80095A56;   /**< set to 100 on entering state 1 */
+extern Obj48 D_800DF9C0;  /**< reset by the dispatch's state 0 */
+extern Rec4C *D_80095A34; /**< the second-bank record inserted last */
+extern Rec2C *D_80095A44; /**< the first-bank record inserted last */
+extern u8 D_80095A59;     /**< state of the second dispatch: 0 or 1 */
+extern s16 D_80095A54;    /**< set to 100 on entering state 1 */
+extern s16 D_80095A56;    /**< set to 100 on entering state 1 */
 
 void func_80034BCC(void);
 void func_8002A98C(Obj48 *obj, u8 *p, s32 a, s32 b);
@@ -103,6 +126,9 @@ extern u8 D_80095774; /**< set while the reset below runs */
 void func_80023F80(u8 *state);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
+extern char D_8001178C[]; /**< path of the first hit-data file, HITDATA0.T1D */
+extern char D_800117B4[]; /**< path of the second hit-data file, HITDATA1.T1D */
+extern char D_800117DC[]; /**< path of the third hit-data file, HITDATA2.T1D */
 
 /* MATCHING: the bob gets its own statement, or cc1 adds -200 to pos->vy. */
 void func_80033F48(VECTOR *pos) {
@@ -203,11 +229,105 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800345C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034788);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034BCC);
+/* MATCHING: the last loop enters at its test (a for or while is rotated). */
+void func_80034BCC(void) {
+    Bank4C *bank;
+    BankEntry *e;
+    Rec4C *recs;
+    Rec4C *src;
+    Rec4C *dst;
+    Rec4C *rec;
+    s32 k;
+    s32 n;
+
+    bank = (Bank4C *)D_80095A4C;
+    e = bank->entries;
+    e += D_80095A30;
+    recs = (Rec4C *)&bank->entries[D_8009588E];
+    src = &recs[98];
+    dst = &recs[99];
+    for (k = e->first + e->unk4; k < 100; k++) {
+        *dst = *src;
+        dst--;
+        src--;
+    }
+    bank = (Bank4C *)D_80095A4C;
+    e = bank->entries;
+    e += D_80095A30;
+    rec = func_80036A84(D_80095A30, e->unk4);
+    D_80095A34 = rec;
+    for (k = 0; k < 4; k++) {
+        rec->pts[k].x = D_800DF9C0.pts[k].x;
+        rec->pts[k].y = D_800DF9C0.pts[k].y;
+        rec->pts[k].z = D_800DF9C0.pts[k].z;
+    }
+    D_80095A34->unk48 = D_800DF9C0.unk48;
+    e = (BankEntry *)D_80095A4C;
+    e += D_80095A30;
+    e->unk4++;
+    n = D_8009588E;
+    k = D_80095A30 + 1;
+    goto test;
+    do {
+        e++;
+        e->first++;
+        k++;
+    test:;
+    } while (k < n);
+    D_80095A2C++;
+    func_80036878();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034D5C);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034F38);
+/* MATCHING: the last loop enters at its test (a for or while is rotated). */
+void func_80034F38(void) {
+    Bank2C *bank;
+    BankEntry *e;
+    Rec2C *recs;
+    Rec2C *src;
+    Rec2C *dst;
+    Rec2C *rec;
+    s32 k;
+    s32 n;
+
+    bank = (Bank2C *)D_80095A50;
+    e = bank->entries;
+    e += D_80095A30;
+    recs = (Rec2C *)&bank->entries[D_8009588E];
+    src = &recs[398];
+    dst = &recs[399];
+    for (k = e->first + e->unk4; k < 400; k++) {
+        *dst = *src;
+        dst--;
+        src--;
+    }
+    bank = (Bank2C *)D_80095A50;
+    e = bank->entries;
+    e += D_80095A30;
+    rec = func_80036A50(D_80095A30, e->unk4);
+    rec->unk1C = -sGamePos.unk348;
+    rec->unk20 = sGamePos.unk34C;
+    D_80095A44 = rec;
+    rec->unk24 = -sGamePos.unk350;
+    rec->unk14 = (s16)D_80095A3C * 10;
+    rec->unk28 = D_80095A30;
+    rec->unk18 = D_80095A48;
+    e = (BankEntry *)D_80095A50;
+    e += D_80095A30;
+    e->unk4++;
+    n = D_8009588E;
+    k = D_80095A30 + 1;
+    goto test;
+    do {
+        e++;
+        e->first++;
+        k++;
+    test:;
+    } while (k < n);
+    D_80095A38++;
+    func_80036704();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
 
@@ -263,7 +383,38 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035E24);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036184);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_8003634C);
+s32 func_8003634C(void) {
+    s32 fd;
+
+    fd = open(D_8001178C, O_CREAT | O_WRONLY);
+    if (write(fd, (void *)0x8018D200, 0x4744) == -1) {
+        goto fail;
+    }
+    if (write(fd, (void *)0x80191944, 0x2034) == -1) {
+        goto fail;
+    }
+    close(fd);
+    fd = open(D_800117B4, O_CREAT | O_WRONLY);
+    if (write(fd, (void *)0x80193978, 0x4744) == -1) {
+        goto fail;
+    }
+    if (write(fd, (void *)0x801980BC, 0x2034) == -1) {
+        goto fail;
+    }
+    close(fd);
+    fd = open(D_800117DC, O_CREAT | O_WRONLY);
+    if (write(fd, (void *)0x8019A0F0, 0x4744) == -1) {
+        goto fail;
+    }
+    if (write(fd, (void *)0x8019E834, 0x2034) == -1) {
+        goto fail;
+    }
+    close(fd);
+    return 0;
+fail:
+    close(fd);
+    return -1;
+}
 
 /* MATCHING: -pos->vx + ... loads the parameter's word before the global's. */
 void func_80036478(VECTOR *pos) {
@@ -282,11 +433,91 @@ void func_80036478(VECTOR *pos) {
     func_8001B354(0x15E, &size, 0, 5, &D_800ACEA8[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800365A0);
+/* MATCHING: an s16 colour local keeps 0xFF loaded after the sine. */
+void func_800365A0(VECTOR *pos) {
+    s32 unused[2];
+    VECTOR world;
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
 
+    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = -pos->vx + D_800A7308[0];
+    world.vy = pos->vy;
+    world.vz = -pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vy = pos->vy - 200;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+}
+
+#ifdef NON_MATCHING
+/* MATCHING: retail's 0x2A-byte copy is word-aligned; no type found for it. */
+/** @brief The first 0x2A bytes of a 0x2C-byte record, copied as a block. */
+typedef struct {
+    s16 h[21]; /**< not yet known */
+} Copy2A;
+
+/** @brief A record of the first bank as the bank installer reads it. */
+typedef struct {
+    u8 unk0[0x28]; /**< copied as a block */
+    s16 unk28;     /**< index of the owning 0x78-byte record */
+    u8 pad[2];     /**< not copied */
+} Bank2CRec;
+
+/** @brief A record of the live buffer the first bank is copied into. */
+typedef struct {
+    u8 unk0[0x28]; /**< copied from the bank record */
+    void *unk28;   /**< the owning record's unk10 */
+} Live2C;
+
+void func_80036704(void) {
+    s16 i;
+    BankEntry *e = ((Bank2C *)D_80095A50)->entries;
+    Bank2CRec *rec;
+
+    for (i = 0; i < (u32)D_80095780; i++) {
+        D_800D8D20[i].unk72 = e->first;
+        D_800D8D20[i].unk74 = e->unk4;
+        e++;
+    }
+    for (i = 0; i < 400; i++) {
+        rec = (Bank2CRec *)func_80036A50(0, i);
+        *(Copy2A *)&((Live2C *)D_800D3CA8)[i] = *(Copy2A *)rec;
+        ((Live2C *)D_800D3CA8)[i].unk28 = D_800D8D20[rec->unk28].unk10;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
+#endif
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036878);
+void func_80036878(void) {
+    s16 i;
+    s16 j;
+    BankEntry *e = ((Bank4C *)D_80095A4C)->entries;
+
+    for (i = 0; i < (u32)D_80095810; i++) {
+        D_800D8D20[i].unk6E = e->first;
+        D_800D8D20[i].unk70 = e->unk4;
+        e++;
+    }
+    for (i = 0; i < 80; i++) {
+        for (j = D_800D8D20[i].unk6E; j < D_800D8D20[i].unk70 + D_800D8D20[i].unk6E; j++) {
+            func_80036A84(0, j)->unk48 = D_800D8D20[i].unk10;
+        }
+    }
+    for (i = 0; i < 100; i++) {
+        ((Rec4C *)D_800DB2C0)[i] = *func_80036A84(0, i);
+    }
+}
 
 Rec2C *func_80036A50(s32 idx, s32 sub) {
     Bank2C *bank = (Bank2C *)D_80095A50;
@@ -321,7 +552,35 @@ void func_80036AB8(VECTOR *pos, u16 scale) {
     func_8001A3D4(0x15D, &size, &color, 2, &D_800ACEA8[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036B90);
+/** @brief The first block of one hit-data slot. */
+typedef struct {
+    u8 b[0x4744]; /**< not yet known */
+} HitBlockA;
+
+/** @brief The second block of one hit-data slot. */
+typedef struct {
+    u8 b[0x2034]; /**< not yet known */
+} HitBlockB;
+
+/** @brief One hit-data slot: the two blocks a HITDATA file holds. */
+typedef struct {
+    HitBlockA a; /**< the first block */
+    HitBlockB b; /**< the second block */
+} HitSlot;
+
+/** @brief The tool buffer: a header, then the three hit-data slots. */
+typedef struct {
+    u8 hdr[0x200];    /**< not yet known */
+    HitSlot slots[3]; /**< one per HITDATA file */
+} ToolBuf;
+
+/* MATCHING: (&slot)->b puts the second address sum offset-first. */
+void func_80036B90(s16 n) {
+    ToolBuf *tool = (ToolBuf *)0x8018D000;
+
+    *(HitBlockA *)0x8016D000 = tool->slots[n].a;
+    *(HitBlockB *)0x8017D000 = (&tool->slots[n])->b;
+}
 
 void func_80036D50(void) {
     D_800A7308[0] = 0;
@@ -405,7 +664,32 @@ void func_80036F50(void) {
     }
 }
 
+#ifdef NON_MATCHING
+/* MATCHING: s32 with no return; the jump table lands 4 bytes late. */
+s32 func_80036FE8(void) {
+    if (D_80095970 & 0x100) {
+        switch (D_80095A26) {
+            case 10:
+                D_80095A26 = 20;
+                break;
+            case 20:
+                D_80095A26 = 30;
+                break;
+            case 30:
+                D_80095A26 = 40;
+                break;
+            case 40:
+                D_80095A26 = 50;
+                break;
+            case 50:
+                D_80095A26 = 10;
+                break;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036FE8);
+#endif
 
 void func_8003708C(void) {
     s32 flags = D_80095970;

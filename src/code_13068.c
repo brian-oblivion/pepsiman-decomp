@@ -12,7 +12,7 @@
  *         is still unknown. */
 typedef struct {
     u8 unk0; /**< set to 1 on a reset; not yet known */
-    u8 pad1;
+    u8 unk1; /**< the steering mode last applied; a repeat only resets unk380 */
     u8 unk2; /**< cleared on a reset when the flag byte is 1 */
     u8 pad3[2];
     u8 unk5; /**< cleared on a reset */
@@ -47,7 +47,8 @@ typedef struct {
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
     u16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
-    u8 pad3AE[0x3B8 - 0x3AE];
+    u8 pad3AE[0x3B4 - 0x3AE];
+    s32 unk3B4; /**< moved by 50 a step while steering */
     s32 unk3B8; /**< 1 selects the global cap for unk34C */
     s32 unk3BC; /**< 1 with unk3B8 also starts the unk390 sequence */
     s32 unk3C0; /**< the usual cap for unk34C */
@@ -130,7 +131,7 @@ extern s16 D_800D39B6[];
 extern s16 D_800D39FE[];
 extern s16 D_800D3A46[];
 
-void func_80023834(u8 mode, u16 a, u16 b);
+void func_80023834(u8 mode, u16 a, s16 b);
 void func_80023B20(void);
 void func_80028650(void);
 void func_80028500(void);
@@ -141,6 +142,7 @@ s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
 extern s32 D_800957B4;
 extern u16 D_8009587E;
+extern s16 D_800957B0;
 extern s32 D_800956E4;
 extern s32 D_800956E0;
 extern s32 D_800DF5A0[];
@@ -291,7 +293,80 @@ void func_80023764(void) {
     D_8009EEF8[0] = D_800A7680[0].vy;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023834);
+static __inline__ void pushBack(s32 deg, s32 dist) {
+    s32 angle;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    angle = ANGLE_DEG(deg);
+    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+}
+
+/* MATCHING: the (u16) read is the separate lhu retail stores when the heading is in range. */
+void func_80023834(u8 mode, u16 a, s16 b) {
+    s16 yaw;
+    s32 w;
+
+    if (sGame.unk1 != mode) {
+        switch (mode) {
+            case 3:
+                yaw = D_800A7680->vy;
+                if (yaw - 0x2D < sGame.unk380) {
+                    sGame.unk380 = yaw - 0x2D;
+                }
+                D_800957BC -= a * 2;
+                D_800957B0 -= a;
+                sGame.unk380 = D_800957BC;
+                if ((sGame.unk3D0 & 0xF) != 2 && yaw < sGame.unk380) {
+                    sGame.unk380 = yaw;
+                }
+                if (sGame.unk384 < 0) {
+                    sGame.unk384 += 0x22;
+                }
+                if (sGame.unk384 < 16) {
+                    w = sGame.unk384;
+                } else {
+                    w = 15;
+                }
+                sGame.unk384 = w;
+                sGame.unk3B4 -= 50;
+                pushBack(-90, b);
+                break;
+            case 2:
+                yaw = D_800A7680->vy;
+                if (sGame.unk380 < yaw + 0x4000) {
+                    sGame.unk380 = yaw + 0x2D;
+                }
+                D_800957BC += a * 2;
+                D_800957B0 += a;
+                sGame.unk380 = D_800957BC;
+                if ((sGame.unk3D0 & 0xF) != 2 && sGame.unk380 < yaw) {
+                    sGame.unk380 = yaw;
+                }
+                if (sGame.unk384 > 0) {
+                    sGame.unk384 -= 0x22;
+                }
+                if (sGame.unk384 >= -15) {
+                    w = sGame.unk384;
+                } else {
+                    w = -15;
+                }
+                sGame.unk384 = w;
+                sGame.unk3B4 += 50;
+                pushBack(90, b);
+                break;
+        }
+        D_800957BC = D_800957BC < D_800A7680->vy - 0x100   ? D_800A7680->vy - 0x100
+                     : D_800A7680->vy + 0x100 < D_800957BC ? D_800A7680->vy + 0x100
+                                                           : (u16)D_800957BC;
+        if (sGame.unk3B8 == 1 && sGame.unk3BC == 1 && sGame.unk38F == 0) {
+            sGame.unk34C = sGame.unk3C0;
+        }
+    } else {
+        sGame.unk380 = D_800A7680->vy;
+    }
+}
 
 /* MATCHING: the inline ternary abs (not an if on d) lets the first +56 test reuse the
  * loaded value when it skips the store. */
@@ -668,16 +743,6 @@ void func_800278B0(void) {
 
 /* MATCHING: func_800282F0's body as an inline helper; calling it with the s16 step
  * keeps the step's sign extension ahead of the rsin call. */
-static __inline__ void pushBack(s32 deg, s32 dist) {
-    s32 angle;
-    SVECTOR *rot;
-
-    rot = D_800A7680;
-    angle = ANGLE_DEG(deg);
-    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
-}
-
 void func_80027A00(void) {
     s16 step;
     s32 v;

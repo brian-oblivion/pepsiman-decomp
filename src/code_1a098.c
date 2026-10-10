@@ -145,7 +145,7 @@ typedef struct {
     s32 unk10;     /**< zeroed on a state change */
     s32 unk14;     /**< set from a fixed object's y on a state change */
     s32 unk18;     /**< zeroed on a state change */
-    u8 unk1C[2];   /**< not yet known */
+    u16 unk1C;     /**< a width */
     u16 unk1E;     /**< a height; the query is centred half of it lower */
     s32 unk20;     /**< a third of its magnitude is the query's range */
     u8 unk24;      /**< set to 1 before the query */
@@ -309,7 +309,128 @@ void func_80029930(LocalPos *lp, VECTOR *out) {
     out->vz = t.vz;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800299D8);
+/** @brief A vertex of the floor data. */
+typedef struct {
+    s16 x;   /**< x */
+    s16 y;   /**< height */
+    s16 z;   /**< z */
+    s16 pad; /**< unused */
+} FloorVtx;
+
+/** @brief A face of the floor data: a triangle when v[3] is 0xFFFF. */
+typedef struct {
+    s32 flag; /**< zero for a face that is skipped; reported on a hit */
+    u16 v[4]; /**< vertex indices */
+} FloorFace;
+
+/** @brief A zone's run of faces. */
+typedef struct {
+    s32 offset; /**< byte offset of the faces from the header */
+    u32 count;  /**< how many */
+} FloorZone;
+
+/** @brief The head of the floor data. */
+typedef struct {
+    s32 unk0;          /**< not yet known */
+    s32 vtx;           /**< byte offset of the vertices from the header */
+    FloorZone zone[1]; /**< the zones */
+} FloorHdr;
+
+/** @brief What a floor query reports. */
+typedef struct {
+    s16 y;    /**< the floor height */
+    s16 nx;   /**< the floor normal */
+    s16 ny;   /**< the floor normal */
+    s16 nz;   /**< the floor normal */
+    s32 flag; /**< the face's flag */
+} FloorHit;
+
+/* MATCHING: integer sums put the scaled index first. */
+#define VTX(i) ((FloorVtx *)((i) * 8 + (s32)v))
+
+/** @brief Finds the face of zone `zone` of the floor data `hdr` under `pos`
+ *         (x and z) and reports its height there, its normal and its flag.
+ *  @return the height, 0 for a vertical face, 0x7FFF when no face is
+ *          under `pos` */
+/* MATCHING: every vertex read spelled out; pointer locals move registers. */
+s32 func_800299D8(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
+    VECTOR a;
+    VECTOR b;
+    VECTOR n;
+    FloorVtx *v;
+    FloorFace *f;
+    u32 k;
+    s32 d;
+
+    f = (FloorFace *)(((FloorZone *)(zone * 8 + (s32)hdr))[1].offset + (s32)hdr);
+    v = (FloorVtx *)(hdr->vtx + (s32)hdr);
+    for (k = 0; k < ((FloorZone *)(zone * 8 + (s32)hdr))[1].count; k++, f++) {
+        if (f->flag == 0) {
+            continue;
+        }
+        if (f->v[3] == 0xFFFF) {
+            if ((pos->vx - VTX(f->v[0])->x) * (VTX(f->v[1])->z - VTX(f->v[0])->z) +
+                    (pos->vz - VTX(f->v[0])->z) * (VTX(f->v[0])->x - VTX(f->v[1])->x) <
+                0) {
+                continue;
+            }
+            if ((pos->vx - VTX(f->v[1])->x) * (VTX(f->v[2])->z - VTX(f->v[1])->z) +
+                    (pos->vz - VTX(f->v[1])->z) * (VTX(f->v[1])->x - VTX(f->v[2])->x) <
+                0) {
+                continue;
+            }
+            d = (pos->vx - VTX(f->v[2])->x) * (VTX(f->v[0])->z - VTX(f->v[2])->z) +
+                (pos->vz - VTX(f->v[2])->z) * (VTX(f->v[2])->x - VTX(f->v[0])->x);
+        } else {
+            if ((pos->vx - VTX(f->v[0])->x) * (VTX(f->v[1])->z - VTX(f->v[0])->z) +
+                    (pos->vz - VTX(f->v[0])->z) * (VTX(f->v[0])->x - VTX(f->v[1])->x) <
+                0) {
+                continue;
+            }
+            if ((pos->vx - VTX(f->v[1])->x) * (VTX(f->v[3])->z - VTX(f->v[1])->z) +
+                    (pos->vz - VTX(f->v[1])->z) * (VTX(f->v[1])->x - VTX(f->v[3])->x) <
+                0) {
+                continue;
+            }
+            if ((pos->vx - VTX(f->v[2])->x) * (VTX(f->v[0])->z - VTX(f->v[2])->z) +
+                    (pos->vz - VTX(f->v[2])->z) * (VTX(f->v[2])->x - VTX(f->v[0])->x) <
+                0) {
+                continue;
+            }
+            d = (pos->vx - VTX(f->v[3])->x) * (VTX(f->v[2])->z - VTX(f->v[3])->z) +
+                (pos->vz - VTX(f->v[3])->z) * (VTX(f->v[3])->x - VTX(f->v[2])->x);
+        }
+        if (d < 0) {
+            continue;
+        }
+        a.vx = VTX(f->v[2])->x - VTX(f->v[0])->x;
+        a.vy = VTX(f->v[2])->y - VTX(f->v[0])->y;
+        a.vz = VTX(f->v[2])->z - VTX(f->v[0])->z;
+        b.vx = VTX(f->v[1])->x - VTX(f->v[0])->x;
+        b.vy = VTX(f->v[1])->y - VTX(f->v[0])->y;
+        b.vz = VTX(f->v[1])->z - VTX(f->v[0])->z;
+        OuterProduct0(&a, &b, &n);
+        a.vx = pos->vx - VTX(f->v[0])->x;
+        a.vz = pos->vz - VTX(f->v[0])->z;
+        if (n.vy == 0) {
+            return 0;
+        }
+        d = n.vx * a.vx + n.vz * a.vz;
+        out->y = VTX(f->v[0])->y + ((n.vy >> 1) - d) / n.vy;
+        n.vx >>= 6;
+        n.vy >>= 6;
+        n.vz >>= 6;
+        VectorNormal(&n, &a);
+        out->nx = a.vx;
+        out->ny = a.vy;
+        out->nz = a.vz;
+        out->flag = f->flag;
+        return out->y;
+    }
+    return 0x7FFF;
+}
+
+#undef VTX
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
 

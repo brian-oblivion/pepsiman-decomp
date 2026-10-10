@@ -1,5 +1,16 @@
 #include "common.h"
 
+/* Overlay functions, loaded above the executable's code. */
+void func_800F1BA4(void);
+void func_800F936C(void);
+void func_800F9BFC(void);
+void func_800FA058(void);
+void func_800FA1A0(void);
+void func_800FA800(void);
+void func_800FA9D4(void);
+void func_800FAB9C(void);
+void func_800FAE44(void);
+
 extern u16 D_8007B0EC[];
 extern u16 D_8007B10C[];
 
@@ -73,6 +84,41 @@ void func_8004121C(u16 sel) {
     func_80022554(id);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_800412DC);
+void func_800412DC(void) {
+    switch (D_80095830) {
+        case 0:
+            func_800FAB9C();
+            break;
+        case 1:
+            func_800FAE44();
+            break;
+        case 3:
+            func_800FA9D4();
+            break;
+        case 4:
+            func_800FA800();
+            break;
+        case 6:
+            func_800F1BA4();
+            break;
+        case 7:
+            /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
+            func_800F1BA4();
+            __asm__("");
+            break;
+        case 9:
+            func_800F9BFC();
+            break;
+        case 10:
+            func_800FA058();
+            break;
+        case 12:
+            func_800FA1A0();
+            break;
+        case 13:
+            func_800F936C();
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31958", func_800413BC);

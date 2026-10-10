@@ -425,7 +425,45 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EA04);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EC04);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EF40);
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+s32 func_8003EF40(Slot *p) {
+    SVECTOR pos;
+    SColor color;
+
+    if (p->unk2 == 0) {
+        if (p->unk0 < 16) {
+            pos.vx = -72 - (16 - p->unk0) * 15;
+            pos.vy = -12;
+            color.r = -1;
+            color.g = color.b = color.cd = 0x80;
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        } else if (p->unk0 < 32) {
+            pos.vx = -72;
+            pos.vy = -12;
+            color.r = -1;
+            color.g = 0x80;
+            color.b = color.cd = (8 - (p->unk0 - 16) % 8) * 16;
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        } else {
+            pos.vx = (p->unk0 - 32) * 15 - 72;
+            pos.vy = -12;
+            color.r = -1;
+            color.g = 0x80;
+            color.b = color.cd = 0;
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        }
+        return ++p->unk0 == 48;
+    }
+    p->unk2--;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F100);
 

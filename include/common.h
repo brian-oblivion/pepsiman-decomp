@@ -277,6 +277,10 @@ void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 cl
  *  @return 0. */
 s32 func_800330D4(void);
 
+/** @brief Defined in code_29f54: remaps three buttons of the two button
+ *         words by a row of a remap table. */
+void func_8003DE34(void);
+
 /** @brief Defined in code_1902c. */
 void func_8002980C(void);
 

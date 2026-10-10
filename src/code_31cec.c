@@ -238,7 +238,59 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042208);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042538);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_800426A4);
+extern s32 D_8007B69C[];
+
+s32 func_800426A4(void) {
+    s32 ret = 0;
+
+    switch (D_800958A6) {
+        case 0:
+            D_80096748[0] = (s32)&D_8007B69C[0];
+            D_8009F090[0] = 0x80101000;
+            D_80096748[1] = (s32)&D_8007B69C[2];
+            D_8009F090[1] = 0x8016D000;
+            D_80095960 = 2;
+            D_8009596C = 1;
+            D_8009F248[0] = D_8007B6CC[4];
+            D_8009F248[1] = D_8007B6CC[6];
+            D_800958A6++;
+            break;
+        case 1:
+            if (D_8009596C == 6) {
+                func_80041F28(0);
+                D_800958A6++;
+            }
+            break;
+        case 2:
+            D_80096748[0] = (s32)&D_8007B69C[3];
+            D_8009F090[0] = 0x8016D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_8009F248[0] = D_8007B6CC[7];
+            D_800958A6++;
+            break;
+        case 3:
+            if (D_8009596C == 6) {
+                func_80041F28(1);
+                func_80042058();
+                D_80095AFC = 1;
+                D_800958A6++;
+            }
+            break;
+        case 4:
+            SsSetMVol(0, 0);
+            SsSetRVol(0, 0);
+            SsUtSetReverbType(SS_REV_TYPE_STUDIO_B);
+            VSync(0);
+            SsSetMVol(127, 127);
+            SsSetRVol(120, 120);
+            SsUtReverbOn();
+            SsUtSetReverbDepth(48, 48);
+            ret = 1;
+            break;
+    }
+    return ret;
+}
 
 void func_800428B0(void) {
     SsInit();

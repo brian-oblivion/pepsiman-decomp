@@ -201,7 +201,50 @@ void func_8003A3F4(s32 *index, s16 x, s16 y) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A4B4);
+/**
+ * @brief Draws one glyph of the time display and steps the pen left.
+ * @param pos the pen position
+ * @param id  the glyph's sprite id
+ */
+static __inline__ void putDigit(SVECTOR *pos, u16 id) {
+    pos->vx -= 6;
+    func_8001B354(id, pos, NULL, 0, &D_800ACEA8[D_80095750]);
+}
+
+void func_8003A4B4(SVECTOR *pos, s32 frames) {
+    s32 n;
+    s32 m;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 sec;
+
+    n = frames * 100 / 30;
+    /* MATCHING: d copied from n, then divided; d = n / 10 gives d a
+     * different register. */
+    d = n;
+    d /= 10;
+    putDigit(pos, n % 10 + 0x10F);
+    putDigit(pos, d % 10 + 0x10F);
+    putDigit(pos, 0x119);
+    sec = frames / 30;
+    m = sec / 60;
+    n = sec % 60;
+    k = 1;
+    d = n;
+    d /= 10;
+    putDigit(pos, n % 10 + 0x10F);
+    putDigit(pos, d % 10 + 0x10F);
+    /* MATCHING: the minutes move into n between the digit and the colon. */
+    n = m;
+    putDigit(pos, 0x119);
+    for (; k < 11; k *= 10) {
+        t = n / k;
+        if (t != 0 || (k == 1 && n == 0)) {
+            putDigit(pos, t % 10 + 0x10F);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A84C);
 

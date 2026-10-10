@@ -171,6 +171,7 @@ extern u32 D_8009585C; /**< a frame counter; 2 units */
 extern s32 D_800958D0; /**< a loop counter or count kept in a global; 2 units */
 extern s16 D_8009588E; /**< number of entries; 2 units */
 extern s16 D_80095914; /**< the view's orbit angle, in degrees; 2 units */
+extern s16 D_800958DA; /**< an error code; cleared when flag bit 6 is set; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

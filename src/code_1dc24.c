@@ -88,10 +88,36 @@ typedef struct {
 
 #define sGameSave (*(GameSave *)D_8009EB78)
 
+extern s32 D_80095824; /**< the current entry of the block, -1 for none */
 extern s32 D_80095950; /**< a pad word; bits step the edited value */
 extern s32 D_80095958; /**< a pad word; bits step the highlighted line */
 
 s32 func_80033E98(void);
+
+/** @brief A block entry as its first and count words. */
+typedef struct {
+    s32 start; /**< index of the entry's first point */
+    s32 count; /**< number of points */
+} Span8;
+
+/** @brief An eight-byte point record of the block's second part. */
+typedef struct {
+    s16 x;   /**< x */
+    s16 y;   /**< y */
+    s16 z;   /**< z */
+    u16 tag; /**< one more than the latched halfword */
+} Pt8;
+
+/** @brief The current-block pointers, seen as one structure. */
+typedef struct {
+    u8 *ents; /**< the block's entries */
+    u8 *pts;  /**< the block's points */
+} BlockCur;
+
+/* MATCHING: reached as members, so a member store through a pointer may
+ * alias them (common.h declares them as scalars). */
+#define sCur (*(BlockCur *)&D_800959C0)
+
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
@@ -353,7 +379,61 @@ void func_8002F8FC(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FA78);
 
+#ifdef NON_MATCHING
+/** @brief On flag bit 5, inserts the game position as a new point at the
+ *         end of the current entry, shifting the later points up, then
+ *         rebuilds the block header. */
+void func_8002FDB4(void) {
+    s16 pos[3];
+    Span8 *e;
+    Span8 *q;
+    Pt8 *dst;
+    Pt8 *src;
+    Pt8 *p;
+    s32 i;
+    s32 n;
+    u32 j;
+
+    if (D_80095970 & 0x20) {
+        if (sTotals.unk26 == 200) {
+            D_800958DA = 8;
+        } else if (D_80095824 == -1) {
+            D_800958DA = 7;
+        } else {
+            e = (Span8 *)sCur.ents + D_80095824;
+            src = (Pt8 *)sCur.pts;
+            dst = src;
+            pos[0] = sGameSave.unk348[0];
+            pos[1] = sGameSave.unk348[1];
+            pos[2] = sGameSave.unk348[2];
+            src += 198;
+            dst += 199;
+            for (i = e->start + e->count; i < 200; i++) {
+                *dst = *src;
+                dst--;
+                src--;
+            }
+            e = (Span8 *)sCur.ents + D_80095824;
+            p = (Pt8 *)sCur.pts;
+            n = e->count;
+            e->count = n + 1;
+            p += e->start + n;
+            q = (Span8 *)sCur.ents + (D_80095824 + 1);
+            p->x = pos[0];
+            p->y = pos[1];
+            p->z = pos[2];
+            p->tag = D_80095B4C[0] + 1;
+            for (j = D_80095824 + 1; j < D_80095794; j++) {
+                q->start++;
+                q++;
+            }
+            func_8002D0C4((BlockHeader *)0x801FD000);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FDB4);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FF74);
 

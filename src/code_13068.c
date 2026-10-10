@@ -751,7 +751,73 @@ s32 func_80023BFC(void) {
     }
 }
 
+#ifdef NON_MATCHING
+/* MATCHING: 129/134; retail copies unk34C to a second register ($a0) for the unk39C and
+ * closeness tests and keeps the first ($a2) for the step. */
+s32 func_80023D68(void) {
+    s32 x;
+    s32 d;
+    s32 y;
+
+    x = sGame.unk34C;
+    if (x < D_800956E4) {
+        D_800956E4 = x;
+    }
+    if (x < sGame.unk39C) {
+        sGame.unk39C = x;
+    }
+    if ((u32)(sGame.unk6 - 8) < 4) {
+        goto end;
+    }
+    if ((u32)(sGame.unk6 - 0x38) < 2 && (sGame.unk3D0 & 0xF) != 3) {
+        goto end;
+    }
+    d = sGame.unk3C0 - x;
+    if ((d >= 0 ? d : -d) < 50) {
+        sGame.unk34C = sGame.unk3C0;
+    } else {
+        sGame.unk34C = x + (u16)sGame.unk3A6 * 5;
+    }
+    if (sGame.unk3B8 == 1 && sGame.unk3BC == 1) {
+        sGame.unk3A6 = 0;
+        sGame.unk39C = 0;
+        sGame.unk34C = sGame.unk3CC;
+        goto end;
+    }
+    if (sGame.unk39C <= sGame.unk3CC && sGame.unk3B8 == 1) {
+        if (sGame.unk34C >= sGame.unk3CC) {
+            sGame.unk34C = sGame.unk3CC;
+            sGame.unk3A6 = 0;
+            sGame.unk39C = 0;
+            sGame.unk3BC = sGame.unk3B8;
+        } else {
+            sGame.unk3A6++;
+        }
+        goto end;
+    }
+    if (sGame.unk34C >= sGame.unk3C0) {
+        y = D_800AC858[0];
+        sGame.unk3A6 = 0;
+        sGame.unk39C = 0;
+        sGame.unk3BC = 0;
+        sGame.unk34C = y;
+        if (D_800956E0 == 0) {
+            D_800DF5B0[0] = sGame.unk348;
+            D_800DF5B0[1] = y;
+            D_800DF5B0[2] = sGame.unk350;
+            D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+            if (D_80095900 == 0) {
+                func_80015450(D_800734AC, 13);
+            }
+        }
+    } else {
+        sGame.unk3A6++;
+    }
+end:;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023F80);
 

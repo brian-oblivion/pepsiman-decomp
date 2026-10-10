@@ -45,6 +45,24 @@ typedef struct {
     u8 b[27]; /**< Shift-JIS title text */
 } CardTitle;
 
+/** @brief A 16-colour CLUT, copied as one block. */
+typedef struct {
+    u8 b[0x20]; /**< 16 halfword colours */
+} IconClut;
+
+/** @brief One 16x16 4-bit icon frame, copied as one block. */
+typedef struct {
+    u8 b[0x80]; /**< pixel data */
+} IconBits;
+
+/** @brief A 4-bit 16x16 TIM image as stored in rodata. */
+typedef struct {
+    u8 head[0x14];  /**< TIM id, flags and CLUT block header */
+    IconClut clut;  /**< the CLUT */
+    u8 imgHead[12]; /**< image block header */
+    IconBits bits;  /**< the pixels */
+} IconTim;
+
 /** @brief The start of a memory card file header. */
 typedef struct {
     u8 magic[2];     /**< "SC" */
@@ -56,8 +74,42 @@ typedef struct {
 extern CardHeader D_800DF5D0;
 extern u8 D_800119C8[]; /**< title of the first save file */
 extern u8 D_80011C54[]; /**< title of the second save file */
+extern u8 D_800119E4[]; /**< first save file's icon frames, three TIMs */
+extern u8 D_80011AA4[];
+extern u8 D_80011B64[];
+extern u8 D_80011C70[]; /**< second save file's icon frames, three TIMs */
+extern u8 D_80011D30[];
+extern u8 D_80011DF0[];
+extern u8 D_800DF630[]; /**< the card header's icon CLUT and first frame */
+extern u8 D_800DF6D0[]; /**< the card header's second icon frame */
+extern u8 D_800DF750[]; /**< the card header's third icon frame */
 
+/** @brief The 0x200-byte header block copied to the save buffer. */
+typedef struct {
+    u8 b[0x200]; /**< header bytes */
+} SaveImage;
+
+extern u16 D_800959F8; /**< checksum of the save buffer */
+
+s16 func_80037700(void);
+s32 func_800377E8(void);
+s32 func_8003796C(void);
+s32 func_80037AE4(void);
+s32 func_80037C2C(void);
 void func_80037CF0(void);
+s32 func_800383F8(void);
+s32 func_80038468(void);
+s32 func_800384DC(void);
+s32 func_80038574(void);
+u16 func_800382DC(void);
+void func_800385E0(void);
+s32 func_80038C74(void);
+s32 func_80038DF8(void);
+s32 func_80038F70(void);
+s32 func_8003950C(void);
+s32 func_80039580(void);
+s32 func_80039618(void);
+void func_8003968C(void);
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
@@ -84,7 +136,91 @@ void func_800373C8(BankFile *a, BankFile *b) {
     func_80036878();
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037440);
+/** @brief Runs one memory card operation on the first save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
+s32 func_80037440(s16 mode) {
+    s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
+    s32 ret;
+    s16 retry;
+    u16 sum;
+    s32 off; /* MATCHING: a constant offset is split into %hi + low; a register one is not */
+
+    ret = 0;
+    retry = 0;
+    D_800959DA = 0;
+    D_800959D0 = 0;
+    D_800959D4 = (u8 *)0x8018D000;
+    D_80095A18 = (u8 *)0x8016D000;
+    func_80038730();
+again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
+    D_800959DA = func_80037700();
+    switch (D_800959DA) {
+        case 0: /* MATCHING: the empty case gives retail's compare tree */
+            break;
+        case 1:
+            if (retry < 16) {
+                retry++;
+                goto again;
+            }
+            ret = -2;
+            goto end;
+        case 2:
+            D_800959DC = 0;
+            ret = 2;
+            goto end;
+        case 3:
+            D_800959DC = 0;
+            ret = 4;
+            if (mode == 3) {
+                goto format;
+            }
+            goto end;
+    }
+    if (mode == -1) {
+        goto end;
+    }
+    func_80037C2C();
+    if (mode == 5) {
+        if (func_800384DC() != -1) {
+            ret = 0;
+        } else {
+            ret = func_80038574() == -1;
+        }
+    } else if (mode == 0 || mode == 1 || mode == 4) {
+        if (func_800384DC() == -1) {
+            ret = 3;
+            goto end;
+        }
+        switch (mode) {
+            case 0:
+                ret = func_800377E8();
+                break;
+            case 1:
+                ret = func_8003796C();
+                break;
+            case 4:
+                ret = func_80038468();
+                break;
+        }
+    } else if (mode == 2) {
+        if (func_80038574() == -1) {
+            ret = 1;
+        } else {
+            func_800385E0();
+            *(SaveImage *)D_80095A18 = *(SaveImage *)&D_800DF5D0;
+            sum = func_800382DC();
+            D_800959F8 = sum;
+            off = 0x1DFFE;
+            *(u16 *)(D_800959D4 + off) = sum;
+            ret = func_80037AE4();
+        }
+    } else if (mode == 3) {
+    format:
+        ret = func_800383F8();
+    }
+end:
+    func_800387A8();
+    return ret;
+}
 
 s16 func_80037700(void) {
     s16 retry;
@@ -121,11 +257,158 @@ s16 func_80037700(void) {
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800377E8);
+/** @brief Reads the first save file into the save buffer, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_800377E8(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+    u8 *buf;
+    s16 tries;
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003796C);
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 1);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    D_800959D0 = 1;
+    ret = -1;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (lseek(fd, 0, 0) != -1) {
+            goto seeked;
+        }
+    }
+    close(fd);
+    D_800959D0 = 2;
+    ret = -1;
+    goto end;
+seeked:
+    buf = D_80095A18;
+    for (tries = 0; tries < 10; tries++) {
+        if (read(fd, buf, 0x1E000) == 0x1E000) {
+            goto done;
+        }
+        for (i = 0; i < 10; i++) {
+            if (lseek(fd, 0, 0) != -1) {
+                goto reseeked;
+            }
+        }
+        close(fd);
+        D_800959D0 = 2;
+        ret = -1;
+        goto end;
+    reseeked:;
+    }
+    close(fd);
+    D_800959D0 = 3;
+    ret = -1;
+    goto end;
+done:
+    close(fd);
+end:
+    return ret;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037AE4);
+/** @brief Rewrites the first save file in place, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_8003796C(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+    u8 *buf;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    ret = -1;
+    D_800959D0 = 5;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (lseek(fd, 0, 0) != -1) {
+            goto seeked;
+        }
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 6;
+    goto end;
+seeked:
+    buf = D_80095A18;
+    for (i = 0; i < 10; i++) {
+        if (write(fd, buf, 0x1E000) == 0x1E000) {
+            goto written;
+        }
+        for (i = 0; i < 10; i++) {
+            if (lseek(fd, 0, 0) != -1) {
+                goto reseeked;
+            }
+        }
+        close(fd);
+        ret = -1;
+        D_800959D0 = 6;
+        goto end;
+    reseeked:;
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 7;
+    goto end;
+written:
+    close(fd);
+end:
+    return ret;
+}
+
+/** @brief Creates and writes the first save file, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_80037AE4(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 0xF0200);
+        if (fd != -1) {
+            goto created;
+        }
+    }
+    /* MATCHING: ret before the code keeps the three fail tails apart */
+    ret = -1;
+    D_800959D0 = 8;
+    goto end;
+created:
+    close(fd);
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    ret = -1;
+    D_800959D0 = 9;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (write(fd, D_80095A18, 0x1E000) == 0x1E000) {
+            goto written;
+        }
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 10;
+    goto end;
+written:
+    close(fd);
+end:
+    return ret;
+}
 
 #ifdef NON_MATCHING
 s32 func_80037C2C(void) {
@@ -156,9 +439,40 @@ loop:
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037C2C);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
+/** @brief Copies the first save file's three icon TIMs into the card header's CLUT and frames. */
+void func_80037CF0(void) {
+    IconTim tim[3];
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
+    tim[0] = *(IconTim *)D_800119E4;
+    tim[1] = *(IconTim *)D_80011AA4;
+    tim[2] = *(IconTim *)D_80011B64;
+    *(IconClut *)D_800DF630 = tim[0].clut;
+    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
+    *(IconBits *)D_800DF6D0 = tim[1].bits;
+    *(IconBits *)D_800DF750 = tim[2].bits;
+}
+
+/** @brief Opens the eight memory card events (four software, four hardware) and leaves them disabled. */
+void func_80038124(void) {
+    EnterCriticalSection();
+    D_800959E8 = OpenEvent(0xF4000001, 4, 0x2000, NULL);
+    D_800959EC = OpenEvent(0xF4000001, 0x8000, 0x2000, NULL);
+    D_800959F0 = OpenEvent(0xF4000001, 0x100, 0x2000, NULL);
+    D_800959F4 = OpenEvent(0xF4000001, 0x2000, 0x2000, NULL);
+    D_800959FC = OpenEvent(0xF0000011, 4, 0x2000, NULL);
+    D_80095A00 = OpenEvent(0xF0000011, 0x8000, 0x2000, NULL);
+    D_80095A04 = OpenEvent(0xF0000011, 0x100, 0x2000, NULL);
+    D_80095A08 = OpenEvent(0xF0000011, 0x2000, 0x2000, NULL);
+    ExitCriticalSection();
+    DisableEvent(D_800959E8);
+    DisableEvent(D_800959EC);
+    DisableEvent(D_800959F0);
+    DisableEvent(D_800959F4);
+    DisableEvent(D_800959FC);
+    DisableEvent(D_80095A00);
+    DisableEvent(D_80095A04);
+    DisableEvent(D_80095A08);
+}
 
 /* MATCHING: s32, not s16: both callers test the result unextended. */
 s32 func_8003828C(u8 *a, u8 *b, s16 n) {
@@ -261,7 +575,7 @@ s32 func_80038468(void) {
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 
-s16 func_800384DC(void) {
+s32 func_800384DC(void) {
     s16 i;
 
     D_80095A1C = "BISLPS-12345PEPTOOL";
@@ -273,7 +587,7 @@ s16 func_800384DC(void) {
     return -1;
 }
 
-s16 func_80038574(void) {
+s32 func_80038574(void) {
     s16 sum;
     s16 i;
 
@@ -387,15 +701,257 @@ void func_80038990(u8 *p, s32 n) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800389B4);
+/** @brief Runs one memory card operation on the second save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
+s32 func_800389B4(s16 mode) {
+    s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
+    s32 ret;
+    s16 retry;
+    u16 sum;
+    s32 off; /* MATCHING: a constant offset is split into %hi + low; a register one is not */
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038C74);
+    ret = 0;
+    retry = 0;
+    D_800959DA = 0;
+    D_800959D0 = 0;
+    D_800959D4 = (u8 *)0x80195000;
+    D_80095A18 = (u8 *)0x8018D000;
+    func_80038730();
+again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
+    D_800959DA = func_80037700();
+    switch (D_800959DA) {
+        case 0: /* MATCHING: the empty case gives retail's compare tree */
+            break;
+        case 1:
+            if (retry < 16) {
+                retry++;
+                goto again;
+            }
+            ret = -2;
+            goto end;
+        case 2:
+            D_800959DC = 0;
+            ret = 2;
+            goto end;
+        case 3:
+            D_800959DC = 0;
+            ret = 4;
+            if (mode == 3) {
+                goto format;
+            }
+            goto end;
+    }
+    if (mode == -1) {
+        goto end;
+    }
+    func_80037C2C();
+    if (mode == 5) {
+        if (func_80039580() != -1) {
+            ret = 0;
+        } else {
+            ret = func_80039618() == -1;
+        }
+    } else if (mode == 0 || mode == 1 || mode == 4) {
+        if (func_80039580() == -1) {
+            ret = 3;
+            goto end;
+        }
+        switch (mode) {
+            case 0:
+                ret = func_80038C74();
+                break;
+            case 1:
+                ret = func_80038DF8();
+                break;
+            case 4:
+                ret = func_8003950C();
+                break;
+        }
+    } else if (mode == 2) {
+        if (func_80039618() == -1) {
+            ret = 1;
+        } else {
+            func_8003968C();
+            *(SaveImage *)D_80095A18 = *(SaveImage *)&D_800DF5D0;
+            sum = func_800382DC();
+            D_800959F8 = sum;
+            off = 0x17FFE;
+            *(u16 *)(D_800959D4 + off) = sum;
+            ret = func_80038F70();
+        }
+    } else if (mode == 3) {
+    format:
+        ret = func_800383F8();
+    }
+end:
+    func_800387A8();
+    return ret;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038DF8);
+/** @brief Reads the second save file into the save buffer, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_80038C74(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+    u8 *buf;
+    s16 tries;
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038F70);
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011C24, 1);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    D_800959D0 = 1;
+    ret = -1;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (lseek(fd, 0, 0) != -1) {
+            goto seeked;
+        }
+    }
+    close(fd);
+    D_800959D0 = 2;
+    ret = -1;
+    goto end;
+seeked:
+    buf = D_80095A18;
+    for (tries = 0; tries < 10; tries++) {
+        if (read(fd, buf, 0x18000) == 0x18000) {
+            goto done;
+        }
+        for (i = 0; i < 10; i++) {
+            if (lseek(fd, 0, 0) != -1) {
+                goto reseeked;
+            }
+        }
+        close(fd);
+        D_800959D0 = 2;
+        ret = -1;
+        goto end;
+    reseeked:;
+    }
+    close(fd);
+    D_800959D0 = 3;
+    ret = -1;
+    goto end;
+done:
+    close(fd);
+end:
+    return ret;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800390B8);
+/** @brief Rewrites the second save file in place, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_80038DF8(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+    u8 *buf;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011C24, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    ret = -1;
+    D_800959D0 = 5;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (lseek(fd, 0, 0) != -1) {
+            goto seeked;
+        }
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 6;
+    goto end;
+seeked:
+    buf = D_80095A18;
+    for (i = 0; i < 10; i++) {
+        if (write(fd, buf, 0x18000) == 0x18000) {
+            goto written;
+        }
+        for (i = 0; i < 10; i++) {
+            if (lseek(fd, 0, 0) != -1) {
+                goto reseeked;
+            }
+        }
+        close(fd);
+        ret = -1;
+        D_800959D0 = 6;
+        goto end;
+    reseeked:;
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 7;
+    goto end;
+written:
+    close(fd);
+end:
+    return ret;
+}
+
+/** @brief Creates and writes the second save file, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_80038F70(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011C24, 0xC0200);
+        if (fd != -1) {
+            goto created;
+        }
+    }
+    /* MATCHING: ret before the code keeps the three fail tails apart */
+    ret = -1;
+    D_800959D0 = 8;
+    goto end;
+created:
+    close(fd);
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011C24, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    ret = -1;
+    D_800959D0 = 9;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (write(fd, D_80095A18, 0x18000) == 0x18000) {
+            goto written;
+        }
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 10;
+    goto end;
+written:
+    close(fd);
+end:
+    return ret;
+}
+
+/** @brief Copies the second save file's three icon TIMs into the card header's CLUT and frames. */
+void func_800390B8(void) {
+    IconTim tim[3];
+
+    tim[0] = *(IconTim *)D_80011C70;
+    tim[1] = *(IconTim *)D_80011D30;
+    tim[2] = *(IconTim *)D_80011DF0;
+    *(IconClut *)D_800DF630 = tim[0].clut;
+    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
+    *(IconBits *)D_800DF6D0 = tim[1].bits;
+    *(IconBits *)D_800DF750 = tim[2].bits;
+}
 
 void func_800394EC(void) {
     D_800959D4 = (u8 *)0x80195000;
@@ -427,7 +983,7 @@ INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011B64);
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C24);
 
-s16 func_80039580(void) {
+s32 func_80039580(void) {
     s16 i;
 
     D_80095A1C = "BISLPS-67890PEPTOOL";
@@ -439,7 +995,7 @@ s16 func_80039580(void) {
     return -1;
 }
 
-s16 func_80039618(void) {
+s32 func_80039618(void) {
     s16 sum;
     s16 i;
 

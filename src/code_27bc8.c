@@ -45,6 +45,24 @@ typedef struct {
     u8 b[27]; /**< Shift-JIS title text */
 } CardTitle;
 
+/** @brief A 16-colour CLUT, copied as one block. */
+typedef struct {
+    u8 b[0x20]; /**< 16 halfword colours */
+} IconClut;
+
+/** @brief One 16x16 4-bit icon frame, copied as one block. */
+typedef struct {
+    u8 b[0x80]; /**< pixel data */
+} IconBits;
+
+/** @brief A 4-bit 16x16 TIM image as stored in rodata. */
+typedef struct {
+    u8 head[0x14];  /**< TIM id, flags and CLUT block header */
+    IconClut clut;  /**< the CLUT */
+    u8 imgHead[12]; /**< image block header */
+    IconBits bits;  /**< the pixels */
+} IconTim;
+
 /** @brief The start of a memory card file header. */
 typedef struct {
     u8 magic[2];     /**< "SC" */
@@ -56,6 +74,12 @@ typedef struct {
 extern CardHeader D_800DF5D0;
 extern u8 D_800119C8[]; /**< title of the first save file */
 extern u8 D_80011C54[]; /**< title of the second save file */
+extern u8 D_800119E4[]; /**< first save file's icon frames, three TIMs */
+extern u8 D_80011AA4[];
+extern u8 D_80011B64[];
+extern u8 D_800DF630[]; /**< the card header's icon CLUT and first frame */
+extern u8 D_800DF6D0[]; /**< the card header's second icon frame */
+extern u8 D_800DF750[]; /**< the card header's third icon frame */
 
 /** @brief The 0x200-byte header block copied to the save buffer. */
 typedef struct {
@@ -412,7 +436,18 @@ loop:
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037C2C);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
+/** @brief Copies the first save file's three icon TIMs into the card header's CLUT and frames. */
+void func_80037CF0(void) {
+    IconTim tim[3];
+
+    tim[0] = *(IconTim *)D_800119E4;
+    tim[1] = *(IconTim *)D_80011AA4;
+    tim[2] = *(IconTim *)D_80011B64;
+    *(IconClut *)D_800DF630 = tim[0].clut;
+    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
+    *(IconBits *)D_800DF6D0 = tim[1].bits;
+    *(IconBits *)D_800DF750 = tim[2].bits;
+}
 
 /** @brief Opens the eight memory card events (four software, four hardware) and leaves them disabled. */
 void func_80038124(void) {

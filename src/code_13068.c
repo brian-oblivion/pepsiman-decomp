@@ -577,7 +577,69 @@ void func_800278B0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027A00);
+/* MATCHING: func_800282F0's body as an inline helper; calling it with the s16 step
+ * keeps the step's sign extension ahead of the rsin call. */
+static __inline__ void pushBack(s32 deg, s32 dist) {
+    s32 angle;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    angle = ANGLE_DEG(deg);
+    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+}
+
+void func_80027A00(void) {
+    s16 step;
+    s32 v;
+    s32 x;
+    GameState *g;
+    s32 hi;
+
+    if (sGame.unk0 != 0) {
+        if (D_80095964 & 0x8000) {
+            func_80023834(3, 16, 5);
+            D_800959B2 -= 4;
+        } else if (D_80095964 & 0x2000) {
+            func_80023834(2, 16, 5);
+            D_800959B2 += 4;
+        } else {
+            sGame.unk5 = 0x58;
+            if (D_800959B2 != 0) {
+                if (D_800959B2 < 0) {
+                    D_800959B2 += 2;
+                } else {
+                    D_800959B2 -= 2;
+                }
+            }
+        }
+        switch (D_80095830) {
+            case 3:
+                sGame.unk34C = sGame.unk3C0 - 0x5A;
+                break;
+            case 10:
+                sGame.unk34C = sGame.unk3C0 - 0x50;
+                break;
+        }
+        D_800959B2 = D_800959B2 < -10 ? -10 : D_800959B2 > 10 ? 10 : D_800959B2;
+        step = D_800959B2 / 10;
+        pushBack(90, step);
+        /* MATCHING: as in func_80028008. */
+        __asm__("");
+        g = &sGame;
+        x = g->unk380;
+        v = D_800A7680->vy - 0x71;
+        if (x >= v) {
+            hi = D_800A7680->vy + 0x71;
+            if (x <= hi) {
+                v = x;
+            } else {
+                v = hi;
+            }
+        }
+        g->unk380 = v;
+    }
+}
 
 /* MATCHING: the unsigned range test is the single subtract-and-compare retail does. */
 void func_80027BEC(void) {
@@ -633,18 +695,6 @@ void func_80027D04(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
-
-/* MATCHING: func_800282F0's body as an inline helper; calling it with the s16 step
- * keeps the step's sign extension ahead of the rsin call. */
-static __inline__ void pushBack(s32 deg, s32 dist) {
-    s32 angle;
-    SVECTOR *rot;
-
-    rot = D_800A7680;
-    angle = ANGLE_DEG(deg);
-    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
-}
 
 void func_80028008(void) {
     s16 step;

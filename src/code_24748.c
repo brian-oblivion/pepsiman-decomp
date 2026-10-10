@@ -540,10 +540,10 @@ typedef struct {
     s32 v[5][3]; /**< per-row x, y, z */
 } Rows5;
 
-extern Rows5 D_800115DC;  /**< the rows the step below scales */
-extern s32 D_800CEBA0[];  /**< start of the interpolation */
-extern u8 D_80095A20;     /**< interpolation step, 0..30 */
-extern s32 D_800DB2B8[];  /**< cleared on every step */
+extern Rows5 D_800115DC; /**< the rows the step below scales */
+extern s32 D_800CEBA0[]; /**< start of the interpolation */
+extern u8 D_80095A20;    /**< interpolation step, 0..30 */
+extern s32 D_800DB2B8[]; /**< cleared on every step */
 
 /* MATCHING: a per-unit view; code_7d74 defines it as (s16, s16, u16, u16)
  * returning s16. */

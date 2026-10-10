@@ -536,7 +536,56 @@ s32 func_8002A558(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
+/** @brief The magnitude of `x`. */
+/* MATCHING: this ternary is cc1's one-insn abs (abssi2), a bgez whose slot is a nop. */
+static __inline__ s32 absInt(s32 x) {
+    return x >= 0 ? x : -x;
+}
+
+/** @brief Places and sorts the model of `rec` for record `r`: position
+ *         plus the world offset, rotation from the record's angles, light
+ *         and scale; sorted far (GsSortObject4J) when x or z is beyond 700,
+ *         and the offset taken off again afterwards. */
+void func_8002A5B0(Rec78 *rec, Rec48 *r) {
+    GsCOORD2PARAM param;
+    MATRIX mat;
+    Model70 *m;
+    Obj34 *o;
+
+    m = (Model70 *)rec;
+    o = (Obj34 *)r;
+    m->coord.coord.t[0] = o->unk0;
+    m->coord.coord.t[1] = o->unk4;
+    m->coord.coord.t[2] = o->unk8;
+    m->rot.vx = o->unk18;
+    m->rot.vy = o->unk1A;
+    m->rot.vz = o->unk1C;
+    m->coord.coord.t[0] += D_800A7308[0];
+    m->coord.coord.t[2] += D_800A7308[2];
+    func_80018AE0(&m->rot, &m->coord);
+    RotMatrixX(o->unk2C, &m->coord.coord);
+    RotMatrixZ(o->unk30, &m->coord.coord);
+    m->obj.attribute = 0;
+    m->obj.coord2->flg = 0;
+    m->obj.coord2->param = &param;
+    GsGetLw(m->obj.coord2, &mat);
+    GsSetLightMatrix(&mat);
+    GsGetLs(m->obj.coord2, &mat);
+    param.scale.vx = m->scale.vx;
+    param.scale.vy = m->scale.vy;
+    param.scale.vz = m->scale.vz;
+    ScaleMatrix(&mat, &param.scale);
+    GsSetLsMatrix(&mat);
+    if (D_80095880 == 0x25) {
+        GsSortObject4(&m->obj, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+    } else if (absInt(m->coord.coord.t[0]) > 700 || absInt(m->coord.coord.t[2]) > 700) {
+        GsSortObject4J(&m->obj, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+    } else {
+        GsSortObject4(&m->obj, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+    }
+    m->coord.coord.t[0] -= D_800A7308[0];
+    m->coord.coord.t[2] -= D_800A7308[2];
+}
 
 /* The result of a second-buffer record's test: a flag, then a word. */
 extern s8 D_80095898;  /**< 1 on a hit */
@@ -1296,12 +1345,6 @@ typedef struct {
 
 /* MATCHING: a per-unit view; code_29f54 types the same list as Run. */
 extern Zone4 *D_80095934; /**< the zones */
-
-/** @brief The magnitude of `x`. */
-/* MATCHING: this ternary is cc1's abs, a bgez with its delay slot a nop. */
-static __inline__ s32 absInt(s32 x) {
-    return x >= 0 ? x : -x;
-}
 
 s8 func_8002D0F0(Vec3 *pos);
 

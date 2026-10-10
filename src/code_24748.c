@@ -247,7 +247,52 @@ INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117DC);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034070);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034388);
+extern s32 D_80095958; /**< a pad word; bits 12 and 14 step the position's y */
+
+void func_80034388(void) {
+    s32 flags;
+
+    if (D_80095A59 == 1) {
+        flags = D_80095970;
+        if (flags & 0x1000) {
+            D_80095A56 += D_80095A26;
+        }
+        if (flags & 0x4000) {
+            D_80095A56 -= D_80095A26;
+        }
+        if (flags & 0x2000) {
+            D_80095A54 += D_80095A26;
+        }
+        if (flags & 0x8000) {
+            D_80095A54 -= D_80095A26;
+        }
+        D_80095A54 = D_80095A54 < 0 ? 0 : D_80095A54 > 1000 ? 1000 : D_80095A54;
+        D_80095A56 = D_80095A56 < 0 ? 0 : D_80095A56 > 1000 ? 1000 : D_80095A56;
+    } else {
+        if (D_80095970 & 0x1000) {
+            sGamePos.unk350 -= D_80095A26;
+        }
+        if (D_80095970 & 0x4000) {
+            sGamePos.unk350 += D_80095A26;
+        }
+        if (D_80095970 & 0x2000) {
+            sGamePos.unk348 -= D_80095A26;
+        }
+        if (D_80095970 & 0x8000) {
+            sGamePos.unk348 += D_80095A26;
+        }
+    }
+    if (D_80095958 & 0x1000) {
+        sGamePos.unk34C -= D_80095A26;
+    }
+    if (D_80095958 & 0x4000) {
+        sGamePos.unk34C += D_80095A26;
+    }
+    if (D_80095970 & 0x10) {
+        D_80095A59 = 0;
+        D_800958DA = 1;
+    }
+}
 
 void func_800345C8(void) {
     D_800958B0 = 1;

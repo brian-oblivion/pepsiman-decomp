@@ -365,6 +365,7 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
 
     ret = 1;
     if (obj->want[0] == 1) {
+        __asm__("");
         return 0;
     }
     if (obj->want[index] != obj->cur[index]) {

@@ -56,7 +56,26 @@ void func_800414EC(s16 arg0) {
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041534);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041964);
+extern s32 D_800E1F1C;
+extern DECENV D_800E04B0;
+
+void func_80041964(void) {
+    if (D_800E1F1C) {
+        StCdInterrupt();
+        D_800E1F1C = 0;
+    }
+    LoadImage(&D_800E04B0.slice, (u_long *)D_800E04B0.imgbuf);
+    D_800E04B0.slice.x += D_800E04B0.slice.w;
+    if (D_800E04B0.slice.x <
+        D_800E04B0.rect[D_800E04B0.rectid].x + D_800E04B0.rect[D_800E04B0.rectid].w) {
+        DecDCTout((u_long *)D_800E04B0.imgbuf, D_800E04B0.slice.w * D_800E04B0.slice.h / 2);
+    } else {
+        D_800E04B0.isdone = 1;
+        D_800E04B0.rectid = D_800E04B0.rectid == 0;
+        D_800E04B0.slice.x = D_800E04B0.rect[D_800E04B0.rectid].x + D_800956C2;
+        D_800E04B0.slice.y = D_800E04B0.rect[D_800E04B0.rectid].y + (240 - D_80095AC8) / 2;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041A6C);
 

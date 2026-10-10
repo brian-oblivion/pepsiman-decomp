@@ -86,6 +86,19 @@ function's match report, not here.
   `common.h`; `libgpu.h` needs `libgte.h` first (SVECTOR, MATRIX). A local
   prototype of a Sony function fails declcheck as soon as a header declares
   it. (func_80014D20, func_80014D6C)
+- **A redundant `lbu; andi 0xFF` / `lhu; andi 0xFFFF` on a value: the narrow
+  parameter of an inlined `static __inline__` helper.** Locals and casts
+  never keep the mask. (func_8002CC24, func_80014DB0)
+- **A global reloaded below pointer stores that the build hoists: read it as
+  a member of a struct at a fixed address**, `((VECTOR *)D)->vy` or a unit
+  view `#define sCur (*(BlockCur *)&D)`. (func_8002C894, func_8002FDB4)
+- **An argument passed unextended though the callee narrows it: an `s32`
+  parameter in the caller's view.** (func_8002BEC0, func_8002CB24)
+- **An `(s8)` cast on a `u8` global under `== 0` folds to `lbu`; retail's
+  `lb` needs the global declared `s8`.** (code main, round 8)
+- **An `s8` -1 byte store retail keeps above a later load: a local struct
+  whose first member really is `s8`**, passed as `(CVECTOR *)&c`; the
+  `*(s8 *)&c.r` cast lets the store sink. (func_8003EF40)
 
 ## Types
 
@@ -109,6 +122,15 @@ function's match report, not here.
   a `u16` counter indexed through `(s16)i`.** (func_8002C650)
 - **A parameter masked once in the prologue: `mode &= 1;` at the top**, not
   at its use. (func_800153CC)
+- **A test result copied to a saved register (`sltu a0; move s3, a0`): the
+  result variable is `u8` or `s16`.** (func_8002BEC0)
+- **`s16 % 64` gives `sll/sra 16` around a halfword remainder on 2.8.1;
+  retail's code is `x - x / 64 * 64`.** (func_8002B7C8)
+- **`srl` on a product stored to an `s16`: `(u32)(x * 25) >> 9`.**
+  (code_29f54, round 8)
+- **A block move with a dead `lwl`/`lwr` path jumped over: the source pointer
+  is a local whose alignment cc1 cannot see**; plain `lw`/`sw` is an
+  `s32 w[N/4]` wrapper. (func_8002C2B4)
 
 ## Loops
 
@@ -164,6 +186,14 @@ function's match report, not here.
   (func_8003A3F4, func_80026C70)
 - **A count-down `bgez` loop: write it counting down.** 2.8.1 did not
   reverse a short `s32` count-up here. (code_29f54, round 5)
+- **A loop compared on a pointer with signed `slt`: an `s32` counter cc1
+  replaced with the pointer.** Write the counter; bump the pointer in the
+  `for` step after `k++`. (func_80015180)
+- **One counter tested `sltiu` in one loop and `slt` in the next: one `u32`
+  counter compared `(s32)i < g` in the second.** (func_80030984)
+- **A loop bottom testing `next` with `i = next` in the delay slot:
+  `if ((s8)next < 0) break; i = next;` inside `do { } while (1)`.**
+  (code_29f54, round 8)
 
 ## Control flow and frames
 
@@ -224,6 +254,20 @@ function's match report, not here.
   copy.** A `u8` copy gives `sltu`; a `switch` on {0, 1} and an `&&` chain
   both fold to one `bnez`, so the empty-case lever above does not apply.
   (func_800414EC)
+- **Two identical blocks retail keeps apart: one call per branch**, not one
+  after the chain; cross-jumping folds the calls and leaves the blocks.
+  (func_800330D4, func_8003C2E8) Every switch arm jumping to one shared store
+  before the exit: write the arm that falls into the exit last.
+  (func_80015584)
+- **Products recomputed per arm that CSE would merge: assign the copies in
+  each arm** (`x0 = x2 = (...) >> 12;`), so the join loses the equality.
+  (func_800198BC)
+- **A function repeating another's body on a fixed object: one `static
+  __inline__` helper, both callers wrappers.** (func_80016D14,
+  func_800173E8, func_80017270)
+- **A packet used straight from `$a3` at fixed offsets: a `volatile` packet
+  parameter.** A volatile local copy when retail moves the pointer to
+  another register. (func_8001FE5C, func_8001FBBC)
 
 ## Scheduling
 
@@ -289,3 +333,16 @@ function's match report, not here.
 - **A register parameter spilled where retail spills a stack one: name an
   unrelated early subexpression** (`r = col & 0x1F;`) to flip global-alloc.
   (func_800286B0)
+- **A store retail keeps above a branch that the build moves into the
+  delay slot: a volatile store**, `((volatile T *)p)->code = K;`.
+  (func_8001B004)
+- **A frame address (`addiu $sN, $sp, K`) hoisted into the prologue: put an
+  unrelated statement before the struct copy that uses it.** A pointer
+  local fixes only the register. (func_8001ACB4, func_8001A950)
+- **`*(u32 *)&volatile_p->x` drops the volatile**, and the order of such
+  reads decides the register assignment. (func_800201BC)
+- **Spill slots follow the declaration order of the spilled locals.**
+  (func_800198BC)
+- **`-fschedule-insns` is byte-inert on this cc1**: only the pass after
+  register allocation schedules, so register reuse decides load and store
+  order. (code_1dc24, round 8)

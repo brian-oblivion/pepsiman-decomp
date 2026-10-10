@@ -83,6 +83,24 @@ typedef struct {
     u16 v2;  /**< third vertex index */
 } TmdGT3;
 
+/** @brief A lit gouraud-textured TMD quad: a header, four UV words, then a
+ *  normal index and a vertex index per corner. */
+typedef struct {
+    u32 hdr; /**< the TMD primitive header */
+    u32 uv0; /**< u0, v0 and the CLUT */
+    u32 uv1; /**< u1, v1 and the texture page */
+    u32 uv2; /**< u2, v2 */
+    u32 uv3; /**< u3, v3 */
+    u16 n0;  /**< first normal index */
+    u16 v0;  /**< first vertex index */
+    u16 n1;  /**< second normal index */
+    u16 v1;  /**< second vertex index */
+    u16 n2;  /**< third normal index */
+    u16 v2;  /**< third vertex index */
+    u16 n3;  /**< fourth normal index */
+    u16 v3;  /**< fourth vertex index */
+} TmdGT4;
+
 PACKET *func_800215C4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
     POLY_FT4 *pkt;
     s32 v;
@@ -284,7 +302,62 @@ PACKET *func_80021B88(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_11dc4", func_80021D3C);
+PACKET *func_80021D3C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                      GsOT *ot) {
+    POLY_GT4 *pkt;
+    CVECTOR c;
+    s32 v;
+    s32 i;
+    u32 *tag;
+
+    /* MATCHING: the packet pointer is a copy of the parameter, so the
+     * loop starts its reduced pointer from it, not from $a3. */
+    pkt = (POLY_GT4 *)packet;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x80000000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v >= 0) {
+            continue;
+        }
+        gte_stsxy3_gt4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        if (v & 0x80000000) {
+            continue;
+        }
+        gte_stsxy2(&pkt->x3);
+        gte_avsz4();
+        gte_stotz(&v);
+        c.r = c.g = c.b = 0x80;
+        gte_ldrgb(&c);
+        gte_ldv3(&nrm[prim->n0], &nrm[prim->n1], &nrm[prim->n2]);
+        gte_ncct();
+        *(u32 *)&pkt->u0 = prim->uv0;
+        *(u32 *)&pkt->u1 = prim->uv1;
+        *(u16 *)&pkt->u2 = prim->uv2;
+        *(u16 *)&pkt->u3 = prim->uv3;
+        gte_strgb3_gt3(pkt);
+        gte_ldv0(&nrm[prim->n3]);
+        gte_nccs();
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        gte_strgb(&pkt->r3);
+        /* MATCHING: a volatile store, which loop cannot rebase onto its
+         * reduced pointer. */
+        ((volatile POLY_GT4 *)pkt)->code = 0x3E;
+        pkt++;
+    }
+    return (PACKET *)pkt;
+}
 
 PACKET *func_80021F80(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {

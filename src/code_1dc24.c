@@ -19,19 +19,25 @@ typedef struct {
     u8 unk2E[0xE]; /**< not yet known */
 } Rec3C;
 
-/** @brief A state block with a halfword total at 0x26. */
+/** @brief The tool state block: counts, totals and saved menu values. */
 typedef struct {
-    u8 unk0[0xC]; /**< not yet known */
-    s32 unkC;     /**< a height offset added to the camera's y */
-    u8 unk10[2];  /**< not yet known */
-    u16 unk12;    /**< the edited value saved for menu line 0 */
-    u16 unk14;    /**< the edited value saved for menu line 1 */
-    u8 unk16[8];  /**< not yet known */
-    u16 unk1E;    /**< matched against a Rec48's unk34 */
-    u8 unk20[6];  /**< not yet known */
-    u16 unk26;    /**< a sum over the current block's entries */
-    u8 unk28[2];  /**< not yet known */
-    u16 unk2A;    /**< matched against a Rec3C's unk2C */
+    u8 unk0[0xC];   /**< not yet known */
+    s32 unkC;       /**< a height offset added to the camera's y */
+    u8 unk10[2];    /**< not yet known */
+    u16 unk12;      /**< the edited value saved for menu line 0 */
+    u16 unk14;      /**< the edited value saved for menu line 1 */
+    u8 unk16[2];    /**< not yet known */
+    u16 unk18;      /**< number of Obj48 records in use */
+    u16 unk1A;      /**< number of Obj48 records counted live */
+    u16 unk1C;      /**< unk38 of the first record placed */
+    u16 unk1E;      /**< matched against a Rec48's unk34 */
+    u8 unk20[6];    /**< not yet known */
+    u16 unk26;      /**< a sum over the current block's entries */
+    u8 unk28[2];    /**< not yet known */
+    u16 unk2A;      /**< matched against a Rec3C's unk2C */
+    u8 unk2C[0x3C]; /**< not yet known */
+    u8 unk68;       /**< copied into a placed record's unk42 */
+    u8 unk69;       /**< copied into a placed record's unk43 */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -117,6 +123,32 @@ typedef struct {
 /* MATCHING: reached as members, so a member store through a pointer may
  * alias them (common.h declares them as scalars). */
 #define sCur (*(BlockCur *)&D_800959C0)
+
+/** @brief A 0x48-byte record of the 200-entry record table, as
+ *         this unit places it (code_1a098.h's Rec48 is the same record). */
+typedef struct {
+    s32 unk0[3];   /**< a position */
+    s32 unkC[3];   /**< a copy of unk0 */
+    u8 unk18[0xC]; /**< not yet known */
+    s16 unk24;     /**< cleared when placed */
+    s16 unk26;     /**< cleared when placed */
+    s32 unk28;     /**< the current entry when placed */
+    u8 unk2C[8];   /**< not yet known */
+    s16 unk34;     /**< sTotals.unk1E when placed */
+    s16 unk36;     /**< -1 when free */
+    s16 unk38;     /**< sTotals.unk1C for the first placed, else -1 */
+    u8 unk3A[2];   /**< not yet known */
+    s32 unk3C;     /**< a global stamp when placed */
+    u8 unk40;      /**< cleared when placed */
+    u8 unk41;      /**< not yet known */
+    u8 unk42;      /**< sTotals.unk68 when placed */
+    u8 unk43;      /**< sTotals.unk69 when placed */
+    u8 unk44[4];   /**< not yet known */
+} Obj48;
+
+extern Obj48 D_80096788[]; /**< records waiting to be placed */
+extern u16 D_8009596E;     /**< number of records waiting */
+extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
@@ -441,7 +473,58 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030278);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030548);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030984);
+/** @brief Counts the live Obj48 records; on flag bit 5, places every
+ *         waiting record into the table (error 8 when it is full). */
+void func_80030984(void) {
+    u32 i;
+    u16 n;
+    Obj48 *recs;
+    Obj48 *w;
+
+    recs = (Obj48 *)D_800A9008;
+    n = sTotals.unk18;
+    sTotals.unk1A = 0;
+    for (i = 0; i < 200; i++) {
+        if (recs[i].unk36 != -1) {
+            sTotals.unk1A++;
+        }
+    }
+    if (D_80095970 & 0x20) {
+        /* MATCHING: one counter for both loops, unsigned (sltiu) in the
+         * first and compared signed (slt) here. */
+        for (i = 0; (s32)i < D_8009596E; i++) {
+            w = &D_80096788[i];
+            if (n == 200) {
+                D_800958DA = 8;
+                return;
+            }
+            w->unkC[0] = w->unk0[0];
+            w->unkC[1] = w->unk0[1];
+            w->unkC[2] = w->unk0[2];
+            w->unk40 = 0;
+            w->unk24 = 0;
+            w->unk26 = 0;
+            w->unk28 = D_80095824;
+            w->unk3C = D_8009578C;
+            w->unk42 = sTotals.unk68;
+            w->unk43 = sTotals.unk69;
+            if (i == 0) {
+                /* MATCHING: stored through the table base, not w. */
+                D_80096788[0].unk38 = sTotals.unk1C;
+            } else {
+                w->unk38 = -1;
+            }
+            ((Obj48 *)D_800A9008)[(s16)n] = *w;
+            ((Obj48 *)D_800A9008)[(s16)n].unk34 = sTotals.unk1E;
+            n++;
+            sTotals.unk18 = n;
+        }
+        D_800958A6 = 0;
+        if (D_800959D8 == 1) {
+            D_800959D8 = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030B6C);
 

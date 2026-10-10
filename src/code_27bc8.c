@@ -57,7 +57,25 @@ extern CardHeader D_800DF5D0;
 extern u8 D_800119C8[]; /**< title of the first save file */
 extern u8 D_80011C54[]; /**< title of the second save file */
 
+/** @brief The 0x200-byte header block copied to the save buffer. */
+typedef struct {
+    u8 b[0x200]; /**< header bytes */
+} SaveImage;
+
+extern u16 D_800959F8; /**< checksum of the save buffer */
+
+s16 func_80037700(void);
+s32 func_800377E8(void);
+s32 func_8003796C(void);
+s32 func_80037AE4(void);
+s32 func_80037C2C(void);
 void func_80037CF0(void);
+s32 func_800383F8(void);
+s32 func_80038468(void);
+s32 func_800384DC(void);
+s32 func_80038574(void);
+u16 func_800382DC(void);
+void func_800385E0(void);
 void func_80038730(void);
 void func_800387A8(void);
 s16 func_80038820(void);
@@ -84,7 +102,91 @@ void func_800373C8(BankFile *a, BankFile *b) {
     func_80036878();
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037440);
+/** @brief Runs one memory card operation on the first save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
+s32 func_80037440(s16 mode) {
+    s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
+    s32 ret;
+    s16 retry;
+    u16 sum;
+    s32 off; /* MATCHING: a constant offset is split into %hi + low; a register one is not */
+
+    ret = 0;
+    retry = 0;
+    D_800959DA = 0;
+    D_800959D0 = 0;
+    D_800959D4 = (u8 *)0x8018D000;
+    D_80095A18 = (u8 *)0x8016D000;
+    func_80038730();
+again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
+    D_800959DA = func_80037700();
+    switch (D_800959DA) {
+        case 0: /* MATCHING: the empty case gives retail's compare tree */
+            break;
+        case 1:
+            if (retry < 16) {
+                retry++;
+                goto again;
+            }
+            ret = -2;
+            goto end;
+        case 2:
+            D_800959DC = 0;
+            ret = 2;
+            goto end;
+        case 3:
+            D_800959DC = 0;
+            ret = 4;
+            if (mode == 3) {
+                goto format;
+            }
+            goto end;
+    }
+    if (mode == -1) {
+        goto end;
+    }
+    func_80037C2C();
+    if (mode == 5) {
+        if (func_800384DC() != -1) {
+            ret = 0;
+        } else {
+            ret = func_80038574() == -1;
+        }
+    } else if (mode == 0 || mode == 1 || mode == 4) {
+        if (func_800384DC() == -1) {
+            ret = 3;
+            goto end;
+        }
+        switch (mode) {
+            case 0:
+                ret = func_800377E8();
+                break;
+            case 1:
+                ret = func_8003796C();
+                break;
+            case 4:
+                ret = func_80038468();
+                break;
+        }
+    } else if (mode == 2) {
+        if (func_80038574() == -1) {
+            ret = 1;
+        } else {
+            func_800385E0();
+            *(SaveImage *)D_80095A18 = *(SaveImage *)&D_800DF5D0;
+            sum = func_800382DC();
+            D_800959F8 = sum;
+            off = 0x1DFFE;
+            *(u16 *)(D_800959D4 + off) = sum;
+            ret = func_80037AE4();
+        }
+    } else if (mode == 3) {
+    format:
+        ret = func_800383F8();
+    }
+end:
+    func_800387A8();
+    return ret;
+}
 
 s16 func_80037700(void) {
     s16 retry;
@@ -428,7 +530,7 @@ s32 func_80038468(void) {
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 
-s16 func_800384DC(void) {
+s32 func_800384DC(void) {
     s16 i;
 
     D_80095A1C = "BISLPS-12345PEPTOOL";
@@ -440,7 +542,7 @@ s16 func_800384DC(void) {
     return -1;
 }
 
-s16 func_80038574(void) {
+s32 func_80038574(void) {
     s16 sum;
     s16 i;
 

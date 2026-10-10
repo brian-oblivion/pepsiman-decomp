@@ -136,7 +136,53 @@ PACKET *func_80021B88(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
 
 INCLUDE_ASM("asm/nonmatchings/code_11dc4", func_80021D3C);
 
-INCLUDE_ASM("asm/nonmatchings/code_11dc4", func_80021F80);
+PACKET *func_80021F80(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                      GsOT *ot) {
+    LINE_G4 *pkt;
+    CVECTOR c;
+    s32 v;
+    s32 i;
+    u32 *tag;
+
+    /* MATCHING: the packet pointer is a copy of the parameter, so the
+     * loop starts its reduced pointer from it, not from $a3. */
+    pkt = (LINE_G4 *)packet;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_avsz3();
+        gte_stotz(&v);
+        gte_stsxy3(&pkt->x0, &pkt->x1, &pkt->x2);
+        *(u32 *)&pkt->x3 = *(u32 *)&pkt->x0;
+        c.r = 0x80;
+        c.g = 0x80;
+        c.b = 0x80;
+        gte_ldrgb(&c);
+        gte_ldv3(&nrm[prim->n0], &nrm[prim->n1], &nrm[prim->n2]);
+        gte_ncct();
+        gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
+        *(u32 *)&pkt->r3 = *(u32 *)&pkt->r0;
+        /* MATCHING: volatile stores, which loop cannot rebase onto its
+         * reduced pointer. */
+        ((volatile LINE_G4 *)pkt)->code = 0x5C;
+        ((volatile LINE_G4 *)pkt)->pad = 0x55555555;
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        pkt++;
+    }
+    return (PACKET *)pkt;
+}
 
 PACKET *func_80022150(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {

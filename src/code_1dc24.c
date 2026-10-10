@@ -279,6 +279,33 @@ void func_80033A08(s32 deg, s32 dist);
 extern u32 D_800957C8; /**< an analogue stick axis, 0x80 at rest */
 extern u32 D_800957C0; /**< the other analogue stick axis, 0x80 at rest */
 
+/* MATCHING: code_7d74 defines it; its header does not declare it. */
+void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
+void func_800327BC(void);
+void func_80033C90(void);
+void func_80033D3C(void);
+extern char D_80095528[]; /**< "\n\n\n" */
+extern char D_80095620[]; /**< "CHECK" */
+extern char D_800110F8[]; /**< "DATA MODE" */
+extern char D_80011104[]; /**< "  MODE SELECT\n\n" */
+extern char D_80011114[]; /**< "BUFFER SELECT\n\n" */
+extern char D_80011124[]; /**< "  CREATE FILE" */
+extern char D_80011134[]; /**< "  CARD FORMAT" */
+extern char D_80011144[]; /**< "SAVE TO DATA %d\n\n" */
+extern char D_80011158[]; /**< "OVER WRITE OK ?" */
+extern char D_80011168[]; /**< "DATA WRITING..." */
+extern char D_80011178[]; /**< "LOAD TO DATA %d\n\n" */
+extern char D_8001118C[]; /**< "    LOAD OK ?" */
+extern char D_8001119C[]; /**< "CAN NOT OPEN DATA %d" */
+extern char D_800111B4[]; /**< "   COMPLATE" */
+extern char D_800111C0[]; /**< "    !!!! ERROR!!!!" */
+extern char D_800111D4[]; /**< "   NOT ENOUGH MEMORY" */
+extern char D_800111EC[]; /**< "NO CONNECT CARD" */
+extern char D_800111FC[]; /**< "NO FILE\n\n" */
+extern char D_80011208[]; /**< "CREATE NEW FILE ?" */
+extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
+extern char D_8001122C[]; /**< "   FORMAT OK ?" */
+
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
 
@@ -1162,7 +1189,106 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031AEC);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003245C);
+/** @brief Prints the data mode's screen for the current memory-card
+ *         state, with the save-slot list or a yes/no menu where the state
+ *         asks for one, then draws the frame around it. */
+void func_8003245C(void) {
+    func_80014BF0(5);
+    FntPrint(D_800110F8);
+    FntPrint(D_80095528);
+    switch (D_800959E4) {
+        case 0:
+            FntPrint(D_80095528);
+            func_80014BF0(4);
+            FntPrint(D_80095620);
+            break;
+        case 1:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011104);
+            func_80033D3C();
+            break;
+        case 2:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011114);
+            func_800327BC();
+            break;
+        case 16:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011124);
+            break;
+        case 17:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011134);
+            break;
+        case 4:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011144, D_80095A0C + 1);
+            func_80014BF0(3);
+            FntPrint(D_80011158);
+            func_80033C90();
+            break;
+        case 8:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011168);
+            break;
+        case 6:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011178, D_80095A0C + 1);
+            func_80014BF0(3);
+            FntPrint(D_8001118C);
+            func_80033C90();
+            break;
+        case 7:
+            FntPrint(D_80095528);
+            func_80014BF0(2);
+            FntPrint(D_8001119C, D_80095A0C + 1);
+            break;
+        case 10:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_800111B4);
+            break;
+        case 11:
+            FntPrint(D_80095528);
+            func_80014BF0(2);
+            FntPrint(D_800111C0);
+            break;
+        case 12:
+            FntPrint(D_80095528);
+            func_80014BF0(2);
+            FntPrint(D_800111D4);
+            break;
+        case 13:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_800111EC);
+            break;
+        case 14:
+            FntPrint(D_80095528);
+            func_80014BF0(4);
+            FntPrint(D_800111FC);
+            func_80014BF0(3);
+            FntPrint(D_80011208);
+            func_80033C90();
+            break;
+        case 15:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_8001121C);
+            func_80014BF0(3);
+            FntPrint(D_8001122C);
+            func_80033C90();
+            break;
+    }
+    func_800179F8(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
+}
 
 /** @brief Prints the three save slots of the tool buffer as a menu, each
  *         with its stage and part, or "NO DATA". */

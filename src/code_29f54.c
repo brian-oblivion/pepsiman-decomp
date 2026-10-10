@@ -28,7 +28,8 @@ typedef struct {
     s16 unk2;   /**< frames to wait before the animation starts */
     s16 unk4;   /**< per-frame step of the rising sprite's y offset */
     s16 unk6;   /**< the rising sprite's end distance */
-    u8 unk8[4]; /**< not yet known */
+    s16 unk8;   /**< per-frame step subtracted from the y offset */
+    u8 unkA[2]; /**< not yet known */
     s16 unkC;   /**< x offset added to the drawing position */
     s16 unkE;   /**< y offset added to the drawing position */
     s16 unk10;  /**< z offset added to the drawing position */
@@ -467,7 +468,28 @@ s32 func_8003EF40(Slot *p) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F100);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F488);
+s32 func_8003F488(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vx = p->unk0 * 10 + 100;
+        size.vy = p->unk0 * 10 + 100;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 2);
+        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        if (p->unk6 != 0) {
+            p->unk6--;
+        }
+        p->unkC += rsin(p->unk4) * p->unk6 / 4096;
+        p->unk10 += rcos(p->unk4) * p->unk6 / 4096;
+        p->unkE -= p->unk8;
+        return ++p->unk0 == 32;
+    }
+    p->unk2--;
+    return 0;
+}
 
 /** @brief One step of a slot's animation; returns nonzero when it ends. */
 typedef s32 (*SlotStep)(Slot *p, GsOT *ot, s16 x, s16 y, s16 z);

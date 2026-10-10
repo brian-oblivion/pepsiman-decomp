@@ -65,7 +65,6 @@ s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
  * parameters (code_29f54 defines them as s16). */
 void func_8003A3F4(s32 *index, s32 x, s32 y);
 extern CdlLOC D_80095728;
-extern MATRIX D_800E4858;
 
 /** @brief The three flat lights. */
 typedef struct {

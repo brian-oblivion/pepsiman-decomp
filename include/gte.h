@@ -256,6 +256,19 @@
 /* clang-format on */
 
 /**
+ * @brief MVMVA with the rotation matrix and vertex 0, no translation,
+ * shifted by 12: MAC1-MAC3 and IR1-IR3 := rotation * V0. Sony's rtv0. No
+ * operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_rtv0() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4A486012")
+/* clang-format on */
+
+/**
  * @brief NCDS: normal colour depth-cue for vertex 0's normal and the
  * colour RGB (data 6); the result is RGB2. No operands, no clobbers.
  */
@@ -265,6 +278,30 @@
         "nop\n\t" \
         "nop\n\t" \
         ".word 0x4AE80413")
+/* clang-format on */
+
+/**
+ * @brief NCCS: normal colour colour for vertex 0's normal and the colour
+ * RGB (data 6); the result is RGB2. No operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_nccs() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4B08041B")
+/* clang-format on */
+
+/**
+ * @brief NCCT: normal colour colour for the normals of vertices 0-2 and the
+ * colour RGB (data 6); the results are RGB0-RGB2. No operands, no clobbers.
+ */
+/* clang-format off */
+#define gte_ncct() \
+    __asm__ volatile ( \
+        "nop\n\t" \
+        "nop\n\t" \
+        ".word 0x4B18043F")
 /* clang-format on */
 
 /**
@@ -525,6 +562,19 @@
 /* clang-format off */
 #define gte_stotz(r1) \
     __asm__ volatile ("swc2 $7, 0x0(%0)" : : "r" (r1) : "memory")
+/* clang-format on */
+
+/**
+ * @brief Stores MAC1-MAC3 (data 25-27), a full-precision vector, at `r1`
+ * (+0x0, +0x4, +0x8): Sony's stlvnl. Operand: `r1` by "r"; clobbers memory.
+ */
+/* clang-format off */
+#define gte_stlvnl(r1) \
+    __asm__ volatile ( \
+        "swc2 $25, 0x0(%0)\n\t" \
+        "swc2 $26, 0x4(%0)\n\t" \
+        "swc2 $27, 0x8(%0)" \
+        : : "r" (r1) : "memory")
 /* clang-format on */
 
 /**

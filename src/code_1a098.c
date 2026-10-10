@@ -7,6 +7,7 @@
 #include "libgs.h"
 #include "code_1a098.h"
 #include "code_7d74.h"
+#include "code_13068.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -142,6 +143,17 @@ typedef struct {
     u8 unk27[0x15]; /**< not yet known */
 } Rec3C;
 
+/** @brief Something that bobs up and down while it drifts. */
+typedef struct {
+    u8 unk0[4]; /**< not yet known */
+    s32 x;      /**< x */
+    s32 y;      /**< y */
+    s32 z;      /**< z */
+    s32 count;  /**< steps taken; the drift stops at 15 */
+    s32 baseY;  /**< y the bob is measured from */
+    s32 phase;  /**< bob phase in degrees */
+} Drifter;
+
 /** @brief The game-progress block, as far as the full reset writes it. */
 typedef struct {
     u8 unk0;        /**< 0x38 after a reset */
@@ -200,6 +212,7 @@ s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_8002A5B0(Rec78 *rec, Rec48 *r);
 void func_8002B8F8(u16 id, Rec3C *r);
+void func_8002C188(s32 r, s32 deg, Vec3 *out);
 /* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
  * unit until a shared header holds it. */
 void func_800337E4(u8 *buf);
@@ -402,7 +415,34 @@ void func_8002BC4C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BEC0);
+/** @brief Takes one of the first 15 drift steps of `d`: moves it 20 units
+ *         along the current heading and bobs it.
+ *  @return 1 on two steps of every three, 0 on the third and once done */
+/* MATCHING: a u8 result copies the test into its register; a base local
+ * keeps baseY's load above the abs. */
+s32 func_8002BEC0(Drifter *d) {
+    s32 b;
+    u8 ret;
+    s32 y;
+
+    if (d->count < 15) {
+        d->count++;
+        ret = d->count % 3 != 0;
+        func_8002C188(20, D_800A7680[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
+        d->x -= ((Vec3 *)D_800D39C8)->x >> 12;
+        d->z -= ((Vec3 *)D_800D39C8)->z >> 12;
+        d->phase = (d->phase + 10) % 360;
+        b = rsin(d->phase * 4096 / 360) * 200 >> 12;
+        y = d->baseY;
+        if (b < 0) {
+            b = -b;
+        }
+        d->y = y - b;
+    } else {
+        ret = 0;
+    }
+    return ret;
+}
 
 /** @brief Registers the entries of the directory loaded at a fixed address
  *         from slot 0x33 on.
@@ -442,10 +482,11 @@ s32 func_8002C0EC(Obj34 *p) {
 }
 
 /** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
-void func_8002C188(s32 r, s16 deg, Vec3 *out) {
+void func_8002C188(s32 r, s32 deg, Vec3 *out) {
     s32 a;
 
-    a = deg * 4096 / 360;
+    /* MATCHING: deg is s32, narrowed here; func_8002BEC0 passes it unextended. */
+    a = (s16)deg * 4096 / 360;
     out->x = rsin(a) * r;
     out->z = rcos(a) * r;
 }

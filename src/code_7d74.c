@@ -388,21 +388,19 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     }
     seq = obj->cur[index];
     if (obj->time[index] >= obj->len[seq] + obj->start[seq]) {
-        switch ((s16)seq) {
-            case 26:
-                ret = 2;
-                obj->time[index] = obj->start[seq];
-                obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
-                break;
-            case 2:
-            case 3:
-            case 4:
-                ret = 2;
-                obj->time[index] = obj->start[seq];
-                obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
-                break;
-            default:
-                return 0;
+        if (seq < 2) {
+            return 0;
+        }
+        if (seq < 5) {
+            ret = 2;
+            obj->time[index] = obj->start[seq];
+            obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
+        } else if ((s16)seq == 26) {
+            ret = 2;
+            obj->time[index] = obj->start[seq];
+            obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
+        } else {
+            return 0;
         }
     } else {
         obj->time[index]++;

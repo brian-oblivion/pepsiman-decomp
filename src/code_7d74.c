@@ -42,11 +42,12 @@ typedef struct {
     s32 z; /**< z */
 } Vec3i;
 
-extern s32 D_800958B4;
 extern s8 D_800956D0;     /**< a level, kept within 0..120 */
 extern s8 D_800956D1;     /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */
+/* MATCHING: a per-unit view; code_1a098 defines it on its own floor
+ * types, and this unit passes D_800958B4's word as the data. */
 s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit passes the coordinates unextended, so it saw s32
  * parameters (code_29f54 defines them as s16). */

@@ -437,8 +437,6 @@ void func_8003A3F4(s32 *index, s32 x, s32 y);
 
 s32 func_80029E74(s32 index, VECTOR *pos, u8 *data);
 s32 func_8002A558(void);
-extern s32 D_800957F4; /**< a path index the probe starts from */
-extern s32 D_800958B4; /**< the address of the data the probe tests */
 
 /** @brief Probes 50 units ahead of the player, 45 degrees either side of
  *         the heading; each probe that hits pushes the player 25 units
@@ -485,12 +483,7 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 /* The result of a second-buffer record's test: a flag, then a word. */
 extern s8 D_80095898;  /**< 1 on a hit */
 extern s32 D_8009589C; /**< the word reported with a hit */
-/* MATCHING: per unit this round; code_24748 declares both the same way. */
-extern u8 D_800D3CA8[]; /**< 0x2C-byte placed records (Placed2C) */
-extern u8 D_800DB2C0[]; /**< 0x4C-byte records */
-
 /* code_1902c's tests of a 0x4C-byte record; types not yet known. */
-void func_80028888(void *rec);
 void func_80028F0C(void *rec, s8 *out);
 
 /** @brief Updates the entry `rec` and places and tests its records: the
@@ -616,7 +609,7 @@ s16 func_8002AF6C(PathUser *u) {
 
 extern s16 D_800958E2;    /**< the selected Rec78 entry */
 extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
-void func_80023F80(u8 *state);
+void func_8002B5FC(void);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected
  *         Rec78 entry with the pad, places and draws it on a turning

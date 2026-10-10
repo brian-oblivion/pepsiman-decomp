@@ -59,8 +59,6 @@ typedef struct {
 Rec2C *func_80036A50(s32 idx, s32 sub);
 Rec4C *func_80036A84(s32 idx, s32 sub);
 
-extern u8 D_800D3CA8[]; /**< 0x44C0-byte buffer, cleared as a whole */
-extern u8 D_800DB2C0[]; /**< 0x1DB0-byte buffer, cleared as a whole */
 
 extern u8 D_80095A29; /**< state of that dispatch: 0 or 1 */
 
@@ -137,8 +135,6 @@ void func_80036E50(void);
 void func_80036EA0(void);
 
 extern u8 D_80095774; /**< set while the reset below runs */
-
-void func_80023F80(u8 *state);
 
 extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 extern char D_8001178C[]; /**< path of the first hit-data file, HITDATA0.T1D */
@@ -634,8 +630,6 @@ void func_80034BCC(void) {
     D_80095A2C++;
     func_80036878();
 }
-
-void func_80028888(Obj48 *obj);
 
 void func_80034D5C(Obj48 *obj) {
     VECTOR tmp;

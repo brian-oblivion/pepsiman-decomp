@@ -133,6 +133,34 @@ extern char D_80095648[]; /**< "1" */
 extern char D_8009564C[]; /**< "2" */
 extern char D_80095650[]; /**< "BOSS" */
 extern char D_80095524[]; /**< "\n" */
+extern char D_80010FCC[]; /**< "\n\nCAN NO.  %d\n" */
+extern char D_80010FDC[]; /**< "CAN NUM. %d\n" */
+extern char D_80010FEC[]; /**< "\n\nSWITCH NO.%d\n" */
+extern char D_80010FFC[]; /**< "\n\nTRAP NO. %d / " */
+extern char D_80011010[]; /**< "MODEL.%2d / " */
+extern char D_80011020[]; /**< "OPTIONS  / " */
+extern char D_8001102C[]; /**< "SWITCH NO.%d\n" */
+extern char D_8001103C[]; /**< "TYPE. %d / " */
+extern char D_80011048[]; /**< "ACT. %d\n" */
+extern char D_80011054[]; /**< "\n\nSPRITE. %d / " */
+extern char D_80011064[]; /**< "MODEL. %d / " */
+extern char D_80011074[]; /**< "SWITCH. %d\n" */
+extern char D_80011080[]; /**< "NO ACT  / " */
+extern char D_8001108C[]; /**< "NEAR ACT/ " */
+extern char D_80011098[]; /**< "HIT ACT / " */
+extern char D_800110A4[]; /**< "TYPE %d\n" */
+extern char D_800110B0[]; /**< "NO SE / " */
+extern char D_800110BC[]; /**< "MAN   / " */
+extern char D_800110C8[]; /**< "WOMAN / " */
+extern char D_800110D4[]; /**< "CHILD / " */
+extern char D_800110E0[]; /**< "DOG   / " */
+extern char D_800955E8[]; /**< "HIT. " */
+extern char D_800955F0[]; /**< " OFF / " */
+extern char D_800955F8[]; /**< " ON  / " */
+extern char D_80095600[]; /**< "ACT. " */
+extern char D_80095608[]; /**< "WALK." */
+extern char D_80095610[]; /**< " OFF\n" */
+extern char D_80095618[]; /**< "SE. " */
 
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
@@ -556,7 +584,95 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002D424);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002DC44);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F270);
+/** @brief Prints the tool mode's caption for the current mode: the
+ *         selected point, switch, record or sprite with their settings,
+ *         then draws the frame around it. Runs only while the tool flag
+ *         is 1. */
+void func_8002F270(void) {
+    /* MATCHING: an unused eight-byte local gives retail's 0x40 frame. */
+    s32 unused[2];
+    Span8 *e;
+    Obj48 *r;
+
+    if (D_800959D8 != 1) {
+        return;
+    }
+    switch (sTotals.unk3) {
+        case 0:
+            e = (Span8 *)D_800959C0;
+            e += D_80095824;
+            FntPrint(D_80010FCC, sTotals.unk22);
+            FntPrint(D_80010FDC, e->count);
+            break;
+        case 1:
+            FntPrint(D_80010FEC, sTotals.unk12);
+            break;
+        case 2:
+            FntPrint(D_80010FFC, sTotals.unk18);
+            if (((Obj48 *)D_800A9008)[sTotals.unk18].unk38 != -1) {
+                FntPrint(D_80011010, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
+            } else {
+                FntPrint(D_80011020);
+            }
+            /* MATCHING: the table base in a pointer local after the join
+             * takes $s1, the totals' base $s0. */
+            r = (Obj48 *)D_800A9008;
+            FntPrint(D_8001102C, r[sTotals.unk18].unk34);
+            FntPrint(D_8001103C, r[sTotals.unk18].unk42);
+            FntPrint(D_80011048, r[sTotals.unk18].unk43);
+            break;
+        case 3:
+            FntPrint(D_80011054, sTotals.unk28);
+            FntPrint(D_80011064, D_800A7898[sTotals.unk28].unk0 - 30);
+            FntPrint(D_80011074, D_800A7898[sTotals.unk28].unk2C);
+            FntPrint(D_800955E8);
+            /* MATCHING: the clear-bit arm first, as retail's bnez. */
+            if (!(D_800A7898[sTotals.unk28].unk26 & 0x80)) {
+                FntPrint(D_800955F0);
+            } else {
+                FntPrint(D_800955F8);
+            }
+            FntPrint(D_80095600);
+            switch (D_800A7898[sTotals.unk28].unk26 & 0x3F) {
+                case 0:
+                    FntPrint(D_80011080);
+                    break;
+                case 1:
+                    FntPrint(D_8001108C);
+                    break;
+                case 2:
+                    FntPrint(D_80011098);
+                    break;
+            }
+            FntPrint(D_80095608);
+            if (D_800A7898[sTotals.unk28].unk27 == 0) {
+                FntPrint(D_80095610);
+            } else {
+                FntPrint(D_800110A4, D_800A7898[sTotals.unk28].unk27);
+            }
+            FntPrint(D_80095618);
+            switch (D_800A7898[sTotals.unk28].unk28) {
+                case 0:
+                    FntPrint(D_800110B0);
+                    break;
+                case 1:
+                    FntPrint(D_800110BC);
+                    break;
+                case 2:
+                    FntPrint(D_800110C8);
+                    break;
+                case 3:
+                    FntPrint(D_800110D4);
+                    break;
+                case 4:
+                    FntPrint(D_800110E0);
+                    break;
+            }
+            FntPrint(D_80095524);
+            break;
+    }
+    func_800179F8(0x7C21, -160, -70, 160, -70, 160, -44, -160, -44, 0);
+}
 
 /** @brief Runs the menu editor, then on flag bit 5 enters the tool mode
  *         of the highlighted line.

@@ -63,6 +63,17 @@ extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
 
+/** @brief A run of entries in a draw list: where it starts and how long. */
+typedef struct {
+    s16 start; /**< the first entry's index */
+    s16 count; /**< the number of entries */
+} Run;
+
+extern Run *D_80095934;
+extern Run *D_80095938;
+extern s8 *D_8009593C;
+extern s8 *D_80095940;
+
 extern DR_STP D_800DFA90;
 extern DR_ENV D_800DFA10;
 extern DR_STP D_800DFAA0;
@@ -97,17 +108,6 @@ void func_80039754(s32 clip) {
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039C3C);
-
-/** @brief A run of entries in a draw list: where it starts and how long. */
-typedef struct {
-    s16 start; /**< the first entry's index */
-    s16 count; /**< the number of entries */
-} Run;
-
-extern Run *D_80095934;
-extern Run *D_80095938;
-extern s8 *D_8009593C;
-extern s8 *D_80095940;
 
 void func_8003A008(s16 x, s16 y, s16 z) {
     s32 i;
@@ -563,7 +563,41 @@ s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E6F8);
+s32 func_8003E6F8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 c[2];
+    POLY_F4 *f;
+    DR_TPAGE *t;
+
+    c[0] = p->unkC + (p->unk10 >> 1) + 2;
+    c[1] = p->unkE + 4;
+    f = (POLY_F4 *)D_800E48D0;
+    setPolyF4(f);
+    setSemiTrans(f, 1);
+    f->x0 = p->unkC;
+    f->x1 = p->unkC + p->unk10;
+    f->x2 = f->x0 + 4;
+    f->x3 = f->x1 + 4;
+    f->y0 = f->y1 = p->unkE;
+    f->y2 = f->y3 = p->unkE + 8;
+    f->x0 = c[0] + ((c[0] - f->x0) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x1 = c[0] + ((c[0] - f->x1) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x2 = c[0] + ((c[0] - f->x2) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x3 = c[0] + ((c[0] - f->x3) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->y0 = c[1] + ((c[1] - f->y0) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y1 = c[1] + ((c[1] - f->y1) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y2 = c[1] + ((c[1] - f->y2) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y3 = c[1] + ((c[1] - f->y3) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->r0 = f->g0 = f->b0 = ~(p->unk0 << 5);
+    addPrim(ot->org, f);
+    f++;
+    D_800E48D0 = (u8 *)f;
+    t = (DR_TPAGE *)D_800E48D0;
+    setDrawTPage(t, 1, 1, getTPage(0, 1, 0, 0));
+    addPrim(ot->org, t);
+    t++;
+    D_800E48D0 = (u8 *)t;
+    return ++p->unk0 == 8;
+}
 
 /* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */

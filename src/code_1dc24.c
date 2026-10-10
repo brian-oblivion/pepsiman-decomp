@@ -417,13 +417,12 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FA78);
  *         rebuilds the block header. */
 void func_8002FDB4(void) {
     s16 pos[3];
-    Span8 *e;
-    Span8 *q;
     Pt8 *dst;
     Pt8 *src;
     Pt8 *p;
+    Span8 *e;
+    Span8 *q;
     s32 i;
-    s32 n;
     u32 j;
 
     if (D_80095970 & 0x20) {
@@ -447,10 +446,11 @@ void func_8002FDB4(void) {
             }
             e = (Span8 *)sCur.ents + D_80095824;
             p = (Pt8 *)sCur.pts;
-            n = e->count;
-            e->count = n + 1;
-            p += e->start + n;
-            q = (Span8 *)sCur.ents + (D_80095824 + 1);
+            j = e->count;
+            e->count = j + 1;
+            p += e->start + j;
+            q = (Span8 *)sCur.ents;
+            q += D_80095824 + 1;
             p->x = pos[0];
             p->y = pos[1];
             p->z = pos[2];

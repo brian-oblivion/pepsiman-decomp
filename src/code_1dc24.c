@@ -676,13 +676,3 @@ s32 func_80033E98(void) {
     }
     return 0;
 }
-
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800114DC);
-
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800114E8);
-
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800114F4);
-
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011500);
-
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001151C);

@@ -69,7 +69,7 @@ segments:
       - [0xCE8, .rodata, code_13068]
       - [0x1320, .rodata, code_1902c]
       - [0x137C, .rodata, code_1dc24]
-      - [0x1D28, .rodata, code_24748]
+      - [0x1CDC, .rodata, code_24748]
       - [0x2198, .rodata, code_27bc8]
       - [0x26C0, .rodata, code_29f54]
       - [0x278C, .rodata, code_308ec]

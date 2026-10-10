@@ -147,6 +147,16 @@ void func_80033F48(VECTOR *pos) {
     func_8001B354(0x15E, &size, 0, 5, &D_800ACEA8[D_80095750]);
 }
 
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114DC);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114E8);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114F4);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011500);
+
+INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001151C);
+
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011528);
 
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011534);
@@ -664,7 +674,6 @@ void func_80036F50(void) {
     }
 }
 
-#ifdef NON_MATCHING
 /* MATCHING: s32 with no return; the jump table lands 4 bytes late. */
 s32 func_80036FE8(void) {
     if (D_80095970 & 0x100) {
@@ -687,9 +696,6 @@ s32 func_80036FE8(void) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036FE8);
-#endif
 
 void func_8003708C(void) {
     s32 flags = D_80095970;

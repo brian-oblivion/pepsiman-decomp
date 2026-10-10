@@ -1303,7 +1303,6 @@ static __inline__ s32 absInt(s32 x) {
 }
 
 s8 func_8002D0F0(Vec3 *pos);
-void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
 
 /** @brief Draws the markers of the current zone: each block entry marked 2
  *         whose flag is set and not yet collected gets a sprite, near or

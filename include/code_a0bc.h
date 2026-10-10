@@ -45,6 +45,14 @@ void func_8001A69C(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
  *  @param ot    the ordering table */
 void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
 
+/** @brief Defined in code_a0bc: sorts sprite `id` at a size.
+ *  @param id    the sprite
+ *  @param size  its size
+ *  @param color its colour, or NULL
+ *  @param shift a depth shift
+ *  @param ot    the ordering table */
+void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
+
 /** @brief Installs the TMD primitive handlers for a drawing mode.
  *  @param mode which handler set
  *  @return undefined: the definition has no return statement */

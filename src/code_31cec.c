@@ -234,7 +234,73 @@ s32 func_80042150(u16 song) {
     D_80095AF0 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042208);
+/* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
+ * passes and reads them as s32. */
+s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
+void func_80042968(s32 vol);
+
+extern s16 D_80095724;
+extern s16 D_80095AE8;
+extern s16 D_80095B0C;
+
+void func_80042208(void) {
+    s16 i;
+
+    switch (D_80095AF0) {
+        case 0:
+            D_80095AE8 = 50;
+            D_80095B0C = 127;
+            D_80095B18 = 127;
+            D_80095724 = 80;
+            break;
+        case 1:
+            D_80095B18 = func_80018D04(0, 100, --D_80095AE8, 50);
+            D_80095B18 = D_80095B18 < 0 ? 0 : D_80095B18 > 127 ? 127 : D_80095B18;
+            if (D_80095AE8 == 0) {
+                SsSeqStop(D_800E0570[0]);
+                SsSeqClose(D_800E0570[0]);
+                D_80095AF0 = 0;
+                D_80095B0C = 127;
+                D_80095B18 = 127;
+            }
+            SsSeqSetVol(D_800E0570[0], D_80095B18, D_80095B18);
+            break;
+        case 3:
+            D_80095B18 = func_80018D04(0, 100, --D_80095AE8, 50);
+            D_80095B0C = D_80095B18 = D_80095B18 < 0 ? 0 : D_80095B18 > 127 ? 127 : D_80095B18;
+            SsSeqSetVol(D_800E0570[0], D_80095B18, D_80095B18);
+            for (i = 2; i < 10; i++) {
+                SsSeqSetVol(D_800E0570[i], D_80095B0C, D_80095B0C);
+            }
+            if (D_80095AE8 == 0) {
+                SsSeqStop(D_800E0570[0]);
+                SsSeqClose(D_800E0570[0]);
+                for (i = 2; i < 10; i++) {
+                    SsSeqStop(D_800E0570[i]);
+                }
+                for (i = 0; i < 10; i++) {
+                    SsSeqSetVol(D_800E0570[i], 0, 0);
+                }
+                D_80095B0C = 127;
+                D_80095B18 = 127;
+                D_80095AF0 = 0;
+                D_80095724 = 80;
+            }
+        case 4:
+            D_80095724 = func_80018D04(0, 80, --D_80095AE8, 50);
+            D_80095724 = D_80095724 < 0 ? 0 : D_80095724 > 80 ? 80 : D_80095724;
+            func_80042968(D_80095724);
+            if (D_80095AE8 == 0) {
+                D_80095724 = 80;
+                func_80017574();
+                D_80095AF0 = 0;
+            }
+            break;
+    }
+    if (D_80095AE8 < 0) {
+        D_80095AF0 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042538);
 
@@ -313,7 +379,7 @@ void func_80042958(u8 value) {
     D_80095AF0 = value;
 }
 
-void func_80042968(u8 vol) {
+void func_80042968(s32 vol) {
     CdlATV atv;
 
     if (D_80095AEE) {

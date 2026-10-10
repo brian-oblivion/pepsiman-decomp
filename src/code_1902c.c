@@ -132,6 +132,9 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the game state's base in a register. */
 #define sGamePos (*(GamePos *)D_8009EB78)
 
+/* MATCHING: code_13068 defines func_800230E0 void; these calls saw an s32 one. */
+#define sProject ((s32 (*)(VECTOR *, SVECTOR *))func_800230E0)
+
 extern Quad8 D_80010AE0;
 extern Point12 D_80010B10;
 
@@ -326,11 +329,19 @@ u8 func_80028DBC(u16 start, VECTOR *pos) {
     return k;
 }
 
-#ifdef NON_MATCHING
+/** @brief Tests whether the player stands over the quad `rec` and finds
+ *         the height of its plane there.
+ *
+ *  The player's x and z must lie inside all four edges (corners 0, 1, 3, 2
+ *  in turn); the plane through corners 0, 1 and 2 then gives the height.
+ *  With the debug flag set, the quad's outline is drawn.
+ *  @param out a hit byte, then the height as a word at offset 4 */
+/* MATCHING: the volatile store keeps the normal's z, as retail. */
 void func_80028F0C(void *rec, s8 *out) {
     Quad8 q;
     Point12 org;
     VECTOR p;
+    s32 num;
     VECTOR v;
     Short3 scr[4];
     s32 w[8];
@@ -338,7 +349,6 @@ void func_80028F0C(void *rec, s8 *out) {
     s32 unused[2];
     DebugLine dbg;
     u16 k;
-    s32 num;
 
     q = D_80010AE0;
     org = D_80010B10;
@@ -368,32 +378,32 @@ void func_80028F0C(void *rec, s8 *out) {
         v.vx = q.p[1].x + org.x;
         v.vy = q.p[1].y + org.y;
         v.vz = q.p[1].z + org.z;
-        func_800230E0(&v, (SVECTOR *)&scr[0]);
+        sProject(&v, (SVECTOR *)&scr[0]);
         dbg.x1 = scr[0].x;
         dbg.y1 = scr[0].y;
         v.vx = q.p[2].x + org.x;
         v.vy = q.p[2].y + org.y;
         v.vz = q.p[2].z + org.z;
-        func_800230E0(&v, (SVECTOR *)&scr[0]);
+        sProject(&v, (SVECTOR *)&scr[0]);
         dbg.x0 = scr[0].x;
         dbg.y0 = scr[0].y;
         if (D_800958F8 == 1) {
             v.vx = org.x + q.p[0].x;
             v.vy = q.p[0].y;
             v.vz = org.z + q.p[0].z;
-            func_800230E0(&v, (SVECTOR *)&scr[0]);
+            sProject(&v, (SVECTOR *)&scr[0]);
             v.vx = org.x + q.p[1].x;
             v.vy = q.p[1].y;
             v.vz = org.z + q.p[1].z;
-            func_800230E0(&v, (SVECTOR *)&scr[1]);
+            sProject(&v, (SVECTOR *)&scr[1]);
             v.vx = org.x + q.p[3].x;
             v.vy = q.p[3].y;
             v.vz = org.z + q.p[3].z;
-            func_800230E0(&v, (SVECTOR *)&scr[2]);
+            sProject(&v, (SVECTOR *)&scr[2]);
             v.vx = org.x + q.p[2].x;
             v.vy = q.p[2].y;
             v.vz = org.z + q.p[2].z;
-            func_800230E0(&v, (SVECTOR *)&scr[3]);
+            sProject(&v, (SVECTOR *)&scr[3]);
             func_800179F8(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y,
                           scr[3].x, scr[3].y, 0);
         }
@@ -404,7 +414,6 @@ void func_80028F0C(void *rec, s8 *out) {
     p.vy = sGamePos.y;
     p.vz = sGamePos.z + D_800A7308[2];
     w[2] = 0;
-
     q.p[4].x = 0;
     q.p[4].z = 0;
     q.p[5].x = q.p[1].x - q.p[0].x;
@@ -471,9 +480,6 @@ void func_80028F0C(void *rec, s8 *out) {
     out[0] = 1;
     *(s32 *)(out + 4) = n.pad;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028F0C);
-#endif
 
 void func_8002964C(VECTOR *pos, u16 scale) {
     SVECTOR size;

@@ -456,7 +456,48 @@ s16 func_8002AF6C(PathUser *u) {
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B04C);
+extern s16 D_800958E2;    /**< the selected Rec78 entry */
+extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
+void func_80023F80(u8 *state);
+
+/** @brief A trap viewer frame: fixed view, no fog, steps the selected
+ *         Rec78 entry with the pad, places and draws it on a turning
+ *         record, draws the axes and prints the entry number. */
+void func_8002B04C(void) {
+    s32 flags;
+
+    D_800A7308[0] = 0;
+    D_800A7308[2] = 0;
+    D_800DB2A0[0] = 100;
+    D_800DB2A0[1] = -200;
+    D_800DB2A0[2] = 1000;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = 0;
+    D_800DB2A0[5] = 0;
+    flags = D_80095970;
+    D_8009574C = 0;
+    D_80095754 = 0;
+    D_8009575C = 0;
+    if (flags & 2) {
+        D_800958E2++;
+    }
+    if (flags & 1) {
+        D_800958E2--;
+    }
+    D_800958E2 = D_800958E2 < 0 ? 0 : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1 : D_800958E2;
+    func_8002980C();
+    D_800A9008[0] = 0;
+    D_800A9008[1] = 0;
+    D_800A9008[2] = 0;
+    ((s16 *)D_800A9008)[12] = 0;
+    ((s16 *)D_800A9008)[13] = D_8009585C % 360 * 4096 / 360;
+    ((s16 *)D_800A9008)[14] = 0;
+    func_8002A7D8(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
+    func_80023F80(D_8009EB78);
+    func_80029838();
+    func_8002B5FC();
+    FntPrint(D_80010B34, D_800958E2, D_8009588E);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B220);
 

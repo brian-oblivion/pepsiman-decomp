@@ -519,7 +519,136 @@ void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
+extern u16 D_80095868;
+extern s32 D_80095828;
+extern s16 D_80095994;
+extern s16 D_80095996;
+extern s8 *D_80095808;
+extern s16 D_80095890;
+extern s16 D_800957DE;
+
+#define sView (*(GsRVIEW2 *)D_80096768)
+
+/**
+ * @brief Steps a boundary index across the edges either side of (x, y).
+ * @param index the index to step
+ * @param tbl   the edge table
+ * @param x     the point's x
+ * @param y     the point's y
+ */
+static __inline__ void stepEdge(s32 *index, Edge *tbl, s16 x, s16 y) {
+    s32 i;
+    s32 j;
+    s32 d;
+    Edge *e;
+    Edge *f;
+
+    i = *index;
+    e = (Edge *)(i * 8 + (s32)tbl) + 1;
+    d = e->dx * (x - e->x) + e->dy * (y - e->y);
+    if (d >= 0) {
+        *index = i + 1;
+    }
+    j = *index;
+    f = (Edge *)(j * 8 + (s32)tbl);
+    d = -f->dx * (x - f->x) + -f->dy * (y - f->y);
+    if (d >= 0) {
+        *index = j - 1;
+    }
+}
+
+s16 func_8003B9B4(s16 x, s16 target, s16 y, s16 height) {
+    Edge *tbl;
+    Edge *e;
+    /* MATCHING: s16, extended only at the return; as s32 it takes a's
+     * register and a gets another. */
+    s16 angle;
+    s32 b;
+    s32 a;
+    s32 old;
+    s32 v;
+    s32 off;
+    /* MATCHING: retail's frame has 8 more bytes below the saved registers. */
+    s32 unused[2];
+
+    tbl = D_800958A0;
+    stepEdge(&D_8009578C, tbl, x, y);
+    e = (Edge *)(D_8009578C * 8 + (s32)tbl);
+    angle = a = ratan2(e[1].x - e[0].x, e[1].y - e[0].y);
+    a &= 0xFFF;
+    b = D_80095868 & 0xFFF;
+    if (iabs(a - b) > 0x800) {
+        if (a < 0x800) {
+            a += 0x1000;
+        }
+        if (b < 0x800) {
+            b += 0x1000;
+        }
+    }
+    /* MATCHING: the distance re-derived in each test; a local for it gets
+     * a register retail gives to a. */
+    if (iabs(a - b) > 50) {
+        if (D_80095828 < 20) {
+            D_80095828 += 2;
+        }
+    } else if (iabs(a - b) > 30) {
+        D_80095828 = 10;
+    } else if (iabs(a - b) > 5) {
+        D_80095828 = 5;
+    } else if (a == b) {
+        D_80095828 = 0;
+    } else {
+        D_80095828 = 1;
+    }
+    if (a - b > 0) {
+        D_80095868 += D_80095828;
+    } else {
+        D_80095868 -= D_80095828;
+    }
+    D_80095994 = rsin((s16)D_80095868 + 0x800) * 400 / 4096;
+    D_80095996 = rcos((s16)D_80095868 + 0x800) * 400 / 4096;
+    sView.vpz = D_80095996;
+    sView.vpx = D_80095994;
+    D_800957DE = sView.vpy;
+    if (D_80095808[D_8009578C] * 10 < D_80095890) {
+        D_80095890 -= 10;
+    }
+    if (D_80095890 < D_80095808[D_8009578C] * 10) {
+        D_80095890 += 10;
+    }
+    old = D_800957DE;
+    v = height + D_80095890;
+    sView.vpy = v;
+    if (v - old > 200) {
+        sView.vpy = old + 50;
+    } else {
+        /* MATCHING: the rest of the clamp reads old through the dead a
+         * (permuter find); it moves a's register for the whole function. */
+        a = old;
+        if (v - a > 50) {
+            sView.vpy = a + 20;
+        } else if (v - a > 20) {
+            sView.vpy = a + 10;
+        }
+    }
+    if (sView.vpy - D_800957DE < -200) {
+        sView.vpy = D_800957DE - 50;
+    } else if (sView.vpy - D_800957DE < -50) {
+        sView.vpy = D_800957DE - 20;
+    } else if (sView.vpy - D_800957DE < -20) {
+        sView.vpy = D_800957DE - 10;
+    }
+    /* MATCHING: a fresh local, so the sum stays in one register; -height
+     * first loads height first. */
+    off = (-height + target) / 2 - 150;
+    sView.vrx = 0;
+    sView.vry = height + off;
+    sView.vrz = 0;
+    sView.rz = 0;
+    sView.super = NULL;
+    GsSetRefView2L(&sView);
+    return angle;
+}
 
 void func_8003BDF4(void) {
     POLY_F4 *p;

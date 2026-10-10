@@ -529,7 +529,8 @@ void func_80015328(s32 offset, u8 a, u8 b) {
 
 void func_8001552C(u8 *a, u8 *b);
 
-extern u8 D_80095BA0[];extern u8 D_80095BE8[];
+extern u8 D_80095BA0[];
+extern u8 D_80095BE8[];
 
 void func_8001534C(void) {
     s16 i;

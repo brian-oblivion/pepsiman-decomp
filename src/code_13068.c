@@ -35,19 +35,21 @@ typedef struct {
     s16 unk38C; /**< cleared whenever unk38E changes */
     u8 unk38E;  /**< cleared on a reset; a small state (0, 1, 2) */
     u8 unk38F;  /**< 1 also gates a check on unk398 */
-    s16 unk390; /**< set to 2 together with clearing unk398 */
-    u8 pad392[0x398 - 0x392];
+    u16 unk390; /**< set to 2 together with clearing unk398 */
+    s16 unk392; /**< counts the steps while unk390 is 1 */
+    s32 unk394; /**< takes unk34C when unk390 goes to 1 */
     s16 unk398; /**< cleared together with setting unk390 */
     u8 pad39A[0x39C - 0x39A];
     s32 unk39C; /**< with unk3CC, picks which cap unk34C gets */
-    u8 pad3A0[0x3A6 - 0x3A0];
+    s32 unk3A0; /**< 0, 1 or 2, set as unk390 goes to 2 */
+    u8 pad3A4[0x3A6 - 0x3A4];
     s16 unk3A6; /**< raised by 2 when unk34C passes the goal line */
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
     u16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
     u8 pad3AE[0x3B8 - 0x3AE];
     s32 unk3B8; /**< 1 selects the global cap for unk34C */
-    u8 pad3BC[0x3C0 - 0x3BC];
+    s32 unk3BC; /**< 1 with unk3B8 also starts the unk390 sequence */
     s32 unk3C0; /**< the usual cap for unk34C */
     u8 pad3C4[0x3C8 - 0x3C4];
     s16 unk3C8; /**< set to 60 on a reset when the flag byte is 1 */
@@ -137,6 +139,10 @@ void func_80028500(void);
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
+extern s32 D_800957B4;
+/* MATCHING: code_7d74 defines this as an empty void(void); this unit's call
+ * passes the state block in $a0. */
+void func_80018CA4(GameState *g);
 
 void func_80022868(void) {
     GsCOORDINATE2 coord;
@@ -692,7 +698,62 @@ void func_80027D04(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
+/* MATCHING: the switch lays the default arm out last, after its own base reload, as retail. */
+void func_80027E14(void) {
+    s16 n;
+
+    if (sGame.unk0 != 0) {
+        if ((D_800957EC & 0x20) &&
+            (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
+            sGame.unk390 == 0) {
+            sGame.unk38F = 1;
+            sGame.unk3BC = 0;
+            sGame.unk390 = 1;
+            sGame.unk392 = 0;
+            sGame.unk39C = 0;
+            func_80018CA4(&sGame);
+            sGame.unk6 = 8;
+            sGame.unk398 = 0x23;
+            sGame.unk394 = sGame.unk34C;
+            func_80022F68((VECTOR *)&sGame.unk348);
+            func_80042538(0x17);
+        }
+        if (sGame.unk390 == 1) {
+            n = ++sGame.unk392;
+            if (n < 3) {
+                sGame.unk398 = 0x19;
+            } else if ((u16)(n - 4) < 3) {
+                sGame.unk398 = 0x12;
+            } else if (n >= 9) {
+                sGame.unk398 = 0x14;
+                sGame.unk390 = 2;
+                sGame.unk6 = 8;
+                sGame.unk3A0 = 2;
+            } else if (D_800957B4 & 0x20) {
+                sGame.unk398 = 0x14;
+            } else {
+                sGame.unk390 = 2;
+                switch (n) {
+                    case 3:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 0;
+                        break;
+                    case 7:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 1;
+                        break;
+                    default:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 2;
+                        break;
+                }
+            }
+        }
+        if (sGame.unk390 == 2) {
+            sGame.unk390 = 0;
+        }
+    }
+}
 
 void func_80028008(void) {
     s16 step;

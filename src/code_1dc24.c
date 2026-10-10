@@ -591,7 +591,38 @@ void func_80033224(VECTOR *pos) {
     GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033388);
+/** @brief Sorts a pulsing red line from `pos` to 100 units away from it
+ *         along heading `deg` (degrees) into the current ordering table. */
+/* MATCHING: the unused 8 and 16 bytes place world at 0x18 and screen at
+ * 0x38 in the 0x68-byte frame. */
+void func_80033388(VECTOR *pos, s16 deg) {
+    s32 unused[2];
+    VECTOR world;
+    s32 unused2[4];
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
+    s32 ang;
+
+    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = pos->vx + D_800A7308[0];
+    world.vy = pos->vy;
+    world.vz = pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    ang = deg * 4096 / 360;
+    world.vx += rsin(ang) * 100 >> 12;
+    world.vz += rcos(ang) * 100 >> 12;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+}
 
 /** @brief Wraps the highlighted line at `n` lines, resets the edited value
  *         and runs an update.

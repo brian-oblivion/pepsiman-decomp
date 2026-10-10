@@ -117,6 +117,8 @@ extern u8 D_800956F7;   /**< 3 units, 3 functions */
 extern s32 D_80095714;  /**< 2 units, 2 functions */
 extern s32 D_8009571C;  /**< 2 units, 2 functions */
 extern s32 D_80095720;  /**< 2 units, 2 functions */
+extern s32 D_80095740;  /**< camera-facing y angle, eased by 8; 2 units */
+extern s32 D_80095744;  /**< camera-facing y angle, eased by 50; 2 units */
 extern u16 D_80095748;  /**< 2 units, 2 functions */
 extern s16 D_8009574A;  /**< the highlighted line of a three-line menu */
 extern u32 D_80095794;  /**< an entry count */

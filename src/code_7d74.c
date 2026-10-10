@@ -95,6 +95,7 @@ s32 func_8001819C(void);
 void func_80018BD8(void);
 s8 func_80017640(u16 *tim);
 u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
+u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6);
 
 void func_80017574(void) {
     if (D_800958C9 != 0) {
@@ -358,13 +359,13 @@ void func_80017DD4(void) {
 
 extern u8 D_800760EC[];
 
-#ifdef NON_MATCHING
 u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
     u8 ret;
     s32 seq;
 
     ret = 1;
     if (obj->want[0] == 1) {
+        /* MATCHING: keeps this return from cross-jumping into a later one. */
         __asm__("");
         return 0;
     }
@@ -384,6 +385,10 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
             obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
         } else if ((s16)seq == 26) {
             ret = 2;
+            /* MATCHING: lengthens &obj->start[seq]'s live range (global-alloc). */
+            __asm__("");
+            __asm__("");
+            __asm__("");
             obj->time[index] = obj->start[seq];
             obj->data[index] = (u8 *)D_800D81B0[obj->cur[index]];
         } else {
@@ -396,9 +401,6 @@ u8 func_80017F0C(Player *obj, u16 index, s8 arg) {
                                      (s32)D_800760EC, D_80095904, 0, arg);
     return ret;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80017F0C);
-#endif
 
 void func_80018094(void) {
     GsFOGPARAM fog;
@@ -705,7 +707,6 @@ s32 func_80018D70(void *pos, void *arg, s32 cur) {
 
 void func_80018DE8(void) {}
 
-#ifdef NON_MATCHING
 /** @brief The game state's camera target, as the key interpreter reads it. */
 typedef struct {
     u8 unk0[0x368]; /**< not yet known */
@@ -714,8 +715,6 @@ typedef struct {
     s32 unk370;     /**< the target's z */
 } CamHead;
 
-extern s32 D_80095740;
-extern s32 D_80095744;
 extern s32 D_8009EF00[];
 
 Slot *func_800196E4(SlotList *list, s32 key);
@@ -742,7 +741,6 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     u32 words;
     u8 *p;
     s16 h;
-    s32 *r;
     GsCOORDINATE2 *c;
     MATRIX *m;
     GsCOORD2PARAM *prm;
@@ -761,7 +759,12 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
         words = w >> 24;
     } else {
         type = 1;
-        flags = 2;
+        /* MATCHING: loop depth 3 weights flags' refs (global-alloc order). */
+        do {
+            do {
+                flags = 2;
+            } while (0);
+        } while (0);
         k = 0;
         words = 0;
         for (; k < 3; k++) {
@@ -844,24 +847,24 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                         } else {
                             j = 0;
                             for (k = 0; k < 3; k++) {
-                                r = &rot[k];
                                 if (mask[k] != 0) {
-                                    *r = 0;
+                                    rot[k] = 0;
                                 } else {
-                                    *r = (h = ((s16 *)p)[j - 1]) & 0xFFFF;
+                                    rot[k] = (h = ((s16 *)p)[j - 1]) & 0xFFFF;
                                     if (h & 0x8000) {
-                                        *r |= 0xFFFF0000;
+                                        rot[k] |= 0xFFFF0000;
                                     }
                                     j++;
-                                    *r <<= 12;
+                                    rot[k] <<= 12;
                                 }
                             }
                         }
                     } else {
-                        a = (ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)D_8009EB78).unk368,
-                                    D_800D86E0[0].coord.t[2] - (*(CamHead *)D_8009EB78).unk370) -
-                             D_8009EABA[0]) &
-                            0xFFF;
+                        a = ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)D_8009EB78).unk368,
+                                   D_800D86E0[0].coord.t[2] - (*(CamHead *)D_8009EB78).unk370);
+                        v = D_8009EABA[0];
+                        a -= v;
+                        a &= 0xFFF;
                         if (id == 2) {
                             if (a < 0x800) {
                                 if (a > 0x2AA) {
@@ -976,9 +979,6 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     }
     return data + words * 4;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018DF0);
-#endif
 
 u8 *func_800195CC(u32 time, u8 *data, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8 arg6) {
     u32 i;

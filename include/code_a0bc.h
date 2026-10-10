@@ -15,13 +15,14 @@
 extern GsOT D_800ACEA8[]; /**< the ordering tables the sprite drawer is handed */
 extern MATRIX D_800E4858; /**< the rotation matrix the billboard sprites are drawn with */
 
-/** @brief Draws a sprite into an ordering table.
+/** @brief Draws a sprite as a billboard centred on the current
+ *         transformation's origin, into an ordering table.
  *  @param id    which sprite
  *  @param size  its size
- *  @param color its colour
- *  @param mode  how it is drawn
+ *  @param color its colour, or NULL
+ *  @param shift how far its depth is shifted down to an OT index
  *  @param ot    the ordering table */
-void func_8001A3D4(s32 id, SVECTOR *size, CVECTOR *color, s32 mode, GsOT *ot);
+void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
 
 /** @brief Draws a numbered sprite at a screen position into an ordering
  *         table.

@@ -17,7 +17,6 @@ INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
 INCLUDE_ASM("asm/nonmatchings/main", main);
 
-extern u16 D_800958A6;
 extern s32 D_80072484[];
 extern s32 D_800724C4[];
 s32 func_80013CDC(void);

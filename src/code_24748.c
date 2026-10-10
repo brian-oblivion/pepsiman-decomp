@@ -95,7 +95,6 @@ extern char D_8001175C[]; /**< format of one numbered line */
 
 extern u16 D_80095A3C; /**< saved value of menu line 0 */
 extern u8 D_80095A48;  /**< saved value of menu line 1 */
-extern s16 D_800958DA; /**< cleared when flag bit 6 is set */
 
 /** @brief The three words of the game state this unit resets. */
 typedef struct {

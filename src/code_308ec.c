@@ -136,7 +136,6 @@ typedef struct {
 } StartRec;
 
 extern StartRec *D_80095840;
-extern s32 D_8009578C;
 extern u8 D_800958F8;
 extern s16 D_800957B0;
 

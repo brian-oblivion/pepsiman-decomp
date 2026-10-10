@@ -171,6 +171,10 @@ extern u16 D_800957D2; /**< 2 units */
 extern u32 D_8009585C; /**< a frame counter; 2 units */
 extern s32 D_800958D0; /**< a loop counter or count kept in a global; 2 units */
 extern s16 D_8009588E; /**< number of entries; 2 units */
+extern s16 D_80095914; /**< the view's orbit angle, in degrees; 2 units */
+extern s32 D_8009578C; /**< stamped on placed records; 2 units */
+extern u16 D_800958A6; /**< a state switched on in main; cleared after placing; 2 units */
+extern s16 D_800958DA; /**< an error code; cleared when flag bit 6 is set; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
@@ -265,8 +269,9 @@ void func_80017614(u8 mode);
  *  @param clutY stored from bit 6 of the second halfword */
 void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
 
-/** @brief Defined in code_1a098. */
-void func_800330D4(void);
+/** @brief Defined in code_1dc24.
+ *  @return 0. */
+s32 func_800330D4(void);
 
 /** @brief Defined in code_1902c. */
 void func_8002980C(void);

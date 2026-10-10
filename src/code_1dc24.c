@@ -6,6 +6,7 @@
 #include "sys/file.h"
 #include "code_1a098.h"
 #include "code_13068.h"
+#include "code_a0bc.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
@@ -18,14 +19,25 @@ typedef struct {
     u8 unk2E[0xE]; /**< not yet known */
 } Rec3C;
 
-/** @brief A state block with a halfword total at 0x26. */
+/** @brief The tool state block: counts, totals and saved menu values. */
 typedef struct {
-    u8 unk0[0x1E]; /**< not yet known */
-    u16 unk1E;     /**< matched against a Rec48's unk34 */
-    u8 unk20[6];   /**< not yet known */
-    u16 unk26;     /**< a sum over the current block's entries */
-    u8 unk28[2];   /**< not yet known */
-    u16 unk2A;     /**< matched against a Rec3C's unk2C */
+    u8 unk0[0xC];   /**< not yet known */
+    s32 unkC;       /**< a height offset added to the camera's y */
+    u8 unk10[2];    /**< not yet known */
+    u16 unk12;      /**< the edited value saved for menu line 0 */
+    u16 unk14;      /**< the edited value saved for menu line 1 */
+    u8 unk16[2];    /**< not yet known */
+    u16 unk18;      /**< number of Obj48 records in use */
+    u16 unk1A;      /**< number of Obj48 records counted live */
+    u16 unk1C;      /**< unk38 of the first record placed */
+    u16 unk1E;      /**< matched against a Rec48's unk34 */
+    u8 unk20[6];    /**< not yet known */
+    u16 unk26;      /**< a sum over the current block's entries */
+    u8 unk28[2];    /**< not yet known */
+    u16 unk2A;      /**< matched against a Rec3C's unk2C */
+    u8 unk2C[0x3C]; /**< not yet known */
+    u8 unk68;       /**< copied into a placed record's unk42 */
+    u8 unk69;       /**< copied into a placed record's unk43 */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -55,6 +67,13 @@ extern char D_80095628[]; /**< "  YES\n" */
 extern char D_80095630[]; /**< "  NO" */
 extern char D_80095638[]; /**< "  SAVE\n" */
 extern char D_80095640[]; /**< "  LOAD\n" */
+extern char D_8001123C[]; /**< "DATA:%d " */
+extern char D_80011248[]; /**< "STAGE %d-" */
+extern char D_80011254[]; /**< "NO DATA\n" */
+extern char D_80095648[]; /**< "1" */
+extern char D_8009564C[]; /**< "2" */
+extern char D_80095650[]; /**< "BOSS" */
+extern char D_80095524[]; /**< "\n" */
 
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
@@ -74,6 +93,62 @@ typedef struct {
 } GameSave;
 
 #define sGameSave (*(GameSave *)D_8009EB78)
+
+extern s32 D_80095824; /**< the current entry of the block, -1 for none */
+extern s32 D_80095950; /**< a pad word; bits step the edited value */
+extern s32 D_80095958; /**< a pad word; bits step the highlighted line */
+
+s32 func_80033E98(void);
+
+/** @brief A block entry as its first and count words. */
+typedef struct {
+    s32 start; /**< index of the entry's first point */
+    s32 count; /**< number of points */
+} Span8;
+
+/** @brief An eight-byte point record of the block's second part. */
+typedef struct {
+    s16 x;   /**< x */
+    s16 y;   /**< y */
+    s16 z;   /**< z */
+    u16 tag; /**< one more than the latched halfword */
+} Pt8;
+
+/** @brief The current-block pointers, seen as one structure. */
+typedef struct {
+    u8 *ents; /**< the block's entries */
+    u8 *pts;  /**< the block's points */
+} BlockCur;
+
+/* MATCHING: reached as members, so a member store through a pointer may
+ * alias them (common.h declares them as scalars). */
+#define sCur (*(BlockCur *)&D_800959C0)
+
+/** @brief A 0x48-byte record of the 200-entry record table, as
+ *         this unit places it (code_1a098.h's Rec48 is the same record). */
+typedef struct {
+    s32 unk0[3];   /**< a position */
+    s32 unkC[3];   /**< a copy of unk0 */
+    u8 unk18[0xC]; /**< not yet known */
+    s16 unk24;     /**< cleared when placed */
+    s16 unk26;     /**< cleared when placed */
+    s32 unk28;     /**< the current entry when placed */
+    u8 unk2C[8];   /**< not yet known */
+    s16 unk34;     /**< sTotals.unk1E when placed */
+    s16 unk36;     /**< -1 when free */
+    s16 unk38;     /**< sTotals.unk1C for the first placed, else -1 */
+    u8 unk3A[2];   /**< not yet known */
+    s32 unk3C;     /**< a global stamp when placed */
+    u8 unk40;      /**< cleared when placed */
+    u8 unk41;      /**< not yet known */
+    u8 unk42;      /**< sTotals.unk68 when placed */
+    u8 unk43;      /**< sTotals.unk69 when placed */
+    u8 unk44[4];   /**< not yet known */
+} Obj48;
+
+extern Obj48 D_80096788[]; /**< records waiting to be placed */
+extern u16 D_8009596E;     /**< number of records waiting */
+extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
@@ -320,11 +395,75 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F270);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F6A0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F8FC);
+/** @brief Fills the six camera words from the yaw in the first rotation
+ *         and the view's orbit angle. */
+void func_8002F8FC(void) {
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    D_800DB2A0[0] = rsin(rot->vy) * 500 / 4096;
+    D_800DB2A0[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
+    D_800DB2A0[2] = rcos(rot->vy) * 500 / 4096;
+    D_800DB2A0[3] = rsin(rot->vy - 0x800) * 900 / 4096;
+    D_800DB2A0[4] = sGameSave.unk348[1];
+    D_800DB2A0[5] = rcos(rot->vy - 0x800) * 900 / 4096;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FA78);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FDB4);
+/** @brief On flag bit 5, inserts the game position as a new point at the
+ *         end of the current entry, shifting the later points up, then
+ *         rebuilds the block header. */
+/* MATCHING: `e = base; e += k;` and one points pointer for the shift source
+ * and the new point. */
+void func_8002FDB4(void) {
+    s16 pos[3];
+    Pt8 *dst;
+    Pt8 *p;
+    Span8 *e;
+    s32 i;
+    u32 j;
+
+    if (D_80095970 & 0x20) {
+        if (sTotals.unk26 == 200) {
+            D_800958DA = 8;
+        } else if (D_80095824 == -1) {
+            D_800958DA = 7;
+        } else {
+            e = (Span8 *)sCur.ents;
+            e += D_80095824;
+            p = (Pt8 *)sCur.pts;
+            dst = p;
+            pos[0] = sGameSave.unk348[0];
+            pos[1] = sGameSave.unk348[1];
+            pos[2] = sGameSave.unk348[2];
+            p += 198;
+            dst += 199;
+            for (i = e->start + e->count; i < 200; i++) {
+                *dst = *p;
+                dst--;
+                p--;
+            }
+            e = (Span8 *)sCur.ents;
+            e += D_80095824;
+            p = (Pt8 *)sCur.pts;
+            j = e->count;
+            e->count = j + 1;
+            p += e->start + j;
+            e = (Span8 *)sCur.ents;
+            e += D_80095824 + 1;
+            p->x = pos[0];
+            p->y = pos[1];
+            p->z = pos[2];
+            p->tag = D_80095B4C[0] + 1;
+            for (j = D_80095824 + 1; j < D_80095794; j++) {
+                e->start++;
+                e++;
+            }
+            func_8002D0C4((BlockHeader *)0x801FD000);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FF74);
 
@@ -332,7 +471,58 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030278);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030548);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030984);
+/** @brief Counts the live Obj48 records; on flag bit 5, places every
+ *         waiting record into the table (error 8 when it is full). */
+void func_80030984(void) {
+    u32 i;
+    u16 n;
+    Obj48 *recs;
+    Obj48 *w;
+
+    recs = (Obj48 *)D_800A9008;
+    n = sTotals.unk18;
+    sTotals.unk1A = 0;
+    for (i = 0; i < 200; i++) {
+        if (recs[i].unk36 != -1) {
+            sTotals.unk1A++;
+        }
+    }
+    if (D_80095970 & 0x20) {
+        /* MATCHING: one counter for both loops, unsigned (sltiu) in the
+         * first and compared signed (slt) here. */
+        for (i = 0; (s32)i < D_8009596E; i++) {
+            w = &D_80096788[i];
+            if (n == 200) {
+                D_800958DA = 8;
+                return;
+            }
+            w->unkC[0] = w->unk0[0];
+            w->unkC[1] = w->unk0[1];
+            w->unkC[2] = w->unk0[2];
+            w->unk40 = 0;
+            w->unk24 = 0;
+            w->unk26 = 0;
+            w->unk28 = D_80095824;
+            w->unk3C = D_8009578C;
+            w->unk42 = sTotals.unk68;
+            w->unk43 = sTotals.unk69;
+            if (i == 0) {
+                /* MATCHING: stored through the table base, not w. */
+                D_80096788[0].unk38 = sTotals.unk1C;
+            } else {
+                w->unk38 = -1;
+            }
+            ((Obj48 *)D_800A9008)[(s16)n] = *w;
+            ((Obj48 *)D_800A9008)[(s16)n].unk34 = sTotals.unk1E;
+            n++;
+            sTotals.unk18 = n;
+        }
+        D_800958A6 = 0;
+        if (D_800959D8 == 1) {
+            D_800959D8 = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030B6C);
 
@@ -368,7 +558,49 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003245C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800327BC);
+/** @brief Prints the three save slots of the tool buffer as a menu, each
+ *         with its stage and part, or "NO DATA". */
+void func_800327BC(void) {
+    s16 i;
+    SaveSlot *slots;
+    SaveSlot *slot;
+    u16 stage;
+    u16 part;
+    u16 v;
+
+    slots = (SaveSlot *)0x8016D000;
+    FntPrint(D_800955DC);
+    for (i = 0; i < 3; i++) {
+        func_80014BF0(3);
+        if (D_8009574A == i) {
+            FntPrint(D_800954F4);
+        } else {
+            FntPrint(D_8009550C);
+        }
+        slot = &slots[i];
+        if (slot->unk200 == 0x38) {
+            FntPrint(D_8001123C, i + 1);
+            v = slot->unk202;
+            stage = v / 3;
+            FntPrint(D_80011248, stage + 1);
+            part = v % 3;
+            switch (part) {
+                case 0:
+                    FntPrint(D_80095648);
+                    break;
+                case 1:
+                    FntPrint(D_8009564C);
+                    break;
+                case 2:
+                    FntPrint(D_80095650);
+                    break;
+            }
+            FntPrint(D_80095524);
+        } else {
+            FntPrint(D_80011254);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032964);
 
@@ -376,11 +608,102 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032C28);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800330D4);
+/** @brief Steps the edited value (bits 0x2000 up, 0x8000 down) or the
+ *         highlighted line (0x4000 up, 0x1000 down) from the first pad
+ *         word, else from the second and third, then wraps both.
+ *  @return 0. */
+s32 func_800330D4(void) {
+    if (D_80095970 & 0x2000) {
+        D_80095748++;
+        func_80033E98();
+    } else if (D_80095970 & 0x8000) {
+        D_80095748--;
+        func_80033E98();
+    } else if (D_80095970 & 0x4000) {
+        D_8009574A++;
+        func_80033E98();
+    } else if (D_80095970 & 0x1000) {
+        D_8009574A--;
+        func_80033E98();
+    } else if (D_80095950 & 0x2000) {
+        D_80095748++;
+        func_80033E98();
+    } else if (D_80095950 & 0x8000) {
+        D_80095748--;
+        func_80033E98();
+    } else if (D_80095958 & 0x4000) {
+        D_8009574A++;
+        func_80033E98();
+    } else if (D_80095958 & 0x1000) {
+        D_8009574A--;
+        func_80033E98();
+    } else {
+        return 0;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033224);
+/** @brief Sorts a pulsing red line from `pos` to 200 units above it into
+ *         the current ordering table. */
+/* MATCHING: the twin of code_24748's func_800365A0 (an s16 colour local, an
+ * unused 8 bytes for the frame), without its mirrored x and z. */
+void func_80033224(VECTOR *pos) {
+    s32 unused[2];
+    VECTOR world;
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033388);
+    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = pos->vx + D_800A7308[0];
+    world.vy = pos->vy;
+    world.vz = pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vy = pos->vy - 200;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+}
+
+/** @brief Sorts a pulsing red line from `pos` to 100 units away from it
+ *         along heading `deg` (degrees) into the current ordering table. */
+/* MATCHING: the unused 8 and 16 bytes place world at 0x18 and screen at
+ * 0x38 in the 0x68-byte frame. */
+void func_80033388(VECTOR *pos, s16 deg) {
+    s32 unused[2];
+    VECTOR world;
+    s32 unused2[4];
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
+    s32 ang;
+
+    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = pos->vx + D_800A7308[0];
+    world.vy = pos->vy;
+    world.vz = pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    ang = deg * 4096 / 360;
+    world.vx += rsin(ang) * 100 >> 12;
+    world.vz += rcos(ang) * 100 >> 12;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+}
 
 /** @brief Wraps the highlighted line at `n` lines, resets the edited value
  *         and runs an update.
@@ -576,7 +899,36 @@ void func_80033B08(void) {
     D_80095B4C[0] = D_80095748;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033B34);
+/** @brief Runs an update; when the highlighted line moved, loads the
+ *         edited value and its limit for the new line, else saves the
+ *         edited value for the current one. */
+void func_80033B34(void) {
+    s16 old;
+
+    old = D_8009574A;
+    func_800330D4();
+    if (old != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk12;
+                break;
+            case 1:
+                D_800958B0 = 3;
+                D_80095748 = sTotals.unk14;
+                break;
+        }
+    } else {
+        switch (old) {
+            case 0:
+                sTotals.unk12 = D_80095748;
+                break;
+            case 1:
+                sTotals.unk14 = D_80095748;
+                break;
+        }
+    }
+}
 
 /** @brief Applies every used Rec48 whose unk34 equals sTotals.unk1E to the
  *         Rec78 its unk36 names. */

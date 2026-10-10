@@ -3,6 +3,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "code_a0bc.h"
+#include "code_1a098.h"
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
@@ -44,7 +45,7 @@ typedef struct {
     GsCOORDINATE2 *coord; /**< places the corners */
 } Rec4C;
 
-/** @brief A point of three words, as the six-point table holds them. */
+/** @brief A point of three words, as the placed-point table holds them. */
 typedef struct {
     s32 x; /**< position */
     s32 y; /**< position */
@@ -52,6 +53,27 @@ typedef struct {
 } Point12;
 
 extern Point12 D_8009F0D0[];
+
+/** @brief A local position and the index of its coordinate system. */
+typedef struct {
+    s32 x;    /**< local x */
+    s32 y;    /**< local y */
+    s32 z;    /**< local z */
+    s8 coord; /**< index into the coordinate-system table */
+} PointSpec;
+
+/** @brief The 25 local points placed each frame. */
+typedef struct {
+    PointSpec p[25]; /**< in the order of the placed-point table */
+} PointSpec25;
+
+/** @brief Three bytes copied to the stack and never read. */
+typedef struct {
+    s8 b[3]; /**< 7, 13, 19 */
+} Bytes3;
+
+extern PointSpec25 D_80010950;
+extern Bytes3 D_800954F0[];
 
 void func_80028984(void);
 s32 func_800297A4(VECTOR *a, VECTOR *b);
@@ -98,11 +120,39 @@ void func_80028888(void *rec) {
     GsSetLsMatrix(&ls);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028984);
+/** @brief Places the 25 local points in the world, each in its own
+ *         coordinate system, and stores them in the placed-point table. */
+/* MATCHING: the two copies are initialisers in retail; see the report. */
+void func_80028984(void) {
+    s32 unused0[6];
+    MATRIX ls;
+    MATRIX lw;
+    SVECTOR v;
+    VECTOR out;
+    s32 unused[2];
+    Bytes3 b;
+    PointSpec25 spec;
+    long flag;
+    s16 i;
+
+    b = *D_800954F0;
+    spec = D_80010950;
+    for (i = 0; i < 25; i++) {
+        v.vx = spec.p[i].x;
+        v.vy = spec.p[i].y;
+        v.vz = spec.p[i].z;
+        GsGetLws(&D_800D86E0[spec.p[i].coord], &lw, &ls);
+        GsSetLsMatrix(&lw);
+        RotTrans(&v, &out, &flag);
+        D_8009F0D0[i].x = out.vx;
+        D_8009F0D0[i].y = out.vy;
+        D_8009F0D0[i].z = out.vz;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028AE4);
 
-/** @brief Finds which of the six table points from `start` is nearest
+/** @brief Finds which of six placed points from `start` is nearest
  *         `pos`.
  *  @return the point's offset from `start`, 0..5 */
 /* MATCHING: `i++, k++` in the step; `dist[k++]` in the body gives the two

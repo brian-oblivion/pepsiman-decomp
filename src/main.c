@@ -16,7 +16,60 @@ INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
 INCLUDE_ASM("asm/nonmatchings/main", main);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80013B38);
+extern u16 D_800958A6;
+extern s32 D_80072484[];
+extern s32 D_800724C4[];
+s32 func_80013CDC(void);
+
+/* MATCHING: code_7d74 types the pack as its own PackEntry. */
+void func_8001797C(void *pack);
+
+/* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
+void func_80018DE8(s32 arg);
+
+s8 func_80013B38(void) {
+    /* MATCHING: a byte, so the later constant 1 is not copied from it. */
+    s8 ret;
+
+    ret = 0;
+    switch (D_800958A6) {
+        case 0:
+            D_80096748[0] = (s32)&D_80072484[0];
+            D_8009F090[0] = 0x8014D000;
+            D_80096748[1] = (s32)&D_80072484[1];
+            D_8009F090[1] = 0x8018D000;
+            D_80096748[2] = (s32)&D_80072484[2];
+            D_8009F090[2] = 0x80123000;
+            D_80096748[3] = (s32)&D_80072484[3];
+            D_8009F090[3] = 0x8016D000;
+            D_80096748[4] = (s32)&D_80072484[4];
+            D_8009F090[4] = 0x80101000;
+            D_80095960 = 5;
+            D_8009F248[0] = D_800724C4[0];
+            D_8009F248[1] = D_800724C4[1];
+            D_8009F248[2] = D_800724C4[2];
+            D_8009F248[3] = D_800724C4[3];
+            D_8009F248[4] = D_800724C4[4];
+            D_8009596C = 1;
+            D_800958A6 = 1;
+            break;
+        case 1:
+            if (D_8009596C == 6) {
+                func_80018DE8(0);
+                D_800958A6++;
+            }
+            break;
+        case 2:
+            ret = 1;
+            func_80013CDC();
+            func_8001797C((void *)0x8018D000);
+            func_8003E13C((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
+            func_8003A84C();
+            func_80018DE8(1);
+            break;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80013CDC);
 
@@ -360,8 +413,6 @@ void func_80015754(char *name, void *buf) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800157DC);
-
-extern u16 D_800958A6;
 
 void func_80015A28(void) {
     SVECTOR pos;

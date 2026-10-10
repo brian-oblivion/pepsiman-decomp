@@ -34,8 +34,6 @@ extern s16 D_80095B18;
 extern s16 D_80095B16;
 extern s16 D_80095AEA;
 extern u16 D_80095AFC;
-extern s16 D_80095960;
-extern s8 D_8009596C;
 extern s32 D_8007B6A4[];
 extern s32 D_8007B6CC[];
 extern s16 D_800956C2;

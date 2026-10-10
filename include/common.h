@@ -131,6 +131,8 @@ extern s32 D_800959B8; /**< 2 units, 2 functions */
 extern u8 D_800958C9;  /**< 1 while CD audio is playing; 2 units */
 extern s16 D_80095760; /**< 2 units */
 extern u16 D_80095880; /**< 2 units */
+extern s16 D_80095960; /**< 2 units */
+extern s8 D_8009596C;  /**< 2 units */
 extern u8 D_80095AEE;  /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
 extern s16 D_800959E0; /**< 2 units, 2 functions */
 extern u16 D_800959E4; /**< 2 units, 4 functions */
@@ -216,6 +218,14 @@ void func_80018094(void);
 /** @brief Defined in main.
  *  @param count how many times it prints its fixed string */
 void func_80014BF0(s16 count);
+
+/** @brief Defined in code_29f54; loads a run of TIM images (each starting
+ *         with the word 0x10) into VRAM.
+ *  @param p the first TIM */
+void func_8003E13C(unsigned long *p);
+
+/** @brief Defined in code_29f54 (still asm); called from main. */
+void func_8003A84C(void);
 
 /** @brief Defined in code_7d74; issues one CD command.
  *  @param com the CdlXXX command

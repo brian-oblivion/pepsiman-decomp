@@ -535,7 +535,64 @@ void func_800355D8(void) {
     D_80095A60 = (s8)D_80095A60 < 0 ? 4 : (s8)D_80095A60 > 4 ? 0 : D_80095A60;
 }
 
+/** @brief Five rows of three words, copied from rodata as one block. */
+typedef struct {
+    s32 v[5][3]; /**< per-row x, y, z */
+} Rows5;
+
+extern Rows5 D_800115DC;  /**< the rows the step below scales */
+extern s32 D_800CEBA0[];  /**< start of the interpolation */
+extern u8 D_80095A20;     /**< interpolation step, 0..30 */
+extern s32 D_800DB2B8[];  /**< cleared on every step */
+
+/* MATCHING: a per-unit view; code_7d74 defines it as (s16, s16, u16, u16)
+ * returning s16. */
+s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
+
+#ifdef NON_MATCHING
+/* MATCHING: case 2 stores the switch value ($v1); retail stores the compare
+ * constant ($v0). */
+void func_800356FC(void) {
+    Rows5 rows;
+
+    rows = D_800115DC;
+    switch (D_80095A24) {
+        case 0:
+            D_80095A24 = 1;
+            D_80095A20 = 0;
+            D_800CEBA0[0] = D_800DB2A0[0];
+            D_800CEBA0[1] = D_800DB2A0[1];
+            D_800CEBA0[2] = D_800DB2A0[2];
+            break;
+        case 1:
+            D_800DB2A0[0] = func_80018D04(D_800CEBA0[0], rows.v[(s8)D_80095A60][0] * (s8)D_80095A61,
+                                          D_80095A20, 30);
+            D_800DB2A0[1] = func_80018D04(D_800CEBA0[1], rows.v[(s8)D_80095A60][1] * (s8)D_80095A61,
+                                          D_80095A20, 30);
+            D_800DB2A0[2] = func_80018D04(D_800CEBA0[2], rows.v[(s8)D_80095A60][2] * (s8)D_80095A61,
+                                          D_80095A20, 30);
+            if (++D_80095A20 == 30) {
+                D_80095A24++;
+            }
+            break;
+        case 2:
+            D_800958DA = D_80095A22;
+            D_80095A24 = 2;
+            break;
+        case 3:
+            D_800DB2A0[0] = rows.v[(s8)D_80095A60][0] * (s8)D_80095A61;
+            D_800DB2A0[1] = rows.v[(s8)D_80095A60][1] * (s8)D_80095A61;
+            D_800DB2A0[2] = rows.v[(s8)D_80095A60][2] * (s8)D_80095A61;
+            D_800DB2A0[3] = 0;
+            D_800DB2A0[4] = 0;
+            D_800DB2A0[5] = 0;
+            break;
+    }
+    D_800DB2B8[0] = 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035970);
 

@@ -1,4 +1,6 @@
-# func_800201BC — MATCHED (217/217), round 8, runner delta
+# SortTmdLitEnvMapGT3 — MATCHED (217/217), round 8, runner delta
+
+> Renamed from `func_800201BC` on 2026-10-10 (tools/rename.py). Address 0x800201bc.
 
 Unit `src/code_a0bc.c`. The TMD handler for lit gouraud-textured triangles
 in SetTmdSortMode's modes 0 and 1. Per visible TmdGT3 it writes TWO packets:
@@ -12,10 +14,10 @@ New in this round: the unit-local `FlatLights` view and `sLights` macro
 (code_7d74's spelling) for `D_800DD070`, and an additive
 `gte_strgb3_gt3(r1)` in `include/gte.h` (Sony's one-pointer store of RGB0-2
 at +0x4, +0x10, +0x1C). The local prototype changed from `PACKET
-*func_800201BC();` to the full one.
+*SortTmdLitEnvMapGT3();` to the full one.
 
 ```c
-PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     /* MATCHING: a volatile copy of the parameter, so the triangle's fields
      * stay on it and only the second packet goes through loop's pointer. */
@@ -96,7 +98,7 @@ PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
 1. First body (packet as a plain parameter, `gte_strgb3` with three member
    addresses): 11/217, loop made `$a3` the reduced pointer and copied the
    packet to `$t0`.
-2. A volatile local copy of the packet (func_8001FBBC's shape): `$a3`
+2. A volatile local copy of the packet (SortTmdEnvMapGT3's shape): `$a3`
    stays the triangle's base and `$t1 = $a3 + 0x27` becomes the second
    packet's reduced pointer, as retail.
 3. `gte_strgb3_gt3(g)`: retail stores the GT3 colours from one base. With

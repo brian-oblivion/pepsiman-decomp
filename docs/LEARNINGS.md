@@ -63,7 +63,7 @@ function's match report, not here.
 - **An `s16` loaded with `lh` before a halfword store of a scale: `w * 4`,
   not `w << 2`** (the shift narrows the load to `lhu`). (func_80017640)
 - **A chained store that reads its first target back (`sh X; lhu X; sh Y`):
-  a volatile target.** (func_8001FBBC)
+  a volatile target.** (SortTmdEnvMapGT3)
 - **Two sign tests, one `bltz` and one `and`/`bnez` sharing a `lui 0x8000`:
   both written `v & 0x80000000`.** (code_a0bc, round 7)
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
@@ -375,7 +375,7 @@ function's match report, not here.
   StepStepper, DrawStepper)
 - **A packet used straight from `$a3` at fixed offsets: a `volatile` packet
   parameter.** A volatile local copy when retail moves the pointer to
-  another register. (func_8001FE5C, func_8001FBBC)
+  another register. (SortTmdEnvMapGT4, SortTmdEnvMapGT3)
 
 - **Retail setting -1 in a saved register in each `j end` delay slot and
   copying it to `$v0` once at the exit: a single-exit `ret` local with `goto
@@ -497,7 +497,7 @@ function's match report, not here.
   unrelated statement before the struct copy that uses it.** A pointer
   local fixes only the register. (DrawStandingBillboardRotated, DrawBillboardRotated)
 - **`*(u32 *)&volatile_p->x` drops the volatile**, and the order of such
-  reads decides the register assignment. (func_800201BC)
+  reads decides the register assignment. (SortTmdLitEnvMapGT3)
 - **Spill slots follow the declaration order of the spilled locals.**
   (DrawSpriteTransformed)
 - **`-fschedule-insns` is byte-inert on this cc1**: only the pass after

@@ -1,18 +1,20 @@
-# func_8001FE5C — MATCHED (216/216), round 8, runner delta
+# SortTmdEnvMapGT4 — MATCHED (216/216), round 8, runner delta
 
-Unit `src/code_a0bc.c`. The quad twin of func_8001FBBC, installed by
+> Renamed from `func_8001FE5C` on 2026-10-10 (tools/rename.py). Address 0x8001fe5c.
+
+Unit `src/code_a0bc.c`. The quad twin of SortTmdEnvMapGT3, installed by
 SetTmdSortMode's mode 3 as the TMD handler for lit gouraud-textured quads:
 projects each TmdGT4, culls on the GTE flags and on back faces, and writes a
 POLY_FT4 (code 0x2D, texture page 0x161 plus the page flip of `D_800E474C`)
 whose UVs come from each corner's normal rotated by the current matrix
 (environment-map style: `u = (nx >> 8) - (x/8 - 0x60)`, `v = y/8 + 0x78 +
 (ny >> 8) - page`). The local prototype changed from `PACKET
-*func_8001FE5C();` to the full one (unit-local, nothing else declares it).
+*SortTmdEnvMapGT4();` to the full one (unit-local, nothing else declares it).
 
 ```c
 /* MATCHING: the packet parameter volatile and used directly, so loop builds
  * no reduced pointer beside it; the unused pair puts v at sp+0x18. */
-PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
+PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
                       s32 shift, GsOT *ot) {
     VECTOR mac;
     s32 unused[2];
@@ -86,7 +88,7 @@ PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT
 
 ## How it went
 
-func_8001FBBC's body with a fourth vertex and a fourth UV corner:
+SortTmdEnvMapGT3's body with a fourth vertex and a fourth UV corner:
 
 1. As FBBC (a `volatile POLY_FT3 *` local copy): equal length but loop added
    a reduced pointer `pkt + 0x25` beside the packet and a saved `$s0`, and

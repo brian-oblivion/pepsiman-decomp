@@ -1,10 +1,12 @@
-# func_80021D3C — MATCHED (145/145), round 10, runner alpha
+# SortTmdLitSemiGT4 — MATCHED (145/145), round 10, runner alpha
+
+> Renamed from `func_80021D3C` on 2026-10-10 (tools/rename.py). Address 0x80021d3c.
 
 Unit `src/code_11dc4.c`. The lit gouraud-textured quad handler of drawing
 mode 5 (SetTmdSortMode installs it at row 7, column 0): the quad twin of
-func_80021B88. Lit TMD quads into POLY_GT4 packets, three corners lit with
+SortTmdLitSemiGT3. Lit TMD quads into POLY_GT4 packets, three corners lit with
 `ncct` and the fourth with `nccs` from a mid-grey (0x80) colour, the UV
-words copied, linked with length 12, code 0x3E. Like func_80021B88 it
+words copied, linked with length 12, code 0x3E. Like SortTmdLitSemiGT3 it
 keeps back faces (winding `v >= 0` culls); its flag tests are on the sign
 bit only.
 
@@ -27,7 +29,7 @@ typedef struct {
     u16 v3;  /**< fourth vertex index */
 } TmdGT4;
 
-PACKET *func_80021D3C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitSemiGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     POLY_GT4 *pkt;
     CVECTOR c;

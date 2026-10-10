@@ -226,16 +226,16 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
 PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot);
-PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
-                      s32 shift, GsOT *ot);
-PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot);
-PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot);
-PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot);
+PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                         GsOT *ot);
+PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
+                         s32 shift, GsOT *ot);
+PACKET *SortTmdLitEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n,
+                            s32 shift, GsOT *ot);
+PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n,
+                            s32 shift, GsOT *ot);
+PACKET *SortTmdWireGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                       GsOT *ot);
 PACKET *SortTmdFastF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
@@ -247,11 +247,11 @@ PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
 PACKET *SortTmdFastFT4();
 PACKET *SortTmdFastGT3();
 PACKET *SortTmdFastGT4();
-PACKET *func_80021B88();
-PACKET *func_80021D3C();
-PACKET *func_80021F80();
-PACKET *func_80022150();
-PACKET *func_8002230C();
+PACKET *SortTmdLitSemiGT3();
+PACKET *SortTmdLitSemiGT4();
+PACKET *SortTmdWireGT3();
+PACKET *SortTmdLitGT3();
+PACKET *SortTmdLitGT4();
 
 void DrawSpriteTransformed(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *ot) {
     SpriteDef *e;
@@ -1912,8 +1912,8 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     return (PACKET *)pkt;
 }
 
-PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                         GsOT *ot) {
     VECTOR mac;
     s32 v;
     /* MATCHING: volatile, so every packet field is read and written in
@@ -1976,8 +1976,8 @@ PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
 
 /* MATCHING: the packet parameter volatile and used directly, so loop builds
  * no reduced pointer beside it; the unused pair puts v at sp+0x18. */
-PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
-                      s32 shift, GsOT *ot) {
+PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
+                         s32 shift, GsOT *ot) {
     VECTOR mac;
     s32 unused[2];
     s32 v;
@@ -2047,8 +2047,8 @@ PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT
     return (PACKET *)pkt;
 }
 
-PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdLitEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n,
+                            s32 shift, GsOT *ot) {
     /* MATCHING: a volatile copy of the parameter, so the triangle's fields
      * stay on it and only the second packet goes through loop's pointer. */
     volatile POLY_FT3 *pkt;
@@ -2122,8 +2122,8 @@ PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n,
+                            s32 shift, GsOT *ot) {
     volatile POLY_FT4 *pkt;
     VECTOR mac;
     CVECTOR c;
@@ -2212,8 +2212,8 @@ PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdWireGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                       GsOT *ot) {
     LINE_G3 *pkt;
     CVECTOR c;
     s32 v;
@@ -2287,7 +2287,7 @@ void InitTmdSortFuncs(void) {
     gTmdSortFuncs[1][7] = SortTmdDivG3;
     gTmdSortFuncs[2][6] = SortTmdFastFT3;
     gTmdSortFuncs[2][7] = SortTmdDivFT3;
-    gTmdSortFuncs[3][0] = func_80021F80;
+    gTmdSortFuncs[3][0] = SortTmdWireGT3;
     gTmdSortFuncs[3][6] = SortTmdFastGT3;
     gTmdSortFuncs[3][7] = SortTmdDivGT3;
     gTmdSortFuncs[4][6] = SortTmdFastF4;
@@ -2296,7 +2296,7 @@ void InitTmdSortFuncs(void) {
     gTmdSortFuncs[5][7] = SortTmdDivG4;
     gTmdSortFuncs[6][6] = SortTmdFastFT4;
     gTmdSortFuncs[6][7] = SortTmdDivFT4;
-    gTmdSortFuncs[7][0] = func_8002097C;
+    gTmdSortFuncs[7][0] = SortTmdWireGT4;
     gTmdSortFuncs[7][6] = SortTmdFastGT4;
     gTmdSortFuncs[7][7] = SortTmdDivGT4;
 }
@@ -2305,24 +2305,24 @@ s32 SetTmdSortMode(s32 mode) {
     switch (mode) {
         case 0:
         case 1:
-            gTmdSortFuncs[3][0] = func_800201BC;
-            gTmdSortFuncs[7][0] = func_80020520;
+            gTmdSortFuncs[3][0] = SortTmdLitEnvMapGT3;
+            gTmdSortFuncs[7][0] = SortTmdLitEnvMapGT4;
             break;
         case 2:
-            gTmdSortFuncs[3][0] = func_80021F80;
-            gTmdSortFuncs[7][0] = func_8002097C;
+            gTmdSortFuncs[3][0] = SortTmdWireGT3;
+            gTmdSortFuncs[7][0] = SortTmdWireGT4;
             break;
         case 3:
-            gTmdSortFuncs[3][0] = func_8001FBBC;
-            gTmdSortFuncs[7][0] = func_8001FE5C;
+            gTmdSortFuncs[3][0] = SortTmdEnvMapGT3;
+            gTmdSortFuncs[7][0] = SortTmdEnvMapGT4;
             break;
         case 4:
-            gTmdSortFuncs[3][0] = func_80022150;
-            gTmdSortFuncs[7][0] = func_8002230C;
+            gTmdSortFuncs[3][0] = SortTmdLitGT3;
+            gTmdSortFuncs[7][0] = SortTmdLitGT4;
             break;
         case 5:
-            gTmdSortFuncs[3][0] = func_80021B88;
-            gTmdSortFuncs[7][0] = func_80021D3C;
+            gTmdSortFuncs[3][0] = SortTmdLitSemiGT3;
+            gTmdSortFuncs[7][0] = SortTmdLitSemiGT4;
             break;
     }
 }

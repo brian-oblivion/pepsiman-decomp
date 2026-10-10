@@ -52,8 +52,9 @@ void DrawSprite(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
  *  @param ot    the ordering table */
 void DrawStandingBillboardFog(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
 
-/** @brief Installs the TMD primitive handlers for a drawing mode.
- *  @param mode which handler set
+/** @brief Picks how lit gouraud-textured TMD polygons are drawn.
+ *  @param mode 0 or 1 lit with an environment map over it, 2 wireframe,
+ *              3 environment map only, 4 lit, 5 lit semi-transparent
  *  @return undefined: the definition has no return statement */
 s32 SetTmdSortMode(s32 mode);
 

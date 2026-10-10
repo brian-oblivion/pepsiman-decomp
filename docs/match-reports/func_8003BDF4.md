@@ -51,7 +51,7 @@ void func_8003BDF4(void) {
 - `sh y3; lhu y3; sh y2` after the if/else: `p->y2 = p->y3;` as its own
   statement after the branch. cc1 does not carry the stored value across the
   join, so the member is read back; no volatile needed (contrast
-  func_8001FBBC's volatile chained store, where both stores share a block).
+  SortTmdEnvMapGT3's volatile chained store, where both stores share a block).
 - The final quad's colour is stored r, g, b from one register:
   `setRGB0`. A chained `r0 = g0 = b0` would store `b0` first.
 - Existing learnings that held: chained assignment stores right to left;

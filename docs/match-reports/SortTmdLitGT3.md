@@ -1,13 +1,15 @@
-# func_80022150 — MATCHED (111/111), round 10, runner alpha
+# SortTmdLitGT3 — MATCHED (111/111), round 10, runner alpha
+
+> Renamed from `func_80022150` on 2026-10-10 (tools/rename.py). Address 0x80022150.
 
 Unit `src/code_11dc4.c`. The lit gouraud-textured triangle handler of
-drawing mode 4 (SetTmdSortMode installs it at row 3, column 0): func_80021B88
+drawing mode 4 (SetTmdSortMode installs it at row 3, column 0): SortTmdLitSemiGT3
 with the usual culling (GTE flag mask 0x7F85E000, winding `v <= 0`) and
 code 0x34 instead of 0x36 (opaque instead of semi-transparent). The
-`TmdGT3` typedef is the one in func_80021B88's report.
+`TmdGT3` typedef is the one in SortTmdLitSemiGT3's report.
 
 ```c
-PACKET *func_80022150(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     POLY_GT3 *pkt;
     CVECTOR c;

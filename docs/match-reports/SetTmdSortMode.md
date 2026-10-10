@@ -11,24 +11,24 @@ s32 SetTmdSortMode(s32 mode) {
     switch (mode) {
         case 0:
         case 1:
-            gTmdSortFuncs[3][0] = func_800201BC;
-            gTmdSortFuncs[7][0] = func_80020520;
+            gTmdSortFuncs[3][0] = SortTmdLitEnvMapGT3;
+            gTmdSortFuncs[7][0] = SortTmdLitEnvMapGT4;
             break;
         case 2:
-            gTmdSortFuncs[3][0] = func_80021F80;
-            gTmdSortFuncs[7][0] = func_8002097C;
+            gTmdSortFuncs[3][0] = SortTmdWireGT3;
+            gTmdSortFuncs[7][0] = SortTmdWireGT4;
             break;
         case 3:
-            gTmdSortFuncs[3][0] = func_8001FBBC;
-            gTmdSortFuncs[7][0] = func_8001FE5C;
+            gTmdSortFuncs[3][0] = SortTmdEnvMapGT3;
+            gTmdSortFuncs[7][0] = SortTmdEnvMapGT4;
             break;
         case 4:
-            gTmdSortFuncs[3][0] = func_80022150;
-            gTmdSortFuncs[7][0] = func_8002230C;
+            gTmdSortFuncs[3][0] = SortTmdLitGT3;
+            gTmdSortFuncs[7][0] = SortTmdLitGT4;
             break;
         case 5:
-            gTmdSortFuncs[3][0] = func_80021B88;
-            gTmdSortFuncs[7][0] = func_80021D3C;
+            gTmdSortFuncs[3][0] = SortTmdLitSemiGT3;
+            gTmdSortFuncs[7][0] = SortTmdLitSemiGT4;
             break;
     }
 }

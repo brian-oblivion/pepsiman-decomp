@@ -1,4 +1,6 @@
-# func_80021B88 — MATCHED (109/109), round 10, runner alpha
+# SortTmdLitSemiGT3 — MATCHED (109/109), round 10, runner alpha
+
+> Renamed from `func_80021B88` on 2026-10-10 (tools/rename.py). Address 0x80021b88.
 
 Unit `src/code_11dc4.c`. The lit gouraud-textured triangle handler of
 drawing mode 5 (SetTmdSortMode installs it at row 3, column 0): TMD triangles
@@ -24,7 +26,7 @@ typedef struct {
     u16 v2;  /**< third vertex index */
 } TmdGT3;
 
-PACKET *func_80021B88(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitSemiGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     POLY_GT3 *pkt;
     CVECTOR c;

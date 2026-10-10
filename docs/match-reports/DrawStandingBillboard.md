@@ -87,7 +87,7 @@ void DrawStandingBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsO
   first, the scheduler hoists them into the load delay of `size->vy`.
 - **The OT index read before the last UV store** (`z = v >> shift;`): the
   store through the buffer pointer may alias `v`, so retail's load of `v`
-  above it is source order. The func_8002097C shape.
+  above it is source order. The SortTmdWireGT4 shape.
 
 Six builds.
 

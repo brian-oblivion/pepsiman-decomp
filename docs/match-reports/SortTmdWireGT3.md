@@ -1,15 +1,17 @@
-# func_80021F80 — MATCHED (116/116), round 10, runner alpha
+# SortTmdWireGT3 — MATCHED (116/116), round 10, runner alpha
+
+> Renamed from `func_80021F80` on 2026-10-10 (tools/rename.py). Address 0x80021f80.
 
 Unit `src/code_11dc4.c`. The lit wireframe handler of drawing mode 2
 (InitTmdSortFuncs installs it at row 3, column 0 and SetTmdSortMode reinstalls
 it for mode 2): each lit gouraud-textured TMD triangle is drawn as a closed
 LINE_G4 outline (the fourth point and colour copies of the first), lit with
 `ncct` from a mid-grey (0x80) colour, code 0x5C, terminator 0x55555555,
-linked with length 9. The `TmdGT3` typedef is the one in func_80021B88's
+linked with length 9. The `TmdGT3` typedef is the one in SortTmdLitSemiGT3's
 report.
 
 ```c
-PACKET *func_80021F80(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdWireGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     LINE_G4 *pkt;
     CVECTOR c;

@@ -303,8 +303,8 @@ PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
     return (PACKET *)pkt;
 }
 
-PACKET *func_80021B88(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdLitSemiGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n,
+                          s32 shift, GsOT *ot) {
     POLY_GT3 *pkt;
     CVECTOR c;
     s32 v;
@@ -349,8 +349,8 @@ PACKET *func_80021B88(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-PACKET *func_80021D3C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdLitSemiGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n,
+                          s32 shift, GsOT *ot) {
     POLY_GT4 *pkt;
     CVECTOR c;
     s32 v;
@@ -406,8 +406,8 @@ PACKET *func_80021D3C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-PACKET *func_80021F80(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
-                      GsOT *ot) {
+PACKET *SortTmdWireGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                       GsOT *ot) {
     LINE_G4 *pkt;
     CVECTOR c;
     s32 v;
@@ -454,7 +454,7 @@ PACKET *func_80021F80(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-PACKET *func_80022150(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     POLY_GT3 *pkt;
     CVECTOR c;
@@ -500,7 +500,7 @@ PACKET *func_80022150(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-PACKET *func_8002230C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     POLY_GT4 *pkt;
     CVECTOR c;

@@ -1,6 +1,8 @@
-# func_80020520 — MATCHED (279/279), round 10, runner charlie
+# SortTmdLitEnvMapGT4 — MATCHED (279/279), round 10, runner charlie
 
-Unit `src/code_a0bc.c`. The quad twin of func_800201BC: the TMD handler for
+> Renamed from `func_80020520` on 2026-10-10 (tools/rename.py). Address 0x80020520.
+
+Unit `src/code_a0bc.c`. The quad twin of SortTmdLitEnvMapGT3: the TMD handler for
 lit gouraud-textured quads (`TmdGT4`) in SetTmdSortMode's modes 0 and 1. Per
 visible quad it writes a POLY_FT4 (code 0x2E, texture page 0x7B, CLUT
 0x722D, light 0's colour, UVs environment-mapped from the four rotated
@@ -8,11 +10,11 @@ normals), then a POLY_GT4 (code 0x3C) over the same corners with the TMD's
 own UVs and colours from `gte_ncct` on normals 0-2 plus `gte_nccs` on normal
 3, both linked at the quad's depth (`avsz4`).
 
-The local prototype changed from `PACKET *func_80020520();` to the full one.
+The local prototype changed from `PACKET *SortTmdLitEnvMapGT4();` to the full one.
 No header changed.
 
 ```c
-PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     volatile POLY_FT4 *pkt;
     VECTOR mac;
@@ -105,8 +107,8 @@ PACKET *func_80020520(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
 
 ## How it went
 
-1. func_800201BC's matched body transposed to quads (the FT4 setup from
-   func_8001FE5C: `stsxy3_ft4`, a second `rtps` with its own flag test,
+1. SortTmdLitEnvMapGT3's matched body transposed to quads (the FT4 setup from
+   SortTmdEnvMapGT4: `stsxy3_ft4`, a second `rtps` with its own flag test,
    `stsxy2(&pkt->x3)`, `avsz4`), a fourth normal, the extra uv3/x3 copies in
    the same UV-then-coordinate order, and the GT4's fourth colour from
    `ldv0(n3)`/`nccs` stored after the link. 279/279 on the first build.

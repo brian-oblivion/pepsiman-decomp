@@ -112,7 +112,7 @@ Both are needed; either alone leaves the round-6 residue.
   (`validate_change` under `init_recog_no_volatile`), yet the giv still
   counts it. Spell it through a volatile-qualified struct pointer cast,
   `((volatile T *)p)->f = x;`; `*(volatile u8 *)&p->f` folds and loses the
-  qualifier. (SortTmdFastG3, SortTmdFastG4, SortTmdFastFT3, func_8002097C)
+  qualifier. (SortTmdFastG3, SortTmdFastG4, SortTmdFastFT3, SortTmdWireGT4)
 - **A loop pointer copied out of its argument register at entry (`move
   $t0, $a2`) while a reduced giv takes `$a2`: the source looped on a local
   copy of the parameter**, `pkt = (POLY_G3 *)packet;`. (same functions)

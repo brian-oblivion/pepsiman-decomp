@@ -1,13 +1,15 @@
-# func_8002230C — MATCHED (146/146), round 10, runner alpha
+# SortTmdLitGT4 — MATCHED (146/146), round 10, runner alpha
+
+> Renamed from `func_8002230C` on 2026-10-10 (tools/rename.py). Address 0x8002230c.
 
 Unit `src/code_11dc4.c`. The lit gouraud-textured quad handler of drawing
-mode 4 (SetTmdSortMode installs it at row 7, column 0): func_80021D3C with
+mode 4 (SetTmdSortMode installs it at row 7, column 0): SortTmdLitSemiGT4 with
 the usual culling (GTE flag mask 0x7F85E000, winding `v <= 0`) and code
-0x3C instead of 0x3E; the quad twin of func_80022150. The `TmdGT4` typedef
-is the one in func_80021D3C's report.
+0x3C instead of 0x3E; the quad twin of SortTmdLitGT3. The `TmdGT4` typedef
+is the one in SortTmdLitSemiGT4's report.
 
 ```c
-PACKET *func_8002230C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdLitGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     POLY_GT4 *pkt;
     CVECTOR c;

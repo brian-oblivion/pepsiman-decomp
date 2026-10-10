@@ -1,4 +1,6 @@
-# func_8002097C — MATCHED (166/166), round 7, runner charlie
+# SortTmdWireGT4 — MATCHED (166/166), round 7, runner charlie
+
+> Renamed from `func_8002097C` on 2026-10-10 (tools/rename.py). Address 0x8002097c.
 
 Unit `src/code_a0bc.c`. The wireframe handler (row 7, column 0 of the handler
 table, installed by InitTmdSortFuncs's mode switch): each lit gouraud-textured
@@ -28,7 +30,7 @@ typedef struct {
     u16 v3;  /**< fourth vertex index */
 } TmdGT4;
 
-PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdWireGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     LINE_G3 *pkt;
     CVECTOR c;
@@ -126,7 +128,7 @@ Ten builds.
 - **A reduced loop pointer whose own defining store still uses the biv
   (`sw 0x3C($a3)` while its neighbours read `-0x34($t0)`): that store, and
   every other biv-based store beside it, is volatile.** Loop combines and
-  counts volatile address givs but cannot rewrite them. (func_8002097C)
+  counts volatile address givs but cannot rewrite them. (SortTmdWireGT4)
 - **Volatile stores freeze memory order, so retail's interleaving of loads
   between them is source order**: a load sitting between two volatile
-  groups was a separate statement there (`z = v >> shift;`). (func_8002097C)
+  groups was a separate statement there (`z = v >> shift;`). (SortTmdWireGT4)

@@ -1,4 +1,6 @@
-# func_8001FBBC — MATCHED (168/168), round 7, runner charlie
+# SortTmdEnvMapGT3 — MATCHED (168/168), round 7, runner charlie
+
+> Renamed from `func_8001FBBC` on 2026-10-10 (tools/rename.py). Address 0x8001fbbc.
 
 Unit `src/code_a0bc.c`. The environment-map handler (row 3, column 0 of the
 handler table in one of InitTmdSortFuncs's modes): each lit gouraud-textured
@@ -24,7 +26,7 @@ typedef struct {
     u16 v2;  /**< third vertex index */
 } TmdGT3;
 
-PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {
     VECTOR mac;
     s32 v;
@@ -106,5 +108,5 @@ Twelve builds.
 
 - **A packet filled field by field with every access on the incoming
   pointer, reads interleaved with writes in source order, and no reduced
-  loop pointer: the packet pointer is `volatile`.** (func_8001FBBC; also
+  loop pointer: the packet pointer is `volatile`.** (SortTmdEnvMapGT3; also
   DrawSpriteFlip outside a loop)

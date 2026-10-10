@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041158);
+extern u16 D_8007B0EC[];
+
+u16 func_80041158(u16 i) {
+    return D_8007B0EC[i];
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041178);
 

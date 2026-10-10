@@ -6,6 +6,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "code_1a098.h"
+#include "code_7d74.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -149,6 +150,8 @@ extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
 extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
 extern PathPt *D_800958A0;  /**< the current path */
 
+/* The unpacked header of the last TIM loaded; common.h declares a word. */
+#define sTim ((TimInfo *)D_800956D4)
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
 /* The Rec48 table; common.h declares it as words. */
@@ -326,7 +329,30 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B220);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B5FC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B7C8);
+/** @brief Loads every image of the directory `dir` and registers each as a
+ *         texture, numbered from `id` on. */
+void func_8002B7C8(DirEnt16 *dir, u16 id) {
+    DirEnt16 *e;
+    u16 i;
+    u16 n;
+    s32 tp;
+    TimInfo *t;
+
+    e = dir;
+    n = dir->count;
+    for (i = 0; i < n; i++) {
+        func_80017774((u8 *)dir + e->offset);
+        DrawSync(0);
+        tp = GetTPage(0, 0, sTim->pixRect.x, sTim->pixRect.y);
+        t = sTim;
+        /* MATCHING: x mod 64 spelled out; % narrows to a halfword. */
+        func_8001B2F4(id, 0, (u8)t->unk1C, (u8)t->pixRect.h, (u8)tp,
+                      (u8)((t->pixRect.x - t->pixRect.x / 64 * 64) * t->unk1E),
+                      (u8)(t->pixRect.y % 256), t->clutRect.x, (u16)t->clutRect.y);
+        id++;
+        e++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B8F8);
 

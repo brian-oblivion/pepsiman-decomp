@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001819C` on 2026-10-10 (tools/rename.py). Address 0x8001819c.
 
-**Round 13 (head):** the operator allowed the operand form. `include/spad.h` now carries the macro measured below (an `"r"(0x1F8003FC)` input, `"$8"` and `"memory"` clobbers, and a `"memory"` clobber on ResetSpadStack); the body went live unchanged out of `#ifdef NON_MATCHING`, 133/133, whole build `OK`, DrawStepper and func_8003A008 still match. The rest is the record from when it stalled.
+**Round 13 (head):** the operator allowed the operand form. `include/spad.h` now carries the macro measured below (an `"r"(0x1F8003FC)` input, `"$8"` and `"memory"` clobbers, and a `"memory"` clobber on ResetSpadStack); the body went live unchanged out of `#ifdef NON_MATCHING`, 133/133, whole build `OK`, DrawStepper and DrawStage still match. The rest is the record from when it stalled.
 
 Unit `src/code_7d74.c`, parked under `#ifdef NON_MATCHING` with the
 `INCLUDE_ASM` in its `#else`. Round 7 skipped it (below); round 12 wrote
@@ -29,7 +29,7 @@ changed to
 
 and the body below unchanged, the whole build is `OK: build matches
 retail` (tree: the bravo worktree): DrawTodObjects 133/133, and the two
-existing users, DrawStepper (main) and func_8003A008 (code_29f54), still
+existing users, DrawStepper (main) and DrawStage (code_29f54), still
 match. cc1 itself puts the operand in `t1` (retail's `lui $t1 / ori $t1 /
 move $t0, $t1`), and the `$8` clobber plus that `t1` pseudo are what make
 reload order the copy scratches `t1..t4` / `t2,t3,t4,t1`. Variants
@@ -214,6 +214,6 @@ That is the shape of Psy-Q's SetSpadStack/ResetSpadStack sample
 macros, which are inline asm with register operands. Hard rule 7 bans
 extended-asm operand constraints outside `include/gte.h`, so there is no
 allowed C spelling. The same sequence appears in `main` (UpdateLoadScreenModel,
-DrawStepper) and `code_29f54` (func_8003A008), so one sanctioned macro
+DrawStepper) and `code_29f54` (DrawStage), so one sanctioned macro
 in a header (as `include/gte.h` does for COP2) would unlock all four.
 Posted to the broadcast for an operator decision.

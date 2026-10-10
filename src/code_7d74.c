@@ -40,11 +40,11 @@ extern s8 gViewerReplay;  /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */
 /* MATCHING: a per-unit view; code_1a098 defines it on its own floor
- * types, and this unit passes D_800958B4's word as the data. */
+ * types, and this unit passes gFloorData's word as the data. */
 s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit passes the coordinates unextended, so it saw s32
  * parameters (code_29f54 defines them as s16). */
-void func_8003A3F4(s32 *index, s32 x, s32 y);
+void UpdateSection(s32 *index, s32 x, s32 y);
 extern CdlLOC gCdTrackLoc;
 
 /** @brief The three flat lights. */
@@ -511,8 +511,8 @@ s32 FindFloor(Vec3i *pos) {
     p.y = pos->y;
     p.z = pos->z;
     found = -1;
-    for (i = 0; i < D_80095794; i++) {
-        blob = (u8 *)D_800958B4;
+    for (i = 0; i < gStageObjCount; i++) {
+        blob = (u8 *)gFloorData;
         /* MATCHING: integer sums, offset first, and the vertex base in
          * its own statement give retail's operand and load order. */
         e = (u8 *)(*(s32 *)(blob + i * 8 + 8) + (s32)blob);
@@ -524,7 +524,7 @@ s32 FindFloor(Vec3i *pos) {
         if ((d < 0 ? -d : d) > 100000000) {
             continue;
         }
-        if (func_800299D8(out, i, &p, D_800958B4) != 0x7FFF) {
+        if (func_800299D8(out, i, &p, gFloorData) != 0x7FFF) {
             found = i;
             break;
         }
@@ -549,12 +549,12 @@ void DrawSky(u32 arg) {
     s32 dz;
     s32 y;
 
-    dx = D_80096768[3] - D_80096768[0];
-    dz = D_80096768[5] - D_80096768[2];
+    dx = gView[3] - gView[0];
+    dz = gView[5] - gView[2];
     /* MATCHING: two steps keep the shift and the mask in one register. */
     set = arg >> 10;
     set &= 3;
-    y = D_80096768[4] - D_80096768[1];
+    y = gView[4] - gView[1];
     p = (volatile POLY_G4 *)GsOUT_PACKET_P;
     y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
     if (gFogFade != 100 && gStage % 3 != 2) {
@@ -689,8 +689,8 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     p.x = ((Vec3i *)pos)->x;
     p.y = ((Vec3i *)pos)->y;
     p.z = ((Vec3i *)pos)->z;
-    func_8003A3F4(&cur, p.x, p.z);
-    if (func_800299D8(arg, cur, &p, D_800958B4) == 0x7FFF) {
+    UpdateSection(&cur, p.x, p.z);
+    if (func_800299D8(arg, cur, &p, gFloorData) == 0x7FFF) {
         return -1;
     }
     return cur;
@@ -1097,4 +1097,4 @@ s32 *FindTmdById(s32 *table, s32 *keys, s32 key) {
     return table;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_7d74", D_80010454);
+INCLUDE_RODATA("asm/nonmatchings/code_7d74", gTargetTimes);

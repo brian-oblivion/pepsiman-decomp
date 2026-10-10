@@ -24,9 +24,9 @@ typedef struct {
 } Pair8;
 
 /* MATCHING: per-unit views; code_29f54 reads the same pairs as words. */
-extern Pair8 D_80096A58[];
-extern Pair8 D_800D8340[];
-extern Pair8 D_80010454[];
+extern Pair8 gBestCans[];
+extern Pair8 gBestTimes[];
+extern Pair8 gTargetTimes[];
 extern u8 gRumbleEnabled;
 extern s8 D_800957A0;
 extern u8 D_800958A5;
@@ -75,22 +75,22 @@ int main(void) {
     SetFarColor(0x40, 0x60, 0xFF);
     gRumbleEnabled = 1;
     gStereo = 1;
-    D_800958C8 = 1;
+    gUnlocks = 1;
     D_800957A0 = -1;
     ClipF = 0;
     D_80095758 = 0;
-    D_80095908 = 0;
+    gButtonConfig = 0;
     D_800957D5 = 0;
     D_800958A5 = 0;
     D_800958AC = -1;
     D_80095984 = 0;
     D_80095998 = 0;
     for (D_800958CC = 0; D_800958CC < 4; D_800958CC++) {
-        D_80096A58[D_800958CC].a = 0;
-        D_80096A58[D_800958CC].b = 0;
-        dst = &D_800D8340[D_800958CC];
-        a = D_80010454[D_800958CC].a;
-        b = D_80010454[D_800958CC].b;
+        gBestCans[D_800958CC].a = 0;
+        gBestCans[D_800958CC].b = 0;
+        dst = &gBestTimes[D_800958CC];
+        a = gTargetTimes[D_800958CC].a;
+        b = gTargetTimes[D_800958CC].b;
         dst->a = a;
         dst->b = b;
     }
@@ -101,7 +101,7 @@ int main(void) {
     gRumbleLarge = 0;
     gRumbleSmall = 0;
     gRumbleEnabled = 0;
-    D_80095968 = 0;
+    gCpuMarkCount = 0;
     D_800958F8 = 0;
     gCdTrackPlaying = 0;
     for (;;) {
@@ -394,9 +394,9 @@ int main(void) {
                         PlayMovie("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
                         if (D_800958AC == 0) {
                             D_800958A5 = 1;
-                            D_800958C8 |= 2;
+                            gUnlocks |= 2;
                         } else if (D_800958AC == 1) {
-                            D_800958C8 |= 8;
+                            gUnlocks |= 8;
                         }
                         D_800957A0 = -1;
                         gGameMode = 6;
@@ -455,8 +455,8 @@ s8 LoadBootData(void) {
             ret = 1;
             func_80013CDC();
             LoadTimPack((void *)0x8018D000);
-            func_8003E13C((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
-            func_8003A84C();
+            LoadTimList((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
+            DefineHudSprites();
             func_80018DE8(1);
             break;
     }
@@ -630,7 +630,7 @@ void EndFrame(void) {
     func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
     SetDrawStp(&D_800CEBD0, 1);
     AddPrim(&gOt[gActiveBuff].org[0xFFF], &D_800CEBD0);
-    func_80039754(ClipF);
+    SetLetterbox(ClipF);
     GsDrawOt(&gOt[gActiveBuff]);
     gActiveBuff = GsGetActiveBuff();
     GsSetWorkBase(gGpuWork[gActiveBuff]);
@@ -641,7 +641,7 @@ void EndFrame(void) {
     SetDrawStp(&D_800CEBC0, 0);
     AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
     ReadPad(0);
-    func_8003DE34();
+    RemapButtons();
     if (gPauseState == 0) {
         gFrameCount++;
     }
@@ -1331,7 +1331,7 @@ extern s32 D_80074084[];
 /* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
 s32 LoadVabBank(s32 bank);
-void func_80039C3C(unsigned long *p);
+void LoadAct3Data(unsigned long *p);
 void ResetStage(void);
 void func_800F6C60(void);
 void func_800F6A44(void);
@@ -1409,7 +1409,7 @@ void LoadAct3Stage(void) {
             break;
         case 5:
             if (gCdLoadState == 6) {
-                func_8003E13C((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)0x8019D000);
                 gSubStep++;
             }
             break;
@@ -1443,7 +1443,7 @@ void LoadAct3Stage(void) {
             break;
         case 7:
             if (gCdLoadState == 6) {
-                func_80039C3C((unsigned long *)0x8019D000);
+                LoadAct3Data((unsigned long *)0x8019D000);
                 switch (gStage) {
                     case 2:
                         func_800F6C60();
@@ -1492,7 +1492,7 @@ extern CdlLOC D_80074018[];
 extern s32 D_80074038[];
 
 /* MATCHING: code_29f54 defines it and has no header to declare it. */
-void func_800399A8(unsigned long *p);
+void LoadStageData(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void LoadSpritePack(DirEnt16 *dir, u16 id);
 /* MATCHING: code_1dc24 types both as its own BankFile. */
@@ -1572,7 +1572,7 @@ void LoadStage(void) {
             break;
         case 5:
             if (gCdLoadState == 6) {
-                func_8003E13C((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)0x8019D000);
                 gSubStep++;
             }
             break;
@@ -1701,7 +1701,7 @@ void LoadStage(void) {
             break;
         case 9:
             if (gCdLoadState == 6) {
-                func_800399A8((unsigned long *)0x8019D000);
+                LoadStageData((unsigned long *)0x8019D000);
                 gSubStep++;
             }
             break;
@@ -1943,7 +1943,7 @@ void UpdateLoadScreenModel(void) {
         SetFogNearFar(0, 0, 250);
         SetFarColor(0, 0, 0);
         gModeStep = 4;
-        D_80095980 = 0;
+        gElapsed = 0;
         gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);
@@ -1965,7 +1965,7 @@ void UpdateLoadScreen(void) {
     LoadStage();
     if (gSubStep == 100) {
         gModeStep = 4;
-        D_80095980 = 0;
+        gElapsed = 0;
         gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);

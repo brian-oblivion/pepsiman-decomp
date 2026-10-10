@@ -11,7 +11,7 @@ inlined, runs LoadStage, and at state 100 clears the fog, sets state
 The step and draw bodies now live once, as `static __inline__ stepObj` and
 `drawObj` ahead of this function; StepStepper and DrawStepper are
 one-line wrappers that still match (22/22, 94/94). The `ModelSet` view,
-`sModels`, `D_80095758`, `D_80095980` and LoadStage's prototype moved
+`sModels`, `D_80095758`, `gElapsed` and LoadStage's prototype moved
 up to here (no byte change).
 
 ```c
@@ -28,7 +28,7 @@ extern s32 D_80095758;
 
 void LoadStage(void);
 
-extern s32 D_80095980;
+extern s32 gElapsed;
 
 /** @brief One step of @p obj: runs the stepper and marks a finished 0x61
  *         channel. Inlined here and by the out-of-line step below. */
@@ -99,7 +99,7 @@ void UpdateLoadScreenModel(void) {
         SetFogNearFar(0, 0, 250);
         SetFarColor(0, 0, 0);
         gModeStep = 4;
-        D_80095980 = 0;
+        gElapsed = 0;
         gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);

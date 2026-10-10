@@ -222,11 +222,11 @@ extern Quad16 gSpriteDefs[]; /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];   /**< 200 Rec5C records */
 extern u8 D_800A7550[];      /**< 200 byte marks, one per block entry */
 /* MATCHING: a per-unit view; code_29f54 reads the same path as Edge. */
-extern PathPt *D_800958A0; /**< the current path */
-extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
-extern s32 D_80095824;     /**< zeroed by the full reset */
-extern u8 D_800958D8;      /**< zeroed by the full reset */
-extern u8 D_800959D8;      /**< zeroed by the full reset */
+extern PathPt *gSectionEdges; /**< the current path */
+extern Rec3C D_800A7898[];    /**< 100 Rec3C records */
+extern s32 D_80095824;        /**< zeroed by the full reset */
+extern u8 D_800958D8;         /**< zeroed by the full reset */
+extern u8 D_800959D8;         /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)gTimInfo)
@@ -492,7 +492,7 @@ s32 func_80029E74(s32 zone, VECTOR *pos, FloorHdr *hdr) {
 
 /* MATCHING: code_29f54 defines x and y as s16; this unit passes them
  * unextended. */
-void func_8003A3F4(s32 *index, s32 x, s32 y);
+void UpdateSection(s32 *index, s32 x, s32 y);
 
 s32 func_8002A558(void);
 
@@ -507,8 +507,8 @@ void func_8002A328(void) {
     pos.vy = sGameHead.unk34C;
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
-    func_8003A3F4(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (FloorHdr *)D_800958B4)) {
+    UpdateSection(&idx, pos.vx, pos.vz);
+    if (func_80029E74(idx, &pos, (FloorHdr *)gFloorData)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
     }
@@ -516,8 +516,8 @@ void func_8002A328(void) {
     pos.vy = sGameHead.unk34C;
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
-    func_8003A3F4(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (FloorHdr *)D_800958B4)) {
+    UpdateSection(&idx, pos.vx, pos.vz);
+    if (func_80029E74(idx, &pos, (FloorHdr *)gFloorData)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
     }
@@ -757,12 +757,12 @@ s32 func_8002AEB8(PathUser *u) {
     /* MATCHING: two point locals and a sum local; one reused point pointer
      * moves the parameter out of $a0. Integer sums put the index first. */
     i = u->seg;
-    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    next = (PathPt *)(i * 8 + (u32)gSectionEdges) + 1;
     d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
     if (d >= 0) {
         i++;
     }
-    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    pt = (PathPt *)(i * 8 + (u32)gSectionEdges);
     d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
     if (d >= 0) {
         i--;
@@ -785,17 +785,17 @@ s16 func_8002AF6C(PathUser *u) {
     PathPt *seg;
 
     i = u->seg;
-    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    next = (PathPt *)(i * 8 + (u32)gSectionEdges) + 1;
     d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
     if (d >= 0) {
         i++;
     }
-    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    pt = (PathPt *)(i * 8 + (u32)gSectionEdges);
     d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
     if (d >= 0) {
         i--;
     }
-    seg = (PathPt *)(i * 8 + (u32)D_800958A0);
+    seg = (PathPt *)(i * 8 + (u32)gSectionEdges);
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 
@@ -1485,7 +1485,7 @@ typedef struct {
 } Group8;
 
 /* MATCHING: a per-unit view; code_29f54 types the same list as Run. */
-extern Zone4 *D_80095934; /**< the zones */
+extern Zone4 *gStageRuns; /**< the zones */
 
 s8 func_8002D0F0(Vec3 *pos);
 
@@ -1506,11 +1506,11 @@ void func_8002CCEC(void) {
     s16 m;
 
     GsInitCoordinate2(WORLD, &coord);
-    for (j = 0; j < D_80095934[D_8009578C].count; j++) {
-        if (D_8009593C[D_80095934[D_8009578C].start + j] < D_800959C8) {
+    for (j = 0; j < gStageRuns[gSection].count; j++) {
+        if (gStageRunObjs[gStageRuns[gSection].start + j] < D_800959C8) {
             for (i = 0;
-                 i < ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].count; i++) {
-                k = ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].first + i;
+                 i < ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].count; i++) {
+                k = ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].first + i;
                 if ((s8)D_800A7550[k] != 2) {
                     continue;
                 }
@@ -1569,7 +1569,7 @@ void func_8002D0C4(BlockHeader *hdr) {
     /* MATCHING: offset read through a byte pointer, not hdr->offset: the
      * member access lets the load rise above the D_800959C8 store. */
     D_800959C4 = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
-    D_800958E8 = 0;
+    gCans = 0;
 }
 
 /** @brief Runs the position query for `pos` with a range of 50. */

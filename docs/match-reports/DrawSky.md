@@ -6,7 +6,7 @@ Unit `src/code_7d74.c`. Draws the sky: two Gouraud quads (`POLY_G4`) from
 the primitive buffer `GsOUT_PACKET_P`, both at the back of the ordering table
 (`gOt[gActiveBuff]`, entry 0xFFF). The horizon height is `8 - y`,
 where `y = rsin(ratan2(dy, horizontal distance)) * 240 >> 12` from the two
-points in `D_80096768` (the camera's pitch). The upper quad runs from the
+points in `gView` (the camera's pitch). The upper quad runs from the
 top of the screen (-160) to the horizon, the lower from the horizon to 119.
 Colours come from the table `gSkyColors`, entry `(arg >> 10) & 3` (four
 `CVECTOR`s: top and bottom of each quad). While the fog fades in
@@ -30,12 +30,12 @@ void DrawSky(u32 arg) {
     s32 dz;
     s32 y;
 
-    dx = D_80096768[3] - D_80096768[0];
-    dz = D_80096768[5] - D_80096768[2];
+    dx = gView[3] - gView[0];
+    dz = gView[5] - gView[2];
     /* MATCHING: two steps keep the shift and the mask in one register. */
     set = arg >> 10;
     set &= 3;
-    y = D_80096768[4] - D_80096768[1];
+    y = gView[4] - gView[1];
     p = (volatile POLY_G4 *)GsOUT_PACKET_P;
     y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
     if (gFogFade != 100 && gStage % 3 != 2) {
@@ -115,7 +115,7 @@ void DrawSky(u32 arg) {
   declaration is unchanged.
 - `gSkyColors` is a pointer (`lw`) to 16-byte records; declared in this
   unit only.
-- `D_80096768` is common.h's `s32[]` (cc1's split `lui`/`addiu` base).
+- `gView` is common.h's `s32[]` (cc1's split `lui`/`addiu` base).
 
 ### Proposed learning
 

@@ -1,8 +1,8 @@
 # func_8002CCEC — MATCHED 246/246 (round 11, echo; round 9 stall by charlie)
 
 Unit `src/code_1a098.c`. Draws the markers of the current zone: for
-each group of the zone (`D_80095934[D_8009578C]`, group list
-`D_8009593C`) below `D_800959C8`, each block entry of the group marked
+each group of the zone (`gStageRuns[gSection]`, group list
+`gStageRunObjs`) below `D_800959C8`, each block entry of the group marked
 2 in `D_800A7550` whose flag index (`unk6`) is set in `D_800A74D0`,
 non-zero and not yet done (bit 15): places a 75x75 sprite 0xFA at the
 entry relative to the player, sorts it near or far as func_8002B8F8 does,
@@ -17,7 +17,7 @@ REVISIT. The body below, rebuilt exactly as preserved (with
 deletions 4` (positional skeleton diffs 4): the residue under "Residue" below, unchanged.
 
 Round 9's abs lever closed it on the first build: the abs written as
-`v >= 0 ? v : -v` (LEARNINGS, func_8003B780: "`bgez r; nop; negu r` with
+`v >= 0 ? v : -v` (LEARNINGS, LineCircleIntersect: "`bgez r; nop; negu r` with
 the delay slot unfilled is cc1's abs"). The `absInt` helper became
 
 ```c
@@ -34,7 +34,7 @@ unused `Group8 *g` local of the preserved body was dropped (no code
 change).
 
 Declarations left in the unit for the head (declcheck LOCAL/MULTI):
-`D_80095934` and `D_8009593C` (code_29f54.c declares both too, with its
+`gStageRuns` and `gStageRunObjs` (code_29f54.c declares both too, with its
 own `Run` type for the first), `DrawStandingBillboardFog` (defined in code_a0bc,
 not in `code_a0bc.h`) and `func_800414EC` (defined in code_31cec).
 
@@ -60,8 +60,8 @@ typedef struct {
     u32 count; /**< how many */
 } Group8;
 
-extern Zone4 *D_80095934; /**< the zones */
-extern s8 *D_8009593C;    /**< the group list the zones index */
+extern Zone4 *gStageRuns; /**< the zones */
+extern s8 *gStageRunObjs;    /**< the group list the zones index */
 void func_800414EC(s16 n);
 s8 func_8002D0F0(Vec3 *pos);
 
@@ -86,11 +86,11 @@ void func_8002CCEC(void) {
     s16 m;
 
     GsInitCoordinate2(WORLD, &coord);
-    for (j = 0; j < D_80095934[D_8009578C].count; j++) {
-        if (D_8009593C[D_80095934[D_8009578C].start + j] < D_800959C8) {
+    for (j = 0; j < gStageRuns[gSection].count; j++) {
+        if (gStageRunObjs[gStageRuns[gSection].start + j] < D_800959C8) {
             for (i = 0;
-                 i < ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].count; i++) {
-                k = ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].first + i;
+                 i < ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].count; i++) {
+                k = ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].first + i;
                 if ((s8)D_800A7550[k] != 2) {
                     continue;
                 }

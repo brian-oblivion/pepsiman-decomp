@@ -231,7 +231,7 @@ void func_80028500(void);
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void StartRumble(u16 *table, s32 index);
-extern s32 D_800957B4;
+extern s32 gGamePad;
 extern u16 D_8009587E;
 extern s16 D_800957B0;
 extern s32 D_800956E4;
@@ -250,7 +250,7 @@ extern s32 D_800DF5C0[];
 extern Rec5C D_800CF080[];
 extern u8 D_800959B0;
 extern s16 D_800957DC;
-void func_8003AFAC(void);
+void DrawHud(void);
 /* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
 void RestartStage();
 void func_8003E360(s32 level);
@@ -1137,7 +1137,7 @@ top:
             StartRumble(gRumblePatterns, 10);
         case 0x3A:
             if (state->unk376 < 5) {
-                func_8003C014();
+                DrawFrozenFrame();
                 D_800957D2 = 0x5A0;
             } else {
                 D_800957D2 = 0x460;
@@ -1762,14 +1762,14 @@ top:
                         case 0x57:
                             D_80095858 = -1;
                             if (state->unk374 >= 61) {
-                                if (gStage == 4 && D_8009578C == 0) {
+                                if (gStage == 4 && gSection == 0) {
                                     state->unk6 = 0x22;
                                     D_80095858 = 0;
                                 } else {
                                     D_80095858 = 100;
                                 }
                             }
-                            if ((gStage != 4 || D_8009578C != 0) && state->unk374 == 30) {
+                            if ((gStage != 4 || gSection != 0) && state->unk374 == 30) {
                                 PlaySe(0x34);
                             }
                             break;
@@ -1779,9 +1779,9 @@ top:
             break;
         case 0x23:
             if (state->unk5 == 0x55) {
-                sGame.unk354 = Lerp(0, D_80096768[0], state->unk378, 5);
+                sGame.unk354 = Lerp(0, gView[0], state->unk378, 5);
                 sGame.unk358 = Lerp(0, -50, state->unk378, 5);
-                sGame.unk35C = Lerp(0, D_80096768[2], state->unk378, 5);
+                sGame.unk35C = Lerp(0, gView[2], state->unk378, 5);
                 if (++state->unk378 >= 5) {
                     StartRumble(gRumblePatterns, 5);
                     state->unk6 = 0x28;
@@ -1880,10 +1880,10 @@ top:
                     SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
                     if (++state->unk378 < 10) {
                         /* MATCHING: x - (5 - r) keeps the -5 on the loaded word. */
-                        D_80096768[0] = D_80096768[0] - (5 - rand() % 10);
-                        D_80096768[1] = D_80096768[1] - (5 - rand() % 10);
-                        D_80096768[2] = D_80096768[2] - (5 - rand() % 10);
-                        GsSetRefView2((GsRVIEW2 *)D_80096768);
+                        gView[0] = gView[0] - (5 - rand() % 10);
+                        gView[1] = gView[1] - (5 - rand() % 10);
+                        gView[2] = gView[2] - (5 - rand() % 10);
+                        GsSetRefView2((GsRVIEW2 *)gView);
                     }
                     if (state->unk378 >= 31) {
                         sGame.unk358 += 2;
@@ -2044,9 +2044,9 @@ top:
             switch (state->unk5) {
                 case 0x51:
                     sGame.unk362 = state->unk376 = Lerp(state->unk376, 0x6000, state->unk374, 30);
-                    sGame.unk354 = Lerp(0, D_80096768[0], state->unk378, 15);
+                    sGame.unk354 = Lerp(0, gView[0], state->unk378, 15);
                     sGame.unk358 = Lerp(0, -50, state->unk378, 15);
-                    sGame.unk35C = Lerp(0, D_80096768[2], state->unk378, 15);
+                    sGame.unk35C = Lerp(0, gView[2], state->unk378, 15);
                     state->unk374++;
                     if (++state->unk378 >= 14) {
                         StartRumble(gRumblePatterns, 5);
@@ -2145,7 +2145,7 @@ s32 func_8002670C(void) {
             case 0:
                 sGame.unk38E = 0;
                 sGame.unk38C = 0;
-                if ((u32)(sGame.unk6 - 2) < 3 && sGame.unk34C >= sGame.unk3C0 && (D_800957EC & 0x40)) {
+                if ((u32)(sGame.unk6 - 2) < 3 && sGame.unk34C >= sGame.unk3C0 && (gGamePadTrig & 0x40)) {
                     btn = gPad;
                     if (btn & 0x4000) {
                         sGame.unk38E = 1;
@@ -2181,7 +2181,7 @@ void func_80026848(void) {
     s16 n;
 
     if (sGame.unk0 != 0) {
-        if ((D_800957EC & 0x20) &&
+        if ((gGamePadTrig & 0x20) &&
             (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
             sGame.unk390 == 0) {
             D_800956E0 = 0;
@@ -2212,7 +2212,7 @@ void func_80026848(void) {
                 sGame.unk390 = 2;
                 sGame.unk6 = 9;
                 sGame.unk3A0 = 2;
-            } else if (D_800957B4 & 0x20) {
+            } else if (gGamePad & 0x20) {
                 sGame.unk398 = 0x14;
             } else {
                 sGame.unk390 = 2;
@@ -2297,7 +2297,7 @@ top:
         case -2:
             break;
         case -1:
-            func_8003AFAC();
+            DrawHud();
             break;
         case 0:
             x = D_800958A8;
@@ -2314,15 +2314,15 @@ top:
             if (D_8009EF4D[0] == 1) {
                 D_800958A8 = 0;
             }
-            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || D_8009578C != 0)) {
-                D_80095980++;
+            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || gSection != 0)) {
+                gElapsed++;
                 gTimeLeft--;
             }
             if (gStage % 3 == 2) {
                 break;
             }
             FadeInFog();
-            func_8003AFAC();
+            DrawHud();
             if (D_800958F8 == 1) {
                 break;
             }
@@ -2363,7 +2363,7 @@ top:
             break;
         case 1:
             D_800957DC++;
-            func_8003C014();
+            DrawFrozenFrame();
             if (D_800957DC == 10) {
                 for (i = 0; i < 200; i++) {
                     D_800CF080[i].unk0 = 2;
@@ -2709,7 +2709,7 @@ void func_80027E14(void) {
     s16 n;
 
     if (sGame.unk0 != 0) {
-        if ((D_800957EC & 0x20) &&
+        if ((gGamePadTrig & 0x20) &&
             (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
             sGame.unk390 == 0) {
             sGame.unk38F = 1;
@@ -2735,7 +2735,7 @@ void func_80027E14(void) {
                 sGame.unk390 = 2;
                 sGame.unk6 = 8;
                 sGame.unk3A0 = 2;
-            } else if (D_800957B4 & 0x20) {
+            } else if (gGamePad & 0x20) {
                 sGame.unk398 = 0x14;
             } else {
                 sGame.unk390 = 2;
@@ -2889,7 +2889,7 @@ void func_800283E4(void) {
 void func_80028448(void) {
     s32 one;
 
-    if (D_800958E8 != 0 && D_800958E8 % 10 == 0) {
+    if (gCans != 0 && gCans % 10 == 0) {
         one = 1;
         if (D_800958AC == one) {
             if (D_800958A8 == 2) {
@@ -2913,7 +2913,7 @@ void func_80028500(void) {}
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
 s32 func_80028508(void) {
     if (sGame.unk0 != 0 && (sGame.unk6 < 5 || sGame.unk6 >= 8) &&
-        (sGame.unk38F != 1 || sGame.unk398 < 6) && !(gPad & 0x1000) && (D_800957EC & 0x40)) {
+        (sGame.unk38F != 1 || sGame.unk398 < 6) && !(gPad & 0x1000) && (gGamePadTrig & 0x40)) {
         PlaySe(22);
         sGame.unk6 = 5;
     }
@@ -2937,7 +2937,7 @@ void func_80028650(void) {
 
     i = ((u32)D_80095864 >> 8) & 3;
     SetFogNearFar(3000, 8000, 250);
-    SetFarColor(D_800958FC[i * 4], D_800958FC[i * 4 + 1], D_800958FC[i * 4 + 2]);
+    SetFarColor(gFogColors[i * 4], gFogColors[i * 4 + 1], gFogColors[i * 4 + 2]);
 }
 
 /* MATCHING: the red channel through its own local moves the spill to y2, as retail. */

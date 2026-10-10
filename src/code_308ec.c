@@ -213,8 +213,8 @@ void UpdateStagePlay(u8 stage) {
     RECT r;
 
     if (gStage % 3 != 2) {
-        func_8003CC94();
-        func_8003C2E8();
+        UpdateActResults();
+        DrawScreenWipe();
     }
     switch (gModeStep) {
         case 0:
@@ -230,7 +230,7 @@ void UpdateStagePlay(u8 stage) {
         case 3:
             sSaved.valid = 0;
             gRetries = 50;
-            sSaved.unk10 = D_8009578C;
+            sSaved.unk10 = gSection;
             sSaved.pos.vx = D_800A7680.pos.vx;
             sSaved.pos.vy = D_800A7680.pos.vy;
             sSaved.pos.vz = D_800A7680.pos.vz;
@@ -379,7 +379,7 @@ void RestartStage(u8 stage) {
     } else {
         D_800957F4 = 0;
     }
-    D_8009578C = 0;
+    gSection = 0;
     yaw = -D_80095840->unk6;
     D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
     D_800A7680.rot.vy = yaw;
@@ -453,25 +453,25 @@ void ResetStage(void) {
     D_8009599C = 0;
     sStage.unk3D4 = sStage.unk3D5 = 0;
     sStage.unk3A6 = 0;
-    D_80096768[6] = 0;
+    gView[6] = 0;
     sStage.unk0 = 1;
     D_800958EC = 0;
     D_800957D6 = 1;
-    D_8009578C = 0;
+    gSection = 0;
     gPauseState = 0;
     D_800957A4 = 0;
     ClipF = 0;
     gFogFade = 0;
     func_800287C0();
     if (sSaved.valid != 0) {
-        D_8009578C = sSaved.unk10;
+        gSection = sSaved.unk10;
         sStage.unk348.vx = sSaved.pos.vx;
         sStage.unk348.vy = sSaved.pos.vy;
         sStage.unk348.vz = sSaved.pos.vz;
         D_800957F4 = sSaved.unk14;
-        D_80095868 = sSaved.unk18;
-        D_800958E8 = sSaved.unk1A;
-        D_80096768[1] = sSaved.unk20;
+        gCameraYaw = sSaved.unk18;
+        gCans = sSaved.unk1A;
+        gView[1] = sSaved.unk20;
     } else if (gStage == 4) {
         sStage.unk5 = 0x57;
         sStage.unk6 = 0x23;
@@ -605,9 +605,9 @@ void FadeInFog(void) {
         }
         i = ((u32)D_80095864 >> 8) & 3;
         SetFogNearFar(gFogFade * 3000 * 2048 / 0x10000, gFogFade * 8000 * 2048 / 0x10000, 250);
-        SetFarColor(D_800958FC[i * 4] * (gFogFade << 11) / 0x10000,
-                    D_800958FC[i * 4 + 1] * (gFogFade << 11) / 0x10000,
-                    D_800958FC[i * 4 + 2] * (gFogFade << 11) / 0x10000);
+        SetFarColor(gFogColors[i * 4] * (gFogFade << 11) / 0x10000,
+                    gFogColors[i * 4 + 1] * (gFogFade << 11) / 0x10000,
+                    gFogColors[i * 4 + 2] * (gFogFade << 11) / 0x10000);
         gFogFade++;
         if (gFogFade == 32) {
             gFogFade = 100;

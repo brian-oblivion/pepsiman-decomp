@@ -32,6 +32,6 @@ void BeginAct3LoadScreen(void) {
 }
 ```
 
-Matched on the first build: the body of code_29f54's `func_8003C014` with
+Matched on the first build: the body of code_29f54's `DrawFrozenFrame` with
 a NULL colour. The frame puts `pos` at 0x28 and `rect` at 0x30, so `pos`
 is declared first (locals laid out in declaration order).

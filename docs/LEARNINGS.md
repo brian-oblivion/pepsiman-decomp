@@ -25,8 +25,8 @@ function's match report, not here.
   func_800281B8).
 - **An ADDRESS built in one register, `lui $X` / `addiu $X, $X, %lo(sym)`:
   cc1's `la` of an object of known size at most 8**, e.g. `extern s8
-  D_80095AA0[8];` or `extern CdlLOC gCdTrackLoc;`. Declared `[]`, cc1 splits
-  it over two registers. (func_8003E444, SendCdTrackCommand) This holds even for
+  gResultsSlide[8];` or `extern CdlLOC gCdTrackLoc;`. Declared `[]`, cc1 splits
+  it over two registers. (StartActResults, SendCdTrackCommand) This holds even for
   a loop base the loop writes past: `extern s32 D[2];` (InitPads).
 - **A global every access reloads right after storing it: `volatile`**, in
   the unit, with a `MATCHING:` note. (gMovieTimeout, code_31cec)
@@ -53,7 +53,7 @@ function's match report, not here.
 - **`lbu` of a stack parameter with no `andi 0xFF`: an `s32` parameter read
   as `(u8)p`.** A `u8` parameter adds the `andi`. (DefineSprite)
 - **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain
-  assignment gives `li 0xFF`. (func_8003FFAC)
+  assignment gives `li 0xFF`. (StepEffect9)
 - **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
   (func_80033E98)
 - **A constant rebuilt (`li $a0, 1`) where the build copies it from a saved
@@ -98,7 +98,7 @@ function's match report, not here.
   `lb` needs the global declared `s8`.** (code main, round 8)
 - **An `s8` -1 byte store retail keeps above a later load: a local struct
   whose first member really is `s8`**, passed as `(CVECTOR *)&c`; the
-  `*(s8 *)&c.r` cast lets the store sink. (func_8003EF40)
+  `*(s8 *)&c.r` cast lets the store sink. (StepEffect10)
 
 - **A global reached `lui` in one function of a unit and `$gp` in the rest:
   read it by literal address there**, `*(u8 *)0x80095AEE`, with a
@@ -118,10 +118,10 @@ function's match report, not here.
   (PlacePlayerPoints)
 - **An indexed store with the index computed before the table's
   `lui`/`addiu`: an array of at most 8 bytes (`s32 X[2]`)**, not a scalar
-  indexed through `&`. (func_8003D960)
+  indexed through `&`. (UpdateWorldResults)
 - **A table base built 10 records before a symbol (`addiu -0x320`): the
   array starts earlier and needs a symbol plus a linker definition.**
-  (func_8003F100, func_80039C3C, both still open)
+  (StepEffect11, LoadAct3Data, both still open)
 
 - **A table's `lui` before the index's `lui`: the base went into a pointer
   local just before use** (`recs = (T *)D; recs[i].f`), or the symbol is a
@@ -135,7 +135,7 @@ function's match report, not here.
   address no instruction names.** No C spelling keeps the base (cc1 folds
   `(sym - n)[i + n]`). Define the true start in
   `config/undefined_syms.slps01762.pepsiman.txt` and index from it.
-  (func_80039C3C, func_8003F100)
+  (LoadAct3Data, StepEffect11)
 - **A call whose argument moves lose to a boosted load: the callee is
   unprototyped and one call site passes fewer arguments.** (func_80024450)
 
@@ -148,7 +148,7 @@ function's match report, not here.
 - **A byte loaded twice, `lb` then `lbu`: read once through an `(s8)` cast
   for the test, once plainly for the value.** (SpawnEffect)
 - **An 8-byte local filled with `lwl`/`lwr` from a global: a struct copy**,
-  `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (func_8003E444)
+  `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (StartActResults)
 - **Four `lw` then four `sw`, both pointers bumped by 16 to an end pointer:
   a block move**, `*(Big *)dst = *(Big *)src` with a one-member `u8 b[N]`
   struct; also for an odd, byte-aligned size. (func_80033930, BuildSave1Header)
@@ -187,7 +187,7 @@ function's match report, not here.
 - **A table base built by `addiu` from another symbol's address: the array
   starts before the symbol splat named.** This needs a symbol (and a linker
   definition if no instruction references it), not a C spelling.
-  (func_8003F100, still open)
+  (StepEffect11, still open)
 
 - **A `u8` field average compiled to `srl`: `(u32)(a + b) >> 1`.** `s32`
   locals give `sra`. (SortTmdDivF3)
@@ -277,7 +277,7 @@ function's match report, not here.
   (func_800229A8)
 - **`addu d, shift, base` (index first): an integer sum**, `(T *)(i * 8 +
   (s32)D)`. Pointer arithmetic always puts the pointer first.
-  (func_8003A3F4, func_80026C70)
+  (UpdateSection, func_80026C70)
 - **A count-down `bgez` loop: write it counting down.** 2.8.1 did not
   reverse a short `s32` count-up here. (code_29f54, round 5)
 - **A loop compared on a pointer with signed `slt`: an `s32` counter cc1
@@ -364,7 +364,7 @@ function's match report, not here.
   (func_800414EC)
 - **Two identical blocks retail keeps apart: one call per branch**, not one
   after the chain; cross-jumping folds the calls and leaves the blocks.
-  (func_800330D4, func_8003C2E8) Every switch arm jumping to one shared store
+  (func_800330D4, DrawScreenWipe) Every switch arm jumping to one shared store
   before the exit: write the arm that falls into the exit last.
   (UpdateCdLoad)
 - **Products recomputed per arm that CSE would merge: assign the copies in
@@ -385,7 +385,7 @@ function's match report, not here.
   case 1: ...; case -1: break; }`.** (func_800345C8)
 - **`bgez r; nop; negu r` with the delay slot unfilled is cc1's abs: only `v
   >= 0 ? v : -v` gives it.** `v < 0 ? -v : v` and `if (v < 0) v = -v;` give
-  a branch with a filled slot. (func_8003B780)
+  a branch with a filled slot. (LineCircleIntersect)
 - **A body repeating another function of the unit: a `static __inline__`
   helper with both functions as callers.** (func_8002BD00, func_8002C894)
 
@@ -463,8 +463,8 @@ function's match report, not here.
   own local**, `base = i*3 + 0x40; v = base - level;`. (func_8003E360)
 - **Retail rebuilding local addresses before every call, with those locals
   after the caller's own in the frame: an inlined helper**, `static
-  __inline__ setLs(x, y, z)` holding the shared body. (func_8003F960,
-  func_8003FA88, func_8003FBE0, func_8003FD0C, func_8003FE5C, func_8003FFAC)
+  __inline__ setLs(x, y, z)` holding the shared body. (StepEffect0,
+  StepEffect2, StepEffect3, StepEffect4, StepEffect6, StepEffect9)
 - **A jump table whose bound check's delay slot holds the index `sll`, not
   the table's `lui`: non-void with no return.** (SetTmdSortMode)
 - **`A[g] = (p = expr) + 1;` loads `g` before `expr`.** (func_8002C044)
@@ -504,13 +504,13 @@ function's match report, not here.
   register allocation schedules, so register reuse decides load and store
   order. (code_1dc24, round 8)
 - **A value computed into `$a1` and moved to `$a0` in a call's delay slot:
-  one local reused**, `h = b*b; h -= c; f(h); h = a >> 1;`. (func_8003B780)
+  one local reused**, `h = b*b; h -= c; f(h); h = a >> 1;`. (LineCircleIntersect)
 - **A quotient in the wrong saved register: `d = n; d /= 10;`** rather than
-  `d = n / 10` (permuter find). (func_8003B780, func_8003A4B4)
+  `d = n / 10` (permuter find). (LineCircleIntersect, DrawHudTime)
 - **`sllv x, x, $sN` where a constant shift is expected: cse took the count
-  from a variable already holding it.** (func_8003A4B4)
+  from a variable already holding it.** (DrawHudTime)
 - **`sh X; lhu X; sh Y` after an if/else: `Y = X;` as its own statement
-  after the join.** (func_8003BDF4)
+  after the join.** (DrawCpuMeter)
 - **A load at the top of a case whose store comes last: write that
   assignment as the case's first statement**; the scheduler sinks the store.
   (func_800345C8)
@@ -519,7 +519,7 @@ function's match report, not here.
   `((T *)(i * 8 + (s32)base))->x`.** (func_800299D8)
 - **A load-delay `nop` missing right after inline asm: name the register in
   the asm the way cc1 does (`$sp`, not `$29`).** maspsx compares register
-  names as text. (func_8003A008)
+  names as text. (DrawStage)
 - **A struct load retail keeps below stores to unrelated globals, every
   statement order identical: make the first read volatile**, `*(volatile
   s32 *)&sGame.f`. A field re-loaded at every use after one test was read
@@ -563,9 +563,9 @@ function's match report, not here.
 - **A magic-number constant held in a saved register from the prologue:
   a dead division of a different operand by the same divisor in the first
   block**, e.g. `x = (u32)n / 100;`. cse hands the constant's register on;
-  flow deletes the `multu`. (func_8003C494)
+  flow deletes the `multu`. (DrawResultNumber)
 - **One load, a move and two `addu` of a header word: read the count before
-  storing the table pointer built from the same sum.** (func_800399A8)
+  storing the table pointer built from the same sum.** (LoadStageData)
 - **A constant cse shares across blocks at the cost of a saved register:
   `src = K; f(x + src); src = 0;`** in one block. The dead store breaks the
   equivalence and the later literal rebuilds its own `lui/ori`. (LoadVab)

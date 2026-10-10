@@ -341,8 +341,8 @@ extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 void func_8002CCEC(GsOT *ot);
 void func_8002C47C(void);
 void DrawSky(void);
-void func_8003A008(s16 x, s16 y, s16 z);
-void func_8003B9B4(s16 x, s16 y, s16 z, s16 w);
+void DrawStage(s16 x, s16 y, s16 z);
+void UpdateCamera(s16 x, s16 y, s16 z, s16 w);
 
 s32 func_8002F6A0(void);
 void func_8002F8FC(void);
@@ -798,15 +798,15 @@ s32 func_8002D424(void) {
             func_8002CCEC(&gSubOt[gActiveBuff]);
             func_80033BF8();
             func_80031A48();
-            func_8003A008(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
+            DrawStage(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
             DrawSky();
-            func_8003B9B4(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
+            UpdateCamera(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
             func_8002F8FC();
             func_8002DC44();
             break;
     }
     if (gPadTrig & 0x800) {
-        sTotals.unk70 = D_8009578C;
+        sTotals.unk70 = gSection;
         func_80033930();
         gRetries = 0xFF;
         D_80095962 = 1;
@@ -956,7 +956,7 @@ s32 func_8002DC44(void) {
     FntPrint(D_80010B4C, gVSyncTime);
     FntPrint(D_800954F4);
     FntPrint(D_80010B58, sTotals.unk4);
-    FntPrint(D_80010B64, D_80095824, D_80095794);
+    FntPrint(D_80010B64, D_80095824, gStageObjCount);
     D_800ACED0.vx = sGameSave.unk348[0];
     D_800ACED0.vy = sGameSave.unk348[1];
     D_800ACED0.vz = sGameSave.unk348[2];
@@ -1647,7 +1647,7 @@ s32 func_8002F6A0(void) {
                 sGameSave.unk348[2] = sRotPos.pos[2];
                 sRotPos.rot.vy = sRotPos.rot.vz;
                 D_800957F4 = FindFloor(sGameSave.unk348);
-                D_8009578C = 0;
+                gSection = 0;
                 D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                 break;
             case 7:
@@ -1789,7 +1789,7 @@ void func_8002FDB4(void) {
             p->y = pos[1];
             p->z = pos[2];
             p->tag = D_80095B4C[0] + 1;
-            for (j = D_80095824 + 1; j < D_80095794; j++) {
+            for (j = D_80095824 + 1; j < gStageObjCount; j++) {
                 e->start++;
                 e++;
             }
@@ -1860,7 +1860,7 @@ s32 func_8002FF74(void) {
         e->count--;
         e = (Span8 *)D_800959C0;
         e += D_80095824 + 1;
-        for (j = D_80095824 + 1; j < D_80095794; j++) {
+        for (j = D_80095824 + 1; j < gStageObjCount; j++) {
             e->start--;
             e++;
         }
@@ -2068,7 +2068,7 @@ void func_80030984(void) {
             w->unk24 = 0;
             w->unk26 = 0;
             w->unk28 = D_80095824;
-            w->unk3C = D_8009578C;
+            w->unk3C = gSection;
             w->unk42 = sTotals.unk68;
             w->unk43 = sTotals.unk69;
             if (i == 0) {
@@ -2469,7 +2469,7 @@ s32 func_800317D0(void) {
             D_800DF818.unk27 = sTotals.unk6C;
             D_800DF818.unk28 = sTotals.unk6D;
             D_800DF818.unk2A = sTotals.unk6A;
-            D_800DF818.unk30 = D_8009578C;
+            D_800DF818.unk30 = gSection;
             D_800DF818.unk34 = D_80095824;
             D_800A7898[sTotals.unk28] = D_800DF818;
             /* MATCHING: the full-table store inside the loop, so its 8 is
@@ -2692,7 +2692,7 @@ s32 func_80031EF4(void) {
                         sGameSave.unk348[2] = sRotPos.pos[2];
                         sRotPos.rot.vy = sRotPos.rot.vz;
                         D_800957F4 = FindFloor(sGameSave.unk348);
-                        D_8009578C = 0;
+                        gSection = 0;
                         D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                         func_8002D0C4((BlockHeader *)0x801FD000);
                         D_800959E4 = 1;
@@ -3243,7 +3243,7 @@ void func_800337E4(u8 *buf) {
     s32 n;
 
     func_8002D0C4((BlockHeader *)buf);
-    n = D_80095794;
+    n = gStageObjCount;
     D_800959C0 = buf + 8;
     D_800959C8 = n;
     D_800959C4 = buf + (n * 8 + 8);

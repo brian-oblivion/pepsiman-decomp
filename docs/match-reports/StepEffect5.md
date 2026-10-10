@@ -1,0 +1,59 @@
+# StepEffect5 — MATCHED 195/195 (round 9, bravo)
+
+> Renamed from `func_8003E6F8` on 2026-10-10 (tools/rename.py). Address 0x8003e6f8.
+
+Unit `src/code_29f54.c`. A slot step (the `SlotStep` signature of the
+table at `gEffectSteps`; x, y and z are unused): draws a semi-transparent flat
+quad around the slot's box, shrunk toward a point near its centre by a
+scale that grows with the frame (`p->unk0`), fading as it shrinks, then an
+additive-blend draw-mode packet; done after 8 frames. First build matched.
+
+```c
+s32 StepEffect5(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 c[2];
+    POLY_F4 *f;
+    DR_TPAGE *t;
+
+    c[0] = p->unkC + (p->unk10 >> 1) + 2;
+    c[1] = p->unkE + 4;
+    f = (POLY_F4 *)GsOUT_PACKET_P;
+    setPolyF4(f);
+    setSemiTrans(f, 1);
+    f->x0 = p->unkC;
+    f->x1 = p->unkC + p->unk10;
+    f->x2 = f->x0 + 4;
+    f->x3 = f->x1 + 4;
+    f->y0 = f->y1 = p->unkE;
+    f->y2 = f->y3 = p->unkE + 8;
+    f->x0 = c[0] + ((c[0] - f->x0) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x1 = c[0] + ((c[0] - f->x1) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x2 = c[0] + ((c[0] - f->x2) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->x3 = c[0] + ((c[0] - f->x3) * ((p->unk0 << 9) + 0x1000) >> 12);
+    f->y0 = c[1] + ((c[1] - f->y0) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y1 = c[1] + ((c[1] - f->y1) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y2 = c[1] + ((c[1] - f->y2) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->y3 = c[1] + ((c[1] - f->y3) * ((p->unk0 << 10) + 0x1000) >> 12);
+    f->r0 = f->g0 = f->b0 = ~(p->unk0 << 5);
+    addPrim(ot->org, f);
+    f++;
+    GsOUT_PACKET_P = (u8 *)f;
+    t = (DR_TPAGE *)GsOUT_PACKET_P;
+    setDrawTPage(t, 1, 1, getTPage(0, 1, 0, 0));
+    addPrim(ot->org, t);
+    t++;
+    GsOUT_PACKET_P = (u8 *)t;
+    return ++p->unk0 == 8;
+}
+```
+
+## Notes
+
+- The centre is a two-halfword stack array that every use reloads (`lh`/
+  `lhu 0($sp)` after each primitive store): an `s16 c[2]` local, which cc1
+  keeps in memory and assumes the primitive stores may alias.
+- `code 0x2A`: `setPolyF4` then `setSemiTrans(f, 1)`; cc1 folds the two code
+  writes into one byte store.
+- `0xE1000620` with length 1: libgpu's `setDrawTPage(t, 1, 1, getTPage(0, 1,
+  0, 0))` (dither and draw-on-display on, additive blend).
+- Existing learnings that held: chained assignment stores right to left
+  (`y1` before `y0`, `b0` before `r0`); `addPrim(ot, p); p++; G = (u8 *)p;`.

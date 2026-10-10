@@ -14,7 +14,7 @@ one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
 /* Unit-local views: StageState (D_8009EB78's head, widened for this
  * function), SavedStart (D_800D86B8: s32 valid; Pos3 pos; s32 unk10,
  * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (D_800A7680).
- * Locals: extern s16 D_800E474C; u16 gGameMode, D_80095868; u8
+ * Locals: extern s16 D_800E474C; u16 gGameMode, gCameraYaw; u8
  * gLoading, gPauseState; s32 D_800957A4, gTimeLeft, ClipF;
  * s32 gTimeLimitsAlt[][3], gTimeLimits[][3]. The rest from common.h. */
 void ResetStage(void) {
@@ -63,25 +63,25 @@ void ResetStage(void) {
     D_8009599C = 0;
     sStage.unk3D4 = sStage.unk3D5 = 0;
     sStage.unk3A6 = 0;
-    D_80096768[6] = 0;
+    gView[6] = 0;
     sStage.unk0 = 1;
     D_800958EC = 0;
     D_800957D6 = 1;
-    D_8009578C = 0;
+    gSection = 0;
     gPauseState = 0;
     D_800957A4 = 0;
     ClipF = 0;
     gFogFade = 0;
     func_800287C0();
     if (sSaved.valid != 0) {
-        D_8009578C = sSaved.unk10;
+        gSection = sSaved.unk10;
         sStage.unk348.vx = sSaved.pos.vx;
         sStage.unk348.vy = sSaved.pos.vy;
         sStage.unk348.vz = sSaved.pos.vz;
         D_800957F4 = sSaved.unk14;
-        D_80095868 = sSaved.unk18;
-        D_800958E8 = sSaved.unk1A;
-        D_80096768[1] = sSaved.unk20;
+        gCameraYaw = sSaved.unk18;
+        gCans = sSaved.unk1A;
+        gView[1] = sSaved.unk20;
     } else if (gStage == 4) {
         sStage.unk5 = 0x57;
         sStage.unk6 = 0x23;

@@ -19,7 +19,7 @@ halfword in each of the 200 Rec48 records.
  *   Placement   { SVECTOR rot; Pos3 pos; }  (D_800A7680)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
  * extern u8 D_80095900, D_800958F8; extern s16 gModeStep, D_80095858,
- * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, D_8009578C;
+ * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
  * common.h: D_800958A8 (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
  * D_800957D6, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
@@ -47,7 +47,7 @@ void RestartStage(u8 arg0) {
     } else {
         D_800957F4 = 0;
     }
-    D_8009578C = 0;
+    gSection = 0;
     yaw = -D_80095840->unk6;
     D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
     D_800A7680.rot.vy = yaw;
@@ -85,11 +85,11 @@ void RestartStage(u8 arg0) {
   other resets and builds `&unk348` only in the `jal` delay slot. With a
   16-byte VECTOR it even copied a fourth word. Same family as bravo's
   round-6 lever on separate `s32` assignments.
-- **Statement order around the heading.** `D_8009578C = 0; yaw =
+- **Statement order around the heading.** `gSection = 0; yaw =
   -D_80095840->unk6; D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
   D_800A7680.rot.vy = yaw;` matches. With the `D_8009676C` store before
   the heading read, the build stored it right after its `sra` and moved
-  `D_8009578C` down (107/127).
+  `gSection` down (107/127).
 - `(s16)(pos.vy - 500)` comes out as retail's `lhu` / `addiu -0x1F4` /
   `sll`/`sra`: cc1 narrows the word load itself.
 - `sStage.unk37C = sStage.unk380 = yaw;` stores 0x380 first (chained

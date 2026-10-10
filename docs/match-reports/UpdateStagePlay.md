@@ -34,8 +34,8 @@ void func_800F7A9C(void);
 void func_800F7F40(void);
 void func_800F809C(void);
 void func_800F8264(void);
-void func_8003CC94(void);
-void func_8003C2E8(void);
+void UpdateActResults(void);
+void DrawScreenWipe(void);
 s32 func_80026D9C(void);
 s32 UpdateRumble(void);
 void SetPadVibration(s32 offset, u8 a, u8 b);
@@ -45,8 +45,8 @@ void UpdateStagePlay(u8 stage) {
     RECT r;
 
     if (gStage % 3 != 2) {
-        func_8003CC94();
-        func_8003C2E8();
+        UpdateActResults();
+        DrawScreenWipe();
     }
     switch (gModeStep) {
         case 0:
@@ -62,7 +62,7 @@ void UpdateStagePlay(u8 stage) {
         case 3:
             sSaved.valid = 0;
             gRetries = 50;
-            sSaved.unk10 = D_8009578C;
+            sSaved.unk10 = gSection;
             sSaved.pos.vx = D_800A7680.pos.vx;
             sSaved.pos.vy = D_800A7680.pos.vy;
             sSaved.pos.vz = D_800A7680.pos.vz;
@@ -177,8 +177,8 @@ with `sb zero, 0x3D0` off the `D_8009EB78` base.
   `__asm__("")` after the call in case 7 keeps them apart, as in
   StartStageOverlay and ResetStageOverlay.
 - Build 2 was 268/270, then 270/270 after two reorders in states 2 and 3:
-  `sSaved.unk10 = D_8009578C;` written before the position copy loads
-  `D_8009578C` first, as retail does. `sSaved.valid = 0;` written before
+  `sSaved.unk10 = gSection;` written before the position copy loads
+  `gSection` first, as retail does. `sSaved.valid = 0;` written before
   `gRetries = 50;` puts `sSaved`'s `lui` above the `li 50`, though the
   stores still come out in the other order.
 - The parameter is copied to `$s0` at entry and masked (`andi 0xFF`) only at
@@ -192,7 +192,7 @@ with `sb zero, 0x3D0` off the `D_8009EB78` base.
 ## Declarations
 
 - New prototypes in code_308ec.c for other units' functions
-  (func_8003CC94, func_8003C2E8, func_80026D9C, UpdateRumble,
+  (UpdateActResults, DrawScreenWipe, func_80026D9C, UpdateRumble,
   SetPadVibration, SetCdVolume) and `extern s32 D_80095758;` (main.c's);
   declcheck reports them LOCAL (SetPadVibration also MULTI with main.c's
   forward declaration). They stay in the `.c` this round, by the round's

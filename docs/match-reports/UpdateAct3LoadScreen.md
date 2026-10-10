@@ -34,7 +34,7 @@ void UpdateAct3LoadScreen(void) {
 }
 ```
 
-Matched on the first build, modelled on code_29f54's `func_8003C014`.
+Matched on the first build, modelled on code_29f54's `DrawFrozenFrame`.
 cc1 keeps the repeated `-0x78` in `$s1` across the calls on its own.
 
 ## Declarations

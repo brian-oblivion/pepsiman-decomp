@@ -7,7 +7,7 @@ game's at `gRefView` unless state 14, or a fixed view 400 out), waits
 for VSync (count kept in `gVSyncTime`), swaps buffers, clears to the fog
 colour, adds the two `DR_STP` primitives around the 3D ordering table,
 draws, switches the work buffer, re-clears both ordering tables, sorts the
-sprite table into the 3D one, runs ReadPad and func_8003DE34, and
+sprite table into the 3D one, runs ReadPad and RemapButtons, and
 counts the frame unless `gPauseState` is set.
 
 Declaration changes: `gLoading`, `gPauseState` and `ClipF` moved from
@@ -18,8 +18,8 @@ The prototype of ReadPad moved up to this function.
 ```c
 /* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
 void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
-void func_80039754(s32 clip);
-void func_8003DE34(void);
+void SetLetterbox(s32 clip);
+void RemapButtons(void);
 void ReadPad(s32 arg);
 
 extern s32 gVSyncTime;
@@ -52,7 +52,7 @@ void EndFrame(void) {
     func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
     SetDrawStp(&D_800CEBD0, 1);
     AddPrim(&gOt[gActiveBuff].org[0xFFF], &D_800CEBD0);
-    func_80039754(ClipF);
+    SetLetterbox(ClipF);
     GsDrawOt(&gOt[gActiveBuff]);
     gActiveBuff = GsGetActiveBuff();
     GsSetWorkBase(gGpuWork[gActiveBuff]);
@@ -63,7 +63,7 @@ void EndFrame(void) {
     SetDrawStp(&D_800CEBC0, 0);
     AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
     ReadPad(0);
-    func_8003DE34();
+    RemapButtons();
     if (gPauseState == 0) {
         gFrameCount++;
     }

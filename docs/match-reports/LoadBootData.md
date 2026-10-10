@@ -7,7 +7,7 @@ pointer tables `gCdLoadLoc` (entries of `D_80072484`), `gCdLoadDest` (five
 fixed RAM load addresses) and `gCdLoadSectors` (a copy of `D_800724C4`), sets
 `gCdLoadCount = 5`, `gCdLoadState = 1` and moves to step 1; step 1 waits for
 `gCdLoadState == 6`; step 2 sets up the loaded data (`func_80013CDC`, the
-pack at 0x8018D000, the TIM run at 0x8016D000, `func_8003A84C`) and
+pack at 0x8018D000, the TIM run at 0x8016D000, `DefineHudSprites`) and
 returns 1. `main` tests the result as a signed byte.
 
 ```c
@@ -58,8 +58,8 @@ s8 LoadBootData(void) {
             ret = 1;
             func_80013CDC();
             LoadTimPack((void *)0x8018D000);
-            func_8003E13C((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
-            func_8003A84C();
+            LoadTimList((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
+            DefineHudSprites();
             func_80018DE8(1);
             break;
     }
@@ -87,7 +87,7 @@ The five-word copy into `gCdLoadSectors` is five separate assignments
 
 - `gCdLoadCount` (s16) and `gCdLoadState` (s8) moved from `src/code_31cec.c` to
   `include/common.h` (additive).
-- `func_8003E13C` and `func_8003A84C` (code_29f54) added to
+- `LoadTimList` and `DefineHudSprites` (code_29f54) added to
   `include/common.h` (additive).
 - Per-unit views in `src/main.c` with `MATCHING:` notes:
   `LoadTimPack(void *)` (code_7d74 types it with its local `PackEntry`)

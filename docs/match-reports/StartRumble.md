@@ -77,7 +77,7 @@ Posted to the broadcast; not acted on (CLAUDE.md hard rule 6).
 
 - Retail, all of `asm/`: 15 sites of `load $r` / `lui $at` / `s{b,h,w} $r,
   %lo(sym)($at)` with no `nop` between (this function x4, `UpdateRumble`
-  x5, `code_29f54` `func_800399A8` x2 and `func_80039C3C` x2, `code_1a098`
+  x5, `code_29f54` `LoadStageData` x2 and `LoadAct3Data` x2, `code_1a098`
   `func_8002B220` and `func_80030DA0`), and 0 sites of the same with the
   `nop`. The flag's comment in `tools/maspsx/maspsx.py` counts 40 sites
   with the nop, which is lsddecomp's retail, not this one.

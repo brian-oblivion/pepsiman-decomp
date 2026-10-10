@@ -1,0 +1,80 @@
+# DrawResultTime — MATCHED 241/241 (round 9, bravo)
+
+> Renamed from `func_8003C8D0` on 2026-10-10 (tools/rename.py). Address 0x8003c8d0.
+
+Unit `src/code_29f54.c`. The large-font twin of DrawHudTime: draws a time
+from a frame count right to left (hundredths, separator, seconds,
+separator, minutes without leading zeros), with sprites 0x137 + d and
+0x141, a 16-pixel first step and 12 after, tinted by an `SColor` whose red
+byte is -1.
+
+```c
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+void DrawResultTime(SVECTOR *pos, s32 frames) {
+    s32 n;
+    s32 m;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 sec;
+    SColor color;
+    /* MATCHING: retail fills a second colour at sp+0x20 it never passes. */
+    SColor shadow;
+
+    color.r = -1;
+    shadow.r = 2;
+    shadow.g = shadow.b = shadow.cd = 0x80;
+    color.g = color.b = color.cd = 0x80;
+    n = frames * 100 / 30;
+    /* MATCHING: d copied from n, then divided (as in DrawHudTime). */
+    d = n;
+    d /= 10;
+    pos->vx -= 16;
+    DrawSprite(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    DrawSprite(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    DrawSprite(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    sec = frames / 30;
+    m = sec / 60;
+    n = sec % 60;
+    k = 1;
+    d = n;
+    d /= 10;
+    pos->vx -= 12;
+    DrawSprite(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    DrawSprite(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    n = m;
+    pos->vx -= 12;
+    DrawSprite(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    for (; k < 11; k *= 10) {
+        t = n / k;
+        if (t != 0 || (k == 1 && n == 0)) {
+            pos->vx -= 12;
+            DrawSprite(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        }
+    }
+}
+```
+
+## Notes
+
+- Started from DrawHudTime's matched body (4 builds): 165/241 with
+  DrawHudTime's pre-permuter shape, 235 with its final locals.
+- **No inline helper here.** DrawHudTime's `putDigit` helper, given the
+  colour as a pointer parameter, hoisted `&color` into a saved register
+  (one more `$s`, frame 8 bytes larger); retail rebuilds `addiu a2, sp,
+  0x18` before every call, so the calls are written out with `&color`
+  each time. The register choice for `d`'s sums came out right without it.
+- The last 6 words were the order of the two colours' `0x80` stores: the
+  unused second colour's chained assignment comes first.
+- The `SColor` typedef moved up from above StepEffect10 so this function
+  can use it; nothing else changed.

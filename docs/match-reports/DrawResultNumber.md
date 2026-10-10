@@ -1,0 +1,129 @@
+# DrawResultNumber — MATCHED (round 13, alpha)
+
+> Renamed from `func_8003C494` on 2026-10-10 (tools/rename.py). Address 0x8003c494.
+
+Unit `src/code_29f54.c`. Draws a count in the large font with a drop
+shadow, right to left from the pen: `0`, `0`, `1`, a separator (sprites
+0x137, 0x137, 0x138, 0x142), then the units, tens if nonzero and hundreds
+if nonzero of `n`; every glyph twice, once tinted `color` (r = 1) and once
+12 sprites later tinted `shadow` (r = 2), the pen stepping 16 then 12.
+UpdateWorldResults calls it for two of the results rows.
+
+## The residue (rounds 11 and earlier)
+
+Everything but one constant's register lines up. Retail loads the
+`n / 100` magic `0x51EB851F` into `$fp` in the prologue (sched2 hoisting
+it out of the first basic block, where it must have been set) and uses
+`$fp` in the hundreds test; the build materialises it in `$v0` right at
+the hundreds test, so it saves one register fewer (`sw/lw $fp`, 2 words).
+The `/ 10` magic is in `$s6` in both. So in retail's RTL the `/ 100`
+constant was set in the first block, which means something there used it,
+and nothing visible does: the hundreds `mult` is in the third block in
+both.
+
+Tried, none moving the constant: `n / 100` written twice (condition and
+body), the quotient in a local `h` computed with the tens (moves the
+`mult` up, 27/27 ins/del worse), `t = n / 10` for the tens, the draw call
+in a `static __inline__` helper with the colour as a parameter (makes the
+colour addresses swap registers), a colour pointer local. One permuter
+search (Gate 3: scaffold 5 insertions / 6 deletions against funcdiff's
+6/6 on the same body; bound 900 s, `rc 124`, about 70,000 iterations)
+found `u16 d` for the digit (adopted: it fixed every digit block); no
+candidate touched the constant.
+
+```c
+#if 0
+void DrawResultNumber(SVECTOR *pos, s32 n) {
+    CVECTOR color;
+    CVECTOR shadow;
+    u16 d;
+    s32 t;
+
+    color.r = 1;
+    shadow.r = 2;
+    shadow.g = shadow.b = shadow.cd = 0x80;
+    color.g = color.b = color.cd = 0x80;
+    pos->vx -= 16;
+    DrawSprite(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    DrawSprite(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    DrawSprite(0x138, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x144, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    DrawSprite(0x142, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(0x14E, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 12;
+    t = n / 10;
+    d = n % 10;
+    DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    if (t != 0) {
+        pos->vx -= 12;
+        d = t % 10;
+        DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    }
+    if (n / 100 != 0) {
+        pos->vx -= 12;
+        d = n / 100 % 10;
+        DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    }
+}
+#endif
+```
+
+Place it where the `INCLUDE_ASM` stands (between DrawScreenWipe and
+DrawResultTime). `DrawSprite` comes from `code_a0bc.h`. Spliced back and
+built once before restoring the `INCLUDE_ASM`: 269 words, 4 insertions /
+4 deletions, all in the prologue, the hundreds test and the epilogue.
+
+### Proposed learning
+
+- **A magic-division constant in a saved register loaded in the
+  prologue: its first use was in the function's first basic block** (a
+  callee-saved register and sched2 hoisting it to the top of that block);
+  a constant first used after a branch is materialised at its use.
+  (DrawResultNumber; the `/ 10` constant shows the rule, the `/ 100` one is
+  the open residue)
+
+## Round 13 (alpha)
+
+Spliced the preserved body back: 269 words (2 short), 5/271, 4
+insertions / 4 deletions, as recorded. Matched 271/271 in three steps.
+
+- Read the RTL (`cc1 -dr -ds`). Every constant division expands to its
+  own `(set (reg) (const_int magic))`, and cse reuses a constant register
+  only if one is set on its path. The `n >> 31` sign already reaches the
+  hundreds block from block 1 (cse follows the `t == 0` branch and skips
+  the tens block), so block 1 needed only a set of `0x51EB851F`.
+- A dead `u32 x = (u32)n / 100;` in block 1: the unsigned magic for 100 is
+  the same constant, the `multu` differs from the live signed `mult`, so
+  cse reuses the constant register but not the product, and flow deletes
+  the dead `multu`. Length exact, 264/271, 3/3; left only the prologue
+  order (retail loads the `/ 10` constant before the first call's
+  arguments).
+- sched2 hoists the constants to the prologue in the RTL order of their
+  first set; tried the dead `/ 100` after each of the 14 statements of
+  block 1: before the first call it puts `$fp` ahead of the arguments, after
+  `t = n / 10` it gives `$s6` then `$fp`, both after the arguments.
+- `t = n / 10` moved before the first call: right order, but `t` lives
+  across eight more calls and every saved register shifts by one.
+- A second dead division by 10 before the first call, on an operand other
+  than `n` (else cse keeps the whole quotient there): `(s16)n / 10`
+  matched; `(s32)pos / 10` gives the same prologue; `(u16)n / 10` and
+  `n / 5` do not (`n / 5` shares the product, `(u16)n` changes the
+  order).
+
+### Proposed learning
+
+- **A magic-division constant in a saved register loaded in the prologue
+  while its `mult` sits in a later block: a dead division in the first
+  block that shares only the constant** (an unsigned division by the same
+  divisor, or the same divisor on another operand). cse hands the constant
+  register to the live division; flow deletes the dead product. The
+  constants come out of sched2 in the order of their first sets.
+  (DrawResultNumber)

@@ -4,9 +4,9 @@
 
 Unit `src/code_7d74.c`. Round 3 (runner charlie) skipped it at the
 budget, 1 word short, 3/30; round 7 matched it. Copies a 3-word position
-to the stack, lets `func_8003A3F4` update `cur` through its address from
+to the stack, lets `UpdateSection` update `cur` through its address from
 the position's x and z, then asks `func_800299D8(arg, cur, &pos,
-D_800958B4)`; returns -1 when that gives 0x7FFF, else the updated `cur`.
+gFloorData)`; returns -1 when that gives 0x7FFF, else the updated `cur`.
 
 ```c
 typedef struct {
@@ -15,10 +15,10 @@ typedef struct {
     s32 z;
 } Vec3i;
 
-extern s32 D_800958B4;
+extern s32 gFloorData;
 s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit's view; code_29f54 defines the coordinates s16. */
-void func_8003A3F4(s32 *index, s32 x, s32 y);
+void UpdateSection(s32 *index, s32 x, s32 y);
 
 s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     Vec3i p;
@@ -26,8 +26,8 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     p.x = ((Vec3i *)pos)->x;
     p.y = ((Vec3i *)pos)->y;
     p.z = ((Vec3i *)pos)->z;
-    func_8003A3F4(&cur, p.x, p.z);
-    if (func_800299D8(arg, cur, &p, D_800958B4) == 0x7FFF) {
+    UpdateSection(&cur, p.x, p.z);
+    if (func_800299D8(arg, cur, &p, gFloorData) == 0x7FFF) {
         return -1;
     }
     return cur;
@@ -38,12 +38,12 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
 
 Retail's three copy registers (`$a1`, `$v1`, `$a2`) are not a copy
 idiom: `$a1` and `$a2` are the second and third ARGUMENTS of
-func_8003A3F4, the position's x and z, loaded once and both stored and
-passed. Round 3 called `func_8003A3F4(&arg2)` with one argument.
+UpdateSection, the position's x and z, loaded once and both stored and
+passed. Round 3 called `UpdateSection(&arg2)` with one argument.
 
 ## Attempts (round 7: 2)
 
-1. The body above with func_8003A3F4 seen as `(s32 *, s16, s16)`, its
+1. The body above with UpdateSection seen as `(s32 *, s16, s16)`, its
    definition: 17/30. The arguments were reloaded from the stack with
    `lh`.
 2. The unit's view `(s32 *, s32, s32)` (LEARNINGS: a caller passing

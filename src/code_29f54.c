@@ -12,14 +12,14 @@ typedef struct {
     u8 b[8]; /**< the bytes */
 } Bytes8;
 
-extern s32 D_80095A78;
-extern s32 D_80095A7C;
-extern s32 D_80095A80;
-extern s32 D_80095A90;
-extern s32 D_80095A94;
-extern s32 D_80095A98;
-extern s8 D_80095A88[8];
-extern s8 D_80095AA0[8];
+extern s32 gWipeFrame;
+extern s32 gTallyCans;
+extern s32 gResultsActive;
+extern s32 gResultsTimer;
+extern s32 gWipeActive;
+extern s32 gResultsStep;
+extern s8 gResultsSliding[8];
+extern s8 gResultsSlide[8];
 extern u8 D_800956B0[];
 extern u8 D_800956B8[];
 
@@ -32,14 +32,14 @@ typedef struct {
     s16 dy; /**< the direction's y */
 } Edge;
 
-extern Edge *D_800958D4;
+extern Edge *gBoundaryEdges;
 
-extern GsDOBJ2 D_800AC868[];
-extern u32 D_80095798;
-extern GsDOBJ2 D_800ACB88[];
-extern GsCOORDINATE2 D_800A72B8;
+extern GsDOBJ2 gStageObjs[];
+extern u32 gPropObjCount;
+extern GsDOBJ2 gPropObjs[];
+extern GsCOORDINATE2 gStageCoord;
 
-extern s32 D_800A7278[];
+extern s32 gCpuMarkTimes[];
 extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
@@ -51,16 +51,16 @@ typedef struct {
 } Run;
 
 /* MATCHING: a per-unit view; code_1a098 types the same list as Zone4. */
-extern Run *D_80095934;
-extern Run *D_80095938;
-extern s8 *D_80095940;
+extern Run *gStageRuns;
+extern Run *gPropRuns;
+extern s8 *gPropRunObjs;
 
 extern DR_STP D_800DFA90;
 extern DR_ENV D_800DFA10;
 extern DR_STP D_800DFAA0;
 extern DR_ENV D_800DFA50;
 
-void func_80039754(s32 clip) {
+void SetLetterbox(s32 clip) {
     DRAWENV env;
     /* MATCHING: retail's frame has 8 more bytes above the environment. */
     s32 unused[2];
@@ -87,7 +87,7 @@ void func_80039754(s32 clip) {
 }
 
 /* MATCHING: per-unit views; this loader stores the stage pointers plainly. */
-extern Edge *D_800958A0;
+extern Edge *gSectionEdges;
 extern s32 D_80095840;
 extern s32 D_80095790;
 extern s8 *D_80095808;
@@ -95,7 +95,7 @@ extern s32 gSkyColors;
 extern s32 D_80095948;
 extern s32 D_8009594C;
 
-void func_800399A8(unsigned long *hdr) {
+void LoadStageData(unsigned long *hdr) {
     u32 i;
     GsDOBJ2 *obj;
     unsigned long *tmd;
@@ -104,14 +104,14 @@ void func_800399A8(unsigned long *hdr) {
     tmd++;
     GsMapModelingData(tmd);
     tmd++;
-    D_80095794 = *tmd;
+    gStageObjCount = *tmd;
     tmd++;
-    for (i = 0; i < D_80095794; i++) {
-        GsLinkObject4((unsigned long)tmd, &D_800AC868[i], i);
+    for (i = 0; i < gStageObjCount; i++) {
+        GsLinkObject4((unsigned long)tmd, &gStageObjs[i], i);
     }
-    obj = D_800AC868;
-    for (i = 0; i < D_80095794; i++) {
-        obj->coord2 = &D_800A72B8;
+    obj = gStageObjs;
+    for (i = 0; i < gStageObjCount; i++) {
+        obj->coord2 = &gStageCoord;
         obj->attribute = 0x200;
         obj++;
     }
@@ -119,33 +119,33 @@ void func_800399A8(unsigned long *hdr) {
     tmd++;
     GsMapModelingData(tmd);
     tmd++;
-    D_80095798 = *tmd;
+    gPropObjCount = *tmd;
     tmd++;
-    for (i = 0; i < D_80095798; i++) {
-        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    for (i = 0; i < gPropObjCount; i++) {
+        GsLinkObject4((unsigned long)tmd, &gPropObjs[i], i);
     }
-    obj = D_800ACB88;
-    for (i = 0; i < D_80095798; i++) {
-        obj->coord2 = &D_800A72B8;
+    obj = gPropObjs;
+    for (i = 0; i < gPropObjCount; i++) {
+        obj->coord2 = &gStageCoord;
         obj->attribute = 0;
         obj++;
     }
-    D_8009578C = 0;
+    gSection = 0;
     D_800957F4 = 0;
-    D_800958B4 = hdr[2] + (s32)hdr;
-    D_800958A0 = (Edge *)(hdr[3] + (s32)hdr + 4);
-    D_800958D4 = (Edge *)(hdr[4] + (s32)hdr + 4);
+    gFloorData = hdr[2] + (s32)hdr;
+    gSectionEdges = (Edge *)(hdr[3] + (s32)hdr + 4);
+    gBoundaryEdges = (Edge *)(hdr[4] + (s32)hdr + 4);
     D_80095948 = *(s32 *)(hdr[5] + (s32)hdr);
-    D_80095934 = (Run *)(hdr[5] + (s32)hdr + 4);
-    D_8009593C = (s8 *)(hdr[5] + (s32)hdr + D_80095948 * 4 + 4);
+    gStageRuns = (Run *)(hdr[5] + (s32)hdr + 4);
+    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + D_80095948 * 4 + 4);
     D_8009594C = *(s32 *)(hdr[6] + (s32)hdr);
-    D_80095938 = (Run *)(hdr[6] + (s32)hdr + 4);
+    gPropRuns = (Run *)(hdr[6] + (s32)hdr + 4);
     D_80095840 = hdr[7] + (s32)hdr;
     D_80095808 = (s8 *)(hdr[8] + (s32)hdr);
-    D_800958FC = (u8 *)(hdr[9] + (s32)hdr);
+    gFogColors = (u8 *)(hdr[9] + (s32)hdr);
     D_80095790 = hdr[10] + (s32)hdr;
     gSkyColors = hdr[11] + (s32)hdr;
-    D_80095940 = (s8 *)(hdr[6] + (s32)hdr + D_8009594C * 4 + 4);
+    gPropRunObjs = (s8 *)(hdr[6] + (s32)hdr + D_8009594C * 4 + 4);
 }
 
 extern GsDOBJ2 D_800CEF00[];
@@ -175,14 +175,14 @@ static __inline__ void linkStage(unsigned long *tmd) {
     tmd++;
     GsMapModelingData(tmd);
     tmd++;
-    D_80095794 = *tmd;
+    gStageObjCount = *tmd;
     tmd++;
-    for (i = 0; i < D_80095794; i++) {
-        GsLinkObject4((unsigned long)tmd, &D_800AC868[i], i);
+    for (i = 0; i < gStageObjCount; i++) {
+        GsLinkObject4((unsigned long)tmd, &gStageObjs[i], i);
     }
-    obj = D_800AC868;
-    for (i = 0; i < D_80095794; i++) {
-        obj->coord2 = &D_800A72B8;
+    obj = gStageObjs;
+    for (i = 0; i < gStageObjCount; i++) {
+        obj->coord2 = &gStageCoord;
         obj->attribute = 0x200;
         obj++;
     }
@@ -199,20 +199,20 @@ static __inline__ void linkProps(unsigned long *tmd) {
     tmd++;
     GsMapModelingData(tmd);
     tmd++;
-    D_80095798 = *tmd;
+    gPropObjCount = *tmd;
     tmd++;
-    for (i = 0; i < D_80095798; i++) {
-        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    for (i = 0; i < gPropObjCount; i++) {
+        GsLinkObject4((unsigned long)tmd, &gPropObjs[i], i);
     }
-    obj = D_800ACB88;
-    for (i = 0; i < D_80095798; i++) {
-        obj->coord2 = &D_800A72B8;
+    obj = gPropObjs;
+    for (i = 0; i < gPropObjCount; i++) {
+        obj->coord2 = &gStageCoord;
         obj->attribute = 0;
         obj++;
     }
 }
 
-void func_80039C3C(s32 *pack) {
+void LoadAct3Data(s32 *pack) {
     s32 i;
     s32 n;
     u8 *t;
@@ -247,36 +247,36 @@ void func_80039C3C(s32 *pack) {
     DefineSprite(0x21, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
 }
 
-void func_8003A008(s16 x, s16 y, s16 z) {
+void DrawStage(s16 x, s16 y, s16 z) {
     s32 i;
     s32 k;
     SVECTOR rot;
     MATRIX ls;
 
-    D_800A72B8.coord.t[0] = x;
-    D_800A72B8.coord.t[1] = y;
-    D_800A72B8.coord.t[2] = z;
+    gStageCoord.coord.t[0] = x;
+    gStageCoord.coord.t[1] = y;
+    gStageCoord.coord.t[2] = z;
     rot.vx = rot.vy = rot.vz = 0;
-    SetCoordRotation(&rot, &D_800A72B8);
-    GsGetLs(&D_800A72B8, &ls);
+    SetCoordRotation(&rot, &gStageCoord);
+    GsGetLs(&gStageCoord, &ls);
     GsSetLsMatrix(&ls);
     SetSpadStack();
-    for (i = 0; i < D_80095934[D_8009578C].count; i++) {
-        k = D_8009593C[D_80095934[D_8009578C].start + i];
-        if ((u32)k < D_80095794) {
-            GsSortObject4J(&D_800AC868[k], gCurOt, 2, (u_long *)0x1F800000);
+    for (i = 0; i < gStageRuns[gSection].count; i++) {
+        k = gStageRunObjs[gStageRuns[gSection].start + i];
+        if ((u32)k < gStageObjCount) {
+            GsSortObject4J(&gStageObjs[k], gCurOt, 2, (u_long *)0x1F800000);
         }
     }
-    for (i = 0; i < D_80095938[D_8009578C].count; i++) {
-        k = D_80095940[D_80095938[D_8009578C].start + i];
-        if ((u32)k < D_80095798 && k != -1) {
-            GsSortObject4J(&D_800ACB88[k], gCurOt, 2, (u_long *)0x1F800000);
+    for (i = 0; i < gPropRuns[gSection].count; i++) {
+        k = gPropRunObjs[gPropRuns[gSection].start + i];
+        if ((u32)k < gPropObjCount && k != -1) {
+            GsSortObject4J(&gPropObjs[k], gCurOt, 2, (u_long *)0x1F800000);
         }
     }
     ResetSpadStack();
 }
 
-void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
+void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
     s32 i;
     s32 k;
     s32 d;
@@ -304,19 +304,19 @@ void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
         } else {
             r = (pos + 10000000) % 5000;
         }
-        D_800A72B8.coord.t[0] = r + (i - 1) * 5000;
-        D_800A72B8.coord.t[1] = 0;
-        D_800A72B8.coord.t[2] = z;
+        gStageCoord.coord.t[0] = r + (i - 1) * 5000;
+        gStageCoord.coord.t[1] = 0;
+        gStageCoord.coord.t[2] = z;
         rot.vx = rot.vy = rot.vz = 0;
-        SetCoordRotation(&rot, &D_800A72B8);
-        GsGetLs(&D_800A72B8, &ls);
+        SetCoordRotation(&rot, &gStageCoord);
+        GsGetLs(&gStageCoord, &ls);
         GsSetLsMatrix(&ls);
-        GsSortObject4J(&D_800AC868[k], gCurOt, 2, (u_long *)0x1F800000);
-        GsSortObject4J(&D_800ACB88[k], gCurOt, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&gStageObjs[k], gCurOt, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&gPropObjs[k], gCurOt, 2, (u_long *)0x1F800000);
     }
 }
 
-void func_8003A3F4(s32 *index, s16 x, s16 y) {
+void UpdateSection(s32 *index, s16 x, s16 y) {
     s32 i;
     s32 j;
     s32 d;
@@ -326,13 +326,13 @@ void func_8003A3F4(s32 *index, s16 x, s16 y) {
     /* MATCHING: integer address sums put the scaled index first; pointer
      * arithmetic puts the base first and changes the register choice. */
     i = *index;
-    e = (Edge *)(i * 8 + (s32)D_800958D4) + 1;
+    e = (Edge *)(i * 8 + (s32)gBoundaryEdges) + 1;
     d = e->dx * (x - e->x) + e->dy * (y - e->y);
     if (d >= 0) {
         *index = i + 1;
     }
     j = *index;
-    f = (Edge *)(j * 8 + (s32)D_800958D4);
+    f = (Edge *)(j * 8 + (s32)gBoundaryEdges);
     d = -f->dx * (x - f->x) + -f->dy * (y - f->y);
     if (d >= 0) {
         *index = j - 1;
@@ -349,7 +349,7 @@ static __inline__ void putDigit(SVECTOR *pos, u16 id) {
     DrawSprite(id, pos, NULL, 0, &gSubOt[gActiveBuff]);
 }
 
-void func_8003A4B4(SVECTOR *pos, s32 frames) {
+void DrawHudTime(SVECTOR *pos, s32 frames) {
     s32 n;
     s32 m;
     s32 d;
@@ -384,7 +384,7 @@ void func_8003A4B4(SVECTOR *pos, s32 frames) {
     }
 }
 
-void func_8003A84C(void) {
+void DefineHudSprites(void) {
     s32 i;
 
     DefineSprite(0xFA, 0, 0x40, 0x40, 0x1E, 0, 0, 0, 0x1F9);
@@ -457,7 +457,7 @@ typedef struct {
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);
 
-void func_8003AFAC(void) {
+void DrawHud(void) {
     s32 n;
     s32 k;
     s32 q;
@@ -466,7 +466,7 @@ void func_8003AFAC(void) {
     s16 quad[8];
     SColor color;
 
-    n = D_800958E8;
+    n = gCans;
     digits = 0;
     for (k = 1; k < 101; k *= 10) {
         if (n / k == 0) {
@@ -557,7 +557,7 @@ void func_8003AFAC(void) {
     }
     color.r = 1;
     color.g = color.b = color.cd = 0x80;
-    pos.vx = (D_8009578C * 11 << 15) / ((s32 *)D_800958A0)[-1] / 4096 + 0x34;
+    pos.vx = (gSection * 11 << 15) / ((s32 *)gSectionEdges)[-1] / 4096 + 0x34;
     pos.vy = -0x69;
     DrawSprite(((gFrameCount >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     k = 1;
@@ -569,7 +569,7 @@ void func_8003AFAC(void) {
     DrawSprite(0x122, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x90;
     pos.vy = -0x54;
-    func_8003A4B4(&pos, D_80095980);
+    DrawHudTime(&pos, gElapsed);
     n = gRetries;
     pos.vx = 0x68;
     pos.vy = 0x4C;
@@ -596,7 +596,7 @@ static __inline__ s32 iabs(s32 v) {
     return v >= 0 ? v : -v;
 }
 
-void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+void LineCircleIntersect(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 swapped;
     s32 t;
     s32 m;
@@ -662,7 +662,7 @@ extern s16 D_80095996;
 extern s16 D_80095890;
 extern s16 D_800957DE;
 
-#define sView (*(GsRVIEW2 *)D_80096768)
+#define sView (*(GsRVIEW2 *)gView)
 
 /**
  * @brief Steps a boundary index across the edges either side of (x, y).
@@ -692,7 +692,7 @@ static __inline__ void stepEdge(s32 *index, Edge *tbl, s16 x, s16 y) {
     }
 }
 
-s16 func_8003B9B4(s16 x, s16 target, s16 y, s16 height) {
+s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     Edge *tbl;
     Edge *e;
     /* MATCHING: s16, extended only at the return; as s32 it takes a's
@@ -706,12 +706,12 @@ s16 func_8003B9B4(s16 x, s16 target, s16 y, s16 height) {
     /* MATCHING: retail's frame has 8 more bytes below the saved registers. */
     s32 unused[2];
 
-    tbl = D_800958A0;
-    stepEdge(&D_8009578C, tbl, x, y);
-    e = (Edge *)(D_8009578C * 8 + (s32)tbl);
+    tbl = gSectionEdges;
+    stepEdge(&gSection, tbl, x, y);
+    e = (Edge *)(gSection * 8 + (s32)tbl);
     angle = a = ratan2(e[1].x - e[0].x, e[1].y - e[0].y);
     a &= 0xFFF;
-    b = D_80095868 & 0xFFF;
+    b = gCameraYaw & 0xFFF;
     if (iabs(a - b) > 0x800) {
         if (a < 0x800) {
             a += 0x1000;
@@ -736,19 +736,19 @@ s16 func_8003B9B4(s16 x, s16 target, s16 y, s16 height) {
         D_80095828 = 1;
     }
     if (a - b > 0) {
-        D_80095868 += D_80095828;
+        gCameraYaw += D_80095828;
     } else {
-        D_80095868 -= D_80095828;
+        gCameraYaw -= D_80095828;
     }
-    D_80095994 = rsin((s16)D_80095868 + 0x800) * 400 / 4096;
-    D_80095996 = rcos((s16)D_80095868 + 0x800) * 400 / 4096;
+    D_80095994 = rsin((s16)gCameraYaw + 0x800) * 400 / 4096;
+    D_80095996 = rcos((s16)gCameraYaw + 0x800) * 400 / 4096;
     sView.vpz = D_80095996;
     sView.vpx = D_80095994;
     D_800957DE = sView.vpy;
-    if (D_80095808[D_8009578C] * 10 < D_80095890) {
+    if (D_80095808[gSection] * 10 < D_80095890) {
         D_80095890 -= 10;
     }
-    if (D_80095890 < D_80095808[D_8009578C] * 10) {
+    if (D_80095890 < D_80095808[gSection] * 10) {
         D_80095890 += 10;
     }
     old = D_800957DE;
@@ -785,19 +785,19 @@ s16 func_8003B9B4(s16 x, s16 target, s16 y, s16 height) {
     return angle;
 }
 
-void func_8003BDF4(void) {
+void DrawCpuMeter(void) {
     POLY_F4 *p;
     s32 i;
 
-    for (i = 0; i < D_80095968; i++) {
-        if (D_800A7278[i] != 0xFF) {
+    for (i = 0; i < gCpuMarkCount; i++) {
+        if (gCpuMarkTimes[i] != 0xFF) {
             p = (POLY_F4 *)GsOUT_PACKET_P;
             setPolyF4(p);
             p->x0 = p->x2 = -160;
             p->x1 = p->x3 = -152;
-            p->y0 = p->y1 = (D_800A7278[i] >> 1) - 120;
+            p->y0 = p->y1 = (gCpuMarkTimes[i] >> 1) - 120;
             if (i != 0) {
-                p->y3 = (D_800A7278[i - 1] >> 1) - 120;
+                p->y3 = (gCpuMarkTimes[i - 1] >> 1) - 120;
             } else {
                 p->y3 = -120;
             }
@@ -817,13 +817,13 @@ void func_8003BDF4(void) {
     p->y0 = p->y1 = 8;
     p->y2 = p->y3 = 9;
     setRGB0(p, 0xFF, 0xFF, 0xFF);
-    D_80095968 = 0;
+    gCpuMarkCount = 0;
     addPrim(gCurOt->org, p);
     p++;
     GsOUT_PACKET_P = (u8 *)p;
 }
 
-void func_8003C014(void) {
+void DrawFrozenFrame(void) {
     RECT rect;
     SVECTOR pos;
     CVECTOR color;
@@ -845,7 +845,7 @@ void func_8003C014(void) {
     DrawSprite(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
-void func_8003C17C(u8 level) {
+void DrawFrozenFrameFaded(u8 level) {
     RECT rect;
     SVECTOR pos;
     CVECTOR color;
@@ -868,16 +868,16 @@ void func_8003C17C(u8 level) {
     DrawSprite(0x1FF, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
 }
 
-void func_8003C2E8(void) {
+void DrawScreenWipe(void) {
     POLY_FT4 *p;
     s32 n;
 
-    if (D_80095A94 != 0) {
-        if (D_80095A78 >= 24) {
-            D_80095A94 = 0;
+    if (gWipeActive != 0) {
+        if (gWipeFrame >= 24) {
+            gWipeActive = 0;
             return;
         }
-        n = D_80095A78 / 3;
+        n = gWipeFrame / 3;
         p = (POLY_FT4 *)GsOUT_PACKET_P;
         setPolyFT4(p);
         p->r0 = p->g0 = p->b0 = 0x80;
@@ -892,13 +892,13 @@ void func_8003C2E8(void) {
         p->v2 = p->v3 = p->v0 + 0x5F;
         p->tpage = getTPage(0, 0, n / 4 * 64 + 704, 256);
         addPrim(gSubOt[gActiveBuff].org, p);
-        D_80095A78++;
+        gWipeFrame++;
         p++;
         GsOUT_PACKET_P = (u8 *)p;
     }
 }
 
-void func_8003C494(SVECTOR *pos, s32 n) {
+void DrawResultNumber(SVECTOR *pos, s32 n) {
     CVECTOR color;
     CVECTOR shadow;
     u16 d;
@@ -943,7 +943,7 @@ void func_8003C494(SVECTOR *pos, s32 n) {
     }
 }
 
-void func_8003C8D0(SVECTOR *pos, s32 frames) {
+void DrawResultTime(SVECTOR *pos, s32 frames) {
     s32 n;
     s32 m;
     s32 d;
@@ -959,7 +959,7 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
     shadow.g = shadow.b = shadow.cd = 0x80;
     color.g = color.b = color.cd = 0x80;
     n = frames * 100 / 30;
-    /* MATCHING: d copied from n, then divided (as in func_8003A4B4). */
+    /* MATCHING: d copied from n, then divided (as in DrawHudTime). */
     d = n;
     d /= 10;
     pos->vx -= 16;
@@ -991,17 +991,17 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
 }
 
 /* MATCHING: 8-byte arrays (rank % 3 indexes them); as scalars indexed
- * through & the stores in func_8003CC94 schedule the address first. */
-extern s32 D_800958F0[2];
-extern s32 D_80095838[2];
+ * through & the stores in UpdateActResults schedule the address first. */
+extern s32 gActCans[2];
+extern s32 gActTimes[2];
 /* MATCHING: per-unit views; main.c reads the same pairs as Pair8. */
-extern s32 D_80096A58[][2];
-extern s32 D_800D8340[][2];
-extern s32 D_80010454[][2];
+extern s32 gBestCans[][2];
+extern s32 gBestTimes[][2];
+extern s32 gTargetTimes[][2];
 
-void func_8003C494(SVECTOR *pos, s32 n);
+void DrawResultNumber(SVECTOR *pos, s32 n);
 
-void func_8003CC94(void) {
+void UpdateActResults(void) {
     s32 i;
     s32 k;
     s32 q;
@@ -1013,7 +1013,7 @@ void func_8003CC94(void) {
     SColor color;
     s16 tile[4];
 
-    if (D_80095A80 == 0) {
+    if (gResultsActive == 0) {
         return;
     }
     place = gStage;
@@ -1028,84 +1028,84 @@ void func_8003CC94(void) {
     }
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
-    switch (D_80095A98) {
+    switch (gResultsStep) {
         case 0:
-            switch (D_80095A90) {
+            switch (gResultsTimer) {
                 case 0:
-                    D_80095A88[0] = 1;
+                    gResultsSliding[0] = 1;
                     break;
                 case 24:
-                    D_80095AA0[1] = -24;
+                    gResultsSlide[1] = -24;
                     break;
                 case 40:
-                    D_80095A88[1] = 1;
+                    gResultsSliding[1] = 1;
                     break;
                 case 64:
-                    D_80095A88[2] = 1;
+                    gResultsSliding[2] = 1;
                     break;
                 case 68:
-                    D_80095A88[3] = 1;
+                    gResultsSliding[3] = 1;
                     break;
                 case 80:
-                    D_80095A98 = 10;
+                    gResultsStep = 10;
                     break;
             }
-            D_80095A90++;
+            gResultsTimer++;
             break;
         case 10:
-            if (D_80095A7C < D_800958E8) {
-                if (D_80095A7C % 10 == 0) {
+            if (gTallyCans < gCans) {
+                if (gTallyCans % 10 == 0) {
                     PlaySe(0x2A);
                 }
-                D_80095A7C++;
-                if (D_80095A7C != 0 && D_80095A7C % 25 == 0) {
+                gTallyCans++;
+                if (gTallyCans != 0 && gTallyCans % 25 == 0) {
                     gRetries++;
                     PlaySe(0x22);
                 }
             }
-            if (D_80095A7C == D_800958E8) {
-                if (D_80095A7C == 100) {
+            if (gTallyCans == gCans) {
+                if (gTallyCans == 100) {
                     PlaySe(0x2F);
                     tile[1] = 0x1FB;
                     tile[2] = 0x10;
                     tile[3] = 1;
-                    D_80095AA0[6] = -9;
+                    gResultsSlide[6] = -9;
                     tile[0] = 0;
-                    D_80095A90 = 0;
-                    D_80095A98 = 11;
-                } else if (D_80096A58[rank / 3][rank % 3] < D_80095A7C) {
+                    gResultsTimer = 0;
+                    gResultsStep = 11;
+                } else if (gBestCans[rank / 3][rank % 3] < gTallyCans) {
                     PlaySe(0x25);
-                    D_80095AA0[7] = -9;
-                    D_80095A90 = 0;
-                    D_80095A98 = 15;
+                    gResultsSlide[7] = -9;
+                    gResultsTimer = 0;
+                    gResultsStep = 15;
                 } else {
-                    D_80095A90 = 0;
-                    D_80095A98 = 20;
+                    gResultsTimer = 0;
+                    gResultsStep = 20;
                 }
             }
             break;
         case 11:
-            if (D_80095AA0[6] == 0) {
-                if (D_80095A90 < 36) {
+            if (gResultsSlide[6] == 0) {
+                if (gResultsTimer < 36) {
                     tile[1] = 0x1FB;
                     tile[2] = 0x10;
                     tile[3] = 1;
-                    tile[0] = D_80095A90 % 14 * 16;
+                    tile[0] = gResultsTimer % 14 * 16;
                 }
-                if (++D_80095A90 == 60) {
+                if (++gResultsTimer == 60) {
                     gRetries++;
                     PlaySe(0x22);
-                    D_80095AA0[6] = 1;
+                    gResultsSlide[6] = 1;
                 }
-            } else if (++D_80095AA0[6] == 9) {
-                if (D_80095A7C > D_80096A58[rank / 3][rank % 3]) {
+            } else if (++gResultsSlide[6] == 9) {
+                if (gTallyCans > gBestCans[rank / 3][rank % 3]) {
                     PlaySe(0x25);
-                    D_80095AA0[7] = -9;
-                    D_80095A90 = 0;
-                    D_80095A98 = 15;
+                    gResultsSlide[7] = -9;
+                    gResultsTimer = 0;
+                    gResultsStep = 15;
                 } else {
-                    D_80095A90 = 0;
-                    D_80095A98 = 20;
+                    gResultsTimer = 0;
+                    gResultsStep = 20;
                 }
             }
             break;
@@ -1113,65 +1113,65 @@ void func_8003CC94(void) {
             tile[3] = 1;
             tile[1] = 0x1FA;
             tile[2] = 0x10;
-            tile[0] = D_80095A90 % 14 * 16;
-            if (D_80095AA0[7] == 0) {
-                if (++D_80095A90 == 60) {
-                    D_80096A58[rank / 3][rank % 3] = D_80095A7C;
-                    D_80095AA0[7] = 1;
+            tile[0] = gResultsTimer % 14 * 16;
+            if (gResultsSlide[7] == 0) {
+                if (++gResultsTimer == 60) {
+                    gBestCans[rank / 3][rank % 3] = gTallyCans;
+                    gResultsSlide[7] = 1;
                 }
-            } else if (++D_80095AA0[7] == 9) {
-                D_80095A90 = 0;
-                D_80095A98 = 20;
+            } else if (++gResultsSlide[7] == 9) {
+                gResultsTimer = 0;
+                gResultsStep = 20;
             }
             break;
         case 20:
-            switch (D_80095A90) {
+            switch (gResultsTimer) {
                 case 15:
-                    D_80095A88[4] = 1;
+                    gResultsSliding[4] = 1;
                     break;
                 case 19:
-                    D_80095A88[5] = 1;
+                    gResultsSliding[5] = 1;
                     break;
                 case 31:
-                    D_80095A98 = 30;
+                    gResultsStep = 30;
                     break;
             }
-            D_80095A90++;
+            gResultsTimer++;
             break;
         case 30:
-            if (D_80095980 < D_800D8340[rank / 3][rank % 3]) {
+            if (gElapsed < gBestTimes[rank / 3][rank % 3]) {
                 PlaySe(0x25);
-                D_80095AA0[7] = -9;
-                D_80095A90 = 0;
-                D_80095A98 = 35;
+                gResultsSlide[7] = -9;
+                gResultsTimer = 0;
+                gResultsStep = 35;
             } else {
-                D_80095A90 = 0;
-                D_80095A98 = 50;
+                gResultsTimer = 0;
+                gResultsStep = 50;
             }
             break;
         case 35:
             tile[3] = 1;
             tile[1] = 0x1FA;
             tile[2] = 0x10;
-            tile[0] = D_80095A90 % 14 * 16;
-            if (D_80095AA0[7] == 0) {
-                if (++D_80095A90 == 60) {
-                    D_800D8340[rank / 3][rank % 3] = D_80095980;
-                    D_80095AA0[7] = 1;
+            tile[0] = gResultsTimer % 14 * 16;
+            if (gResultsSlide[7] == 0) {
+                if (++gResultsTimer == 60) {
+                    gBestTimes[rank / 3][rank % 3] = gElapsed;
+                    gResultsSlide[7] = 1;
                 }
-            } else if (++D_80095AA0[7] == 9) {
-                D_80095A90 = 0;
-                D_80095A98 = 50;
+            } else if (++gResultsSlide[7] == 9) {
+                gResultsTimer = 0;
+                gResultsStep = 50;
             }
             break;
         case 50:
-            if (++D_80095A90 == 60) {
+            if (++gResultsTimer == 60) {
                 n = 0;
                 for (i = 0; i < 4; i++) {
-                    if (D_800D8340[i][0] >= D_80010454[i][0]) {
+                    if (gBestTimes[i][0] >= gTargetTimes[i][0]) {
                         n = 1;
                     }
-                    if (D_800D8340[i][1] >= D_80010454[i][1]) {
+                    if (gBestTimes[i][1] >= gTargetTimes[i][1]) {
                         n = 1;
                     }
                 }
@@ -1180,23 +1180,23 @@ void func_8003CC94(void) {
                 }
                 n = 0;
                 for (i = 0; i < 4; i++) {
-                    n += D_80096A58[i][0] + D_80096A58[i][1];
+                    n += gBestCans[i][0] + gBestCans[i][1];
                 }
                 if (n == 800) {
-                    D_800958C8 |= 4;
+                    gUnlocks |= 4;
                 }
-                D_80095A80 = 0;
-                D_800958F0[rank % 3] = D_80095A7C;
-                D_80095838[rank % 3] = D_80095980;
+                gResultsActive = 0;
+                gActCans[rank % 3] = gTallyCans;
+                gActTimes[rank % 3] = gElapsed;
             }
             break;
     }
     for (i = 0; i < 6; i++) {
-        if (D_80095A88[i] != 0) {
-            if (D_80095AA0[i] != 0) {
-                D_80095AA0[i]++;
+        if (gResultsSliding[i] != 0) {
+            if (gResultsSlide[i] != 0) {
+                gResultsSlide[i]++;
             } else {
-                D_80095A88[i] = 0;
+                gResultsSliding[i] = 0;
             }
         }
     }
@@ -1220,20 +1220,20 @@ void func_8003CC94(void) {
     color.g = color.b = 0x80;
     color.cd = 0;
     pos.vy = -16;
-    pos.vx = D_80095AA0[6] * 32 - 0x34;
+    pos.vx = gResultsSlide[6] * 32 - 0x34;
     DrawSprite(0x15B, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -16;
-    pos.vx = D_80095AA0[7] * 32 - 0x40;
+    pos.vx = gResultsSlide[7] * 32 - 0x40;
     DrawSprite(0x15C, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
     pos.vx = -0x28;
-    pos.vy = D_80095AA0[0] * 4 - 0x48;
+    pos.vy = gResultsSlide[0] * 4 - 0x48;
     DrawSprite(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    if (D_80095AA0[1] != -25) {
+    if (gResultsSlide[1] != -25) {
         quad[1] = -0x20;
         quad[3] = -0x40;
-        quad[4] = quad[5] = (-D_80095AA0[1] << 8) + 0x1000;
+        quad[4] = quad[5] = (-gResultsSlide[1] << 8) + 0x1000;
         quad[0] = 0;
         quad[2] = 0;
         quad[6] = 0;
@@ -1241,38 +1241,38 @@ void func_8003CC94(void) {
         DrawSpriteTransformed(0x151, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     pos.vy = 0;
-    pos.vx = D_80095AA0[2] * 32 - 0x80;
+    pos.vx = gResultsSlide[2] * 32 - 0x80;
     DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[2] * 32 + 0x80;
-    func_8003C494(&pos, D_80095A7C);
+    pos.vx = gResultsSlide[2] * 32 + 0x80;
+    DrawResultNumber(&pos, gTallyCans);
     pos.vy = 0x18;
-    pos.vx = D_80095AA0[3] * 32 - 0x80;
+    pos.vx = gResultsSlide[3] * 32 - 0x80;
     DrawSprite(0x158, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[3] * 32 + 0x80;
-    func_8003C494(&pos, D_80096A58[rank / 3][rank % 3]);
+    pos.vx = gResultsSlide[3] * 32 + 0x80;
+    DrawResultNumber(&pos, gBestCans[rank / 3][rank % 3]);
     pos.vy = 0x38;
-    pos.vx = D_80095AA0[4] * 32 - 0x80;
+    pos.vx = gResultsSlide[4] * 32 - 0x80;
     DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[4] * 32 + 0x80;
-    func_8003C8D0(&pos, D_80095980);
+    pos.vx = gResultsSlide[4] * 32 + 0x80;
+    DrawResultTime(&pos, gElapsed);
     pos.vy = 0x50;
-    pos.vx = D_80095AA0[5] * 32 - 0x80;
+    pos.vx = gResultsSlide[5] * 32 - 0x80;
     DrawSprite(0x15A, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[5] * 32 + 0x80;
-    func_8003C8D0(&pos, D_800D8340[rank / 3][rank % 3]);
+    pos.vx = gResultsSlide[5] * 32 + 0x80;
+    DrawResultTime(&pos, gBestTimes[rank / 3][rank % 3]);
 }
 
-extern s32 D_800958F4;
-extern s32 D_8009583C;
+extern s32 gWorldCans;
+extern s32 gWorldTime;
 
-void func_8003D960(void) {
+void UpdateWorldResults(void) {
     s32 i;
     s32 k;
     s32 rank;
     SVECTOR pos;
     SColor color;
 
-    if (D_80095A80 == 0) {
+    if (gResultsActive == 0) {
         return;
     }
     k = gStage;
@@ -1287,80 +1287,80 @@ void func_8003D960(void) {
     }
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
-    switch (D_80095A98) {
+    switch (gResultsStep) {
         case 0:
-            switch (D_80095A90) {
+            switch (gResultsTimer) {
                 case 0:
-                    D_80095A88[0] = 1;
+                    gResultsSliding[0] = 1;
                     break;
                 case 60:
-                    D_80095A88[1] = 1;
+                    gResultsSliding[1] = 1;
                     break;
                 case 90:
-                    D_80095A88[2] = 1;
+                    gResultsSliding[2] = 1;
                     break;
                 case 94:
-                    D_80095A88[3] = 1;
+                    gResultsSliding[3] = 1;
                     break;
                 case 120:
-                    D_80095A88[4] = 1;
+                    gResultsSliding[4] = 1;
                     break;
                 case 150:
-                    D_80095A88[5] = 1;
+                    gResultsSliding[5] = 1;
                     break;
                 case 154:
-                    D_80095A88[6] = 1;
+                    gResultsSliding[6] = 1;
                     break;
                 case 300:
-                    D_80095A98 = 10;
+                    gResultsStep = 10;
                     break;
             }
-            D_80095A90++;
+            gResultsTimer++;
             break;
         case 10:
-            D_80095A80 = 0;
+            gResultsActive = 0;
             break;
     }
     for (i = 0; i < 7; i++) {
-        if (D_80095A88[i] != 0) {
-            if (D_80095AA0[i] != 0) {
-                D_80095AA0[i]++;
+        if (gResultsSliding[i] != 0) {
+            if (gResultsSlide[i] != 0) {
+                gResultsSlide[i]++;
             } else {
-                D_80095A88[i] = 0;
+                gResultsSliding[i] = 0;
             }
         }
     }
     pos.vx = -80;
-    pos.vy = D_80095AA0[0] * 4 - 88;
+    pos.vy = gResultsSlide[0] * 4 - 88;
     DrawSprite(0x152, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 48;
     DrawSprite(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -48;
-    pos.vx = D_80095AA0[1] * 32 - 40;
+    pos.vx = gResultsSlide[1] * 32 - 40;
     DrawSprite(0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -24;
-    pos.vx = D_80095AA0[2] * 32 - 128;
+    pos.vx = gResultsSlide[2] * 32 - 128;
     DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[2] * 32 + 128;
-    func_8003C494(&pos, D_800958F0[0]);
+    pos.vx = gResultsSlide[2] * 32 + 128;
+    DrawResultNumber(&pos, gActCans[0]);
     pos.vy = 0;
-    pos.vx = D_80095AA0[3] * 32 - 128;
+    pos.vx = gResultsSlide[3] * 32 - 128;
     DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[3] * 32 + 128;
-    func_8003C8D0(&pos, D_80095838[0]);
+    pos.vx = gResultsSlide[3] * 32 + 128;
+    DrawResultTime(&pos, gActTimes[0]);
     pos.vy = 24;
-    pos.vx = D_80095AA0[4] * 32 - 40;
+    pos.vx = gResultsSlide[4] * 32 - 40;
     DrawSprite(0x150, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = 48;
-    pos.vx = D_80095AA0[5] * 32 - 128;
+    pos.vx = gResultsSlide[5] * 32 - 128;
     DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[5] * 32 + 128;
-    func_8003C494(&pos, D_800958F4);
+    pos.vx = gResultsSlide[5] * 32 + 128;
+    DrawResultNumber(&pos, gWorldCans);
     pos.vy = 72;
-    pos.vx = D_80095AA0[6] * 32 - 128;
+    pos.vx = gResultsSlide[6] * 32 - 128;
     DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    pos.vx = D_80095AA0[6] * 32 + 128;
-    func_8003C8D0(&pos, D_8009583C);
+    pos.vx = gResultsSlide[6] * 32 + 128;
+    DrawResultTime(&pos, gWorldTime);
 }
 
 /** @brief Sixteen signed bytes, copied together as one unaligned block. */
@@ -1370,7 +1370,7 @@ typedef struct {
 
 extern Bytes16 D_80011EB0;
 
-void func_8003DE34(void) {
+void RemapButtons(void) {
     Bytes16 tbl;
     s32 k;
     u32 a;
@@ -1381,60 +1381,60 @@ void func_8003DE34(void) {
     tbl = D_80011EB0;
     a = gPadTrig;
     b = gPad;
-    k = D_80095908;
-    D_800957EC = a;
-    D_800957B4 = b;
-    D_800957EC = a & ~0xE0;
-    D_800957B4 = b & ~0xE0;
-    D_800957EC |= ((a & 0x20) >> 5) << (tbl.b[k][0] + 5);
-    D_800957EC |= ((a & 0x40) >> 6) << (tbl.b[k][1] + 5);
-    D_800957EC |= ((a & 0x80) >> 7) << (tbl.b[k][2] + 5);
-    D_800957B4 |= ((b & 0x20) >> 5) << (tbl.b[k][0] + 5);
-    D_800957B4 |= ((b & 0x40) >> 6) << (tbl.b[k][1] + 5);
-    D_800957B4 |= ((b & 0x80) >> 7) << (tbl.b[k][2] + 5);
+    k = gButtonConfig;
+    gGamePadTrig = a;
+    gGamePad = b;
+    gGamePadTrig = a & ~0xE0;
+    gGamePad = b & ~0xE0;
+    gGamePadTrig |= ((a & 0x20) >> 5) << (tbl.b[k][0] + 5);
+    gGamePadTrig |= ((a & 0x40) >> 6) << (tbl.b[k][1] + 5);
+    gGamePadTrig |= ((a & 0x80) >> 7) << (tbl.b[k][2] + 5);
+    gGamePad |= ((b & 0x20) >> 5) << (tbl.b[k][0] + 5);
+    gGamePad |= ((b & 0x40) >> 6) << (tbl.b[k][1] + 5);
+    gGamePad |= ((b & 0x80) >> 7) << (tbl.b[k][2] + 5);
 }
 
-void func_8003DFB8(unsigned long *tmd) {
+void LinkStageTmd(unsigned long *tmd) {
     u32 i;
     GsDOBJ2 *obj;
 
     tmd++;
     GsMapModelingData(tmd);
     tmd++;
-    D_80095794 = *tmd;
+    gStageObjCount = *tmd;
     tmd++;
-    for (i = 0; i < D_80095794; i++) {
-        GsLinkObject4((unsigned long)tmd, &D_800AC868[i], i);
+    for (i = 0; i < gStageObjCount; i++) {
+        GsLinkObject4((unsigned long)tmd, &gStageObjs[i], i);
     }
-    obj = D_800AC868;
-    for (i = 0; i < D_80095794; i++) {
-        obj->coord2 = &D_800A72B8;
+    obj = gStageObjs;
+    for (i = 0; i < gStageObjCount; i++) {
+        obj->coord2 = &gStageCoord;
         obj->attribute = 0x200;
         obj++;
     }
 }
 
-void func_8003E07C(unsigned long *tmd) {
+void LinkPropsTmd(unsigned long *tmd) {
     u32 i;
     GsDOBJ2 *obj;
 
     tmd++;
     GsMapModelingData(tmd);
     tmd++;
-    D_80095798 = *tmd;
+    gPropObjCount = *tmd;
     tmd++;
-    for (i = 0; i < D_80095798; i++) {
-        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    for (i = 0; i < gPropObjCount; i++) {
+        GsLinkObject4((unsigned long)tmd, &gPropObjs[i], i);
     }
-    obj = D_800ACB88;
-    for (i = 0; i < D_80095798; i++) {
-        obj->coord2 = &D_800A72B8;
+    obj = gPropObjs;
+    for (i = 0; i < gPropObjCount; i++) {
+        obj->coord2 = &gStageCoord;
         obj->attribute = 0;
         obj++;
     }
 }
 
-void func_8003E13C(unsigned long *p) {
+void LoadTimList(unsigned long *p) {
     RECT rect;
     GsIMAGE tim;
 
@@ -1456,7 +1456,7 @@ void func_8003E13C(unsigned long *p) {
     }
 }
 
-void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 dx;
     s32 dy;
     s32 t;
@@ -1470,13 +1470,13 @@ void func_8003E1FC(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     out[1] = t * dy / d;
 }
 
-void func_8003E29C(s32 a, s32 b, s32 c) {
-    if (D_80095968 < 16) {
-        D_800A7278[D_80095968] = VSync(1);
-        D_800AC848[D_80095968] = a;
-        D_800A7888[D_80095968] = b;
-        D_800A76E8[D_80095968] = c;
-        D_80095968++;
+void MarkCpuTime(s32 a, s32 b, s32 c) {
+    if (gCpuMarkCount < 16) {
+        gCpuMarkTimes[gCpuMarkCount] = VSync(1);
+        D_800AC848[gCpuMarkCount] = a;
+        D_800A7888[gCpuMarkCount] = b;
+        D_800A76E8[gCpuMarkCount] = c;
+        gCpuMarkCount++;
     }
 }
 
@@ -1509,48 +1509,48 @@ void func_8003E360(s32 level) {
     }
 }
 
-void func_8003E40C(void) {
-    D_80095A78 = 0;
-    D_80095A94 = 1;
+void StartScreenWipe(void) {
+    gWipeFrame = 0;
+    gWipeActive = 1;
     PlaySe(0x19);
 }
 
-s32 func_8003E438(void) {
-    return D_80095A94;
+s32 IsScreenWipeActive(void) {
+    return gWipeActive;
 }
 
-void func_8003E444(void) {
+void StartActResults(void) {
     s32 i;
     Bytes8 buf;
 
     buf = *(Bytes8 *)D_800956B0;
-    D_80095A98 = 0;
-    D_80095A90 = 0;
-    D_80095A80 = 1;
-    D_80095A7C = 0;
+    gResultsStep = 0;
+    gResultsTimer = 0;
+    gResultsActive = 1;
+    gTallyCans = 0;
     for (i = 0; i < 8; i++) {
-        D_80095AA0[i] = buf.b[i];
-        D_80095A88[i] = 0;
+        gResultsSlide[i] = buf.b[i];
+        gResultsSliding[i] = 0;
     }
 }
 
-void func_8003E4C4(void) {
+void StartWorldResults(void) {
     s32 i;
     Bytes8 buf;
 
     buf = *(Bytes8 *)D_800956B8;
-    D_80095A98 = 0;
-    D_80095A90 = 0;
-    D_80095A80 = 1;
-    D_80095A7C = 0;
+    gResultsStep = 0;
+    gResultsTimer = 0;
+    gResultsActive = 1;
+    gTallyCans = 0;
     for (i = 0; i < 8; i++) {
-        D_80095AA0[i] = buf.b[i];
-        D_80095A88[i] = 0;
+        gResultsSlide[i] = buf.b[i];
+        gResultsSliding[i] = 0;
     }
 }
 
-s32 func_8003E544(void) {
-    return D_80095A80;
+s32 IsResultsActive(void) {
+    return gResultsActive;
 }
 
 /* MATCHING: inlined, so each call rebuilds the two struct addresses. */
@@ -1574,7 +1574,7 @@ static __inline__ void setLs(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 func_8003E550(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect1(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1592,7 +1592,7 @@ s32 func_8003E550(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003E6F8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect5(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 c[2];
     POLY_F4 *f;
     DR_TPAGE *t;
@@ -1628,7 +1628,7 @@ s32 func_8003E6F8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return ++p->frame == 8;
 }
 
-s32 func_8003EA04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect7(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];
@@ -1649,7 +1649,7 @@ s32 func_8003EA04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         color.g = color.b = color.cd = ~(p->frame << 4);
         DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->frame == 8) {
-            D_800958E8++;
+            gCans++;
             func_80028448();
             return 1;
         }
@@ -1659,7 +1659,7 @@ s32 func_8003EA04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003EC04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];
@@ -1687,7 +1687,7 @@ s32 func_8003EC04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
             DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         }
         if (++p->frame == 8) {
-            D_800958E8 += 5;
+            gCans += 5;
             func_80028448();
             return 1;
         }
@@ -1697,7 +1697,7 @@ s32 func_8003EC04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003EF40(Effect *p) {
+s32 StepEffect10(Effect *p) {
     SVECTOR pos;
     SColor color;
 
@@ -1734,7 +1734,7 @@ extern SVECTOR D_800CEBE0[];
 extern GsDOBJ2 D_800960A8[];
 
 /* MATCHING: D_800CDC00 is the coordinate table's true start (undefined_syms.*.txt). */
-s32 func_8003F100(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect11(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     MATRIX m;
 
     if (p->delay == 0) {
@@ -1763,7 +1763,7 @@ s32 func_8003F100(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003F488(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect12(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1852,7 +1852,7 @@ s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay) {
     return 0;
 }
 
-void func_8003F8D4(s16 x, s16 y, s16 z) {
+void SetLsTranslation(s16 x, s16 y, s16 z) {
     GsCOORDINATE2 coord;
     MATRIX ls;
 
@@ -1865,7 +1865,7 @@ void func_8003F8D4(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 func_8003F960(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1881,7 +1881,7 @@ s32 func_8003F960(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003FA88(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect2(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1900,7 +1900,7 @@ s32 func_8003FA88(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003FBE0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect3(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1916,7 +1916,7 @@ s32 func_8003FBE0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003FD0C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect4(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1933,7 +1933,7 @@ s32 func_8003FD0C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003FE5C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect6(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1950,7 +1950,7 @@ s32 func_8003FE5C(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 func_8003FFAC(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepEffect9(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 

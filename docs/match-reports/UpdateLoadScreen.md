@@ -4,12 +4,12 @@
 
 Twin of UpdateAct3LoadScreen: the same three sprites, then `LoadStage`
 instead of `LoadAct3Stage`, and when `gSubStep` reaches 100 it also
-clears `D_80095980` and calls `PlayStageMusic(gStage)`.
+clears `gElapsed` and calls `PlayStageMusic(gStage)`.
 
 ```c
 void LoadStage(void);
 
-extern s32 D_80095980;
+extern s32 gElapsed;
 
 void UpdateLoadScreen(void) {
     SVECTOR pos;
@@ -26,7 +26,7 @@ void UpdateLoadScreen(void) {
     LoadStage();
     if (gSubStep == 100) {
         gModeStep = 4;
-        D_80095980 = 0;
+        gElapsed = 0;
         gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);

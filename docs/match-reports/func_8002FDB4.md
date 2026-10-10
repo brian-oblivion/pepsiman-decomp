@@ -6,7 +6,7 @@ Unit `src/code_1dc24.c`. On flag bit 5: error 8 in `D_800958DA` when
 (`D_800959C4`) up by one from the end of the current entry, writes the
 game position (`sGameSave.unk348`, as halfwords) and `D_80095B4C[0] + 1`
 as the new point, bumps the entry's count and the start of every later
-entry (`D_800959C0`, `D_80095794` entries), and rebuilds the block header
+entry (`D_800959C0`, `gStageObjCount` entries), and rebuilds the block header
 with `func_8002D0C4(0x801FD000)`.
 
 ## How it closed
@@ -97,7 +97,7 @@ void func_8002FDB4(void) {
             p->y = pos[1];
             p->z = pos[2];
             p->tag = D_80095B4C[0] + 1;
-            for (j = D_80095824 + 1; j < D_80095794; j++) {
+            for (j = D_80095824 + 1; j < gStageObjCount; j++) {
                 e->start++;
                 e++;
             }

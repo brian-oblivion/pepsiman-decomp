@@ -4,7 +4,7 @@ Unit `src/main.c`. The game's entry, called from SN's crt0
 (`__SN_ENTRY_POINT`). It initialises the system (InitSystem,
 InitTmdSortFuncs, func_80018DE8(1), InitView, InitLights, fog),
 sets the start-up globals, fills two four-entry tables (clears
-`D_80096A58`, copies `D_80010454` into `D_800D8340`), then loops forever:
+`gBestCans`, copies `gTargetTimes` into `gBestTimes`), then loops forever:
 `FntPrint`, the 45-state top-level `switch (gGameMode)` (boot, title,
 stage load and play, demo, movies), `FntFlush(-1)`, UpdateCdLoad,
 UpdateSoundFade, EndFrame.
@@ -28,7 +28,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
   cross-jumping folds them. A bare `__asm__("")` AFTER the call in case 3
   keeps them apart; before the call the tails still merge.
 - **The table copy is two `s32` locals through a destination pointer
-  local**: `dst = &D_800D8340[i]; a = src[i].a; b = src[i].b; dst->a = a;
+  local**: `dst = &gBestTimes[i]; a = src[i].a; b = src[i].b; dst->a = a;
   dst->b = b;`. A struct copy is a BLKmode move after which cse reloads
   the global counter; an `s64` copy loads into a register pair (wrong
   order, and the zero stores go through `move t2, zero`); member-by-member
@@ -44,7 +44,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 ## Declarations left for the head
 
 declcheck MULTI: `gViewerMotion` (code_7d74), `D_800958E2` (code_1a098),
-`D_80095908` and `D_80095968` (code_29f54) are now declared in main.c as
+`gButtonConfig` and `gCpuMarkCount` (code_29f54) are now declared in main.c as
 well. LOCAL: prototypes for other units' functions (UpdateMotionViewer,
 InitTmdSortFuncs, func_800229A8, func_80022A74, func_8002B04C,
 func_8002D424, func_80034070, InitStageOverlay, LoadStageOverlay,

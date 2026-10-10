@@ -80,7 +80,7 @@ C value to a register (CLAUDE.md rule 7 is about that). The `li $t1` /
 `move $t0, $t1` pair is copied as retail has it; the original macro
 probably took the address as an `"r"` input, which would be an operand
 constraint and is not used here. The same sequence appears in
-UpdateLoadScreenModel (main), DrawTodObjects (code_7d74) and func_8003A008
+UpdateLoadScreenModel (main), DrawTodObjects (code_7d74) and DrawStage
 (code_29f54), so the macro is a candidate for a shared header; it is kept
 in `src/main.c` until the head decides.
 

@@ -1,0 +1,91 @@
+# StepEffect11 — MATCHED (round 13, head): the linker-side symbol at 0x800CDC00 landed in `config/undefined_syms.slps01762.pepsiman.txt`
+
+> Renamed from `func_8003F100` on 2026-10-10 (tools/rename.py). Address 0x8003f100.
+
+**Round 13 (head):** `D_800CDC00` is now defined by the tracked linker file `config/undefined_syms.slps01762.pepsiman.txt` (linked by the Makefile ahead of splat's auto file). The body below went live with the array declared at its true start in place of the `D_800CDF20 - 10` define; build `OK`. The rest of this report is the round-it-stalled record.
+
+Unit `src/code_29f54.c`. A slot step (the `SlotStep` signature): places a
+spinning, bobbing 3D piece. After the wait it sets up the piece's
+coordinate record (`[unk4 + 10]` of a GsCOORDINATE2 table) at the slot's
+position plus a sine bob, its rotation record (`D_800CEBE0[unk4 + 10]`,
+turning `unkA` degrees per frame), sets the local-screen and light
+matrices, spawns a SpawnEffect effect every fifth frame, moves the piece by
+`unk6` and sorts its object `D_800960A8[unk4]`; done after 30 frames.
+
+## The blocker: a symbol, not the C
+
+Retail builds the table base from the address splat named, `addiu $s2,
+$s4, -0x320` with `$s4 = &D_800CDF20`, and indexes `(unk4 + 10) * 0x50` from
+it: the source array starts 10 records (0x320 bytes) before `D_800CDF20`, at
+0x800CDC00, which has no symbol (`config/undefined_syms_auto` has only
+`D_800CDF20`). Spelled `(D_800CDF20 - 10)[p->unk4 + 10]`, cc1 folds the -800
+against the +800 and the base register disappears (7 words short, two fewer
+saved registers).
+
+With a symbol at 0x800CDC00 the body below is byte-exact: proven in-tree
+with a temporary `__asm__(".globl D_800CDC00\n.set D_800CDC00,
+0x800CDC00");` and `#define sPieceCoords D_800CDC00` (build `OK`, 226/226).
+That asm line is a symbol definition in a .c, not committed. A symbols-file entry
+alone does NOT close it (round 9, head, measured): splat writes only symbols
+that retail's code references into `undefined_syms_auto`, and no instruction
+references 0x800CDC00, so the link fails on `undefined reference to
+D_800CDC00`. Closing it needs a linker-side definition of the symbol (a
+build change; the operator's call), then
+`extern GsCOORDINATE2 D_800CDC00[];` in place of the `#define` below.
+
+The body also needs `Slot.unkA` as `s16` (`lh 0xA`); that retype is
+committed (layout unchanged, image OK).
+
+```c
+#if 0
+extern GsCOORDINATE2 D_800CDF20[];
+extern SVECTOR D_800CEBE0[];
+extern GsDOBJ2 D_800960A8[];
+
+/* MATCHING: retail indexes the coordinate table from 10 records before the
+ * symbol splat named, and builds that base from it (addiu -0x320). */
+#define sPieceCoords (D_800CDF20 - 10) /* byte-exact as D_800CDC00 */
+
+s32 SpawnEffect(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+
+s32 StepEffect11(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    MATRIX m;
+
+    if (p->unk2 == 0) {
+        GsInitCoordinate2(WORLD, &sPieceCoords[p->unk4 + 10]);
+        sPieceCoords[p->unk4 + 10].coord.t[0] = p->unkC + x;
+        sPieceCoords[p->unk4 + 10].coord.t[1] = p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096 + y;
+        sPieceCoords[p->unk4 + 10].coord.t[2] = p->unk10 + z;
+        sPieceCoords[p->unk4 + 10].flg = 0;
+        D_800CEBE0[p->unk4 + 10].vx = (p->unk0 * p->unkA << 12) / 360;
+        D_800CEBE0[p->unk4 + 10].vy = 0;
+        D_800CEBE0[p->unk4 + 10].vz = 0;
+        SetCoordRotation(&D_800CEBE0[p->unk4 + 10], &sPieceCoords[p->unk4 + 10]);
+        GsGetLs(&sPieceCoords[p->unk4 + 10], &m);
+        GsSetLsMatrix(&m);
+        GsGetLw(&sPieceCoords[p->unk4 + 10], &m);
+        GsSetLightMatrix(&m);
+        if (p->unk0 % 5 == 0) {
+            SpawnEffect(4, p->unkC, p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096, p->unk10, 0);
+        }
+        p->unkC += p->unk6;
+        GsSortObject4(&D_800960A8[p->unk4], ot, 2, (u_long *)0x1F800000);
+        return ++p->unk0 > 29;
+    }
+    p->unk2--;
+    return 0;
+}
+#endif
+```
+
+Place it where the `INCLUDE_ASM` stands (between StepEffect10 and
+StepEffect12); `SpawnEffect` is defined later in the unit, so its
+prototype stays above.
+
+### Proposed learning
+
+- **A table base built as `addiu $sN, $sM, -K` from another symbol's
+  address, then indexed `(i + K/size) * size`: the source array starts K
+  bytes before the symbol splat named.** Spelled `(SYM - n)[i + n]` cc1
+  folds the offsets away; it needs a real symbol at the start address.
+  (StepEffect11)

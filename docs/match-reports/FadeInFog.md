@@ -12,7 +12,7 @@ at 100 after 32.
 
 ```c
 /* libgte.h, libgpu.h, libgs.h; code_a0bc.h for gSubOt.
- * extern u8 *GsOUT_PACKET_P; common.h: gFogFade (u16), D_800958FC (u8 *),
+ * extern u8 *GsOUT_PACKET_P; common.h: gFogFade (u16), gFogColors (u8 *),
  * D_80095864, gActiveBuff. */
 void FadeInFog(void) {
     POLY_F4 *p;
@@ -30,9 +30,9 @@ void FadeInFog(void) {
         }
         i = ((u32)D_80095864 >> 8) & 3;
         SetFogNearFar(gFogFade * 3000 * 2048 / 0x10000, gFogFade * 8000 * 2048 / 0x10000, 250);
-        SetFarColor(D_800958FC[i * 4] * (gFogFade << 11) / 0x10000,
-                    D_800958FC[i * 4 + 1] * (gFogFade << 11) / 0x10000,
-                    D_800958FC[i * 4 + 2] * (gFogFade << 11) / 0x10000);
+        SetFarColor(gFogColors[i * 4] * (gFogFade << 11) / 0x10000,
+                    gFogColors[i * 4 + 1] * (gFogFade << 11) / 0x10000,
+                    gFogColors[i * 4 + 2] * (gFogFade << 11) / 0x10000);
         gFogFade++;
         if (gFogFade == 32) {
             gFogFade = 100;
@@ -59,14 +59,14 @@ void FadeInFog(void) {
   0x10000` gives retail's `375 * D << 14` and a signed divide;
   `gFogFade * 8000 * 2048 / 0x10000` folds the whole divide into `D *
   250`. `(gFogFade << 11) * 3000` kept the shift in its own register.
-- The colour index as `D_800958FC[i * 4 + k]` (func_80028650's form). A
-  `u8 *c = &D_800958FC[i * 4]` local swaps the operands of the `addu`.
+- The colour index as `gFogColors[i * 4 + k]` (func_80028650's form). A
+  `u8 *c = &gFogColors[i * 4]` local swaps the operands of the `addu`.
 - `100` lives in `$s1` across the calls with no local: cc1 kept the
   constant from the entry test for the final store on its own.
 
 ## Declarations
 
-`gFogFade` (`u16`) and `D_800958FC` (`u8 *`) move from
+`gFogFade` (`u16`) and `gFogColors` (`u8 *`) move from
 `src/code_13068.c` into `include/common.h` (additive; same types).
 
 ### Proposed learning

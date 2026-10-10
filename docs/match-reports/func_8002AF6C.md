@@ -14,17 +14,17 @@ s16 func_8002AF6C(PathUser *u) {
     PathPt *seg;
 
     i = u->seg;
-    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    next = (PathPt *)(i * 8 + (u32)gSectionEdges) + 1;
     d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
     if (d >= 0) {
         i++;
     }
-    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    pt = (PathPt *)(i * 8 + (u32)gSectionEdges);
     d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
     if (d >= 0) {
         i--;
     }
-    seg = (PathPt *)(i * 8 + (u32)D_800958A0);
+    seg = (PathPt *)(i * 8 + (u32)gSectionEdges);
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 ```

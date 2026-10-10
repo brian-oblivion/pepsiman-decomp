@@ -7,6 +7,7 @@
 #include "code_7d74.h"
 #include "code_a0bc.h"
 #include "code_1a098.h"
+#include "spad.h"
 
 /** @brief A 16-byte entry of a pack's directory; the first entry's count is
  *         the number of entries. */
@@ -90,7 +91,7 @@ typedef struct {
 u8 func_80017F0C(Player *obj, u16 index, s8 arg);
 
 void func_80017DD4(void);
-void func_8001819C(void);
+s32 func_8001819C(void);
 void func_80018BD8(void);
 s8 func_80017640(u16 *tim);
 u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5);
@@ -432,7 +433,73 @@ void func_80018094(void) {
     GsSetFogParam(&fog);
 }
 
+#ifdef NON_MATCHING
+/** @brief The game state's fields the model draw reads. */
+typedef struct {
+    u8 unk0[2];     /**< not yet known */
+    u8 unk2;        /**< draw every frame when set */
+    u8 unk3[2];     /**< not yet known */
+    u8 unk5;        /**< the mode; 0 and 0x5E draw only half the frames */
+    u8 unk6[0x3C4]; /**< not yet known */
+    u16 unk3CA;     /**< selects the second ordering tables when set */
+    u8 unk3CC[8];   /**< not yet known */
+    s8 unk3D4;      /**< 1 swaps object 10's model */
+} DrawHead;
+
+/** @brief The model list as the model draw walks it. */
+typedef struct {
+    GsDOBJ2 *objs; /**< the models */
+    s32 count;     /**< how many */
+} DrawList;
+
+extern s32 D_800963A0[];
+
+s32 func_8001819C(void) {
+    GsDOBJ2 save;
+    MATRIX m;
+    GsDOBJ2 *o;
+    GsDOBJ2 *q;
+    s32 i;
+
+    if ((*(DrawHead *)D_8009EB78).unk2 == 0 && (D_8009585C & 3) < 2) {
+        if ((*(DrawHead *)D_8009EB78).unk5 == 0 || (*(DrawHead *)D_8009EB78).unk5 == 0x5E) {
+            return;
+        }
+    }
+    o = (*(DrawList *)D_800D8360).objs;
+    for (i = 0; i < (*(DrawList *)D_800D8360).count; o++, i++) {
+        o->coord2->flg = 0;
+        if (o->id == -1) {
+            continue;
+        }
+        if (o->tmd != NULL) {
+            save = *o;
+            q = o;
+            if (o->id == 10 && (*(DrawHead *)D_8009EB78).unk3D4 == 1) {
+                o->tmd = (unsigned long *)D_800963A0[2];
+            }
+            GsGetLs(o->coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(o->coord2, &m);
+            GsSetLightMatrix(&m);
+            SetSpadStack();
+            if ((*(DrawHead *)D_8009EB78).unk3CA == 0) {
+                GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+            } else {
+                GsSortObject4J(o, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+            }
+            ResetSpadStack();
+            /* MATCHING: the loop pointer is reloaded from the copy. */
+            o = q;
+            *o = save;
+        }
+        /* MATCHING: a barrier keeps the tmd branch's label off the loop test. */
+        __asm__("");
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001819C);
+#endif
 
 s32 func_800183B0(Vec3i *pos) {
     Vec3i p;

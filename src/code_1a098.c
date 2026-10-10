@@ -8,6 +8,7 @@
 #include "code_1a098.h"
 #include "code_7d74.h"
 #include "code_13068.h"
+#include "code_a0bc.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -459,7 +460,57 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B04C);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B220);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B5FC);
+/** @brief Sorts three white lines 400 units long through the origin, one
+ *         along each axis, into the current ordering table. */
+void func_8002B5FC(void) {
+    VECTOR world;
+    SVECTOR screen;
+    GsLINE line;
+
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = 0xFF;
+    line.b = 0xFF;
+    world.vx = 0;
+    world.vy = -200;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vx = 0;
+    world.vy = 200;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    world.vx = -200;
+    world.vy = 0;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vx = 200;
+    world.vy = 0;
+    world.vz = 0;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    world.vx = 0;
+    world.vy = 0;
+    world.vz = -200;
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vx = 0;
+    world.vy = 0;
+    world.vz = 200;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], world.vz >> 2);
+}
 
 /** @brief Loads every image of the directory `dir` and registers each as a
  *         texture, numbered from `id` on. */

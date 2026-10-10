@@ -208,7 +208,7 @@ extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
 /* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
  * take an s32 id here (passed unextended), u16 and s16 in code_1a098. */
-void func_80032964(s32 a, u8 *buf);
+void func_80032964(s16 a, u8 *buf);
 void func_80032C28(s16 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
@@ -897,7 +897,16 @@ void func_800327BC(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032964);
+/** @brief Saves the record tables, the block header area and the tool
+ *         state block into save slot `a` of `buf`. */
+void func_80032964(s16 a, u8 *buf) {
+    ((SaveSlot *)buf)[a].unk3AB4 = *(Rec5CsCopy *)D_800CF080;
+    ((SaveSlot *)buf)[a].unk274 = *(Obj48sCopy *)D_800A9008;
+    /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
+    *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(Rec3CsCopy *)D_800A7898;
+    *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
+    *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200 = *(TotalsCopy *)D_80095B28;
+}
 
 /** @brief Restores the record tables, the block header area and the tool
  *         state block from save slot `a` of `buf`. */

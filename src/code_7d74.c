@@ -734,14 +734,14 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     s16 j;
     u32 w;
     u32 bits;
-    u16 sign;
+    s16 sign;
     s32 id;
     u32 type;
     GsDOBJ2 *obj;
     u32 flags;
     u32 words;
     u8 *p;
-    s32 h;
+    s16 h;
     s32 *r;
     GsCOORDINATE2 *c;
     MATRIX *m;
@@ -750,8 +750,8 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     s32 v;
     Slot *s;
 
-    p = data + 4;
     w = *(u32 *)data;
+    p = data + 4;
     bits = w & 0x7000;
     sign = w & 0x8000;
     id = w & 0xFFF;
@@ -762,8 +762,9 @@ u8 *func_80018DF0(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
     } else {
         type = 1;
         flags = 2;
+        k = 0;
         words = 0;
-        for (k = 0; k < 3; k++) {
+        for (; k < 3; k++) {
             mask[k] = bits & (0x4000 >> k);
             if (mask[k] != 0) {
                 words++;

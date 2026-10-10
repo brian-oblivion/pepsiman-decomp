@@ -73,9 +73,6 @@ void func_800F03BC(void);
 void func_800F0414(void);
 void func_800F0480(void);
 
-/* MATCHING: cc1's own `jal __main` in main is retail's call of func_80042C50. */
-__asm__(".set __main, func_80042C50");
-
 /**
  * @brief The game's entry, called from crt0: initialises the system and the
  *        globals, then steps the top-level game state once

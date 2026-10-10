@@ -608,4 +608,5 @@ void func_80042C14(void) {
     CdControlF(CdlPause, 0);
 }
 
-void func_80042C50(void) {}
+/** @brief The C runtime hook main calls first; empty in this program. */
+void __main(void) {}

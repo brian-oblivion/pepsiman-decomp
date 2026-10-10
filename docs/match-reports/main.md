@@ -16,13 +16,11 @@ The definition is `int main(void)`; the name stays `main`.
 About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 
 - **`__main`.** cc1 emits `jal __main` as main's first call; retail's is
-  `jal func_80042C50`, an empty function (the 8 bytes right before
-  `__SN_ENTRY_POINT`, i.e. most likely libsn's `__main`, carved into
-  code_31cec as C). The C does not call func_80042C50; a top-level
-  `__asm__(".set __main, func_80042C50");` points cc1's call at it. **For
-  the head:** the clean fix is naming 0x80042C50 `__main` in the symbols
-  file (and probably moving it out of code_31cec into the Sony range);
-  then the `.set` line goes. Renames were out of scope this round.
+  a call of the empty function at 0x80042C50 (the 8 bytes right before
+  `__SN_ENTRY_POINT`, most likely libsn's `__main`, carved into code_31cec
+  as C). The C does not call __main. Round 11's head named that address
+  `__main` (tools/rename.py), which replaced the runner's interim
+  `.set __main, func_80042C50` line.
 - **Case bodies in source order (LEARNINGS):** cases 38, 39 and 40 sit
   between case 8 and case 12 in retail, so the source lists them there.
 - **Two identical arms kept apart.** Cases 0 and 3 of the world switch

@@ -154,6 +154,35 @@ typedef struct {
     s32 phase;  /**< bob phase in degrees */
 } Drifter;
 
+/** @brief The Rec48 table, copied whole. */
+typedef struct {
+    s32 w[sizeof(Rec48) * 200 / 4]; /**< the records */
+} Recs48Copy;
+
+/** @brief The Rec5C table, copied whole. */
+typedef struct {
+    s32 w[sizeof(Rec5C) * 200 / 4]; /**< the records */
+} Recs5CCopy;
+
+/** @brief The Rec3C table, copied whole. */
+typedef struct {
+    s32 w[sizeof(Rec3C) * 100 / 4]; /**< the records */
+} Recs3CCopy;
+
+/** @brief The block header area, copied whole; bytes, so a copy of it
+ *         tests the alignment at run time. */
+typedef struct {
+    u8 b[0x800]; /**< the area */
+} BlockCopy;
+
+/** @brief A saved copy of the record tables and the block header. */
+typedef struct {
+    Recs48Copy recs48; /**< the Rec48 table */
+    Recs5CCopy recs5C; /**< the Rec5C table */
+    Recs3CCopy recs3C; /**< the Rec3C table */
+    BlockCopy block;   /**< the block header area */
+} SavedTables;
+
 /** @brief The game-progress block, as far as the full reset writes it. */
 typedef struct {
     u8 unk0;        /**< 0x38 after a reset */
@@ -512,7 +541,21 @@ void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
     D_8009588E++;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C2B4);
+/** @brief Restores the Rec48, Rec5C and Rec3C tables and the block header
+ *         from their saved copy, and points the current-block globals at
+ *         the restored header. */
+/* MATCHING: word-typed table copies; the byte-typed header copy keeps the
+ * runtime alignment test. */
+void func_8002C2B4(void) {
+    SavedTables *s;
+
+    s = (SavedTables *)0x80173778;
+    *(Recs48Copy *)sRecs48 = s->recs48;
+    *(Recs5CCopy *)D_800CF080 = s->recs5C;
+    *(Recs3CCopy *)D_800A7898 = s->recs3C;
+    *(BlockCopy *)0x801FD000 = s->block;
+    func_8002D0C4((BlockHeader *)0x801FD000);
+}
 
 /** @brief Updates `p->unk28` from a lookup unless the lookup fails (-1). */
 void func_8002C438(Obj2C *p) {

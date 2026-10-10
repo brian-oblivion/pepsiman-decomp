@@ -493,7 +493,110 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003CC94);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003D960);
+extern s32 D_800958F0;
+extern s32 D_800958F4;
+extern s32 D_80095838;
+extern s32 D_8009583C;
+
+void func_8003C494(SVECTOR *pos, s32 n);
+
+void func_8003D960(void) {
+    s32 i;
+    s32 k;
+    s32 rank;
+    SVECTOR pos;
+    SColor color;
+
+    if (D_80095A80 == 0) {
+        return;
+    }
+    k = D_80095830;
+    if (k >= 0) {
+        if (k < 6) {
+            rank = k;
+        } else if (k < 15) {
+            if (k >= 9) {
+                rank = k - 3;
+            }
+        }
+    }
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    switch (D_80095A98) {
+        case 0:
+            switch (D_80095A90) {
+                case 0:
+                    D_80095A88[0] = 1;
+                    break;
+                case 60:
+                    D_80095A88[1] = 1;
+                    break;
+                case 90:
+                    D_80095A88[2] = 1;
+                    break;
+                case 94:
+                    D_80095A88[3] = 1;
+                    break;
+                case 120:
+                    D_80095A88[4] = 1;
+                    break;
+                case 150:
+                    D_80095A88[5] = 1;
+                    break;
+                case 154:
+                    D_80095A88[6] = 1;
+                    break;
+                case 300:
+                    D_80095A98 = 10;
+                    break;
+            }
+            D_80095A90++;
+            break;
+        case 10:
+            D_80095A80 = 0;
+            break;
+    }
+    for (i = 0; i < 7; i++) {
+        if (D_80095A88[i] != 0) {
+            if (D_80095AA0[i] != 0) {
+                D_80095AA0[i]++;
+            } else {
+                D_80095A88[i] = 0;
+            }
+        }
+    }
+    pos.vx = -80;
+    pos.vy = D_80095AA0[0] * 4 - 88;
+    func_8001B354(0x152, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 48;
+    func_8001B354(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = -48;
+    pos.vx = D_80095AA0[1] * 32 - 40;
+    func_8001B354(0x14F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = -24;
+    pos.vx = D_80095AA0[2] * 32 - 128;
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[2] * 32 + 128;
+    func_8003C494(&pos, D_800958F0);
+    pos.vy = 0;
+    pos.vx = D_80095AA0[3] * 32 - 128;
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[3] * 32 + 128;
+    func_8003C8D0(&pos, D_80095838);
+    pos.vy = 24;
+    pos.vx = D_80095AA0[4] * 32 - 40;
+    func_8001B354(0x150, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = 48;
+    pos.vx = D_80095AA0[5] * 32 - 128;
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[5] * 32 + 128;
+    func_8003C494(&pos, D_800958F4);
+    pos.vy = 72;
+    pos.vx = D_80095AA0[6] * 32 - 128;
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[6] * 32 + 128;
+    func_8003C8D0(&pos, D_8009583C);
+}
 
 /** @brief Sixteen signed bytes, copied together as one unaligned block. */
 typedef struct {

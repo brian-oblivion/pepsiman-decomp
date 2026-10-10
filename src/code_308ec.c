@@ -126,7 +126,6 @@ typedef struct {
 extern Placement D_800A7680;
 
 extern u8 D_80095900;
-extern s16 D_80095760;
 extern s8 D_8007AD58[];
 extern s16 D_80095858;
 extern s32 D_800957F4;

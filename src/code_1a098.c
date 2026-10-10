@@ -124,12 +124,10 @@ typedef struct {
 extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
-extern Quad16 D_800DD0A0[];        /**< a table of eight-byte entries */
-extern Rec5C D_800CF080[];         /**< 200 Rec5C records */
-extern u8 D_800A7550[];            /**< 200 byte marks, one per block entry */
-extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems */
-extern PathPt *D_800958A0;         /**< the current path */
-extern s32 *D_800D81B0[];          /**< per-entry data pointers */
+extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
+extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
+extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
+extern PathPt *D_800958A0;  /**< the current path */
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)

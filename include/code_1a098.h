@@ -8,6 +8,11 @@
  */
 
 #include "common.h"
+#include "libgte.h"
+#include "libgpu.h"
+#include "libgs.h"
+
+extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems */
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
 typedef struct {

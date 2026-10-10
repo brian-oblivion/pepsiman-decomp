@@ -991,8 +991,6 @@ void func_80018CAC(GameState *g, s32 step);
 
 s32 func_800281B8(GameState *g);
 void func_800283E4(void);
-extern s32 D_80095740;
-extern s32 D_80095744;
 
 #ifdef NON_MATCHING
 /* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for

@@ -6,6 +6,8 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "code_1a098.h"
+#include "code_7d74.h"
+#include "code_13068.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -121,6 +123,85 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
+/** @brief A 0x3C-byte record of a 100-entry table (code_1dc24 has the same
+ *         record, with fewer fields known). */
+typedef struct {
+    u16 unk0;       /**< a counter; bumped on a state change */
+    u8 unk2[2];     /**< not yet known */
+    s32 unk4;       /**< x */
+    s32 unk8;       /**< y */
+    s32 unkC;       /**< z */
+    s32 unk10;      /**< zeroed on a state change */
+    s32 unk14;      /**< set from a fixed object's y on a state change */
+    s32 unk18;      /**< zeroed on a state change */
+    u8 unk1C[2];    /**< not yet known */
+    u16 unk1E;      /**< a height; the query is centred half of it lower */
+    s32 unk20;      /**< a third of its magnitude is the query's range */
+    u8 unk24;       /**< set to 1 before the query */
+    u8 unk25;       /**< bit 0 of the query's result */
+    u8 unk26;       /**< flags: bit 7, bit 6, and a state in bits 0..5 */
+    u8 unk27[0x15]; /**< not yet known */
+} Rec3C;
+
+/** @brief Something that bobs up and down while it drifts. */
+typedef struct {
+    u8 unk0[4]; /**< not yet known */
+    s32 x;      /**< x */
+    s32 y;      /**< y */
+    s32 z;      /**< z */
+    s32 count;  /**< steps taken; the drift stops at 15 */
+    s32 baseY;  /**< y the bob is measured from */
+    s32 phase;  /**< bob phase in degrees */
+} Drifter;
+
+/** @brief The Rec48 table, copied whole. */
+typedef struct {
+    s32 w[sizeof(Rec48) * 200 / 4]; /**< the records */
+} Recs48Copy;
+
+/** @brief The Rec5C table, copied whole. */
+typedef struct {
+    s32 w[sizeof(Rec5C) * 200 / 4]; /**< the records */
+} Recs5CCopy;
+
+/** @brief The Rec3C table, copied whole. */
+typedef struct {
+    s32 w[sizeof(Rec3C) * 100 / 4]; /**< the records */
+} Recs3CCopy;
+
+/** @brief The block header area, copied whole; bytes, so a copy of it
+ *         tests the alignment at run time. */
+typedef struct {
+    u8 b[0x800]; /**< the area */
+} BlockCopy;
+
+/** @brief A saved copy of the record tables and the block header. */
+typedef struct {
+    Recs48Copy recs48; /**< the Rec48 table */
+    Recs5CCopy recs5C; /**< the Rec5C table */
+    Recs3CCopy recs3C; /**< the Rec3C table */
+    BlockCopy block;   /**< the block header area */
+} SavedTables;
+
+/** @brief The game-progress block, as far as the full reset writes it. */
+typedef struct {
+    u8 unk0;        /**< 0x38 after a reset */
+    u8 unk1;        /**< 1 after a reset */
+    u8 unk2;        /**< copied from a global byte on a reset */
+    u8 unk3;        /**< not yet known */
+    s32 unk4;       /**< 50 after a reset */
+    s32 unk8;       /**< zeroed on a reset */
+    s32 unkC;       /**< zeroed on a reset */
+    u8 unk10[2];    /**< not yet known */
+    s16 unk12[18];  /**< zeroed on a reset, but [14] (0x2E) set to 600 */
+    u8 unk36[0x32]; /**< not yet known */
+    u8 unk68;       /**< zeroed on a reset */
+    u8 unk69;       /**< zeroed on a reset */
+    s16 unk6A;      /**< zeroed on a reset */
+    u8 unk6C;       /**< zeroed on a reset */
+    u8 unk6D;       /**< zeroed on a reset */
+} Progress6E;
+
 extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
@@ -128,16 +209,25 @@ extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
 extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
 extern PathPt *D_800958A0;  /**< the current path */
+extern Rec3C D_800A7898[];  /**< 100 Rec3C records */
+extern s32 D_80095824;      /**< zeroed by the full reset */
+extern u8 D_800958D8;       /**< zeroed by the full reset */
+extern u8 D_800959D8;       /**< zeroed by the full reset */
 
+/* The unpacked header of the last TIM loaded; common.h declares a word. */
+#define sTim ((TimInfo *)D_800956D4)
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
+/* The progress block; code_1dc24 views the same bytes as other records. */
+extern u8 D_80095B28[];
+#define sProgress (*(Progress6E *)D_80095B28)
 
 s32 func_80028AE4(Query30 *q);
-/* MATCHING: s32, though the callee returns a sign-extended s16: retail
- * stores the result with no re-extension. */
-s32 func_80018D04(s16 a, s16 b, u16 t, u16 n);
+/* MATCHING: all s32 where the callee has s16: retail neither re-extends
+ * the result nor extends the a and b it passes. */
+s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
 s32 func_80028260(s32 n);
 void func_8002C4D8(void);
 s32 func_800183B0(Rec48 *r);
@@ -148,6 +238,19 @@ s32 func_800297A4(void *a, void *b);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
+void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
+void func_8002A5B0(Rec78 *rec, Rec48 *r);
+void func_8002B8F8(u16 id, Rec3C *r);
+void func_8002C188(s32 r, s32 deg, Vec3 *out);
+/* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
+ * unit until a shared header holds it. */
+void func_800337E4(u8 *buf);
+void func_80033854(Rec5C *recs);
+void func_800338A0(Rec48 *recs);
+void func_8003390C(Rec3C *recs);
+
+extern SVECTOR D_800957E4; /**< a local position to transform to world */
+extern VECTOR D_8009F268;  /**< the world position of that local one */
 
 /** @brief Sets `p->pos` to the world position of its local position. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
@@ -214,7 +317,27 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A7D8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A98C);
+/** @brief Sets the four corners of a box `w` wide and `d` deep around the
+ *         position `c`, at its height, relative to it. */
+void func_8002A98C(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
+    s16 x;
+    s16 z;
+
+    x = w / 2;
+    v[0][0] = x - c->vx;
+    v[1][0] = x - c->vx;
+    v[2][0] = -x - c->vx;
+    v[3][0] = -x - c->vx;
+    z = d / 2;
+    v[0][2] = z - c->vz;
+    v[1][2] = -z - c->vz;
+    v[2][2] = z - c->vz;
+    v[3][2] = -z - c->vz;
+    v[0][1] = c->vy;
+    v[1][1] = c->vy;
+    v[2][1] = c->vy;
+    v[3][1] = c->vy;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
 
@@ -246,7 +369,33 @@ s32 func_8002AEB8(PathUser *u) {
     return i;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AF6C);
+/** @brief Finds the path segment `u` is on, as the segment update above
+ *         does, without storing it.
+ *  @return the direction of that segment, from ratan2 */
+/* MATCHING: the unused pair gives the frame its 0x20 bytes; a third point
+ * local for the last segment, where reusing either colours $a0 differently. */
+s16 func_8002AF6C(PathUser *u) {
+    s32 unused[2];
+    s32 i;
+    s32 d;
+    PathPt *next;
+    PathPt *pt;
+    PathPt *seg;
+
+    i = u->seg;
+    next = (PathPt *)(i * 8 + (u32)D_800958A0) + 1;
+    d = next->dx * (u->x - next->x) + next->dz * (u->z - next->z);
+    if (d >= 0) {
+        i++;
+    }
+    pt = (PathPt *)(i * 8 + (u32)D_800958A0);
+    d = -pt->dx * (u->x - pt->x) + -pt->dz * (u->z - pt->z);
+    if (d >= 0) {
+        i--;
+    }
+    seg = (PathPt *)(i * 8 + (u32)D_800958A0);
+    return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B04C);
 
@@ -254,7 +403,30 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B220);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B5FC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B7C8);
+/** @brief Loads every image of the directory `dir` and registers each as a
+ *         texture, numbered from `id` on. */
+void func_8002B7C8(DirEnt16 *dir, u16 id) {
+    DirEnt16 *e;
+    u16 i;
+    u16 n;
+    s32 tp;
+    TimInfo *t;
+
+    e = dir;
+    n = dir->count;
+    for (i = 0; i < n; i++) {
+        func_80017774((u8 *)dir + e->offset);
+        DrawSync(0);
+        tp = GetTPage(0, 0, sTim->pixRect.x, sTim->pixRect.y);
+        t = sTim;
+        /* MATCHING: x mod 64 spelled out; % narrows to a halfword. */
+        func_8001B2F4(id, 0, (u8)t->unk1C, (u8)t->pixRect.h, (u8)tp,
+                      (u8)((t->pixRect.x - t->pixRect.x / 64 * 64) * t->unk1E),
+                      (u8)(t->pixRect.y % 256), t->clutRect.x, (u16)t->clutRect.y);
+        id++;
+        e++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B8F8);
 
@@ -272,7 +444,34 @@ void func_8002BC4C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BD00);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002BEC0);
+/** @brief Takes one of the first 15 drift steps of `d`: moves it 20 units
+ *         along the current heading and bobs it.
+ *  @return 1 on two steps of every three, 0 on the third and once done */
+/* MATCHING: a u8 result copies the test into its register; a base local
+ * keeps baseY's load above the abs. */
+s32 func_8002BEC0(Drifter *d) {
+    s32 b;
+    u8 ret;
+    s32 y;
+
+    if (d->count < 15) {
+        d->count++;
+        ret = d->count % 3 != 0;
+        func_8002C188(20, D_800A7680[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
+        d->x -= ((Vec3 *)D_800D39C8)->x >> 12;
+        d->z -= ((Vec3 *)D_800D39C8)->z >> 12;
+        d->phase = (d->phase + 10) % 360;
+        b = rsin(d->phase * 4096 / 360) * 200 >> 12;
+        y = d->baseY;
+        if (b < 0) {
+            b = -b;
+        }
+        d->y = y - b;
+    } else {
+        ret = 0;
+    }
+    return ret;
+}
 
 /** @brief Registers the entries of the directory loaded at a fixed address
  *         from slot 0x33 on.
@@ -312,10 +511,11 @@ s32 func_8002C0EC(Obj34 *p) {
 }
 
 /** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
-void func_8002C188(s32 r, s16 deg, Vec3 *out) {
+void func_8002C188(s32 r, s32 deg, Vec3 *out) {
     s32 a;
 
-    a = deg * 4096 / 360;
+    /* MATCHING: deg is s32, narrowed here; func_8002BEC0 passes it unextended. */
+    a = (s16)deg * 4096 / 360;
     out->x = rsin(a) * r;
     out->z = rcos(a) * r;
 }
@@ -341,7 +541,21 @@ void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
     D_8009588E++;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C2B4);
+/** @brief Restores the Rec48, Rec5C and Rec3C tables and the block header
+ *         from their saved copy, and points the current-block globals at
+ *         the restored header. */
+/* MATCHING: word-typed table copies; the byte-typed header copy keeps the
+ * runtime alignment test. */
+void func_8002C2B4(void) {
+    SavedTables *s;
+
+    s = (SavedTables *)0x80173778;
+    *(Recs48Copy *)sRecs48 = s->recs48;
+    *(Recs5CCopy *)D_800CF080 = s->recs5C;
+    *(Recs3CCopy *)D_800A7898 = s->recs3C;
+    *(BlockCopy *)0x801FD000 = s->block;
+    func_8002D0C4((BlockHeader *)0x801FD000);
+}
 
 /** @brief Updates `p->unk28` from a lookup unless the lookup fails (-1). */
 void func_8002C438(Obj2C *p) {
@@ -460,7 +674,28 @@ s32 func_8002C6A4(Rec48 *r, s32 range) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C724);
+/** @brief Places `b` at its stored position in the coordinate system of
+ *         `a`'s Rec78 entry, takes `a`'s angles, adds `a`'s heading to its
+ *         own, and updates `b`'s Rec78 entry from it. */
+/* MATCHING: the Rec48s' first 0x34 bytes read through the Obj34 view. */
+void func_8002C724(Rec48 *a, Rec48 *b) {
+    Obj34 *pa;
+    Obj34 *pb;
+
+    pa = (Obj34 *)a;
+    pb = (Obj34 *)b;
+    D_800957E4.vx = pb->unkC;
+    D_800957E4.vy = pb->unk10;
+    D_800957E4.vz = pb->unk14;
+    func_80023194((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
+    pb->unk0 = D_8009F268.vx;
+    pb->unk4 = D_8009F268.vy;
+    pb->unk8 = D_8009F268.vz;
+    pb->unk2C = pa->unk2C;
+    pb->unk30 = pa->unk30;
+    pb->unk1A = pa->unk1A + pb->unk20;
+    func_8002A5B0(&D_800D8D20[b->unk36], b);
+}
 
 /** @brief Resets an object's current values from its stored copy. */
 void func_8002C820(Obj34 *p) {
@@ -485,9 +720,44 @@ void func_8002C85C(u16 i, Quad16 *out) {
     *out = *src;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C894);
+/** @brief Runs record `r`'s step, then queries its surroundings; on a hit
+ *  while flagged in state 2, moves it to state 3 and resets its motion. */
+/* MATCHING: the fixed object's y read as a VECTOR member; a plain word
+ * read lets the scheduler hoist the r->unk18 store above it. */
+void func_8002C894(s16 id, Rec3C *r) {
+    Query30 q;
+    s32 v;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C994);
+    func_8002B8F8(id, r);
+    q.pos.x = r->unk4;
+    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
+    q.pos.z = r->unkC;
+    r->unk24 = 1;
+    q.unk18 = 1;
+    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
+    v = func_80028AE4(&q) & 1;
+    r->unk25 = v;
+    if (v) {
+        if (r->unk26 & 0x80) {
+            if ((r->unk26 & 0x3F) == 2) {
+                r->unk10 = 0;
+                r->unk0++;
+                r->unk26 = (r->unk26 & 0x40) | 3;
+                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
+                r->unk18 = 0;
+            }
+        }
+    }
+}
+
+/** @brief Interpolates three angles by `t`/`n` into `out`: out[1] is `r`
+ *         times the sine of 0..180 degrees, out[0] -60..60 degrees and
+ *         out[2] 0..20 degrees, in 4096ths of a turn. */
+void func_8002C994(s16 r, u16 t, u16 n, s32 *out) {
+    out[1] = rsin((s16)func_80018D04(0, 180, t, n) * 4096 / 360) * r;
+    out[0] = (s16)func_80018D04(-60, 60, t, n) * 4096 / 360;
+    out[2] = (s16)func_80018D04(0, 20, t, n) * 4096 / 360;
+}
 
 /** @brief Interpolates from 0 towards `b` by `t`/`n`, into out[1]. */
 void func_8002CAA4(s16 b, u16 t, u16 n, s32 *out) {
@@ -499,9 +769,46 @@ void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
     out[1] = func_80018D04(a, b, t, n);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CB24);
+/** @brief Interpolates by `t`/`n` into out[1]: from 0 towards twice `b`
+ *         in the first 80 percent of `n`, else from four times `b` towards
+ *         `b`. */
+void func_8002CB24(s16 b, u16 t, u16 n, s32 *out) {
+    if ((double)(t * 4096 / 100) < (double)(n * 4096 / 100) * 0.8) {
+        out[1] = func_80018D04(0, b * 2, t, n);
+    } else {
+        out[1] = func_80018D04(b * 4, b, t, n);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CC24);
+/** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
+ *         identity transform, and counts it. */
+/* MATCHING: an inline copy of the setup above; inlined, the u8 parameter is
+ * copied before its andi, where a (u8) argument truncates in place. */
+static __inline__ void setupModel(Model70 *m, unsigned long *tmd, u8 n) {
+    GsInitCoordinate2(WORLD, &m->coord);
+    m->obj.coord2 = &m->coord;
+    GsMapModelingData(tmd + 1);
+    GsLinkObject4((unsigned long)(tmd + 3), &m->obj, n);
+    m->obj.attribute = 0x200;
+    m->scale.vx = 0x1000;
+    m->scale.vy = 0x1000;
+    m->scale.vz = 0x1000;
+    m->rot.vx = 0;
+    m->rot.vy = 0;
+    m->rot.vz = 0;
+    D_8009588E++;
+}
+
+/** @brief Sets up all 80 Rec78 records as objects of the TMD file at a
+ *         fixed address, record i drawing object i, and counts them. */
+void func_8002CC24(void) {
+    u32 i;
+
+    D_8009588E = 0;
+    for (i = 0; i < 80; i++) {
+        setupModel((Model70 *)&D_800D8D20[i], (unsigned long *)0x80155000, i);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CCEC);
 
@@ -587,4 +894,57 @@ void func_8002D230(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D2C0);
+/** @brief Resets the game state: clears the 0x30000-byte block at `recs`
+ *         and frees its 200 Rec48 records, clears and resets the block
+ *         header, the Rec5C, Rec48 and Rec3C tables, and the progress
+ *         block. */
+void func_8002D2C0(Rec48 *recs) {
+    u32 i;
+
+    bzero((u8 *)recs, 0x30000);
+    for (i = 0; i < 200; i++) {
+        recs->unk34 = -1;
+        recs->unk36 = -1;
+        recs++;
+    }
+    bzero((u8 *)0x801FD000, 0x800);
+    func_800337E4((u8 *)0x801FD000);
+    bzero((u8 *)D_800CF080, sizeof(Rec5C) * 200);
+    func_80033854(D_800CF080);
+    bzero((u8 *)sRecs48, sizeof(Rec48) * 200);
+    func_800338A0(sRecs48);
+    bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
+    func_8003390C(D_800A7898);
+    sProgress.unk0 = 0x38;
+    sProgress.unk1 = 1;
+    sProgress.unk68 = 0;
+    sProgress.unk69 = 0;
+    sProgress.unk4 = 50;
+    sProgress.unk8 = 0;
+    sProgress.unkC = 0;
+    sProgress.unk12[8] = 0;
+    sProgress.unk12[9] = 0;
+    sProgress.unk12[10] = 0;
+    sProgress.unk12[0] = 0;
+    sProgress.unk12[1] = 0;
+    sProgress.unk12[2] = 0;
+    sProgress.unk12[3] = 0;
+    sProgress.unk12[4] = 0;
+    sProgress.unk12[6] = 0;
+    sProgress.unk12[5] = 0;
+    sProgress.unk12[7] = 0;
+    sProgress.unk12[11] = 0;
+    sProgress.unk12[12] = 0;
+    sProgress.unk12[13] = 0;
+    sProgress.unk12[14] = 600;
+    sProgress.unk12[15] = 0;
+    sProgress.unk12[16] = 0;
+    sProgress.unk12[17] = 0;
+    sProgress.unk6A = 0;
+    sProgress.unk6C = 0;
+    sProgress.unk6D = 0;
+    D_80095824 = 0;
+    D_800958D8 = 0;
+    D_800959D8 = 0;
+    sProgress.unk2 = D_80095830;
+}

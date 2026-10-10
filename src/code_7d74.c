@@ -31,18 +31,6 @@ typedef struct {
     s32 capacity; /**< slots in the array */
 } SlotList;
 
-/** @brief A TIM image's header, unpacked: where its CLUT and pixels go. */
-typedef struct {
-    s16 mode;      /**< pixel mode, the low 3 bits of the TIM flags */
-    s16 hasClut;   /**< 1 when the TIM carries a CLUT */
-    u32 *clut;     /**< the CLUT's pixel data */
-    RECT clutRect; /**< where the CLUT goes in VRAM */
-    u32 *pixel;    /**< the image's pixel data */
-    RECT pixRect;  /**< where the image goes in VRAM */
-    s16 unk1C;     /**< the image width scaled by the pixel mode */
-    s16 unk1E;     /**< 4, 2 or not set, by pixel mode */
-} TimInfo;
-
 /* MATCHING: reading the TimInfo through the global each time, not a
  * pointer local, picks retail's registers. */
 #define sTim ((TimInfo *)D_800956D4)
@@ -98,7 +86,6 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sPlayer (*(Player *)D_8009EB78)
 
-s32 func_80017774(void *data);
 /* MATCHING: each caller declares its own view of the state it passes;
  * this is the defining unit's. */
 u8 func_80017F0C(Player *obj, u16 index, s8 arg);

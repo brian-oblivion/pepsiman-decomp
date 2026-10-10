@@ -291,7 +291,76 @@ void func_80019CD8(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsOT
     D_800E48D0 = (u8 *)(p + 1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80019F24);
+void func_80019F24(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16 otz, GsOT *ot) {
+    Sprite8 *e;
+    POLY_FT4 *p;
+    u32 *tag;
+    s16 x0, x1, x2, x3;
+    s16 y0, y1, y2, y3;
+    u8 w;
+    u8 h;
+    s32 sn;
+    s32 cs;
+
+    e = &D_800DD0A0[id];
+    p = (POLY_FT4 *)D_800E48D0;
+    *(u32 *)&p->r0 =
+        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->r0 |= 0x02000000;
+    }
+    w = e->unk6;
+    h = e->unk7;
+    if (s->centred) {
+        x0 = x2 = ((s->x - (w >> 1) - s->cx) * s->sx) >> 12;
+        y0 = y1 = ((s->y - (h >> 1) - s->cy) * s->sy) >> 12;
+    } else {
+        x0 = x2 = ((s->x - s->cx) * s->sx) >> 12;
+        y0 = y1 = ((s->y - s->cy) * s->sy) >> 12;
+    }
+    x1 = x3 = x0 + ((w * s->sx) >> 12);
+    y2 = y3 = y0 + ((h * s->sy) >> 12);
+    sn = rsin(s->rot);
+    cs = rcos(s->rot);
+    p->x0 = s->cx + ((x0 * cs - y0 * sn) >> 12);
+    p->y0 = s->cy + ((x0 * sn + y0 * cs) >> 12);
+    p->x1 = s->cx + ((x1 * cs - y1 * sn) >> 12);
+    p->y1 = s->cy + ((x1 * sn + y1 * cs) >> 12);
+    p->x2 = s->cx + ((x2 * cs - y2 * sn) >> 12);
+    p->y2 = s->cy + ((x2 * sn + y2 * cs) >> 12);
+    p->x3 = s->cx + ((x3 * cs - y3 * sn) >> 12);
+    p->y3 = s->cy + ((x3 * sn + y3 * cs) >> 12);
+    /* MATCHING: the s16 corners reused for the UVs, which packs them with
+     * sll/sra 16. */
+    x0 = x2 = e->unk4;
+    y0 = y1 = e->unk5;
+    x1 = x3 = e->unk4 + w - 1;
+    y2 = y3 = e->unk5 + h - 1;
+    if (mode & 1) {
+        x0 = x1;
+        x3 = x2;
+        x1 = x3;
+        x2 = x0;
+    }
+    if (mode & 2) {
+        y0 = y2;
+        y3 = y1;
+        y2 = y3;
+        y1 = y0;
+    }
+    *(u32 *)&p->u0 = (y0 << 8) | x0 | (e->unk2 << 16);
+    if (color != NULL && (s8)color->r != -1) {
+        *(u32 *)&p->u1 = (y1 << 8) | x1 | ((e->unk0 | ((s8)color->r << 5)) << 16);
+    } else {
+        *(u32 *)&p->u1 = (y1 << 8) | x1 | (e->unk0 << 16);
+    }
+    *(u32 *)&p->u2 = (y2 << 8) | x2;
+    *(u32 *)&p->u3 = (y3 << 8) | x3;
+    tag = (u32 *)ot->org + otz;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
+    *tag = (u32)p & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(p + 1);
+}
 
 void func_8001A3D4(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     SVECTOR sv[4];

@@ -781,20 +781,20 @@ s32 func_80023BFC(void) {
     }
 }
 
-#ifdef NON_MATCHING
-/* MATCHING: 129/134; retail copies unk34C to a second register ($a0) for the unk39C and
- * closeness tests and keeps the first ($a2) for the step. */
+/* MATCHING: y reloaded, reused for unk3CC and killed by the dead y = 0 keeps retail's copy. */
 s32 func_80023D68(void) {
     s32 x;
     s32 d;
     s32 y;
+    s32 z;
 
     x = sGame.unk34C;
     if (x < D_800956E4) {
         D_800956E4 = x;
     }
-    if (x < sGame.unk39C) {
-        sGame.unk39C = x;
+    y = sGame.unk34C;
+    if (y < sGame.unk39C) {
+        sGame.unk39C = y;
     }
     if ((u32)(sGame.unk6 - 8) < 4) {
         goto end;
@@ -802,7 +802,8 @@ s32 func_80023D68(void) {
     if ((u32)(sGame.unk6 - 0x38) < 2 && (sGame.unk3D0 & 0xF) != 3) {
         goto end;
     }
-    d = sGame.unk3C0 - x;
+    d = sGame.unk3C0 - y;
+    y = 0;
     if ((d >= 0 ? d : -d) < 50) {
         sGame.unk34C = sGame.unk3C0;
     } else {
@@ -814,9 +815,11 @@ s32 func_80023D68(void) {
         sGame.unk34C = sGame.unk3CC;
         goto end;
     }
-    if (sGame.unk39C <= sGame.unk3CC && sGame.unk3B8 == 1) {
-        if (sGame.unk34C >= sGame.unk3CC) {
-            sGame.unk34C = sGame.unk3CC;
+    d = sGame.unk39C;
+    y = sGame.unk3CC;
+    if (d <= y && sGame.unk3B8 == 1) {
+        if (sGame.unk34C >= y) {
+            sGame.unk34C = y;
             sGame.unk3A6 = 0;
             sGame.unk39C = 0;
             sGame.unk3BC = sGame.unk3B8;
@@ -826,14 +829,14 @@ s32 func_80023D68(void) {
         goto end;
     }
     if (sGame.unk34C >= sGame.unk3C0) {
-        y = D_800AC858[0];
+        z = D_800AC858[0];
         sGame.unk3A6 = 0;
         sGame.unk39C = 0;
         sGame.unk3BC = 0;
-        sGame.unk34C = y;
+        sGame.unk34C = z;
         if (D_800956E0 == 0) {
             D_800DF5B0[0] = sGame.unk348;
-            D_800DF5B0[1] = y;
+            D_800DF5B0[1] = z;
             D_800DF5B0[2] = sGame.unk350;
             D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
             if (D_80095900 == 0) {
@@ -845,9 +848,6 @@ s32 func_80023D68(void) {
     }
 end:;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
-#endif
 
 /* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
 void func_80023F80(u8 *state) {
@@ -986,14 +986,12 @@ u8 func_80017F0C(GameState *obj, u16 index, u8 arg);
 /* MATCHING: code_7d74 defines this with s16/u16 parameters and an s16 result; this unit's
  * calls pass halfwords unextended and store the result as a word. */
 s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
-/* MATCHING: code_7d74 defines this as an empty void(void); this unit's calls pass the state
- * block and the step in $a0 and $a1. */
-void func_80018CAC(GameState *g, s32 step);
+/* MATCHING: empty void(void) in code_7d74; unprototyped here, called with two args and one. */
+void func_80018CAC();
 
 s32 func_800281B8(GameState *g);
 void func_800283E4(void);
 
-#ifdef NON_MATCHING
 /* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for
  * every step so global-alloc gives it $a1, the step's argument register. */
 s32 func_80024450(GameState *state) {
@@ -1424,7 +1422,7 @@ top:
                 }
             } else if (state->unk34C >= state->unk3C0) {
                 state->unk34C = D_800AC858[0];
-                func_80018CAC(&sGame, d);
+                func_80018CAC(&sGame);
                 switch ((s8)sGame.unk38E) {
                     case 0:
                     default:
@@ -2098,9 +2096,6 @@ top:
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
-#endif
 
 /* MATCHING: non-void with no return keeps two bnez delay slots nops. */
 s32 func_80026548(void) {

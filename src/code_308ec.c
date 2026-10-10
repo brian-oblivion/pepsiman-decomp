@@ -126,7 +126,9 @@ typedef struct {
  * needs the whole record here. */
 extern Placement D_800A7680;
 
+/* MATCHING: stored as u8 here; code_13068 tests it as s8 (lb). */
 extern u8 D_80095900;
+
 extern s8 D_8007AD58[];
 
 /** @brief The record the start heading is read from. */

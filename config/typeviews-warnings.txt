@@ -11,14 +11,14 @@ code_13068: warning: unused variable `unused'
 code_13068: warning: unused variable `unused'
 code_13068: warning: unused variable `unused'
 code_13068: warning: unused variable `unused'
-code_1a098: warning: `best' might be used uninitialized in this function
-code_1a098: warning: `return' with no value, in function returning non-void
 code_1902c: warning: unused variable `unused'
 code_1902c: warning: unused variable `unused'
+code_1902c: warning: unused variable `unused'
+code_1902c: warning: unused variable `unused0'
 code_1902c: warning: unused variable `unused0'
 code_1902c: warning: unused variable `unused1'
-code_1902c: warning: unused variable `unused0'
-code_1902c: warning: unused variable `unused'
+code_1a098: warning: `best' might be used uninitialized in this function
+code_1a098: warning: `return' with no value, in function returning non-void
 code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
 code_1a098: warning: control reaches end of non-void function
@@ -33,6 +33,7 @@ code_1a098: warning: unused variable `unused'
 code_1a098: warning: unused variable `unused'
 code_1a098: warning: unused variable `unused'
 code_1a098: warning: unused variable `unused'
+code_1a098: warning: unused variable `unused'
 code_1dc24: warning: `return' with no value, in function returning non-void
 code_1dc24: warning: `return' with no value, in function returning non-void
 code_1dc24: warning: `return' with no value, in function returning non-void
@@ -54,14 +55,14 @@ code_1dc24: warning: control reaches end of non-void function
 code_1dc24: warning: control reaches end of non-void function
 code_1dc24: warning: control reaches end of non-void function
 code_1dc24: warning: control reaches end of non-void function
+code_1dc24: warning: control reaches end of non-void function
+code_1dc24: warning: unused variable `unused'
 code_1dc24: warning: unused variable `unused'
 code_1dc24: warning: unused variable `unused'
 code_1dc24: warning: unused variable `unused'
 code_1dc24: warning: unused variable `unused'
 code_1dc24: warning: unused variable `unused'
 code_1dc24: warning: unused variable `unused2'
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: unused variable `unused'
 code_24748: warning: control reaches end of non-void function
 code_24748: warning: control reaches end of non-void function
 code_24748: warning: unused variable `unused'

@@ -23,7 +23,8 @@ typedef struct {
 
 /** @brief A 0x4C-byte record of the second of two record banks. */
 typedef struct {
-    u8 unk0[0x4C]; /**< not yet known */
+    u8 unk0[0x48]; /**< not yet known */
+    void *unk48;   /**< the owning 0x78-byte record's unk10 */
 } Rec4C;
 
 /** @brief The first record bank: 80 entries, then 0x2C-byte records. */
@@ -37,6 +38,9 @@ typedef struct {
     BankEntry entries[80]; /**< per-entry start indices */
     Rec4C recs[1];         /**< the records; real count unknown */
 } Bank4C;
+
+Rec2C *func_80036A50(s32 idx, s32 sub);
+Rec4C *func_80036A84(s32 idx, s32 sub);
 
 extern u8 D_800D3CA8[]; /**< 0x44C0-byte buffer, cleared as a whole */
 extern u8 D_800DB2C0[]; /**< 0x1DB0-byte buffer, cleared as a whole */
@@ -382,7 +386,25 @@ void func_80036704(void) {
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036878);
+void func_80036878(void) {
+    s16 i;
+    s16 j;
+    BankEntry *e = ((Bank4C *)D_80095A4C)->entries;
+
+    for (i = 0; i < (u32)D_80095810; i++) {
+        D_800D8D20[i].unk6E = e->first;
+        D_800D8D20[i].unk70 = e->unk4;
+        e++;
+    }
+    for (i = 0; i < 80; i++) {
+        for (j = D_800D8D20[i].unk6E; j < D_800D8D20[i].unk70 + D_800D8D20[i].unk6E; j++) {
+            func_80036A84(0, j)->unk48 = D_800D8D20[i].unk10;
+        }
+    }
+    for (i = 0; i < 100; i++) {
+        ((Rec4C *)D_800DB2C0)[i] = *func_80036A84(0, i);
+    }
+}
 
 Rec2C *func_80036A50(s32 idx, s32 sub) {
     Bank2C *bank = (Bank2C *)D_80095A50;

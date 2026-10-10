@@ -110,7 +110,7 @@ PACKET *func_80020520();
 PACKET *func_8002097C();
 PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot);
+PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, POLY_G4 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, POLY_FT3 *pkt, s32 n, s32 shift, GsOT *ot);
 
@@ -377,12 +377,16 @@ PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
     return (PACKET *)pkt;
 }
 
-#ifdef NON_MATCHING
-PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot) {
+PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+    POLY_G3 *pkt;
     s32 v;
     s32 dp;
     s32 i;
     u32 *tag;
+
+    /* MATCHING: the packet pointer is a copy of the parameter, so the
+     * loop starts its reduced pointer from it, not from $a2. */
+    pkt = (POLY_G3 *)packet;
 
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
@@ -404,7 +408,9 @@ PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift,
         gte_lddp(dp);
         gte_dpct();
         gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
-        pkt->code = prim->mode;
+        /* MATCHING: a volatile store, which loop cannot rebase onto its
+         * reduced pointer; it still pays for reducing &pkt->r2. */
+        ((volatile POLY_G3 *)pkt)->code = prim->mode;
         tag = (u32 *)ot->org + (v >> shift);
         *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x06000000;
         *tag = (u32)pkt & 0xFFFFFF;
@@ -412,9 +418,6 @@ PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift,
     }
     return (PACKET *)pkt;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800210B4);
-#endif
 
 #ifdef NON_MATCHING
 PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, POLY_G4 *pkt, s32 n, s32 shift, GsOT *ot) {

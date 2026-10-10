@@ -65,14 +65,45 @@ typedef struct {
     u8 b[0x10000]; /**< not yet known */
 } Page64K;
 
-/** @brief A 0xB774-byte slot of the tool buffer; a tag byte and an owner
- *         byte known. */
+/** @brief The tool state block, copied whole. */
 typedef struct {
-    u8 unk0[0x200];    /**< not yet known */
-    u8 unk200;         /**< 0x38 when the slot is valid */
-    u8 unk201;         /**< not yet known */
-    u8 unk202;         /**< the owner; compared with a global */
-    u8 unk203[0xB571]; /**< not yet known */
+    s32 w[0x74 / 4]; /**< the block */
+} TotalsCopy;
+
+/** @brief The 200-entry Obj48 table, copied whole. */
+typedef struct {
+    s32 w[0x3840 / 4]; /**< the records */
+} Obj48sCopy;
+
+/** @brief The 200-entry 0x5C-byte record table, copied whole. */
+typedef struct {
+    s32 w[0x47E0 / 4]; /**< the records */
+} Rec5CsCopy;
+
+/** @brief The 100-entry Rec3C table, copied whole. */
+typedef struct {
+    s32 w[0x1770 / 4]; /**< the records */
+} Rec3CsCopy;
+
+/** @brief The block header area, copied whole; bytes, so a copy of it
+ *         tests the alignment at run time. */
+typedef struct {
+    u8 b[0x800]; /**< the area */
+} BlockAreaCopy;
+
+/** @brief A 0xB774-byte slot of the tool buffer, seen 0x200 bytes early:
+ *         the slot's data starts at unk200 and its block header area runs
+ *         0x200 bytes past this view's end. */
+typedef struct {
+    u8 unk0[0x200];     /**< not yet known */
+    u8 unk200;          /**< 0x38 when the slot is valid */
+    u8 unk201;          /**< not yet known */
+    u8 unk202;          /**< the owner; compared with a global */
+    u8 unk203[0x71];    /**< the rest of the tool state block */
+    Obj48sCopy unk274;  /**< the Obj48 table */
+    Rec5CsCopy unk3AB4; /**< the 0x5C-byte record table */
+    Rec3CsCopy unk8294; /**< the Rec3C table */
+    u8 unk9A04[0x1D70]; /**< not yet known; the block area starts at 0xB174 */
 } SaveSlot;
 
 /* MATCHING: D_800A7898 and D_80095B28 are also declared in code_1a098, each
@@ -178,7 +209,7 @@ extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 /* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
  * take an s32 id here (passed unextended), u16 and s16 in code_1a098. */
 void func_80032964(s32 a, u8 *buf);
-void func_80032C28(s32 a, u8 *buf);
+void func_80032C28(s16 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
 void func_8002C894(s32 id, Rec3C *r);
@@ -197,6 +228,9 @@ typedef struct {
  * views); here the start position is passed as words. */
 s32 func_800183B0(s32 *pos);
 extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
+
+/* MATCHING: code_1a098 declares it as its Rec5C records. */
+extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
@@ -865,7 +899,16 @@ void func_800327BC(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032964);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032C28);
+/** @brief Restores the record tables, the block header area and the tool
+ *         state block from save slot `a` of `buf`. */
+void func_80032C28(s16 a, u8 *buf) {
+    *(Rec5CsCopy *)D_800CF080 = ((SaveSlot *)buf)[a].unk3AB4;
+    *(Obj48sCopy *)D_800A9008 = ((SaveSlot *)buf)[a].unk274;
+    /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
+    *(Rec3CsCopy *)D_800A7898 = *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
+    *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
+    *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
 

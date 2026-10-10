@@ -4,6 +4,7 @@
 #include "libetc.h"
 #include "libgs.h"
 #include "code_a0bc.h"
+#include "code_7d74.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
 typedef struct {
@@ -28,7 +29,8 @@ typedef struct {
     s16 unk2;   /**< frames to wait before the animation starts */
     s16 unk4;   /**< per-frame step of the rising sprite's y offset */
     s16 unk6;   /**< the rising sprite's end distance */
-    u8 unk8[4]; /**< not yet known */
+    s16 unk8;   /**< per-frame step subtracted from the y offset */
+    u8 unkA[2]; /**< not yet known */
     s16 unkC;   /**< x offset added to the drawing position */
     s16 unkE;   /**< y offset added to the drawing position */
     s16 unk10;  /**< z offset added to the drawing position */
@@ -68,7 +70,45 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039C3C);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A008);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A20C);
+void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
+    s32 i;
+    s32 k;
+    s32 d;
+    s32 r;
+    SVECTOR rot;
+    MATRIX ls;
+
+    for (i = -1; i < 2; i++) {
+        k = (((pos + 10000000) / 5000 + i) & 1) + 1;
+        d = pos - i * 5000;
+        if (d >= 0) {
+            if (d >= 5000) {
+                continue;
+            }
+            k = 0;
+        }
+        if (d < -range) {
+            if (d < -(range + 5000)) {
+                continue;
+            }
+            k = 3;
+        }
+        if (pos >= 0) {
+            r = pos % 5000;
+        } else {
+            r = (pos + 10000000) % 5000;
+        }
+        D_800A72B8.coord.t[0] = r + (i - 1) * 5000;
+        D_800A72B8.coord.t[1] = 0;
+        D_800A72B8.coord.t[2] = z;
+        rot.vx = rot.vy = rot.vz = 0;
+        func_80018AE0(&rot, &D_800A72B8);
+        GsGetLs(&D_800A72B8, &ls);
+        GsSetLsMatrix(&ls);
+        GsSortObject4J(&D_800AC868[k], D_80095884, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&D_800ACB88[k], D_80095884, 2, (u_long *)0x1F800000);
+    }
+}
 
 void func_8003A3F4(s32 *index, s16 x, s16 y) {
     s32 i;
@@ -150,7 +190,35 @@ void func_8003C17C(u8 level) {
     func_8001B354(0x1FF, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C2E8);
+void func_8003C2E8(void) {
+    POLY_FT4 *p;
+    s32 n;
+
+    if (D_80095A94 != 0) {
+        if (D_80095A78 >= 24) {
+            D_80095A94 = 0;
+            return;
+        }
+        n = D_80095A78 / 3;
+        p = (POLY_FT4 *)D_800E48D0;
+        setPolyFT4(p);
+        p->r0 = p->g0 = p->b0 = 0x80;
+        p->x0 = p->x2 = -160;
+        p->x1 = p->x3 = 160;
+        p->y0 = p->y1 = -120;
+        p->y2 = p->y3 = 120;
+        p->u0 = p->u2 = (n % 2) << 7;
+        p->v0 = p->v1 = (n / 2 % 2) * 96;
+        p->clut = getClut(720, n + 448);
+        p->u1 = p->u3 = p->u0 + 0x7F;
+        p->v2 = p->v3 = p->v0 + 0x5F;
+        p->tpage = getTPage(0, 0, n / 4 * 64 + 704, 256);
+        addPrim(D_800ACEA8[D_80095750].org, p);
+        D_80095A78++;
+        p++;
+        D_800E48D0 = (u8 *)p;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
 
@@ -160,7 +228,38 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003CC94);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003D960);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003DE34);
+/** @brief Sixteen signed bytes, copied together as one unaligned block. */
+typedef struct {
+    s8 b[4][4]; /**< four rows of four */
+} Bytes16;
+
+extern Bytes16 D_80011EB0;
+extern s8 D_80095908;
+extern s32 D_800957B4;
+
+void func_8003DE34(void) {
+    Bytes16 tbl;
+    s32 k;
+    u32 a;
+    u32 b;
+
+    /* MATCHING: the row index in a local, indexed per use; a row pointer
+     * moves the address add above the first andi. */
+    tbl = D_80011EB0;
+    a = D_80095970;
+    b = D_80095964;
+    k = D_80095908;
+    D_800957EC = a;
+    D_800957B4 = b;
+    D_800957EC = a & ~0xE0;
+    D_800957B4 = b & ~0xE0;
+    D_800957EC |= ((a & 0x20) >> 5) << (tbl.b[k][0] + 5);
+    D_800957EC |= ((a & 0x40) >> 6) << (tbl.b[k][1] + 5);
+    D_800957EC |= ((a & 0x80) >> 7) << (tbl.b[k][2] + 5);
+    D_800957B4 |= ((b & 0x20) >> 5) << (tbl.b[k][0] + 5);
+    D_800957B4 |= ((b & 0x40) >> 6) << (tbl.b[k][1] + 5);
+    D_800957B4 |= ((b & 0x80) >> 7) << (tbl.b[k][2] + 5);
+}
 
 void func_8003DFB8(unsigned long *tmd) {
     u32 i;
@@ -321,21 +420,191 @@ s32 func_8003E544(void) {
     return D_80095A80;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E550);
+/* MATCHING: inlined, so each call rebuilds the two struct addresses. */
+/**
+ * @brief Sets the GS local-screen matrix to a pure translation (x, y, z);
+ *        the sprite steps below expand it in place.
+ * @param x translation x
+ * @param y translation y
+ * @param z translation z
+ */
+static __inline__ void setLs(s16 x, s16 y, s16 z) {
+    GsCOORDINATE2 coord;
+    MATRIX ls;
+
+    GsInitCoordinate2(WORLD, &coord);
+    coord.coord.t[0] = x;
+    coord.coord.t[1] = y;
+    coord.coord.t[2] = z;
+    coord.flg = 0;
+    GsGetLs(&coord, &ls);
+    GsSetLsMatrix(&ls);
+}
+
+s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
+
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        /* MATCHING: retail shifts the scaled sine with srl. */
+        size.vx = (u32)(rcos((p->unk0 * 3 << 13) / 360) * 25) >> 9;
+        size.vy = (u32)(rsin((p->unk0 << 15) / 360) * 25) >> 8;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80;
+        func_8001A69C(0x11F, &size, &color, 2, ot);
+        return ++p->unk0 == 15;
+    }
+    p->unk2--;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E6F8);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EA04);
+void func_800198BC(u16 id, s16 *quad, CVECTOR *color, s32 mode, GsOT *ot);
+
+s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 q[8];
+    CVECTOR color;
+    s32 unused[2];
+
+    if (p->unk2 == 0) {
+        if (p->unk0 == 0) {
+            setLs(x, y, z);
+            RotTransPers((SVECTOR *)&p->unkC, (long *)q, NULL, NULL);
+            p->unkC = q[0];
+            p->unkE = q[1];
+        }
+        q[0] = q[2] = p->unkC + ((-136 - p->unkC) * p->unk0 >> 3);
+        q[1] = q[3] = p->unkE + ((-88 - p->unkE) * p->unk0 >> 3);
+        q[4] = q[5] = 0x1000 - (p->unk0 << 8);
+        q[6] = p->unk0 << 8;
+        q[7] = 1;
+        color.r = 0;
+        color.g = color.b = color.cd = ~(p->unk0 << 4);
+        func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
+        if (++p->unk0 == 8) {
+            D_800958E8++;
+            func_80028448();
+            return 1;
+        }
+        return 0;
+    }
+    p->unk2--;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EC04);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EF40);
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+s32 func_8003EF40(Slot *p) {
+    SVECTOR pos;
+    SColor color;
+
+    if (p->unk2 == 0) {
+        if (p->unk0 < 16) {
+            pos.vx = -72 - (16 - p->unk0) * 15;
+            pos.vy = -12;
+            color.r = -1;
+            color.g = color.b = color.cd = 0x80;
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        } else if (p->unk0 < 32) {
+            pos.vx = -72;
+            pos.vy = -12;
+            color.r = -1;
+            color.g = 0x80;
+            color.b = color.cd = (8 - (p->unk0 - 16) % 8) * 16;
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        } else {
+            pos.vx = (p->unk0 - 32) * 15 - 72;
+            pos.vy = -12;
+            color.r = -1;
+            color.g = 0x80;
+            color.b = color.cd = 0;
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        }
+        return ++p->unk0 == 48;
+    }
+    p->unk2--;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F100);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F488);
+s32 func_8003F488(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    SVECTOR size;
+    CVECTOR color;
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F664);
+    if (p->unk2 == 0) {
+        setLs(x + p->unkC, y + p->unkE, z + p->unk10);
+        size.vx = p->unk0 * 10 + 100;
+        size.vy = p->unk0 * 10 + 100;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80 - (p->unk0 << 2);
+        func_8001A3D4(0x12D, &size, &color, 2, ot);
+        if (p->unk6 != 0) {
+            p->unk6--;
+        }
+        p->unkC += rsin(p->unk4) * p->unk6 / 4096;
+        p->unk10 += rcos(p->unk4) * p->unk6 / 4096;
+        p->unkE -= p->unk8;
+        return ++p->unk0 == 32;
+    }
+    p->unk2--;
+    return 0;
+}
+
+/** @brief One step of a slot's animation; returns nonzero when it ends. */
+typedef s32 (*SlotStep)(Slot *p, GsOT *ot, s16 x, s16 y, s16 z);
+
+extern SlotStep D_8007A7C4[];
+
+void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
+    u8 i;
+    u8 prev;
+    u8 next;
+    s32 d;
+    s32 done;
+    Slot *slot;
+
+    prev = 0xFF;
+    if ((s8)D_80095AA8 < 0) {
+        return;
+    }
+    i = D_80095AA8;
+    do {
+        slot = &sSlots[i];
+        d = x + slot->unkC;
+        next = slot->next;
+        if (d * (d * 2) > 0x77A0F) {
+            done = D_8007A7C4[slot->unk12](slot, &D_800A7318[D_80095750], x, y, z);
+        } else {
+            done = D_8007A7C4[slot->unk12](slot, &D_800ACEA8[D_80095750], x, y, z);
+        }
+        if (done) {
+            if (prev == 0xFF) {
+                D_80095AA8 = sSlots[i].next;
+            } else {
+                sSlots[prev].next = sSlots[i].next;
+            }
+            sSlots[i].next = D_80095AA9;
+            D_80095AA9 = i;
+        } else {
+            prev = i;
+        }
+        if ((s8)next < 0) {
+            break;
+        }
+        i = next;
+    } while (1);
+}
 
 s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     u8 prev;
@@ -356,27 +625,6 @@ s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     slot->unk0 = 0;
     slot->unk2 = arg4;
     return 0;
-}
-
-/* MATCHING: inlined, so each call rebuilds the two struct addresses. */
-/**
- * @brief Sets the GS local-screen matrix to a pure translation (x, y, z);
- *        the sprite steps below expand it in place.
- * @param x translation x
- * @param y translation y
- * @param z translation z
- */
-static __inline__ void setLs(s16 x, s16 y, s16 z) {
-    GsCOORDINATE2 coord;
-    MATRIX ls;
-
-    GsInitCoordinate2(WORLD, &coord);
-    coord.coord.t[0] = x;
-    coord.coord.t[1] = y;
-    coord.coord.t[2] = z;
-    coord.flg = 0;
-    GsGetLs(&coord, &ls);
-    GsSetLsMatrix(&ls);
 }
 
 void func_8003F8D4(s16 x, s16 y, s16 z) {

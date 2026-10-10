@@ -122,6 +122,7 @@ extern s16 D_8009574A; /**< the highlighted line of a three-line menu */
 extern u32 D_80095794; /**< an entry count */
 extern s32 D_80095750; /**< 2 units, 3 functions */
 extern s32 D_80095964; /**< button flags; 2 units */
+extern s32 D_800957EC; /**< remapped button flags; 2 units */
 extern u16 D_80095760; /**< the model viewer's state; 2 units */
 extern u16 D_80095768; /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D5;  /**< 2 units, 2 functions; never loaded, sign unknown */
@@ -230,6 +231,10 @@ void func_80018094(void);
 /** @brief Defined in main.
  *  @param count how many times it prints its fixed string */
 void func_80014BF0(s16 count);
+
+/** @brief Defined in code_13068: on every tenth pickup, plays a cue
+ *         (unless the stage forbids it) and updates the pickup display. */
+void func_80028448(void);
 
 /** @brief Defined in code_29f54; loads a run of TIM images (each starting
  *         with the word 0x10) into VRAM.

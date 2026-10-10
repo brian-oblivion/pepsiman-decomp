@@ -80,7 +80,6 @@ void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
 extern GsOT_TAG D_80096A78[2][0x1000];
 extern GsOT_TAG D_8009F278[2][0x1000];
 extern PACKET D_800ACF00[2][67200];
-extern GsOT *D_80095884;
 
 void func_80013EE4(void) {
     s32 i;

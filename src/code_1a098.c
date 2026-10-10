@@ -117,7 +117,11 @@ typedef struct {
     u8 unk6[0x1A];   /**< not yet known */
     s32 unk20[100];  /**< first word of each loaded entry */
     s32 unk1B0[100]; /**< third word of each loaded entry */
-    u8 unk340[0x78]; /**< not yet known */
+    u8 unk340[8];    /**< not yet known */
+    s32 unk348;      /**< x of the player (a guess) */
+    s32 unk34C;      /**< y */
+    s32 unk350;      /**< z */
+    u8 unk354[0x64]; /**< not yet known */
     s32 unk3B8;      /**< 1 once a placed record reports a hit */
     u8 unk3BC[0x10]; /**< not yet known */
     s32 unk3CC;      /**< the word reported with that hit */
@@ -309,7 +313,42 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_800299D8);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A328);
+/* MATCHING: code_29f54 defines x and y as s16; this unit passes them
+ * unextended. */
+void func_8003A3F4(s32 *index, s32 x, s32 y);
+
+s32 func_80029E74(s32 index, VECTOR *pos, u8 *data);
+s32 func_8002A558(void);
+extern s32 D_800957F4; /**< a path index the probe starts from */
+extern s32 D_800958B4; /**< the address of the data the probe tests */
+
+/** @brief Probes 50 units ahead of the player, 45 degrees either side of
+ *         the heading; each probe that hits pushes the player 25 units
+ *         back from that side. Then runs the mode check. */
+void func_8002A328(void) {
+    VECTOR pos;
+    s32 idx;
+
+    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vy = sGameHead.unk34C;
+    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    idx = D_800957F4;
+    func_8003A3F4(&idx, pos.vx, pos.vz);
+    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+        sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
+        sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
+    }
+    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vy = sGameHead.unk34C;
+    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    idx = D_800957F4;
+    func_8003A3F4(&idx, pos.vx, pos.vz);
+    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+        sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
+        sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
+    }
+    func_8002A558();
+}
 
 /** @brief Switches the game mode byte to 0x42 and resets, when a status
  *         field is 1 and the mode is not already 0x43.
@@ -331,6 +370,7 @@ extern s32 D_8009589C; /**< the word reported with a hit */
 /* MATCHING: per unit this round; code_24748 declares both the same way. */
 extern u8 D_800D3CA8[]; /**< 0x2C-byte placed records (Placed2C) */
 extern u8 D_800DB2C0[]; /**< 0x4C-byte records */
+
 /* code_1902c's tests of a 0x4C-byte record; types not yet known. */
 void func_80028888(void *rec);
 void func_80028F0C(void *rec, s8 *out);

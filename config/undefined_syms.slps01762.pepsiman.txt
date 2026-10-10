@@ -1,0 +1,6 @@
+/* Hand-kept linker definitions for symbols that retail's code never names by
+ * their own address, so splat cannot write them to undefined_syms_auto.
+ * Each is the true start of an array that retail indexes from a later
+ * element: the code builds the base as `%lo(later) - delta`. */
+D_80096008 = 0x80096008; /* GsDOBJ2[], 10 records before D_800960A8 (func_80039C3C) */
+D_800CDC00 = 0x800CDC00; /* GsCOORDINATE2[], 10 records before D_800CDF20 (func_8003F100) */

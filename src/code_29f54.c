@@ -106,7 +106,104 @@ void func_80039754(s32 clip) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039C3C);
+extern GsDOBJ2 D_800CEF00[];
+extern GsCOORDINATE2 D_800CEF40[];
+extern GsDOBJ2 D_80096008[];
+extern GsCOORDINATE2 D_800CDF20[];
+
+/* MATCHING: D_80096008 is the piece table's true start (undefined_syms.*.txt). */
+
+/** @brief The head of the game state as the model loader writes it. */
+typedef struct {
+    u8 unk0[0x20];   /**< not yet known */
+    s32 unk20[100];  /**< first word of each loaded entry */
+    s32 unk1B0[100]; /**< third word of each loaded entry */
+} SeqHead;
+
+#define sSeqHead (*(SeqHead *)D_8009EB78)
+
+/**
+ * @brief Maps the stage TMD and links its objects to the stage object table.
+ * @param tmd the file, at its leading word
+ */
+static __inline__ void linkStage(unsigned long *tmd) {
+    u32 i;
+    GsDOBJ2 *obj;
+
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095794 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095794; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800AC868[i], i);
+    }
+    obj = D_800AC868;
+    for (i = 0; i < D_80095794; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0x200;
+        obj++;
+    }
+}
+
+/**
+ * @brief Maps the props TMD and links its objects to the props object table.
+ * @param tmd the file, at its leading word
+ */
+static __inline__ void linkProps(unsigned long *tmd) {
+    u32 i;
+    GsDOBJ2 *obj;
+
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095798 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095798; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    }
+    obj = D_800ACB88;
+    for (i = 0; i < D_80095798; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0;
+        obj++;
+    }
+}
+
+void func_80039C3C(s32 *pack) {
+    s32 i;
+    s32 n;
+    u8 *t;
+
+    linkStage((unsigned long *)(pack[0] + (s32)pack));
+    linkProps((unsigned long *)(pack[1] + (s32)pack));
+    GsMapModelingData((unsigned long *)(pack[2] + (s32)pack + 4));
+    n = *(s32 *)(pack[2] + (s32)pack + 8);
+    for (i = 0; i < n; i++) {
+        GsLinkObject4((unsigned long)(pack[2] + (s32)pack + 12), &D_800CEF00[i], i);
+        D_800CEF00[i].coord2 = &D_800CEF40[i];
+        D_800CEF00[i].attribute = 0;
+    }
+    GsMapModelingData((unsigned long *)(pack[3] + (s32)pack + 4));
+    n = *(s32 *)(pack[3] + (s32)pack + 8);
+    for (i = 0; i < n; i++) {
+        GsLinkObject4((unsigned long)(pack[3] + (s32)pack + 12), &D_80096008[i + 10], i);
+        D_80096008[i + 10].coord2 = &D_800CDF20[i];
+        D_80096008[i + 10].attribute = 0;
+    }
+    t = (u8 *)(pack[4] + (s32)pack);
+    n = *(s32 *)t / 4;
+    for (i = 0; i < n; i++) {
+        D_800D81B0[i + 51] = (s32 *)(((s32 *)t)[i] + (s32)t) + 1;
+        sSeqHead.unk20[i + 51] = *D_800D81B0[i + 51];
+        D_800D81B0[i + 51]++;
+        sSeqHead.unk1B0[i + 51] = D_800D81B0[i + 51][1];
+    }
+    func_8001B2F4(0x1E, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
+    func_8001B2F4(0x1F, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);
+    func_8001B2F4(0x20, 0, 0xFF, 0x40, 0x1C, 0, 0x80, 0, 0x1FE);
+    func_8001B2F4(0x21, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
+}
 
 void func_8003A008(s16 x, s16 y, s16 z) {
     s32 i;
@@ -1548,7 +1645,40 @@ s32 func_8003EF40(Slot *p) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F100);
+extern GsCOORDINATE2 D_800CDC00[];
+extern SVECTOR D_800CEBE0[];
+extern GsDOBJ2 D_800960A8[];
+
+/* MATCHING: D_800CDC00 is the coordinate table's true start (undefined_syms.*.txt). */
+s32 func_8003F100(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    MATRIX m;
+
+    if (p->unk2 == 0) {
+        GsInitCoordinate2(WORLD, &D_800CDC00[p->unk4 + 10]);
+        D_800CDC00[p->unk4 + 10].coord.t[0] = p->unkC + x;
+        D_800CDC00[p->unk4 + 10].coord.t[1] =
+            p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096 + y;
+        D_800CDC00[p->unk4 + 10].coord.t[2] = p->unk10 + z;
+        D_800CDC00[p->unk4 + 10].flg = 0;
+        D_800CEBE0[p->unk4 + 10].vx = (p->unk0 * p->unkA << 12) / 360;
+        D_800CEBE0[p->unk4 + 10].vy = 0;
+        D_800CEBE0[p->unk4 + 10].vz = 0;
+        func_80018AE0(&D_800CEBE0[p->unk4 + 10], &D_800CDC00[p->unk4 + 10]);
+        GsGetLs(&D_800CDC00[p->unk4 + 10], &m);
+        GsSetLsMatrix(&m);
+        GsGetLw(&D_800CDC00[p->unk4 + 10], &m);
+        GsSetLightMatrix(&m);
+        if (p->unk0 % 5 == 0) {
+            func_8003F834(4, p->unkC, p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096,
+                          p->unk10, 0);
+        }
+        p->unkC += p->unk6;
+        GsSortObject4(&D_800960A8[p->unk4], ot, 2, (u_long *)0x1F800000);
+        return ++p->unk0 > 29;
+    }
+    p->unk2--;
+    return 0;
+}
 
 s32 func_8003F488(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;

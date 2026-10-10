@@ -114,12 +114,14 @@ $(EXE): $(ELF)
 
 # psyq-objects.ld goes FIRST: it claims the Sony objects' bss sections (NOLOAD,
 # pinned) before the splat script's trailing /DISCARD/ would swallow them.
-$(ELF): $(O_FILES) $(GAME).ld $(CONFIG)/psyq-objects.ld
+$(ELF): $(O_FILES) $(GAME).ld $(CONFIG)/psyq-objects.ld \
+		$(CONFIG)/undefined_syms.$(GAME_ID).$(GAME).txt
 	@mkdir -p $(dir $@)
 	$(LD) -o $@ \
 		-Map $(BUILD_DIR)/$(GAME).map \
 		-T $(CONFIG)/psyq-objects.ld \
 		-T $(GAME).ld \
+		-T $(CONFIG)/undefined_syms.$(GAME_ID).$(GAME).txt \
 		-T $(CONFIG)/undefined_syms_auto.$(GAME_ID).$(GAME).txt \
 		-T $(CONFIG)/undefined_funcs_auto.$(GAME_ID).$(GAME).txt \
 		$(LD_FLAGS)

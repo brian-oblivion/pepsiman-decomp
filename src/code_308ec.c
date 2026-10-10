@@ -127,7 +127,6 @@ extern Placement D_800A7680;
 
 extern u8 D_80095900;
 extern s8 D_8007AD58[];
-extern s16 D_80095858;
 extern s32 D_800957F4;
 
 /** @brief The record the start heading is read from. */
@@ -181,7 +180,6 @@ void func_800413BC(void);
  * state's head. */
 u8 func_80017F0C(StageState *obj, u16 index, u8 arg);
 void func_800285B0(void);
-void func_800287C0(void);
 /* MATCHING: main.c defines it on a TableHeader; the table is a u16 array
  * here, as in code_13068. */
 void func_80015450(u16 *table, s32 index);

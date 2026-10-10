@@ -246,9 +246,209 @@ void func_8003A4B4(SVECTOR *pos, s32 frames) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A84C);
+void func_8003A84C(void) {
+    s32 i;
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003AFAC);
+    func_8001B2F4(0xFA, 0, 0x40, 0x40, 0x1E, 0, 0, 0, 0x1F9);
+    /* MATCHING: the u ternary tests i >= 6 first; i < 6 swaps the two
+     * strength-reduced registers. */
+    for (i = 0; i < 10; i++) {
+        func_8001B2F4(i + 0xFB, 0, 0x20, 0x20, 0x1E, (u8)(i >= 6 ? i * 32 - 0x80 : i * 32 + 0x40),
+                      i < 6 ? 0 : 0x20, 0x10, 0x1F9);
+    }
+    for (i = 0; i < 10; i++) {
+        func_8001B2F4(i + 0x105, 0, 0x10, 0x10, 0x1E, (u8)(i * 16), 0x40, 0x20, 0x1F9);
+    }
+    for (i = 0; i < 11; i++) {
+        func_8001B2F4(i + 0x10F, 0, 8, 8, 0x1E, (u8)(i * 8), 0x58, 0x30, 0x1F9);
+    }
+    for (i = 0; i < 8; i++) {
+        func_8001B2F4(i + 0x11A, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x60, 0x40, 0x1F9);
+    }
+    func_8001B2F4(0x12D, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
+    func_8001B2F4(0x133, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
+    func_8001B2F4(0x134, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
+    func_8001B2F4(0x135, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
+    func_8001B2F4(0x136, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
+    func_8001B2F4(0x122, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
+    for (i = 0; i < 8; i++) {
+        func_8001B2F4(i + 0x123, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x80, 0x80, 0x1F9);
+    }
+    for (i = 0; i < 2; i++) {
+        func_8001B2F4(i + 0x12B, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0xA0, 0x80, 0x1F9);
+    }
+    func_8001B2F4(0x12E, 0, 0x60, 0x10, 0x1E, 0x60, 0xE0, 0xA0, 0x1F9);
+    for (i = 0; i < 4; i++) {
+        func_8001B2F4(i + 0x12F, 0, 8, 0x10, 0x1E, (u8)(i * 8 - 0x40), 0xE0, 0xA0, 0x1F9);
+    }
+    for (i = 0; i < 12; i++) {
+        func_8001B2F4(i + 0x137, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xB0, 0x2D0, 0x1CA);
+    }
+    for (i = 0; i < 12; i++) {
+        func_8001B2F4(i + 0x143, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xA0, 0x2D0, 0x1CA);
+    }
+    func_8001B2F4(0x14F, 0, 0x50, 0x10, 0x1B, 0x80, 0xC0, 0x2D0, 0x1C9);
+    func_8001B2F4(0x150, 0, 0x50, 0x10, 0x1B, 0x80, 0xD0, 0x2D0, 0x1C9);
+    func_8001B2F4(0x151, 0, 0x80, 0x20, 0x1B, 0x80, 0xE0, 0x2D0, 0x1C9);
+    func_8001B2F4(0x152, 0, 0x80, 0x20, 0x1C, 0x80, 0xC0, 0x2D0, 0x1C9);
+    for (i = 0; i < 4; i++) {
+        func_8001B2F4(i + 0x153, 0, 0x20, 0x20, 0x1C, (u8)(i * 32 - 0x80), 0xE0, 0x2D0, 0x1C9);
+    }
+    for (i = 0; i < 4; i++) {
+        func_8001B2F4(i + 0x157, 0, 0x80, 0x10, 0x1C, 0, (u8)(i * 16 - 0x40), 0x2D0, 0x1C9);
+    }
+    func_8001B2F4(0x15B, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
+    func_8001B2F4(0x15C, 0, 0x80, 0x10, 0x1E, 0, 0xF0, 0xC0, 0x1F9);
+    func_8001B2F4(0x15D, 0, 0x10, 0x10, 0x0F, 0, 0xC0, 0x3C0, 0xFF);
+    func_8001B2F4(0x15E, 0, 0x20, 0x20, 0x0F, 0, 0xD0, 0x3D0, 0xFF);
+    func_8001B2F4(0x15F, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
+}
+
+extern u32 D_80095A84;
+extern Edge *D_800958A0;
+
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
+ * unit passes the same eight halfwords as an array. */
+void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
+s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+
+void func_8003AFAC(void) {
+    s32 n;
+    s32 k;
+    s32 q;
+    s32 digits;
+    SVECTOR pos;
+    s16 quad[8];
+    SColor color;
+
+    n = D_800958E8;
+    digits = 0;
+    for (k = 1; k < 101; k *= 10) {
+        if (n / k == 0) {
+            break;
+        }
+        digits++;
+    }
+    if (n == 0) {
+        pos.vx = -120;
+        pos.vy = -96;
+        func_8001B354(0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    }
+    k = 1;
+    pos.vx = (digits - 1) * 12 - 120;
+    pos.vy = -96;
+    for (; k < 101; k *= 10) {
+        q = n / k;
+        if (q != 0) {
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            pos.vx -= 12;
+        }
+    }
+    quad[0] = quad[2] = -0x90;
+    quad[1] = quad[3] = -0x68;
+    quad[4] = quad[5] = 0x800;
+    quad[6] = 0;
+    quad[7] = 0;
+    func_800198BC(0xFA, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+    quad[0] = quad[2] = -0x40;
+    quad[1] = quad[3] = -0x58;
+    quad[7] = 1;
+    quad[6] = 0;
+    D_80095A84 += D_8009EF20[0];
+    switch (D_800958A8) {
+        case 1:
+            quad[4] = quad[5] = 0x800;
+            if ((D_8009585C >> 1) & 1) {
+                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            }
+            break;
+        case 2:
+            quad[4] = quad[5] = 0xB50;
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            break;
+        case 0:
+            break;
+        default:
+            quad[4] = quad[5] = 0x1000;
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            break;
+    }
+    if (D_80095988 == 0x14A) {
+        func_80042538(0x28);
+        func_8003F834(10, 0, 0, 0, 0);
+    }
+    n = D_80095988;
+    n /= 30;
+    color.r = -1;
+    if (n < 11) {
+        color.g = 0x80;
+        color.b = color.cd = 0;
+    } else {
+        color.g = color.b = color.cd = 0x80;
+    }
+    if (n >= 5 || ((D_8009585C >> 1) & 1)) {
+        /* MATCHING: a digit count whose result is never used; the
+         * divisions stay. */
+        for (k = 1; k < 101; k *= 10) {
+            if (n / k == 0) {
+                break;
+            }
+        }
+        if (n == 0) {
+            pos.vx = 4;
+            pos.vy = -0x68;
+            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        }
+        k = 1;
+        pos.vx = 4;
+        pos.vy = -0x68;
+        for (; k < 101; k *= 10) {
+            q = n / k;
+            if (q != 0) {
+                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+                pos.vx -= 18;
+            }
+        }
+    }
+    color.r = 1;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = (D_8009578C * 11 << 15) / ((s32 *)D_800958A0)[-1] / 4096 + 0x34;
+    pos.vy = -0x69;
+    func_8001B354(((D_8009585C >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    k = 1;
+    pos.vx = 0x34;
+    pos.vy = -0x64;
+    func_8001B354(0x12E, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0x34;
+    pos.vy = -0x54;
+    func_8001B354(0x122, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0x90;
+    pos.vy = -0x54;
+    func_8003A4B4(&pos, D_80095980);
+    n = D_80095770;
+    pos.vx = 0x68;
+    pos.vy = 0x4C;
+    for (; k < 10001; k *= 10) {
+        q = n / k;
+        if (q != 0) {
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            pos.vx -= 12;
+        }
+    }
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = 0x70;
+    pos.vy = 0x38;
+    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+}
 
 /**
  * @brief Absolute value.
@@ -319,7 +519,136 @@ void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
+extern u16 D_80095868;
+extern s32 D_80095828;
+extern s16 D_80095994;
+extern s16 D_80095996;
+extern s8 *D_80095808;
+extern s16 D_80095890;
+extern s16 D_800957DE;
+
+#define sView (*(GsRVIEW2 *)D_80096768)
+
+/**
+ * @brief Steps a boundary index across the edges either side of (x, y).
+ * @param index the index to step
+ * @param tbl   the edge table
+ * @param x     the point's x
+ * @param y     the point's y
+ */
+static __inline__ void stepEdge(s32 *index, Edge *tbl, s16 x, s16 y) {
+    s32 i;
+    s32 j;
+    s32 d;
+    Edge *e;
+    Edge *f;
+
+    i = *index;
+    e = (Edge *)(i * 8 + (s32)tbl) + 1;
+    d = e->dx * (x - e->x) + e->dy * (y - e->y);
+    if (d >= 0) {
+        *index = i + 1;
+    }
+    j = *index;
+    f = (Edge *)(j * 8 + (s32)tbl);
+    d = -f->dx * (x - f->x) + -f->dy * (y - f->y);
+    if (d >= 0) {
+        *index = j - 1;
+    }
+}
+
+s16 func_8003B9B4(s16 x, s16 target, s16 y, s16 height) {
+    Edge *tbl;
+    Edge *e;
+    /* MATCHING: s16, extended only at the return; as s32 it takes a's
+     * register and a gets another. */
+    s16 angle;
+    s32 b;
+    s32 a;
+    s32 old;
+    s32 v;
+    s32 off;
+    /* MATCHING: retail's frame has 8 more bytes below the saved registers. */
+    s32 unused[2];
+
+    tbl = D_800958A0;
+    stepEdge(&D_8009578C, tbl, x, y);
+    e = (Edge *)(D_8009578C * 8 + (s32)tbl);
+    angle = a = ratan2(e[1].x - e[0].x, e[1].y - e[0].y);
+    a &= 0xFFF;
+    b = D_80095868 & 0xFFF;
+    if (iabs(a - b) > 0x800) {
+        if (a < 0x800) {
+            a += 0x1000;
+        }
+        if (b < 0x800) {
+            b += 0x1000;
+        }
+    }
+    /* MATCHING: the distance re-derived in each test; a local for it gets
+     * a register retail gives to a. */
+    if (iabs(a - b) > 50) {
+        if (D_80095828 < 20) {
+            D_80095828 += 2;
+        }
+    } else if (iabs(a - b) > 30) {
+        D_80095828 = 10;
+    } else if (iabs(a - b) > 5) {
+        D_80095828 = 5;
+    } else if (a == b) {
+        D_80095828 = 0;
+    } else {
+        D_80095828 = 1;
+    }
+    if (a - b > 0) {
+        D_80095868 += D_80095828;
+    } else {
+        D_80095868 -= D_80095828;
+    }
+    D_80095994 = rsin((s16)D_80095868 + 0x800) * 400 / 4096;
+    D_80095996 = rcos((s16)D_80095868 + 0x800) * 400 / 4096;
+    sView.vpz = D_80095996;
+    sView.vpx = D_80095994;
+    D_800957DE = sView.vpy;
+    if (D_80095808[D_8009578C] * 10 < D_80095890) {
+        D_80095890 -= 10;
+    }
+    if (D_80095890 < D_80095808[D_8009578C] * 10) {
+        D_80095890 += 10;
+    }
+    old = D_800957DE;
+    v = height + D_80095890;
+    sView.vpy = v;
+    if (v - old > 200) {
+        sView.vpy = old + 50;
+    } else {
+        /* MATCHING: the rest of the clamp reads old through the dead a
+         * (permuter find); it moves a's register for the whole function. */
+        a = old;
+        if (v - a > 50) {
+            sView.vpy = a + 20;
+        } else if (v - a > 20) {
+            sView.vpy = a + 10;
+        }
+    }
+    if (sView.vpy - D_800957DE < -200) {
+        sView.vpy = D_800957DE - 50;
+    } else if (sView.vpy - D_800957DE < -50) {
+        sView.vpy = D_800957DE - 20;
+    } else if (sView.vpy - D_800957DE < -20) {
+        sView.vpy = D_800957DE - 10;
+    }
+    /* MATCHING: a fresh local, so the sum stays in one register; -height
+     * first loads height first. */
+    off = (-height + target) / 2 - 150;
+    sView.vrx = 0;
+    sView.vry = height + off;
+    sView.vrz = 0;
+    sView.rz = 0;
+    sView.super = NULL;
+    GsSetRefView2L(&sView);
+    return angle;
+}
 
 void func_8003BDF4(void) {
     POLY_F4 *p;
@@ -436,14 +765,6 @@ void func_8003C2E8(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
 
-/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
-typedef struct {
-    s8 r;  /**< red, or -1 */
-    u8 g;  /**< green */
-    u8 b;  /**< blue */
-    u8 cd; /**< code byte */
-} SColor;
-
 void func_8003C8D0(SVECTOR *pos, s32 frames) {
     s32 n;
     s32 m;
@@ -491,9 +812,378 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003CC94);
+/* MATCHING: 8-byte arrays (rank % 3 indexes them); as scalars indexed
+ * through & the stores in func_8003CC94 schedule the address first. */
+extern s32 D_800958F0[2];
+extern s32 D_80095838[2];
+extern s32 D_80096A58[][2];
+extern s32 D_800D8340[][2];
+extern s32 D_80010454[][2];
+extern u8 D_800958C8;
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003D960);
+void func_8003C494(SVECTOR *pos, s32 n);
+
+void func_8003CC94(void) {
+    s32 i;
+    s32 k;
+    s32 q;
+    s32 n;
+    s32 place;
+    s32 rank;
+    SVECTOR pos;
+    s16 quad[8];
+    SColor color;
+    s16 tile[4];
+
+    if (D_80095A80 == 0) {
+        return;
+    }
+    place = D_80095830;
+    if (place >= 0) {
+        if (place < 6) {
+            rank = place;
+        } else if (place < 15) {
+            if (place >= 9) {
+                rank = place - 3;
+            }
+        }
+    }
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    switch (D_80095A98) {
+        case 0:
+            switch (D_80095A90) {
+                case 0:
+                    D_80095A88[0] = 1;
+                    break;
+                case 24:
+                    D_80095AA0[1] = -24;
+                    break;
+                case 40:
+                    D_80095A88[1] = 1;
+                    break;
+                case 64:
+                    D_80095A88[2] = 1;
+                    break;
+                case 68:
+                    D_80095A88[3] = 1;
+                    break;
+                case 80:
+                    D_80095A98 = 10;
+                    break;
+            }
+            D_80095A90++;
+            break;
+        case 10:
+            if (D_80095A7C < D_800958E8) {
+                if (D_80095A7C % 10 == 0) {
+                    func_80042538(0x2A);
+                }
+                D_80095A7C++;
+                if (D_80095A7C != 0 && D_80095A7C % 25 == 0) {
+                    D_80095770++;
+                    func_80042538(0x22);
+                }
+            }
+            if (D_80095A7C == D_800958E8) {
+                if (D_80095A7C == 100) {
+                    func_80042538(0x2F);
+                    tile[1] = 0x1FB;
+                    tile[2] = 0x10;
+                    tile[3] = 1;
+                    D_80095AA0[6] = -9;
+                    tile[0] = 0;
+                    D_80095A90 = 0;
+                    D_80095A98 = 11;
+                } else if (D_80096A58[rank / 3][rank % 3] < D_80095A7C) {
+                    func_80042538(0x25);
+                    D_80095AA0[7] = -9;
+                    D_80095A90 = 0;
+                    D_80095A98 = 15;
+                } else {
+                    D_80095A90 = 0;
+                    D_80095A98 = 20;
+                }
+            }
+            break;
+        case 11:
+            if (D_80095AA0[6] == 0) {
+                if (D_80095A90 < 36) {
+                    tile[1] = 0x1FB;
+                    tile[2] = 0x10;
+                    tile[3] = 1;
+                    tile[0] = D_80095A90 % 14 * 16;
+                }
+                if (++D_80095A90 == 60) {
+                    D_80095770++;
+                    func_80042538(0x22);
+                    D_80095AA0[6] = 1;
+                }
+            } else if (++D_80095AA0[6] == 9) {
+                if (D_80095A7C > D_80096A58[rank / 3][rank % 3]) {
+                    func_80042538(0x25);
+                    D_80095AA0[7] = -9;
+                    D_80095A90 = 0;
+                    D_80095A98 = 15;
+                } else {
+                    D_80095A90 = 0;
+                    D_80095A98 = 20;
+                }
+            }
+            break;
+        case 15:
+            tile[3] = 1;
+            tile[1] = 0x1FA;
+            tile[2] = 0x10;
+            tile[0] = D_80095A90 % 14 * 16;
+            if (D_80095AA0[7] == 0) {
+                if (++D_80095A90 == 60) {
+                    D_80096A58[rank / 3][rank % 3] = D_80095A7C;
+                    D_80095AA0[7] = 1;
+                }
+            } else if (++D_80095AA0[7] == 9) {
+                D_80095A90 = 0;
+                D_80095A98 = 20;
+            }
+            break;
+        case 20:
+            switch (D_80095A90) {
+                case 15:
+                    D_80095A88[4] = 1;
+                    break;
+                case 19:
+                    D_80095A88[5] = 1;
+                    break;
+                case 31:
+                    D_80095A98 = 30;
+                    break;
+            }
+            D_80095A90++;
+            break;
+        case 30:
+            if (D_80095980 < D_800D8340[rank / 3][rank % 3]) {
+                func_80042538(0x25);
+                D_80095AA0[7] = -9;
+                D_80095A90 = 0;
+                D_80095A98 = 35;
+            } else {
+                D_80095A90 = 0;
+                D_80095A98 = 50;
+            }
+            break;
+        case 35:
+            tile[3] = 1;
+            tile[1] = 0x1FA;
+            tile[2] = 0x10;
+            tile[0] = D_80095A90 % 14 * 16;
+            if (D_80095AA0[7] == 0) {
+                if (++D_80095A90 == 60) {
+                    D_800D8340[rank / 3][rank % 3] = D_80095980;
+                    D_80095AA0[7] = 1;
+                }
+            } else if (++D_80095AA0[7] == 9) {
+                D_80095A90 = 0;
+                D_80095A98 = 50;
+            }
+            break;
+        case 50:
+            if (++D_80095A90 == 60) {
+                n = 0;
+                for (i = 0; i < 4; i++) {
+                    if (D_800D8340[i][0] >= D_80010454[i][0]) {
+                        n = 1;
+                    }
+                    if (D_800D8340[i][1] >= D_80010454[i][1]) {
+                        n = 1;
+                    }
+                }
+                if (n == 0) {
+                    D_800957D5 = 1;
+                }
+                n = 0;
+                for (i = 0; i < 4; i++) {
+                    n += D_80096A58[i][0] + D_80096A58[i][1];
+                }
+                if (n == 800) {
+                    D_800958C8 |= 4;
+                }
+                D_80095A80 = 0;
+                D_800958F0[rank % 3] = D_80095A7C;
+                D_80095838[rank % 3] = D_80095980;
+            }
+            break;
+    }
+    for (i = 0; i < 6; i++) {
+        if (D_80095A88[i] != 0) {
+            if (D_80095AA0[i] != 0) {
+                D_80095AA0[i]++;
+            } else {
+                D_80095A88[i] = 0;
+            }
+        }
+    }
+    k = 1;
+    n = D_80095770;
+    pos.vx = 0x68;
+    pos.vy = -0x44;
+    for (; k < 10001; k *= 10) {
+        q = n / k;
+        if (q != 0) {
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            pos.vx -= 12;
+        }
+    }
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = 0x70;
+    pos.vy = -0x58;
+    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    color.r = -1;
+    color.g = color.b = 0x80;
+    color.cd = 0;
+    pos.vy = -16;
+    pos.vx = D_80095AA0[6] * 32 - 0x34;
+    func_8001B354(0x15B, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = -16;
+    pos.vx = D_80095AA0[7] * 32 - 0x40;
+    func_8001B354(0x15C, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = -0x28;
+    pos.vy = D_80095AA0[0] * 4 - 0x48;
+    func_8001B354(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    if (D_80095AA0[1] != -25) {
+        quad[1] = -0x20;
+        quad[3] = -0x40;
+        quad[4] = quad[5] = (-D_80095AA0[1] << 8) + 0x1000;
+        quad[0] = 0;
+        quad[2] = 0;
+        quad[6] = 0;
+        quad[7] = 1;
+        func_800198BC(0x151, quad, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    }
+    pos.vy = 0;
+    pos.vx = D_80095AA0[2] * 32 - 0x80;
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[2] * 32 + 0x80;
+    func_8003C494(&pos, D_80095A7C);
+    pos.vy = 0x18;
+    pos.vx = D_80095AA0[3] * 32 - 0x80;
+    func_8001B354(0x158, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[3] * 32 + 0x80;
+    func_8003C494(&pos, D_80096A58[rank / 3][rank % 3]);
+    pos.vy = 0x38;
+    pos.vx = D_80095AA0[4] * 32 - 0x80;
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[4] * 32 + 0x80;
+    func_8003C8D0(&pos, D_80095980);
+    pos.vy = 0x50;
+    pos.vx = D_80095AA0[5] * 32 - 0x80;
+    func_8001B354(0x15A, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[5] * 32 + 0x80;
+    func_8003C8D0(&pos, D_800D8340[rank / 3][rank % 3]);
+}
+
+extern s32 D_800958F4;
+extern s32 D_8009583C;
+
+void func_8003D960(void) {
+    s32 i;
+    s32 k;
+    s32 rank;
+    SVECTOR pos;
+    SColor color;
+
+    if (D_80095A80 == 0) {
+        return;
+    }
+    k = D_80095830;
+    if (k >= 0) {
+        if (k < 6) {
+            rank = k;
+        } else if (k < 15) {
+            if (k >= 9) {
+                rank = k - 3;
+            }
+        }
+    }
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    switch (D_80095A98) {
+        case 0:
+            switch (D_80095A90) {
+                case 0:
+                    D_80095A88[0] = 1;
+                    break;
+                case 60:
+                    D_80095A88[1] = 1;
+                    break;
+                case 90:
+                    D_80095A88[2] = 1;
+                    break;
+                case 94:
+                    D_80095A88[3] = 1;
+                    break;
+                case 120:
+                    D_80095A88[4] = 1;
+                    break;
+                case 150:
+                    D_80095A88[5] = 1;
+                    break;
+                case 154:
+                    D_80095A88[6] = 1;
+                    break;
+                case 300:
+                    D_80095A98 = 10;
+                    break;
+            }
+            D_80095A90++;
+            break;
+        case 10:
+            D_80095A80 = 0;
+            break;
+    }
+    for (i = 0; i < 7; i++) {
+        if (D_80095A88[i] != 0) {
+            if (D_80095AA0[i] != 0) {
+                D_80095AA0[i]++;
+            } else {
+                D_80095A88[i] = 0;
+            }
+        }
+    }
+    pos.vx = -80;
+    pos.vy = D_80095AA0[0] * 4 - 88;
+    func_8001B354(0x152, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 48;
+    func_8001B354(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = -48;
+    pos.vx = D_80095AA0[1] * 32 - 40;
+    func_8001B354(0x14F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = -24;
+    pos.vx = D_80095AA0[2] * 32 - 128;
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[2] * 32 + 128;
+    func_8003C494(&pos, D_800958F0[0]);
+    pos.vy = 0;
+    pos.vx = D_80095AA0[3] * 32 - 128;
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[3] * 32 + 128;
+    func_8003C8D0(&pos, D_80095838[0]);
+    pos.vy = 24;
+    pos.vx = D_80095AA0[4] * 32 - 40;
+    func_8001B354(0x150, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vy = 48;
+    pos.vx = D_80095AA0[5] * 32 - 128;
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[5] * 32 + 128;
+    func_8003C494(&pos, D_800958F4);
+    pos.vy = 72;
+    pos.vx = D_80095AA0[6] * 32 - 128;
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = D_80095AA0[6] * 32 + 128;
+    func_8003C8D0(&pos, D_8009583C);
+}
 
 /** @brief Sixteen signed bytes, copied together as one unaligned block. */
 typedef struct {
@@ -760,10 +1450,6 @@ s32 func_8003E6F8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     D_800E48D0 = (u8 *)t;
     return ++p->unk0 == 8;
 }
-
-/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
- * unit passes the same eight halfwords as an array. */
-void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 
 s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];

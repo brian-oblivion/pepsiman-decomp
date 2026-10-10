@@ -369,8 +369,8 @@ void func_80033B08(void);
 void func_80033B34(void);
 void func_80033BF8(void);
 void func_8002DC44(void);
-extern s32 D_80095770; /**< set to 0xFF on leaving the tool */
-extern u8 D_80095962;  /**< set on leaving the tool */
+/* MATCHING: code_13068 tests it as s8. */
+extern u8 D_80095962; /**< set on leaving the tool */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */

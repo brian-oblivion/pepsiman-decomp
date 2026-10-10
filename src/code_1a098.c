@@ -240,7 +240,6 @@ s32 func_80028AE4(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
  * the result nor extends the a and b it passes. */
 s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
-s32 func_80028260(s32 n);
 void func_8002C4D8(void);
 s32 func_800183B0(Rec48 *r);
 s32 func_8002C650(void);

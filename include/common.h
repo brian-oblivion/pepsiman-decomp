@@ -134,6 +134,12 @@ extern s32 D_800959B4;  /**< 2 units, 2 functions */
 extern s32 D_800959B8;  /**< 2 units, 2 functions */
 extern s32 D_80095958;  /**< a pad word; its bits step a position or a highlighted line; 2 units */
 extern s32 D_800959A0;  /**< printed first on the status panel; 2 units */
+extern s32 D_80095770;  /**< set to 0xFF on leaving the tool; 2 units */
+extern u8 D_800958F8;   /**< 2 units */
+extern s32 D_80095980;  /**< 2 units */
+extern s32 D_80095988;  /**< 2 units */
+extern s16 D_800957B0;  /**< 2 units */
+extern s32 D_800957B4;  /**< 2 units */
 extern s32 D_800958B4;  /**< the address of the floor data a probe tests; 2 units */
 extern u8 D_800D3CA8[]; /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
 extern u8 D_800DB2C0[]; /**< a 0x1DB0-byte buffer of 0x4C-byte records */
@@ -349,5 +355,18 @@ void func_800413BC(void);
 /** @brief Defined in main.
  *  @param arg not yet known */
 void func_800142EC(s32 arg);
+
+/** @brief Defined in code_29f54. */
+void func_8003C014(void);
+
+/** @brief Defined in code_308ec. */
+void func_80040F14(void);
+
+/** @brief Defined in code_31cec: stores `value` as a byte.
+ *  @param value the byte */
+void func_80042958(u8 value);
+
+/** @brief Defined in code_13068. */
+void func_800285B0(void);
 
 #endif

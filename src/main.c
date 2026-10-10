@@ -124,6 +124,7 @@ typedef struct {
     u8 unk70[8]; /**< not yet known */
 } ModelSlot;
 
+/* MATCHING: code_13068 has its own view of these slots. */
 extern ModelSlot D_800D8370[];
 extern u8 D_8009EF50[];
 extern u8 D_80096418[];
@@ -829,8 +830,6 @@ typedef struct {
 extern s32 D_80095758;
 
 void func_800160E8(void);
-
-extern s32 D_80095980;
 
 /** @brief One step of @p obj: runs the stepper and marks a finished 0x61
  *         channel. Inlined here and by the out-of-line step below. */

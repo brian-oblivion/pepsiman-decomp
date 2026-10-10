@@ -502,7 +502,6 @@ typedef struct {
 
 extern Bytes16 D_80011EB0;
 extern s8 D_80095908;
-extern s32 D_800957B4;
 
 void func_8003DE34(void) {
     Bytes16 tbl;

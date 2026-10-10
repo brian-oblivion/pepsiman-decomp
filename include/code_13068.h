@@ -18,6 +18,11 @@ void func_800230E0(VECTOR *pos, SVECTOR *out);
  *  @param state the state block */
 void func_80023F80(u8 *state);
 
+/** @brief Defined in code_13068.
+ *  @param n not yet known
+ *  @return not yet known */
+s32 func_80028260(s32 n);
+
 extern SVECTOR D_800A7680[]; /**< rotations; [0].vy is a yaw (heading) */
 
 #endif

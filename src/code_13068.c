@@ -182,6 +182,7 @@ s32 func_800283A0(void);
 void func_800285C8(s32 deg, s32 radius, VECTOR *out);
 void func_800287F4(void);
 s32 func_80028508(void);
+/* MATCHING: code_1dc24 stores it as u8; this unit's tests load it lb. */
 extern s8 D_80095962;
 
 /** @brief A 10-byte pickup slot; three live ones are checked each frame. */
@@ -202,8 +203,6 @@ typedef struct {
 
 extern PickupKind D_8007714C[];
 extern s8 D_8009575F;
-s32 func_80028260(s32 n);
-void func_800285B0(void);
 /* Overlay entry points: the stage modes' own code. */
 void func_800F8A58(void);
 void func_800F8B60(void);
@@ -233,17 +232,12 @@ typedef struct {
 } Words3;
 
 extern s32 D_800DF5C0[];
-extern s32 D_80095980;
-extern s32 D_80095988;
-extern u8 D_800958F8;
+/* MATCHING: a per-unit view; code_1a098 declares it the same way, code_1dc24
+ * as words. */
 extern Rec5C D_800CF080[];
 extern u8 D_800959B0;
 extern s16 D_800957DC;
-extern s32 D_80095770;
 void func_8003AFAC(void);
-void func_80040F14(void);
-void func_80042958(u8 value);
-void func_8003C014(void);
 /* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
 void func_8004079C();
 void func_8003E360(s32 level);

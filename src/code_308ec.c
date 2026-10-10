@@ -135,8 +135,6 @@ typedef struct {
 } StartRec;
 
 extern StartRec *D_80095840;
-extern u8 D_800958F8;
-extern s16 D_800957B0;
 
 /* MATCHING: code_1a098 hands it a Rec48; here it gets a position. */
 s32 func_800183B0(Pos3 *pos);
@@ -165,14 +163,12 @@ typedef struct {
 
 extern s32 D_800957A4;
 extern u16 D_80095868;
-extern s32 D_80095988;
 extern s32 D_8007B038[][3];
 extern s32 D_8007AF84[][3];
 
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */
 u8 func_80017F0C(StageState *obj, u16 index, u8 arg);
-void func_800285B0(void);
 /* MATCHING: main.c defines it on a TableHeader; the table is a u16 array
  * here, as in code_13068. */
 void func_80015450(u16 *table, s32 index);

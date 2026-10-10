@@ -17,7 +17,9 @@ typedef struct {
     u8 pad3[2];
     u8 unk5; /**< cleared on a reset */
     u8 unk6; /**< 2 on a reset, 0x33 when unk3D0's low nibble is 3 */
-    u8 pad7[0x348 - 0x7];
+    u8 pad7[0x340 - 0x7];
+    s8 unk340; /**< 2 lets the band in unk3AC pick the next mode */
+    u8 pad341[0x348 - 0x341];
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
     s32 unk350; /**< pushed back along the cosine of an angle */
@@ -42,7 +44,7 @@ typedef struct {
     s16 unk3A6; /**< raised by 2 when unk34C passes the goal line */
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
     u8 pad3AA[0x3AC - 0x3AA];
-    s16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
+    u16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
     u8 pad3AE[0x3B8 - 0x3AE];
     s32 unk3B8; /**< 1 selects the global cap for unk34C */
     u8 pad3BC[0x3C0 - 0x3BC];
@@ -356,7 +358,46 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023F80);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026548);
+/* MATCHING: non-void with no return keeps two bnez delay slots nops. */
+s32 func_80026548(void) {
+    s16 v;
+
+    if (sGame.unk0 != 0 && (u32)(sGame.unk6 - 8) >= 4) {
+        if (sGame.unk5 != 0x3A) {
+            v = sGame.unk3A8;
+            if (v < 40) {
+                D_800957D2 += 16;
+            } else if (D_80095964 & 0x1000) {
+                D_800957D2 += 32;
+                if ((s16)D_800957D2 >> 4 > 40) {
+                    D_800957D2 = 640;
+                }
+            } else if (D_80095964 & 0x4000) {
+                D_800957D2 -= 32;
+                if ((s16)D_800957D2 >> 4 < 40) {
+                    D_800957D2 = 640;
+                }
+            } else if (v > 40) {
+                D_800957D2 -= 16;
+            } else {
+                D_800957D2 += 16;
+            }
+            sGame.unk3A8 = (s16)D_800957D2 >> 4;
+            if (sGame.unk3AC == 2 && sGame.unk340 == 2) {
+                sGame.unk6 = 4;
+            }
+            if (sGame.unk3AC == 1 && sGame.unk340 == 2) {
+                sGame.unk6 = 3;
+            }
+            if (sGame.unk3AC == 0 && sGame.unk340 == 2) {
+                sGame.unk6 = 2;
+            }
+        } else {
+            D_800957D2 = 0x460;
+            sGame.unk3A8 = 0x46;
+        }
+    }
+}
 
 /* MATCHING: non-void with no return keeps li 0x71 first in the call block. */
 s32 func_8002670C(void) {

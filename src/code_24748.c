@@ -21,10 +21,18 @@ typedef struct {
     u8 unk0[0x2C]; /**< not yet known */
 } Rec2C;
 
+/** @brief Three halfwords copied as one 6-byte unit. */
+typedef struct {
+    s16 x; /**< not yet known */
+    s16 y; /**< not yet known */
+    s16 z; /**< not yet known */
+} Pt6;
+
 /** @brief A 0x4C-byte record of the second of two record banks. */
 typedef struct {
-    u8 unk0[0x48]; /**< not yet known */
-    void *unk48;   /**< the owning 0x78-byte record's unk10 */
+    Pt6 pts[4];     /**< copied from the dispatch's object */
+    u8 unk18[0x30]; /**< not yet known */
+    void *unk48;    /**< the owning 0x78-byte record's unk10 */
 } Rec4C;
 
 /** @brief The first record bank: 80 entries, then 0x2C-byte records. */
@@ -54,14 +62,16 @@ void func_80036F50(void);
 
 /** @brief An object reset when the two-state dispatch enters state 1. */
 typedef struct {
-    u8 unk0[0x48]; /**< not yet known */
-    void *unk48;   /**< points into the current entry's record */
+    Pt6 pts[4];     /**< copied into a new second-bank record */
+    u8 unk18[0x30]; /**< not yet known */
+    void *unk48;    /**< points into the current entry's record */
 } Obj48;
 
-extern Obj48 D_800DF9C0; /**< reset by the dispatch's state 0 */
-extern u8 D_80095A59;    /**< state of the second dispatch: 0 or 1 */
-extern s16 D_80095A54;   /**< set to 100 on entering state 1 */
-extern s16 D_80095A56;   /**< set to 100 on entering state 1 */
+extern Obj48 D_800DF9C0;  /**< reset by the dispatch's state 0 */
+extern Rec4C *D_80095A34; /**< the second-bank record inserted last */
+extern u8 D_80095A59;     /**< state of the second dispatch: 0 or 1 */
+extern s16 D_80095A54;    /**< set to 100 on entering state 1 */
+extern s16 D_80095A56;    /**< set to 100 on entering state 1 */
 
 void func_80034BCC(void);
 void func_8002A98C(Obj48 *obj, u8 *p, s32 a, s32 b);
@@ -210,7 +220,54 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800345C8);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034788);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034BCC);
+/* MATCHING: the last loop enters at its test (a for or while is rotated). */
+void func_80034BCC(void) {
+    Bank4C *bank;
+    BankEntry *e;
+    Rec4C *recs;
+    Rec4C *src;
+    Rec4C *dst;
+    Rec4C *rec;
+    s32 k;
+    s32 n;
+
+    bank = (Bank4C *)D_80095A4C;
+    e = bank->entries;
+    e += D_80095A30;
+    recs = (Rec4C *)&bank->entries[D_8009588E];
+    src = &recs[98];
+    dst = &recs[99];
+    for (k = e->first + e->unk4; k < 100; k++) {
+        *dst = *src;
+        dst--;
+        src--;
+    }
+    bank = (Bank4C *)D_80095A4C;
+    e = bank->entries;
+    e += D_80095A30;
+    rec = func_80036A84(D_80095A30, e->unk4);
+    D_80095A34 = rec;
+    for (k = 0; k < 4; k++) {
+        rec->pts[k].x = D_800DF9C0.pts[k].x;
+        rec->pts[k].y = D_800DF9C0.pts[k].y;
+        rec->pts[k].z = D_800DF9C0.pts[k].z;
+    }
+    D_80095A34->unk48 = D_800DF9C0.unk48;
+    e = (BankEntry *)D_80095A4C;
+    e += D_80095A30;
+    e->unk4++;
+    n = D_8009588E;
+    k = D_80095A30 + 1;
+    goto test;
+    do {
+        e++;
+        e->first++;
+        k++;
+    test:;
+    } while (k < n);
+    D_80095A2C++;
+    func_80036878();
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034D5C);
 

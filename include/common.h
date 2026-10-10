@@ -260,8 +260,9 @@ void func_80017614(u8 mode);
  *  @param clutY stored from bit 6 of the second halfword */
 void func_8001B2F4(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
 
-/** @brief Defined in code_1a098. */
-void func_800330D4(void);
+/** @brief Defined in code_1dc24.
+ *  @return 0. */
+s32 func_800330D4(void);
 
 /** @brief Defined in code_1902c. */
 void func_8002980C(void);

@@ -78,6 +78,10 @@ typedef struct {
 
 #define sGameSave (*(GameSave *)D_8009EB78)
 
+extern s32 D_80095950; /**< a pad word; bits step the edited value */
+extern s32 D_80095958; /**< a pad word; bits step the highlighted line */
+
+s32 func_80033E98(void);
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
@@ -379,7 +383,40 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032C28);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800330D4);
+/** @brief Steps the edited value (bits 0x2000 up, 0x8000 down) or the
+ *         highlighted line (0x4000 up, 0x1000 down) from the first pad
+ *         word, else from the second and third, then wraps both.
+ *  @return 0. */
+s32 func_800330D4(void) {
+    if (D_80095970 & 0x2000) {
+        D_80095748++;
+        func_80033E98();
+    } else if (D_80095970 & 0x8000) {
+        D_80095748--;
+        func_80033E98();
+    } else if (D_80095970 & 0x4000) {
+        D_8009574A++;
+        func_80033E98();
+    } else if (D_80095970 & 0x1000) {
+        D_8009574A--;
+        func_80033E98();
+    } else if (D_80095950 & 0x2000) {
+        D_80095748++;
+        func_80033E98();
+    } else if (D_80095950 & 0x8000) {
+        D_80095748--;
+        func_80033E98();
+    } else if (D_80095958 & 0x4000) {
+        D_8009574A++;
+        func_80033E98();
+    } else if (D_80095958 & 0x1000) {
+        D_8009574A--;
+        func_80033E98();
+    } else {
+        return 0;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033224);
 

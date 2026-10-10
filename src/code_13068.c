@@ -57,7 +57,8 @@ typedef struct {
     s16 unk3CA; /**< set to 1 when the stage ends */
     s32 unk3CC; /**< with unk39C, picks which cap unk34C gets */
     u8 unk3D0;  /**< low nibble read on a reset */
-    u8 pad3D1[0x3D3 - 0x3D1];
+    u8 unk3D1;  /**< set to 1 when a stage ends with a mode in unk3D0 */
+    u8 pad3D2;
     s8 unk3D3; /**< nonzero draws the gauge sprite */
 } GameState;
 
@@ -87,6 +88,12 @@ typedef struct {
 
 extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
+extern DVECTOR D_800DE0A0[];
+extern s32 D_800DED50[];
+extern s32 D_800957F8;
+extern s32 D_80095800;
+extern s32 D_80095804;
+extern s32 D_8009580C;
 
 extern u8 D_80095784;
 extern u8 *D_80095790;
@@ -168,6 +175,27 @@ extern s32 D_800956E4;
 extern s32 D_800956E0;
 extern s32 D_800DF5A0[];
 extern s32 D_800DF5B0[];
+
+/** @brief Three words moved as one, for a block copy. */
+typedef struct {
+    s32 w[3]; /**< the words */
+} Words3;
+
+extern s32 D_800DF5C0[];
+extern s32 D_80095980;
+extern s32 D_80095988;
+extern u8 D_800958F8;
+extern Rec5C D_800CF080[];
+extern u8 D_800959B0;
+extern s16 D_800957DC;
+extern s32 D_80095770;
+void func_8003AFAC(void);
+void func_80040F14(void);
+void func_80042958(u8 value);
+void func_8003C014(void);
+/* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
+void func_8004079C();
+void func_8003E360(s32 level);
 /* MATCHING: code_308ec stores this as u8; this unit's test loads it lb. */
 extern s8 D_80095900;
 s32 func_800297A4(VECTOR *a, VECTOR *b);
@@ -653,7 +681,142 @@ void func_80026C70(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026D9C);
+/* MATCHING: the empty case -2 sets the switch's compare tree; non-void with no return keeps
+ * the guards' delay slots nops; the unused words give retail's frame. */
+s32 func_80026D9C(void) {
+    s32 unused[4];
+    u16 i;
+    s32 x;
+    s16 t;
+
+    if (D_80095830 % 3 == 2) {
+        goto end;
+    }
+top:
+    switch (D_80095858) {
+        case -2:
+            break;
+        case -1:
+            func_8003AFAC();
+            break;
+        case 0:
+            x = D_800958A8;
+            if (D_800958AC == 1) {
+                if (x >= 2) {
+                    D_800958A8 = 2;
+                }
+            } else if (x >= 3) {
+                D_800958A8 = 3;
+            }
+            if (D_800958A8 <= 0) {
+                D_800958A8 = 0;
+            }
+            if (D_8009EF4D[0] == 1) {
+                D_800958A8 = 0;
+            }
+            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (D_80095830 != 4 || D_8009578C != 0)) {
+                D_80095980++;
+                D_80095988--;
+            }
+            if (D_80095830 % 3 == 2) {
+                break;
+            }
+            func_80040F14();
+            func_8003AFAC();
+            if (D_800958F8 == 1) {
+                break;
+            }
+            if (D_80095988 > 0) {
+                break;
+            }
+            D_80095988 = 0;
+            sGame.unk0 = 0;
+            sGame.unk2 = 0;
+            sGame.unk3C8 = 500;
+            sGame.unk38E = 0;
+            sGame.unk38C = 0;
+            if (sGame.unk3D0 & 0xF) {
+                sGame.unk5 = 0;
+                sGame.unk3D0 &= 0xF0;
+                sGame.unk3D1 = 1;
+                sGame.unk398 = 0;
+                sGame.unk390 = 0;
+            }
+            if (D_800CF080[196].unk0 == 1) {
+                break;
+            }
+            if (D_800CF080[198].unk0 == 1) {
+                break;
+            }
+            if (sGame.unk5 == 0 || sGame.unk5 == 0x3A || sGame.unk5 == 0x3C) {
+                if ((s16)D_800957D2 >> 4 < 15) {
+                    D_800957D2 = 0xF0;
+                }
+                sGame.unk5 = 0x23;
+                D_80095858 = 1;
+                D_800959B0 = 0;
+                D_800957DC = 0;
+                sGame.unk3A8 = (s16)D_800957D2 >> 4;
+                func_80042958(4);
+                goto top;
+            }
+            break;
+        case 1:
+            D_800957DC++;
+            func_8003C014();
+            if (D_800957DC == 10) {
+                for (i = 0; i < 200; i++) {
+                    D_800CF080[i].unk0 = 2;
+                }
+                D_800958EC = 0;
+                D_800957D6 = 0;
+                *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
+            }
+            if (D_800957DC >= 10) {
+                sGame.unk3A8 = 0;
+                D_800957D2 = 0;
+                *(Words3 *)&sGame.unk348 = *(Words3 *)D_800DF5C0;
+            }
+            if (D_800957DC > 100) {
+                t = D_800957DC - 100;
+                if (t > 60) {
+                    D_80095858 = 100;
+                }
+            }
+            break;
+        case 2:
+            func_80017574();
+            func_80042538(0x1B);
+            D_800957DC = 0;
+            D_80095858 = 3;
+            break;
+        case 3:
+            t = ++D_800957DC;
+            if (t > 60) {
+                D_80095858 = 100;
+            }
+            break;
+        case 100:
+            ClipF = 0;
+            if (D_80095770 == 0) {
+                D_8009EF4A[0] = 0;
+                D_80095880 = 6;
+                D_80095760 = 0xFFFF;
+            } else {
+                func_8004079C();
+                D_80095770--;
+            }
+            break;
+        case 110:
+            t = ++D_800957DC;
+            func_8003E360(t);
+            if (t == 0x180) {
+                D_80095880 = 6;
+            }
+            break;
+    }
+end:;
+}
 
 void func_800272D4(void) {
     switch (sGame.unk3D0 & 0xF) {

@@ -1,19 +1,21 @@
-# func_800429EC — MATCHED 39/39 (round 4, echo)
+# StopFinishedSe — MATCHED 39/39 (round 4, echo)
+
+> Renamed from `func_800429EC` on 2026-10-10 (tools/rename.py). Address 0x800429ec.
 
 Unit `src/code_31cec.c`. Walks sequence slots 2..9 of the access-number
-table `D_800E0570` with the global index `D_80095B1A`, and stops every
+table `gSeqIds` with the global index `gSeSlot`, and stops every
 open sequence that has reached its end (`SsIsEos(seq, 0) == 1`).
 
 ```c
 #include "libsnd.h"
-extern s16 D_800E0570[];
-extern u16 D_80095B1A;
+extern s16 gSeqIds[];
+extern u16 gSeSlot;
 
-void func_800429EC(void) {
+void StopFinishedSe(void) {
     s16 *seq;
 
-    for (D_80095B1A = 2; D_80095B1A < 10; D_80095B1A++) {
-        seq = &D_800E0570[D_80095B1A];
+    for (gSeSlot = 2; gSeSlot < 10; gSeSlot++) {
+        seq = &gSeqIds[gSeSlot];
         if (*seq != 0) {
             if (SsIsEos(*seq, 0) == 1) {
                 SsSeqStop(*seq);
@@ -26,11 +28,11 @@ void func_800429EC(void) {
 ## Levers
 
 - **The slot address kept in `$s0` across `SsIsEos`: a local pointer.**
-  Indexing `D_800E0570[D_80095B1A]` three times recomputes the address
+  Indexing `gSeqIds[gSeSlot]` three times recomputes the address
   from the reloaded global after the call (4 words long, 2 saved
-  registers short of retail's `$s0`/`$s1`). `seq = &D_800E0570[i];` then
+  registers short of retail's `$s0`/`$s1`). `seq = &gSeqIds[i];` then
   `*seq` gives 39/39.
-- `D_80095B1A` is `u16`: `lhu`, and `andi 0xFFFF` + `sltiu 10` on the
+- `gSeSlot` is `u16`: `lhu`, and `andi 0xFFFF` + `sltiu 10` on the
   loop test.
 
 ### Proposed learning
@@ -38,4 +40,4 @@ void func_800429EC(void) {
 - **An element address held in a saved register across a call and
   dereferenced on both sides: the source took `&tbl[i]` into a local
   pointer.** Repeated `tbl[i]` with a global index reloads the index
-  after the call. (func_800429EC)
+  after the call. (StopFinishedSe)

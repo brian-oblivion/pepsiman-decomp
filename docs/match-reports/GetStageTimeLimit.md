@@ -1,16 +1,18 @@
-# func_80041198 — MATCHED 33/33 (round 12, alpha)
+# GetStageTimeLimit — MATCHED 33/33 (round 12, alpha)
+
+> Renamed from `func_80041198` on 2026-10-10 (tools/rename.py). Address 0x80041198.
 
 Unit `src/code_31958.c`. Looks up word `k` of entry `mode` in one of two
-per-stage tables of three words (`D_8007B038` when `D_800958AC` is 1,
-`D_8007AF84` otherwise) and returns it times 30. code_308ec has the same
-lookup written inline (func_800401F0's neighbourhood).
+per-stage tables of three words (`gTimeLimitsAlt` when `D_800958AC` is 1,
+`gTimeLimits` otherwise) and returns it times 30. code_308ec has the same
+lookup written inline (UpdateStagePlay's neighbourhood).
 
 ```c
-s32 func_80041198(u8 mode, s32 k) {
+s32 GetStageTimeLimit(u8 mode, s32 k) {
     if (D_800958AC != 1) {
-        return D_8007AF84[mode][k] * 30;
+        return gTimeLimits[mode][k] * 30;
     }
-    return D_8007B038[mode][k] * 30;
+    return gTimeLimitsAlt[mode][k] * 30;
 }
 ```
 

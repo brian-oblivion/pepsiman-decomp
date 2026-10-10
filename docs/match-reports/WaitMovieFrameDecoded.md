@@ -36,6 +36,6 @@ void WaitMovieFrameDecoded(DECENV *dec) {
   this function's own `.s` (splat migrated it there), so removing the
   `INCLUDE_ASM` removes its only definition; the literal is now that
   definition. cc1 places it in the unit's `.rodata` ahead of
-  func_800426A4's jump table at the same address, and the whole image
+  LoadSoundData's jump table at the same address, and the whole image
   verifies OK. `stdio.h` supplies `printf`'s prototype (declcheck flags
   the implicit declaration otherwise).

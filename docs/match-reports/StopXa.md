@@ -1,4 +1,6 @@
-# func_80042C14 — MATCHED 15/15 (round 2, bravo)
+# StopXa — MATCHED 15/15 (round 2, bravo)
+
+> Renamed from `func_80042C14` on 2026-10-10 (tools/rename.py). Address 0x80042c14.
 
 Unit `src/code_31cec.c`. Mutes CD audio mixing (all four `CdlATV`
 volumes 0) and sends `CdlPause` without waiting.
@@ -6,7 +8,7 @@ volumes 0) and sends `CdlPause` without waiting.
 ```c
 #include "libcd.h"
 
-void func_80042C14(void) {
+void StopXa(void) {
     CdlATV vol;
 
     vol.val3 = 0;
@@ -29,4 +31,4 @@ void func_80042C14(void) {
 
 Independent stores to a local struct are emitted in source order by
 GCC 2.8.1 (the last one may land in the `jal` delay slot); read the
-retail store order straight back into the source. (func_80042C14)
+retail store order straight back into the source. (StopXa)

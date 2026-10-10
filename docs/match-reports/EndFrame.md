@@ -8,10 +8,10 @@ for VSync (count kept in `gVSyncTime`), swaps buffers, clears to the fog
 colour, adds the two `DR_STP` primitives around the 3D ordering table,
 draws, switches the work buffer, re-clears both ordering tables, sorts the
 sprite table into the 3D one, runs ReadPad and func_8003DE34, and
-counts the frame unless `D_80095974` is set.
+counts the frame unless `gPauseState` is set.
 
-Declaration changes: `gLoading`, `D_80095974` and `ClipF` moved from
-`src/code_308ec.c` to `include/common.h` (declcheck MULTI); `D_80095974`
+Declaration changes: `gLoading`, `gPauseState` and `ClipF` moved from
+`src/code_308ec.c` to `include/common.h` (declcheck MULTI); `gPauseState`
 is now `s8` (was `u8`; code_308ec only stores 0 to it, no byte change).
 The prototype of ReadPad moved up to this function.
 
@@ -64,7 +64,7 @@ void EndFrame(void) {
     AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
     ReadPad(0);
     func_8003DE34();
-    if (D_80095974 == 0) {
+    if (gPauseState == 0) {
         gFrameCount++;
     }
 }
@@ -76,5 +76,5 @@ calls). The `GsRVIEW2` members are assigned in retail's store order
 (`vpx`, `vpy`, `vpz`, `rz`, `vrx`, `vry`, `vrz`; `super` is never set).
 `func_80056B8C` is libgs's `GsSortClear`, carved as asm, declared by its
 arguments like func_80056774. The only residue of the first build was
-`lb` for `D_80095974`: an `(s8)` cast on a `u8` folds away under `== 0`,
+`lb` for `gPauseState`: an `(s8)` cast on a `u8` folds away under `== 0`,
 so the global's declaration became `s8`.

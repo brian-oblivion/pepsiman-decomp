@@ -118,61 +118,61 @@ typedef struct {
 extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
 
 /* Small: a plain extern. */
-extern s32 D_800956D4;   /**< 2 units, 4 functions */
-extern u8 gClearB;       /**< the screen clear and fog colour, blue */
-extern u8 gClearG;       /**< the screen clear and fog colour, green */
-extern u8 gClearR;       /**< the screen clear and fog colour, red */
-extern u8 D_800956F7;    /**< 3 units, 3 functions */
-extern s32 D_80095714;   /**< 2 units, 2 functions */
-extern s32 D_8009571C;   /**< 2 units, 2 functions */
-extern s32 D_80095720;   /**< 2 units, 2 functions */
-extern s32 D_80095740;   /**< camera-facing y angle, eased by 8; 2 units */
-extern s32 D_80095744;   /**< camera-facing y angle, eased by 50; 2 units */
-extern u16 D_80095748;   /**< 2 units, 2 functions */
-extern s16 D_8009574A;   /**< the highlighted line of a three-line menu */
-extern u32 D_80095794;   /**< an entry count */
-extern s32 gActiveBuff;  /**< the display buffer being drawn this frame, 0 or 1 */
-extern s32 gPad;         /**< port 1's held buttons this frame (PAD* bits), after ReadPad */
-extern s32 D_800957EC;   /**< remapped button flags; 2 units */
-extern u16 D_80095760;   /**< the model viewer's state; 2 units */
-extern u16 D_80095768;   /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D5;    /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D6;    /**< 2 units, 3 functions; never loaded, sign unknown */
-extern u8 D_800958EC;    /**< 2 units, 4 functions; never loaded, sign unknown */
-extern s16 D_80095858;   /**< 2 units; set to 2 at the goal when 0 */
-extern s32 D_800958CC;   /**< 2 units, 2 functions; a loop counter kept in a global */
-extern s32 D_800959B4;   /**< 2 units, 2 functions */
-extern s32 D_800959B8;   /**< 2 units, 2 functions */
-extern s32 D_80095958;   /**< a pad word; its bits step a position or a highlighted line; 2 units */
-extern s32 gVSyncTime;   /**< what EndFrame's VSync returned; printed first on the status panel */
-extern s32 D_80095770;   /**< set to 0xFF on leaving the tool; 2 units */
-extern u8 D_800958F8;    /**< 2 units */
-extern s32 D_80095980;   /**< 2 units */
-extern s32 D_80095988;   /**< 2 units */
-extern s16 D_800957B0;   /**< 2 units */
-extern s32 D_800957B4;   /**< 2 units */
-extern s8 D_800956D0;    /**< a level, kept within 0..120; 2 units */
-extern u8 gPadType;      /**< port 1's controller type byte (0x41 digital, 0x73 analog) */
-extern u32 D_800957C8;   /**< an analogue stick axis, 0x80 at rest; 2 units */
-extern u32 D_800957C0;   /**< the other analogue stick axis, 0x80 at rest; 2 units */
-extern s16 D_800958E2;   /**< the selected Rec78 entry; 2 units */
-extern u16 D_80095868;   /**< 2 units */
-extern s8 D_80095908;    /**< 2 units */
-extern s8 *D_8009593C;   /**< the group list the zones index; 2 units */
-extern s32 D_80095968;   /**< 2 units */
-extern u8 D_800958C8;    /**< 2 units */
-extern s32 D_800958B4;   /**< the address of the floor data a probe tests; 2 units */
-extern u8 D_800D3CA8[];  /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
-extern u8 D_800DB2C0[];  /**< a 0x1DB0-byte buffer of 0x4C-byte records */
-extern u8 D_800958C9;    /**< 1 while CD audio is playing; 2 units */
-extern u16 gGameMode;    /**< the main loop's state */
-extern s16 gCdLoadCount; /**< files in the current CD load */
+extern s32 D_800956D4;    /**< 2 units, 4 functions */
+extern u8 gClearB;        /**< the screen clear and fog colour, blue */
+extern u8 gClearG;        /**< the screen clear and fog colour, green */
+extern u8 gClearR;        /**< the screen clear and fog colour, red */
+extern u8 D_800956F7;     /**< 3 units, 3 functions */
+extern s32 gCdTrackPos;   /**< 2 units, 2 functions */
+extern s32 gCdTrackPlays; /**< 2 units, 2 functions */
+extern s32 gCdTrackStart; /**< 2 units, 2 functions */
+extern s32 D_80095740;    /**< camera-facing y angle, eased by 8; 2 units */
+extern s32 D_80095744;    /**< camera-facing y angle, eased by 50; 2 units */
+extern u16 D_80095748;    /**< 2 units, 2 functions */
+extern s16 D_8009574A;    /**< the highlighted line of a three-line menu */
+extern u32 D_80095794;    /**< an entry count */
+extern s32 gActiveBuff;   /**< the display buffer being drawn this frame, 0 or 1 */
+extern s32 gPad;          /**< port 1's held buttons this frame (PAD* bits), after ReadPad */
+extern s32 D_800957EC;    /**< remapped button flags; 2 units */
+extern u16 gModeStep;     /**< the model viewer's state; 2 units */
+extern u16 D_80095768;    /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D5;     /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D6;     /**< 2 units, 3 functions; never loaded, sign unknown */
+extern u8 D_800958EC;     /**< 2 units, 4 functions; never loaded, sign unknown */
+extern s16 D_80095858;    /**< 2 units; set to 2 at the goal when 0 */
+extern s32 D_800958CC;    /**< 2 units, 2 functions; a loop counter kept in a global */
+extern s32 D_800959B4;    /**< 2 units, 2 functions */
+extern s32 D_800959B8;    /**< 2 units, 2 functions */
+extern s32 D_80095958;  /**< a pad word; its bits step a position or a highlighted line; 2 units */
+extern s32 gVSyncTime;  /**< what EndFrame's VSync returned; printed first on the status panel */
+extern s32 gRetries;    /**< set to 0xFF on leaving the tool; 2 units */
+extern u8 D_800958F8;   /**< 2 units */
+extern s32 D_80095980;  /**< 2 units */
+extern s32 gTimeLeft;   /**< 2 units */
+extern s16 D_800957B0;  /**< 2 units */
+extern s32 D_800957B4;  /**< 2 units */
+extern s8 D_800956D0;   /**< a level, kept within 0..120; 2 units */
+extern u8 gPadType;     /**< port 1's controller type byte (0x41 digital, 0x73 analog) */
+extern u32 D_800957C8;  /**< an analogue stick axis, 0x80 at rest; 2 units */
+extern u32 D_800957C0;  /**< the other analogue stick axis, 0x80 at rest; 2 units */
+extern s16 D_800958E2;  /**< the selected Rec78 entry; 2 units */
+extern u16 D_80095868;  /**< 2 units */
+extern s8 D_80095908;   /**< 2 units */
+extern s8 *D_8009593C;  /**< the group list the zones index; 2 units */
+extern s32 D_80095968;  /**< 2 units */
+extern u8 D_800958C8;   /**< 2 units */
+extern s32 D_800958B4;  /**< the address of the floor data a probe tests; 2 units */
+extern u8 D_800D3CA8[]; /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
+extern u8 D_800DB2C0[]; /**< a 0x1DB0-byte buffer of 0x4C-byte records */
+extern u8 gCdTrackPlaying; /**< 1 while CD audio is playing; 2 units */
+extern u16 gGameMode;      /**< the main loop's state */
+extern s16 gCdLoadCount;   /**< files in the current CD load */
 extern u8 gLoading; /**< 1 while a load runs: a fixed view and a black screen; 0 the game's view */
-extern s8 D_80095974;    /**< nonzero stops the frame counter; 2 units */
+extern s8 gPauseState;   /**< nonzero stops the frame counter; 2 units */
 extern s32 ClipF;        /**< a word inside libgte's clipf object, as a variable; 2 units */
 extern s32 D_80095904;   /**< the mapped model data's TMD address; 2 units */
 extern s8 gCdLoadState;  /**< UpdateCdLoad's step; 6 when every file has been read */
-extern u8 D_80095AEE;    /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
+extern u8 gStereo;       /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
 extern s16 D_800959E0;   /**< 2 units, 2 functions */
 extern u16 D_800959E4;   /**< 2 units, 4 functions */
 extern s16 D_80095A0C;   /**< 2 units, 4 functions */
@@ -181,7 +181,7 @@ extern s32 D_80095A4C;   /**< 2 units, 7 functions */
 extern s32 D_80095A50;   /**< 2 units, 7 functions */
 extern s32 D_80095780;   /**< entry count of the first record bank; 2 units */
 extern s32 D_80095810;   /**< entry count of the second record bank; 2 units */
-extern u16 D_80095B0E;   /**< 2 units, 3 functions */
+extern u16 gVabLoadStep; /**< 2 units, 3 functions */
 extern u8 gStage;        /**< the stage being played; stage / 3 is the world */
 extern s32 D_80095864;   /**< 3 units, 5 functions */
 extern u8 gEffectActive; /**< 2 units, 2 functions */
@@ -195,7 +195,7 @@ extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;   /**< the BlockHeader's second part */
 extern u8 *D_800E48D0;   /**< the next free byte of the primitive buffer; 5 units */
 extern s32 D_800959C8;   /**< the BlockHeader's first word */
-extern s16 D_80095AF0;   /**< 2 units, 2 functions */
+extern s16 gSoundFade;   /**< 2 units, 2 functions */
 extern s32 D_800958A8;   /**< 2 units; 3 when a stage starts */
 extern s16 D_800957BC;   /**< 2 units; a heading */
 extern u8 *D_800958FC;   /**< 2 units; far (fog) colours, four bytes each */
@@ -215,8 +215,8 @@ extern s32 D_800957F4;   /**< the result of the start-position lookup; 2 units *
 extern s32 D_80095758;   /**< 2 units */
 
 /* Per-stage tables, three words per stage; a global flag picks the set. */
-extern s32 D_8007AF84[][3]; /**< 2 units */
-extern s32 D_8007B038[][3]; /**< the second set; 2 units */
+extern s32 gTimeLimits[][3];    /**< 2 units */
+extern s32 gTimeLimitsAlt[][3]; /**< the second set; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
@@ -253,10 +253,10 @@ extern s32 *D_800D81B0[]; /**< per-sequence data pointers; 2 units */
  *  @param id what to start, by number
  *  @return -1 when a sound bank failed to open; otherwise nothing is
  *          returned (callers ignore the result) */
-s32 func_80042538(s32 id);
+s32 PlaySe(s32 id);
 
 /** @brief Defined in code_31cec; called from main. */
-void func_800428B0(void);
+void InitSound(void);
 
 /** @brief Defined in code_7d74; called from main. */
 void func_80018CB4(void);
@@ -270,7 +270,7 @@ void func_80018CB4(void);
 s32 func_80018D70(void *pos, void *arg, s32 cur);
 
 /** @brief Defined in code_7d74; called when a stage is reset. */
-void func_80017574(void);
+void StopCdTrack(void);
 
 /** @brief Defined in code_7d74; called from main: sets up the three flat
  *         lights, the ambient light and the fog. */
@@ -300,11 +300,11 @@ void func_80039754(s32 clip);
 /** @brief Defined in code_7d74; issues one CD command.
  *  @param com the CdlXXX command
  *  @return always 0 */
-s32 func_800175AC(u8 com);
+s32 SendCdTrackCommand(u8 com);
 
 /** @brief Defined in code_7d74; the CD ready callback main installs.
  *  @param mode the interrupt status */
-void func_80017614(u8 mode);
+void OnCdTrackReady(u8 mode);
 
 /** @brief Defined in code_a0bc: fills one 8-byte record of a sprite table.
  *  @param id    which record
@@ -377,15 +377,15 @@ void LoadOverlay(s32 id);
 
 /** @brief Defined in code_308ec: one frame of the stage-start sequence.
  *  @param stage the stage whose overlay runs the frame */
-void func_800401F0(u8 stage);
+void UpdateStagePlay(u8 stage);
 
 /** @brief Defined in code_31958: reads a stage's halfword from a table.
  *  @param stage the stage index
  *  @return the table entry */
-s32 func_80041178(u16 stage);
+s32 GetStageVabBank(u16 stage);
 
 /** @brief Defined in code_31958. */
-void func_800413BC(void);
+void ResetStageOverlay(void);
 
 /** @brief Defined in main.
  *  @param arg not yet known */
@@ -395,11 +395,13 @@ void ReadPad(s32 arg);
 void func_8003C014(void);
 
 /** @brief Defined in code_308ec. */
-void func_80040F14(void);
+void FadeInFog(void);
 
-/** @brief Defined in code_31cec: stores `value` as a byte.
- *  @param value the byte */
-void func_80042958(u8 value);
+/** @brief Starts a fade that UpdateSoundFade runs over 50 frames.
+ *  @param mode 1 the BGM, 3 the BGM, the sound effects and the CD audio
+ *              (it falls through into 4), 4 the CD
+ *              audio; 0 none */
+void SetSoundFade(u8 mode);
 
 /** @brief Defined in code_13068. */
 void func_800285B0(void);
@@ -432,7 +434,7 @@ s32 func_8002D424(void);
 /** @brief Defined in code_308ec: a stage's number.
  *  @param stage the stage
  *  @return not yet known */
-s16 func_80040CD0(u8 stage);
+s16 InitStageOverlay(u8 stage);
 
 /** @brief Defined in code_31958.
  *  @param sel not yet known */
@@ -461,6 +463,6 @@ void SetPadVibration(s32 offset, u8 a, u8 b);
 
 /** @brief Defined in code_31cec: sets a volume.
  *  @param vol the volume */
-void func_80042968(s32 vol);
+void SetCdVolume(s32 vol);
 
 #endif

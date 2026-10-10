@@ -852,7 +852,7 @@ typedef struct {
 /* MATCHING: per-unit views of code_1dc24's placement record, count and filler. */
 extern Obj34 D_80096788; /**< the record the placement starts from */
 extern u16 D_8009596E;   /**< how many records the placement filled */
-u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2);
+u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2);
 
 /** @brief The trap viewer's step: state 0 sets the fixed view, state 1
  *         fills the Rec48 table from a turning start record, state 2 steps
@@ -867,7 +867,7 @@ void func_8002B220(void) {
     Rec48v *r;
     Rec78 *tbl;
 
-    switch (D_80095760) {
+    switch (gModeStep) {
         case 0:
             D_800A7308[0] = 0;
             D_800A7308[2] = 0;
@@ -880,7 +880,7 @@ void func_8002B220(void) {
             gClearB = 0;
             gClearG = 0;
             gClearR = 0;
-            D_80095760 = 1;
+            gModeStep = 1;
             break;
         case 1:
             D_80096788.unk0 = 0;
@@ -889,8 +889,8 @@ void func_8002B220(void) {
             D_80096788.unk18 = 0;
             D_80096788.unk1A = gFrameCount % 360 * 4096 / 360;
             D_80096788.unk1C = 0;
-            D_8009596E = func_80040E04(D_800958E2, (s32)&D_80096788, (s32)D_800A9008);
-            D_80095760++;
+            D_8009596E = CallStageHook(D_800958E2, (s32)&D_80096788, (s32)D_800A9008);
+            gModeStep++;
             break;
         case 2:
             flags = gPadTrig;
@@ -905,7 +905,7 @@ void func_8002B220(void) {
                          : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1
                                                        : D_800958E2;
             if (D_800958E2 != old) {
-                D_80095760 = 1;
+                gModeStep = 1;
             }
             func_8002980C();
             ((Rec48v *)D_800A9008)->o.unk1A = gFrameCount % 360 * 4096 / 360;
@@ -1543,13 +1543,13 @@ void func_8002CCEC(void) {
                             break;
                         case 1:
                         default:
-                            func_80042538(0x35);
+                            PlaySe(0x35);
                             SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
                                         ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
                                         (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
                             break;
                         case 2:
-                            func_80042538(0x35);
+                            PlaySe(0x35);
                             SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
                                         ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
                                         (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);

@@ -1,4 +1,6 @@
-# func_80040E04 — MATCHED 68/68 with its jump table (82 words in all) (round 6, delta)
+# CallStageHook — MATCHED 68/68 with its jump table (82 words in all) (round 6, delta)
+
+> Renamed from `func_80040E04` on 2026-10-10 (tools/rename.py). Address 0x80040e04.
 
 Unit `src/code_308ec.c`. Dispatches on the mode byte `gStage` (0..13)
 to one of nine overlay routines, passing its arguments through, and returns
@@ -7,7 +9,7 @@ the result as `u16`; modes 2, 5, 8, 11 and out-of-range ones return 1.
 ```c
 u16 func_800FAD08(s16 arg0, s32 arg1, s32 arg2); /* and eight more */
 
-u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2) {
+u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2) {
     u16 ret = 1;
 
     switch (gStage) {
@@ -40,4 +42,4 @@ u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2) {
 
 - **A result register that skips `$a1`/`$a2` (e.g. `ret` in `$a3`) in a
   function that never touches them: the function has those arguments and
-  passes them through to its callees untouched.** (func_80040E04)
+  passes them through to its callees untouched.** (CallStageHook)

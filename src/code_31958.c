@@ -32,15 +32,15 @@ u16 func_80041158(u16 i) {
     return D_8007B0EC[i];
 }
 
-s32 func_80041178(u16 stage) {
+s32 GetStageVabBank(u16 stage) {
     return D_8007B10C[stage];
 }
 
-s32 func_80041198(u8 mode, s32 k) {
+s32 GetStageTimeLimit(u8 mode, s32 k) {
     if (D_800958AC != 1) {
-        return D_8007AF84[mode][k] * 30;
+        return gTimeLimits[mode][k] * 30;
     }
-    return D_8007B038[mode][k] * 30;
+    return gTimeLimitsAlt[mode][k] * 30;
 }
 
 void LoadStageOverlay(u16 stage) {
@@ -98,7 +98,7 @@ void LoadStageOverlay(u16 stage) {
     LoadOverlay(id);
 }
 
-void func_800412DC(void) {
+void StartStageOverlay(void) {
     switch (gStage) {
         case 0:
             func_800FAB9C();
@@ -135,7 +135,7 @@ void func_800412DC(void) {
     }
 }
 
-void func_800413BC(void) {
+void ResetStageOverlay(void) {
     switch (gStage) {
         case 0:
             func_800FAA30();

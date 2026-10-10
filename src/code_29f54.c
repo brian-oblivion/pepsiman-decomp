@@ -518,11 +518,11 @@ void func_8003AFAC(void) {
             func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
-    if (D_80095988 == 0x14A) {
-        func_80042538(0x28);
+    if (gTimeLeft == 0x14A) {
+        PlaySe(0x28);
         SpawnEffect(10, 0, 0, 0, 0);
     }
-    n = D_80095988;
+    n = gTimeLeft;
     n /= 30;
     color.r = -1;
     if (n < 11) {
@@ -570,7 +570,7 @@ void func_8003AFAC(void) {
     pos.vx = 0x90;
     pos.vy = -0x54;
     func_8003A4B4(&pos, D_80095980);
-    n = D_80095770;
+    n = gRetries;
     pos.vx = 0x68;
     pos.vy = 0x4C;
     for (; k < 10001; k *= 10) {
@@ -1055,17 +1055,17 @@ void func_8003CC94(void) {
         case 10:
             if (D_80095A7C < D_800958E8) {
                 if (D_80095A7C % 10 == 0) {
-                    func_80042538(0x2A);
+                    PlaySe(0x2A);
                 }
                 D_80095A7C++;
                 if (D_80095A7C != 0 && D_80095A7C % 25 == 0) {
-                    D_80095770++;
-                    func_80042538(0x22);
+                    gRetries++;
+                    PlaySe(0x22);
                 }
             }
             if (D_80095A7C == D_800958E8) {
                 if (D_80095A7C == 100) {
-                    func_80042538(0x2F);
+                    PlaySe(0x2F);
                     tile[1] = 0x1FB;
                     tile[2] = 0x10;
                     tile[3] = 1;
@@ -1074,7 +1074,7 @@ void func_8003CC94(void) {
                     D_80095A90 = 0;
                     D_80095A98 = 11;
                 } else if (D_80096A58[rank / 3][rank % 3] < D_80095A7C) {
-                    func_80042538(0x25);
+                    PlaySe(0x25);
                     D_80095AA0[7] = -9;
                     D_80095A90 = 0;
                     D_80095A98 = 15;
@@ -1093,13 +1093,13 @@ void func_8003CC94(void) {
                     tile[0] = D_80095A90 % 14 * 16;
                 }
                 if (++D_80095A90 == 60) {
-                    D_80095770++;
-                    func_80042538(0x22);
+                    gRetries++;
+                    PlaySe(0x22);
                     D_80095AA0[6] = 1;
                 }
             } else if (++D_80095AA0[6] == 9) {
                 if (D_80095A7C > D_80096A58[rank / 3][rank % 3]) {
-                    func_80042538(0x25);
+                    PlaySe(0x25);
                     D_80095AA0[7] = -9;
                     D_80095A90 = 0;
                     D_80095A98 = 15;
@@ -1140,7 +1140,7 @@ void func_8003CC94(void) {
             break;
         case 30:
             if (D_80095980 < D_800D8340[rank / 3][rank % 3]) {
-                func_80042538(0x25);
+                PlaySe(0x25);
                 D_80095AA0[7] = -9;
                 D_80095A90 = 0;
                 D_80095A98 = 35;
@@ -1201,7 +1201,7 @@ void func_8003CC94(void) {
         }
     }
     k = 1;
-    n = D_80095770;
+    n = gRetries;
     pos.vx = 0x68;
     pos.vy = -0x44;
     for (; k < 10001; k *= 10) {
@@ -1512,7 +1512,7 @@ void func_8003E360(s32 level) {
 void func_8003E40C(void) {
     D_80095A78 = 0;
     D_80095A94 = 1;
-    func_80042538(0x19);
+    PlaySe(0x19);
 }
 
 s32 func_8003E438(void) {

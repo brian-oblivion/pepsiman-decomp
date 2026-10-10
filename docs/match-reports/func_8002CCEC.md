@@ -123,13 +123,13 @@ void func_8002CCEC(void) {
                             break;
                         case 1:
                         default:
-                            func_80042538(0x35);
+                            PlaySe(0x35);
                             SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
                                           ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
                                           (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
                             break;
                         case 2:
-                            func_80042538(0x35);
+                            PlaySe(0x35);
                             SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
                                           ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
                                           (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);

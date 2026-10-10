@@ -1,4 +1,6 @@
-# func_80040998 — MATCHED 206/206 (round 6, delta)
+# ResetStage — MATCHED 206/206 (round 6, delta)
+
+> Renamed from `func_80040998` on 2026-10-10 (tools/rename.py). Address 0x80040998.
 
 Unit `src/code_308ec.c`. Stage reset. Calls the set-up routines, copies the
 second display buffer's band down when `gGameMode` is not 0x29, resets
@@ -13,15 +15,15 @@ one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
  * function), SavedStart (D_800D86B8: s32 valid; Pos3 pos; s32 unk10,
  * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (D_800A7680).
  * Locals: extern s16 D_800E474C; u16 gGameMode, D_80095868; u8
- * gLoading, D_80095974; s32 D_800957A4, D_80095988, ClipF;
- * s32 D_8007B038[][3], D_8007AF84[][3]. The rest from common.h. */
-void func_80040998(void) {
+ * gLoading, gPauseState; s32 D_800957A4, gTimeLeft, ClipF;
+ * s32 gTimeLimitsAlt[][3], gTimeLimits[][3]. The rest from common.h. */
+void ResetStage(void) {
     RECT r;
     s32 mode;
     s32 saved;
 
     D_80095900 = 1;
-    func_80017574();
+    StopCdTrack();
     if (gGameMode != 0x29) {
         r.x = 0;
         r.y = D_800E474C * 240;
@@ -32,7 +34,7 @@ void func_80040998(void) {
     InitEffects();
     gLoading = 0;
     gVSyncMode = 2;
-    func_800413BC();
+    ResetStageOverlay();
     if (D_800958AC == 1) {
         D_800958A8 = 2;
     } else {
@@ -66,7 +68,7 @@ void func_80040998(void) {
     D_800958EC = 0;
     D_800957D6 = 1;
     D_8009578C = 0;
-    D_80095974 = 0;
+    gPauseState = 0;
     D_800957A4 = 0;
     ClipF = 0;
     D_8009576A = 0;
@@ -93,9 +95,9 @@ void func_80040998(void) {
     mode = gStage;
     saved = sSaved.valid;
     if (D_800958AC == 1) {
-        D_80095988 = D_8007B038[mode][saved] * 30;
+        gTimeLeft = gTimeLimitsAlt[mode][saved] * 30;
     } else {
-        D_80095988 = D_8007AF84[mode][saved] * 30;
+        gTimeLeft = gTimeLimits[mode][saved] * 30;
     }
     D_8009EF48[0] = 0;
     func_800285B0();
@@ -116,8 +118,8 @@ void func_80040998(void) {
   0x374..0x37A, 0x3D4/0x3D5.
 - `sSaved` as a struct lvalue over common.h's `s32 D_800D86B8[]` gives the
   `addiu t1` base for the eight field loads; the restore is field by field
-  (as func_8004079C's position copy).
-- The constant 2 that `$s0` carries across `func_800413BC` into the
+  (as RestartStage's position copy).
+- The constant 2 that `$s0` carries across `ResetStageOverlay` into the
   `D_800958A8 = 2` arm needs no local; cc1 keeps it on its own.
 - `ClipF` is written as a word: retail stores 0 at the address splat names
   after libgte's clipf object. `extern s32 ClipF;` in the unit, with a
@@ -127,7 +129,7 @@ void func_80040998(void) {
 
 - `gVSyncMode` (from main.c), `D_800958AC`, `D_8009599C`, `D_800957D2`
   (from code_13068.c) moved into `include/common.h` with the same types
-  (additive), and `func_80017574` (code_7d74) was added there.
+  (additive), and `StopCdTrack` (code_7d74) was added there.
 - `func_80017F0C` takes `Stepper *` in main.c's view and `StageState *`
   here; both prototypes carry a `MATCHING:` note (main.c gained the note).
 - `func_80015450` gets a unit-local `(u16 *, s32)` view with a

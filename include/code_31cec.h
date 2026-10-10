@@ -23,6 +23,6 @@ void func_800414EC(s16 index);
 void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable);
 
 /** @brief Defined in code_31cec. */
-void func_80042208(void);
+void UpdateSoundFade(void);
 
 #endif

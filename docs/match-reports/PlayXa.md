@@ -1,20 +1,22 @@
-# func_80042B80 — MATCHED 37/37 (round 4, echo)
+# PlayXa — MATCHED 37/37 (round 4, echo)
+
+> Renamed from `func_80042B80` on 2026-10-10 (tools/rename.py). Address 0x80042b80.
 
 Unit `src/code_31cec.c`. Starts XA audio on a channel: sets the CD mix
-volume to 80 (right channel muted when the mono flag `D_80095AEE` is
+volume to 80 (right channel muted when the mono flag `gStereo` is
 set), filters to file 1 / the given channel, sets double speed + ADPCM
 + channel filter + CD-DA mode, and issues `CdlReadS`.
 
 ```c
 #include "libcd.h"
-extern u8 D_80095AEE;
+extern u8 gStereo;
 
-void func_80042B80(u8 chan) {
+void PlayXa(u8 chan) {
     CdlFILTER filter;
     u_char mode[4];
     CdlATV atv;
 
-    if (D_80095AEE) {
+    if (gStereo) {
         atv.val2 = 80;
         atv.val0 = 80;
         atv.val3 = 0;
@@ -38,7 +40,7 @@ void func_80042B80(u8 chan) {
 ## Levers
 
 - First build matched. The `CdlATV` store order (val2, val0, val3, val1)
-  is the sibling func_80042968's, read straight from retail.
+  is the sibling SetCdVolume's, read straight from retail.
 - Stack layout: locals at 0x10, 0x18, 0x20 in declaration order. The
   4-byte `CdlFILTER` and `u_char mode[4]` each took an 8-byte slot.
 - A `u8` parameter stored only with `sb` produced no `andi` here.
@@ -47,4 +49,4 @@ void func_80042B80(u8 chan) {
 
 - **Small local aggregates are placed on 8-byte boundaries** from
   `sp+0x10` in declaration order: a 4-byte struct followed by a 4-byte
-  array sits at 0x10 and 0x18. (func_80042B80)
+  array sits at 0x10 and 0x18. (PlayXa)

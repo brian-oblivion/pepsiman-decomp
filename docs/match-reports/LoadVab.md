@@ -1,4 +1,6 @@
-# func_80041F28 — MATCHED (round 13, delta)
+# LoadVab — MATCHED (round 13, delta)
+
+> Renamed from `func_80041F28` on 2026-10-10 (tools/rename.py). Address 0x80041f28.
 
 Stalled at 66/76 in round 10 (delta).
 
@@ -6,8 +8,8 @@ Unit `src/code_31cec.c`. Opens a sound bank: copies the VAB header from
 the loaded file at 0x8016D000 (offset word 0, size word 1) to its home
 (bank 0: computed from the file directory at 0x80101000 and remembered
 in `D_80095B08`; bank 1: `D_80095B08`), opens it with `SsVabOpenHead`
-into `D_80095B14[bank]`, then transfers the body (offset word 4) and
-waits for the transfer. Returns -1 (and sets `D_8009579C`) when the open
+into `gBgmVab[bank]`, then transfers the body (offset word 4) and
+waits for the transfer. Returns -1 (and sets `gVabError`) when the open
 fails, 0 otherwise.
 
 The body is live in `src/code_31cec.c`. Round 10's best body, 66/76, is
@@ -17,17 +19,17 @@ kept below for the record; Round 13 has the two changes that closed it.
 #if 0
 #include "memory.h"
 
-extern s32 D_8009579C;
-extern s16 D_80095B14;
+extern s32 gVabError;
+extern s16 gBgmVab;
 extern u8 *D_80095B08;
 
-s32 func_80041F28(s16 bank) {
+s32 LoadVab(s16 bank) {
     u32 *vh = (u32 *)0x8016D000;
     u32 *rec;
     u8 *dst;
     s16 vab;
 
-    D_8009579C = 0;
+    gVabError = 0;
     switch (bank) {
         case 0:
             rec = (u32 *)0x80101000;
@@ -43,13 +45,13 @@ s32 func_80041F28(s16 bank) {
     }
     memcpy(dst, vh[0] + (u32)vh, vh[1]);
     vab = SsVabOpenHead(dst, -1);
-    (&D_80095B14)[bank] = vab;
+    (&gBgmVab)[bank] = vab;
     if (vab != -1) {
-        (&D_80095B14)[bank] = SsVabTransBody((u8 *)(vh[4] + 0x8016D000), vab);
+        (&gBgmVab)[bank] = SsVabTransBody((u8 *)(vh[4] + 0x8016D000), vab);
         SsVabTransCompleted(1);
         return 0;
     }
-    D_8009579C = vab;
+    gVabError = vab;
     return -1;
 }
 #endif
@@ -68,7 +70,7 @@ Two things, both register-level:
    constant across both calls, which costs a fifth saved register
    (`$s3`) and drops the score to 11/76.
 2. One `sra` of `bank * 2` scheduled after the `lui`/`addiu` of
-   `D_80095B14` instead of before (equal length).
+   `gBgmVab` instead of before (equal length).
 
 ## Levers
 
@@ -87,9 +89,9 @@ Negatives (each measured in the real tree):
   (s32)0x8016D000)`: 11/76, all share the constant (or use `$s1`).
 - No `vh` local, every access through `((u32 *)0x8016D000)[k]`: 40/76.
 - Single exit (`ret` local), `goto`, fail-first `if`/`else`, `return
-  D_8009579C = vab`, reading `vab` back from `D_80095B14[bank]`: 6 to
+  gVabError = vab`, reading `vab` back from `gBgmVab[bank]`: 6 to
   44/76.
-- `slot` pointer local for `&D_80095B14[bank]`: 2/76; byte arithmetic
+- `slot` pointer local for `&gBgmVab[bank]`: 2/76; byte arithmetic
   for it, or the open as one chained assignment: no change.
 
 Permuter: Gate 3 run (scaffold `--debug --stack-diffs` 4 ins / 4 del,
@@ -107,7 +109,7 @@ load through `((u32 *)0x8016D000)[4]`) score 40/76 in the real tree.
   and the two uses must not be CSE'd into one pseudo** (which would need
   another saved register across the calls). Not reached here; recorded
   so the next attempt starts from the CSE question, not the spelling.
-  (func_80041F28)
+  (LoadVab)
 
 ## Round 13 (delta): MATCHED
 
@@ -118,8 +120,8 @@ Round 10's body spliced back first: 66/76, `insertions 1 / deletions 1`
 | --- | --- |
 | `rec = (u32 *)0x8016D000;` at the join, `memcpy(dst, vh[0] + (u32)rec, vh[1]);`, then a dead `rec = NULL;` | structure right (fresh constant at the join, rebuilt again before `SsVabTransBody`, no fifth saved register); 59/76, `rec` is now global and lands in `$a3` |
 | the same with a new `u32 src` local (`src = 0x8016D000; memcpy(dst, vh[0] + src, vh[1]); src = 0;`) | 73/76: only the `sra` of `bank * 2` left |
-| `vabs = &D_80095B14; vabs[bank] = ...` | 72/76 (the table's `lui` moves above the index) |
-| **`slot = &(&D_80095B14)[bank]; *slot = vab; ... *slot = SsVabTransBody(...)`** | **76/76, build OK** |
+| `vabs = &gBgmVab; vabs[bank] = ...` | 72/76 (the table's `lui` moves above the index) |
+| **`slot = &(&gBgmVab)[bank]; *slot = vab; ... *slot = SsVabTransBody(...)`** | **76/76, build OK** |
 
 The constant: the join's pseudo for 0x8016D000 stays in cse's table
 along the followed path into the success block, so the literal there
@@ -133,8 +135,8 @@ The `sra`: round 10's slot pointer (2/76) was measured on a different
 body; on this one it is what puts the index's `sll`/`sra` above the
 table's `lui`/`addiu`. About 6 builds, no permuter.
 
-The prototype in the unit changed from `void func_80041F28(s16 arg0);` to
-`s32 func_80041F28(s16 bank);` (callers ignore the result; no byte
+The prototype in the unit changed from `void LoadVab(s16 arg0);` to
+`s32 LoadVab(s16 bank);` (callers ignore the result; no byte
 change).
 
 ### Proposed learning
@@ -142,4 +144,4 @@ change).
 - **A constant rebuilt in a later block where the build shares one pseudo
   across calls: hold the first use in a block-local variable and give it a
   dead store after its use** (`src = K; f(x + src); src = 0;`). cse loses
-  the equivalence; flow deletes the store. (func_80041F28)
+  the equivalence; flow deletes the store. (LoadVab)

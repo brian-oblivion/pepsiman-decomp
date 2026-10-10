@@ -1,4 +1,6 @@
-# func_800428EC — MATCHED 27/27 (round 2, bravo)
+# InitReverb — MATCHED 27/27 (round 2, bravo)
+
+> Renamed from `func_800428EC` on 2026-10-10 (tools/rename.py). Address 0x800428ec.
 
 Unit `src/code_31cec.c`. Sets up sound output: silences master and
 reverb volume, selects reverb type Studio B, waits a frame, then sets
@@ -8,7 +10,7 @@ master volume 127, reverb volume 120, reverb on with depth 48.
 #include "libsnd.h"
 #include "libetc.h"
 
-void func_800428EC(void) {
+void InitReverb(void) {
     SsSetMVol(0, 0);
     SsSetRVol(0, 0);
     SsUtSetReverbType(SS_REV_TYPE_STUDIO_B);

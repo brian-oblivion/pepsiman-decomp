@@ -1,22 +1,24 @@
-# func_800426A4 — MATCHED 131/131 (round 10, delta)
+# LoadSoundData — MATCHED 131/131 (round 10, delta)
+
+> Renamed from `func_800426A4` on 2026-10-10 (tools/rename.py). Address 0x800426a4.
 
 Unit `src/code_31cec.c`. Sound start-up state machine stepped on
 `D_800958A6`, returning 1 once finished. State 0 queues two CD loads for
 the loader (positions from the location table `D_8007B69C`, entries 0 and
 2, to 0x80101000 and 0x8016D000, sizes from `D_8007B6CC`); state 1 waits
 for the loader's step byte `gCdLoadState` to reach 6 and opens bank 0
-(func_80041F28); state 2 queues one more load (entry 3); state 3 opens
-bank 1, opens the sequences (func_80042058) and records bank 1 as current
-(`D_80095AFC`); state 4 sets volumes and reverb (func_800428EC's body,
+(LoadVab); state 2 queues one more load (entry 3); state 3 opens
+bank 1, opens the sequences (InitSeSeqs) and records bank 1 as current
+(`gVabBank`); state 4 sets volumes and reverb (InitReverb's body,
 written out) and returns 1.
 
 ```c
 extern s32 D_8007B69C[];
 extern s32 D_8007B6CC[];
-extern u16 D_80095AFC;
-void func_80041F28(s16 arg0);
+extern u16 gVabBank;
+void LoadVab(s16 arg0);
 
-s32 func_800426A4(void) {
+s32 LoadSoundData(void) {
     s32 ret = 0;
 
     switch (D_800958A6) {
@@ -33,7 +35,7 @@ s32 func_800426A4(void) {
             break;
         case 1:
             if (gCdLoadState == 6) {
-                func_80041F28(0);
+                LoadVab(0);
                 D_800958A6++;
             }
             break;
@@ -47,9 +49,9 @@ s32 func_800426A4(void) {
             break;
         case 3:
             if (gCdLoadState == 6) {
-                func_80041F28(1);
-                func_80042058();
-                D_80095AFC = 1;
+                LoadVab(1);
+                InitSeSeqs();
+                gVabBank = 1;
                 D_800958A6++;
             }
             break;
@@ -78,13 +80,13 @@ s32 func_800426A4(void) {
 
 - Independent global-table stores come out in source order (LEARNINGS,
   local structs); the same holds for these array stores.
-- `D_8007B69C` is the start of the CD location table that func_80042A88
+- `D_8007B69C` is the start of the CD location table that LoadVabBank
   reaches as `D_8007B6A4` (= entry 2): splat split one table at each
   address an instruction names. Entry `k`'s size is `D_8007B6CC[k + 4]`.
   A head-level merge of the two names (one `CdlLOC` table) would make
-  func_80042A88 read `&tbl[bank + 2]`; not done here (no renames this
+  LoadVabBank read `&tbl[bank + 2]`; not done here (no renames this
   round).
-- State 4 is func_800428EC's body. That function is defined later in the
+- State 4 is InitReverb's body. That function is defined later in the
   unit, so 2.8.1 cannot have inlined it; writing the calls out matches.
   A shared `static __inline__` helper would also be byte-identical.
 - The `ret` local in `$s0`, copied to `$v0` in each `j` delay slot, is the
@@ -93,4 +95,4 @@ s32 func_800426A4(void) {
 ### Proposed learning
 
 - **A pair of loader stores interleaved (`A[0]`, `B[0]`, `A[1]`, `B[1]`):
-  the source wrote them paired**, not grouped by table. (func_800426A4)
+  the source wrote them paired**, not grouped by table. (LoadSoundData)

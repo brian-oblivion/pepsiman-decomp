@@ -25,17 +25,17 @@ function's match report, not here.
   func_800281B8).
 - **An ADDRESS built in one register, `lui $X` / `addiu $X, $X, %lo(sym)`:
   cc1's `la` of an object of known size at most 8**, e.g. `extern s8
-  D_80095AA0[8];` or `extern CdlLOC D_80095728;`. Declared `[]`, cc1 splits
-  it over two registers. (func_8003E444, func_800175AC) This holds even for
+  D_80095AA0[8];` or `extern CdlLOC gCdTrackLoc;`. Declared `[]`, cc1 splits
+  it over two registers. (func_8003E444, SendCdTrackCommand) This holds even for
   a loop base the loop writes past: `extern s32 D[2];` (InitPads).
 - **A global every access reloads right after storing it: `volatile`**, in
   the unit, with a `MATCHING:` note. (gMovieTimeout, code_31cec)
 - **A global reached `$gp` in one stretch of a unit and `lui` in another
   marks a source-file seam**: maspsx applies one gp list to the whole build,
   so no C spelling closes it. Report it with the addresses; it is a
-  segmentation or toolchain decision. (func_80033AB8, func_80014C58)
+  segmentation or toolchain decision. (func_80033AB8, PlayStageMusic)
   Between units this is solved: each unit gets its own gp list,
-  `config/gp/<unit>.txt` (func_80014C58, func_80018BD8). Inside one unit it
+  `config/gp/<unit>.txt` (PlayStageMusic, func_80018BD8). Inside one unit it
   needs the unit split: code_1a098 split at func_8002D424 into code_1dc24,
   which matched both. (func_80033AB8, func_800337E4)
 - **A word store through a pointer that keeps a later global reload below it:
@@ -49,7 +49,7 @@ function's match report, not here.
   (`{ s32 w; u16 lo; }`). (func_8003828C's table, code_27bc8)
 - **A result kept in `$a3` that skips `$a1`/`$a2`, which the function never
   touches: extra arguments passed straight through to callees.**
-  (func_80040E04)
+  (CallStageHook)
 - **`lbu` of a stack parameter with no `andi 0xFF`: an `s32` parameter read
   as `(u8)p`.** A `u8` parameter adds the `andi`. (func_8001B2F4)
 - **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain
@@ -195,7 +195,7 @@ function's match report, not here.
   that need no extension `s16`**; only the allocation changes (permuter
   find). (func_8001D39C)
 - **A redundant `andi 0xFFFF` on an `lhu`-loaded index: an `s16` local
-  indexed through `(u16)i`.** (func_80042538)
+  indexed through `(u16)i`.** (PlaySe)
 - **A constant local copied before a `sb` (`li sN, 1; move v1, sN`): the
   local is `s16` or `u8`, not `s32`.** (PlayMovieFile)
 - **`lb` of a `char *` argument's first byte: `*(s8 *)name`;** `(s8)name[0]`
@@ -215,7 +215,7 @@ function's match report, not here.
   (func_8001E558)
 
 - **`addiu 1; andi 0xFFFF; sltiu 2` on a halfword global:
-  `(u16)(x + 1) < 2`.** (func_800401F0)
+  `(u16)(x + 1) < 2`.** (UpdateStagePlay)
 - **`srl sN, a0; andi sN, sN` in one register: `v = a >> k; v &= m;`.**
   (func_800184BC)
 - **A word-aligned odd-size block move (16-byte loop, then `lw, lw, lh`):
@@ -249,7 +249,7 @@ function's match report, not here.
   the base went into a local and was advanced**, `src = tbl; src += i;`.
   Every indexed spelling puts the sum in the index register. (func_8002C85C)
 - **An element address kept in a saved register across a call: a local
-  pointer**, `seq = &tbl[i];`. (func_800429EC)
+  pointer**, `seq = &tbl[i];`. (StopFinishedSe)
 - **Two one-pass loops whose registers pair with different variables: one
   counter per loop.** A shared counter costs a saved register. `f(fmt, *p);
   p++;` keeps the format's `addiu` first; `f(fmt, *p++)` does not.
@@ -260,7 +260,7 @@ function's match report, not here.
 - **A parameter advanced in steps pairs saved registers like retail**:
   `tmd++; f(tmd); tmd += 2; g(tmd);`, not `tmd + 2`. (func_8002C20C)
 - **`addPrim(ot, p); p++; G = (u8 *)p;`**, not `G = (u8 *)(p + 1);`, for a
-  primitive-buffer bump. libgpu's macros match unchanged. (func_80040F14)
+  primitive-buffer bump. libgpu's macros match unchanged. (FadeInFog)
 - **A loop that jumps to its test at the bottom with no guard: `goto test;
   do { ... test:; } while (k < n);`** with the bound in a local; every
   `for`/`while` is rotated into a guarded loop. (func_80034BCC, func_80034F38)
@@ -329,7 +329,7 @@ function's match report, not here.
   back**: `while ((x = f()) == NULL) { if (--cnt == 0) return -1; }`.
   Do/while lays the blocks out the other way round. (DecodeNextMovieFrame)
 - **A redundant `li $v0, 1` while `$v0` already holds 1: `state++`** (the
-  value known from the `switch` case), not `state = 1`. (func_80042A88)
+  value known from the `switch` case), not `state = 1`. (LoadVabBank)
 - **Two `.sdata` strings sharing a `%hi`, each arm building its own `lui`
   before a call at the join: one call per arm**, `if (c) f(A); else f(B);`.
   A ternary or a `char *` local shares one `%hi`. (func_80037280)
@@ -437,7 +437,7 @@ function's match report, not here.
   stores to fixed scalar globals; byte-pointer reads stay. (func_80015450)
 - **Independent stores to a local struct come out in source order.** Retail
   writing `val3`..`val0` of a `CdlATV` means the source assigned them in that
-  order. (func_80042C14, func_80042968)
+  order. (StopXa, SetCdVolume)
   The same holds for a field-by-field copy into a local struct.
   (func_8002D0F0)
 - **A constant folded onto the wrong operand: parenthesise where retail adds
@@ -453,9 +453,9 @@ function's match report, not here.
   that local.** A fresh local loses the store. (func_8002971C)
 - **One literal address in two registers (`lui`/`ori` twice): load through a
   pointer local CSE has lost track of** (set before the loop label, or
-  modified), and keep the addend literal. (func_80042058, func_80042150)
+  modified), and keep the addend literal. (InitSeSeqs, PlayBgm)
 - **Small local aggregates sit on 8-byte slots** from `sp+0x10` in
-  declaration order. (func_80042B80)
+  declaration order. (PlayXa)
 - **A fixed-point chain kept in one register: one local through compound
   statements**, `v = (a - b) << 16; v /= n; v *= k; v /= 0x10000;`.
   (func_80018D04)
@@ -529,13 +529,13 @@ function's match report, not here.
 - **A dead `lhu` of a field just before a store to its neighbour: a
   self-assignment**, `x.f = x.f;`. (PlayMovieFile)
 - **A table index shifted before the table's `lui`: the table address went
-  into a pointer local first.** (func_80042538, func_80030548, func_8002F270)
+  into a pointer local first.** (PlaySe, func_80030548, func_8002F270)
 - **Two loop-invariant base copies in swapped registers: assign the pointer
   local as the loop body's first statement.** (func_8002D424)
 - **A counter's `move $sN, $zero` above a global's `lui` in the prologue:
   `i = 0; G = 0; for (; i < N; i++)`.** (func_80031064)
 - **Interleaved stores `A[0], B[0], A[1], B[1]` were written in that order.**
-  (func_800426A4)
+  (LoadSoundData)
 - **A pointer parameter in the wrong saved register: drop the typed local
   copy and cast the parameter at each use.** (func_80023F80)
 - **The order of stores inside switch cases decides which ORs `loop.c`
@@ -568,7 +568,7 @@ function's match report, not here.
   storing the table pointer built from the same sum.** (func_800399A8)
 - **A constant cse shares across blocks at the cost of a saved register:
   `src = K; f(x + src); src = 0;`** in one block. The dead store breaks the
-  equivalence and the later literal rebuilds its own `lui/ori`. (func_80041F28)
+  equivalence and the later literal rebuilds its own `lui/ori`. (LoadVab)
 - **sched1 boosts a load into a pseudo set only once, and sinks it to its
   single use. To keep a load early, load into a local set more than once.**
   `cc1 -dS` prints the ready lists. (func_80023D68, func_80024450)

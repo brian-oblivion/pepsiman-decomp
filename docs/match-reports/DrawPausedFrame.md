@@ -1,4 +1,6 @@
-# func_80040628 — MATCHED 93/93 (round 6, delta)
+# DrawPausedFrame — MATCHED 93/93 (round 6, delta)
+
+> Renamed from `func_80040628` on 2026-10-10 (tools/rename.py). Address 0x80040628.
 
 Unit `src/code_308ec.c`. Draws sprite 0x15F at (-0x40, -0x10), fills sprite
 records 0x1FE and 0x1FF through func_8001B2F4, then draws those two at
@@ -9,7 +11,7 @@ current ordering table.
 #include "code_a0bc.h" /* gSubOt, func_8001B354 */
 /* common.h: func_8001B2F4, gActiveBuff */
 
-void func_80040628(void) {
+void DrawPausedFrame(void) {
     SVECTOR pos;
     CVECTOR color;
 

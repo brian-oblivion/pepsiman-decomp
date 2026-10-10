@@ -6,7 +6,7 @@ Unit `src/code_11dc4.c`. A selector code_31958's LoadStageOverlay calls with
 an id from 3 to 17: a 23-way switch on the id's low byte (no case 1) that
 stores one of 22 data addresses in gCdLoadLoc[0] and copies one of 22 words
 into gCdLoadSectors[0], then sets gCdLoadDest[0] to 0x800F0000 and gCdLoadCount
-and gCdLoadState to 1. code_31cec's func_80042A88 writes the same five
+and gCdLoadState to 1. code_31cec's LoadVabBank writes the same five
 globals in the same order with SsVab calls nearby, so these are likely
 sound-bank parameters. splat's instruction count (220) included the
 jump table's 23 words.

@@ -7,7 +7,7 @@ sets the start-up globals, fills two four-entry tables (clears
 `D_80096A58`, copies `D_80010454` into `D_800D8340`), then loops forever:
 `FntPrint`, the 45-state top-level `switch (gGameMode)` (boot, title,
 stage load and play, demo, movies), `FntFlush(-1)`, UpdateCdLoad,
-func_80042208, EndFrame.
+UpdateSoundFade, EndFrame.
 
 The definition is `int main(void)`; the name stays `main`.
 
@@ -47,8 +47,8 @@ declcheck MULTI: `D_800956D0` (code_7d74), `D_800958E2` (code_1a098),
 `D_80095908` and `D_80095968` (code_29f54) are now declared in main.c as
 well. LOCAL: prototypes for other units' functions (func_80017B38,
 func_80020C14, func_800229A8, func_80022A74, func_8002B04C,
-func_8002D424, func_80034070, func_80040CD0, LoadStageOverlay,
-PlayMovie, func_80042208).
+func_8002D424, func_80034070, InitStageOverlay, LoadStageOverlay,
+PlayMovie, UpdateSoundFade).
 
 ### Proposed learning
 

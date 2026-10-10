@@ -25,19 +25,19 @@ typedef struct {
 extern volatile s32 gMovieTimeout;
 
 u_long *GetNextMovieFrame(DECENV *dec);
-s32 func_80041F28(s16 bank);
+s32 LoadVab(s16 bank);
 
-extern s16 D_800E0570[];
+extern s16 gSeqIds[];
 extern char D_800E0588[];
 extern s32 gMovieEnded;
-extern u16 D_80095B1A;
-extern s32 D_8009579C;
-extern s16 D_80095B14;
+extern u16 gSeSlot;
+extern s32 gVabError;
+extern s16 gBgmVab;
 extern u8 *D_80095B08;
-extern s16 D_80095B18;
-extern s16 D_80095B16;
+extern s16 gBgmVolume;
+extern s16 gSeVab;
 extern s16 D_80095AEA;
-extern u16 D_80095AFC;
+extern u16 gVabBank;
 extern s32 D_8007B6A4[];
 extern s32 D_8007B6CC[];
 extern s16 gMovieOffsetX;
@@ -220,7 +220,7 @@ void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable
     setRECT(&gMovieClearRect, 0, 0, 480, 480);
     ClearImage(&gMovieClearRect, 0, 0, 0);
     DrawSync(0);
-    /* MATCHING: D_80095AEE by address; retail reaches it `lui` only here. */
+    /* MATCHING: gStereo by address; retail reaches it `lui` only here. */
     if (*(u8 *)0x80095AEE) {
         atv.val2 = 80;
         atv.val0 = 80;
@@ -294,7 +294,7 @@ void StartMovieRead(CdlLOC *loc) {
     } while (CdRead2(CdlModeStream | CdlModeSpeed | CdlModeRT) == 0);
 }
 
-s32 func_80041F28(s16 bank) {
+s32 LoadVab(s16 bank) {
     u32 *vh = (u32 *)0x8016D000;
     u32 *rec;
     u8 *dst;
@@ -302,7 +302,7 @@ s32 func_80041F28(s16 bank) {
     s16 *slot;
     s16 vab;
 
-    D_8009579C = 0;
+    gVabError = 0;
     switch (bank) {
         case 0:
             rec = (u32 *)0x80101000;
@@ -320,158 +320,158 @@ s32 func_80041F28(s16 bank) {
     memcpy(dst, vh[0] + src, vh[1]);
     src = 0; /* MATCHING: a dead store, so cse rebuilds 0x8016D000 below. */
     vab = SsVabOpenHead(dst, -1);
-    slot = &(&D_80095B14)[bank];
+    slot = &(&gBgmVab)[bank];
     *slot = vab;
     if (vab != -1) {
         *slot = SsVabTransBody((u8 *)(vh[4] + 0x8016D000), vab);
         SsVabTransCompleted(1);
         return 0;
     }
-    D_8009579C = vab;
+    gVabError = vab;
     return -1;
 }
 
-s32 func_80042058(void) {
+s32 InitSeSeqs(void) {
     s16 i;
     u32 *hdr;
 
     SsSetSerialAttr(SS_SERIAL_A, SS_MIX, SS_SON);
     SsSetSerialVol(SS_SERIAL_A, 127, 127);
     D_80095AEA = 0;
-    D_80095B1A = 0;
+    gSeSlot = 0;
     hdr = (u32 *)0x80101000;
     for (i = 2; i < 10; i++) {
-        D_800E0570[i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), D_80095B16);
+        gSeqIds[i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), gSeVab);
     }
     for (i = 0; i < 10; i++) {
-        SsSeqSetVol(D_800E0570[i], 0, 0);
+        SsSeqSetVol(gSeqIds[i], 0, 0);
     }
     return 0;
 }
 
-s32 func_80042150(u16 song) {
+s32 PlayBgm(u16 song) {
     u32 *hdr;
 
-    SsSeqStop(D_800E0570[0]);
-    SsSeqClose(D_800E0570[0]);
-    if (D_8009579C != 0) {
+    SsSeqStop(gSeqIds[0]);
+    SsSeqClose(gSeqIds[0]);
+    if (gVabError != 0) {
         return -1;
     }
     hdr = (u32 *)0x80101000;
     hdr += song * 4;
-    D_800E0570[0] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), D_80095B14);
-    SsSeqPlay(D_800E0570[0], 1, 0);
-    D_80095B18 = 100;
-    SsSeqSetVol(D_800E0570[0], 100, 100);
-    D_80095AF0 = 0;
+    gSeqIds[0] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), gBgmVab);
+    SsSeqPlay(gSeqIds[0], 1, 0);
+    gBgmVolume = 100;
+    SsSeqSetVol(gSeqIds[0], 100, 100);
+    gSoundFade = 0;
 }
 
 /* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
 s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
 
-extern s16 D_80095724;
-extern s16 D_80095AE8;
-extern s16 D_80095B0C;
+extern s16 gCdVolume;
+extern s16 gSoundFadeTimer;
+extern s16 gSeVolume;
 
-void func_80042208(void) {
+void UpdateSoundFade(void) {
     s16 i;
 
-    switch (D_80095AF0) {
+    switch (gSoundFade) {
         case 0:
-            D_80095AE8 = 50;
-            D_80095B0C = 127;
-            D_80095B18 = 127;
-            D_80095724 = 80;
+            gSoundFadeTimer = 50;
+            gSeVolume = 127;
+            gBgmVolume = 127;
+            gCdVolume = 80;
             break;
         case 1:
-            D_80095B18 = func_80018D04(0, 100, --D_80095AE8, 50);
-            D_80095B18 = D_80095B18 < 0 ? 0 : D_80095B18 > 127 ? 127 : D_80095B18;
-            if (D_80095AE8 == 0) {
-                SsSeqStop(D_800E0570[0]);
-                SsSeqClose(D_800E0570[0]);
-                D_80095AF0 = 0;
-                D_80095B0C = 127;
-                D_80095B18 = 127;
+            gBgmVolume = func_80018D04(0, 100, --gSoundFadeTimer, 50);
+            gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
+            if (gSoundFadeTimer == 0) {
+                SsSeqStop(gSeqIds[0]);
+                SsSeqClose(gSeqIds[0]);
+                gSoundFade = 0;
+                gSeVolume = 127;
+                gBgmVolume = 127;
             }
-            SsSeqSetVol(D_800E0570[0], D_80095B18, D_80095B18);
+            SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             break;
         case 3:
-            D_80095B18 = func_80018D04(0, 100, --D_80095AE8, 50);
-            D_80095B0C = D_80095B18 = D_80095B18 < 0 ? 0 : D_80095B18 > 127 ? 127 : D_80095B18;
-            SsSeqSetVol(D_800E0570[0], D_80095B18, D_80095B18);
+            gBgmVolume = func_80018D04(0, 100, --gSoundFadeTimer, 50);
+            gSeVolume = gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
+            SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             for (i = 2; i < 10; i++) {
-                SsSeqSetVol(D_800E0570[i], D_80095B0C, D_80095B0C);
+                SsSeqSetVol(gSeqIds[i], gSeVolume, gSeVolume);
             }
-            if (D_80095AE8 == 0) {
-                SsSeqStop(D_800E0570[0]);
-                SsSeqClose(D_800E0570[0]);
+            if (gSoundFadeTimer == 0) {
+                SsSeqStop(gSeqIds[0]);
+                SsSeqClose(gSeqIds[0]);
                 for (i = 2; i < 10; i++) {
-                    SsSeqStop(D_800E0570[i]);
+                    SsSeqStop(gSeqIds[i]);
                 }
                 for (i = 0; i < 10; i++) {
-                    SsSeqSetVol(D_800E0570[i], 0, 0);
+                    SsSeqSetVol(gSeqIds[i], 0, 0);
                 }
-                D_80095B0C = 127;
-                D_80095B18 = 127;
-                D_80095AF0 = 0;
-                D_80095724 = 80;
+                gSeVolume = 127;
+                gBgmVolume = 127;
+                gSoundFade = 0;
+                gCdVolume = 80;
             }
         case 4:
-            D_80095724 = func_80018D04(0, 80, --D_80095AE8, 50);
-            D_80095724 = D_80095724 < 0 ? 0 : D_80095724 > 80 ? 80 : D_80095724;
-            func_80042968(D_80095724);
-            if (D_80095AE8 == 0) {
-                D_80095724 = 80;
-                func_80017574();
-                D_80095AF0 = 0;
+            gCdVolume = func_80018D04(0, 80, --gSoundFadeTimer, 50);
+            gCdVolume = gCdVolume < 0 ? 0 : gCdVolume > 80 ? 80 : gCdVolume;
+            SetCdVolume(gCdVolume);
+            if (gSoundFadeTimer == 0) {
+                gCdVolume = 80;
+                StopCdTrack();
+                gSoundFade = 0;
             }
             break;
     }
-    if (D_80095AE8 < 0) {
-        D_80095AF0 = 0;
+    if (gSoundFadeTimer < 0) {
+        gSoundFade = 0;
     }
 }
 
 extern u8 D_8007BBEC[];
 
-s32 func_80042538(s32 id) {
+s32 PlaySe(s32 id) {
     s16 *seq;
     s16 i;
     u8 bank;
     s16 *vabs;
     u32 *hdr;
 
-    for (D_80095B1A = 2; D_80095B1A < 10; D_80095B1A++) {
-        i = D_80095B1A;
-        seq = &D_800E0570[(u16)i];
+    for (gSeSlot = 2; gSeSlot < 10; gSeSlot++) {
+        i = gSeSlot;
+        seq = &gSeqIds[(u16)i];
         if (SsIsEos(*seq, 0) == 0) {
             break;
         }
     }
     SsSeqClose(*seq);
-    if (D_8009579C != 0) {
+    if (gVabError != 0) {
         return -1;
     }
     hdr = (u32 *)0x80101000;
     hdr += (u16)id * 4;
-    vabs = &D_80095B14;
+    vabs = &gBgmVab;
     if ((u16)id < 70) {
         bank = 0;
     } else {
         bank = D_8007BBEC[(u16)id - 70];
     }
-    D_800E0570[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
-    SsSeqPlay(D_800E0570[(u16)i], 1, 1);
-    SsSeqSetVol(D_800E0570[(u16)i], 127, 127);
-    if (++D_80095B1A >= 10) {
-        D_80095B1A = 2;
+    gSeqIds[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
+    SsSeqPlay(gSeqIds[(u16)i], 1, 1);
+    SsSeqSetVol(gSeqIds[(u16)i], 127, 127);
+    if (++gSeSlot >= 10) {
+        gSeSlot = 2;
     }
 }
 
 extern s32 D_8007B69C[];
 
-s32 func_800426A4(void) {
+s32 LoadSoundData(void) {
     s32 ret = 0;
 
     switch (D_800958A6) {
@@ -488,7 +488,7 @@ s32 func_800426A4(void) {
             break;
         case 1:
             if (gCdLoadState == 6) {
-                func_80041F28(0);
+                LoadVab(0);
                 D_800958A6++;
             }
             break;
@@ -502,9 +502,9 @@ s32 func_800426A4(void) {
             break;
         case 3:
             if (gCdLoadState == 6) {
-                func_80041F28(1);
-                func_80042058();
-                D_80095AFC = 1;
+                LoadVab(1);
+                InitSeSeqs();
+                gVabBank = 1;
                 D_800958A6++;
             }
             break;
@@ -523,13 +523,13 @@ s32 func_800426A4(void) {
     return ret;
 }
 
-void func_800428B0(void) {
+void InitSound(void) {
     SsInit();
     SsSetTableSize(D_800E0588, 9, 1);
     SsSetTickMode(1);
 }
 
-void func_800428EC(void) {
+void InitReverb(void) {
     SsSetMVol(0, 0);
     SsSetRVol(0, 0);
     SsUtSetReverbType(SS_REV_TYPE_STUDIO_B);
@@ -540,14 +540,14 @@ void func_800428EC(void) {
     SsUtSetReverbDepth(48, 48);
 }
 
-void func_80042958(u8 value) {
-    D_80095AF0 = value;
+void SetSoundFade(u8 mode) {
+    gSoundFade = mode;
 }
 
-void func_80042968(s32 vol) {
+void SetCdVolume(s32 vol) {
     CdlATV atv;
 
-    if (D_80095AEE) {
+    if (gStereo) {
         atv.val2 = vol;
         atv.val0 = vol;
         atv.val3 = 0;
@@ -561,16 +561,16 @@ void func_80042968(s32 vol) {
     CdMix(&atv);
 }
 
-void func_800429B4(void) {
-    SsSeqStop(D_800E0570[0]);
-    SsSeqClose(D_800E0570[0]);
+void StopBgm(void) {
+    SsSeqStop(gSeqIds[0]);
+    SsSeqClose(gSeqIds[0]);
 }
 
-void func_800429EC(void) {
+void StopFinishedSe(void) {
     s16 *seq;
 
-    for (D_80095B1A = 2; D_80095B1A < 10; D_80095B1A++) {
-        seq = &D_800E0570[D_80095B1A];
+    for (gSeSlot = 2; gSeSlot < 10; gSeSlot++) {
+        seq = &gSeqIds[gSeSlot];
         if (*seq != 0) {
             if (SsIsEos(*seq, 0) == 1) {
                 SsSeqStop(*seq);
@@ -579,29 +579,29 @@ void func_800429EC(void) {
     }
 }
 
-s32 func_80042A88(u16 bank) {
+s32 LoadVabBank(u16 bank) {
     s32 ret = 0;
 
     if (bank == 0) {
         return 1;
     }
-    if (bank == D_80095AFC) {
+    if (bank == gVabBank) {
         return 1;
     }
-    switch (D_80095B0E) {
+    switch (gVabLoadStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&D_8007B6A4[bank];
             gCdLoadSectors[0] = D_8007B6CC[bank + 6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_80095B0E++;
+            gVabLoadStep++;
             break;
         case 1:
             if (gCdLoadState == 6) {
-                SsVabClose(D_80095B16);
-                D_80095AFC = bank;
-                func_80041F28(1);
+                SsVabClose(gSeVab);
+                gVabBank = bank;
+                LoadVab(1);
                 ret = 1;
             }
             break;
@@ -609,12 +609,12 @@ s32 func_80042A88(u16 bank) {
     return ret;
 }
 
-void func_80042B80(u8 chan) {
+void PlayXa(u8 chan) {
     CdlFILTER filter;
     u_char mode[4];
     CdlATV atv;
 
-    if (D_80095AEE) {
+    if (gStereo) {
         atv.val2 = 80;
         atv.val0 = 80;
         atv.val3 = 0;
@@ -634,7 +634,7 @@ void func_80042B80(u8 chan) {
     CdControlF(CdlReadS, 0);
 }
 
-void func_80042C14(void) {
+void StopXa(void) {
     CdlATV vol;
 
     vol.val3 = 0;

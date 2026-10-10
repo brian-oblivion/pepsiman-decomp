@@ -1,57 +1,59 @@
-# func_80042538 — MATCHED 91/91 (round 10, delta)
+# PlaySe — MATCHED 91/91 (round 10, delta)
+
+> Renamed from `func_80042538` on 2026-10-10 (tools/rename.py). Address 0x80042538.
 
 Unit `src/code_31cec.c`. Starts a sound sequence (`id`, the entry in the
 sequence directory at 0x80101000): finds the first of slots 2..9 of
-`D_800E0570` whose sequence has ended (or takes slot 9), closes what was
-there, and unless loading is blocked (`D_8009579C`, returns -1) opens the
+`gSeqIds` whose sequence has ended (or takes slot 9), closes what was
+there, and unless loading is blocked (`gVabError`, returns -1) opens the
 sequence on its VAB (`D_8007BBEC` maps ids from 70 up to a bank, lower ids
 use bank 0), plays it once at full volume, and moves the round-robin
-cursor `D_80095B1A` on (wrapping to 2).
+cursor `gSeSlot` on (wrapping to 2).
 
 ```c
-extern s16 D_800E0570[];
-extern u16 D_80095B1A;
-extern s32 D_8009579C;
-extern s16 D_80095B14;
+extern s16 gSeqIds[];
+extern u16 gSeSlot;
+extern s32 gVabError;
+extern s16 gBgmVab;
 extern u8 D_8007BBEC[];
 
-s32 func_80042538(s32 id) {
+s32 PlaySe(s32 id) {
     s16 *seq;
     s16 i;
     u8 bank;
     s16 *vabs;
     u32 *hdr;
 
-    for (D_80095B1A = 2; D_80095B1A < 10; D_80095B1A++) {
-        i = D_80095B1A;
-        seq = &D_800E0570[(u16)i];
+    for (gSeSlot = 2; gSeSlot < 10; gSeSlot++) {
+        i = gSeSlot;
+        seq = &gSeqIds[(u16)i];
         if (SsIsEos(*seq, 0) == 0) {
             break;
         }
     }
     SsSeqClose(*seq);
-    if (D_8009579C != 0) {
+    if (gVabError != 0) {
         return -1;
     }
     hdr = (u32 *)0x80101000;
     hdr += (u16)id * 4;
-    vabs = &D_80095B14;
+    vabs = &gBgmVab;
     if ((u16)id < 70) {
         bank = 0;
     } else {
         bank = D_8007BBEC[(u16)id - 70];
     }
-    D_800E0570[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
-    SsSeqPlay(D_800E0570[(u16)i], 1, 1);
-    SsSeqSetVol(D_800E0570[(u16)i], 127, 127);
-    if (++D_80095B1A >= 10) {
-        D_80095B1A = 2;
+    gSeqIds[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
+    SsSeqPlay(gSeqIds[(u16)i], 1, 1);
+    SsSeqSetVol(gSeqIds[(u16)i], 127, 127);
+    if (++gSeSlot >= 10) {
+        gSeSlot = 2;
     }
 }
 ```
 
 `include/common.h` changes the shared prototype from `void` to `s32
-func_80042538(s32 id)`: retail returns -1 from a branch delay slot, which
+PlaySe(s32 id)`: retail returns -1 from a branch delay slot, which
 a `void` function never sets. Callers ignore the result, so their code is
 unchanged (the whole image verifies). The success path falls off the end
 (baselined `-Wall` warning).
@@ -60,11 +62,11 @@ unchanged (the whole image verifies). The success path falls off the end
 
 | step | result |
 | --- | --- |
-| first write: `u16 i; i = D_80095B1A; seq = &D_800E0570[i];`, the stores through `D_800E0570[i]` | 5/91: the stores reuse `seq`'s register |
-| `s32 i`, stores through `D_800E0570[(u16)i]` | 55/91: the `sllv` by the `1` in `$a1` appears; retail's `andi s1, 0xFFFF` and fresh table base do not |
-| `vabs = &D_80095B14;` pointer local, and `if (id < 70) bank = 0; else bank = ...;` | 62/91: the bank in `$v0` and its `sll` placed as retail; one word short (the `andi`) |
-| `i = (s16)D_80095B1A` | 90/91: the `andi` and the base appear, but the load becomes `lh` |
-| **`s16 i; i = D_80095B1A; seq = &D_800E0570[(u16)i];`, every store through `D_800E0570[(u16)i]`** | **91/91** |
+| first write: `u16 i; i = gSeSlot; seq = &gSeqIds[i];`, the stores through `gSeqIds[i]` | 5/91: the stores reuse `seq`'s register |
+| `s32 i`, stores through `gSeqIds[(u16)i]` | 55/91: the `sllv` by the `1` in `$a1` appears; retail's `andi s1, 0xFFFF` and fresh table base do not |
+| `vabs = &gBgmVab;` pointer local, and `if (id < 70) bank = 0; else bank = ...;` | 62/91: the bank in `$v0` and its `sll` placed as retail; one word short (the `andi`) |
+| `i = (s16)gSeSlot` | 90/91: the `andi` and the base appear, but the load becomes `lh` |
+| **`s16 i; i = gSeSlot; seq = &gSeqIds[(u16)i];`, every store through `gSeqIds[(u16)i]`** | **91/91** |
 
 - **`andi sN, 0xFFFF` on a value loaded `lhu`, before indexing: the
   variable is `s16` and the index is `(u16)i`.** The load stays `lhu`
@@ -85,7 +87,7 @@ unchanged (the whole image verifies). The success path falls off the end
 ### Proposed learning
 
 - **A redundant `andi 0xFFFF` on an `lhu`-loaded index: an `s16` local
-  indexed through `(u16)i`.** (func_80042538)
+  indexed through `(u16)i`.** (PlaySe)
 - **A table index scaled before its table's `lui`/`addiu`: the table
   address went into a pointer local first**, `p = &G; ... p[k]`.
-  (func_80042538)
+  (PlaySe)

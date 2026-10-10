@@ -252,7 +252,7 @@ extern u8 D_800959B0;
 extern s16 D_800957DC;
 void func_8003AFAC(void);
 /* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
-void func_8004079C();
+void RestartStage();
 void func_8003E360(s32 level);
 /* MATCHING: code_308ec stores this as u8; this unit's test loads it lb. */
 extern s8 D_80095900;
@@ -1121,7 +1121,7 @@ top:
             }
             break;
         case 0x27:
-            func_80042538(0x3C);
+            PlaySe(0x3C);
             state->unk5 = 0x28;
             state->unk6 = 0x14;
             state->unk398 = 70;
@@ -1153,7 +1153,7 @@ top:
             }
             break;
         case 0x3B:
-            func_80042538(0x16);
+            PlaySe(0x16);
             state->unk5 = 0x3C;
             state->unk0 = 0;
             state->unk6 = 0x18;
@@ -1379,17 +1379,17 @@ top:
     switch (state->unk6) {
         case 2:
             if (gGameMode == 0xE && gLoading == 0 && (gFrameCount & 7) == 0) {
-                func_80042538(0x13);
+                PlaySe(0x13);
             }
             break;
         case 3:
             if (gGameMode == 0xE && gLoading == 0 && gFrameCount % 6 == 0) {
-                func_80042538(0x13);
+                PlaySe(0x13);
             }
             break;
         case 4:
             if (gGameMode == 0xE && gLoading == 0 && (gFrameCount & 3) == 0) {
-                func_80042538(0x13);
+                PlaySe(0x13);
             }
             break;
         case 8:
@@ -1462,7 +1462,7 @@ top:
                 func_800287C0();
             }
             if (sGame.unk374 == 0) {
-                func_80042538(0x1A);
+                PlaySe(0x1A);
             }
             state->unk0 = 0;
             sGame.unk374++;
@@ -1546,22 +1546,22 @@ top:
             break;
         case 0x11:
             if (++state->unk374 == 13) {
-                func_80042538(0x30);
+                PlaySe(0x30);
             }
             if (state->unk374 == 20) {
-                func_80042538(0x31);
+                PlaySe(0x31);
             }
             if (state->unk374 == 40) {
                 state->unk3D0 = (state->unk3D0 & 0xF) | 0x50;
             }
             if (state->unk374 == 90) {
-                func_80042538(0x2B);
+                PlaySe(0x2B);
             }
             if (state->unk374 == 110) {
-                func_80042538(0x2B);
+                PlaySe(0x2B);
             }
             if (state->unk374 == 130) {
-                func_80042538(0x2B);
+                PlaySe(0x2B);
             }
             if (state->unk374 == 90) {
                 state->unk3 = 1;
@@ -1672,7 +1672,7 @@ top:
                     state->unk6 = 0x1F;
                 } else {
                     if (state->unk374 == 30) {
-                        func_80042538(0x34);
+                        PlaySe(0x34);
                     }
                     if (state->unk374 >= 61) {
                         D_80095858 = 100;
@@ -1727,7 +1727,7 @@ top:
                                 state->unk6 = 0x1F;
                             } else {
                                 if (state->unk374 == 30) {
-                                    func_80042538(0x34);
+                                    PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
                                     D_80095858 = 100;
@@ -1740,7 +1740,7 @@ top:
                                 state->unk6 = 0x2D;
                             } else {
                                 if (state->unk374 == 30) {
-                                    func_80042538(0x34);
+                                    PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
                                     D_80095858 = 100;
@@ -1752,7 +1752,7 @@ top:
                                 state->unk6 = 0x22;
                             } else {
                                 if (state->unk374 == 30) {
-                                    func_80042538(0x34);
+                                    PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
                                     D_80095858 = 100;
@@ -1770,7 +1770,7 @@ top:
                                 }
                             }
                             if ((gStage != 4 || D_8009578C != 0) && state->unk374 == 30) {
-                                func_80042538(0x34);
+                                PlaySe(0x34);
                             }
                             break;
                     }
@@ -1861,7 +1861,7 @@ top:
                     state->unk6 = 0x21;
                     state->unk374 = 0;
                     if (state->unk376 == 30) {
-                        func_80042538(0x34);
+                        PlaySe(0x34);
                     }
                     if (state->unk376 >= 61) {
                         D_80095858 = 100;
@@ -1934,7 +1934,7 @@ top:
                             state->unk6 = 0x2B;
                         } else {
                             if (state->unk374 == 30) {
-                                func_80042538(0x34);
+                                PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
                                 D_80095858 = 100;
@@ -1955,7 +1955,7 @@ top:
                             state->unk6 = 0x2B;
                         } else {
                             if (state->unk374 == 30) {
-                                func_80042538(0x34);
+                                PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
                                 D_80095858 = 100;
@@ -1971,7 +1971,7 @@ top:
                             state->unk374 = 0;
                         } else {
                             if (state->unk374 == 30) {
-                                func_80042538(0x34);
+                                PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
                                 D_80095858 = 100;
@@ -2004,7 +2004,7 @@ top:
             sGame.unk354 = 0;
         case 0x22:
             if (++state->unk376 == 1) {
-                func_80042538(0x50);
+                PlaySe(0x50);
             }
         case 0x7:
             if (state->unk340 == 0) {
@@ -2033,7 +2033,7 @@ top:
         case 0x1F:
         case 0x26:
             if (++state->unk376 == 1) {
-                func_80042538(0x50);
+                PlaySe(0x50);
             }
             if (state->unk340 == 0 && ++state->unk374 >= 16) {
                 goto reset;
@@ -2158,7 +2158,7 @@ s32 func_8002670C(void) {
                         if ((u32)((u16)sGame.unk3A8 - 0x26) < 5) {
                             sGame.unk38E = 2;
                             sGame.unk5 = 0x39;
-                            func_80042538(0x71);
+                            PlaySe(0x71);
                             sGame.unk38C = 0;
                         }
                     }
@@ -2201,7 +2201,7 @@ void func_80026848(void) {
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;
             func_80022F68((VECTOR *)&sGame.unk348);
-            func_80042538(0x17);
+            PlaySe(0x17);
         }
         if (sGame.unk390 == 1) {
             n = ++sGame.unk392;
@@ -2318,20 +2318,20 @@ top:
             }
             if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || D_8009578C != 0)) {
                 D_80095980++;
-                D_80095988--;
+                gTimeLeft--;
             }
             if (gStage % 3 == 2) {
                 break;
             }
-            func_80040F14();
+            FadeInFog();
             func_8003AFAC();
             if (D_800958F8 == 1) {
                 break;
             }
-            if (D_80095988 > 0) {
+            if (gTimeLeft > 0) {
                 break;
             }
-            D_80095988 = 0;
+            gTimeLeft = 0;
             sGame.unk0 = 0;
             sGame.unk2 = 0;
             sGame.unk3C8 = 500;
@@ -2359,7 +2359,7 @@ top:
                 D_800959B0 = 0;
                 D_800957DC = 0;
                 sGame.unk3A8 = (s16)D_800957D2 >> 4;
-                func_80042958(4);
+                SetSoundFade(4);
                 goto top;
             }
             break;
@@ -2387,8 +2387,8 @@ top:
             }
             break;
         case 2:
-            func_80017574();
-            func_80042538(0x1B);
+            StopCdTrack();
+            PlaySe(0x1B);
             D_800957DC = 0;
             D_80095858 = 3;
             break;
@@ -2400,13 +2400,13 @@ top:
             break;
         case 100:
             ClipF = 0;
-            if (D_80095770 == 0) {
+            if (gRetries == 0) {
                 D_8009EF4A[0] = 0;
                 gGameMode = 6;
-                D_80095760 = 0xFFFF;
+                gModeStep = 0xFFFF;
             } else {
-                func_8004079C();
-                D_80095770--;
+                RestartStage();
+                gRetries--;
             }
             break;
         case 110:
@@ -2451,7 +2451,7 @@ void func_800272D4(void) {
                     D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
                     if (gFrameCount % 20 == 0) {
-                        func_80042538(0x81);
+                        PlaySe(0x81);
                     }
                     break;
                 case 10:
@@ -2462,7 +2462,7 @@ void func_800272D4(void) {
                     D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
                     if (gFrameCount % 20 == 0) {
-                        func_80042538(0x81);
+                        PlaySe(0x81);
                     }
                     break;
             }
@@ -2724,7 +2724,7 @@ void func_80027E14(void) {
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;
             func_80022F68((VECTOR *)&sGame.unk348);
-            func_80042538(0x17);
+            PlaySe(0x17);
         }
         if (sGame.unk390 == 1) {
             n = ++sGame.unk392;
@@ -2816,12 +2816,12 @@ s32 func_800281B8(GameState *g) {
         if (g->unk34C >= D_8009EF44[0]) {
             g->unk34C = D_8009EF44[0];
             ret = 2;
-            func_80042538(30);
+            PlaySe(30);
         }
     } else if (g->unk34C >= g->unk3C0) {
         g->unk34C = g->unk3C0;
         ret = 1;
-        func_80042538(30);
+        PlaySe(30);
     }
     if (ret != 0) {
         func_80015450(D_800734AC, 6);
@@ -2901,7 +2901,7 @@ void func_80028448(void) {
             goto skip;
         }
         if (D_8009EF4D[0] != one) {
-            func_80042538(34);
+            PlaySe(34);
         }
     skip:
         func_80028260(1);
@@ -2916,7 +2916,7 @@ void func_80028500(void) {}
 s32 func_80028508(void) {
     if (sGame.unk0 != 0 && (sGame.unk6 < 5 || sGame.unk6 >= 8) &&
         (sGame.unk38F != 1 || sGame.unk398 < 6) && !(gPad & 0x1000) && (D_800957EC & 0x40)) {
-        func_80042538(22);
+        PlaySe(22);
         sGame.unk6 = 5;
     }
 }

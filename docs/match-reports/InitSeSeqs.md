@@ -1,39 +1,41 @@
-# func_80042058 — MATCHED 62/62 (round 4, echo)
+# InitSeSeqs — MATCHED 62/62 (round 4, echo)
+
+> Renamed from `func_80042058` on 2026-10-10 (tools/rename.py). Address 0x80042058.
 
 Unit `src/code_31cec.c`. Sound start-up: mixes serial input A (CD) on at
-full volume, clears `D_80095AEA` and `D_80095B1A`, opens the first song
+full volume, clears `D_80095AEA` and `gSeSlot`, opens the first song
 of the sequence bank loaded at 0x80101000 into slots 2..9 of
-`D_800E0570` (VAB `D_80095B16`), then sets every slot's volume to 0.
+`gSeqIds` (VAB `gSeVab`), then sets every slot's volume to 0.
 Returns 0.
 
 ```c
 #include "libsnd.h"
-extern s16 D_800E0570[];
-extern u16 D_80095B1A;
-extern s16 D_80095B16;
+extern s16 gSeqIds[];
+extern u16 gSeSlot;
+extern s16 gSeVab;
 extern s16 D_80095AEA;
 
-s32 func_80042058(void) {
+s32 InitSeSeqs(void) {
     s16 i;
     u32 *hdr;
 
     SsSetSerialAttr(SS_SERIAL_A, SS_MIX, SS_SON);
     SsSetSerialVol(SS_SERIAL_A, 127, 127);
     D_80095AEA = 0;
-    D_80095B1A = 0;
+    gSeSlot = 0;
     hdr = (u32 *)0x80101000;
     for (i = 2; i < 10; i++) {
-        D_800E0570[i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), D_80095B16);
+        gSeqIds[i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), gSeVab);
     }
     for (i = 0; i < 10; i++) {
-        SsSeqSetVol(D_800E0570[i], 0, 0);
+        SsSeqSetVol(gSeqIds[i], 0, 0);
     }
     return 0;
 }
 ```
 
 The bank at 0x80101000 starts with a table of 16-byte entries whose
-first word is a song's offset from the bank start (func_80042150 indexes
+first word is a song's offset from the bank start (PlayBgm indexes
 it by song number).
 
 ## Levers
@@ -59,4 +61,4 @@ it by song number).
   pointer local for the load and wrote the literal for the addend.** CSE
   merges two literals in one block; a pointer local whose value CSE no
   longer knows (set before a loop label, or modified by `hdr += n`) keeps
-  the literal separate. (func_80042058, func_80042150)
+  the literal separate. (InitSeSeqs, PlayBgm)

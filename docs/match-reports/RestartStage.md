@@ -1,7 +1,9 @@
-# func_8004079C — MATCHED 127/127 (round 6, delta)
+# RestartStage — MATCHED 127/127 (round 6, delta)
+
+> Renamed from `func_8004079C` on 2026-10-10 (tools/rename.py). Address 0x8004079c.
 
 Unit `src/code_308ec.c`. Stage start. Raises `D_80095900`; when the
-argument's remainder by 3 is 2 it only sets `D_80095760` to 2. Otherwise it
+argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
 resets the head of the game state (`D_8009EB78`), copies the start position
 from `D_800A7680`, looks up a per-stage value when the stage's flag in
 `D_8007AD58` is 1, derives the camera height (`D_8009676C`) and the start
@@ -16,20 +18,20 @@ halfword in each of the 200 Rec48 records.
  *   Rec48Clear  code_1a098's Rec48 with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (D_800A7680)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
- * extern u8 D_80095900, D_800958F8; extern s16 D_80095760, D_80095858,
+ * extern u8 D_80095900, D_800958F8; extern s16 gModeStep, D_80095858,
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, D_8009578C;
  * common.h: D_800958A8 (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
  * D_800957D6, gStage.
  * s32 func_800183B0(Pos3 *pos); the rest void (void) except
- * func_80014C58(u8) and func_80041118(u8). */
-void func_8004079C(u8 arg0) {
+ * PlayStageMusic(u8) and func_80041118(u8). */
+void RestartStage(u8 arg0) {
     s32 unused[2];
     s16 yaw;
     u32 i;
 
     D_80095900 = 1;
     if (arg0 % 3 == 2) {
-        D_80095760 = 2;
+        gModeStep = 2;
         return;
     }
     sStage.unk3C8 = 0;
@@ -66,9 +68,9 @@ void func_8004079C(u8 arg0) {
     for (i = 0; i < 200; i++) {
         sRecs48[i].unk26 = 0;
     }
-    func_80040998();
-    func_800412DC();
-    func_80014C58(gStage);
+    ResetStage();
+    StartStageOverlay();
+    PlayStageMusic(gStage);
 }
 ```
 

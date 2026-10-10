@@ -305,7 +305,7 @@ void func_8002C540(Rec5Cv *b, s16 w, s16 d);
 
 /* MATCHING: code_308ec defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
-u16 func_80040E04(s32 id, Obj48 *a, Obj48 *b);
+u16 CallStageHook(s32 id, Obj48 *a, Obj48 *b);
 
 /* MATCHING: defined in code_13068 and code_24748, which have no header. */
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
@@ -639,13 +639,13 @@ s32 func_8002D424(void) {
 
     /* MATCHING: non-void with no return keeps the move-distance test's
      * delay slot for the constant 100. */
-    switch (D_80095760) {
+    switch (gModeStep) {
         case 0:
             func_8002D2C0((Rec48 *)0x8016D000);
             D_800958DA = 0;
-            func_800413BC();
+            ResetStageOverlay();
             D_800956F7 = 1;
-            D_80095760++;
+            gModeStep++;
             break;
         case 1:
             func_80033AB8();
@@ -696,7 +696,7 @@ s32 func_8002D424(void) {
                                     sTotals.unk69 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk43;
                                     sTotals.unk20 =
                                         ((Obj48 *)D_800A9008)[sTotals.unk18].unk1A * 360 / 4096;
-                                    D_8009596E = func_80040E04(sTotals.unk1C, D_80096788, D_80096788);
+                                    D_8009596E = CallStageHook(sTotals.unk1C, D_80096788, D_80096788);
                                     for (i = 1; i < D_8009596E; i++) {
                                         /* MATCHING: base taken in the body */
                                         r = (Obj48 *)D_800A9008;
@@ -808,10 +808,10 @@ s32 func_8002D424(void) {
     if (gPadTrig & 0x800) {
         sTotals.unk70 = D_8009578C;
         func_80033930();
-        D_80095770 = 0xFF;
+        gRetries = 0xFF;
         D_80095962 = 1;
         func_8002C47C();
-        D_80095760 = 3;
+        gModeStep = 3;
         gGameMode = 14;
     }
     if (gPadTrig & 0x100) {
@@ -2179,7 +2179,7 @@ s32 func_80030DA0(void) {
             D_80096788[0].unk0[1] = sGameSave.unk348[1];
             D_80096788[0].unk0[2] = sGameSave.unk348[2];
             D_80096788[0].unk1A = (sTotals.unk20 << 12) / 360;
-            D_8009596E = func_80040E04(sTotals.unk1C, D_80096788, D_80096788);
+            D_8009596E = CallStageHook(sTotals.unk1C, D_80096788, D_80096788);
             D_800958A6++;
             /* fall through */
         case 1:

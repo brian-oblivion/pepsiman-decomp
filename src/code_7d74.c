@@ -45,7 +45,7 @@ s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit passes the coordinates unextended, so it saw s32
  * parameters (code_29f54 defines them as s16). */
 void func_8003A3F4(s32 *index, s32 x, s32 y);
-extern CdlLOC D_80095728;
+extern CdlLOC gCdTrackLoc;
 
 /** @brief The three flat lights. */
 typedef struct {
@@ -90,25 +90,25 @@ s8 func_80017640(u16 *tim);
 u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 
-void func_80017574(void) {
-    if (D_800958C9 != 0) {
+void StopCdTrack(void) {
+    if (gCdTrackPlaying != 0) {
         CdControlF(CdlPause, 0);
-        D_800958C9 = 0;
+        gCdTrackPlaying = 0;
     }
 }
 
-s32 func_800175AC(u8 com) {
-    CdIntToPos(D_80095720, &D_80095728);
-    while (CdControl(com, (u_char *)&D_80095728, 0) == 0) {
+s32 SendCdTrackCommand(u8 com) {
+    CdIntToPos(gCdTrackStart, &gCdTrackLoc);
+    while (CdControl(com, (u_char *)&gCdTrackLoc, 0) == 0) {
     }
-    D_80095714 = D_80095720;
-    D_8009571C++;
+    gCdTrackPos = gCdTrackStart;
+    gCdTrackPlays++;
     return 0;
 }
 
-void func_80017614(u8 mode) {
+void OnCdTrackReady(u8 mode) {
     if (mode == 4) {
-        func_800175AC(CdlPlay);
+        SendCdTrackCommand(CdlPlay);
     }
 }
 
@@ -271,7 +271,7 @@ void func_80017B38(void) {
     /* MATCHING: an unused local gives retail's 0x20-byte frame. */
     s32 unused[2];
 
-    switch (D_80095760) {
+    switch (gModeStep) {
         case 0:
             gClearR = 0x10;
             gClearG = 0x20;
@@ -300,7 +300,7 @@ void func_80017B38(void) {
             func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
             sPlayer.want[0] = 0;
             func_80017F0C(&sPlayer, 0, 0);
-            D_80095760++;
+            gModeStep++;
             break;
         case 1:
             if (D_800956D1 == 1) {

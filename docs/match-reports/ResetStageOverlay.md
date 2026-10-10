@@ -1,18 +1,20 @@
-# func_800413BC — MATCHED 76/76 (round 12, alpha)
+# ResetStageOverlay — MATCHED 76/76 (round 12, alpha)
+
+> Renamed from `func_800413BC` on 2026-10-10 (tools/rename.py). Address 0x800413bc.
 
 Unit `src/code_31958.c`. The second per-stage dispatcher, the twin of
-func_800412DC: switches on `gStage` (0..14) and calls each stage's
+StartStageOverlay: switches on `gStage` (0..14) and calls each stage's
 overlay function; stages 6 and 7 share func_800F1908. Called from
 code_308ec and code_1dc24.
 
 The function is 76 words (0x130); the brief's 91 counted the jump table.
 
-Matched on the first build, written with func_800412DC's spelling: one
+Matched on the first build, written with StartStageOverlay's spelling: one
 `case` per stage, and a bare `__asm__("")` after the call in case 7 so
 cross-jumping keeps the two identical arms apart.
 
 ```c
-void func_800413BC(void) {
+void ResetStageOverlay(void) {
     switch (gStage) {
         case 0:
             func_800FAA30();

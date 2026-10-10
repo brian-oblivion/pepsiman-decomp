@@ -6,7 +6,7 @@ Unit `src/code_31cec.c`. Movie start-up: records the stream length
 (`gMovieLastFrame`) and slice height (`gMovieDisplayHeight`), copies the start position
 into the unit's `CdlLOC` (`gMovieLoc`, minute/second/sector), clears a
 480x480 VRAM area through the unit's `RECT` (`gMovieClearRect`), sets the CD
-mix (no cross-feed when the stereo flag `D_80095AEE` is set) and hands
+mix (no cross-feed when the stereo flag `gStereo` is set) and hands
 the file name to PlayMovieFile.
 
 ```c
@@ -28,7 +28,7 @@ void PlayMovie(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
     setRECT(&gMovieClearRect, 0, 0, 480, 480);
     ClearImage(&gMovieClearRect, 0, 0, 0);
     DrawSync(0);
-    /* MATCHING: D_80095AEE by its address (see below). */
+    /* MATCHING: gStereo by its address (see below). */
     if (*(u8 *)0x80095AEE) {
         atv.val2 = 80;
         atv.val0 = 80;
@@ -49,20 +49,20 @@ void PlayMovie(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
 
 | step | result |
 | --- | --- |
-| first write, `if (D_80095AEE)` (common.h's `extern u8`) | 51 words, the flag read `lbu %gp_rel` where retail has `lui $v0` / `lbu $v0, %lo` (one word short, everything after shifted) |
+| first write, `if (gStereo)` (common.h's `extern u8`) | 51 words, the flag read `lbu %gp_rel` where retail has `lui $v0` / `lbu $v0, %lo` (one word short, everything after shifted) |
 | **`if (*(u8 *)0x80095AEE)`** | **52/52, `OK: build matches retail`** |
 
-- Retail reaches `D_80095AEE` through `lui` here but through `$gp` in
-  func_80042968 and func_80042B80, later in the same unit: a source-file
+- Retail reaches `gStereo` through `lui` here but through `$gp` in
+  SetCdVolume and PlayXa, later in the same unit: a source-file
   seam (the original file declared the flag without a size, or the unit
   holds two files). maspsx applies one gp list per unit, so the symbol
   cannot be both. A constant address has no decl for cc1 to call small
   data: cc1 splits it `%hi`/`%lo` itself and maspsx leaves it alone. The
   bytes are identical; only the relocation's symbol differs, and nothing
   checks that. If the head later splits the unit at the seam, this can go
-  back to `D_80095AEE`.
+  back to `gStereo`.
 - The rest came out on the first write: the field-by-field `CdlLOC` copy
-  interleaves exactly as retail, the CdMix block is func_80042968's body
+  interleaves exactly as retail, the CdMix block is SetCdVolume's body
   with 80 (stores `val2, val0, val3, val1` in source order), and the
   stack fifth argument read `lhu` then re-extended for the call is an
   `s16` parameter.

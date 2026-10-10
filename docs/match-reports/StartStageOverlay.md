@@ -1,4 +1,6 @@
-# func_800412DC — MATCHED 56/56 (round 12, alpha)
+# StartStageOverlay — MATCHED 56/56 (round 12, alpha)
+
+> Renamed from `func_800412DC` on 2026-10-10 (tools/rename.py). Address 0x800412dc.
 
 Unit `src/code_31958.c`. Dispatches on the current stage `gStage`
 (0..13) to a per-stage overlay function; stages 2, 5, 8 and 11 have none.
@@ -8,7 +10,7 @@ and code_308ec.
 The function is 56 words (0xE0); the brief's 70 counted the jump table.
 
 ```c
-void func_800412DC(void) {
+void StartStageOverlay(void) {
     switch (gStage) {
         case 0:
             func_800FAB9C();

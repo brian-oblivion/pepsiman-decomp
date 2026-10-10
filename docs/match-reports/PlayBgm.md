@@ -1,34 +1,36 @@
-# func_80042150 — MATCHED 46/46 (round 4, echo)
+# PlayBgm — MATCHED 46/46 (round 4, echo)
+
+> Renamed from `func_80042150` on 2026-10-10 (tools/rename.py). Address 0x80042150.
 
 Unit `src/code_31cec.c`. Plays a song: stops and closes the sequence in
-slot 0 of `D_800E0570`; unless `D_8009579C` is set (then returns -1),
-opens song `song` of the sequence bank at 0x80101000 (VAB `D_80095B14`),
-plays it once, sets its volume and `D_80095B18` to 100 and clears
-`D_80095AF0`.
+slot 0 of `gSeqIds`; unless `gVabError` is set (then returns -1),
+opens song `song` of the sequence bank at 0x80101000 (VAB `gBgmVab`),
+plays it once, sets its volume and `gBgmVolume` to 100 and clears
+`gSoundFade`.
 
 ```c
 #include "libsnd.h"
-extern s16 D_800E0570[];
-extern s16 D_80095AF0;
-extern s32 D_8009579C;
-extern s16 D_80095B14;
-extern s16 D_80095B18;
+extern s16 gSeqIds[];
+extern s16 gSoundFade;
+extern s32 gVabError;
+extern s16 gBgmVab;
+extern s16 gBgmVolume;
 
-s32 func_80042150(u16 song) {
+s32 PlayBgm(u16 song) {
     u32 *hdr;
 
-    SsSeqStop(D_800E0570[0]);
-    SsSeqClose(D_800E0570[0]);
-    if (D_8009579C != 0) {
+    SsSeqStop(gSeqIds[0]);
+    SsSeqClose(gSeqIds[0]);
+    if (gVabError != 0) {
         return -1;
     }
     hdr = (u32 *)0x80101000;
     hdr += song * 4;
-    D_800E0570[0] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), D_80095B14);
-    SsSeqPlay(D_800E0570[0], 1, 0);
-    D_80095B18 = 100;
-    SsSeqSetVol(D_800E0570[0], 100, 100);
-    D_80095AF0 = 0;
+    gSeqIds[0] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), gBgmVab);
+    SsSeqPlay(gSeqIds[0], 1, 0);
+    gBgmVolume = 100;
+    SsSeqSetVol(gSeqIds[0], 100, 100);
+    gSoundFade = 0;
 }
 ```
 
@@ -47,9 +49,9 @@ exit and leaves `$v0` unset on the normal path, so the function is
   `(u8 *)K + ((u32 *)K)[song * 4]`, an `off` temporary) lets CSE reuse
   the first register for the addend (45 words, 3 differing). Modifying
   the pointer local kills CSE's knowledge that it holds K, so the
-  literal addend is loaded again: 46/46. Same family as func_80042058.
-- `D_8009579C` is a plain `s32` reached `lui $v0` / `lw $v0` (not in the
+  literal addend is loaded again: 46/46. Same family as InitSeSeqs.
+- `gVabError` is a plain `s32` reached `lui $v0` / `lw $v0` (not in the
   gp list).
 - `SsSeqPlay`'s first argument is the sign-extended `SsSeqOpen` result,
   not a reload: the compiler reuses the assigned value of
-  `D_800E0570[0]` without help.
+  `gSeqIds[0]` without help.

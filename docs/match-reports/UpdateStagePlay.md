@@ -1,11 +1,13 @@
-# func_800401F0 — MATCHED 270/270 (round 12, alpha)
+# UpdateStagePlay — MATCHED 270/270 (round 12, alpha)
+
+> Renamed from `func_800401F0` on 2026-10-10 (tools/rename.py). Address 0x800401f0.
 
 Unit `src/code_308ec.c`. One frame of a stage, driven by the state in
-`D_80095760`: 0 clears `D_800958A6` and steps; 1 waits for the stage's
-overlay (func_80040CD0 returns 1) and steps; 2 and 3 save the start position
-and two words into `sSaved`, set `D_80095770` to 50, reset the stage
-(func_80040998) and go to 4; 4 runs the frame. In state 4, with no pause
-(`D_80095974` 0) it runs the game's per-frame calls and the stage overlay's
+`gModeStep`: 0 clears `D_800958A6` and steps; 1 waits for the stage's
+overlay (InitStageOverlay returns 1) and steps; 2 and 3 save the start position
+and two words into `sSaved`, set `gRetries` to 50, reset the stage
+(ResetStage) and go to 4; 4 runs the frame. In state 4, with no pause
+(`gPauseState` 0) it runs the game's per-frame calls and the stage overlay's
 own (a 15-way switch on `stage`); paused, it draws the pause screen (on the
 first paused frame it copies the display to x 640 with MoveImage). Every
 frame then checks button bit 0x800: pausing sets the volume to 30, unpausing
@@ -37,40 +39,40 @@ void func_8003C2E8(void);
 s32 func_80026D9C(void);
 s32 func_80014DB0(void);
 void SetPadVibration(s32 offset, u8 a, u8 b);
-void func_80042968(s32 vol);
+void SetCdVolume(s32 vol);
 
-void func_800401F0(u8 stage) {
+void UpdateStagePlay(u8 stage) {
     RECT r;
 
     if (gStage % 3 != 2) {
         func_8003CC94();
         func_8003C2E8();
     }
-    switch (D_80095760) {
+    switch (gModeStep) {
         case 0:
             D_800958A6 = 0;
-            D_80095760++;
+            gModeStep++;
             break;
         case 1:
-            if (func_80040CD0(gStage) == 1) {
-                D_80095760++;
+            if (InitStageOverlay(gStage) == 1) {
+                gModeStep++;
             }
             break;
         case 2:
         case 3:
             sSaved.valid = 0;
-            D_80095770 = 50;
+            gRetries = 50;
             sSaved.unk10 = D_8009578C;
             sSaved.pos.vx = D_800A7680.pos.vx;
             sSaved.pos.vy = D_800A7680.pos.vy;
             sSaved.pos.vz = D_800A7680.pos.vz;
             sSaved.unk14 = D_800957F4;
-            func_80040998();
+            ResetStage();
             D_80095900 = 1;
-            D_80095760 = 4;
+            gModeStep = 4;
             break;
         case 4:
-            if (D_80095974 == 0) {
+            if (gPauseState == 0) {
                 func_80020CF8(D_80095758);
                 func_80026D9C();
                 func_80014DB0();
@@ -125,7 +127,7 @@ void func_800401F0(u8 stage) {
                 }
             } else {
                 SetPadVibration(0, 0, 0);
-                switch (D_80095974) {
+                switch (gPauseState) {
                     case 1:
                         r.x = 0;
                         r.y = gActiveBuff * 240;
@@ -133,10 +135,10 @@ void func_800401F0(u8 stage) {
                         r.h = 240;
                         MoveImage(&r, 0x280, 0);
                         D_800958EA = 0;
-                        D_80095974++;
+                        gPauseState++;
                     case 2:
                         D_800958EA++;
-                        func_80040628();
+                        DrawPausedFrame();
                         break;
                 }
             }
@@ -145,20 +147,20 @@ void func_800401F0(u8 stage) {
     D_80095900 = 0;
     if (gPadTrig & 0x800) {
         if ((u16)(D_80095858 + 1) < 2) {
-            if (D_80095974 == 0) {
-                func_80042968(30);
-                D_80095974 = 1;
+            if (gPauseState == 0) {
+                SetCdVolume(30);
+                gPauseState = 1;
             } else {
                 if (gPad & 0x100) {
                     func_80015450(D_800734AC, 0);
                     gGameMode = 6;
-                    D_80095760 = 0;
-                    func_80017574();
+                    gModeStep = 0;
+                    StopCdTrack();
                     sStage.unk3D2 = 0;
                     sStage.unk3D0 = 0;
                 }
-                func_80042968(80);
-                D_80095974 = 0;
+                SetCdVolume(80);
+                gPauseState = 0;
             }
         }
     }
@@ -173,26 +175,26 @@ with `sb zero, 0x3D0` off the `D_8009EB78` base.
 - Build 1 was 4 words short: cases 6 and 7 of the overlay switch call the
   same function (func_800F00A0) and cross-jumping merged them. A bare
   `__asm__("")` after the call in case 7 keeps them apart, as in
-  func_800412DC and func_800413BC.
+  StartStageOverlay and ResetStageOverlay.
 - Build 2 was 268/270, then 270/270 after two reorders in states 2 and 3:
   `sSaved.unk10 = D_8009578C;` written before the position copy loads
   `D_8009578C` first, as retail does. `sSaved.valid = 0;` written before
-  `D_80095770 = 50;` puts `sSaved`'s `lui` above the `li 50`, though the
+  `gRetries = 50;` puts `sSaved`'s `lui` above the `li 50`, though the
   stores still come out in the other order.
 - The parameter is copied to `$s0` at entry and masked (`andi 0xFF`) only at
   the switch: a `u8` parameter on 2.8.1 can look like this; it needed no
   `s32` view.
 - `(u16)(D_80095858 + 1) < 2` gives retail's `addiu 1; andi 0xFFFF; sltiu 2`
   (D_80095858 is an `s16`: the test is "0 or -1").
-- `D_80095760++` in state 1 reuses the 1 in `$v1` from the compare
+- `gModeStep++` in state 1 reuses the 1 in `$v1` from the compare
   (`addu v0, v0, v1`); no special spelling needed.
 
 ## Declarations
 
 - New prototypes in code_308ec.c for other units' functions
   (func_8003CC94, func_8003C2E8, func_80026D9C, func_80014DB0,
-  SetPadVibration, func_80042968) and `extern s32 D_80095758;` (main.c's);
+  SetPadVibration, SetCdVolume) and `extern s32 D_80095758;` (main.c's);
   declcheck reports them LOCAL (SetPadVibration also MULTI with main.c's
   forward declaration). They stay in the `.c` this round, by the round's
   rule against shared-header prototypes for other units' functions.
-- main.c's `void func_800401F0(u8 stage);` moved to `include/common.h`.
+- main.c's `void UpdateStagePlay(u8 stage);` moved to `include/common.h`.

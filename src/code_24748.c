@@ -268,7 +268,7 @@ INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117B4);
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117DC);
 
 void func_80034070(void) {
-    switch (D_80095760) {
+    switch (gModeStep) {
         case 0:
             D_800A7308[0] = 0;
             D_800A7308[2] = 0;
@@ -304,7 +304,7 @@ void func_80034070(void) {
             D_8009574A = 0;
             D_80095748 = 0;
             D_800956F7 = 1;
-            D_80095760++;
+            gModeStep++;
             break;
         case 1:
             switch ((u16)D_800958DA) {

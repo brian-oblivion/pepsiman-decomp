@@ -39,7 +39,7 @@ extern char D_800954C8[];
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
 void func_80018DE8(s32 arg);
 s8 func_80013B38(void);
-s32 func_800426A4(void);
+s32 LoadSoundData(void);
 void InitSystem(void);
 void ResetClearColor(void);
 s8 UpdateCdLoad(void);
@@ -74,7 +74,7 @@ int main(void) {
     SetFogNearFar(3000, 8000, 250);
     SetFarColor(0x40, 0x60, 0xFF);
     D_800957DA = 1;
-    D_80095AEE = 1;
+    gStereo = 1;
     D_800958C8 = 1;
     D_800957A0 = -1;
     ClipF = 0;
@@ -95,7 +95,7 @@ int main(void) {
         dst->b = b;
     }
     D_800956D0 = 0;
-    D_80095760 = 0;
+    gModeStep = 0;
     gGameMode = 0;
     gLoading = 0;
     D_80095766 = 0;
@@ -103,7 +103,7 @@ int main(void) {
     D_800957DA = 0;
     D_80095968 = 0;
     D_800958F8 = 0;
-    D_800958C9 = 0;
+    gCdTrackPlaying = 0;
     for (;;) {
         FntPrint(D_800954C8);
         if (gLoading == 1) {
@@ -125,7 +125,7 @@ int main(void) {
                 }
                 break;
             case 2:
-                if (func_800426A4() == 1) {
+                if (LoadSoundData() == 1) {
                     gGameMode = 6;
                 }
                 break;
@@ -137,7 +137,7 @@ int main(void) {
             case 4:
                 if (gCdLoadState == 6) {
                     gGameMode = 5;
-                    D_80095760 = 0;
+                    gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
@@ -153,10 +153,10 @@ int main(void) {
             case 7:
                 if (gCdLoadState == 6) {
                     gGameMode = 8;
-                    if (D_80095760 == 0xFFFF) {
-                        D_80095760 = 50;
+                    if (gModeStep == 0xFFFF) {
+                        gModeStep = 50;
                     } else {
-                        D_80095760 = 0;
+                        gModeStep = 0;
                     }
                     gLoading = 0;
                 }
@@ -178,7 +178,7 @@ int main(void) {
                 if (gCdLoadState == 6) {
                     gGameMode = 40;
                 }
-                D_80095760 = 0;
+                gModeStep = 0;
                 D_80095768 = 0;
                 break;
             case 40:
@@ -215,10 +215,10 @@ int main(void) {
                 if (gCdLoadState == 6) {
                     gGameMode = 14;
                 }
-                D_80095760 = 0;
+                gModeStep = 0;
                 break;
             case 14:
-                func_800401F0(gStage);
+                UpdateStagePlay(gStage);
                 break;
             case 15:
                 gGameMode = 16;
@@ -234,7 +234,7 @@ int main(void) {
             case 17:
                 gVSyncMode = 2;
                 gGameMode = 19;
-                D_80095760 = 0;
+                gModeStep = 0;
                 break;
             case 19:
                 func_80017B38();
@@ -257,7 +257,7 @@ int main(void) {
                 }
                 break;
             case 22:
-                if (func_80040CD0(gStage) == 1) {
+                if (InitStageOverlay(gStage) == 1) {
                     gGameMode = 23;
                     gLoading = 0;
                 }
@@ -282,10 +282,10 @@ int main(void) {
                 }
                 break;
             case 26:
-                if (func_80040CD0(gStage) == 1) {
+                if (InitStageOverlay(gStage) == 1) {
                     gGameMode = 27;
                     gLoading = 0;
-                    D_80095760 = 0;
+                    gModeStep = 0;
                 }
                 break;
             case 27:
@@ -309,16 +309,16 @@ int main(void) {
                 }
                 break;
             case 30:
-                if (func_80040CD0(gStage) == 1) {
+                if (InitStageOverlay(gStage) == 1) {
                     gGameMode = 32;
-                    D_80095760 = 0;
+                    gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
             case 31:
                 if (gCdLoadState == 6) {
                     gGameMode = 32;
-                    D_80095760 = 0;
+                    gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
@@ -343,16 +343,16 @@ int main(void) {
                 }
                 break;
             case 35:
-                if (func_80040CD0(gStage) == 1) {
+                if (InitStageOverlay(gStage) == 1) {
                     gGameMode = 37;
-                    D_80095760 = 0;
+                    gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
             case 36:
                 if (gCdLoadState == 6) {
                     gGameMode = 37;
-                    D_80095760 = 0;
+                    gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
@@ -400,14 +400,14 @@ int main(void) {
                         }
                         D_800957A0 = -1;
                         gGameMode = 6;
-                        D_80095760 = 0;
+                        gModeStep = 0;
                         break;
                 }
                 break;
         }
         FntFlush(-1);
         UpdateCdLoad();
-        func_80042208();
+        UpdateSoundFade();
         EndFrame();
     }
 }
@@ -642,7 +642,7 @@ void EndFrame(void) {
     AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
     ReadPad(0);
     func_8003DE34();
-    if (D_80095974 == 0) {
+    if (gPauseState == 0) {
         gFrameCount++;
     }
 }
@@ -791,7 +791,7 @@ void InitSystem(void) {
     ChangeClearPAD(0);
     _bu_init();
     InitPads();
-    func_800428B0();
+    InitSound();
     CdInit();
     SsStart();
     gClearB = 0;
@@ -828,16 +828,16 @@ typedef struct {
 
 extern u8 D_80010000[];
 
-void func_80017440(s32 a, s32 b);
+void PlayCdTrack(s32 track, s32 loop);
 
-void func_80014C58(u8 idx) {
+void PlayStageMusic(u8 idx) {
     Bytes15 tbl;
 
     tbl = *(Bytes15 *)D_80010000;
-    if (D_80095AF0 != 0) {
-        D_80095AF0 = 0;
+    if (gSoundFade != 0) {
+        gSoundFade = 0;
     }
-    func_80017440(tbl.b[idx], 1);
+    PlayCdTrack(tbl.b[idx], 1);
 }
 
 void ResetClearColor(void) {
@@ -1331,9 +1331,9 @@ extern s32 D_80074084[];
 
 /* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
-s32 func_80042A88(s32 bank);
+s32 LoadVabBank(s32 bank);
 void func_80039C3C(unsigned long *p);
-void func_80040998(void);
+void ResetStage(void);
 void func_800F6C60(void);
 void func_800F6A44(void);
 void func_800F642C(void);
@@ -1345,7 +1345,7 @@ void func_80015CC8(void) {
 
     switch (D_800958A6) {
         case 0:
-            D_80095B0E = 0;
+            gVabLoadStep = 0;
             D_800958A6++;
             break;
         case 1:
@@ -1366,7 +1366,7 @@ void func_80015CC8(void) {
                     bank = 6;
                     break;
             }
-            if (func_80042A88(bank) == 1) {
+            if (LoadVabBank(bank) == 1) {
                 D_800958A6++;
             }
             break;
@@ -1462,7 +1462,7 @@ void func_80015CC8(void) {
                         func_800F377C();
                         break;
                 }
-                func_80040998();
+                ResetStage();
                 D_800958A6 = 100;
             }
             break;
@@ -1501,15 +1501,15 @@ void func_800373C8(void *a, void *b);
 void func_8002C2B4(void);
 s32 func_8002C044(void);
 void func_8002C47C(void);
-void func_800412DC(void);
+void StartStageOverlay(void);
 
 void func_800160E8(void) {
     switch (D_800958A6) {
         case 0:
-            D_80095B0E = 0;
+            gVabLoadStep = 0;
             D_800958A6++;
         case 1:
-            if (func_80042A88(func_80041178(gStage)) == 1) {
+            if (LoadVabBank(GetStageVabBank(gStage)) == 1) {
                 D_800958A6++;
             }
             break;
@@ -1853,10 +1853,10 @@ void func_800160E8(void) {
         case 16:
             if (gCdLoadState == 6) {
                 func_8002C47C();
-                func_800412DC();
+                StartStageOverlay();
                 func_80018DE8(1);
                 D_800D86B8[0] = 0;
-                func_80040998();
+                ResetStage();
                 D_800958A6 = 100;
             }
             break;
@@ -1943,11 +1943,11 @@ void func_80016D14(void) {
     if (D_800958A6 == 100) {
         SetFogNearFar(0, 0, 250);
         SetFarColor(0, 0, 0);
-        D_80095760 = 4;
+        gModeStep = 4;
         D_80095980 = 0;
         D_800958A6 = 0;
         gGameMode = 14;
-        func_80014C58(gStage);
+        PlayStageMusic(gStage);
     }
 }
 
@@ -1965,11 +1965,11 @@ void func_80016FC0(void) {
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     func_800160E8();
     if (D_800958A6 == 100) {
-        D_80095760 = 4;
+        gModeStep = 4;
         D_80095980 = 0;
         D_800958A6 = 0;
         gGameMode = 14;
-        func_80014C58(gStage);
+        PlayStageMusic(gStage);
     }
 }
 
@@ -1989,7 +1989,7 @@ void func_80017124(void) {
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     func_80015CC8();
     if (D_800958A6 == 100) {
-        D_80095760 = 4;
+        gModeStep = 4;
         D_800958A6 = 0;
         gGameMode = 14;
     }
@@ -2003,19 +2003,19 @@ void func_800173E8(Stepper *obj) {
     stepObj(obj);
 }
 
-extern CdlLOC D_80095FE0[];
-extern s32 D_80095710;
-extern s32 D_80095718;
+extern CdlLOC gCdToc[];
+extern s32 gCdTrackEnd;
+extern s32 gCdTrackLoop;
 /* MATCHING: a known small size, so the byte store is `$gp`-relative. */
 extern u8 D_80095AC0[4];
 
-void func_80017440(s32 track, s32 arg) {
+void PlayCdTrack(s32 track, s32 loop) {
     CdlATV atv;
 
-    if (D_800958C9 == 1) {
-        func_80017574();
+    if (gCdTrackPlaying == 1) {
+        StopCdTrack();
     }
-    if (D_80095AEE) {
+    if (gStereo) {
         atv.val2 = 0x50;
         atv.val0 = 0x50;
         atv.val3 = 0;
@@ -2027,20 +2027,20 @@ void func_80017440(s32 track, s32 arg) {
         atv.val1 = 0x50;
     }
     CdMix(&atv);
-    D_80095718 = arg;
-    CdGetToc(D_80095FE0);
-    D_80095720 = CdPosToInt(&D_80095FE0[track]);
-    D_80095710 = CdPosToInt(&D_80095FE0[track + 1]) - 20;
-    D_8009571C = 0;
-    D_80095714 = D_80095720;
+    gCdTrackLoop = loop;
+    CdGetToc(gCdToc);
+    gCdTrackStart = CdPosToInt(&gCdToc[track]);
+    gCdTrackEnd = CdPosToInt(&gCdToc[track + 1]) - 20;
+    gCdTrackPlays = 0;
+    gCdTrackPos = gCdTrackStart;
     SsSetSerialAttr(0, 0, 1);
     SsSetSerialVol(0, 0x72, 0x72);
     D_80095AC0[0] = 3;
     CdControlB(CdlSetmode, D_80095AC0, 0);
     VSync(3);
-    CdReadyCallback((CdlCB)func_80017614);
-    func_800175AC(CdlPlay);
-    D_800958C9 = 1;
+    CdReadyCallback((CdlCB)OnCdTrackReady);
+    SendCdTrackCommand(CdlPlay);
+    gCdTrackPlaying = 1;
 }
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010404);

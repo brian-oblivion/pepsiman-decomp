@@ -1,4 +1,6 @@
-# func_80040F14 — MATCHED 129/129 (round 6, delta)
+# FadeInFog — MATCHED 129/129 (round 6, delta)
+
+> Renamed from `func_80040F14` on 2026-10-10 (tools/rename.py). Address 0x80040f14.
 
 Unit `src/code_308ec.c`. Fog fade-in, one step a frame. While the step
 `D_8009576A` is below 100: on step 0 it adds a full-screen white
@@ -12,7 +14,7 @@ at 100 after 32.
 /* libgte.h, libgpu.h, libgs.h; code_a0bc.h for gSubOt.
  * extern u8 *D_800E48D0; common.h: D_8009576A (u16), D_800958FC (u8 *),
  * D_80095864, gActiveBuff. */
-void func_80040F14(void) {
+void FadeInFog(void) {
     POLY_F4 *p;
     s32 i;
 
@@ -72,4 +74,4 @@ void func_80040F14(void) {
 - **An allocation bump whose `addiu` reuses the pointer's register after
   its last other use: the source bumped the pointer variable**, `p++;
   G = (u8 *)p;`. `G = (u8 *)(p + 1);` computes the sum into a fresh
-  register early. (func_80040F14)
+  register early. (FadeInFog)

@@ -18,7 +18,7 @@ void InitSystem(void) {
     ChangeClearPAD(0);
     _bu_init();
     InitPads();
-    func_800428B0();
+    InitSound();
     CdInit();
     SsStart();
     gClearB = 0;
@@ -35,7 +35,7 @@ void InitSystem(void) {
 First build. All Sony prototypes come from Sony's headers; main.c now also
 includes `libcd.h`, `libsnd.h`, `libmcrd.h` and `memory.h`. The four byte
 flags are plain `u8` externs (`lui $at` stores); three of them were already
-declared for `ResetClearColor` and moved up the file. `func_800428B0` is
+declared for `ResetClearColor` and moved up the file. `InitSound` is
 defined in code_31cec, so its prototype went into `include/common.h`
 (additive; declcheck rejects a local prototype of another unit's
 function). The game functions defined later in main.c get local

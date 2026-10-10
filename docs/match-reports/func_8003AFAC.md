@@ -5,10 +5,10 @@ Unit `src/code_29f54.c`. The race HUD, drawn each frame: the lap count
 the speed dial (func_800198BC quads; its needle sprite chosen from the
 distance counter `D_80095A84` advanced by `D_8009EF20[0]`, scaled by the
 mode `D_800958A8`, blinking in mode 1), a sound cue at frame 330, the
-seconds left (`D_80095988 / 30`, red under 11, blinking under 5), the
+seconds left (`gTimeLeft / 30`, red under 11, blinking under 5), the
 course progress marker (`D_8009578C` along the path, scaled by the count
 stored before `D_800958A0`), the time with func_8003A4B4 and the score
-`D_80095770` up to five digits.
+`gRetries` up to five digits.
 
 ```c
 extern u32 D_80095A84;
@@ -88,11 +88,11 @@ void func_8003AFAC(void) {
             func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
-    if (D_80095988 == 0x14A) {
-        func_80042538(0x28);
+    if (gTimeLeft == 0x14A) {
+        PlaySe(0x28);
         SpawnEffect(10, 0, 0, 0, 0);
     }
-    n = D_80095988;
+    n = gTimeLeft;
     n /= 30;
     color.r = -1;
     if (n < 11) {
@@ -140,7 +140,7 @@ void func_8003AFAC(void) {
     pos.vx = 0x90;
     pos.vy = -0x54;
     func_8003A4B4(&pos, D_80095980);
-    n = D_80095770;
+    n = gRetries;
     pos.vx = 0x68;
     pos.vy = 0x4C;
     for (; k < 10001; k *= 10) {
@@ -163,7 +163,7 @@ void func_8003AFAC(void) {
 | step | words |
 | --- | --- |
 | first body | 486/501, three local spots |
-| `n = D_80095988; n /= 30;` (the quotient straight into `n`'s register) | |
+| `n = gTimeLeft; n /= 30;` (the quotient straight into `n`'s register) | |
 | `k = 1` inside the blinking `if`, as the `for`'s init | |
 | the last loop's `k = 1` moved: after `pos.vy`, then before the colour (length changed), then after the call | 497 -> 501/501 |
 

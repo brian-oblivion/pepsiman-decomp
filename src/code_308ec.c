@@ -127,9 +127,9 @@ s32 func_800183B0(Pos3 *pos);
 void func_8002C2B4(void);
 void func_8002C47C(void);
 void func_8003399C(void);
-void func_80014C58(u8 idx);
-void func_80040998(void);
-void func_800412DC(void);
+void PlayStageMusic(u8 idx);
+void ResetStage(void);
+void StartStageOverlay(void);
 void func_80041118(u8 stage);
 
 /** @brief The saved state a stage can resume from. */
@@ -164,7 +164,7 @@ void func_800F7A9C(void);
 void func_800F7F40(void);
 void func_800F809C(void);
 void func_800F8264(void);
-void func_80040628(void);
+void DrawPausedFrame(void);
 
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */
@@ -209,38 +209,38 @@ s32 SpawnEffectWithParams(s32 kind, s16 x, s16 y, s16 z, s16 delay, s16 param0, 
     return 0;
 }
 
-void func_800401F0(u8 stage) {
+void UpdateStagePlay(u8 stage) {
     RECT r;
 
     if (gStage % 3 != 2) {
         func_8003CC94();
         func_8003C2E8();
     }
-    switch (D_80095760) {
+    switch (gModeStep) {
         case 0:
             D_800958A6 = 0;
-            D_80095760++;
+            gModeStep++;
             break;
         case 1:
-            if (func_80040CD0(gStage) == 1) {
-                D_80095760++;
+            if (InitStageOverlay(gStage) == 1) {
+                gModeStep++;
             }
             break;
         case 2:
         case 3:
             sSaved.valid = 0;
-            D_80095770 = 50;
+            gRetries = 50;
             sSaved.unk10 = D_8009578C;
             sSaved.pos.vx = D_800A7680.pos.vx;
             sSaved.pos.vy = D_800A7680.pos.vy;
             sSaved.pos.vz = D_800A7680.pos.vz;
             sSaved.unk14 = D_800957F4;
-            func_80040998();
+            ResetStage();
             D_80095900 = 1;
-            D_80095760 = 4;
+            gModeStep = 4;
             break;
         case 4:
-            if (D_80095974 == 0) {
+            if (gPauseState == 0) {
                 func_80020CF8(D_80095758);
                 func_80026D9C();
                 func_80014DB0();
@@ -295,7 +295,7 @@ void func_800401F0(u8 stage) {
                 }
             } else {
                 SetPadVibration(0, 0, 0);
-                switch (D_80095974) {
+                switch (gPauseState) {
                     case 1:
                         r.x = 0;
                         r.y = gActiveBuff * 240;
@@ -303,10 +303,10 @@ void func_800401F0(u8 stage) {
                         r.h = 240;
                         MoveImage(&r, 0x280, 0);
                         D_800958EA = 0;
-                        D_80095974++;
+                        gPauseState++;
                     case 2:
                         D_800958EA++;
-                        func_80040628();
+                        DrawPausedFrame();
                         break;
                 }
             }
@@ -315,26 +315,26 @@ void func_800401F0(u8 stage) {
     D_80095900 = 0;
     if (gPadTrig & 0x800) {
         if ((u16)(D_80095858 + 1) < 2) {
-            if (D_80095974 == 0) {
-                func_80042968(30);
-                D_80095974 = 1;
+            if (gPauseState == 0) {
+                SetCdVolume(30);
+                gPauseState = 1;
             } else {
                 if (gPad & 0x100) {
                     func_80015450(D_800734AC, 0);
                     gGameMode = 6;
-                    D_80095760 = 0;
-                    func_80017574();
+                    gModeStep = 0;
+                    StopCdTrack();
                     sStage.unk3D2 = 0;
                     sStage.unk3D0 = 0;
                 }
-                func_80042968(80);
-                D_80095974 = 0;
+                SetCdVolume(80);
+                gPauseState = 0;
             }
         }
     }
 }
 
-void func_80040628(void) {
+void DrawPausedFrame(void) {
     SVECTOR pos;
     CVECTOR color;
 
@@ -356,14 +356,14 @@ void func_80040628(void) {
 
 /* MATCHING: an unused 8-byte local gives retail's 0x20 frame; the start
  * position is copied field by field, not as a struct. */
-void func_8004079C(u8 stage) {
+void RestartStage(u8 stage) {
     s32 unused[2];
     s16 yaw;
     u32 i;
 
     D_80095900 = 1;
     if (stage % 3 == 2) {
-        D_80095760 = 2;
+        gModeStep = 2;
         return;
     }
     sStage.unk3C8 = 0;
@@ -400,20 +400,20 @@ void func_8004079C(u8 stage) {
     for (i = 0; i < 200; i++) {
         sRecs48[i].unk26 = 0;
     }
-    func_80040998();
-    func_800412DC();
-    func_80014C58(gStage);
+    ResetStage();
+    StartStageOverlay();
+    PlayStageMusic(gStage);
 }
 
 /* MATCHING: the table indices go into locals before the final if, so both
  * are loaded once ahead of the branch. */
-void func_80040998(void) {
+void ResetStage(void) {
     RECT r;
     s32 mode;
     s32 saved;
 
     D_80095900 = 1;
-    func_80017574();
+    StopCdTrack();
     if (gGameMode != 0x29) {
         r.x = 0;
         r.y = D_800E474C * 240;
@@ -424,7 +424,7 @@ void func_80040998(void) {
     InitEffects();
     gLoading = 0;
     gVSyncMode = 2;
-    func_800413BC();
+    ResetStageOverlay();
     if (D_800958AC == 1) {
         D_800958A8 = 2;
     } else {
@@ -458,7 +458,7 @@ void func_80040998(void) {
     D_800958EC = 0;
     D_800957D6 = 1;
     D_8009578C = 0;
-    D_80095974 = 0;
+    gPauseState = 0;
     D_800957A4 = 0;
     ClipF = 0;
     D_8009576A = 0;
@@ -485,9 +485,9 @@ void func_80040998(void) {
     mode = gStage;
     saved = sSaved.valid;
     if (D_800958AC == 1) {
-        D_80095988 = D_8007B038[mode][saved] * 30;
+        gTimeLeft = gTimeLimitsAlt[mode][saved] * 30;
     } else {
-        D_80095988 = D_8007AF84[mode][saved] * 30;
+        gTimeLeft = gTimeLimits[mode][saved] * 30;
     }
     D_8009EF48[0] = 0;
     func_800285B0();
@@ -496,7 +496,7 @@ void func_80040998(void) {
 
 /* MATCHING: ret has no default; out-of-range numbers return whatever $a1
  * held. */
-s16 func_80040CD0(u8 stage) {
+s16 InitStageOverlay(u8 stage) {
     s32 ret;
 
     switch (stage) {
@@ -551,7 +551,7 @@ s16 func_80040CD0(u8 stage) {
 
 /* MATCHING: a and b go through to every callee untouched; they keep
  * $a1 and $a2 live, which puts ret in $a3. */
-u16 func_80040E04(s16 id, s32 a, s32 b) {
+u16 CallStageHook(s16 id, s32 a, s32 b) {
     u16 ret = 1;
 
     switch (gStage) {
@@ -589,7 +589,7 @@ u16 func_80040E04(s16 id, s32 a, s32 b) {
     return ret;
 }
 
-void func_80040F14(void) {
+void FadeInFog(void) {
     POLY_F4 *p;
     s32 i;
 

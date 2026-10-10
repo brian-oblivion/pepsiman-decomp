@@ -1,4 +1,6 @@
-# func_800148B0 — MATCHED 72/72 (round 4, delta)
+# AdjustScreenPosition — MATCHED 72/72 (round 4, delta)
+
+> Renamed from `func_800148B0` on 2026-10-10 (tools/rename.py). Address 0x800148b0.
 
 Unit `src/main.c`. An interactive screen-position adjuster: after a
 20-frame wait it loops reading the pad word `gPadHeld[0]`, moving x and y
@@ -8,7 +10,7 @@ pressed. Then it reinitialises 3D and the game's graphics and waits five
 frames.
 
 ```c
-void func_800148B0(void) {
+void AdjustScreenPosition(void) {
     s32 x;
     s32 y;
     s32 pad;

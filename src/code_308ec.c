@@ -169,9 +169,9 @@ void DrawPausedFrame(void);
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */
 u8 func_80017F0C(StageState *obj, u16 index, u8 arg);
-/* MATCHING: main.c defines it on a TableHeader; the table is a u16 array
+/* MATCHING: main.c defines it on a RumbleStep; the table is a u16 array
  * here, as in code_13068. */
-void func_80015450(u16 *table, s32 index);
+void StartRumble(u16 *table, s32 index);
 
 void InitEffects(void) {
     s32 i;
@@ -218,7 +218,7 @@ void UpdateStagePlay(u8 stage) {
     }
     switch (gModeStep) {
         case 0:
-            D_800958A6 = 0;
+            gSubStep = 0;
             gModeStep++;
             break;
         case 1:
@@ -243,7 +243,7 @@ void UpdateStagePlay(u8 stage) {
             if (gPauseState == 0) {
                 func_80020CF8(D_80095758);
                 func_80026D9C();
-                func_80014DB0();
+                UpdateRumble();
                 switch (stage) {
                     case 0:
                         func_800F809C();
@@ -320,7 +320,7 @@ void UpdateStagePlay(u8 stage) {
                 gPauseState = 1;
             } else {
                 if (gPad & 0x100) {
-                    func_80015450(D_800734AC, 0);
+                    StartRumble(gRumblePatterns, 0);
                     gGameMode = 6;
                     gModeStep = 0;
                     StopCdTrack();
@@ -491,7 +491,7 @@ void ResetStage(void) {
     }
     D_8009EF48[0] = 0;
     func_800285B0();
-    func_80015450(D_800734AC, 0);
+    StartRumble(gRumblePatterns, 0);
 }
 
 /* MATCHING: ret has no default; out-of-range numbers return whatever $a1

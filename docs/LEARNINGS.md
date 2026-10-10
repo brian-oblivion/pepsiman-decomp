@@ -57,7 +57,7 @@ function's match report, not here.
 - **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
   (func_80033E98)
 - **A constant rebuilt (`li $a0, 1`) where the build copies it from a saved
-  register: the local holding it is narrower than `s32`.** (func_80013B38)
+  register: the local holding it is narrower than `s32`.** (LoadBootData)
 - **A single-bit flag as `andi K` + `sltu $zero`: `c = x & K; f = c != 0;`.**
   One-expression spellings give `srl` + `andi 1`. (func_80017640)
 - **An `s16` loaded with `lh` before a halfword store of a scale: `w * 4`,
@@ -88,7 +88,7 @@ function's match report, not here.
   it. (ClearVram, InitDebugFont)
 - **A redundant `lbu; andi 0xFF` / `lhu; andi 0xFFFF` on a value: the narrow
   parameter of an inlined `static __inline__` helper.** Locals and casts
-  never keep the mask. (func_8002CC24, func_80014DB0)
+  never keep the mask. (func_8002CC24, UpdateRumble)
 - **A global reloaded below pointer stores that the build hoists: read it as
   a member of a struct at a fixed address**, `((VECTOR *)D)->vy` or a unit
   view `#define sCur (*(BlockCur *)&D)`. (func_8002C894, func_8002FDB4)
@@ -142,7 +142,7 @@ function's match report, not here.
 ## Types
 
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
-  `andi 0xFF`. (func_800173E8)
+  `andi 0xFF`. (StepStepper)
 - **A byte store of `addiu $x, $zero, -1`: the value is `s8` -1.** A `u8` 0xFF
   gives `addiu ..., 0xFF`. (func_80033854)
 - **A byte loaded twice, `lb` then `lbu`: read once through an `(s8)` cast
@@ -253,7 +253,7 @@ function's match report, not here.
 - **Two one-pass loops whose registers pair with different variables: one
   counter per loop.** A shared counter costs a saved register. `f(fmt, *p);
   p++;` keeps the format's `addiu` first; `f(fmt, *p++)` does not.
-  (func_800149D0)
+  (DumpMemory)
 - **A record loop whose pointer stays at the record start and rebuilds a
   constant every pass: `r = &tbl[i];` inside the body.** `r++` biases the
   pointer and hoists the constant. (func_80033BF8, func_80031A48)
@@ -271,7 +271,7 @@ function's match report, not here.
   a local copy of the parameter.** (func_800210B4)
 - **The order of stores in a strength-reduced loop sets the order of the
   pointer setup before it**, and `o++, i++` differs from `i++, o++`.
-  (InitGraphics, func_80017270)
+  (InitGraphics, DrawStepper)
 - **A row offset built as `row*21` then plus the column: a flat index**,
   `tbl[row*21 + col]`; `T t[][21]` scales the row by the row size.
   (func_800229A8)
@@ -306,7 +306,7 @@ function's match report, not here.
 ## Control flow and frames
 
 - **A compare retail keeps that the `&&` chain would fold: a `switch` with an
-  empty `case K: break;`.** (func_800173E8)
+  empty `case K: break;`.** (StepStepper)
 - **A leaf with `addiu $sp, -8` / `+8` and no stack access: an unused local**,
   `s32 unused[2];`. Without it 2.8.1 emits no frame. Triggers `-Wall`'s unused
   variable warning, which is baselined in `config/typeviews-warnings.txt`.
@@ -371,8 +371,8 @@ function's match report, not here.
   each arm** (`x0 = x2 = (...) >> 12;`), so the join loses the equality.
   (func_800198BC)
 - **A function repeating another's body on a fixed object: one `static
-  __inline__` helper, both callers wrappers.** (func_80016D14,
-  func_800173E8, func_80017270)
+  __inline__` helper, both callers wrappers.** (UpdateLoadScreenModel,
+  StepStepper, DrawStepper)
 - **A packet used straight from `$a3` at fixed offsets: a `volatile` packet
   parameter.** A volatile local copy when retail moves the pointer to
   another register. (func_8001FE5C, func_8001FBBC)
@@ -434,7 +434,7 @@ function's match report, not here.
   place, the order of the global stores decides the rest. Why the second form
   rises is not understood; treat the alias explanation as a hypothesis.
   (func_8002D0C4) Confirmed: member reads through a pointer rise above
-  stores to fixed scalar globals; byte-pointer reads stay. (func_80015450)
+  stores to fixed scalar globals; byte-pointer reads stay. (StartRumble)
 - **Independent stores to a local struct come out in source order.** Retail
   writing `val3`..`val0` of a `CdlATV` means the source assigned them in that
   order. (StopXa, SetCdVolume)
@@ -482,7 +482,7 @@ function's match report, not here.
   spelling found: a bare `__asm__("")` barrier**, noted `MATCHING:`.
   (func_80028008, func_80027A00)
 - **The stack moved to the scratchpad around a call: `SetSpadStack()` /
-  `ResetSpadStack()` from include/spad.h.** (func_80017270)
+  `ResetSpadStack()` from include/spad.h.** (DrawStepper)
 - **Jump tables 4 bytes off in a whole unit: its rodata starts earlier than
   the yaml says** (cc1 puts `.align 3` before each table). (func_80036FE8)
 - **Two addresses computed into one register in turn: one local reused**,

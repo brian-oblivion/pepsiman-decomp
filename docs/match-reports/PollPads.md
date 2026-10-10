@@ -110,7 +110,7 @@ moves the `gPadPressed[0]` store up two slots. 117 vs 118 words.
   `s32 f(u8 *p, s32 i)`, a two-port `padLatch(u16 b0, u16 b1)` and a
   per-port `padLatch(s32 i, u16 b)` with the stores inside. None keeps the
   `andi`; the two-port one also scrambles the load order. (The
-  narrow-inline-parameter lever that matched func_80014DB0 in this round
+  narrow-inline-parameter lever that matched UpdateRumble in this round
   does not apply here.)
 - Separate scalars for `D_80095854`/`D_8009584C`/`D_80095874` against
   `[1]` of the paired arrays: no byte difference.

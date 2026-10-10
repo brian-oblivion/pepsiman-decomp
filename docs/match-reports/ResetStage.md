@@ -8,7 +8,7 @@ the game state's head (`D_8009EB78`) and a run of globals, then either
 restores a saved start (`D_800D86B8`, when its first word is non-zero) or,
 in mode 4, applies that mode's start; finally picks a per-mode value from
 one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
-30, and calls func_800285B0 and func_80015450.
+30, and calls func_800285B0 and StartRumble.
 
 ```c
 /* Unit-local views: StageState (D_8009EB78's head, widened for this
@@ -101,7 +101,7 @@ void ResetStage(void) {
     }
     D_8009EF48[0] = 0;
     func_800285B0();
-    func_80015450(D_800734AC, 0);
+    StartRumble(gRumblePatterns, 0);
 }
 ```
 
@@ -132,5 +132,5 @@ void ResetStage(void) {
   (additive), and `StopCdTrack` (code_7d74) was added there.
 - `func_80017F0C` takes `Stepper *` in main.c's view and `StageState *`
   here; both prototypes carry a `MATCHING:` note (main.c gained the note).
-- `func_80015450` gets a unit-local `(u16 *, s32)` view with a
+- `StartRumble` gets a unit-local `(u16 *, s32)` view with a
   `MATCHING:` note, as code_13068 has.

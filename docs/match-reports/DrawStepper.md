@@ -1,4 +1,6 @@
-# func_80017270 — MATCHED (94/94), round 7, runner bravo
+# DrawStepper — MATCHED (94/94), round 7, runner bravo
+
+> Renamed from `func_80017270` on 2026-10-10 (tools/rename.py). Address 0x80017270.
 
 Draws the model set at `gTodObjTable` for an object: installs the TMD
 handlers for mode `D_80095758`, moves the first model to the object's
@@ -27,7 +29,7 @@ extern s32 D_80095758;
         "lui $9,0x1F80\n\tori $9,$9,0x3FC\n\tmove $8,$9\n\tsw $29,0($8)\n\taddiu $8,$8,-24\n\tmove $29,$8")
 #define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $29,0($29)")
 
-void func_80017270(Stepper *obj) {
+void DrawStepper(Stepper *obj) {
     MATRIX m;
     SVECTOR rot;
     GsDOBJ2 *o;
@@ -57,7 +59,7 @@ void func_80017270(Stepper *obj) {
 }
 ```
 
-`Stepper` (the object type func_800173E8 already used) gained the fields
+`Stepper` (the object type StepStepper already used) gained the fields
 at `+0x341..+0x380` and moved above this function.
 
 ## Attempts (2)
@@ -78,7 +80,7 @@ C value to a register (CLAUDE.md rule 7 is about that). The `li $t1` /
 `move $t0, $t1` pair is copied as retail has it; the original macro
 probably took the address as an `"r"` input, which would be an operand
 constraint and is not used here. The same sequence appears in
-func_80016D14 (main), func_8001819C (code_7d74) and func_8003A008
+UpdateLoadScreenModel (main), func_8001819C (code_7d74) and func_8003A008
 (code_29f54), so the macro is a candidate for a shared header; it is kept
 in `src/main.c` until the head decides.
 
@@ -95,10 +97,10 @@ in `src/main.c` until the head decides.
 
 - **The two increments at a `for` loop's latch come out in the order of the
   comma operands in its step**: `o++, i++` bumps the pointer giv first.
-  (func_80017270)
+  (DrawStepper)
 
 ## Round 8 (echo)
 
 The body moved into `static __inline__ drawObj(Stepper *obj)` so that
-func_80016D14 can inline it; func_80017270 is now `{ drawObj(obj); }` and still matches
+UpdateLoadScreenModel can inline it; DrawStepper is now `{ drawObj(obj); }` and still matches
 byte for byte. The MATCHING notes moved with the body.

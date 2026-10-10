@@ -230,7 +230,7 @@ void func_80028500(void);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
-void func_80015450(u16 *table, s32 index);
+void StartRumble(u16 *table, s32 index);
 extern s32 D_800957B4;
 extern u16 D_8009587E;
 extern s16 D_800957B0;
@@ -840,7 +840,7 @@ s32 func_80023D68(void) {
             D_800DF5B0[2] = sGame.unk350;
             D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
             if (D_80095900 == 0) {
-                func_80015450(D_800734AC, 13);
+                StartRumble(gRumblePatterns, 13);
             }
         }
     } else {
@@ -1026,7 +1026,7 @@ top:
             state->unk5 = 8;
             state->unk6 = 0xD;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 1);
+            StartRumble(gRumblePatterns, 1);
             break;
         case 0x9:
             state->unk5 = 0xA;
@@ -1034,7 +1034,7 @@ top:
             state->unk0 = 0;
             state->unk376 = 0;
             state->unk374 = 0;
-            func_80015450(D_800734AC, 2);
+            StartRumble(gRumblePatterns, 2);
             break;
         case 0xF:
             state->unk5 = 0x10;
@@ -1065,7 +1065,7 @@ top:
             state->unk0 = 0;
             state->unk376 = 0;
             state->unk374 = 0;
-            func_80015450(D_800734AC, 7);
+            StartRumble(gRumblePatterns, 7);
             break;
         case 0x17:
             if ((u8)(m - 2) < 3) {
@@ -1134,7 +1134,7 @@ top:
             state->unk6 = 0x1A;
             state->unk376 = 0;
             state->unk3AA = state->unk3A8;
-            func_80015450(D_800734AC, 10);
+            StartRumble(gRumblePatterns, 10);
         case 0x3A:
             if (state->unk376 < 5) {
                 func_8003C014();
@@ -1161,7 +1161,7 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk3AA = state->unk3A8;
-            func_80015450(D_800734AC, 12);
+            StartRumble(gRumblePatterns, 12);
         case 0x3C:
             D_800957D2 -= 0x20;
             if (++state->unk378 >= 16 || (s16)D_800957D2 < 0) {
@@ -1188,7 +1188,7 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 2);
+            StartRumble(gRumblePatterns, 2);
             break;
         case 0x40:
             state->unk5 = 0x41;
@@ -1197,7 +1197,7 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 2);
+            StartRumble(gRumblePatterns, 2);
             break;
         case 0x42:
             state->unk5 = 0x43;
@@ -1209,7 +1209,7 @@ top:
             state->unk398 = state->unk3A8;
             /* MATCHING: *= -1 reloads the halfword with lh. */
             state->unk3A8 *= -1;
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             break;
         case 0x44:
             state->unk5 = 0x45;
@@ -1220,7 +1220,7 @@ top:
             state->unk0 = 0;
             state->unk398 = state->unk3A8;
             state->unk3A8 *= -1;
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             break;
         case 0x46:
             state->unk5 = 0x47;
@@ -1229,7 +1229,7 @@ top:
             state->unk374 = 10;
             state->unk376 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 5);
+            StartRumble(gRumblePatterns, 5);
             break;
         case 0x48:
             state->unk5 = 0x49;
@@ -1241,7 +1241,7 @@ top:
                 state->unk5 = 0x42;
                 goto top;
             }
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             func_800287C0();
             break;
         case 0x4A:
@@ -1250,14 +1250,14 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             break;
         case 0x4C:
             state->unk5 = 0x4D;
             state->unk6 = 0x2F;
             func_800287C0();
             state->unk0 = 0;
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             break;
         case 0x4E:
             state->unk5 = 0x4F;
@@ -1268,7 +1268,7 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 8);
+            StartRumble(gRumblePatterns, 8);
             break;
         case 0x50:
             if (rand() & 1) {
@@ -1286,7 +1286,7 @@ top:
             state->unk0 = 0;
             state->unk2 = 0;
             state->unk3C8 = 150;
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             break;
         case 0x52:
             state->unk5 = 0x53;
@@ -1298,7 +1298,7 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 9);
+            StartRumble(gRumblePatterns, 9);
             break;
         case 0x56:
             D_80095858 = -1;
@@ -1313,7 +1313,7 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            func_80015450(D_800734AC, 4);
+            StartRumble(gRumblePatterns, 4);
             break;
         case 0x33:
             switch (state->unk6) {
@@ -1418,7 +1418,7 @@ top:
                     func_80022F68((VECTOR *)&state->unk348);
                     state->unk38F = 0;
                     state->unk3BC = 1;
-                    func_80015450(D_800734AC, 13);
+                    StartRumble(gRumblePatterns, 13);
                 }
             } else if (state->unk34C >= state->unk3C0) {
                 state->unk34C = D_800AC858[0];
@@ -1435,7 +1435,7 @@ top:
                 func_80022F68((VECTOR *)&state->unk348);
                 state->unk38F = 0;
                 state->unk3BC = 0;
-                func_80015450(D_800734AC, 13);
+                StartRumble(gRumblePatterns, 13);
                 D_800DF5B0[0] = state->unk348;
                 D_800DF5B0[1] = state->unk34C;
                 D_800DF5B0[2] = state->unk350;
@@ -1599,7 +1599,7 @@ top:
             if (sGame.unk34C == sGame.unk3C0) {
                 func_80022F68((VECTOR *)&state->unk348);
             }
-            func_80015450(D_800734AC, 14);
+            StartRumble(gRumblePatterns, 14);
             break;
         case 6:
             if (gFrameCount % 3 == 0) {
@@ -1642,7 +1642,7 @@ top:
                     if (r < 3) {
                         switch (state->unk5) {
                             case 0x41:
-                                func_80015450(D_800734AC, 3);
+                                StartRumble(gRumblePatterns, 3);
                                 state->unk6 = 0x20;
                                 break;
                             case 0x3F:
@@ -1714,7 +1714,7 @@ top:
             state->unk3A8 -= 1;
             if (state->unk3A8 >= 6) {
                 func_80022F68((VECTOR *)D_8009EEC0);
-                func_80015450(D_800734AC, 11);
+                StartRumble(gRumblePatterns, 11);
             }
             if (state->unk3A8 <= 0) {
                 func_800287C0();
@@ -1783,7 +1783,7 @@ top:
                 sGame.unk358 = func_80018D04(0, -50, state->unk378, 5);
                 sGame.unk35C = func_80018D04(0, D_80096768[2], state->unk378, 5);
                 if (++state->unk378 >= 5) {
-                    func_80015450(D_800734AC, 5);
+                    StartRumble(gRumblePatterns, 5);
                     state->unk6 = 0x28;
                     state->unk37A = 0;
                     state->unk378 = 0;
@@ -1820,7 +1820,7 @@ top:
                         state->unk6 = 0x25;
                         break;
                     case 0x45:
-                        func_80015450(D_800734AC, 3);
+                        StartRumble(gRumblePatterns, 3);
                         state->unk6 = 0x27;
                         break;
                 }
@@ -1857,7 +1857,7 @@ top:
                             break;
                     }
                 } else {
-                    func_80015450(D_800734AC, 6);
+                    StartRumble(gRumblePatterns, 6);
                     state->unk6 = 0x21;
                     state->unk374 = 0;
                     if (state->unk376 == 30) {
@@ -1922,7 +1922,7 @@ top:
                 state->unk374 = 0;
                 state->unk376 = 0;
                 state->unk3A8 = -5;
-                func_80015450(D_800734AC, 3);
+                StartRumble(gRumblePatterns, 3);
                 state->unk6 = 0x27;
             }
             break;
@@ -2050,7 +2050,7 @@ top:
                     sGame.unk35C = func_80018D04(0, D_80096768[2], state->unk378, 15);
                     state->unk374++;
                     if (++state->unk378 >= 14) {
-                        func_80015450(D_800734AC, 5);
+                        StartRumble(gRumblePatterns, 5);
                         state->unk6 = 0x28;
                         state->unk37A = 0;
                         state->unk378 = 0;
@@ -2076,7 +2076,7 @@ top:
             break;
         case 0x31:
             if (state->unk340 == 0) {
-                func_80015450(D_800734AC, 6);
+                StartRumble(gRumblePatterns, 6);
                 state->unk374 = 0;
                 state->unk6 = 0x21;
             }
@@ -2824,7 +2824,7 @@ s32 func_800281B8(GameState *g) {
         PlaySe(30);
     }
     if (ret != 0) {
-        func_80015450(D_800734AC, 6);
+        StartRumble(gRumblePatterns, 6);
     }
     return ret;
 }

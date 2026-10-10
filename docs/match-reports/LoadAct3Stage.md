@@ -1,12 +1,14 @@
-# func_80015CC8 — MATCHED 264/264 (round 11, delta)
+# LoadAct3Stage — MATCHED 264/264 (round 11, delta)
+
+> Renamed from `func_80015CC8` on 2026-10-10 (tools/rename.py). Address 0x80015cc8.
 
 Unit `src/main.c`. A stage loader stepped once per frame on
-`D_800958A6`: it requests the stage's sound bank (LoadVabBank, bank
+`gSubStep`: it requests the stage's sound bank (LoadVabBank, bank
 2..6 for stages 2, 5, 8, 11, 14), reads the stage's two files from disc
 through the `gCdLoadLoc` / `gCdLoadSectors` / `gCdLoadDest` request slots
 into 0x8019D000, hands them to func_8003E13C and func_80039C3C, calls the
 stage's overlay entry (func_800F6C60 .. func_800F377C) and finishes with
-`D_800958A6 = 100`. Called from func_80017124.
+`gSubStep = 100`. Called from UpdateAct3LoadScreen.
 
 The body is in `src/main.c`. The new declarations it needs:
 
@@ -39,7 +41,7 @@ Three builds: 81 -> 263 -> 264.
   though the callee narrows it"). The local holding it is `s32` and is
   left unset on the default path, as retail jumps to the call with `$a0`
   untouched; `-Wall`'s "might be used uninitialized" is baselined.
-- Each arm's `D_800958A6++` merges into one store at the tail with the
+- Each arm's `gSubStep++` merges into one store at the tail with the
   value in `$v0`; case 1's `addu v0, v0, v1` reuses the 1 from the
   `== 1` test. Plain C gives both.
 
@@ -47,4 +49,4 @@ Three builds: 81 -> 263 -> 264.
 
 - **Per-arm `lui` for addresses a fixed stride apart: separate extern
   arrays, not a record table.** A record array lets cc1 share the record
-  base between an address and a load in the same arm. (func_80015CC8)
+  base between an address and a load in the same arm. (LoadAct3Stage)

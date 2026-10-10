@@ -1,17 +1,19 @@
-# func_80017124 — MATCHED (83/83), round 7, runner bravo
+# UpdateAct3LoadScreen — MATCHED (83/83), round 7, runner bravo
+
+> Renamed from `func_80017124` on 2026-10-10 (tools/rename.py). Address 0x80017124.
 
 Draws three sprites into the current ordering table (a digit-like sprite
 `0xFB + frame % 10` at (0x70, 0x48), then sprites 0x1FE and 0x1FF across
-the top of the screen), calls `func_80015CC8`, and when the counter
-`D_800958A6` reaches 100 resets it and sets `gModeStep = 4`,
+the top of the screen), calls `LoadAct3Stage`, and when the counter
+`gSubStep` reaches 100 resets it and sets `gModeStep = 4`,
 `gGameMode = 14`.
 
 ```c
-void func_80015CC8(void);
+void LoadAct3Stage(void);
 
-extern u16 D_800958A6;
+extern u16 gSubStep;
 
-void func_80017124(void) {
+void UpdateAct3LoadScreen(void) {
     SVECTOR pos;
 
     pos.vx = 0x70;
@@ -23,10 +25,10 @@ void func_80017124(void) {
     pos.vx = 0;
     pos.vy = -0x78;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    func_80015CC8();
-    if (D_800958A6 == 100) {
+    LoadAct3Stage();
+    if (gSubStep == 100) {
         gModeStep = 4;
-        D_800958A6 = 0;
+        gSubStep = 0;
         gGameMode = 14;
     }
 }

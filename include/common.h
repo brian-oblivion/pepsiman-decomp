@@ -182,7 +182,7 @@ extern s32 D_80095A50;   /**< 2 units, 7 functions */
 extern s32 D_80095780;   /**< entry count of the first record bank; 2 units */
 extern s32 D_80095810;   /**< entry count of the second record bank; 2 units */
 extern u16 gVabLoadStep; /**< 2 units, 3 functions */
-extern u8 gStage;        /**< the stage being played; stage / 3 is the world */
+extern u8 gStage;        /**< the stage being played: stage / 3 is the world, stage % 3 the act */
 extern s32 D_80095864;   /**< 3 units, 5 functions */
 extern u8 gEffectActive; /**< 2 units, 2 functions */
 extern u8 gEffectFree;   /**< 2 units, 2 functions */
@@ -209,7 +209,7 @@ extern s32 D_800958D0;   /**< a loop counter or count kept in a global; 2 units 
 extern s16 D_8009588E;   /**< number of entries; 2 units */
 extern s16 D_80095914;   /**< the view's orbit angle, in degrees; 2 units */
 extern s32 D_8009578C;   /**< stamped on placed records; 2 units */
-extern u16 D_800958A6;   /**< a state switched on in main; cleared after placing; 2 units */
+extern u16 gSubStep;     /**< a state switched on in main; cleared after placing; 2 units */
 extern s16 D_800958DA;   /**< an error code; cleared when flag bit 6 is set; 2 units */
 extern s32 D_800957F4;   /**< the result of the start-position lookup; 2 units */
 extern s32 D_80095758;   /**< 2 units */
@@ -220,30 +220,30 @@ extern s32 gTimeLimitsAlt[][3]; /**< the second set; 2 units */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
-extern u16 D_800734AC[];     /**< 3 units, 6 functions */
-extern s32 gCdLoadLoc[];     /**< each file's CdlLOC in the current CD load */
-extern s32 D_80096768[];     /**< 4 units, 4 functions */
-extern s32 D_8009676C[];     /**< 2 units, 3 functions */
-extern u16 D_8009EAB8[];     /**< 2 units, 3 functions; never loaded, sign unknown */
-extern s16 D_8009EABA[];     /**< 2 units, 2 functions */
-extern u8 D_8009EB78[];      /**< 8 units, 69 functions */
-extern u8 D_8009EB7E[];      /**< 2 units, 2 functions */
-extern u8 D_8009EEC0[];      /**< an object with a position; passed to
+extern u16 gRumblePatterns[]; /**< 3 units, 6 functions */
+extern s32 gCdLoadLoc[];      /**< each file's CdlLOC in the current CD load */
+extern s32 D_80096768[];      /**< 4 units, 4 functions */
+extern s32 D_8009676C[];      /**< 2 units, 3 functions */
+extern u16 D_8009EAB8[];      /**< 2 units, 3 functions; never loaded, sign unknown */
+extern s16 D_8009EABA[];      /**< 2 units, 2 functions */
+extern u8 D_8009EB78[];       /**< 8 units, 69 functions */
+extern u8 D_8009EB7E[];       /**< 2 units, 2 functions */
+extern u8 D_8009EEC0[];       /**< an object with a position; passed to
                           *   distance tests */
-extern s16 D_8009EF20[];     /**< 2 units, 6 functions */
-extern u8 D_8009EF48[];      /**< 4 units, 7 functions */
-extern s8 D_8009EF4A[];      /**< 2 units, 2 functions */
-extern s32 gCdLoadDest[];    /**< each file's load address in the current CD load */
-extern u8 D_8009F0B0[];      /**< 2 units, 4 functions */
-extern s32 gCdLoadSectors[]; /**< each file's length in sectors, less one */
-extern s32 D_800A7308[];     /**< 5 units, 22 functions */
-extern s32 D_800A9008[];     /**< 3 units, 17 functions */
-extern s16 D_800AC858[];     /**< 2 units, 6 functions */
-extern s32 D_800D39C8[];     /**< 2 units, 2 functions */
-extern s32 gTodObjTable[];   /**< 2 units, 5 functions */
-extern s32 D_800D86B8[];     /**< 2 units, 3 functions */
-extern s32 gRefView[];       /**< the game's GsRVIEW2, as words */
-extern s32 D_800DD070[];     /**< 3 units, 4 functions */
+extern s16 D_8009EF20[];      /**< 2 units, 6 functions */
+extern u8 D_8009EF48[];       /**< 4 units, 7 functions */
+extern s8 D_8009EF4A[];       /**< 2 units, 2 functions */
+extern s32 gCdLoadDest[];     /**< each file's load address in the current CD load */
+extern u8 D_8009F0B0[];       /**< 2 units, 4 functions */
+extern s32 gCdLoadSectors[];  /**< each file's length in sectors, less one */
+extern s32 D_800A7308[];      /**< 5 units, 22 functions */
+extern s32 D_800A9008[];      /**< 3 units, 17 functions */
+extern s16 D_800AC858[];      /**< 2 units, 6 functions */
+extern s32 D_800D39C8[];      /**< 2 units, 2 functions */
+extern s32 gTodObjTable[];    /**< 2 units, 5 functions */
+extern s32 D_800D86B8[];      /**< 2 units, 3 functions */
+extern s32 gRefView[];        /**< the game's GsRVIEW2, as words */
+extern s32 D_800DD070[];      /**< 3 units, 4 functions */
 
 extern s32 *D_800D81B0[]; /**< per-sequence data pointers; 2 units */
 
@@ -453,7 +453,7 @@ s32 func_80026D9C(void);
 
 /** @brief Defined in main.
  *  @return not yet known */
-s32 func_80014DB0(void);
+s32 UpdateRumble(void);
 
 /** @brief Defined in main.
  *  @param offset not yet known

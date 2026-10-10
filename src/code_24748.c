@@ -436,7 +436,7 @@ void func_800345C8(void) {
                 if (D_8009574A == 3) {
                     D_80095A58 = D_80095A28 = D_80095A28 ^ 1;
                 }
-                D_800958A6 = 0;
+                gSubStep = 0;
                 if (D_80095A58 == 1) {
                     switch (D_80095A29) {
                         case 0:
@@ -449,7 +449,7 @@ void func_800345C8(void) {
                 }
                 break;
             case 4:
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958DA = 7;
                 break;
         }
@@ -727,10 +727,10 @@ void func_800350C8(void) {
     s32 k;
     s32 n;
 
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             D_80095A38 = 0;
-            D_800958A6 = 1;
+            gSubStep = 1;
             break;
         case 1:
             bank = (Bank2C *)D_80095A50;
@@ -800,10 +800,10 @@ void func_80035350(void) {
     s32 k;
     s32 n;
 
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             D_80095A2C = 0;
-            D_800958A6 = 1;
+            gSubStep = 1;
             break;
         case 1:
             bank = (Bank4C *)D_80095A4C;
@@ -968,13 +968,13 @@ s32 func_80035970(void) {
     s32 err = 0;
     s32 r;
 
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             func_80038124();
             D_800959E4 = 0;
             D_8009574A = 0;
             D_80095748 = 0;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 1:
             switch (D_800959E4) {
@@ -1133,7 +1133,7 @@ s32 func_80035970(void) {
                     }
                     break;
                 case 18:
-                    D_800958A6++;
+                    gSubStep++;
                     break;
             }
             switch (err) {

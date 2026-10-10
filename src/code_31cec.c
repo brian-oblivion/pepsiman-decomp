@@ -474,7 +474,7 @@ extern s32 D_8007B69C[];
 s32 LoadSoundData(void) {
     s32 ret = 0;
 
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&D_8007B69C[0];
             gCdLoadDest[0] = 0x80101000;
@@ -484,12 +484,12 @@ s32 LoadSoundData(void) {
             gCdLoadState = 1;
             gCdLoadSectors[0] = D_8007B6CC[4];
             gCdLoadSectors[1] = D_8007B6CC[6];
-            D_800958A6++;
+            gSubStep++;
             break;
         case 1:
             if (gCdLoadState == 6) {
                 LoadVab(0);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 2:
@@ -498,14 +498,14 @@ s32 LoadSoundData(void) {
             gCdLoadCount = 1;
             gCdLoadState = 1;
             gCdLoadSectors[0] = D_8007B6CC[7];
-            D_800958A6++;
+            gSubStep++;
             break;
         case 3:
             if (gCdLoadState == 6) {
                 LoadVab(1);
                 InitSeSeqs();
                 gVabBank = 1;
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 4:

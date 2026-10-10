@@ -3,7 +3,7 @@
 > Renamed from `func_800401F0` on 2026-10-10 (tools/rename.py). Address 0x800401f0.
 
 Unit `src/code_308ec.c`. One frame of a stage, driven by the state in
-`gModeStep`: 0 clears `D_800958A6` and steps; 1 waits for the stage's
+`gModeStep`: 0 clears `gSubStep` and steps; 1 waits for the stage's
 overlay (InitStageOverlay returns 1) and steps; 2 and 3 save the start position
 and two words into `sSaved`, set `gRetries` to 50, reset the stage
 (ResetStage) and go to 4; 4 runs the frame. In state 4, with no pause
@@ -37,7 +37,7 @@ void func_800F8264(void);
 void func_8003CC94(void);
 void func_8003C2E8(void);
 s32 func_80026D9C(void);
-s32 func_80014DB0(void);
+s32 UpdateRumble(void);
 void SetPadVibration(s32 offset, u8 a, u8 b);
 void SetCdVolume(s32 vol);
 
@@ -50,7 +50,7 @@ void UpdateStagePlay(u8 stage) {
     }
     switch (gModeStep) {
         case 0:
-            D_800958A6 = 0;
+            gSubStep = 0;
             gModeStep++;
             break;
         case 1:
@@ -75,7 +75,7 @@ void UpdateStagePlay(u8 stage) {
             if (gPauseState == 0) {
                 func_80020CF8(D_80095758);
                 func_80026D9C();
-                func_80014DB0();
+                UpdateRumble();
                 switch (stage) {
                     case 0:
                         func_800F809C();
@@ -152,7 +152,7 @@ void UpdateStagePlay(u8 stage) {
                 gPauseState = 1;
             } else {
                 if (gPad & 0x100) {
-                    func_80015450(D_800734AC, 0);
+                    StartRumble(gRumblePatterns, 0);
                     gGameMode = 6;
                     gModeStep = 0;
                     StopCdTrack();
@@ -192,7 +192,7 @@ with `sb zero, 0x3D0` off the `D_8009EB78` base.
 ## Declarations
 
 - New prototypes in code_308ec.c for other units' functions
-  (func_8003CC94, func_8003C2E8, func_80026D9C, func_80014DB0,
+  (func_8003CC94, func_8003C2E8, func_80026D9C, UpdateRumble,
   SetPadVibration, SetCdVolume) and `extern s32 D_80095758;` (main.c's);
   declcheck reports them LOCAL (SetPadVibration also MULTI with main.c's
   forward declaration). They stay in the `.c` this round, by the round's

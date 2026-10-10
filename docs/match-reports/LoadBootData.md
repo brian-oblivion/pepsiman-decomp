@@ -1,6 +1,8 @@
-# func_80013B38 — MATCHED (105/105), round 7, runner bravo
+# LoadBootData — MATCHED (105/105), round 7, runner bravo
 
-A three-step loader state machine on `D_800958A6`: step 0 fills the
+> Renamed from `func_80013B38` on 2026-10-10 (tools/rename.py). Address 0x80013b38.
+
+A three-step loader state machine on `gSubStep`: step 0 fills the
 pointer tables `gCdLoadLoc` (entries of `D_80072484`), `gCdLoadDest` (five
 fixed RAM load addresses) and `gCdLoadSectors` (a copy of `D_800724C4`), sets
 `gCdLoadCount = 5`, `gCdLoadState = 1` and moves to step 1; step 1 waits for
@@ -9,7 +11,7 @@ pack at 0x8018D000, the TIM run at 0x8016D000, `func_8003A84C`) and
 returns 1. `main` tests the result as a signed byte.
 
 ```c
-extern u16 D_800958A6;
+extern u16 gSubStep;
 extern s32 D_80072484[];
 extern s32 D_800724C4[];
 s32 func_80013CDC(void);
@@ -20,12 +22,12 @@ void func_8001797C(void *pack);
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
 void func_80018DE8(s32 arg);
 
-s8 func_80013B38(void) {
+s8 LoadBootData(void) {
     /* MATCHING: a byte, so the later constant 1 is not copied from it. */
     s8 ret;
 
     ret = 0;
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&D_80072484[0];
             gCdLoadDest[0] = 0x8014D000;
@@ -44,12 +46,12 @@ s8 func_80013B38(void) {
             gCdLoadSectors[3] = D_800724C4[3];
             gCdLoadSectors[4] = D_800724C4[4];
             gCdLoadState = 1;
-            D_800958A6 = 1;
+            gSubStep = 1;
             break;
         case 1:
             if (gCdLoadState == 6) {
                 func_80018DE8(0);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 2:
@@ -97,4 +99,4 @@ The five-word copy into `gCdLoadSectors` is five separate assignments
 - **A constant argument that retail rematerialises (`li $a0, 1`) while a
   saved register already holds the same value: that variable is narrower
   than `s32`** (here an `s8` result). With an `s32` local the post-reload
-  CSE copies the register instead. (func_80013B38)
+  CSE copies the register instead. (LoadBootData)

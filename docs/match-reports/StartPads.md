@@ -1,4 +1,6 @@
-# func_8001552C — MATCHED (22/22), round 1, runner charlie
+# StartPads — MATCHED (22/22), round 1, runner charlie
+
+> Renamed from `func_8001552C` on 2026-10-10 (tools/rename.py). Address 0x8001552c.
 
 Pad start-up: keeps two buffers in globals, clears 32 bytes of the second,
 hands the first to `PadInitDirect` as the two controller-port buffers
@@ -7,7 +9,7 @@ hands the first to `PadInitDirect` as the two controller-port buffers
 ```c
 extern u8 *D_80095700;
 
-void func_8001552C(u8 *a, u8 *b) {
+void StartPads(u8 *a, u8 *b) {
     s32 i;
 
     D_80095700 = a;

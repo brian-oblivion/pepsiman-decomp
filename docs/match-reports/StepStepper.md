@@ -1,4 +1,6 @@
-# func_800173E8 — MATCHED (22/22), round 1, runner charlie
+# StepStepper — MATCHED (22/22), round 1, runner charlie
+
+> Renamed from `func_800173E8` on 2026-10-10 (tools/rename.py). Address 0x800173e8.
 
 Steps channel 0 of a `Stepper` object through `func_80017F0C` (unit
 `code_7d74`), keeps the byte result at `+0x340`, and for kind `0x61` marks
@@ -7,7 +9,7 @@ Steps channel 0 of a `Stepper` object through `func_80017F0C` (unit
 ```c
 u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
 
-void func_800173E8(Stepper *obj) {
+void StepStepper(Stepper *obj) {
     /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
     s8 result;
 
@@ -50,5 +52,5 @@ tables at `+0x20` and `+0x1B0`. The callee's `u16` index comes from its own
 ## Round 8 (echo)
 
 The body moved into `static __inline__ stepObj(Stepper *obj)` so that
-func_80016D14 can inline it; func_800173E8 is now `{ stepObj(obj); }` and still matches
+UpdateLoadScreenModel can inline it; StepStepper is now `{ stepObj(obj); }` and still matches
 byte for byte. The MATCHING notes moved with the body.

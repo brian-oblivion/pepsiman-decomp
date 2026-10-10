@@ -706,7 +706,7 @@ s32 func_8002D424(void) {
                                     D_800958D8 = 0;
                                     D_800958B2 = 5;
                                     D_8009574A = 0;
-                                    D_800958A6 = 0;
+                                    gSubStep = 0;
                                     D_80095748 = sTotals.unk18;
                                 }
                                 break;
@@ -726,7 +726,7 @@ s32 func_8002D424(void) {
                                     D_800958B2 = 9;
                                     D_80095748 = sTotals.unk28;
                                     D_8009574A = 0;
-                                    D_800958A6 = 0;
+                                    gSubStep = 0;
                                     sTotals.unk6A = D_800A7898[sTotals.unk28].unk2A;
                                 }
                                 break;
@@ -742,7 +742,7 @@ s32 func_8002D424(void) {
                     func_8002F6A0();
                     if (gPadTrig & 0x40) {
                         if (D_8009574A == 2) {
-                            D_800958A6 = 0;
+                            gSubStep = 0;
                         }
                         D_800958DA = 0;
                     }
@@ -1614,7 +1614,7 @@ s32 func_8002F6A0(void) {
                 sTotals.unk3 = D_8009574A;
                 D_80095748 = sTotals.unk18;
                 D_8009574A = 0;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958DA = 4;
                 break;
             case 3:
@@ -1625,19 +1625,19 @@ s32 func_8002F6A0(void) {
                 sTotals.unk3 = D_8009574A;
                 D_80095748 = sTotals.unk28;
                 D_8009574A = 0;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958DA = 5;
                 break;
             case 4:
                 D_800958D8 = 1;
                 D_800959D8 = 0;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 break;
             case 5:
                 D_800959D8 = 1;
                 /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
                 D_800958D8 = D_800959D8 != 0;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958DA = 0;
                 break;
             case 6:
@@ -1652,7 +1652,7 @@ s32 func_8002F6A0(void) {
                 break;
             case 7:
                 D_800958DA = 6;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 break;
         }
     }
@@ -1813,11 +1813,11 @@ s32 func_8002FF74(void) {
 
     /* MATCHING: non-void with no return value; each entry access is
      * `e = base; e += k;`, which also keeps the second count test. */
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             e = (Span8 *)D_800959C0;
             e += D_80095824;
-            D_800958A6 = 1;
+            gSubStep = 1;
             sTotals.unk22 = e->start;
             return;
         case 1:
@@ -1967,7 +1967,7 @@ s32 func_80030548(void) {
             sTotals.unk16++;
         }
     }
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             if (sTotals.unk16 == 0) {
                 D_800958DA = 9;
@@ -1995,7 +1995,7 @@ s32 func_80030548(void) {
             if (best == 25000000) {
                 D_800958DA = 11;
             } else {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 1:
@@ -2008,7 +2008,7 @@ s32 func_80030548(void) {
             func_80033F48(&sel);
             if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 sRecs5C[sTotals.unk12].unk0 = -1;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 break;
             }
             if (gPadTrig & 1) {
@@ -2082,7 +2082,7 @@ void func_80030984(void) {
             n++;
             sTotals.unk18 = n;
         }
-        D_800958A6 = 0;
+        gSubStep = 0;
         if (D_800959D8 == 1) {
             D_800959D8 = 0;
         }
@@ -2103,7 +2103,7 @@ s32 func_80030B6C(void) {
     val = D_80095748;
     func_800330D4();
     if (D_8009574A == 1 && val != (s16)D_80095748) {
-        D_800958A6 = 0;
+        gSubStep = 0;
     }
     if (line != D_8009574A) {
         switch (D_8009574A) {
@@ -2171,7 +2171,7 @@ s32 func_80030DA0(void) {
     u16 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             D_80096788[0].unk18 = 0;
             D_80096788[0].unk1C = 0;
@@ -2180,7 +2180,7 @@ s32 func_80030DA0(void) {
             D_80096788[0].unk0[2] = sGameSave.unk348[2];
             D_80096788[0].unk1A = (sTotals.unk20 << 12) / 360;
             D_8009596E = CallStageHook(sTotals.unk1C, D_80096788, D_80096788);
-            D_800958A6++;
+            gSubStep++;
             /* fall through */
         case 1:
             w = D_80096788;
@@ -2239,7 +2239,7 @@ s32 func_80031064(void) {
             sTotals.unk1A++;
         }
     }
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             if (sTotals.unk1A == 0) {
                 D_800958DA = 9;
@@ -2267,7 +2267,7 @@ s32 func_80031064(void) {
             if (best == 25000000) {
                 D_800958DA = 11;
             } else {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 1:
@@ -2277,7 +2277,7 @@ s32 func_80031064(void) {
             sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
             func_80033F48(&sel);
             if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
-                D_800958A6 = 0;
+                gSubStep = 0;
                 ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
             }
             if (gPadTrig & 1) {
@@ -2539,7 +2539,7 @@ s32 func_80031AEC(void) {
             sTotals.unk30++;
         }
     }
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             if (sTotals.unk30 == 0) {
                 D_800958DA = 9;
@@ -2567,7 +2567,7 @@ s32 func_80031AEC(void) {
             if (best == 25000000) {
                 D_800958DA = 11;
             } else {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 1:
@@ -2577,7 +2577,7 @@ s32 func_80031AEC(void) {
             sel.vz = D_800A7898[sTotals.unk28].unk4[2];
             func_80033F48(&sel);
             if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800A7898[sTotals.unk28].unk0 = -1;
             }
             if (gPadTrig & 1) {
@@ -2619,13 +2619,13 @@ s32 func_80031EF4(void) {
     /* MATCHING: non-void with no return keeps the error table's index
      * shift in its bound check's delay slot. */
     err = 0;
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             func_80038124();
             D_800959E4 = 0;
             D_8009574A = 0;
             D_80095748 = 0;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 1:
             switch (D_800959E4) {
@@ -2797,7 +2797,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 18:
-                    D_800958A6++;
+                    gSubStep++;
                     break;
             }
             switch (err) {

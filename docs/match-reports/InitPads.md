@@ -3,11 +3,11 @@
 > Renamed from `func_8001534C` on 2026-10-10 (tools/rename.py). Address 0x8001534c.
 
 Unit `src/main.c`. Starts the pads on the two buffers `gPadBuf` and
-`D_80095BE8` (through `func_8001552C`), then clears six words of each of
+`D_80095BE8` (through `StartPads`), then clears six words of each of
 three word arrays.
 
 ```c
-void func_8001552C(u8 *a, u8 *b);
+void StartPads(u8 *a, u8 *b);
 
 extern u8 gPadBuf[];
 extern u8 D_80095BE8[];
@@ -18,7 +18,7 @@ extern s32 gPadHeld[2];
 void InitPads(void) {
     s16 i;
 
-    func_8001552C(gPadBuf, D_80095BE8);
+    StartPads(gPadBuf, D_80095BE8);
     for (i = 0; i < 6; i++) {
         gPadPrev[i] = 0;
         gPadPressed[i] = 0;

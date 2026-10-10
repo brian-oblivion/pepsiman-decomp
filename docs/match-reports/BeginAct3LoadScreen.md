@@ -1,14 +1,16 @@
-# func_80015B78 — MATCHED (84/84), round 7, runner bravo
+# BeginAct3LoadScreen — MATCHED (84/84), round 7, runner bravo
+
+> Renamed from `func_80015B78` on 2026-10-10 (tools/rename.py). Address 0x80015b78.
 
 Sets up and draws the two half-screen sprites 0x1FE and 0x1FF (the
 framebuffer copied with `MoveImage` to x 640, then drawn across the top of
-the screen), clears the counter `D_800958A6` and sets `gGameMode = 0x2B`.
-func_80015A28 and func_80015B78 differ only in that last constant.
+the screen), clears the counter `gSubStep` and sets `gGameMode = 0x2B`.
+BeginLoadScreen and BeginAct3LoadScreen differ only in that last constant.
 
 ```c
-extern u16 D_800958A6;
+extern u16 gSubStep;
 
-void func_80015B78(void) {
+void BeginAct3LoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
@@ -25,7 +27,7 @@ void func_80015B78(void) {
     pos.vx = 0;
     pos.vy = -120;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    D_800958A6 = 0;
+    gSubStep = 0;
     gGameMode = 0x2B;
 }
 ```

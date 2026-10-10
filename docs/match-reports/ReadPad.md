@@ -8,7 +8,7 @@ axes when the pad type is 0x41, copies pad `arg`'s held and pressed words
 (`gPadHeld[arg]` to `gPad`, `gPadPressed[arg]` to `gPadTrig`),
 then runs an auto-repeat on the four d-pad bits and, when
 `D_800956F7 == 1`, on 0x80, 0x40 and 0x20. Called from EndFrame,
-func_800148B0 and code_31cec.
+AdjustScreenPosition and code_31cec.
 
 The signature is common.h's, `void ReadPad(s32 arg)`; the body
 indexes with `(u16)arg`, which gives retail's `andi 0xFFFF` at the use.

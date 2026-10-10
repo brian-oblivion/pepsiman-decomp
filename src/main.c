@@ -27,26 +27,26 @@ typedef struct {
 extern Pair8 D_80096A58[];
 extern Pair8 D_800D8340[];
 extern Pair8 D_80010454[];
-extern u8 D_800957DA;
+extern u8 gRumbleEnabled;
 extern s8 D_800957A0;
 extern u8 D_800958A5;
 extern s32 D_80095984;
 extern s32 D_80095998;
-extern u16 D_80095764;
-extern u16 D_80095766;
+extern u16 gRumbleSmall;
+extern u16 gRumbleLarge;
 extern char D_800954C8[];
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
 void func_80018DE8(s32 arg);
-s8 func_80013B38(void);
+s8 LoadBootData(void);
 s32 LoadSoundData(void);
 void InitSystem(void);
 void ResetClearColor(void);
 s8 UpdateCdLoad(void);
 void EndFrame(void);
-void func_80016D14(void);
-void func_80016FC0(void);
-void func_80017124(void);
+void UpdateLoadScreenModel(void);
+void UpdateLoadScreen(void);
+void UpdateAct3LoadScreen(void);
 void func_8002B220(void);
 void func_800F026C(void);
 void func_800F6670(void);
@@ -73,7 +73,7 @@ int main(void) {
     func_80018094();
     SetFogNearFar(3000, 8000, 250);
     SetFarColor(0x40, 0x60, 0xFF);
-    D_800957DA = 1;
+    gRumbleEnabled = 1;
     gStereo = 1;
     D_800958C8 = 1;
     D_800957A0 = -1;
@@ -98,9 +98,9 @@ int main(void) {
     gModeStep = 0;
     gGameMode = 0;
     gLoading = 0;
-    D_80095766 = 0;
-    D_80095764 = 0;
-    D_800957DA = 0;
+    gRumbleLarge = 0;
+    gRumbleSmall = 0;
+    gRumbleEnabled = 0;
     D_80095968 = 0;
     D_800958F8 = 0;
     gCdTrackPlaying = 0;
@@ -114,13 +114,13 @@ int main(void) {
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 gGameMode = 1;
                 gVSyncMode = 2;
                 break;
             case 1:
-                if (func_80013B38() == 1) {
-                    D_800958A6 = 0;
+                if (LoadBootData() == 1) {
+                    gSubStep = 0;
                     gGameMode = 2;
                 }
                 break;
@@ -163,7 +163,7 @@ int main(void) {
                 break;
             case 8:
                 func_800F6670();
-                func_80014DB0();
+                UpdateRumble();
                 break;
             case 38:
                 world = gStage / 3;
@@ -246,7 +246,7 @@ int main(void) {
                 gClearR = 0;
                 gLoading = 1;
                 gGameMode = 21;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 0;
@@ -271,7 +271,7 @@ int main(void) {
                 gClearR = 0;
                 gLoading = 1;
                 gGameMode = 25;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 0;
@@ -298,7 +298,7 @@ int main(void) {
                 gClearR = 0;
                 gLoading = 1;
                 gGameMode = 29;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 2;
@@ -332,7 +332,7 @@ int main(void) {
                 gClearR = 0;
                 gLoading = 1;
                 gGameMode = 34;
-                D_800958A6 = 0;
+                gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 2;
@@ -360,13 +360,13 @@ int main(void) {
                 func_80034070();
                 break;
             case 41:
-                func_80016D14();
+                UpdateLoadScreenModel();
                 break;
             case 42:
-                func_80016FC0();
+                UpdateLoadScreen();
                 break;
             case 43:
-                func_80017124();
+                UpdateAct3LoadScreen();
                 break;
             case 44:
                 switch ((u8)(gStage / 3)) {
@@ -419,12 +419,12 @@ void func_80013CDC(void);
 /* MATCHING: code_7d74 types the pack as its own PackEntry. */
 void func_8001797C(void *pack);
 
-s8 func_80013B38(void) {
+s8 LoadBootData(void) {
     /* MATCHING: a byte, so the later constant 1 is not copied from it. */
     s8 ret;
 
     ret = 0;
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&D_80072484[0];
             gCdLoadDest[0] = 0x8014D000;
@@ -443,12 +443,12 @@ s8 func_80013B38(void) {
             gCdLoadSectors[3] = D_800724C4[3];
             gCdLoadSectors[4] = D_800724C4[4];
             gCdLoadState = 1;
-            D_800958A6 = 1;
+            gSubStep = 1;
             break;
         case 1:
             if (gCdLoadState == 6) {
                 func_80018DE8(0);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 2:
@@ -703,7 +703,7 @@ void ReadPad(s32 port) {
 void InitGraphics(void);
 void WaitFrames(s16 frames);
 
-void func_800148B0(void) {
+void AdjustScreenPosition(void) {
     s32 x;
     s32 y;
     s32 pad;
@@ -749,7 +749,7 @@ extern char D_800954D8[];
 extern char D_800954DC[];
 extern s32 D_80095788;
 
-void func_800149D0(u8 *base) {
+void DumpMemory(u8 *base) {
     u8 *p;
     s32 row;
     s32 col;
@@ -867,93 +867,92 @@ void InitDebugFont(void) {
 }
 
 /**
- * @brief A 10-byte record of a table in initialized data (the table
- *        starts with one), unpacked field by field into small globals.
- *        Meanings not yet known.
+ * @brief One step of a vibration pattern: vibrate for @c duration frames,
+ *        then after @c wait frames repeat the step or go on to @c next.
  */
 typedef struct {
-    u16 unk0; /**< not yet known */
-    u16 unk2; /**< not yet known */
-    u8 unk4;  /**< not yet known */
-    u8 unk5;  /**< not yet known */
-    u8 unk6;  /**< not yet known */
-    u8 unk7;  /**< not yet known */
-    u16 unk8; /**< not yet known */
-} TableHeader;
+    u16 wait;     /**< frames from this step's start to the next one */
+    u16 duration; /**< frames the motors run */
+    u8 large;     /**< the large motor's strength */
+    u8 small;     /**< the small motor's setting */
+    u8 repeat;    /**< times the step runs */
+    u8 pad7;      /**< padding */
+    u16 next;     /**< the step that follows; 0 ends the pattern */
+} RumbleStep;
 
-extern TableHeader *D_80095930;
-extern u16 D_8009576C;
-extern u16 D_8009586A;
-extern u16 D_800958E6;
-/* MATCHING: signed, so the zero test in func_80014DB0 is its own `lh`. */
-extern s16 D_800957D8;
-extern u16 D_800957E0;
+extern RumbleStep *gRumblePattern;
+extern u16 gRumbleIndex;
+extern u16 gRumbleWait;
+extern u16 gRumbleTime;
+/* MATCHING: signed, so the zero test in UpdateRumble is its own `lh`. */
+extern s16 gRumbleNext;
+extern u16 gRumbleRepeat;
 
 /**
- * @brief Selects record @p index of @p tbl and unpacks it into the record
- *        globals. The same body as the out-of-line selector below; inlined
- *        with the table head as @p tbl, its store of the head drops out.
+ * @brief Starts step @p index of pattern @p tbl, unpacking it into the
+ *        rumble globals. StartRumble's body; inlined with the pattern
+ *        already current as @p tbl, its store of the pattern drops out.
  */
-static __inline__ void setRecord(TableHeader *tbl, u16 index) {
+static __inline__ void setRumble(RumbleStep *tbl, u16 index) {
     u8 *rec;
 
-    D_80095930 = tbl;
+    gRumblePattern = tbl;
     tbl += index;
-    D_8009576C = index;
-    D_8009586A = tbl->unk0;
-    D_800958E6 = tbl->unk2;
+    gRumbleIndex = index;
+    gRumbleWait = tbl->wait;
+    gRumbleTime = tbl->duration;
     /* MATCHING: byte-pointer reads keep each load below the prior store. */
     rec = (u8 *)tbl;
-    D_80095764 = rec[5];
-    D_80095766 = rec[4];
-    D_800957D8 = *(u16 *)(rec + 8);
-    D_800957E0 = rec[6];
+    gRumbleSmall = rec[5];
+    gRumbleLarge = rec[4];
+    gRumbleNext = *(u16 *)(rec + 8);
+    gRumbleRepeat = rec[6];
 }
 
 /**
- * @brief setRecord's twin for repeating the current record: the same
+ * @brief setRumble's twin for repeating the current step: the same
  *        unpacking, with the repeat count @p count stepped down instead of
  *        reloaded. Inlined, so its parameter conversions survive.
  */
-static __inline__ void repeatRecord(TableHeader *tbl, u16 index, u8 count) {
+static __inline__ void repeatRumble(RumbleStep *tbl, u16 index, u8 count) {
     u8 *rec;
 
-    D_80095930 = tbl;
+    gRumblePattern = tbl;
     tbl += index;
-    D_8009576C = index;
-    D_8009586A = tbl->unk0;
-    D_800958E6 = tbl->unk2;
+    gRumbleIndex = index;
+    gRumbleWait = tbl->wait;
+    gRumbleTime = tbl->duration;
     rec = (u8 *)tbl;
-    D_80095764 = rec[5];
-    D_80095766 = rec[4];
-    D_800957D8 = *(u16 *)(rec + 8);
-    D_800957E0 = count - 1;
+    gRumbleSmall = rec[5];
+    gRumbleLarge = rec[4];
+    gRumbleNext = *(u16 *)(rec + 8);
+    gRumbleRepeat = count - 1;
 }
 
 /* MATCHING: s32 with a bare return, so the `bgtz` keeps its `nop` slot. */
-s32 func_80014DB0(void) {
-    if ((s16)D_800958E6 > 0 && D_800957DA == 1) {
-        SetPadVibration(0, D_80095764, D_80095766);
-        D_800958E6--;
+s32 UpdateRumble(void) {
+    if ((s16)gRumbleTime > 0 && gRumbleEnabled == 1) {
+        SetPadVibration(0, gRumbleSmall, gRumbleLarge);
+        gRumbleTime--;
         return;
     }
-    D_800958E6 = 0;
-    D_80095764 = 0;
-    D_80095766 = 0;
+    gRumbleTime = 0;
+    gRumbleSmall = 0;
+    gRumbleLarge = 0;
     SetPadVibration(0, 0, 0);
-    if ((s16)D_800957E0 > 0) {
-        if ((s16)--D_8009586A <= 0) {
-            if ((s16)D_800957E0 < 2) {
-                D_800957E0 = 0;
-                if (D_800957D8 != 0) {
-                    setRecord(D_80095930, D_800957D8);
+    if ((s16)gRumbleRepeat > 0) {
+        if ((s16)--gRumbleWait <= 0) {
+            if ((s16)gRumbleRepeat < 2) {
+                gRumbleRepeat = 0;
+                if (gRumbleNext != 0) {
+                    setRumble(gRumblePattern, gRumbleNext);
                 }
             } else {
-                repeatRecord(D_80095930, D_8009576C, D_800957E0);
+                repeatRumble(gRumblePattern, gRumbleIndex, gRumbleRepeat);
             }
         }
     } else {
-        D_8009586A = 0;
+        gRumbleWait = 0;
     }
 }
 
@@ -1075,14 +1074,14 @@ void SetPadVibration(s32 offset, u8 a, u8 b) {
     D_80095704[offset + 3] = b;
 }
 
-void func_8001552C(u8 *a, u8 *b);
+void StartPads(u8 *a, u8 *b);
 
 extern u8 D_80095BE8[];
 
 void InitPads(void) {
     s16 i;
 
-    func_8001552C(gPadBuf, D_80095BE8);
+    StartPads(gPadBuf, D_80095BE8);
     for (i = 0; i < 6; i++) {
         gPadPrev[i] = 0;
         gPadPressed[i] = 0;
@@ -1103,37 +1102,37 @@ void SetPadMainMode(s32 mode) {
     } while (D_800958CC < 10);
 }
 
-void func_80015450(TableHeader *tbl, u16 index) {
+void StartRumble(RumbleStep *tbl, u16 index) {
     u8 *rec;
 
-    D_80095930 = tbl;
+    gRumblePattern = tbl;
     tbl += index;
-    D_8009576C = index;
-    D_8009586A = tbl->unk0;
-    D_800958E6 = tbl->unk2;
+    gRumbleIndex = index;
+    gRumbleWait = tbl->wait;
+    gRumbleTime = tbl->duration;
     /* MATCHING: byte-pointer reads keep each load below the prior store. */
     rec = (u8 *)tbl;
-    D_80095764 = rec[5];
-    D_80095766 = rec[4];
-    D_800957D8 = *(u16 *)(rec + 8);
-    D_800957E0 = rec[6];
+    gRumbleSmall = rec[5];
+    gRumbleLarge = rec[4];
+    gRumbleNext = *(u16 *)(rec + 8);
+    gRumbleRepeat = rec[6];
 }
 
-void func_800154C4(void) {
-    TableHeader *hdr;
+void ResetRumble(void) {
+    RumbleStep *hdr;
 
-    hdr = (TableHeader *)D_800734AC;
-    D_80095930 = hdr;
-    D_8009576C = 0;
-    D_8009586A = hdr->unk0;
-    D_800958E6 = hdr->unk2;
-    D_80095764 = hdr->unk5;
-    D_80095766 = hdr->unk4;
-    D_800957D8 = hdr->unk8;
-    D_800957E0 = hdr->unk6;
+    hdr = (RumbleStep *)gRumblePatterns;
+    gRumblePattern = hdr;
+    gRumbleIndex = 0;
+    gRumbleWait = hdr->wait;
+    gRumbleTime = hdr->duration;
+    gRumbleSmall = hdr->small;
+    gRumbleLarge = hdr->large;
+    gRumbleNext = hdr->next;
+    gRumbleRepeat = hdr->repeat;
 }
 
-void func_8001552C(u8 *a, u8 *b) {
+void StartPads(u8 *a, u8 *b) {
     s32 i;
 
     D_80095700 = a;
@@ -1236,9 +1235,9 @@ typedef struct {
     u8 unk3AA[0x2E]; /**< not yet known */
 } StateCopy;
 
-extern StateCopy D_80095C08;
+extern StateCopy gLoadScreenModel;
 
-void func_800157DC(void) {
+void BeginLoadScreenModel(void) {
     SVECTOR pos;
     RECT rect;
 
@@ -1255,26 +1254,26 @@ void func_800157DC(void) {
     pos.vx = 0;
     pos.vy = -120;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    D_80095C08 = *(StateCopy *)D_8009EB78;
-    D_80095C08.unk380 = 0x800;
-    D_80095C08.unk6 = 3;
-    D_80095C08.unk348 = 0;
-    D_80095C08.unk34C = 0;
-    D_80095C08.unk350 = 0;
-    D_80095C08.unk5 = 0x61;
-    D_80095C08.unk3A8 = 0;
-    D_80095C08.unk0 = 0;
+    gLoadScreenModel = *(StateCopy *)D_8009EB78;
+    gLoadScreenModel.unk380 = 0x800;
+    gLoadScreenModel.unk6 = 3;
+    gLoadScreenModel.unk348 = 0;
+    gLoadScreenModel.unk34C = 0;
+    gLoadScreenModel.unk350 = 0;
+    gLoadScreenModel.unk5 = 0x61;
+    gLoadScreenModel.unk3A8 = 0;
+    gLoadScreenModel.unk0 = 0;
     gRefView[0] = rsin(0x800) * 400 / 4096;
     gRefView[1] = -150;
     gRefView[2] = rcos(0x800) * 400 / 4096;
     gRefView[3] = 0;
     gRefView[4] = -150;
     gRefView[5] = 0;
-    D_800958A6 = 0;
+    gSubStep = 0;
     gGameMode = 0x29;
 }
 
-void func_80015A28(void) {
+void BeginLoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
@@ -1291,11 +1290,11 @@ void func_80015A28(void) {
     pos.vx = 0;
     pos.vy = -120;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    D_800958A6 = 0;
+    gSubStep = 0;
     gGameMode = 0x2A;
 }
 
-void func_80015B78(void) {
+void BeginAct3LoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
@@ -1312,7 +1311,7 @@ void func_80015B78(void) {
     pos.vx = 0;
     pos.vy = -120;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    D_800958A6 = 0;
+    gSubStep = 0;
     gGameMode = 0x2B;
 }
 
@@ -1340,13 +1339,13 @@ void func_800F642C(void);
 void func_800F46D8(void);
 void func_800F377C(void);
 
-void func_80015CC8(void) {
+void LoadAct3Stage(void) {
     s32 bank;
 
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             gVabLoadStep = 0;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 1:
             switch (gStage) {
@@ -1367,16 +1366,16 @@ void func_80015CC8(void) {
                     break;
             }
             if (LoadVabBank(bank) == 1) {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 2:
             LoadStageOverlay(gStage);
-            D_800958A6++;
+            gSubStep++;
             break;
         case 3:
             if (gCdLoadState == 6) {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 4:
@@ -1406,12 +1405,12 @@ void func_80015CC8(void) {
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 5:
             if (gCdLoadState == 6) {
                 func_8003E13C((unsigned long *)0x8019D000);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 6:
@@ -1440,7 +1439,7 @@ void func_80015CC8(void) {
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 7:
             if (gCdLoadState == 6) {
@@ -1463,7 +1462,7 @@ void func_80015CC8(void) {
                         break;
                 }
                 ResetStage();
-                D_800958A6 = 100;
+                gSubStep = 100;
             }
             break;
     }
@@ -1503,23 +1502,23 @@ s32 func_8002C044(void);
 void func_8002C47C(void);
 void StartStageOverlay(void);
 
-void func_800160E8(void) {
-    switch (D_800958A6) {
+void LoadStage(void) {
+    switch (gSubStep) {
         case 0:
             gVabLoadStep = 0;
-            D_800958A6++;
+            gSubStep++;
         case 1:
             if (LoadVabBank(GetStageVabBank(gStage)) == 1) {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 2:
             LoadStageOverlay(gStage);
-            D_800958A6++;
+            gSubStep++;
             break;
         case 3:
             if (gCdLoadState == 6) {
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 4:
@@ -1569,12 +1568,12 @@ void func_800160E8(void) {
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 5:
             if (gCdLoadState == 6) {
                 func_8003E13C((unsigned long *)0x8019D000);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 6:
@@ -1623,12 +1622,12 @@ void func_800160E8(void) {
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 7:
             if (gCdLoadState == 6) {
                 func_8001797C((void *)0x8019D000);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 8:
@@ -1698,12 +1697,12 @@ void func_800160E8(void) {
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 9:
             if (gCdLoadState == 6) {
                 func_800399A8((unsigned long *)0x8019D000);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 10:
@@ -1752,17 +1751,17 @@ void func_800160E8(void) {
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 11:
             if (gCdLoadState == 6) {
                 func_8002B7C8((DirEnt16 *)0x8016D000, 30);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 12:
             func_8002CC24();
-            D_800958A6++;
+            gSubStep++;
             break;
         case 13:
             switch (gStage) {
@@ -1810,14 +1809,14 @@ void func_800160E8(void) {
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 14:
             if (gCdLoadState == 6) {
                 func_800373C8((void *)0x8016D000, (void *)0x80171744);
                 func_8002C2B4();
                 func_8002C044();
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 15:
@@ -1848,7 +1847,7 @@ void func_800160E8(void) {
             }
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            D_800958A6++;
+            gSubStep++;
             break;
         case 16:
             if (gCdLoadState == 6) {
@@ -1857,7 +1856,7 @@ void func_800160E8(void) {
                 func_80018DE8(1);
                 D_800D86B8[0] = 0;
                 ResetStage();
-                D_800958A6 = 100;
+                gSubStep = 100;
             }
             break;
     }
@@ -1873,7 +1872,7 @@ typedef struct {
 #define sModels (*(ModelSet *)gTodObjTable)
 
 
-void func_800160E8(void);
+void LoadStage(void);
 
 /** @brief One step of @p obj: runs the stepper and marks a finished 0x61
  *         channel. Inlined here and by the out-of-line step below. */
@@ -1926,7 +1925,7 @@ static __inline__ void drawObj(Stepper *obj) {
     }
 }
 
-void func_80016D14(void) {
+void UpdateLoadScreenModel(void) {
     /* MATCHING: retail reserves 8 bytes below the inlined draw's locals. */
     s32 unused[2];
 
@@ -1937,21 +1936,21 @@ void func_80016D14(void) {
     gRefView[4] = -150;
     gRefView[5] = 0;
     GsSetRefView2((GsRVIEW2 *)gRefView);
-    stepObj((Stepper *)&D_80095C08);
-    drawObj((Stepper *)&D_80095C08);
-    func_800160E8();
-    if (D_800958A6 == 100) {
+    stepObj((Stepper *)&gLoadScreenModel);
+    drawObj((Stepper *)&gLoadScreenModel);
+    LoadStage();
+    if (gSubStep == 100) {
         SetFogNearFar(0, 0, 250);
         SetFarColor(0, 0, 0);
         gModeStep = 4;
         D_80095980 = 0;
-        D_800958A6 = 0;
+        gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);
     }
 }
 
-void func_80016FC0(void) {
+void UpdateLoadScreen(void) {
     SVECTOR pos;
 
     pos.vx = 0x70;
@@ -1963,19 +1962,19 @@ void func_80016FC0(void) {
     pos.vx = 0;
     pos.vy = -0x78;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    func_800160E8();
-    if (D_800958A6 == 100) {
+    LoadStage();
+    if (gSubStep == 100) {
         gModeStep = 4;
         D_80095980 = 0;
-        D_800958A6 = 0;
+        gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);
     }
 }
 
-void func_80015CC8(void);
+void LoadAct3Stage(void);
 
-void func_80017124(void) {
+void UpdateAct3LoadScreen(void) {
     SVECTOR pos;
 
     pos.vx = 0x70;
@@ -1987,19 +1986,19 @@ void func_80017124(void) {
     pos.vx = 0;
     pos.vy = -0x78;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    func_80015CC8();
-    if (D_800958A6 == 100) {
+    LoadAct3Stage();
+    if (gSubStep == 100) {
         gModeStep = 4;
-        D_800958A6 = 0;
+        gSubStep = 0;
         gGameMode = 14;
     }
 }
 
-void func_80017270(Stepper *obj) {
+void DrawStepper(Stepper *obj) {
     drawObj(obj);
 }
 
-void func_800173E8(Stepper *obj) {
+void StepStepper(Stepper *obj) {
     stepObj(obj);
 }
 

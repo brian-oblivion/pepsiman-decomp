@@ -3,7 +3,7 @@
 > Renamed from `func_800426A4` on 2026-10-10 (tools/rename.py). Address 0x800426a4.
 
 Unit `src/code_31cec.c`. Sound start-up state machine stepped on
-`D_800958A6`, returning 1 once finished. State 0 queues two CD loads for
+`gSubStep`, returning 1 once finished. State 0 queues two CD loads for
 the loader (positions from the location table `D_8007B69C`, entries 0 and
 2, to 0x80101000 and 0x8016D000, sizes from `D_8007B6CC`); state 1 waits
 for the loader's step byte `gCdLoadState` to reach 6 and opens bank 0
@@ -21,7 +21,7 @@ void LoadVab(s16 arg0);
 s32 LoadSoundData(void) {
     s32 ret = 0;
 
-    switch (D_800958A6) {
+    switch (gSubStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&D_8007B69C[0];
             gCdLoadDest[0] = 0x80101000;
@@ -31,12 +31,12 @@ s32 LoadSoundData(void) {
             gCdLoadState = 1;
             gCdLoadSectors[0] = D_8007B6CC[4];
             gCdLoadSectors[1] = D_8007B6CC[6];
-            D_800958A6++;
+            gSubStep++;
             break;
         case 1:
             if (gCdLoadState == 6) {
                 LoadVab(0);
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 2:
@@ -45,14 +45,14 @@ s32 LoadSoundData(void) {
             gCdLoadCount = 1;
             gCdLoadState = 1;
             gCdLoadSectors[0] = D_8007B6CC[7];
-            D_800958A6++;
+            gSubStep++;
             break;
         case 3:
             if (gCdLoadState == 6) {
                 LoadVab(1);
                 InitSeSeqs();
                 gVabBank = 1;
-                D_800958A6++;
+                gSubStep++;
             }
             break;
         case 4:

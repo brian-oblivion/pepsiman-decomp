@@ -1,4 +1,6 @@
-# func_800149D0 — MATCHED 62/62 (round 4, delta)
+# DumpMemory — MATCHED 62/62 (round 4, delta)
+
+> Renamed from `func_800149D0` on 2026-10-10 (tools/rename.py). Address 0x800149d0.
 
 Unit `src/main.c`. A debug hex dump on the font layer: prints a header,
 the start address, then 16 rows of 8 bytes, each byte with its own format
@@ -13,7 +15,7 @@ extern char D_800954D8[];
 extern char D_800954DC[];
 extern s32 D_80095788;
 
-void func_800149D0(u8 *base) {
+void DumpMemory(u8 *base) {
     u8 *p;
     s32 row;
     s32 col;

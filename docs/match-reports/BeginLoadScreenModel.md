@@ -1,9 +1,11 @@
-# func_800157DC — MATCHED 147/147 (round 8, echo)
+# BeginLoadScreenModel — MATCHED 147/147 (round 8, echo)
 
-Unit `src/main.c`. A mode setup in the family of func_80015A28 and
-func_80015B78 (same two sprite registrations, `MoveImage` and two sprite
+> Renamed from `func_800157DC` on 2026-10-10 (tools/rename.py). Address 0x800157dc.
+
+Unit `src/main.c`. A mode setup in the family of BeginLoadScreen and
+BeginAct3LoadScreen (same two sprite registrations, `MoveImage` and two sprite
 draws), which then copies the 0x3D8-byte game state head into
-`D_80095C08` and resets fields of the copy, places `gRefView` at angle
+`gLoadScreenModel` and resets fields of the copy, places `gRefView` at angle
 0x800, radius 400, height -150, and switches to state 0x29.
 
 ```c
@@ -27,9 +29,9 @@ typedef struct {
     u8 unk3AA[0x2E]; /**< not yet known */
 } StateCopy;
 
-extern StateCopy D_80095C08;
+extern StateCopy gLoadScreenModel;
 
-void func_800157DC(void) {
+void BeginLoadScreenModel(void) {
     SVECTOR pos;
     RECT rect;
 
@@ -46,30 +48,30 @@ void func_800157DC(void) {
     pos.vx = 0;
     pos.vy = -120;
     func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    D_80095C08 = *(StateCopy *)D_8009EB78;
-    D_80095C08.unk380 = 0x800;
-    D_80095C08.unk6 = 3;
-    D_80095C08.unk348 = 0;
-    D_80095C08.unk34C = 0;
-    D_80095C08.unk350 = 0;
-    D_80095C08.unk5 = 0x61;
-    D_80095C08.unk3A8 = 0;
-    D_80095C08.unk0 = 0;
+    gLoadScreenModel = *(StateCopy *)D_8009EB78;
+    gLoadScreenModel.unk380 = 0x800;
+    gLoadScreenModel.unk6 = 3;
+    gLoadScreenModel.unk348 = 0;
+    gLoadScreenModel.unk34C = 0;
+    gLoadScreenModel.unk350 = 0;
+    gLoadScreenModel.unk5 = 0x61;
+    gLoadScreenModel.unk3A8 = 0;
+    gLoadScreenModel.unk0 = 0;
     gRefView[0] = rsin(0x800) * 400 / 4096;
     gRefView[1] = -150;
     gRefView[2] = rcos(0x800) * 400 / 4096;
     gRefView[3] = 0;
     gRefView[4] = -150;
     gRefView[5] = 0;
-    D_800958A6 = 0;
+    gSubStep = 0;
     gGameMode = 0x29;
 }
 ```
 
 First build. The four-`lw`/four-`sw` loop over 0x3D0 bytes plus an
 eight-byte tail is a word-aligned struct copy; the copy type carries `s32`
-members, so cc1 uses `lw`/`sw` rather than `lwl`/`lwr`. `D_80095C08`'s
-offset 0x380 is written as a word here (`sw` of 0x800), where func_80017270
+members, so cc1 uses `lw`/`sw` rather than `lwl`/`lwr`. `gLoadScreenModel`'s
+offset 0x380 is written as a word here (`sw` of 0x800), where DrawStepper
 reads the head's 0x380 as a `u16` rotation, so the copy has its own view
 (`StateCopy`) instead of reusing `Stepper`. The stores to the copy follow
 retail's order; `rsin(0x800) * 400 / 4096` gives the `* 25 * 16` and the

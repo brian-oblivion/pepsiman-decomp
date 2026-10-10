@@ -1,15 +1,17 @@
-# func_80016D14 — MATCHED 171/171 (round 8, echo)
+# UpdateLoadScreenModel — MATCHED 171/171 (round 8, echo)
+
+> Renamed from `func_80016D14` on 2026-10-10 (tools/rename.py). Address 0x80016d14.
 
 Unit `src/main.c`. A demo/replay frame: places the reference view
-`gRefView` (as func_800157DC does) and sets it, steps and draws the
-state copy `D_80095C08` with the bodies of func_800173E8 and func_80017270
-inlined, runs func_800160E8, and at state 100 clears the fog, sets state
-14 and starts track `gStage` (as func_80016FC0's tail does).
+`gRefView` (as BeginLoadScreenModel does) and sets it, steps and draws the
+state copy `gLoadScreenModel` with the bodies of StepStepper and DrawStepper
+inlined, runs LoadStage, and at state 100 clears the fog, sets state
+14 and starts track `gStage` (as UpdateLoadScreen's tail does).
 
 The step and draw bodies now live once, as `static __inline__ stepObj` and
-`drawObj` ahead of this function; func_800173E8 and func_80017270 are
+`drawObj` ahead of this function; StepStepper and DrawStepper are
 one-line wrappers that still match (22/22, 94/94). The `ModelSet` view,
-`sModels`, `D_80095758`, `D_80095980` and func_800160E8's prototype moved
+`sModels`, `D_80095758`, `D_80095980` and LoadStage's prototype moved
 up to here (no byte change).
 
 ```c
@@ -24,7 +26,7 @@ typedef struct {
 
 extern s32 D_80095758;
 
-void func_800160E8(void);
+void LoadStage(void);
 
 extern s32 D_80095980;
 
@@ -79,7 +81,7 @@ static __inline__ void drawObj(Stepper *obj) {
     }
 }
 
-void func_80016D14(void) {
+void UpdateLoadScreenModel(void) {
     /* MATCHING: retail reserves 8 bytes below the inlined draw's locals. */
     s32 unused[2];
 
@@ -90,23 +92,23 @@ void func_80016D14(void) {
     gRefView[4] = -150;
     gRefView[5] = 0;
     GsSetRefView2((GsRVIEW2 *)gRefView);
-    stepObj((Stepper *)&D_80095C08);
-    drawObj((Stepper *)&D_80095C08);
-    func_800160E8();
-    if (D_800958A6 == 100) {
+    stepObj((Stepper *)&gLoadScreenModel);
+    drawObj((Stepper *)&gLoadScreenModel);
+    LoadStage();
+    if (gSubStep == 100) {
         SetFogNearFar(0, 0, 250);
         SetFarColor(0, 0, 0);
         gModeStep = 4;
         D_80095980 = 0;
-        D_800958A6 = 0;
+        gSubStep = 0;
         gGameMode = 14;
         PlayStageMusic(gStage);
     }
 }
 ```
 
-Second build. Retail's body is func_800173E8 and func_80017270 inlined on
-`(Stepper *)&D_80095C08`: same registers, the scratchpad-stack sort, the
+Second build. Retail's body is StepStepper and DrawStepper inlined on
+`(Stepper *)&gLoadScreenModel`: same registers, the scratchpad-stack sort, the
 `sll 24` test of the step result. The first build matched every
 instruction but the frame: retail's is 8 bytes larger with the inlined
 draw's `MATRIX` at `sp+0x18`, not `sp+0x10`. An unused `s32 unused[2]` in
@@ -119,5 +121,5 @@ bytes high").
 - A function whose body repeats another function of the unit with a fixed
   argument: write the callee's body once as a `static __inline__` helper
   and call it from both; the out-of-line function as a one-line wrapper
-  can still match (func_800173E8, func_80017270 here; it did NOT for
-  func_80015450 under func_80014DB0, which needed a duplicate).
+  can still match (StepStepper, DrawStepper here; it did NOT for
+  StartRumble under UpdateRumble, which needed a duplicate).

@@ -608,7 +608,14 @@ void func_8002C894(s16 id, Rec3C *r) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C994);
+/** @brief Interpolates three angles by `t`/`n` into `out`: out[1] is `r`
+ *         times the sine of 0..180 degrees, out[0] -60..60 degrees and
+ *         out[2] 0..20 degrees, in 4096ths of a turn. */
+void func_8002C994(s16 r, u16 t, u16 n, s32 *out) {
+    out[1] = rsin((s16)func_80018D04(0, 180, t, n) * 4096 / 360) * r;
+    out[0] = (s16)func_80018D04(-60, 60, t, n) * 4096 / 360;
+    out[2] = (s16)func_80018D04(0, 20, t, n) * 4096 / 360;
+}
 
 /** @brief Interpolates from 0 towards `b` by `t`/`n`, into out[1]. */
 void func_8002CAA4(s16 b, u16 t, u16 n, s32 *out) {

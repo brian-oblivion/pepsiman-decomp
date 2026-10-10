@@ -304,7 +304,151 @@ void func_8003A84C(void) {
     func_8001B2F4(0x15F, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003AFAC);
+extern u32 D_80095A84;
+extern Edge *D_800958A0;
+
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
+ * unit passes the same eight halfwords as an array. */
+void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
+s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+
+void func_8003AFAC(void) {
+    s32 n;
+    s32 k;
+    s32 q;
+    s32 digits;
+    SVECTOR pos;
+    s16 quad[8];
+    SColor color;
+
+    n = D_800958E8;
+    digits = 0;
+    for (k = 1; k < 101; k *= 10) {
+        if (n / k == 0) {
+            break;
+        }
+        digits++;
+    }
+    if (n == 0) {
+        pos.vx = -120;
+        pos.vy = -96;
+        func_8001B354(0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    }
+    k = 1;
+    pos.vx = (digits - 1) * 12 - 120;
+    pos.vy = -96;
+    for (; k < 101; k *= 10) {
+        q = n / k;
+        if (q != 0) {
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            pos.vx -= 12;
+        }
+    }
+    quad[0] = quad[2] = -0x90;
+    quad[1] = quad[3] = -0x68;
+    quad[4] = quad[5] = 0x800;
+    quad[6] = 0;
+    quad[7] = 0;
+    func_800198BC(0xFA, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+    quad[0] = quad[2] = -0x40;
+    quad[1] = quad[3] = -0x58;
+    quad[7] = 1;
+    quad[6] = 0;
+    D_80095A84 += D_8009EF20[0];
+    switch (D_800958A8) {
+        case 1:
+            quad[4] = quad[5] = 0x800;
+            if ((D_8009585C >> 1) & 1) {
+                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            }
+            break;
+        case 2:
+            quad[4] = quad[5] = 0xB50;
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            break;
+        case 0:
+            break;
+        default:
+            quad[4] = quad[5] = 0x1000;
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            break;
+    }
+    if (D_80095988 == 0x14A) {
+        func_80042538(0x28);
+        func_8003F834(10, 0, 0, 0, 0);
+    }
+    n = D_80095988;
+    n /= 30;
+    color.r = -1;
+    if (n < 11) {
+        color.g = 0x80;
+        color.b = color.cd = 0;
+    } else {
+        color.g = color.b = color.cd = 0x80;
+    }
+    if (n >= 5 || ((D_8009585C >> 1) & 1)) {
+        /* MATCHING: a digit count whose result is never used; the
+         * divisions stay. */
+        for (k = 1; k < 101; k *= 10) {
+            if (n / k == 0) {
+                break;
+            }
+        }
+        if (n == 0) {
+            pos.vx = 4;
+            pos.vy = -0x68;
+            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        }
+        k = 1;
+        pos.vx = 4;
+        pos.vy = -0x68;
+        for (; k < 101; k *= 10) {
+            q = n / k;
+            if (q != 0) {
+                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+                pos.vx -= 18;
+            }
+        }
+    }
+    color.r = 1;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = (D_8009578C * 11 << 15) / ((s32 *)D_800958A0)[-1] / 4096 + 0x34;
+    pos.vy = -0x69;
+    func_8001B354(((D_8009585C >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    k = 1;
+    pos.vx = 0x34;
+    pos.vy = -0x64;
+    func_8001B354(0x12E, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0x34;
+    pos.vy = -0x54;
+    func_8001B354(0x122, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0x90;
+    pos.vy = -0x54;
+    func_8003A4B4(&pos, D_80095980);
+    n = D_80095770;
+    pos.vx = 0x68;
+    pos.vy = 0x4C;
+    for (; k < 10001; k *= 10) {
+        q = n / k;
+        if (q != 0) {
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            pos.vx -= 12;
+        }
+    }
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    pos.vx = 0x70;
+    pos.vy = 0x38;
+    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+}
 
 /**
  * @brief Absolute value.
@@ -491,14 +635,6 @@ void func_8003C2E8(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
-
-/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
-typedef struct {
-    s8 r;  /**< red, or -1 */
-    u8 g;  /**< green */
-    u8 b;  /**< blue */
-    u8 cd; /**< code byte */
-} SColor;
 
 void func_8003C8D0(SVECTOR *pos, s32 frames) {
     s32 n;
@@ -919,10 +1055,6 @@ s32 func_8003E6F8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     D_800E48D0 = (u8 *)t;
     return ++p->unk0 == 8;
 }
-
-/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
- * unit passes the same eight halfwords as an array. */
-void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 
 s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];

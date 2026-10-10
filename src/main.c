@@ -11,6 +11,7 @@
 #include "memory.h"
 #include "code_a0bc.h"
 #include "code_7d74.h"
+#include "spad.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -541,13 +542,6 @@ typedef struct {
 #define sModels (*(ModelSet *)D_800D8360)
 
 extern s32 D_80095758;
-
-/* MATCHING: switches the stack to the scratchpad and back; moving $sp has
-   no C spelling. */
-#define SetSpadStack() \
-    __asm__ volatile(  \
-        "lui $9,0x1F80\n\tori $9,$9,0x3FC\n\tmove $8,$9\n\tsw $29,0($8)\n\taddiu $8,$8,-24\n\tmove $29,$8")
-#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $29,0($29)")
 
 void func_80017270(Stepper *obj) {
     MATRIX m;

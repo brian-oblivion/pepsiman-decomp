@@ -44,6 +44,8 @@ general guides from it are already in `docs/lsd-reference/`.
    bare `__asm__("")` barrier (order only) is allowed. The one exception is
    an instruction with no C spelling and no `gte_*` macro in `include/gte.h`
    (COP2 `lwc2`/`swc2`), and those constraints live inside `include/gte.h`.
+   Moving `$sp` to the scratchpad and back has no C spelling either; it is
+   the operand-free `SetSpadStack`/`ResetSpadStack` pair in `include/spad.h`.
 
 ## The loop
 

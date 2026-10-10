@@ -501,7 +501,35 @@ void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CB24);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CC24);
+/** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
+ *         identity transform, and counts it. */
+/* MATCHING: an inline copy of the setup above; inlined, the u8 parameter is
+ * copied before its andi, where a (u8) argument truncates in place. */
+static __inline__ void setupModel(Model70 *m, unsigned long *tmd, u8 n) {
+    GsInitCoordinate2(WORLD, &m->coord);
+    m->obj.coord2 = &m->coord;
+    GsMapModelingData(tmd + 1);
+    GsLinkObject4((unsigned long)(tmd + 3), &m->obj, n);
+    m->obj.attribute = 0x200;
+    m->scale.vx = 0x1000;
+    m->scale.vy = 0x1000;
+    m->scale.vz = 0x1000;
+    m->rot.vx = 0;
+    m->rot.vy = 0;
+    m->rot.vz = 0;
+    D_8009588E++;
+}
+
+/** @brief Sets up all 80 Rec78 records as objects of the TMD file at a
+ *         fixed address, record i drawing object i, and counts them. */
+void func_8002CC24(void) {
+    u32 i;
+
+    D_8009588E = 0;
+    for (i = 0; i < 80; i++) {
+        setupModel((Model70 *)&D_800D8D20[i], (unsigned long *)0x80155000, i);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CCEC);
 

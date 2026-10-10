@@ -920,7 +920,58 @@ void func_8002B7C8(DirEnt16 *dir, u16 id) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B8F8);
+extern u8 D_800A7618[]; /**< a sprite shape per id, from id 30 on */
+
+/** @brief Draws the sprite of record `r` with id `id` at the record's
+ *         position plus the world offset: the next id when the record is
+ *         in state 1 within 600 units (and the mode is not 0x20), a size
+ *         from its width and height by the id's shape, mirrored by flag
+ *         bit 6, sorted near within 700 units and far beyond. */
+void func_8002B8F8(u16 id, Rec3C *r) {
+    GsCOORDINATE2 coord;
+    MATRIX mat;
+    SVECTOR size;
+    u16 k;
+
+    GsInitCoordinate2(WORLD, &coord);
+    k = id;
+    coord.coord.t[0] = r->unk4 + D_800A7308[0];
+    coord.coord.t[1] = r->unk8;
+    coord.coord.t[2] = r->unkC + D_800A7308[2];
+    coord.flg = 0;
+    GsGetLs(&coord, &mat);
+    GsSetLsMatrix(&mat);
+    if (D_80095880 != 0x20 && (r->unk26 & 0x3F) == 1 && absInt(r->unk4 + D_800A7308[0]) < 600 &&
+        absInt(r->unkC + D_800A7308[2]) < 600) {
+        k = id + 1;
+    }
+    switch (D_800A7618[k - 30]) {
+        case 0:
+            size.vx = (s16)r->unk1C / 2 + (s16)r->unk1C / 3;
+            size.vy = (s16)r->unk1E / 2 + (s16)r->unk1E / 4;
+            break;
+        case 1:
+            size.vx = (s16)r->unk1C / 2 + (s16)r->unk1C / 4;
+            size.vy = r->unk1E;
+            break;
+        case 2:
+            size.vx = r->unk1C + (s16)r->unk1C / 3;
+            size.vy = (s16)r->unk1E / 8 * 4;
+            break;
+        case 3:
+            size.vx = r->unk1C;
+            size.vy = r->unk1E;
+            break;
+    }
+    if (r->unk26 & 0x40) {
+        size.vx *= -1;
+    }
+    if (absInt(r->unk4 + D_800A7308[0]) > 700 || absInt(r->unkC + D_800A7308[2]) > 700) {
+        func_8001B004(k, &size, NULL, 2, &D_800A7318[D_80095750]);
+    } else {
+        func_8001A69C(k, &size, NULL, 2, &D_800ACEA8[D_80095750]);
+    }
+}
 
 /** @brief Updates the Rec78 entry of every live Rec48 record whose Rec5C
  *         record is marked 1. */

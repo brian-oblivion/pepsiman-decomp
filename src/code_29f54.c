@@ -63,7 +63,36 @@ extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
+extern DR_STP D_800DFA90;
+extern DR_ENV D_800DFA10;
+extern DR_STP D_800DFAA0;
+extern DR_ENV D_800DFA50;
+
+void func_80039754(s32 clip) {
+    DRAWENV env;
+    /* MATCHING: retail's frame has 8 more bytes above the environment. */
+    s32 unused[2];
+
+    if (clip) {
+        GetDrawEnv(&env);
+        env.clip.x = 0;
+        env.clip.y = D_800E474C * 240 + 32;
+        env.clip.w = 319;
+        env.clip.h = 175;
+        SetDrawStp(&D_800DFA90, 1);
+        addPrim(D_800A7318[D_80095750].org + 0xFFF, &D_800DFA90);
+        SetDrawEnv(&D_800DFA10, &env);
+        addPrim(D_800A7318[D_80095750].org + 0xFFF, &D_800DFA10);
+        env.clip.x = 0;
+        env.clip.y = D_800E474C * 240;
+        env.clip.w = 319;
+        env.clip.h = 239;
+        SetDrawStp(&D_800DFAA0, 1);
+        addPrim(D_800ACEA8[D_80095750].org, &D_800DFAA0);
+        SetDrawEnv(&D_800DFA50, &env);
+        addPrim(D_800ACEA8[D_80095750].org, &D_800DFA50);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
 

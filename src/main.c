@@ -11,6 +11,7 @@
 #include "memory.h"
 #include "code_a0bc.h"
 #include "code_7d74.h"
+#include "code_1a098.h"
 #include "spad.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
@@ -19,7 +20,7 @@ INCLUDE_ASM("asm/nonmatchings/main", main);
 
 extern s32 D_80072484[];
 extern s32 D_800724C4[];
-s32 func_80013CDC(void);
+void func_80013CDC(void);
 
 /* MATCHING: code_7d74 types the pack as its own PackEntry. */
 void func_8001797C(void *pack);
@@ -71,7 +72,108 @@ s8 func_80013B38(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80013CDC);
+/**
+ * @brief A per-channel stepping state (the name is a guess): its stepper
+ *        advances channel N through tables at offsets 0x20 and 0x1B0.
+ *        Only the bytes this unit touches are named.
+ */
+typedef struct {
+    u8 unk0[4];      /**< not yet known */
+    u8 unk4;         /**< passed on as the stepper's third argument */
+    u8 unk5;         /**< a kind: 0x60 and 0x61 are tested; cleared at load */
+    u8 unk6;         /**< cleared at load */
+    u8 unk7;         /**< cleared at load */
+    u8 unk8;         /**< set to 0xFF when a 0x61 step returns zero */
+    u8 unk9;         /**< set to 0xFF at load */
+    u8 unkA[0x16];   /**< not yet known */
+    s32 unk20[100];  /**< first word of each loaded entry */
+    s32 unk1B0[100]; /**< third word of each loaded entry */
+    u8 unk340;       /**< the stepper's last result */
+    u8 unk341[7];    /**< not yet known */
+    s32 unk348;      /**< a position, x: the model's translation */
+    s32 unk34C;      /**< a position, y */
+    s32 unk350;      /**< a position, z */
+    u8 unk354[0x2C]; /**< not yet known */
+    u16 unk380;      /**< a rotation about y */
+} Stepper;
+
+/* The stepper's state lives at the head of the game state. */
+#define sStepper (*(Stepper *)D_8009EB78)
+
+/** @brief A model object with its own coordinate system (a unit-local
+ *         copy of code_1a098's view). */
+typedef struct {
+    GsDOBJ2 obj;         /**< the object handler */
+    GsCOORDINATE2 coord; /**< the object's coordinate system */
+    SVECTOR rot;         /**< rotation */
+    SVECTOR scale;       /**< scale, 0x1000 = 1 */
+} Model70;
+
+/** @brief A 16-byte directory entry of a loaded file. */
+typedef struct {
+    s32 offset;   /**< byte offset of the entry from the directory */
+    u8 unk4[0xA]; /**< not yet known */
+    u16 count;    /**< entry count; read from the first entry only */
+} DirEnt16;
+
+extern Model70 D_800963A0;
+
+/** @brief A 0x78-byte model slot: a Model70 and 8 bytes not yet known. */
+typedef struct {
+    Model70 m;   /**< the model */
+    u8 unk70[8]; /**< not yet known */
+} ModelSlot;
+
+extern ModelSlot D_800D8370[];
+extern u8 D_8009EF50[];
+extern u8 D_80096418[];
+
+/* MATCHING: code_1a098 defines it on its own Model70 view. */
+void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n);
+/* MATCHING: code_7d74 types the list, slots and data as its own records. */
+void func_80019684(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
+/* MATCHING: code_308ec passes the game state's head in its own view. */
+u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
+
+void func_80013CDC(void) {
+    /* MATCHING: one pointer reused for the pack, its second word and the
+     * directory, so all three share a saved register. */
+    s32 *p;
+    s32 *q;
+
+    p = (s32 *)0x8014D000;
+    D_80095904 = (s32)((unsigned long *)((u8 *)p + *p) + 1);
+    GsMapModelingData((unsigned long *)D_80095904);
+    func_8002C20C(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
+    p = (s32 *)0x8014D010;
+    func_8002C20C(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
+    func_8002C20C(&D_800D8370[1].m, (unsigned long *)(*p + 0x8014D000), 1);
+    func_8002C20C(&D_800D8370[2].m, (unsigned long *)(*p + 0x8014D000), 2);
+    func_8002C20C(&D_800D8370[3].m, (unsigned long *)(*p + 0x8014D000), 3);
+    func_8002C20C(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
+    func_8002C20C(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
+    func_8002C20C(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
+    func_80019684(D_800D8360, D_8009EF50, D_800D86E0, D_80096418, 20);
+    p = (s32 *)0x80123000;
+    D_800958CC = 0;
+    D_800958D0 = ((DirEnt16 *)p)->count;
+    for (; D_800958CC < D_800958D0; D_800958CC++) {
+        /* MATCHING: assigned inside the store, as in func_8002C044. */
+        D_800D81B0[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
+        p += 4;
+        sStepper.unk20[D_800958CC] = *D_800D81B0[D_800958CC];
+        D_800D81B0[D_800958CC]++;
+        sStepper.unk1B0[D_800958CC] = D_800D81B0[D_800958CC][1];
+    }
+    GsInitCoordinate2(WORLD, &D_800D86E0[0]);
+    sStepper.unk5 = 0;
+    sStepper.unk6 = 0;
+    /* MATCHING: retail stores 8 before 7. */
+    sStepper.unk8 = 0xFF;
+    sStepper.unk7 = 0;
+    sStepper.unk9 = 0xFF;
+    func_80017F0C(&sStepper, 0, 0);
+}
 
 /* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
 void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
@@ -103,12 +205,62 @@ void func_80013EE4(void) {
     D_80095884 = &D_800A7318[D_80095750];
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014044);
+/* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
+void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
+void func_80039754(s32 clip);
+void func_8003DE34(void);
+void func_800142EC(s32 arg);
+
+extern s32 D_800959A0;
+extern DR_STP D_800CEBD0;
+extern DR_STP D_800CEBC0;
+
+void func_80014044(void) {
+    GsRVIEW2 view;
+
+    switch (D_8009586C) {
+        case 0:
+            if (D_80095880 != 14) {
+                GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+            }
+            break;
+        case 1:
+            view.vpx = 0;
+            view.vpy = 0;
+            view.vpz = 400;
+            view.rz = 0;
+            view.vrx = 0;
+            view.vry = 0;
+            view.vrz = 0;
+            GsSetRefView2(&view);
+            break;
+    }
+    D_800959A0 = VSync(D_800957A8);
+    DrawSync(0);
+    GsSwapDispBuff();
+    func_80056B8C(D_8009575C, D_80095754, D_8009574C, &D_800A7318[D_80095750]);
+    SetDrawStp(&D_800CEBD0, 1);
+    AddPrim(&D_800A7318[D_80095750].org[0xFFF], &D_800CEBD0);
+    func_80039754(ClipF);
+    GsDrawOt(&D_800A7318[D_80095750]);
+    D_80095750 = GsGetActiveBuff();
+    GsSetWorkBase(D_800ACF00[D_80095750]);
+    GsClearOt(0, 300, &D_800A7318[D_80095750]);
+    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
+    GsSortOt(&D_800ACEA8[D_80095750], &D_800A7318[D_80095750]);
+    D_80095884 = &D_800A7318[D_80095750];
+    SetDrawStp(&D_800CEBC0, 0);
+    AddPrim(D_800ACEA8[D_80095750].org, &D_800CEBC0);
+    func_800142EC(0);
+    func_8003DE34();
+    if (D_80095974 == 0) {
+        D_8009585C++;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
 
 void func_80013EE4(void);
-void func_800142EC(s32 arg);
 void func_80014B8C(s16 frames);
 
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
@@ -280,13 +432,143 @@ void func_80014D6C(void) {
     FntOpen(-0x9A, -0x74, 0x140, 0x100, 0, 0x400);
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014DB0);
+/**
+ * @brief A 10-byte record of a table in initialized data (the table
+ *        starts with one), unpacked field by field into small globals.
+ *        Meanings not yet known.
+ */
+typedef struct {
+    u16 unk0; /**< not yet known */
+    u16 unk2; /**< not yet known */
+    u8 unk4;  /**< not yet known */
+    u8 unk5;  /**< not yet known */
+    u8 unk6;  /**< not yet known */
+    u8 unk7;  /**< not yet known */
+    u16 unk8; /**< not yet known */
+} TableHeader;
+
+extern TableHeader *D_80095930;
+extern u16 D_8009576C;
+extern u16 D_8009586A;
+extern u16 D_800958E6;
+extern u16 D_80095764;
+extern u16 D_80095766;
+/* MATCHING: signed, so the zero test in func_80014DB0 is its own `lh`. */
+extern s16 D_800957D8;
+extern u16 D_800957E0;
+extern u8 D_800957DA;
+
+void func_80015328(s32 offset, u8 a, u8 b);
+
+/**
+ * @brief Selects record @p index of @p tbl and unpacks it into the record
+ *        globals. The same body as the out-of-line selector below; inlined
+ *        with the table head as @p tbl, its store of the head drops out.
+ */
+static __inline__ void setRecord(TableHeader *tbl, u16 index) {
+    u8 *rec;
+
+    D_80095930 = tbl;
+    tbl += index;
+    D_8009576C = index;
+    D_8009586A = tbl->unk0;
+    D_800958E6 = tbl->unk2;
+    /* MATCHING: byte-pointer reads keep each load below the prior store. */
+    rec = (u8 *)tbl;
+    D_80095764 = rec[5];
+    D_80095766 = rec[4];
+    D_800957D8 = *(u16 *)(rec + 8);
+    D_800957E0 = rec[6];
+}
+
+/**
+ * @brief setRecord's twin for repeating the current record: the same
+ *        unpacking, with the repeat count @p count stepped down instead of
+ *        reloaded. Inlined, so its parameter conversions survive.
+ */
+static __inline__ void repeatRecord(TableHeader *tbl, u16 index, u8 count) {
+    u8 *rec;
+
+    D_80095930 = tbl;
+    tbl += index;
+    D_8009576C = index;
+    D_8009586A = tbl->unk0;
+    D_800958E6 = tbl->unk2;
+    rec = (u8 *)tbl;
+    D_80095764 = rec[5];
+    D_80095766 = rec[4];
+    D_800957D8 = *(u16 *)(rec + 8);
+    D_800957E0 = count - 1;
+}
+
+/* MATCHING: s32 with a bare return, so the `bgtz` keeps its `nop` slot. */
+s32 func_80014DB0(void) {
+    if ((s16)D_800958E6 > 0 && D_800957DA == 1) {
+        func_80015328(0, D_80095764, D_80095766);
+        D_800958E6--;
+        return;
+    }
+    D_800958E6 = 0;
+    D_80095764 = 0;
+    D_80095766 = 0;
+    func_80015328(0, 0, 0);
+    if ((s16)D_800957E0 > 0) {
+        if ((s16)--D_8009586A <= 0) {
+            if ((s16)D_800957E0 < 2) {
+                D_800957E0 = 0;
+                if (D_800957D8 != 0) {
+                    setRecord(D_80095930, D_800957D8);
+                }
+            } else {
+                repeatRecord(D_80095930, D_8009576C, D_800957E0);
+            }
+        }
+    } else {
+        D_8009586A = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014FA8);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015180);
-
+extern u8 *D_80095700;
 extern u8 *D_80095704;
+/* MATCHING: a known small size, so its address is one `la` register. */
+extern u8 D_800954E4[6];
+
+u32 func_80015180(void) {
+    u8 *buf;
+    u8 *act;
+    s32 k;
+    s32 state;
+    s32 i;
+
+    buf = D_80095700;
+    act = D_80095704;
+    for (k = 0; k < 2; k++, act += 0x10) {
+        state = PadGetState(k * 16);
+        if (state == 1) {
+            act[0] = 0;
+        }
+        if (act[0] == 0) {
+            PadSetAct(k * 16, act + 2, 2);
+            if (state == 2 || (state == 6 && PadSetActAlign(k * 16, D_800954E4))) {
+                act[0] = 1;
+            }
+        }
+        if (buf[k * 0x22] != 0) {
+            for (i = 2; i < 8; i++) {
+                buf[k * 0x22 + i] = 0xFF;
+            }
+        } else if ((buf[k * 0x22 + 1] & 0xF0) == 0x70) {
+            for (i = 4; i < 8; i++) {
+                if ((u32)(buf[k * 0x22 + i] - 0x69) < 0x2F) {
+                    buf[k * 0x22 + i] = 0x80;
+                }
+            }
+        }
+    }
+    return ~((buf[0x24] << 24) | (buf[0x25] << 16) | (buf[2] << 8) | buf[3]);
+}
 
 void func_80015328(s32 offset, u8 a, u8 b) {
     D_80095704[offset + 2] = a;
@@ -322,30 +604,6 @@ void func_800153CC(s32 mode) {
     } while (D_800958CC < 10);
 }
 
-/**
- * @brief A 10-byte record of a table in initialized data (the table
- *        starts with one), unpacked field by field into small globals.
- *        Meanings not yet known.
- */
-typedef struct {
-    u16 unk0; /**< not yet known */
-    u16 unk2; /**< not yet known */
-    u8 unk4;  /**< not yet known */
-    u8 unk5;  /**< not yet known */
-    u8 unk6;  /**< not yet known */
-    u8 unk7;  /**< not yet known */
-    u16 unk8; /**< not yet known */
-} TableHeader;
-
-extern TableHeader *D_80095930;
-extern u16 D_8009576C;
-extern u16 D_8009586A;
-extern u16 D_800958E6;
-extern u16 D_80095764;
-extern u16 D_80095766;
-extern u16 D_800957D8;
-extern u16 D_800957E0;
-
 void func_80015450(TableHeader *tbl, u16 index) {
     u8 *rec;
 
@@ -376,8 +634,6 @@ void func_800154C4(void) {
     D_800957E0 = hdr->unk6;
 }
 
-extern u8 *D_80095700;
-
 void func_8001552C(u8 *a, u8 *b) {
     s32 i;
 
@@ -392,7 +648,57 @@ void func_8001552C(u8 *a, u8 *b) {
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015584);
+extern s16 D_800954EC;
+extern s32 D_8009582C;
+extern u8 D_800957F0;
+
+s8 func_80015584(void) {
+    s32 r;
+
+    switch (D_8009596C) {
+        case 0:
+            break;
+        case 1:
+            CdControlF(CdlSetloc, (u_char *)D_80096748[D_800954EC]);
+            D_8009596C++;
+            break;
+        case 2:
+            r = CdSync(1, NULL);
+            if (r == 2) {
+                D_8009596C++;
+            } else if (r == 5) {
+                D_8009596C = 1;
+                D_800957F0++;
+            }
+            break;
+        case 3:
+            D_8009582C = D_8009F248[D_800954EC] + 1;
+            if (CdRead(D_8009582C, (u_long *)D_8009F090[D_800954EC], 0x80) == 0) {
+                D_800957F0++;
+            } else {
+                D_8009596C++;
+            }
+            break;
+        case 4:
+            r = CdReadSync(1, NULL);
+            if (r == 0) {
+                D_8009596C++;
+            } else if (r == -1) {
+                D_8009596C = 1;
+                D_800957F0++;
+            }
+            break;
+        case 5:
+            if (++D_800954EC >= D_80095960) {
+                D_8009596C = 6;
+                D_800954EC = 0;
+            } else {
+                D_8009596C = 1;
+            }
+            break;
+    }
+    return D_8009596C;
+}
 
 extern char D_80010148[];
 
@@ -411,7 +717,63 @@ void func_80015754(char *name, void *buf) {
     close(fd);
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800157DC);
+/**
+ * @brief A 0x3D8-byte copy of the game state's head, reset for a demo or
+ *        replay. Only the members this unit writes are named.
+ */
+typedef struct {
+    u8 unk0;         /**< cleared */
+    u8 unk1[4];      /**< not yet known */
+    u8 unk5;         /**< the stepper kind; set to 0x61 */
+    u8 unk6;         /**< set to 3 */
+    u8 unk7[0x341];  /**< not yet known */
+    s32 unk348;      /**< a position, x */
+    s32 unk34C;      /**< a position, y */
+    s32 unk350;      /**< a position, z */
+    u8 unk354[0x2C]; /**< not yet known */
+    s32 unk380;      /**< a rotation about y, as a word */
+    u8 unk384[0x24]; /**< not yet known */
+    s16 unk3A8;      /**< cleared */
+    u8 unk3AA[0x2E]; /**< not yet known */
+} StateCopy;
+
+extern StateCopy D_80095C08;
+
+void func_800157DC(void) {
+    SVECTOR pos;
+    RECT rect;
+
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    D_80095C08 = *(StateCopy *)D_8009EB78;
+    D_80095C08.unk380 = 0x800;
+    D_80095C08.unk6 = 3;
+    D_80095C08.unk348 = 0;
+    D_80095C08.unk34C = 0;
+    D_80095C08.unk350 = 0;
+    D_80095C08.unk5 = 0x61;
+    D_80095C08.unk3A8 = 0;
+    D_80095C08.unk0 = 0;
+    D_800DB2A0[0] = rsin(0x800) * 400 / 4096;
+    D_800DB2A0[1] = -150;
+    D_800DB2A0[2] = rcos(0x800) * 400 / 4096;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = -150;
+    D_800DB2A0[5] = 0;
+    D_800958A6 = 0;
+    D_80095880 = 0x29;
+}
 
 void func_80015A28(void) {
     SVECTOR pos;
@@ -459,11 +821,96 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80015CC8);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800160E8);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80016D14);
+/** @brief A list of models drawn together (a unit-local view). */
+typedef struct {
+    GsDOBJ2 *objs; /**< the models */
+    s32 count;     /**< how many */
+} ModelSet;
+
+/* MATCHING: a struct lvalue over the shared array declaration. */
+#define sModels (*(ModelSet *)D_800D8360)
+
+extern s32 D_80095758;
 
 void func_800160E8(void);
 
 extern s32 D_80095980;
+
+/** @brief One step of @p obj: runs the stepper and marks a finished 0x61
+ *         channel. Inlined here and by the out-of-line step below. */
+static __inline__ void stepObj(Stepper *obj) {
+    /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
+    s8 result;
+
+    result = func_80017F0C(obj, 0, obj->unk4);
+    obj->unk340 = result;
+    switch (obj->unk5) {
+        case 0x60:
+            break;
+        case 0x61:
+            if (result == 0) {
+                obj->unk8 = 0xFF;
+            }
+            break;
+    }
+}
+
+/** @brief Draws @p obj's models at its position and rotation. Inlined
+ *         here and by the out-of-line draw below. */
+static __inline__ void drawObj(Stepper *obj) {
+    MATRIX m;
+    SVECTOR rot;
+    GsDOBJ2 *o;
+    s32 i;
+
+    func_80020CF8(D_80095758);
+    o = sModels.objs;
+    o->coord2->coord.t[0] = obj->unk348;
+    o->coord2->coord.t[1] = obj->unk34C;
+    o->coord2->coord.t[2] = obj->unk350;
+    rot.vx = 0;
+    rot.vy = obj->unk380;
+    rot.vz = 0;
+    func_80018AE0(&rot, o->coord2);
+    for (i = 0; i < sModels.count; o++, i++) {
+        o->coord2->flg = 0;
+        if (o->id != -1 && o->tmd != NULL) {
+            GsGetLs(o->coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(o->coord2, &m);
+            GsSetLightMatrix(&m);
+            /* MATCHING: retail runs this sort on the scratchpad stack. */
+            SetSpadStack();
+            GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+            ResetSpadStack();
+        }
+    }
+}
+
+void func_80016D14(void) {
+    /* MATCHING: retail reserves 8 bytes below the inlined draw's locals. */
+    s32 unused[2];
+
+    D_800DB2A0[0] = rsin(0x800) * 400 / 4096;
+    D_800DB2A0[1] = -150;
+    D_800DB2A0[2] = rcos(0x800) * 400 / 4096;
+    D_800DB2A0[3] = 0;
+    D_800DB2A0[4] = -150;
+    D_800DB2A0[5] = 0;
+    GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+    stepObj((Stepper *)&D_80095C08);
+    drawObj((Stepper *)&D_80095C08);
+    func_800160E8();
+    if (D_800958A6 == 100) {
+        SetFogNearFar(0, 0, 250);
+        SetFarColor(0, 0, 0);
+        D_80095760 = 4;
+        D_80095980 = 0;
+        D_800958A6 = 0;
+        D_80095880 = 14;
+        func_80014C58(D_80095830);
+    }
+}
 
 void func_80016FC0(void) {
     SVECTOR pos;
@@ -509,86 +956,12 @@ void func_80017124(void) {
     }
 }
 
-/**
- * @brief A per-channel stepping state (the name is a guess): its stepper
- *        advances channel N through tables at offsets 0x20 and 0x1B0.
- *        Only the bytes this unit touches are named.
- */
-typedef struct {
-    u8 unk0[4];      /**< not yet known */
-    u8 unk4;         /**< passed on as the stepper's third argument */
-    u8 unk5;         /**< a kind: 0x60 and 0x61 are tested */
-    u8 unk6[2];      /**< not yet known */
-    u8 unk8;         /**< set to 0xFF when a 0x61 step returns zero */
-    u8 unk9[0x337];  /**< not yet known */
-    u8 unk340;       /**< the stepper's last result */
-    u8 unk341[7];    /**< not yet known */
-    s32 unk348;      /**< a position, x: the model's translation */
-    s32 unk34C;      /**< a position, y */
-    s32 unk350;      /**< a position, z */
-    u8 unk354[0x2C]; /**< not yet known */
-    u16 unk380;      /**< a rotation about y */
-} Stepper;
-
-/** @brief A list of models drawn together (a unit-local view). */
-typedef struct {
-    GsDOBJ2 *objs; /**< the models */
-    s32 count;     /**< how many */
-} ModelSet;
-
-/* MATCHING: a struct lvalue over the shared array declaration. */
-#define sModels (*(ModelSet *)D_800D8360)
-
-extern s32 D_80095758;
-
 void func_80017270(Stepper *obj) {
-    MATRIX m;
-    SVECTOR rot;
-    GsDOBJ2 *o;
-    s32 i;
-
-    func_80020CF8(D_80095758);
-    o = sModels.objs;
-    o->coord2->coord.t[0] = obj->unk348;
-    o->coord2->coord.t[1] = obj->unk34C;
-    o->coord2->coord.t[2] = obj->unk350;
-    rot.vx = 0;
-    rot.vy = obj->unk380;
-    rot.vz = 0;
-    func_80018AE0(&rot, o->coord2);
-    for (i = 0; i < sModels.count; o++, i++) {
-        o->coord2->flg = 0;
-        if (o->id != -1 && o->tmd != NULL) {
-            GsGetLs(o->coord2, &m);
-            GsSetLsMatrix(&m);
-            GsGetLw(o->coord2, &m);
-            GsSetLightMatrix(&m);
-            /* MATCHING: retail runs this sort on the scratchpad stack. */
-            SetSpadStack();
-            GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
-            ResetSpadStack();
-        }
-    }
+    drawObj(obj);
 }
 
-/* MATCHING: code_308ec passes the game state's head in its own view. */
-u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
-
 void func_800173E8(Stepper *obj) {
-    /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
-    s8 result;
-
-    result = func_80017F0C(obj, 0, obj->unk4);
-    obj->unk340 = result;
-    switch (obj->unk5) {
-        case 0x60:
-            break;
-        case 0x61:
-            if (result == 0) {
-                obj->unk8 = 0xFF;
-            }
-            break;
-    }
+    stepObj(obj);
 }
 
 extern CdlLOC D_80095FE0[];

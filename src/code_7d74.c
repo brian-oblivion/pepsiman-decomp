@@ -356,7 +356,6 @@ void func_80017DD4(void) {
 }
 
 extern u8 D_800760EC[];
-extern s32 D_80095904;
 
 #ifdef NON_MATCHING
 u8 func_80017F0C(Player *obj, u16 index, s8 arg) {

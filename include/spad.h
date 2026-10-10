@@ -7,9 +7,6 @@
  *        ResetSpadStack sample macros do.
  */
 
-/* The stack pointer has no C spelling, so both are operand-free __asm__
- * sequences. They use two temporaries the compiler is not told about. */
-
 /** Saves the stack pointer at the scratchpad top and moves the stack below it. */
 #define SetSpadStack()                                                                    \
     __asm__ volatile("lui $9,0x1F80\n\tori $9,$9,0x3FC\n\tmove $8,$9\n\tsw $29,0($8)\n\t" \

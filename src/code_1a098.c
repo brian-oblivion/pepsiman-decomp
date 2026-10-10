@@ -142,6 +142,25 @@ typedef struct {
     u8 unk27[0x15]; /**< not yet known */
 } Rec3C;
 
+/** @brief The game-progress block, as far as the full reset writes it. */
+typedef struct {
+    u8 unk0;        /**< 0x38 after a reset */
+    u8 unk1;        /**< 1 after a reset */
+    u8 unk2;        /**< copied from a global byte on a reset */
+    u8 unk3;        /**< not yet known */
+    s32 unk4;       /**< 50 after a reset */
+    s32 unk8;       /**< zeroed on a reset */
+    s32 unkC;       /**< zeroed on a reset */
+    u8 unk10[2];    /**< not yet known */
+    s16 unk12[18];  /**< zeroed on a reset, but [14] (0x2E) set to 600 */
+    u8 unk36[0x32]; /**< not yet known */
+    u8 unk68;       /**< zeroed on a reset */
+    u8 unk69;       /**< zeroed on a reset */
+    s16 unk6A;      /**< zeroed on a reset */
+    u8 unk6C;       /**< zeroed on a reset */
+    u8 unk6D;       /**< zeroed on a reset */
+} Progress6E;
+
 extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
@@ -149,6 +168,10 @@ extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
 extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
 extern PathPt *D_800958A0;  /**< the current path */
+extern Rec3C D_800A7898[];  /**< 100 Rec3C records */
+extern s32 D_80095824;      /**< zeroed by the full reset */
+extern u8 D_800958D8;       /**< zeroed by the full reset */
+extern u8 D_800959D8;       /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)D_800956D4)
@@ -156,6 +179,9 @@ extern PathPt *D_800958A0;  /**< the current path */
 #define sGameHead (*(GameHead *)D_8009EB78)
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
+/* The progress block; code_1dc24 views the same bytes as other records. */
+extern u8 D_80095B28[];
+#define sProgress (*(Progress6E *)D_80095B28)
 
 s32 func_80028AE4(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
@@ -174,6 +200,12 @@ s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_8002A5B0(Rec78 *rec, Rec48 *r);
 void func_8002B8F8(u16 id, Rec3C *r);
+/* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
+ * unit until a shared header holds it. */
+void func_800337E4(u8 *buf);
+void func_80033854(Rec5C *recs);
+void func_800338A0(Rec48 *recs);
+void func_8003390C(Rec3C *recs);
 
 extern SVECTOR D_800957E4; /**< a local position to transform to world */
 extern VECTOR D_8009F268;  /**< the world position of that local one */
@@ -778,4 +810,57 @@ void func_8002D230(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002D2C0);
+/** @brief Resets the game state: clears the 0x30000-byte block at `recs`
+ *         and frees its 200 Rec48 records, clears and resets the block
+ *         header, the Rec5C, Rec48 and Rec3C tables, and the progress
+ *         block. */
+void func_8002D2C0(Rec48 *recs) {
+    u32 i;
+
+    bzero((u8 *)recs, 0x30000);
+    for (i = 0; i < 200; i++) {
+        recs->unk34 = -1;
+        recs->unk36 = -1;
+        recs++;
+    }
+    bzero((u8 *)0x801FD000, 0x800);
+    func_800337E4((u8 *)0x801FD000);
+    bzero((u8 *)D_800CF080, sizeof(Rec5C) * 200);
+    func_80033854(D_800CF080);
+    bzero((u8 *)sRecs48, sizeof(Rec48) * 200);
+    func_800338A0(sRecs48);
+    bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
+    func_8003390C(D_800A7898);
+    sProgress.unk0 = 0x38;
+    sProgress.unk1 = 1;
+    sProgress.unk68 = 0;
+    sProgress.unk69 = 0;
+    sProgress.unk4 = 50;
+    sProgress.unk8 = 0;
+    sProgress.unkC = 0;
+    sProgress.unk12[8] = 0;
+    sProgress.unk12[9] = 0;
+    sProgress.unk12[10] = 0;
+    sProgress.unk12[0] = 0;
+    sProgress.unk12[1] = 0;
+    sProgress.unk12[2] = 0;
+    sProgress.unk12[3] = 0;
+    sProgress.unk12[4] = 0;
+    sProgress.unk12[6] = 0;
+    sProgress.unk12[5] = 0;
+    sProgress.unk12[7] = 0;
+    sProgress.unk12[11] = 0;
+    sProgress.unk12[12] = 0;
+    sProgress.unk12[13] = 0;
+    sProgress.unk12[14] = 600;
+    sProgress.unk12[15] = 0;
+    sProgress.unk12[16] = 0;
+    sProgress.unk12[17] = 0;
+    sProgress.unk6A = 0;
+    sProgress.unk6C = 0;
+    sProgress.unk6D = 0;
+    D_80095824 = 0;
+    D_800958D8 = 0;
+    D_800959D8 = 0;
+    sProgress.unk2 = D_80095830;
+}

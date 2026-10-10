@@ -123,6 +123,14 @@ function's match report, not here.
   array starts earlier and needs a symbol plus a linker definition.**
   (func_8003F100, func_80039C3C, both still open)
 
+- **A table's `lui` before the index's `lui`: the base went into a pointer
+  local just before use** (`recs = (T *)D; recs[i].f`), or the symbol is a
+  real array of `T`; the cast `((T *)D)[i]` loads the index first.
+  (func_8002DC44)
+- **An odd register that is an argument register holding a value at a
+  call: check the callee's argument count first.** A base built in `$a1`
+  was a second argument the old prototype lacked. (func_80037114)
+
 ## Types
 
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
@@ -197,6 +205,11 @@ function's match report, not here.
 - **Byte averages that need `srl` with no mask: `u8` locals assigned
   `(u32)(a + b) >> 1`**; tell: the value is the first operand of its OR.
   (func_8001E558)
+
+- **`addiu 1; andi 0xFFFF; sltiu 2` on a halfword global:
+  `(u16)(x + 1) < 2`.** (func_800401F0)
+- **`srl sN, a0; andi sN, sN` in one register: `v = a >> k; v &= m;`.**
+  (func_800184BC)
 
 ## Loops
 
@@ -381,6 +394,16 @@ function's match report, not here.
 - **Two identical arms retail keeps apart: a bare `__asm__("")` after the
   call in one of them** (before it, cc1 still merges them). (main)
 
+- **Two identical case blocks with retail keeping the later one: write the
+  deleted case FIRST.** jump2's cross-jumping redirects and deletes the
+  block whose jump it visits first. (func_80035970)
+- **`FntPrint(c ? A : B)` with `.sdata` strings: two calls, `if (c)
+  FntPrint(A); else FntPrint(B);`**; the ternary shares one `%hi`, a word
+  short per site. (func_8002DC44)
+- **Failure exits whose constants and bases CSE rebuilds partway: one
+  `{ close(fd); return -1; }` per site, not a shared `goto fail`**;
+  cross-jumping merges the blocks afterwards. (func_80032EE4)
+
 ## Scheduling
 
 - **A field loaded after earlier global stores: read it through a byte
@@ -507,3 +530,11 @@ function's match report, not here.
   selects between them.** (code_29f54, round 11)
 - **Two pointers stepping by one stride where one is only copied on a hit:
   one pointer plus `best = f;`**; cc1 makes the second. (func_80029E74)
+- **Two saved registers swapped between a long-lived, much-used variable
+  and a short-lived one: one more reference to the short one** (`n = fd;
+  close(n);` in a block cross-jumping deletes). Global alloc ranks by
+  `floor_log2(refs) * refs / live_length`; `cc1 -dg` prints the order.
+  (func_80032EE4)
+- **A primitive whose every store stays in source order, colour stores
+  reading their first target back: a `volatile T *` packet local.**
+  (func_800184BC)

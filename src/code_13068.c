@@ -985,16 +985,14 @@ u8 func_80017F0C(GameState *obj, u16 index, u8 arg);
 /* MATCHING: code_7d74 defines this with s16/u16 parameters and an s16 result; this unit's
  * calls pass halfwords unextended and store the result as a word. */
 s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
-/* MATCHING: code_7d74 defines this as an empty void(void); this unit's calls pass the state
- * block and the step in $a0 and $a1. */
-void func_80018CAC(GameState *g, s32 step);
+/* MATCHING: empty void(void) in code_7d74; unprototyped here, called with two args and one. */
+void func_80018CAC();
 
 s32 func_800281B8(GameState *g);
 void func_800283E4(void);
 extern s32 D_80095740;
 extern s32 D_80095744;
 
-#ifdef NON_MATCHING
 /* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for
  * every step so global-alloc gives it $a1, the step's argument register. */
 s32 func_80024450(GameState *state) {
@@ -1425,7 +1423,7 @@ top:
                 }
             } else if (state->unk34C >= state->unk3C0) {
                 state->unk34C = D_800AC858[0];
-                func_80018CAC(&sGame, d);
+                func_80018CAC(&sGame);
                 switch ((s8)sGame.unk38E) {
                     case 0:
                     default:
@@ -2099,9 +2097,6 @@ top:
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
-#endif
 
 /* MATCHING: non-void with no return keeps two bnez delay slots nops. */
 s32 func_80026548(void) {

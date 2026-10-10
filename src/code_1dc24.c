@@ -6,6 +6,7 @@
 #include "sys/file.h"
 #include "code_1a098.h"
 #include "code_13068.h"
+#include "code_a0bc.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
@@ -418,7 +419,34 @@ s32 func_800330D4(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033224);
+/** @brief Sorts a pulsing red line from `pos` to 200 units above it into
+ *         the current ordering table. */
+/* MATCHING: the twin of code_24748's func_800365A0 (an s16 colour local, an
+ * unused 8 bytes for the frame), without its mirrored x and z. */
+void func_80033224(VECTOR *pos) {
+    s32 unused[2];
+    VECTOR world;
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
+
+    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = pos->vx + D_800A7308[0];
+    world.vy = pos->vy;
+    world.vz = pos->vz + D_800A7308[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    world.vy = pos->vy - 200;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80033388);
 

@@ -814,7 +814,160 @@ void func_80015B78(void) {
     D_80095880 = 0x2B;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015CC8);
+/* Each stage's disc directory (the names are guesses): file positions,
+ * then their sizes in sectors, one pair of arrays per stage. */
+extern CdlLOC D_80073D00[];
+extern s32 D_80073D24[];
+extern CdlLOC D_80073DD8[];
+extern s32 D_80073DFC[];
+extern CdlLOC D_80073EB0[];
+extern s32 D_80073ED4[];
+extern CdlLOC D_80073F88[];
+extern s32 D_80073FAC[];
+extern CdlLOC D_80074060[];
+extern s32 D_80074084[];
+
+/* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
+ * unextended, so its view is s32. */
+s32 func_80042A88(s32 bank);
+/* Defined in code_31958. */
+void func_8004121C(u16 sel);
+void func_80039C3C(unsigned long *p);
+void func_80040998(void);
+void func_800F6C60(void);
+void func_800F6A44(void);
+void func_800F642C(void);
+void func_800F46D8(void);
+void func_800F377C(void);
+
+void func_80015CC8(void) {
+    s32 bank;
+
+    switch (D_800958A6) {
+        case 0:
+            D_80095B0E = 0;
+            D_800958A6++;
+            break;
+        case 1:
+            switch (D_80095830) {
+                case 2:
+                    bank = 2;
+                    break;
+                case 5:
+                    bank = 3;
+                    break;
+                case 8:
+                    bank = 4;
+                    break;
+                case 11:
+                    bank = 5;
+                    break;
+                case 14:
+                    bank = 6;
+                    break;
+            }
+            if (func_80042A88(bank) == 1) {
+                D_800958A6++;
+            }
+            break;
+        case 2:
+            func_8004121C(D_80095830);
+            D_800958A6++;
+            break;
+        case 3:
+            if (D_8009596C == 6) {
+                D_800958A6++;
+            }
+            break;
+        case 4:
+            func_80018DE8(0);
+            switch (D_80095830) {
+                case 2:
+                    D_80096748[0] = (s32)&D_80073D00[0];
+                    D_8009F248[0] = D_80073D24[0];
+                    break;
+                case 5:
+                    D_80096748[0] = (s32)&D_80073DD8[0];
+                    D_8009F248[0] = D_80073DFC[0];
+                    break;
+                case 8:
+                    D_80096748[0] = (s32)&D_80073EB0[0];
+                    D_8009F248[0] = D_80073ED4[0];
+                    break;
+                case 11:
+                    D_80096748[0] = (s32)&D_80073F88[0];
+                    D_8009F248[0] = D_80073FAC[0];
+                    break;
+                case 14:
+                    D_80096748[0] = (s32)&D_80074060[0];
+                    D_8009F248[0] = D_80074084[0];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 5:
+            if (D_8009596C == 6) {
+                func_8003E13C((unsigned long *)0x8019D000);
+                D_800958A6++;
+            }
+            break;
+        case 6:
+            switch (D_80095830) {
+                case 2:
+                    D_80096748[0] = (s32)&D_80073D00[1];
+                    D_8009F248[0] = D_80073D24[1];
+                    break;
+                case 5:
+                    D_80096748[0] = (s32)&D_80073DD8[1];
+                    D_8009F248[0] = D_80073DFC[1];
+                    break;
+                case 8:
+                    D_80096748[0] = (s32)&D_80073EB0[1];
+                    D_8009F248[0] = D_80073ED4[1];
+                    break;
+                case 11:
+                    D_80096748[0] = (s32)&D_80073F88[1];
+                    D_8009F248[0] = D_80073FAC[1];
+                    break;
+                case 14:
+                    D_80096748[0] = (s32)&D_80074060[1];
+                    D_8009F248[0] = D_80074084[1];
+                    break;
+            }
+            D_8009F090[0] = 0x8019D000;
+            D_80095960 = 1;
+            D_8009596C = 1;
+            D_800958A6++;
+            break;
+        case 7:
+            if (D_8009596C == 6) {
+                func_80039C3C((unsigned long *)0x8019D000);
+                switch (D_80095830) {
+                    case 2:
+                        func_800F6C60();
+                        break;
+                    case 5:
+                        func_800F6A44();
+                        break;
+                    case 8:
+                        func_800F642C();
+                        break;
+                    case 11:
+                        func_800F46D8();
+                        break;
+                    case 14:
+                        func_800F377C();
+                        break;
+                }
+                func_80040998();
+                D_800958A6 = 100;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800160E8);
 

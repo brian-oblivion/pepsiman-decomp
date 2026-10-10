@@ -436,7 +436,60 @@ void func_8003C2E8(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C8D0);
+/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+typedef struct {
+    s8 r;  /**< red, or -1 */
+    u8 g;  /**< green */
+    u8 b;  /**< blue */
+    u8 cd; /**< code byte */
+} SColor;
+
+void func_8003C8D0(SVECTOR *pos, s32 frames) {
+    s32 n;
+    s32 m;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 sec;
+    SColor color;
+    /* MATCHING: retail fills a second colour at sp+0x20 it never passes. */
+    SColor shadow;
+
+    color.r = -1;
+    shadow.r = 2;
+    shadow.g = shadow.b = shadow.cd = 0x80;
+    color.g = color.b = color.cd = 0x80;
+    n = frames * 100 / 30;
+    /* MATCHING: d copied from n, then divided (as in func_8003A4B4). */
+    d = n;
+    d /= 10;
+    pos->vx -= 16;
+    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    sec = frames / 30;
+    m = sec / 60;
+    n = sec % 60;
+    k = 1;
+    d = n;
+    d /= 10;
+    pos->vx -= 12;
+    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    n = m;
+    pos->vx -= 12;
+    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    for (; k < 11; k *= 10) {
+        t = n / k;
+        if (t != 0 || (k == 1 && n == 0)) {
+            pos->vx -= 12;
+            func_8001B354(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003CC94);
 
@@ -779,14 +832,6 @@ s32 func_8003EC04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     p->unk2--;
     return 0;
 }
-
-/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
-typedef struct {
-    s8 r;  /**< red, or -1 */
-    u8 g;  /**< green */
-    u8 b;  /**< blue */
-    u8 cd; /**< code byte */
-} SColor;
 
 s32 func_8003EF40(Slot *p) {
     SVECTOR pos;

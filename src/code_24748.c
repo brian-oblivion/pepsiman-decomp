@@ -154,6 +154,9 @@ void func_800355D8(void);
 void func_800356FC(void);
 void func_80035970(void);
 void func_80035E24(void);
+void func_80036184(s16 n);
+s32 func_8003634C(void);
+void func_80036B90(s16 n);
 void func_80036478(VECTOR *pos);
 void func_800365A0(VECTOR *pos);
 void func_80036AB8(VECTOR *pos, u16 scale);
@@ -163,6 +166,8 @@ void func_8003708C(void);
 void func_80037114(void);
 void func_800371A0(void);
 void func_80037280(void);
+s32 func_80037318(void);
+s32 func_80037370(void);
 /* Defined by code_7d74, whose header does not declare it yet. */
 void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
 
@@ -971,17 +976,13 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
 
 /* Defined by code_27bc8 and code_1dc24, which have no header. */
 void func_80038124(void);
-/* MATCHING: a per-unit view; code_27bc8 defines it returning s16, and
- * func_80035970 compares the result with -1 unextended. */
-s32 func_80038394(void);
 void func_800386A8(void);
 s32 func_800389B4(s32 slot);
 s32 func_8003356C(s16 n);
-s32 func_8003634C(void);
-s32 func_80037318(void);
-s32 func_80037370(void);
-void func_80036184(s16 n);
-void func_80036B90(s16 n);
+
+/* MATCHING: a per-unit view; code_27bc8 defines it returning s16, and
+ * func_80035970 compares the result with -1 unextended. */
+s32 func_80038394(void);
 
 #ifdef NON_MATCHING
 void func_80035970(void) {

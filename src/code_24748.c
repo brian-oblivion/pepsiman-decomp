@@ -457,7 +457,129 @@ void func_800345C8(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034788);
+extern s32 D_800959A0; /**< printed first on the status panel */
+extern char D_800114DC[];
+extern char D_800114E8[];
+extern char D_800114F4[];
+extern char D_80011500[];
+extern char D_8001151C[];
+extern char D_80011528[];
+extern char D_80011534[];
+extern char D_80011540[];
+extern char D_8001154C[];
+extern char D_80011564[];
+extern char D_80011570[];
+extern char D_80011588[];
+extern char D_80011594[];
+extern char D_800115A0[];
+extern char D_800115AC[];
+extern char D_800115BC[];
+extern char D_800115D0[];
+extern char D_80095658[];
+extern char D_80095660[];
+extern char D_80095678[];
+extern char D_80095680[];
+extern char D_80095688[];
+extern char D_80095690[];
+
+void func_80034788(void) {
+    FntPrint(D_800114DC, D_800959A0);
+    FntPrint(D_800114E8, D_80095A30);
+    FntPrint(D_800114F4, D_80095A26);
+    FntPrint(D_80011500, sGamePos.unk348, sGamePos.unk34C, sGamePos.unk350);
+    FntPrint(D_8001151C);
+    switch (D_80095A29) {
+        case 0:
+            FntPrint(D_80011528);
+            break;
+        case 1:
+            FntPrint(D_80011534);
+            break;
+    }
+    if (D_80095A28 == 1) {
+        FntPrint(D_80011540);
+    } else if (D_80095A58 == 1) {
+        FntPrint(D_8001154C);
+    }
+    FntPrint(D_80095658);
+    if (D_80095A28 == 1) {
+        switch (D_80095A29) {
+            case 0:
+                FntPrint(D_80095660, D_80095A44->unk14);
+                FntPrint(D_80011564, D_80095A44->unk18);
+                FntPrint(D_80011570, -D_80095A44->unk1C, D_80095A44->unk20, -D_80095A44->unk24);
+                break;
+            case 1:
+                FntPrint(D_80011588);
+                break;
+        }
+    }
+    switch ((u16)D_800958DA) {
+        case 1:
+            D_80095A58 = 0;
+            D_80095A28 = 0;
+            if (D_8009574A == 0) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            func_80014BF0(7);
+            FntPrint(D_80011594);
+            if (D_8009574A == 1) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            func_80014BF0(7);
+            FntPrint(D_800115A0);
+            if (D_8009574A == 2) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            func_80014BF0(7);
+            FntPrint(D_80095678);
+            if (D_8009574A == 3) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            func_80014BF0(7);
+            FntPrint(D_80095680);
+            if (D_8009574A == 4) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            func_80014BF0(7);
+            FntPrint(D_80095688);
+            func_800179F8(0x2821, 60, -68, 140, -68, 140, 12, 60, 12, 0);
+            break;
+        case 2:
+            FntPrint(D_80095690);
+            func_80014BF0(3);
+            FntPrint(D_800115AC);
+            func_80014BF0(3);
+            if (D_8009574A == 0) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            FntPrint(D_800115BC, (s16)D_80095A3C * 10);
+            func_80014BF0(3);
+            if (D_8009574A == 1) {
+                FntPrint(D_80095668);
+            } else {
+                FntPrint(D_80095670);
+            }
+            FntPrint(D_800115D0, D_80095A48);
+            func_800179F8(0x2821, -80, -30, 80, -30, 80, 30, -80, 30, 0);
+            break;
+        case 7:
+            func_80035E24();
+            break;
+    }
+}
 
 /* MATCHING: the last loop enters at its test (a for or while is rotated). */
 void func_80034BCC(void) {

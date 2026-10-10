@@ -122,6 +122,15 @@ typedef struct {
 /* MATCHING: this unit's view of the table code_1a098 copies as halfwords. */
 extern Sprite8 D_800DD0A0[];
 
+/** @brief The three flat lights. */
+typedef struct {
+    GsF_LIGHT l[3]; /**< lights 0 to 2 */
+} FlatLights;
+
+/* MATCHING: a struct lvalue keeps the base in one register; common.h
+ * declares the table as words. */
+#define sLights ((*(FlatLights *)D_800DD070).l)
+
 /** @brief A primitive handler: one entry of the handler table. */
 typedef PACKET *(*PrimFunc)();
 
@@ -140,7 +149,8 @@ PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
                       GsOT *ot);
 PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
                       s32 shift, GsOT *ot);
-PACKET *func_800201BC();
+PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                      GsOT *ot);
 PACKET *func_80020520();
 PACKET *func_8002097C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot);
@@ -706,7 +716,80 @@ PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT
     return (PACKET *)pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800201BC);
+PACKET *func_800201BC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
+                      GsOT *ot) {
+    /* MATCHING: a volatile copy of the parameter, so the triangle's fields
+     * stay on it and only the second packet goes through loop's pointer. */
+    volatile POLY_FT3 *pkt;
+    VECTOR mac;
+    CVECTOR c;
+    s32 v;
+    POLY_GT3 *g;
+    s32 i;
+    u32 *tag;
+
+    pkt = (POLY_FT3 *)packet;
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_avsz3();
+        gte_stotz(&v);
+        gte_stsxy3_ft3(pkt);
+        pkt->r0 = sLights[0].r;
+        pkt->g0 = sLights[0].g;
+        pkt->b0 = sLights[0].b;
+        pkt->code = 0x26;
+        pkt->tpage = 0x7B;
+        pkt->clut = 0x722D;
+        gte_ldv0(&nrm[prim->n0]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u0 = (mac.vx >> 7) + 0x20;
+        pkt->v0 = (mac.vy >> 7) - 0x20;
+        gte_ldv0(&nrm[prim->n1]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u1 = (mac.vx >> 7) + 0x20;
+        pkt->v1 = (mac.vy >> 7) - 0x20;
+        gte_ldv0(&nrm[prim->n2]);
+        gte_rtv0();
+        gte_stlvnl(&mac);
+        pkt->u2 = (mac.vx >> 7) + 0x20;
+        pkt->v2 = (mac.vy >> 7) - 0x20;
+        g = (POLY_GT3 *)(pkt + 1);
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        c.r = c.g = c.b = 0x80;
+        gte_ldrgb(&c);
+        gte_ldv3(&nrm[prim->n0], &nrm[prim->n1], &nrm[prim->n2]);
+        gte_ncct();
+        *(u32 *)&g->u0 = prim->uv0;
+        *(u32 *)&g->u1 = prim->uv1;
+        *(u16 *)&g->u2 = prim->uv2;
+        *(u32 *)&g->x0 = *(u32 *)&pkt->x0;
+        *(u32 *)&g->x1 = *(u32 *)&pkt->x1;
+        *(u32 *)&g->x2 = *(u32 *)&pkt->x2;
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)g = (*tag & 0xFFFFFF) | 0x09000000;
+        *tag = (u32)g & 0xFFFFFF;
+        gte_strgb3_gt3(g);
+        /* MATCHING: a volatile store, which loop cannot rebase onto its
+         * reduced pointer. */
+        ((volatile POLY_GT3 *)g)->code = 0x34;
+        pkt = (POLY_FT3 *)(g + 1);
+    }
+    return (PACKET *)pkt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80020520);
 

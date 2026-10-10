@@ -109,11 +109,17 @@ typedef struct {
 
 /** @brief The head of the game state, as far as this unit reaches. */
 typedef struct {
-    u8 unk0[5];      /**< not yet known */
+    u8 unk0[2];      /**< not yet known */
+    u8 unk2;         /**< nonzero to place the second-buffer records */
+    u8 unk3[2];      /**< not yet known */
     u8 unk5;         /**< a mode byte: 0x42 and 0x43 seen */
     u8 unk6[0x1A];   /**< not yet known */
     s32 unk20[100];  /**< first word of each loaded entry */
     s32 unk1B0[100]; /**< third word of each loaded entry */
+    u8 unk340[0x78]; /**< not yet known */
+    s32 unk3B8;      /**< 1 once a placed record reports a hit */
+    u8 unk3BC[0x10]; /**< not yet known */
+    s32 unk3CC;      /**< the word reported with that hit */
 } GameHead;
 
 /** @brief A 16-byte directory entry of a loaded file. */
@@ -315,7 +321,56 @@ s32 func_8002A558(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A7D8);
+/* The result of a second-buffer record's test: a flag, then a word. */
+extern s8 D_80095898;  /**< 1 on a hit */
+extern s32 D_8009589C; /**< the word reported with a hit */
+/* MATCHING: per unit this round; code_24748 declares both the same way. */
+extern u8 D_800D3CA8[]; /**< 0x2C-byte placed records (Placed2C) */
+extern u8 D_800DB2C0[]; /**< 0x4C-byte records */
+/* code_1902c's tests of a 0x4C-byte record; types not yet known. */
+void func_80028888(void *rec);
+void func_80028F0C(void *rec, s8 *out);
+
+/** @brief Updates the entry `rec` and places and tests its records: the
+ *         first-buffer ones collect a hit bit into `r->unk40`, and, when
+ *         the game head allows, the second-buffer ones report a hit to it.
+ *  @return nothing; the value is undefined. */
+/* MATCHING: non-void with no return keeps two delay slots nops (the
+ * unk2 test and the second loop's back branch). */
+s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
+    s16 i;
+    s16 start;
+    s16 n;
+    Placed2C *p;
+    u8 *q;
+
+    func_8002A5B0(rec, r);
+    start = rec->unk72;
+    n = rec->unk74;
+    r->unk40 = 0;
+    if (n != -1) {
+        for (i = start; i < start + n; i++) {
+            p = &((Placed2C *)D_800D3CA8)[i];
+            func_80029898(p);
+            r->unk40 |= func_80028AE4((Query30 *)p) & 1;
+        }
+    }
+    if (sGameHead.unk2 != 0) {
+        start = rec->unk6E;
+        n = rec->unk70;
+        if (n != -1) {
+            for (i = start; i < start + n; i++) {
+                q = D_800DB2C0 + i * 0x4C;
+                func_80028888(q);
+                func_80028F0C(q, &D_80095898);
+                if (D_80095898 == 1) {
+                    sGameHead.unk3B8 = D_80095898;
+                    sGameHead.unk3CC = D_8009589C;
+                }
+            }
+        }
+    }
+}
 
 /** @brief Sets the four corners of a box `w` wide and `d` deep around the
  *         position `c`, at its height, relative to it. */

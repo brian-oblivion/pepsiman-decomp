@@ -121,7 +121,60 @@ s16 func_80037700(void) {
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800377E8);
+/** @brief Reads the first save file into the save buffer, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_800377E8(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+    u8 *buf;
+    s16 tries;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 1);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    D_800959D0 = 1;
+    ret = -1;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (lseek(fd, 0, 0) != -1) {
+            goto seeked;
+        }
+    }
+    close(fd);
+    D_800959D0 = 2;
+    ret = -1;
+    goto end;
+seeked:
+    buf = D_80095A18;
+    for (tries = 0; tries < 10; tries++) {
+        if (read(fd, buf, 0x1E000) == 0x1E000) {
+            goto done;
+        }
+        for (i = 0; i < 10; i++) {
+            if (lseek(fd, 0, 0) != -1) {
+                goto reseeked;
+            }
+        }
+        close(fd);
+        D_800959D0 = 2;
+        ret = -1;
+        goto end;
+    reseeked:;
+    }
+    close(fd);
+    D_800959D0 = 3;
+    ret = -1;
+    goto end;
+done:
+    close(fd);
+end:
+    return ret;
+}
 
 /** @brief Rewrites the first save file in place, up to ten tries per step; 0, or -1 with the failed step recorded. */
 s32 func_8003796C(void) {

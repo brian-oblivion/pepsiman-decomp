@@ -130,6 +130,14 @@ function's match report, not here.
 - **An odd register that is an argument register holding a value at a
   call: check the callee's argument count first.** A base built in `$a1`
   was a second argument the old prototype lacked. (func_80037114)
+- **A table base built `addiu -K` from the symbol splat named, with a second
+  pointer walking from that symbol: the array starts K bytes earlier at an
+  address no instruction names.** No C spelling keeps the base (cc1 folds
+  `(sym - n)[i + n]`). Define the true start in
+  `config/undefined_syms.slps01762.pepsiman.txt` and index from it.
+  (func_80039C3C, func_8003F100)
+- **A call whose argument moves lose to a boosted load: the callee is
+  unprototyped and one call site passes fewer arguments.** (func_80024450)
 
 ## Types
 
@@ -210,6 +218,13 @@ function's match report, not here.
   `(u16)(x + 1) < 2`.** (func_800401F0)
 - **`srl sN, a0; andi sN, sN` in one register: `v = a >> k; v &= m;`.**
   (func_800184BC)
+- **A word-aligned odd-size block move (16-byte loop, then `lw, lw, lh`):
+  `__builtin_memcpy(dst, src, 0x2A)` with 4-aligned pointer types.**
+  `-fno-builtin` only stops plain `memcpy`; the alignment comes from the
+  pointee types, not the size. (func_80036704)
+- **abs as one instruction with no label: `x >= 0 ? x : -x`** (the `abssi2`
+  pattern). `if (x < 0) x = -x;` makes a CODE_LABEL that stops reorg filling
+  later delay slots. (func_8002A5B0, func_8002B8F8)
 
 ## Loops
 
@@ -403,6 +418,13 @@ function's match report, not here.
 - **Failure exits whose constants and bases CSE rebuilds partway: one
   `{ close(fd); return -1; }` per site, not a shared `goto fail`**;
   cross-jumping merges the blocks afterwards. (func_80032EE4)
+- **An exit block retail keeps inline after a `goto loop`: an unreachable
+  `for (;;) {}` after the goto.** Its label blocks jump.c's "if (foo) bar;
+  else break;" swap; flow deletes the dead loop. (func_80037C2C)
+- **A store whose register is loaded in the delay slot of the branch that
+  reaches it: read that slot's value before calling it a register choice.**
+  Retail's `sb $v0` after a `li $v0, 3` slot was `D_80095A24++` with the index
+  known on that path. (func_800356FC)
 
 ## Scheduling
 
@@ -538,3 +560,27 @@ function's match report, not here.
 - **A primitive whose every store stays in source order, colour stores
   reading their first target back: a `volatile T *` packet local.**
   (func_800184BC)
+- **A magic-number constant held in a saved register from the prologue:
+  a dead division of a different operand by the same divisor in the first
+  block**, e.g. `x = (u32)n / 100;`. cse hands the constant's register on;
+  flow deletes the `multu`. (func_8003C494)
+- **One load, a move and two `addu` of a header word: read the count before
+  storing the table pointer built from the same sum.** (func_800399A8)
+- **A constant cse shares across blocks at the cost of a saved register:
+  `src = K; f(x + src); src = 0;`** in one block. The dead store breaks the
+  equivalence and the later literal rebuilds its own `lui/ori`. (func_80041F28)
+- **sched1 boosts a load into a pseudo set only once, and sinks it to its
+  single use. To keep a load early, load into a local set more than once.**
+  `cc1 -dS` prints the ready lists. (func_80023D68, func_80024450)
+- **Register-allocation ties between saved registers move with refs and live
+  length, which C can change without code:** an empty `__asm__("")` lengthens
+  every live range across it; `do { stmt; } while (0)` adds loop-depth refs to
+  what `stmt` touches; an array indexed in both arms of an `if` instead of a
+  pointer taken before it doubles the base's refs. Compute
+  `floor_log2(refs) * refs / live_length` from `cc1 -dl`.
+  (func_80017F0C, func_80018DF0, func_8002B220)
+- **`do { i++; } while (0)` keeps an independent instruction from being
+  hoisted** inside its block (loop notes split cse1 paths; cse2 ignores
+  them). (func_80037C2C)
+- **Copies `move sN, sM` after a loop guard: assign the loop's pointer locals
+  inside the loop body**, not before it. (func_8002B220)

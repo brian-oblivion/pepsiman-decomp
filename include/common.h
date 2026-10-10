@@ -206,6 +206,14 @@ void func_800428B0(void);
 /** @brief Defined in code_7d74; called from main. */
 void func_80018CB4(void);
 
+/** @brief Defined in code_7d74: updates an index from a position, then
+ *         checks the position against the data blob.
+ *  @param pos a position, three words
+ *  @param arg a result buffer for the check
+ *  @param cur the current index
+ *  @return the updated index, or -1 when the check fails */
+s32 func_80018D70(void *pos, void *arg, s32 cur);
+
 /** @brief Defined in code_7d74; called when a stage is reset. */
 void func_80017574(void);
 

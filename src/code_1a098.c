@@ -134,7 +134,6 @@ extern PathPt *D_800958A0;  /**< the current path */
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
 
-s32 func_80018D70(void *pos, void *arg, s32 cur);
 s32 func_80028AE4(Query30 *q);
 /* MATCHING: s32, though the callee returns a sign-extended s16: retail
  * stores the result with no re-extension. */

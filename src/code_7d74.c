@@ -60,7 +60,10 @@ extern s8 D_800956D0;     /**< a level, kept within 0..120 */
 extern s8 D_800956D1;     /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */
-s32 func_800299D8(s32 *out, s32 index, Vec3i *pos, s32 data);
+s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
+/* MATCHING: this unit passes the coordinates unextended, so it saw s32
+ * parameters (code_29f54 defines them as s16). */
+void func_8003A3F4(s32 *index, s32 x, s32 y);
 extern CdlLOC D_80095728;
 extern MATRIX D_800E4858;
 
@@ -565,7 +568,18 @@ s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {
     return from + v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_80018D70);
+s32 func_80018D70(void *pos, void *arg, s32 cur) {
+    Vec3i p;
+
+    p.x = ((Vec3i *)pos)->x;
+    p.y = ((Vec3i *)pos)->y;
+    p.z = ((Vec3i *)pos)->z;
+    func_8003A3F4(&cur, p.x, p.z);
+    if (func_800299D8(arg, cur, &p, D_800958B4) == 0x7FFF) {
+        return -1;
+    }
+    return cur;
+}
 
 void func_80018DE8(void) {}
 

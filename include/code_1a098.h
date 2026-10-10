@@ -63,5 +63,15 @@ s32 func_8002A7D8(Rec78 *rec, Rec48 *r);
 
 extern SVECTOR D_800957E4; /**< a local position to transform to world */
 extern VECTOR D_8009F268;  /**< the world position of that local one */
+extern u8 D_800A74D0[];    /**< 128 byte flags; cleared together */
+
+/** @brief Marks with 2 every block entry whose flag is 1.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D16C(void);
+
+/** @brief Resets the game state: clears the 0x30000-byte block at `recs`
+ *         and frees its 200 Rec48 records, and resets the tables.
+ *  @param recs the block */
+void func_8002D2C0(Rec48 *recs);
 
 #endif

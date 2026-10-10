@@ -341,4 +341,7 @@ void func_80028888(void *rec);
  *  @param id the set, 0 to 22 (read as a byte) */
 void func_80022554(s32 id);
 
+/** @brief Defined in code_31958. */
+void func_800413BC(void);
+
 #endif

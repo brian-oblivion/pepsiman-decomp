@@ -338,13 +338,10 @@ extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
 extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 
 /* Defined in other units, without a header. */
-void func_8002D2C0(Rec48 *recs);
-s32 func_8002D16C(void);
 void func_8002AA58(void);
 /* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
 void func_8002CCEC(GsOT *ot);
 void func_8002C47C(void);
-void func_800413BC(void);
 void func_800184BC(void);
 void func_8003A008(s16 x, s16 y, s16 z);
 void func_8003B9B4(s16 x, s16 y, s16 z, s16 w);
@@ -372,9 +369,8 @@ void func_80033B08(void);
 void func_80033B34(void);
 void func_80033BF8(void);
 void func_8002DC44(void);
-extern u8 D_800A74D0[]; /**< 128 byte flags */
-extern s32 D_80095770;  /**< set to 0xFF on leaving the tool */
-extern u8 D_80095962;   /**< set on leaving the tool */
+extern s32 D_80095770; /**< set to 0xFF on leaving the tool */
+extern u8 D_80095962;  /**< set on leaving the tool */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */

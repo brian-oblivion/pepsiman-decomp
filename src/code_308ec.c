@@ -169,7 +169,6 @@ extern s32 D_80095988;
 extern s32 D_8007B038[][3];
 extern s32 D_8007AF84[][3];
 
-void func_800413BC(void);
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */
 u8 func_80017F0C(StageState *obj, u16 index, u8 arg);

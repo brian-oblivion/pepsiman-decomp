@@ -215,7 +215,6 @@ typedef struct {
     u8 unk6D;       /**< zeroed on a reset */
 } Progress6E;
 
-extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
 extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */

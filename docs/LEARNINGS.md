@@ -107,6 +107,22 @@ function's match report, not here.
 - **`swc2 $17..$19` (or `$16..$19`) off one base: `gte_stsz3c` /
   `gte_stsz4c`** (include/gte.h). (func_8001B4BC)
 
+- **A `jal` to an empty function as main's first call: cc1's `__main`.**
+  Name that address `__main`; the C does not call it. (main)
+- **An address computed by indexing a real array, `D[i].v[j]`, adds the
+  offsets before the symbol**; a cast view `((T *)D)[i]` adds `D + i*SIZE`
+  first and CSE shares it with a record pointer. (func_8002AA58)
+- **A stack area block-copied from a constant at entry: an aggregate
+  initialiser** (cc1 `$LC`); when the constant sits outside the unit's
+  rodata, copy from an extern, declared `[]` when 8 bytes or less.
+  (func_80028984)
+- **An indexed store with the index computed before the table's
+  `lui`/`addiu`: an array of at most 8 bytes (`s32 X[2]`)**, not a scalar
+  indexed through `&`. (func_8003D960)
+- **A table base built 10 records before a symbol (`addiu -0x320`): the
+  array starts earlier and needs a symbol plus a linker definition.**
+  (func_8003F100, func_80039C3C, both still open)
+
 ## Types
 
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
@@ -170,6 +186,17 @@ function's match report, not here.
   folds to `lbu`. (func_80041534)
 - **A constant narrowed to a halfword add (`li 0xFE0C`) where retail has
   `addiu -500`: give each offset its own `s32` local.** (func_8003146C)
+
+- **A callee's return type can decide a register tie**: a `void` callee
+  that leaves `$v0` set, declared `s32`, closed 8 register diffs in two
+  functions (permuter finds). (func_8002AA58, func_80028F0C)
+- **`bltz` on an `lbu`-loaded `u8`: copied into an `s32` local and tested
+  `>= 0`.** (code_29f54, round 11)
+- **An `andi 0xFF` on an argument the prototype types `s32`: a `(u8)` cast
+  at the call.** (code_29f54, round 11)
+- **Byte averages that need `srl` with no mask: `u8` locals assigned
+  `(u32)(a + b) >> 1`**; tell: the value is the first operand of its OR.
+  (func_8001E558)
 
 ## Loops
 
@@ -346,6 +373,14 @@ function's match report, not here.
 - **`s32` with no return also frees a forward branch's delay slot** for a
   constant where `void` fills it with `lui`. (func_8002D424)
 
+- **`beqz` to one block and `beq K` to another on one variable, then a `j`
+  over both: `switch (s) { case 0: ...; case K: ...; }`.** (code_29f54,
+  round 11)
+- **A result's `sll`/`sra` above the epilogue's register loads: an early
+  `return x;`**; the return label splits the block. (func_80028AE4)
+- **Two identical arms retail keeps apart: a bare `__asm__("")` after the
+  call in one of them** (before it, cc1 still merges them). (main)
+
 ## Scheduling
 
 - **A field loaded after earlier global stores: read it through a byte
@@ -458,3 +493,17 @@ function's match report, not here.
   (func_800426A4)
 - **A pointer parameter in the wrong saved register: drop the typed local
   copy and cast the parameter at each use.** (func_80023F80)
+- **The order of stores inside switch cases decides which ORs `loop.c`
+  hoists**, and so the length: it hoists invariants in instruction order and
+  lowers its threshold by 3 per move. `cc1 -dL` shows each candidate.
+  (func_8001E558)
+- **A swapped prologue store pair (`sw zero` for `i`, `sw aN` home): the
+  `PACKET *packet` parameter with a typed local copy.** (func_8001C13C)
+- **A stack store retail keeps that cc1 deletes as dead: `*(volatile s32
+  *)&x.f = t;`, then use `t`.** (func_80028AE4)
+- **Two counters in one loop: `for (...; i++, k++)` with `a[k] = f()`**;
+  `a[k++]` swaps their registers. (func_80028F0C)
+- **Two strength-reduced loop registers swapped: reverse the ternary that
+  selects between them.** (code_29f54, round 11)
+- **Two pointers stepping by one stride where one is only copied on a hit:
+  one pointer plus `best = f;`**; cc1 makes the second. (func_80029E74)

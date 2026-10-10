@@ -272,7 +272,104 @@ void func_800229A8(void) {
     D_800DB2A0[5] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80022A74);
+/* MATCHING: the parity mask through y, the first loop's local, keeps 0xFF out of the preheader. */
+void func_80022A74(void) {
+    DVECTOR sxy;
+    SVECTOR v;
+    MATRIX ls;
+    GsCOORDINATE2 coord;
+    GsLINE line;
+    POLY_F4 poly;
+    long p;
+    long flag;
+    s32 x;
+    s32 y;
+    POLY_F4 *pp;
+
+    if (D_80095970 & 0x10) {
+        D_800959A8 = 0;
+    }
+    if (D_80095964 & 4) {
+        D_800959A8 += 2;
+    }
+    if (D_80095964 & 8) {
+        D_800959A8 -= 2;
+    }
+    if (D_80095970 & 0x800) {
+        D_80095880 = 3;
+    }
+    if (D_80095964 & 0x8000) {
+        D_800DB2A0[0]++;
+    }
+    if (D_80095964 & 0x2000) {
+        D_800DB2A0[0]--;
+    }
+    if (D_80095964 & 0x1000) {
+        D_800DB2A0[1]++;
+    }
+    if (D_80095964 & 0x4000) {
+        D_800DB2A0[1]--;
+    }
+    line.attribute = 0;
+    line.b = line.g = line.r = 0xFF;
+    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
+        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
+            x = D_800DE5E0[D_800958D0 * 21 + D_800958CC].x;
+            y = D_800DE5E0[D_800958D0 * 21 + D_800958CC].y;
+            GsInitCoordinate2(WORLD, &coord);
+            coord.coord.t[2] = 0;
+            coord.flg = 0;
+            coord.coord.t[0] = x;
+            coord.coord.t[1] = y;
+            GsGetLs(&coord, &ls);
+            GsSetLsMatrix(&ls);
+            v.vx = v.vy = v.vz = 0;
+            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
+            D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx = line.x0 = line.x1 = sxy.vx;
+            D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy = line.y0 = line.y1 = sxy.vy;
+            GsSortLine(&line, &D_800A7318[D_80095750], 0);
+        }
+    }
+    pp = &poly;
+    for (D_800958D0 = 0; D_800958D0 < 15; D_800958D0++) {
+        for (D_800958CC = 0; D_800958CC < 20; D_800958CC++) {
+            SetPolyF4(pp);
+            pp->x0 = D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx;
+            pp->y0 = D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy;
+            pp->x1 = D_800DE0A0[D_800958D0 * 21 + (D_800958CC + 1)].vx;
+            pp->y1 = D_800DE0A0[D_800958D0 * 21 + (D_800958CC + 1)].vy;
+            pp->x3 = D_800DE0A0[(D_800958D0 + 1) * 21 + (D_800958CC + 1)].vx;
+            pp->y3 = D_800DE0A0[(D_800958D0 + 1) * 21 + (D_800958CC + 1)].vy;
+            pp->x2 = D_800DE0A0[(D_800958D0 + 1) * 21 + D_800958CC].vx;
+            pp->y2 = D_800DE0A0[(D_800958D0 + 1) * 21 + D_800958CC].vy;
+            y = 1;
+            if (D_800958D0 & y) {
+                if (D_800958CC & y) {
+                    pp->r0 = 0x70;
+                    pp->g0 = 0x70;
+                    pp->b0 = 0x80;
+                } else {
+                    pp->r0 = 0xFF;
+                    pp->g0 = 0xFF;
+                    pp->b0 = 0xFF;
+                }
+            } else if (D_800958CC & 1) {
+                pp->r0 = 0xFF;
+                pp->g0 = 0xFF;
+                pp->b0 = 0xFF;
+            } else {
+                pp->r0 = 0x70;
+                pp->g0 = 0x70;
+                pp->b0 = 0x80;
+            }
+            GsSortPoly(pp, &D_800A7318[D_80095750], D_800DE5E0[D_800958D0 * 21 + D_800958CC].z >> 6);
+        }
+    }
+    D_800957F8 = D_800959A8;
+    D_80095800 = D_800DED50[0];
+    D_80095804 = D_800DE0A0[0].vx;
+    D_8009580C = D_800DE0A0[0].vy;
+}
 
 void func_80022F58(void) {}
 

@@ -10,6 +10,7 @@
 #include "libmcrd.h"
 #include "memory.h"
 #include "code_a0bc.h"
+#include "code_7d74.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
@@ -458,22 +459,73 @@ void func_80017124(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80017270);
-
 /**
  * @brief A per-channel stepping state (the name is a guess): its stepper
  *        advances channel N through tables at offsets 0x20 and 0x1B0.
  *        Only the bytes this unit touches are named.
  */
 typedef struct {
-    u8 unk0[4];     /**< not yet known */
-    u8 unk4;        /**< passed on as the stepper's third argument */
-    u8 unk5;        /**< a kind: 0x60 and 0x61 are tested */
-    u8 unk6[2];     /**< not yet known */
-    u8 unk8;        /**< set to 0xFF when a 0x61 step returns zero */
-    u8 unk9[0x337]; /**< not yet known */
-    u8 unk340;      /**< the stepper's last result */
+    u8 unk0[4];      /**< not yet known */
+    u8 unk4;         /**< passed on as the stepper's third argument */
+    u8 unk5;         /**< a kind: 0x60 and 0x61 are tested */
+    u8 unk6[2];      /**< not yet known */
+    u8 unk8;         /**< set to 0xFF when a 0x61 step returns zero */
+    u8 unk9[0x337];  /**< not yet known */
+    u8 unk340;       /**< the stepper's last result */
+    u8 unk341[7];    /**< not yet known */
+    s32 unk348;      /**< a position, x: the model's translation */
+    s32 unk34C;      /**< a position, y */
+    s32 unk350;      /**< a position, z */
+    u8 unk354[0x2C]; /**< not yet known */
+    u16 unk380;      /**< a rotation about y */
 } Stepper;
+
+/** @brief A list of models drawn together (a unit-local view). */
+typedef struct {
+    GsDOBJ2 *objs; /**< the models */
+    s32 count;     /**< how many */
+} ModelSet;
+
+/* MATCHING: a struct lvalue over the shared array declaration. */
+#define sModels (*(ModelSet *)D_800D8360)
+
+extern s32 D_80095758;
+
+/* MATCHING: switches the stack to the scratchpad and back; moving $sp has
+   no C spelling. */
+#define SetSpadStack() \
+    __asm__ volatile(  \
+        "lui $9,0x1F80\n\tori $9,$9,0x3FC\n\tmove $8,$9\n\tsw $29,0($8)\n\taddiu $8,$8,-24\n\tmove $29,$8")
+#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $29,0($29)")
+
+void func_80017270(Stepper *obj) {
+    MATRIX m;
+    SVECTOR rot;
+    GsDOBJ2 *o;
+    s32 i;
+
+    func_80020CF8(D_80095758);
+    o = sModels.objs;
+    o->coord2->coord.t[0] = obj->unk348;
+    o->coord2->coord.t[1] = obj->unk34C;
+    o->coord2->coord.t[2] = obj->unk350;
+    rot.vx = 0;
+    rot.vy = obj->unk380;
+    rot.vz = 0;
+    func_80018AE0(&rot, o->coord2);
+    for (i = 0; i < sModels.count; o++, i++) {
+        o->coord2->flg = 0;
+        if (o->id != -1 && o->tmd != NULL) {
+            GsGetLs(o->coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(o->coord2, &m);
+            GsSetLightMatrix(&m);
+            SetSpadStack();
+            GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+            ResetSpadStack();
+        }
+    }
+}
 
 /* MATCHING: code_308ec passes the game state's head in its own view. */
 u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);

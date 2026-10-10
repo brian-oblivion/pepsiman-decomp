@@ -21,15 +21,17 @@ typedef struct {
 
 /** @brief A state block with a halfword total at 0x26. */
 typedef struct {
-    u8 unk0[0x12]; /**< not yet known */
-    u16 unk12;     /**< the edited value saved for menu line 0 */
-    u16 unk14;     /**< the edited value saved for menu line 1 */
-    u8 unk16[8];   /**< not yet known */
-    u16 unk1E;     /**< matched against a Rec48's unk34 */
-    u8 unk20[6];   /**< not yet known */
-    u16 unk26;     /**< a sum over the current block's entries */
-    u8 unk28[2];   /**< not yet known */
-    u16 unk2A;     /**< matched against a Rec3C's unk2C */
+    u8 unk0[0xC]; /**< not yet known */
+    s32 unkC;     /**< a height offset added to the camera's y */
+    u8 unk10[2];  /**< not yet known */
+    u16 unk12;    /**< the edited value saved for menu line 0 */
+    u16 unk14;    /**< the edited value saved for menu line 1 */
+    u8 unk16[8];  /**< not yet known */
+    u16 unk1E;    /**< matched against a Rec48's unk34 */
+    u8 unk20[6];  /**< not yet known */
+    u16 unk26;    /**< a sum over the current block's entries */
+    u8 unk28[2];  /**< not yet known */
+    u16 unk2A;    /**< matched against a Rec3C's unk2C */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -328,7 +330,19 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F270);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F6A0);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F8FC);
+/** @brief Fills the six camera words from the yaw in the first rotation
+ *         and the view's orbit angle. */
+void func_8002F8FC(void) {
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    D_800DB2A0[0] = rsin(rot->vy) * 500 / 4096;
+    D_800DB2A0[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
+    D_800DB2A0[2] = rcos(rot->vy) * 500 / 4096;
+    D_800DB2A0[3] = rsin(rot->vy - 0x800) * 900 / 4096;
+    D_800DB2A0[4] = sGameSave.unk348[1];
+    D_800DB2A0[5] = rcos(rot->vy - 0x800) * 900 / 4096;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FA78);
 

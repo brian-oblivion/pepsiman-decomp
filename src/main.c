@@ -282,7 +282,101 @@ void func_80014D6C(void) {
     FntOpen(-0x9A, -0x74, 0x140, 0x100, 0, 0x400);
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80014DB0);
+/**
+ * @brief A 10-byte record of a table in initialized data (the table
+ *        starts with one), unpacked field by field into small globals.
+ *        Meanings not yet known.
+ */
+typedef struct {
+    u16 unk0; /**< not yet known */
+    u16 unk2; /**< not yet known */
+    u8 unk4;  /**< not yet known */
+    u8 unk5;  /**< not yet known */
+    u8 unk6;  /**< not yet known */
+    u8 unk7;  /**< not yet known */
+    u16 unk8; /**< not yet known */
+} TableHeader;
+
+extern TableHeader *D_80095930;
+extern u16 D_8009576C;
+extern u16 D_8009586A;
+extern u16 D_800958E6;
+extern u16 D_80095764;
+extern u16 D_80095766;
+/* MATCHING: signed, so the zero test in func_80014DB0 is its own `lh`. */
+extern s16 D_800957D8;
+extern u16 D_800957E0;
+extern u8 D_800957DA;
+
+void func_80015328(s32 offset, u8 a, u8 b);
+
+/**
+ * @brief Selects record @p index of @p tbl and unpacks it into the record
+ *        globals. The same body as the out-of-line selector below; inlined
+ *        with the table head as @p tbl, its store of the head drops out.
+ */
+static __inline__ void setRecord(TableHeader *tbl, u16 index) {
+    u8 *rec;
+
+    D_80095930 = tbl;
+    tbl += index;
+    D_8009576C = index;
+    D_8009586A = tbl->unk0;
+    D_800958E6 = tbl->unk2;
+    /* MATCHING: byte-pointer reads keep each load below the prior store. */
+    rec = (u8 *)tbl;
+    D_80095764 = rec[5];
+    D_80095766 = rec[4];
+    D_800957D8 = *(u16 *)(rec + 8);
+    D_800957E0 = rec[6];
+}
+
+/**
+ * @brief setRecord's twin for repeating the current record: the same
+ *        unpacking, with the repeat count @p count stepped down instead of
+ *        reloaded. Inlined, so its parameter conversions survive.
+ */
+static __inline__ void repeatRecord(TableHeader *tbl, u16 index, u8 count) {
+    u8 *rec;
+
+    D_80095930 = tbl;
+    tbl += index;
+    D_8009576C = index;
+    D_8009586A = tbl->unk0;
+    D_800958E6 = tbl->unk2;
+    rec = (u8 *)tbl;
+    D_80095764 = rec[5];
+    D_80095766 = rec[4];
+    D_800957D8 = *(u16 *)(rec + 8);
+    D_800957E0 = count - 1;
+}
+
+/* MATCHING: s32 with a bare return, so the `bgtz` keeps its `nop` slot. */
+s32 func_80014DB0(void) {
+    if ((s16)D_800958E6 > 0 && D_800957DA == 1) {
+        func_80015328(0, D_80095764, D_80095766);
+        D_800958E6--;
+        return;
+    }
+    D_800958E6 = 0;
+    D_80095764 = 0;
+    D_80095766 = 0;
+    func_80015328(0, 0, 0);
+    if ((s16)D_800957E0 > 0) {
+        if ((s16)--D_8009586A <= 0) {
+            if ((s16)D_800957E0 < 2) {
+                D_800957E0 = 0;
+                if (D_800957D8 != 0) {
+                    setRecord(D_80095930, D_800957D8);
+                }
+            } else {
+                repeatRecord(D_80095930, D_8009576C, D_800957E0);
+            }
+        }
+    } else {
+        D_8009586A = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014FA8);
 
@@ -359,30 +453,6 @@ void func_800153CC(s32 mode) {
         D_800958CC++;
     } while (D_800958CC < 10);
 }
-
-/**
- * @brief A 10-byte record of a table in initialized data (the table
- *        starts with one), unpacked field by field into small globals.
- *        Meanings not yet known.
- */
-typedef struct {
-    u16 unk0; /**< not yet known */
-    u16 unk2; /**< not yet known */
-    u8 unk4;  /**< not yet known */
-    u8 unk5;  /**< not yet known */
-    u8 unk6;  /**< not yet known */
-    u8 unk7;  /**< not yet known */
-    u16 unk8; /**< not yet known */
-} TableHeader;
-
-extern TableHeader *D_80095930;
-extern u16 D_8009576C;
-extern u16 D_8009586A;
-extern u16 D_800958E6;
-extern u16 D_80095764;
-extern u16 D_80095766;
-extern u16 D_800957D8;
-extern u16 D_800957E0;
 
 void func_80015450(TableHeader *tbl, u16 index) {
     u8 *rec;

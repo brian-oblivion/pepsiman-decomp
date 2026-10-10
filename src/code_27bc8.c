@@ -200,7 +200,27 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037C2C);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037CF0);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80038124);
+/** @brief Opens the eight memory card events (four software, four hardware) and leaves them disabled. */
+void func_80038124(void) {
+    EnterCriticalSection();
+    D_800959E8 = OpenEvent(0xF4000001, 4, 0x2000, NULL);
+    D_800959EC = OpenEvent(0xF4000001, 0x8000, 0x2000, NULL);
+    D_800959F0 = OpenEvent(0xF4000001, 0x100, 0x2000, NULL);
+    D_800959F4 = OpenEvent(0xF4000001, 0x2000, 0x2000, NULL);
+    D_800959FC = OpenEvent(0xF0000011, 4, 0x2000, NULL);
+    D_80095A00 = OpenEvent(0xF0000011, 0x8000, 0x2000, NULL);
+    D_80095A04 = OpenEvent(0xF0000011, 0x100, 0x2000, NULL);
+    D_80095A08 = OpenEvent(0xF0000011, 0x2000, 0x2000, NULL);
+    ExitCriticalSection();
+    DisableEvent(D_800959E8);
+    DisableEvent(D_800959EC);
+    DisableEvent(D_800959F0);
+    DisableEvent(D_800959F4);
+    DisableEvent(D_800959FC);
+    DisableEvent(D_80095A00);
+    DisableEvent(D_80095A04);
+    DisableEvent(D_80095A08);
+}
 
 /* MATCHING: s32, not s16: both callers test the result unextended. */
 s32 func_8003828C(u8 *a, u8 *b, s16 n) {

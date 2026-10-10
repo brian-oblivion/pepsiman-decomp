@@ -12,32 +12,53 @@
  *         known. */
 typedef struct {
     s16 unk0;      /**< -1 when the record is free (a guess) */
-    u8 unk2[0x24]; /**< not yet known */
+    u8 unk2[2];    /**< not yet known */
+    s32 unk4[3];   /**< a position */
+    s32 unk10[3];  /**< a copy of unk4 */
+    u8 unk1C[0xA]; /**< not yet known */
     u8 unk26;      /**< bit 7 picks one of two handlers */
-    u8 unk27[5];   /**< not yet known */
+    u8 unk27;      /**< sTotals.unk6C when placed */
+    u8 unk28;      /**< sTotals.unk6D when placed */
+    u8 unk29;      /**< not yet known */
+    u16 unk2A;     /**< sTotals.unk6A when placed */
     s16 unk2C;     /**< matched against sTotals.unk2A */
-    u8 unk2E[0xE]; /**< not yet known */
+    u8 unk2E[2];   /**< not yet known */
+    s32 unk30;     /**< a global stamp when placed */
+    s32 unk34;     /**< the current entry when placed */
+    u8 unk38[4];   /**< not yet known */
 } Rec3C;
 
 /** @brief The tool state block: counts, totals and saved menu values. */
 typedef struct {
-    u8 unk0[0xC];   /**< not yet known */
+    u8 unk0[3];     /**< not yet known */
+    u8 unk3;        /**< the menu line the tool mode was entered from */
+    s32 unk4;       /**< a step: the move distance and the height step */
+    s32 unk8;       /**< a height offset added to the ground height */
     s32 unkC;       /**< a height offset added to the camera's y */
     u8 unk10[2];    /**< not yet known */
     u16 unk12;      /**< the edited value saved for menu line 0 */
     u16 unk14;      /**< the edited value saved for menu line 1 */
-    u8 unk16[2];    /**< not yet known */
+    u16 unk16;      /**< number of 0x5C-byte records in use */
     u16 unk18;      /**< number of Obj48 records in use */
     u16 unk1A;      /**< number of Obj48 records counted live */
     u16 unk1C;      /**< unk38 of the first record placed */
     u16 unk1E;      /**< matched against a Rec48's unk34 */
-    u8 unk20[6];    /**< not yet known */
+    s16 unk20;      /**< an angle in degrees, wrapped to 0..359 */
+    u16 unk22;      /**< the selected point of the current entry */
+    u16 unk24;      /**< the edited value saved for tool mode 2 */
     u16 unk26;      /**< a sum over the current block's entries */
-    u8 unk28[2];    /**< not yet known */
+    u16 unk28;      /**< the Rec3C slot the next record goes to */
     u16 unk2A;      /**< matched against a Rec3C's unk2C */
-    u8 unk2C[0x3C]; /**< not yet known */
+    u16 unk2C;      /**< a Rec3C kind, less 30 */
+    u8 unk2E[2];    /**< not yet known */
+    u16 unk30;      /**< number of Rec3C records in use */
+    u16 unk32;      /**< picks one of two Rec3C handlers */
+    u8 unk34[0x34]; /**< not yet known */
     u8 unk68;       /**< copied into a placed record's unk42 */
     u8 unk69;       /**< copied into a placed record's unk43 */
+    u16 unk6A;      /**< copied into a placed Rec3C's unk2A */
+    u8 unk6C;       /**< copied into a placed Rec3C's unk27 */
+    u8 unk6D;       /**< copied into a placed Rec3C's unk28 */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -45,14 +66,45 @@ typedef struct {
     u8 b[0x10000]; /**< not yet known */
 } Page64K;
 
-/** @brief A 0xB774-byte slot of the tool buffer; a tag byte and an owner
- *         byte known. */
+/** @brief The tool state block, copied whole. */
 typedef struct {
-    u8 unk0[0x200];    /**< not yet known */
-    u8 unk200;         /**< 0x38 when the slot is valid */
-    u8 unk201;         /**< not yet known */
-    u8 unk202;         /**< the owner; compared with a global */
-    u8 unk203[0xB571]; /**< not yet known */
+    s32 w[0x74 / 4]; /**< the block */
+} TotalsCopy;
+
+/** @brief The 200-entry Obj48 table, copied whole. */
+typedef struct {
+    s32 w[0x3840 / 4]; /**< the records */
+} Obj48sCopy;
+
+/** @brief The 200-entry 0x5C-byte record table, copied whole. */
+typedef struct {
+    s32 w[0x47E0 / 4]; /**< the records */
+} Rec5CsCopy;
+
+/** @brief The 100-entry Rec3C table, copied whole. */
+typedef struct {
+    s32 w[0x1770 / 4]; /**< the records */
+} Rec3CsCopy;
+
+/** @brief The block header area, copied whole; bytes, so a copy of it
+ *         tests the alignment at run time. */
+typedef struct {
+    u8 b[0x800]; /**< the area */
+} BlockAreaCopy;
+
+/** @brief A 0xB774-byte slot of the tool buffer, seen 0x200 bytes early:
+ *         the slot's data starts at unk200 and its block header area runs
+ *         0x200 bytes past this view's end. */
+typedef struct {
+    u8 unk0[0x200];     /**< not yet known */
+    u8 unk200;          /**< 0x38 when the slot is valid */
+    u8 unk201;          /**< not yet known */
+    u8 unk202;          /**< the owner; compared with a global */
+    u8 unk203[0x71];    /**< the rest of the tool state block */
+    Obj48sCopy unk274;  /**< the Obj48 table */
+    Rec5CsCopy unk3AB4; /**< the 0x5C-byte record table */
+    Rec3CsCopy unk8294; /**< the Rec3C table */
+    u8 unk9A04[0x1D70]; /**< not yet known; the block area starts at 0xB174 */
 } SaveSlot;
 
 /* MATCHING: D_800A7898 and D_80095B28 are also declared in code_1a098, each
@@ -90,8 +142,10 @@ typedef struct {
 
 /** @brief The game state, seen as the part the tool state saves. */
 typedef struct {
-    u8 unk0[0x348]; /**< not yet known */
-    s32 unk348[3];  /**< saved into sToolSave.unk38 */
+    u8 unk0[0x348];  /**< not yet known */
+    s32 unk348[3];   /**< saved into sToolSave.unk38 */
+    u8 unk354[0x70]; /**< not yet known */
+    s32 unk3C4;      /**< a copy of unk348[1] */
 } GameSave;
 
 #define sGameSave (*(GameSave *)D_8009EB78)
@@ -130,23 +184,29 @@ typedef struct {
 /** @brief A 0x48-byte record of the 200-entry record table, as
  *         this unit places it (code_1a098.h's Rec48 is the same record). */
 typedef struct {
-    s32 unk0[3];   /**< a position */
-    s32 unkC[3];   /**< a copy of unk0 */
-    u8 unk18[0xC]; /**< not yet known */
-    s16 unk24;     /**< cleared when placed */
-    s16 unk26;     /**< cleared when placed */
-    s32 unk28;     /**< the current entry when placed */
-    u8 unk2C[8];   /**< not yet known */
-    s16 unk34;     /**< sTotals.unk1E when placed */
-    s16 unk36;     /**< -1 when free */
-    s16 unk38;     /**< sTotals.unk1C for the first placed, else -1 */
-    u8 unk3A[2];   /**< not yet known */
-    s32 unk3C;     /**< a global stamp when placed */
-    u8 unk40;      /**< cleared when placed */
-    u8 unk41;      /**< not yet known */
-    u8 unk42;      /**< sTotals.unk68 when placed */
-    u8 unk43;      /**< sTotals.unk69 when placed */
-    u8 unk44[4];   /**< not yet known */
+    s32 unk0[3]; /**< a position */
+    s32 unkC[3]; /**< a copy of unk0 */
+    s16 unk18;   /**< cleared when the first record is taken */
+    s16 unk1A;   /**< a heading, 0..4095 */
+    s16 unk1C;   /**< cleared when the first record is taken */
+    u8 unk1E[2]; /**< not yet known */
+    u16 unk20;   /**< a heading offset from the first record's */
+    u8 unk22[2]; /**< not yet known */
+    s16 unk24;   /**< cleared when placed */
+    s16 unk26;   /**< cleared when placed */
+    s32 unk28;   /**< the current entry when placed */
+    s32 unk2C;   /**< an angle from the light direction */
+    s32 unk30;   /**< a second angle from the light direction */
+    s16 unk34;   /**< sTotals.unk1E when placed */
+    s16 unk36;   /**< -1 when free */
+    s16 unk38;   /**< sTotals.unk1C for the first placed, else -1 */
+    u8 unk3A[2]; /**< not yet known */
+    s32 unk3C;   /**< a global stamp when placed */
+    u8 unk40;    /**< cleared when placed */
+    u8 unk41;    /**< not yet known */
+    u8 unk42;    /**< sTotals.unk68 when placed */
+    u8 unk43;    /**< sTotals.unk69 when placed */
+    u8 unk44[4]; /**< not yet known */
 } Obj48;
 
 /* MATCHING: code_1a098 declares D_800959D8 as u8 (it only zeroes it); this
@@ -155,14 +215,99 @@ extern Obj48 D_80096788[]; /**< records waiting to be placed */
 extern u16 D_8009596E;     /**< number of records waiting */
 extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
-/* MATCHING: declared per unit with code_1a098 while Rec3C is local to each
- * unit; func_8002B8F8 takes s16 here, u16 there (retail masks it there). */
-void func_80032964(s32 a, u8 *buf);
-void func_80032C28(s32 a, u8 *buf);
+/* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
+ * take an s32 id here (passed unextended), u16 and s16 in code_1a098. */
+void func_80032964(s16 a, u8 *buf);
+void func_80032C28(s16 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
-void func_8002C894(s16 id, Rec3C *r);
-void func_8002B8F8(s16 id, Rec3C *r);
+void func_8002C894(s32 id, Rec3C *r);
+void func_8002B8F8(s32 id, Rec3C *r);
+
+/** @brief A rotation followed by a position (code_13068.h declares the
+ *         record as an SVECTOR array). */
+typedef struct {
+    SVECTOR rot; /**< the rotation */
+    s32 pos[3];  /**< the position */
+} RotPos;
+
+#define sRotPos (*(RotPos *)D_800A7680)
+
+/* MATCHING: declared per unit (code_1a098 and code_308ec give their own
+ * views); here the start position is passed as words. */
+s32 func_800183B0(s32 *pos);
+extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
+
+/* MATCHING: code_1a098 declares it as its Rec5C records. */
+extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
+
+/** @brief A 0x5C-byte record of the 200-entry record table, as this unit
+ *         places it. */
+typedef struct {
+    s8 unk0;       /**< -1 when the record is free */
+    u8 unk1[0x4F]; /**< not yet known */
+    s32 unk50[3];  /**< a position */
+} Rec5Cv;
+
+#define sRecs5C ((Rec5Cv *)D_800CF080)
+
+/** @brief A width and a depth. */
+typedef struct {
+    s16 w; /**< the width */
+    s16 d; /**< the depth */
+} Size2;
+
+/** @brief Three sizes, copied whole. */
+typedef struct {
+    Size2 s[3]; /**< the sizes */
+} Sizes3;
+
+extern Sizes3 D_800110EC; /**< the three box sizes, 2000, 1000 and 4000 */
+
+/* MATCHING: code_1a098 defines it on its Box4. */
+void func_8002C540(Rec5Cv *b, s16 w, s16 d);
+
+/* MATCHING: code_308ec defines it with an s16 first parameter; this unit
+ * passes it unextended and hands it two record pointers. */
+u16 func_80040E04(s32 id, Obj48 *a, Obj48 *b);
+
+/* MATCHING: defined in code_13068 and code_24748, which have no header. */
+void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
+void func_80033F48(VECTOR *pos);
+
+void func_80033A08(s32 deg, s32 dist);
+extern u32 D_800957C8; /**< an analogue stick axis, 0x80 at rest */
+extern u32 D_800957C0; /**< the other analogue stick axis, 0x80 at rest */
+
+/* MATCHING: code_7d74 defines it; its header does not declare it. */
+void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
+void func_800327BC(void);
+void func_80033C90(void);
+void func_80033D3C(void);
+extern char D_80095528[]; /**< "\n\n\n" */
+extern char D_80095620[]; /**< "CHECK" */
+extern char D_800110F8[]; /**< "DATA MODE" */
+extern char D_80011104[]; /**< "  MODE SELECT\n\n" */
+extern char D_80011114[]; /**< "BUFFER SELECT\n\n" */
+extern char D_80011124[]; /**< "  CREATE FILE" */
+extern char D_80011134[]; /**< "  CARD FORMAT" */
+extern char D_80011144[]; /**< "SAVE TO DATA %d\n\n" */
+extern char D_80011158[]; /**< "OVER WRITE OK ?" */
+extern char D_80011168[]; /**< "DATA WRITING..." */
+extern char D_80011178[]; /**< "LOAD TO DATA %d\n\n" */
+extern char D_8001118C[]; /**< "    LOAD OK ?" */
+extern char D_8001119C[]; /**< "CAN NOT OPEN DATA %d" */
+extern char D_800111B4[]; /**< "   COMPLATE" */
+extern char D_800111C0[]; /**< "    !!!! ERROR!!!!" */
+extern char D_800111D4[]; /**< "   NOT ENOUGH MEMORY" */
+extern char D_800111EC[]; /**< "NO CONNECT CARD" */
+extern char D_800111FC[]; /**< "NO FILE\n\n" */
+extern char D_80011208[]; /**< "CREATE NEW FILE ?" */
+extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
+extern char D_8001122C[]; /**< "   FORMAT OK ?" */
+
+extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
+extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -400,7 +545,86 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002DC44);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F270);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F6A0);
+/** @brief Runs the menu editor, then on flag bit 5 enters the tool mode
+ *         of the highlighted line.
+ *  @return nothing; the value is undefined. */
+s32 func_8002F6A0(void) {
+    /* MATCHING: non-void with no return puts the index sll in the bound
+     * check's delay slot. */
+    func_800330D4();
+    if (D_80095970 & 0x20) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 200;
+                D_800958B2 = 1;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk24;
+                D_8009574A = 0;
+                D_800958DA = 2;
+                break;
+            case 1:
+                D_800958B0 = 200;
+                D_800958B2 = 2;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk12;
+                D_8009574A = 0;
+                D_800958DA = 3;
+                break;
+            case 2:
+                D_800958B0 = 200;
+                D_800958B2 = 5;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk18;
+                D_8009574A = 0;
+                D_800958A6 = 0;
+                D_800958DA = 4;
+                break;
+            case 3:
+                D_800958B0 = 100;
+                D_800958B2 = 9;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk28;
+                D_8009574A = 0;
+                D_800958A6 = 0;
+                D_800958DA = 5;
+                break;
+            case 4:
+                D_800958D8 = 1;
+                D_800959D8 = 0;
+                D_800958A6 = 0;
+                break;
+            case 5:
+                D_800959D8 = 1;
+                /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
+                D_800958D8 = D_800959D8 != 0;
+                D_800958A6 = 0;
+                D_800958DA = 0;
+                break;
+            case 6:
+                D_800958DA = 0;
+                sGameSave.unk348[0] = sRotPos.pos[0];
+                sGameSave.unk348[1] = sRotPos.pos[1];
+                sGameSave.unk348[2] = sRotPos.pos[2];
+                sRotPos.rot.vy = sRotPos.rot.vz;
+                D_800957F4 = func_800183B0(sGameSave.unk348);
+                D_8009578C = 0;
+                D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
+                break;
+            case 7:
+                D_800958DA = 6;
+                D_800958A6 = 0;
+                break;
+        }
+    }
+}
 
 /** @brief Fills the six camera words from the yaw in the first rotation
  *         and the view's orbit angle. */
@@ -416,7 +640,77 @@ void func_8002F8FC(void) {
     D_800DB2A0[5] = rcos(rot->vy - 0x800) * 900 / 4096;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FA78);
+/** @brief Free movement in the tool: moves the game position by the pad
+ *         buttons and the analogue stick, turns, raises or lowers the
+ *         camera and the height offset, then finds the entry under the
+ *         position and puts the position on its ground height.
+ *  @return nothing; the value is undefined. */
+s32 func_8002FA78(void) {
+    s32 cur;
+
+    /* MATCHING: non-void with no return keeps the flag test's delay slot
+     * a nop. */
+    if (D_80095970 & 0x1000) {
+        func_80033A08(0, sTotals.unk4);
+    }
+    if (D_80095970 & 0x4000) {
+        func_80033A08(180, sTotals.unk4);
+    }
+    if (D_80095970 & 0x8000) {
+        func_80033A08(-90, sTotals.unk4);
+    }
+    if (D_80095970 & 0x2000) {
+        func_80033A08(90, sTotals.unk4);
+    }
+    if (D_800957C8 < 0x60) {
+        func_80033A08(0, sTotals.unk4);
+    }
+    if (D_800957C8 > 0xA0) {
+        func_80033A08(180, sTotals.unk4);
+    }
+    if (D_800957C0 < 0x60) {
+        func_80033A08(-90, sTotals.unk4);
+    }
+    if (D_800957C0 > 0xA0) {
+        func_80033A08(90, sTotals.unk4);
+    }
+    D_800A7308[1] = 0;
+    D_800A7308[0] = -sGameSave.unk348[0];
+    D_800A7308[2] = -sGameSave.unk348[2];
+    if (D_80095964 & 4) {
+        D_800A7680[0].vy -= 11;
+    }
+    if (D_80095964 & 8) {
+        D_800A7680[0].vy += 11;
+    }
+    if (D_800958D8 == 0) {
+        if (D_80095964 & 1) {
+            sTotals.unkC -= 5;
+        }
+        if (D_80095964 & 2) {
+            sTotals.unkC += 5;
+        }
+        if (sTotals.unkC > 0) {
+            sTotals.unkC = 0;
+        }
+    }
+    if (D_80095970 & 0x80) {
+        sTotals.unk8 -= sTotals.unk4;
+    }
+    if (D_80095970 & 0x40) {
+        sTotals.unk8 += sTotals.unk4;
+    }
+    sGameSave.unk3C4 = sGameSave.unk348[1];
+    cur = func_80018D70(sGameSave.unk348, D_800AC858, D_800957F4);
+    D_80095824 = cur;
+    if (cur != -1) {
+        D_800957F4 = cur;
+    }
+    sGameSave.unk348[1] = D_800AC858[0] + sTotals.unk8;
+    if (D_800958D8 == 0 && (D_80095970 & 0x20) && cur == -1) {
+        D_800958DA = 7;
+    }
+}
 
 /** @brief On flag bit 5, inserts the game position as a new point at the
  *         end of the current entry, shifting the later points up, then
@@ -472,9 +766,149 @@ void func_8002FDB4(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FF74);
+/** @brief Point editor: on the first pass selects the current entry's
+ *         first point; then moves the game position to the selected point,
+ *         deletes it on flag bit 5 (shifting the later points down), steps
+ *         the selection on flag bits 0 and 1 and clamps it to the entry.
+ *  @return nothing; the value is undefined. */
+s32 func_8002FF74(void) {
+    VECTOR pos;
+    Pt8 *dst;
+    Pt8 *src;
+    Span8 *e;
+    s32 i;
+    u32 j;
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030278);
+    /* MATCHING: non-void with no return value; each entry access is
+     * `e = base; e += k;`, which also keeps the second count test. */
+    switch (D_800958A6) {
+        case 0:
+            e = (Span8 *)D_800959C0;
+            e += D_80095824;
+            D_800958A6 = 1;
+            sTotals.unk22 = e->start;
+            return;
+        case 1:
+            break;
+        default:
+            return;
+    }
+    src = (Pt8 *)D_800959C4;
+    src += sTotals.unk22;
+    pos.vx = src->x;
+    pos.vy = src->y;
+    pos.vz = src->z;
+    func_80033F48(&pos);
+    e = (Span8 *)D_800959C0;
+    e += D_80095824;
+    if (e->count == 0 || D_80095824 == -1) {
+        D_800958DA = 10;
+        return;
+    }
+    if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+        e = (Span8 *)D_800959C0;
+        e += D_80095824;
+        if (e->count == 0) {
+            D_800958DA = 9;
+            return;
+        }
+        e = (Span8 *)D_800959C0;
+        e += D_80095824;
+        dst = (Pt8 *)D_800959C4;
+        src = dst;
+        src += sTotals.unk22 + 1;
+        dst += sTotals.unk22;
+        for (i = e->start + e->count; i < 199; i++) {
+            *dst = *src;
+            dst++;
+            src++;
+        }
+        e = (Span8 *)D_800959C0;
+        e += D_80095824;
+        e->count--;
+        e = (Span8 *)D_800959C0;
+        e += D_80095824 + 1;
+        for (j = D_80095824 + 1; j < D_80095794; j++) {
+            e->start--;
+            e++;
+        }
+    }
+    if (D_80095970 & 1) {
+        sTotals.unk22--;
+    }
+    if (D_80095970 & 2) {
+        sTotals.unk22++;
+    }
+    e = (Span8 *)D_800959C0;
+    e += D_80095824;
+    if (sTotals.unk22 < (u32)e->start) {
+        sTotals.unk22 = e->start;
+    }
+    /* MATCHING: the compare as start + (count - 1), the store as
+     * count - 1 + start; unsigned, as retail's sltu. */
+    if ((u32)e->start + (e->count - 1) < sTotals.unk22) {
+        sTotals.unk22 = (u32)e->count - 1 + e->start;
+    }
+}
+
+/** @brief Counts the used 0x5C-byte records (clearing them to 0), picks a
+ *         free slot if the current one is taken, sizes a box there at the
+ *         game position, and on flag bit 5 places it and moves the slot on
+ *         to the next free one (error 7 with no entry, 8 when full).
+ *  @return nothing; the value is undefined. */
+s32 func_80030278(void) {
+    Sizes3 sizes;
+    u32 i;
+
+    /* MATCHING: non-void with no return value keeps the flag test's delay
+     * slot a nop. */
+    sizes = D_800110EC;
+    sTotals.unk16 = 0;
+    for (i = 0; i < 200; i++) {
+        if (sRecs5C[i].unk0 != -1) {
+            sRecs5C[i].unk0 = 0;
+            sTotals.unk16++;
+        }
+    }
+    if (sTotals.unk16 == 200) {
+        D_800958DA = 8;
+        return;
+    }
+    if (sRecs5C[sTotals.unk12].unk0 != -1) {
+        for (i = 0; i < 200; i++) {
+            if (sRecs5C[i].unk0 == -1) {
+                break;
+            }
+        }
+        if (i == 200) {
+            D_800958DA = 8;
+            return;
+        }
+        sTotals.unk12 = i;
+    }
+    func_8002C540(&sRecs5C[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
+    sRecs5C[sTotals.unk12].unk50[0] = sGameSave.unk348[0];
+    sRecs5C[sTotals.unk12].unk50[1] = sGameSave.unk348[1];
+    sRecs5C[sTotals.unk12].unk50[2] = sGameSave.unk348[2];
+    sRecs5C[sTotals.unk12].unk0 = -1;
+    if (D_80095970 & 0x20) {
+        if (D_80095824 == -1) {
+            D_800958DA = 7;
+            return;
+        }
+        sRecs5C[sTotals.unk12].unk0 = 0;
+        for (i = 0; i < 200; i++) {
+            if (sRecs5C[i].unk0 == -1) {
+                break;
+            }
+        }
+        if (i == 200) {
+            D_800958DA = 8;
+            return;
+        }
+        sTotals.unk12 = i;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030548);
 
@@ -531,15 +965,207 @@ void func_80030984(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030B6C);
+/** @brief Runs the menu editor; on a line change loads the new line's
+ *         value and limit, else stores the edited value back; then steps
+ *         the angle in sTotals.unk20 on flag bits 3 and 2.
+ *  @return nothing; the value is undefined. */
+s32 func_80030B6C(void) {
+    s16 line;
+    s16 val;
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030DA0);
+    /* MATCHING: non-void with no return keeps the last two branches' delay
+     * slots nops. */
+    line = D_8009574A;
+    val = D_80095748;
+    func_800330D4();
+    if (D_8009574A == 1 && val != (s16)D_80095748) {
+        D_800958A6 = 0;
+    }
+    if (line != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk18;
+                break;
+            case 1:
+                D_800958B0 = D_8009588E;
+                D_80095748 = sTotals.unk1C;
+                break;
+            case 2:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk1E;
+                break;
+            case 3:
+                D_800958B0 = 0x100;
+                D_80095748 = sTotals.unk68;
+                break;
+            case 4:
+                D_800958B0 = 0x100;
+                D_80095748 = sTotals.unk69;
+                break;
+        }
+    } else {
+        switch (line) {
+            case 0:
+                sTotals.unk18 = D_80095748;
+                break;
+            case 1:
+                sTotals.unk1C = D_80095748;
+                break;
+            case 2:
+                sTotals.unk1E = D_80095748;
+                break;
+            case 3:
+                sTotals.unk68 = D_80095748;
+                break;
+            case 4:
+                sTotals.unk69 = D_80095748;
+                break;
+        }
+    }
+    if (D_80095964 & 8) {
+        if (++sTotals.unk20 >= 360) {
+            sTotals.unk20 = 0;
+        }
+    }
+    if (D_80095964 & 4) {
+        if (--sTotals.unk20 < 0) {
+            sTotals.unk20 = 359;
+        }
+    }
+}
+
+/** @brief Places the waiting records: on the first pass fetches them for
+ *         the game position, then sets the first one's position, heading
+ *         and light angles and every later one relative to it.
+ *  @return nothing; the value is undefined. */
+s32 func_80030DA0(void) {
+    /* MATCHING: an unused record-sized local gives retail's 0x78 frame. */
+    Obj48 unused;
+    Obj48 *w;
+    Obj48 *r;
+    u16 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    switch (D_800958A6) {
+        case 0:
+            D_80096788[0].unk18 = 0;
+            D_80096788[0].unk1C = 0;
+            D_80096788[0].unk0[0] = sGameSave.unk348[0];
+            D_80096788[0].unk0[1] = sGameSave.unk348[1];
+            D_80096788[0].unk0[2] = sGameSave.unk348[2];
+            D_80096788[0].unk1A = (sTotals.unk20 << 12) / 360;
+            D_8009596E = func_80040E04(sTotals.unk1C, D_80096788, D_80096788);
+            D_800958A6++;
+            /* fall through */
+        case 1:
+            w = D_80096788;
+            w->unk0[0] = sGameSave.unk348[0];
+            w->unk0[1] = sGameSave.unk348[1];
+            w->unk0[2] = sGameSave.unk348[2];
+            w->unk1A = (sTotals.unk20 << 12) / 360;
+            if (D_80095824 == -1) {
+                D_800AC858[1] = 0;
+                D_800AC858[2] = -0x1000;
+                D_800AC858[3] = 0;
+            }
+            w->unk2C = ratan2(-D_800AC858[3], D_800AC858[2]);
+            w->unk30 = ratan2(-D_800AC858[1], D_800AC858[2]);
+            func_8002A7D8(&D_800D8D20[w->unk36], (Rec48 *)w);
+            for (i = 1; i < D_8009596E; i++) {
+                /* MATCHING: an integer sum puts the index first in the addu. */
+                r = (Obj48 *)(i * sizeof(Obj48) + (u32)w);
+                D_800957E4.vx = r->unkC[0];
+                D_800957E4.vy = r->unkC[1];
+                D_800957E4.vz = r->unkC[2];
+                func_80023194((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
+                r->unk0[0] = D_8009F268.vx;
+                r->unk0[1] = D_8009F268.vy;
+                r->unk0[2] = D_8009F268.vz;
+                r->unk1A = w->unk1A + r->unk20;
+                r->unk2C = w->unk2C;
+                r->unk30 = w->unk30;
+                func_8002A7D8(&D_800D8D20[r->unk36], (Rec48 *)r);
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031064);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003146C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800317D0);
+/** @brief Fills the Rec3C template at the game position and runs its
+ *         handler, counts the used Rec3C records, and on flag bit 5 places
+ *         the template at the next slot and moves the slot on to a free
+ *         one (error 8 when the table is full).
+ *  @return nothing; the value is undefined. */
+s32 func_800317D0(void) {
+    u32 i;
+    s32 f;
+
+    /* MATCHING: non-void with no return value; void moves the block order
+     * and the delay slots. */
+    D_800DF818.unk4[0] = sGameSave.unk348[0];
+    D_800DF818.unk4[1] = sGameSave.unk348[1];
+    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    if (sTotals.unk32 == 0) {
+        func_8002B8F8(sTotals.unk2C + 30, &D_800DF818);
+    } else {
+        func_8002C894(sTotals.unk2C + 30, &D_800DF818);
+    }
+    /* MATCHING: the counter is cleared before the store, so each arm above
+     * ends with it (one in a jump's delay slot). */
+    i = 0;
+    sTotals.unk30 = 0;
+    for (; i < 100; i++) {
+        if (D_800A7898[i].unk0 != -1) {
+            sTotals.unk30++;
+        }
+    }
+    if (D_80095970 & 0x20) {
+        if (sTotals.unk30 == 100) {
+            D_800958DA = 8;
+        } else {
+            D_800DF818.unk2C = sTotals.unk2A;
+            D_800DF818.unk0 = sTotals.unk2C + 30;
+            D_800DF818.unk10[0] = D_800DF818.unk4[0];
+            D_800DF818.unk10[1] = D_800DF818.unk4[1];
+            D_800DF818.unk10[2] = D_800DF818.unk4[2];
+            /* MATCHING: an s32 local assigned after the copy, and the flag
+             * byte or-ed in by a second store. */
+            f = sTotals.unk32 << 7;
+            D_800DF818.unk26 = f;
+            D_800DF818.unk26 |= D_800959E2;
+            D_800DF818.unk27 = sTotals.unk6C;
+            D_800DF818.unk28 = sTotals.unk6D;
+            D_800DF818.unk2A = sTotals.unk6A;
+            D_800DF818.unk30 = D_8009578C;
+            D_800DF818.unk34 = D_80095824;
+            D_800A7898[sTotals.unk28] = D_800DF818;
+            /* MATCHING: the full-table store inside the loop, so its 8 is
+             * hoisted and the block is not merged with the one above. */
+            i = 0;
+            while (1) {
+                if (D_800A7898[sTotals.unk28].unk0 == -1) {
+                    goto found;
+                }
+                sTotals.unk28++;
+                if (sTotals.unk28 == 100) {
+                    sTotals.unk28 = 0;
+                }
+                if (++i == 100) {
+                    D_800958DA = 8;
+                    return;
+                }
+            }
+        found:
+            if (D_800959D8 == 1) {
+                D_800959D8 = 0;
+            }
+        }
+    }
+}
 
 /** @brief Runs one of two handlers on every used Rec3C whose unk2C equals
  *         sTotals.unk2A, picked by bit 7 of its unk26. */
@@ -563,7 +1189,106 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031AEC);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003245C);
+/** @brief Prints the data mode's screen for the current memory-card
+ *         state, with the save-slot list or a yes/no menu where the state
+ *         asks for one, then draws the frame around it. */
+void func_8003245C(void) {
+    func_80014BF0(5);
+    FntPrint(D_800110F8);
+    FntPrint(D_80095528);
+    switch (D_800959E4) {
+        case 0:
+            FntPrint(D_80095528);
+            func_80014BF0(4);
+            FntPrint(D_80095620);
+            break;
+        case 1:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011104);
+            func_80033D3C();
+            break;
+        case 2:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011114);
+            func_800327BC();
+            break;
+        case 16:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011124);
+            break;
+        case 17:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011134);
+            break;
+        case 4:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011144, D_80095A0C + 1);
+            func_80014BF0(3);
+            FntPrint(D_80011158);
+            func_80033C90();
+            break;
+        case 8:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011168);
+            break;
+        case 6:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_80011178, D_80095A0C + 1);
+            func_80014BF0(3);
+            FntPrint(D_8001118C);
+            func_80033C90();
+            break;
+        case 7:
+            FntPrint(D_80095528);
+            func_80014BF0(2);
+            FntPrint(D_8001119C, D_80095A0C + 1);
+            break;
+        case 10:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_800111B4);
+            break;
+        case 11:
+            FntPrint(D_80095528);
+            func_80014BF0(2);
+            FntPrint(D_800111C0);
+            break;
+        case 12:
+            FntPrint(D_80095528);
+            func_80014BF0(2);
+            FntPrint(D_800111D4);
+            break;
+        case 13:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_800111EC);
+            break;
+        case 14:
+            FntPrint(D_80095528);
+            func_80014BF0(4);
+            FntPrint(D_800111FC);
+            func_80014BF0(3);
+            FntPrint(D_80011208);
+            func_80033C90();
+            break;
+        case 15:
+            FntPrint(D_80095528);
+            func_80014BF0(3);
+            FntPrint(D_8001121C);
+            func_80014BF0(3);
+            FntPrint(D_8001122C);
+            func_80033C90();
+            break;
+    }
+    func_800179F8(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
+}
 
 /** @brief Prints the three save slots of the tool buffer as a menu, each
  *         with its stage and part, or "NO DATA". */
@@ -609,9 +1334,27 @@ void func_800327BC(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032964);
+/** @brief Saves the record tables, the block header area and the tool
+ *         state block into save slot `a` of `buf`. */
+void func_80032964(s16 a, u8 *buf) {
+    ((SaveSlot *)buf)[a].unk3AB4 = *(Rec5CsCopy *)D_800CF080;
+    ((SaveSlot *)buf)[a].unk274 = *(Obj48sCopy *)D_800A9008;
+    /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
+    *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(Rec3CsCopy *)D_800A7898;
+    *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
+    *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200 = *(TotalsCopy *)D_80095B28;
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032C28);
+/** @brief Restores the record tables, the block header area and the tool
+ *         state block from save slot `a` of `buf`. */
+void func_80032C28(s16 a, u8 *buf) {
+    *(Rec5CsCopy *)D_800CF080 = ((SaveSlot *)buf)[a].unk3AB4;
+    *(Obj48sCopy *)D_800A9008 = ((SaveSlot *)buf)[a].unk274;
+    /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
+    *(Rec3CsCopy *)D_800A7898 = *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
+    *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
+    *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
 

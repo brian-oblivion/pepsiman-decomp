@@ -249,9 +249,6 @@ void func_80033854(Rec5C *recs);
 void func_800338A0(Rec48 *recs);
 void func_8003390C(Rec3C *recs);
 
-extern SVECTOR D_800957E4; /**< a local position to transform to world */
-extern VECTOR D_8009F268;  /**< the world position of that local one */
-
 /** @brief Sets `p->pos` to the world position of its local position. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
 void func_80029898(Placed2C *p) {

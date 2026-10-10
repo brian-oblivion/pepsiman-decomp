@@ -1,6 +1,8 @@
-# func_80028984 — MATCHED 88/88 (round 11, charlie)
+# PlacePlayerPoints — MATCHED 88/88 (round 11, charlie)
 
-Unit `src/code_1902c.c`. Fills the 25-point table `D_8009F0D0`: copies a
+> Renamed from `func_80028984` on 2026-10-10 (tools/rename.py). Address 0x80028984.
+
+Unit `src/code_1902c.c`. Fills the 25-point table `gPlayerPoints`: copies a
 25-entry table of local points (three words plus a coordinate-system index
 byte, 16 bytes each) to the stack, then for each point gets the local-world
 matrix of `D_800D86E0[coord]` (`GsGetLws`), sets it and `RotTrans`es the
@@ -42,7 +44,7 @@ typedef struct {
     s32 z; /**< position */
 } Point12;
 
-extern Point12 D_8009F0D0[];
+extern Point12 gPlayerPoints[];
 
 /** @brief A local position and the index of its coordinate system. */
 typedef struct {
@@ -65,12 +67,12 @@ typedef struct {
 extern PointSpec25 D_80010950;
 extern Bytes3 D_800954F0[];
 
-void func_80028984(void);
-s32 func_800297A4(VECTOR *a, VECTOR *b);
-void func_8002985C(void);
+void PlacePlayerPoints(void);
+s32 DistanceSquared(VECTOR *a, VECTOR *b);
+void ResetPlayerHits(void);
 void func_8002988C(void);
 
-s16 func_8002882C(void) {
+s16 FindFreeSlot48(void) {
     Slot48 *slot = (Slot48 *)D_800959B8;
     u32 i;
 
@@ -82,7 +84,7 @@ s16 func_8002882C(void) {
     }
     return -1;
 }
-void func_80028984(void) {
+void PlacePlayerPoints(void) {
     s32 unused0[6];
     MATRIX ls;
     MATRIX lw;
@@ -103,9 +105,9 @@ void func_80028984(void) {
         GsGetLws(&D_800D86E0[spec.p[i].coord], &lw, &ls);
         GsSetLsMatrix(&lw);
         RotTrans(&v, &out, &flag);
-        D_8009F0D0[i].x = out.vx;
-        D_8009F0D0[i].y = out.vy;
-        D_8009F0D0[i].z = out.vz;
+        gPlayerPoints[i].x = out.vx;
+        gPlayerPoints[i].y = out.vy;
+        gPlayerPoints[i].z = out.vz;
     }
 }
 ```
@@ -116,4 +118,4 @@ void func_80028984(void) {
   written in the source: an aggregate initialiser.** If the anonymous
   constant lies outside the unit's data, copy from an extern; a small one
   must be declared `[]` so its address is split `lui`/`addiu` like cc1's
-  `$LC` label, not built by one `la`. (func_80028984)
+  `$LC` label, not built by one `la`. (PlacePlayerPoints)

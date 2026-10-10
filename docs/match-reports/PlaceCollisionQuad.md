@@ -1,12 +1,14 @@
-# func_80028888 — MATCHED 63/63 (round 11, charlie)
+# PlaceCollisionQuad — MATCHED 63/63 (round 11, charlie)
+
+> Renamed from `func_80028888` on 2026-10-10 (tools/rename.py). Address 0x80028888.
 
 Unit `src/code_1902c.c`. Places a 0x4C-byte record's four corners in the
 world: `GsGetLws` on the record's coordinate system (offset 0x48), then
 `RotTrans` of each 6-byte corner (offsets 0x00..0x17) into a world corner of
-three words (offsets 0x18..0x47), adding `D_800A7308[0]` and `[2]` to x
+three words (offsets 0x18..0x47), adding `gWorldShift[0]` and `[2]` to x
 and z, and finally restores the saved screen matrix.
 
-The signature stays the header's, `void func_80028888(void *rec)`; the body
+The signature stays the header's, `void PlaceCollisionQuad(void *rec)`; the body
 reads it as a unit-local `Rec4C`.
 
 Levers, both read from the frame and the first build:
@@ -35,7 +37,7 @@ typedef struct {
     GsCOORDINATE2 *coord;
 } Rec4C;
 
-void func_80028888(void *rec) {
+void PlaceCollisionQuad(void *rec) {
     Rec4C *r = rec;
     MATRIX ls;
     MATRIX lw;
@@ -52,9 +54,9 @@ void func_80028888(void *rec) {
         v.vy = r->local[i].vy;
         v.vz = r->local[i].vz;
         RotTrans(&v, &out, &flag);
-        r->world[i].vx = out.vx + D_800A7308[0];
+        r->world[i].vx = out.vx + gWorldShift[0];
         r->world[i].vy = out.vy;
-        r->world[i].vz = out.vz + D_800A7308[2];
+        r->world[i].vz = out.vz + gWorldShift[2];
     }
     GsSetLsMatrix(&ls);
 }

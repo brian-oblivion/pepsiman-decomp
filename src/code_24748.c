@@ -173,10 +173,10 @@ void func_80033F48(VECTOR *pos) {
     SVECTOR screen;
     s32 bob;
 
-    world.vx = pos->vx + D_800A7308[0];
+    world.vx = pos->vx + gWorldShift[0];
     bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
-    world.vz = pos->vz + D_800A7308[2];
+    world.vz = pos->vz + gWorldShift[2];
     func_800230E0(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
@@ -270,8 +270,8 @@ INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117DC);
 void func_80034070(void) {
     switch (gModeStep) {
         case 0:
-            D_800A7308[0] = 0;
-            D_800A7308[2] = 0;
+            gWorldShift[0] = 0;
+            gWorldShift[2] = 0;
             D_8009588E = 80;
             bzero((u8 *)0x8016D000, 0x10000);
             *(s32 *)0x8016D000 = 80;
@@ -639,10 +639,10 @@ void func_80034D5C(Obj48 *obj) {
     s32 unused[6];
     s16 i;
 
-    func_80028888(obj);
-    world.vx = ((ObjOwner *)obj->unk48)->pos.vx + D_800A7308[0];
+    PlaceCollisionQuad(obj);
+    world.vx = ((ObjOwner *)obj->unk48)->pos.vx + gWorldShift[0];
     world.vy = ((ObjOwner *)obj->unk48)->pos.vy;
-    world.vz = ((ObjOwner *)obj->unk48)->pos.vz + D_800A7308[2];
+    world.vz = ((ObjOwner *)obj->unk48)->pos.vz + gWorldShift[2];
     for (i = 0; i < 4; i++) {
         pts[i].x = obj->unk18[i].x;
         pts[i].y = obj->unk18[i].y;
@@ -1351,10 +1351,10 @@ void func_80036478(VECTOR *pos) {
     SVECTOR screen;
     s32 bob;
 
-    world.vx = -pos->vx + D_800A7308[0];
+    world.vx = -pos->vx + gWorldShift[0];
     bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
-    world.vz = -pos->vz + D_800A7308[2];
+    world.vz = -pos->vz + gWorldShift[2];
     func_800230E0(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
@@ -1374,9 +1374,9 @@ void func_800365A0(VECTOR *pos) {
     line.r = 0xFF;
     line.g = g;
     line.b = g;
-    world.vx = -pos->vx + D_800A7308[0];
+    world.vx = -pos->vx + gWorldShift[0];
     world.vy = pos->vy;
-    world.vz = -pos->vz + D_800A7308[2];
+    world.vz = -pos->vz + gWorldShift[2];
     func_800230E0(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
@@ -1475,8 +1475,8 @@ void func_80036B90(s16 n) {
 }
 
 void func_80036D50(void) {
-    D_800A7308[0] = 0;
-    D_800A7308[2] = 0;
+    gWorldShift[0] = 0;
+    gWorldShift[2] = 0;
     D_8009588E = 80;
     bzero((u8 *)0x8016D000, 0x10000);
     *(s32 *)0x8016D000 = 80;
@@ -1593,7 +1593,7 @@ void func_8003708C(void) {
 
 void func_80037114(void) {
     D_80095774 = 1;
-    func_8002980C();
+    ResetCollision();
     D_800A9008[0] = 0;
     D_800A9008[1] = 0;
     D_800A9008[2] = 0;

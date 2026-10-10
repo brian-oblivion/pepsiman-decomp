@@ -1,8 +1,10 @@
-# func_80028DBC — MATCHED 84/84 (round 11, charlie)
+# FindNearestPlayerPoint — MATCHED 84/84 (round 11, charlie)
+
+> Renamed from `func_80028DBC` on 2026-10-10 (tools/rename.py). Address 0x80028dbc.
 
 Unit `src/code_1902c.c`. Returns which of six consecutive points of the
-12-byte table `D_8009F0D0`, starting at `start`, is nearest `pos`: it copies
-each point and `pos` into local `VECTOR`s, stores func_800297A4's squared
+12-byte table `gPlayerPoints`, starting at `start`, is nearest `pos`: it copies
+each point and `pos` into local `VECTOR`s, stores DistanceSquared's squared
 distance in `dist[6]`, then picks the smallest (first one wins ties).
 
 No caller is C yet; the signature is read from retail: `start` is `u16`
@@ -25,10 +27,10 @@ typedef struct {
     s32 z;
 } Point12;
 
-extern Point12 D_8009F0D0[];
-s32 func_800297A4(VECTOR *a, VECTOR *b);
+extern Point12 gPlayerPoints[];
+s32 DistanceSquared(VECTOR *a, VECTOR *b);
 
-u8 func_80028DBC(u16 start, VECTOR *pos) {
+u8 FindNearestPlayerPoint(u16 start, VECTOR *pos) {
     VECTOR a;
     VECTOR b;
     s32 dist[6];
@@ -38,13 +40,13 @@ u8 func_80028DBC(u16 start, VECTOR *pos) {
 
     k = 0;
     for (i = start; i < start + 6; i++, k++) {
-        a.vx = D_8009F0D0[i].x;
-        a.vy = D_8009F0D0[i].y;
-        a.vz = D_8009F0D0[i].z;
+        a.vx = gPlayerPoints[i].x;
+        a.vy = gPlayerPoints[i].y;
+        a.vz = gPlayerPoints[i].z;
         b.vx = pos->vx;
         b.vy = pos->vy;
         b.vz = pos->vz;
-        dist[k] = func_800297A4(&a, &b);
+        dist[k] = DistanceSquared(&a, &b);
     }
     min = dist[0];
     k = 0;
@@ -62,4 +64,4 @@ u8 func_80028DBC(u16 start, VECTOR *pos) {
 
 - **Two counters bumped in one loop, the later-declared one incremented
   first in retail: `for (...; i++, k++)` with `a[k] = ...` in the body**,
-  not `a[k++] = ...`. (func_80028DBC)
+  not `a[k++] = ...`. (FindNearestPlayerPoint)

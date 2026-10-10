@@ -1,4 +1,6 @@
-# func_8002964C — MATCHED 52/52 (round 4, bravo)
+# DrawMarker — MATCHED 52/52 (round 4, bravo)
+
+> Renamed from `func_8002964C` on 2026-10-10 (tools/rename.py). Address 0x8002964c.
 
 Unit `src/code_1902c.c`. Sets the local-screen matrix to a world
 coordinate at `pos`, then draws sprite 0x15D through DrawBillboard at
@@ -10,7 +12,7 @@ extern GsOT gSubOt[];
 extern s32 gActiveBuff;
 void DrawBillboard(s32 id, SVECTOR *size, CVECTOR *color, s32 mode, GsOT *ot);
 
-void func_8002964C(VECTOR *pos, u16 scale) {
+void DrawMarker(VECTOR *pos, u16 scale) {
     SVECTOR size;
     CVECTOR color;
     GsCOORDINATE2 coord;

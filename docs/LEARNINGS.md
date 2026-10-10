@@ -115,7 +115,7 @@ function's match report, not here.
 - **A stack area block-copied from a constant at entry: an aggregate
   initialiser** (cc1 `$LC`); when the constant sits outside the unit's
   rodata, copy from an extern, declared `[]` when 8 bytes or less.
-  (func_80028984)
+  (PlacePlayerPoints)
 - **An indexed store with the index computed before the table's
   `lui`/`addiu`: an array of at most 8 bytes (`s32 X[2]`)**, not a scalar
   indexed through `&`. (func_8003D960)
@@ -205,7 +205,7 @@ function's match report, not here.
 
 - **A callee's return type can decide a register tie**: a `void` callee
   that leaves `$v0` set, declared `s32`, closed 8 register diffs in two
-  functions (permuter finds). (func_8002AA58, func_80028F0C)
+  functions (permuter finds). (func_8002AA58, GetQuadHeightUnderPlayer)
 - **`bltz` on an `lbu`-loaded `u8`: copied into an `s32` local and tested
   `>= 0`.** (code_29f54, round 11)
 - **An `andi 0xFF` on an argument the prototype types `s32`: a `(u8)` cast
@@ -405,7 +405,7 @@ function's match report, not here.
   over both: `switch (s) { case 0: ...; case K: ...; }`.** (code_29f54,
   round 11)
 - **A result's `sll`/`sra` above the epilogue's register loads: an early
-  `return x;`**; the return label splits the block. (func_80028AE4)
+  `return x;`**; the return label splits the block. (CollidePlayer)
 - **Two identical arms retail keeps apart: a bare `__asm__("")` after the
   call in one of them** (before it, cc1 still merges them). (main)
 
@@ -448,9 +448,9 @@ function's match report, not here.
   `subu` whose subtrahend loads first was `-b + a`. (func_800281B8,
   func_80036478)
 - **Chained assignment stores right to left**: `a.x = a.y = v` stores `y`
-  first. (func_8002964C, func_80036AB8)
+  first. (DrawMarker, func_80036AB8)
 - **A store into a stack slot that held an earlier value: the source reused
-  that local.** A fresh local loses the store. (func_8002971C)
+  that local.** A fresh local loses the store. (SpheresOverlap)
 - **One literal address in two registers (`lui`/`ori` twice): load through a
   pointer local CSE has lost track of** (set before the loop label, or
   modified), and keep the addend literal. (InitSeSeqs, PlayBgm)
@@ -545,9 +545,9 @@ function's match report, not here.
 - **A swapped prologue store pair (`sw zero` for `i`, `sw aN` home): the
   `PACKET *packet` parameter with a typed local copy.** (SortTmdDivG3)
 - **A stack store retail keeps that cc1 deletes as dead: `*(volatile s32
-  *)&x.f = t;`, then use `t`.** (func_80028AE4)
+  *)&x.f = t;`, then use `t`.** (CollidePlayer)
 - **Two counters in one loop: `for (...; i++, k++)` with `a[k] = f()`**;
-  `a[k++]` swaps their registers. (func_80028F0C)
+  `a[k++]` swaps their registers. (GetQuadHeightUnderPlayer)
 - **Two strength-reduced loop registers swapped: reverse the ternary that
   selects between them.** (code_29f54, round 11)
 - **Two pointers stepping by one stride where one is only copied on a hit:

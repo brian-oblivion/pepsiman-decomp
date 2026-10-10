@@ -1,26 +1,28 @@
-# func_80028F0C — MATCHED 464/464 (round 11, charlie)
+# GetQuadHeightUnderPlayer — MATCHED 464/464 (round 11, charlie)
+
+> Renamed from `func_80028F0C` on 2026-10-10 (tools/rename.py). Address 0x80028f0c.
 
 Unit `src/code_1902c.c`. Floor test of a 0x4C-byte quad record (the
-`Rec4C` func_80028888 fills). It clears `out` (a hit byte and a word at
+`Rec4C` PlaceCollisionQuad fills). It clears `out` (a hit byte and a word at
 +4), gives up when corner 0 is more than 2000 from the origin in x or z,
 copies the four world corners to `s16` and adds the record's coordinate
 origin. With the debug flag `D_800958F8` it projects corners with
 func_800230E0 into a dead debug record and, tested again, draws the
 outline with SortSemiQuad. It then tests the player's position
-(`D_8009EB78` + 0x348, shifted by `D_800A7308`) against the four edges
+(`D_8009EB78` + 0x348, shifted by `gWorldShift`) against the four edges
 0->1, 1->3, 3->2, 2->0 (edge x cross (0, -1, 0), dotted with the offset
 from the edge start; any negative returns), and finally intersects the
 plane through corners 0, 1, 2 to get the height, stored in `out`.
 
-The signature is code_1a098's, `void func_80028F0C(void *rec, s8 *out)`.
+The signature is code_1a098's, `void GetQuadHeightUnderPlayer(void *rec, s8 *out)`.
 
 Levers, in order (367 -> 395 -> 456 -> 462 -> 464):
 
 - Two locals are aggregate initialisers, copied from externs as in
-  func_80028984: the 0x30-byte `Quad8` (`D_80010AE0`; alignment 2, so cc1
+  PlacePlayerPoints: the 0x30-byte `Quad8` (`D_80010AE0`; alignment 2, so cc1
   emits the runtime alignment check and both copy loops) and the 12-byte
   origin (`D_80010B10`). Both lie in the rodata range the yaml gives
-  code_13068, like func_80028984's `D_80010950`.
+  code_13068, like PlacePlayerPoints's `D_80010950`.
 - The last four projections add `org.x + q.p[k].x` (org first); the first
   two add `q.p[k].x + org.x`. Operand order sets the load registers.
 - Retail stores the normal's z and then overwrites it with the plane
@@ -85,7 +87,7 @@ extern Point12 D_80010B10;
  *  With the debug flag set, the quad's outline is drawn.
  *  @param out a hit byte, then the height as a word at offset 4 */
 /* MATCHING: the volatile store keeps the normal's z, as retail. */
-void func_80028F0C(void *rec, s8 *out) {
+void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     Quad8 q;
     Point12 org;
     VECTOR p;
@@ -115,9 +117,9 @@ void func_80028F0C(void *rec, s8 *out) {
         q.p[k].y = ((Rec4C *)rec)->world[k].vy;
         q.p[k].z = ((Rec4C *)rec)->world[k].vz;
     }
-    org.x = ((Rec4C *)rec)->coord->coord.t[0] + D_800A7308[0];
+    org.x = ((Rec4C *)rec)->coord->coord.t[0] + gWorldShift[0];
     org.y = ((Rec4C *)rec)->coord->coord.t[1];
-    org.z = ((Rec4C *)rec)->coord->coord.t[2] + D_800A7308[2];
+    org.z = ((Rec4C *)rec)->coord->coord.t[2] + gWorldShift[2];
     if (D_800958F8 == 1) {
         dbg.unk0 = 0;
         dbg.unkC = 0xFF;
@@ -158,9 +160,9 @@ void func_80028F0C(void *rec, s8 *out) {
     }
     w[1] = -1;
     w[0] = 0;
-    p.vx = sGamePos.x + D_800A7308[0];
+    p.vx = sGamePos.x + gWorldShift[0];
     p.vy = sGamePos.y;
-    p.vz = sGamePos.z + D_800A7308[2];
+    p.vz = sGamePos.z + gWorldShift[2];
     w[2] = 0;
     q.p[4].x = 0;
     q.p[4].z = 0;
@@ -235,7 +237,7 @@ void func_80028F0C(void *rec, s8 *out) {
 - **A store retail keeps although the same slot is rewritten later in the
   block: a volatile store of a local**, `t = ...; *(volatile s32 *)&n.vz =
   t;` then the later expression uses `t`. cc1's flow pass deletes the
-  plain store. (func_80028F0C)
+  plain store. (GetQuadHeightUnderPlayer)
 - **Register choice for call-heavy blocks can depend on the callee's
   return type as the caller sees it**: a `void` callee seen as returning
-  `s32` closed 8 register diffs (permuter find). (func_80028F0C)
+  `s32` closed 8 register diffs (permuter find). (GetQuadHeightUnderPlayer)

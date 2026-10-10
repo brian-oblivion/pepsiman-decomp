@@ -36,9 +36,9 @@ void UpdateMotionViewer(void) {
             sPlayer.unk348 = 0;
             sPlayer.unk34C = 0;
             sPlayer.unk350 = 0;
-            D_800A7308[0] = 0;
+            gWorldShift[0] = 0;
             D_80095918 = 0;
-            D_800A7308[2] = 0;
+            gWorldShift[2] = 0;
             D_800D86E0[0].coord.t[0] = 0;
             D_800D86E0[0].coord.t[1] = 0;
             D_800D86E0[0].coord.t[2] = 0;

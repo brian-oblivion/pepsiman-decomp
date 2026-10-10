@@ -207,7 +207,7 @@ typedef struct {
 } Pickup;
 
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-#define sPickups ((Pickup *)D_8009F0B0)
+#define sPickups ((Pickup *)gPlayerHits)
 
 /** @brief Eight bytes of a pickup kind's effects. */
 typedef struct {
@@ -256,7 +256,7 @@ void RestartStage();
 void func_8003E360(s32 level);
 /* MATCHING: code_308ec stores this as u8; this unit's test loads it lb. */
 extern s8 D_80095900;
-s32 func_800297A4(VECTOR *a, VECTOR *b);
+s32 DistanceSquared(VECTOR *a, VECTOR *b);
 /* MATCHING: code_7d74 defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
 void func_80018CA4(GameState *g);
@@ -271,9 +271,9 @@ void func_80022868(void) {
 
     if (sGame.unk3D3 != 0) {
         GsInitCoordinate2(WORLD, &coord);
-        coord.coord.t[0] = sGame.unk348 + sGame.unk354 + D_800A7308[0];
+        coord.coord.t[0] = sGame.unk348 + sGame.unk354 + gWorldShift[0];
         coord.coord.t[1] = D_800AC858[0];
-        coord.coord.t[2] = sGame.unk350 + sGame.unk35C + D_800A7308[2];
+        coord.coord.t[2] = sGame.unk350 + sGame.unk35C + gWorldShift[2];
         GsGetLs(&coord, &ls);
         GsSetLsMatrix(&ls);
         d = (sGame.unk3C0 - sGame.unk34C) / 10;
@@ -597,9 +597,9 @@ void func_80023228(void) {
     D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
     D_800D86E0[0].coord.t[2] = sGame.unk35C;
     SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
-    D_800A7308[1] = 0;
-    D_800A7308[0] = -sGame.unk348;
-    D_800A7308[2] = -sGame.unk350;
+    gWorldShift[1] = 0;
+    gWorldShift[0] = -sGame.unk348;
+    gWorldShift[2] = -sGame.unk350;
 }
 
 void func_80023764(void) {
@@ -838,7 +838,7 @@ s32 func_80023D68(void) {
             D_800DF5B0[0] = sGame.unk348;
             D_800DF5B0[1] = z;
             D_800DF5B0[2] = sGame.unk350;
-            D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+            D_800956E0 = SquareRoot0(DistanceSquared((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
             if (D_80095900 == 0) {
                 StartRumble(gRumblePatterns, 13);
             }
@@ -1439,7 +1439,7 @@ top:
                 D_800DF5B0[0] = state->unk348;
                 D_800DF5B0[1] = state->unk34C;
                 D_800DF5B0[2] = state->unk350;
-                D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+                D_800956E0 = SquareRoot0(DistanceSquared((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
             }
             break;
         case 0xD:
@@ -2425,8 +2425,8 @@ void func_800272D4(void) {
             D_800D3860[0].unk1A = 0xAA;
             D_800D3860[0].unk4 = 0;
             D_800D8370[0].unk58 = (s32)&D_800D86E0[16];
-            D_800D3860[0].unk0 = -D_800A7308[0];
-            D_800D3860[0].unk8 = -D_800A7308[2];
+            D_800D3860[0].unk0 = -gWorldShift[0];
+            D_800D3860[0].unk8 = -gWorldShift[2];
             func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
             break;
         case 4:
@@ -2435,8 +2435,8 @@ void func_800272D4(void) {
             D_800D3860[5].unk1A = 0xAA;
             D_800D3860[5].unk4 = 0;
             D_800D8370[5].unk58 = (s32)&D_800D86E0[16];
-            D_800D3860[5].unk0 = -D_800A7308[0];
-            D_800D3860[5].unk8 = -D_800A7308[2];
+            D_800D3860[5].unk0 = -gWorldShift[0];
+            D_800D3860[5].unk8 = -gWorldShift[2];
             func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
             break;
         case 2:
@@ -2444,8 +2444,8 @@ void func_800272D4(void) {
                 case 3:
                     D_800D3860[3].unk4 = 0x3C;
                     D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
-                    D_800D3860[3].unk0 = -D_800A7308[0];
-                    D_800D3860[3].unk8 = -D_800A7308[2];
+                    D_800D3860[3].unk0 = -gWorldShift[0];
+                    D_800D3860[3].unk8 = -gWorldShift[2];
                     D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
                     if (gFrameCount % 20 == 0) {
@@ -2455,8 +2455,8 @@ void func_800272D4(void) {
                 case 10:
                     D_800D3860[6].unk4 = 0x32;
                     D_800D8370[6].unk58 = (s32)&D_800D86E0[0];
-                    D_800D3860[6].unk0 = -D_800A7308[0];
-                    D_800D3860[6].unk8 = -D_800A7308[2];
+                    D_800D3860[6].unk0 = -gWorldShift[0];
+                    D_800D3860[6].unk8 = -gWorldShift[2];
                     D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
                     if (gFrameCount % 20 == 0) {
@@ -2470,15 +2470,15 @@ void func_800272D4(void) {
                 case 0:
                     D_800D3860[4].unk4 = 0;
                     D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
-                    D_800D3860[4].unk0 = -D_800A7308[0];
-                    D_800D3860[4].unk8 = -D_800A7308[2];
+                    D_800D3860[4].unk0 = -gWorldShift[0];
+                    D_800D3860[4].unk8 = -gWorldShift[2];
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
                     break;
                 case 12:
                     D_800D3860[2].unk4 = 0;
                     D_800D8370[2].unk58 = (s32)&D_800D86E0[1];
-                    D_800D3860[2].unk0 = -D_800A7308[0];
-                    D_800D3860[2].unk8 = -D_800A7308[2];
+                    D_800D3860[2].unk0 = -gWorldShift[0];
+                    D_800D3860[2].unk8 = -gWorldShift[2];
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
                     break;
             }
@@ -2486,8 +2486,8 @@ void func_800272D4(void) {
     }
     if ((D_8009EF48[0] >> 4) == 5) {
         D_800D3860[1].unk4 = 0;
-        D_800D3860[1].unk0 = -D_800A7308[0];
-        D_800D3860[1].unk8 = -D_800A7308[2];
+        D_800D3860[1].unk0 = -gWorldShift[0];
+        D_800D3860[1].unk8 = -gWorldShift[2];
         func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[1].unk36], (Rec48 *)&D_800D3860[1]);
     }
 }

@@ -1,9 +1,11 @@
-# func_800297A4 — MATCHED 26/26 (round 4, bravo)
+# DistanceSquared — MATCHED 26/26 (round 4, bravo)
+
+> Renamed from `func_800297A4` on 2026-10-10 (tools/rename.py). Address 0x800297a4.
 
 Unit `src/code_1902c.c`. Squared distance between two `VECTOR`s.
 
 ```c
-s32 func_800297A4(VECTOR *a, VECTOR *b) {
+s32 DistanceSquared(VECTOR *a, VECTOR *b) {
     VECTOR d;
 
     d.vx = (b->vx - a->vx) * (b->vx - a->vx);
@@ -15,5 +17,5 @@ s32 func_800297A4(VECTOR *a, VECTOR *b) {
 
 First try. The 16-byte frame with stores to 0, 4 and 8 is a local `VECTOR`
 that is written and never read back. Callers (func_80031064,
-func_80031AEC, func_80030548, func_8002C6A4, func_80028DBC) compare the
+func_80031AEC, func_80030548, func_8002C6A4, FindNearestPlayerPoint) compare the
 result with `slt`: signed `s32`.

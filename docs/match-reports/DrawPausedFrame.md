@@ -35,7 +35,7 @@ void DrawPausedFrame(void) {
 ## Levers
 
 - First build. Chained assignment for the three colour bytes stores `cd`,
-  `b`, `g` in retail's order (LEARNINGS, func_8002964C).
+  `b`, `g` in retail's order (LEARNINGS, DrawMarker).
 
 ## Declarations
 

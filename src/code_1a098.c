@@ -239,7 +239,7 @@ extern u8 D_80095B28[];
 #define sProgress (*(Progress6E *)D_80095B28)
 
 /* MATCHING: a per-unit view; code_1902c calls the same 0x30-byte block Body. */
-s32 func_80028AE4(Query30 *q);
+s32 CollidePlayer(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
  * the result nor extends the a and b it passes. */
 s32 Lerp(s32 a, s32 b, u16 t, u16 n);
@@ -248,7 +248,7 @@ s32 FindFloor(Rec48 *r);
 s32 func_8002C650(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
-s32 func_800297A4(void *a, void *b);
+s32 DistanceSquared(void *a, void *b);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
@@ -560,8 +560,8 @@ void func_8002A5B0(Rec78 *rec, Rec48 *r) {
     m->rot.vx = o->unk18;
     m->rot.vy = o->unk1A;
     m->rot.vz = o->unk1C;
-    m->coord.coord.t[0] += D_800A7308[0];
-    m->coord.coord.t[2] += D_800A7308[2];
+    m->coord.coord.t[0] += gWorldShift[0];
+    m->coord.coord.t[2] += gWorldShift[2];
     SetCoordRotation(&m->rot, &m->coord);
     RotMatrixX(o->unk2C, &m->coord.coord);
     RotMatrixZ(o->unk30, &m->coord.coord);
@@ -583,8 +583,8 @@ void func_8002A5B0(Rec78 *rec, Rec48 *r) {
     } else {
         GsSortObject4(&m->obj, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
     }
-    m->coord.coord.t[0] -= D_800A7308[0];
-    m->coord.coord.t[2] -= D_800A7308[2];
+    m->coord.coord.t[0] -= gWorldShift[0];
+    m->coord.coord.t[2] -= gWorldShift[2];
 }
 
 /* The result of a second-buffer record's test: a flag, then a word. */
@@ -592,7 +592,7 @@ extern s8 D_80095898;  /**< 1 on a hit */
 extern s32 D_8009589C; /**< the word reported with a hit */
 /* code_1902c's tests of a 0x4C-byte record; types not yet known. */
 /* MATCHING: s32 (its body leaves a value); void moves a register. */
-s32 func_80028F0C(void *rec, s8 *out);
+s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
 
 /** @brief Updates the entry `rec` and places and tests its records: the
  *         first-buffer ones collect a hit bit into `r->unk40`, and, when
@@ -615,7 +615,7 @@ s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
         for (i = start; i < start + n; i++) {
             p = &((Placed2C *)D_800D3CA8)[i];
             func_80029898(p);
-            r->unk40 |= func_80028AE4((Query30 *)p) & 1;
+            r->unk40 |= CollidePlayer((Query30 *)p) & 1;
         }
     }
     if (sGameHead.unk2 != 0) {
@@ -624,8 +624,8 @@ s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
         if (n != -1) {
             for (i = start; i < start + n; i++) {
                 q = D_800DB2C0 + i * 0x4C;
-                func_80028888(q);
-                func_80028F0C(q, &D_80095898);
+                PlaceCollisionQuad(q);
+                GetQuadHeightUnderPlayer(q, &D_80095898);
                 if (D_80095898 == 1) {
                     sGameHead.unk3B8 = D_80095898;
                     sGameHead.unk3CC = D_8009589C;
@@ -730,12 +730,12 @@ s32 func_8002AA58(void) {
                 sv.vy = D_800CF080[(s16)i].v[j][1];
                 sv.vz = D_800CF080[(s16)i].v[j][2];
                 RotTrans(&sv, &t, &flag);
-                D_800CF080[(s16)i].w[j][0] = t.vx + D_800A7308[0];
+                D_800CF080[(s16)i].w[j][0] = t.vx + gWorldShift[0];
                 D_800CF080[(s16)i].w[j][1] = t.vy;
-                D_800CF080[(s16)i].w[j][2] = t.vz + D_800A7308[2];
+                D_800CF080[(s16)i].w[j][2] = t.vz + gWorldShift[2];
             }
             GsSetLsMatrix(&world);
-            func_80028F0C(D_800CF080[(s16)i].v, &D_80095898);
+            GetQuadHeightUnderPlayer(D_800CF080[(s16)i].v, &D_80095898);
             if (D_80095898 == 1) {
                 D_800CF080[(s16)i].unk0 = 1;
             }
@@ -808,8 +808,8 @@ void func_8002B5FC(void);
 void func_8002B04C(void) {
     s32 flags;
 
-    D_800A7308[0] = 0;
-    D_800A7308[2] = 0;
+    gWorldShift[0] = 0;
+    gWorldShift[2] = 0;
     gRefView[0] = 100;
     gRefView[1] = -200;
     gRefView[2] = 1000;
@@ -827,7 +827,7 @@ void func_8002B04C(void) {
         D_800958E2--;
     }
     D_800958E2 = D_800958E2 < 0 ? 0 : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1 : D_800958E2;
-    func_8002980C();
+    ResetCollision();
     D_800A9008[0] = 0;
     D_800A9008[1] = 0;
     D_800A9008[2] = 0;
@@ -869,8 +869,8 @@ void func_8002B220(void) {
 
     switch (gModeStep) {
         case 0:
-            D_800A7308[0] = 0;
-            D_800A7308[2] = 0;
+            gWorldShift[0] = 0;
+            gWorldShift[2] = 0;
             gRefView[0] = 100;
             gRefView[1] = -200;
             gRefView[2] = 1000;
@@ -907,7 +907,7 @@ void func_8002B220(void) {
             if (D_800958E2 != old) {
                 gModeStep = 1;
             }
-            func_8002980C();
+            ResetCollision();
             ((Rec48v *)D_800A9008)->o.unk1A = gFrameCount % 360 * 4096 / 360;
             func_8002A7D8(&D_800D8D20[((Rec48v *)D_800A9008)->unk36], (Rec48 *)D_800A9008);
             for (i = 1; i < D_8009596E; i++) {
@@ -1025,14 +1025,14 @@ void func_8002B8F8(u16 id, Rec3C *r) {
 
     GsInitCoordinate2(WORLD, &coord);
     k = id;
-    coord.coord.t[0] = r->unk4 + D_800A7308[0];
+    coord.coord.t[0] = r->unk4 + gWorldShift[0];
     coord.coord.t[1] = r->unk8;
-    coord.coord.t[2] = r->unkC + D_800A7308[2];
+    coord.coord.t[2] = r->unkC + gWorldShift[2];
     coord.flg = 0;
     GsGetLs(&coord, &mat);
     GsSetLsMatrix(&mat);
-    if (gGameMode != 0x20 && (r->unk26 & 0x3F) == 1 && absInt(r->unk4 + D_800A7308[0]) < 600 &&
-        absInt(r->unkC + D_800A7308[2]) < 600) {
+    if (gGameMode != 0x20 && (r->unk26 & 0x3F) == 1 && absInt(r->unk4 + gWorldShift[0]) < 600 &&
+        absInt(r->unkC + gWorldShift[2]) < 600) {
         k = id + 1;
     }
     switch (D_800A7618[k - 30]) {
@@ -1056,7 +1056,7 @@ void func_8002B8F8(u16 id, Rec3C *r) {
     if (r->unk26 & 0x40) {
         size.vx *= -1;
     }
-    if (absInt(r->unk4 + D_800A7308[0]) > 700 || absInt(r->unkC + D_800A7308[2]) > 700) {
+    if (absInt(r->unk4 + gWorldShift[0]) > 700 || absInt(r->unkC + gWorldShift[2]) > 700) {
         DrawStandingBillboardFog(k, &size, NULL, 2, &gOt[gActiveBuff]);
     } else {
         DrawStandingBillboard(k, &size, NULL, 2, &gSubOt[gActiveBuff]);
@@ -1089,7 +1089,7 @@ static __inline__ void queryRec(s16 id, Rec3C *r) {
     r->unk24 = 1;
     q.unk18 = 1;
     q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
-    v = func_80028AE4(&q) & 1;
+    v = CollidePlayer(&q) & 1;
     r->unk25 = v;
     if (v) {
         if (r->unk26 & 0x80) {
@@ -1350,7 +1350,7 @@ s32 func_8002C6A4(Rec48 *r, s32 range) {
     ret = 0;
     if (!((r->unk41 >> 1) & 1)) {
         sq = range * range;
-        if (func_800297A4(D_8009EEC0, r) < sq) {
+        if (DistanceSquared(D_8009EEC0, r) < sq) {
             r->unk41 |= 2;
             ret = 1;
         }
@@ -1532,9 +1532,9 @@ void func_8002CCEC(void) {
                 } else {
                     DrawStandingBillboard(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
-                pos.x = coord.coord.t[0] - D_800A7308[0];
+                pos.x = coord.coord.t[0] - gWorldShift[0];
                 pos.y = coord.coord.t[1] - 50;
-                pos.z = coord.coord.t[2] - D_800A7308[2];
+                pos.z = coord.coord.t[2] - gWorldShift[2];
                 if (func_8002D0F0(&pos)) {
                     m = n;
                     func_800414EC(m);
@@ -1581,7 +1581,7 @@ s8 func_8002D0F0(Vec3 *pos) {
     q.pos.z = pos->z;
     q.unk18 = 0;
     q.unk14 = 50;
-    return func_80028AE4(&q);
+    return CollidePlayer(&q);
 }
 
 /** @brief Clears a 128-byte table of flags.

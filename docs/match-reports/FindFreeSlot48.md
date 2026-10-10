@@ -1,4 +1,6 @@
-# func_8002882C — MATCHED 23/23 (round 4, bravo)
+# FindFreeSlot48 — MATCHED 23/23 (round 4, bravo)
+
+> Renamed from `func_8002882C` on 2026-10-10 (tools/rename.py). Address 0x8002882c.
 
 Unit `src/code_1902c.c`. Searches the table of 72-byte records that
 `D_800959B8` points to (`D_800959B4` bytes long) for the first one whose
@@ -11,7 +13,7 @@ typedef struct {
     u8 pad38[0x48 - 0x38];
 } Slot48;
 
-s16 func_8002882C(void) {
+s16 FindFreeSlot48(void) {
     Slot48 *slot = (Slot48 *)D_800959B8;
     u32 i;
 

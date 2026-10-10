@@ -13,6 +13,6 @@
  *  @param a one point
  *  @param b the other point
  *  @return the squared distance */
-s32 func_800297A4(VECTOR *a, VECTOR *b);
+s32 DistanceSquared(VECTOR *a, VECTOR *b);
 
 #endif

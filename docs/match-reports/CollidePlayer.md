@@ -1,15 +1,17 @@
-# func_80028AE4 — MATCHED 182/182 (round 11, charlie)
+# CollidePlayer — MATCHED 182/182 (round 11, charlie)
+
+> Renamed from `func_80028AE4` on 2026-10-10 (tools/rename.py). Address 0x80028ae4.
 
 Unit `src/code_1902c.c`. Tests a 0x30-byte query body against the
-player's three bodies (points 0..2 of the placed-point table `D_8009F0D0`).
+player's three bodies (points 0..2 of the placed-point table `gPlayerPoints`).
 The radii come from a switch on the stage mode (`D_8009EF48[0] & 0xF`):
 mode 0 is {20, 35, 35} with one radius zeroed by the progress byte
 `D_8009EB7E[0]` (5..7 zeroes r[0], 8..11 zeroes r[2]), mode 2 is
 {20, 35, 70}, modes 1 and 4 are {20, 20, 0}, anything else {20, 35, 35}.
-The query is shifted by the world origin (`D_800A7308[0]`, `[2]`) and
+The query is shifted by the world origin (`gWorldShift[0]`, `[2]`) and
 skipped when either |x| or |z| exceeds 1000. A body's first hit fills its
-10-byte record in `D_8009F0B0` with the nearest of its six points
-(func_80028DBC from point `i*6 + 7`) and the query's bytes 0x18..0x19 and
+10-byte record in `gPlayerHits` with the nearest of its six points
+(FindNearestPlayerPoint from point `i*6 + 7`) and the query's bytes 0x18..0x19 and
 halfwords 0x0C..0x10.
 
 This unit's `Body` view is the same 0x30-byte block code_1a098 calls
@@ -23,10 +25,10 @@ Levers, in the order they moved the score:
 - The progress byte is compared `slti` with no `andi`: an `s32` local
   copy of the `u8` global.
 - The hit flag is an `s8` accumulated unextended, with an `s32` copy
-  `h = hit;` kept in a saved register across the func_80028DBC call and
+  `h = hit;` kept in a saved register across the FindNearestPlayerPoint call and
   stored as the record's flag (120 -> 171). Variants: `s32 hit` with
   `(s8)hit` tests 95; `s8 hit`, `s8 h` 120; `s32 hit`, `s32 h = (s8)hit`
-  117. With `h` in a saved register, the table base `D_8009F0D0` is rebuilt
+  117. With `h` in a saved register, the table base `gPlayerPoints` is rebuilt
   each pass, as retail, because no saved register is left.
 - The last residue was the result's `sra` scheduled into the epilogue's
   loads. Retail keeps it above them: the range test is an early
@@ -63,12 +65,12 @@ typedef struct {
 } Hit10;
 
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-#define sHits ((Hit10 *)D_8009F0B0)
+#define sHits ((Hit10 *)gPlayerHits)
 
-s32 func_8002971C(Body *a, Body *b);
-u8 func_80028DBC(u16 start, VECTOR *pos);
+s32 SpheresOverlap(Body *a, Body *b);
+u8 FindNearestPlayerPoint(u16 start, VECTOR *pos);
 
-s32 func_80028AE4(Body *q) {
+s32 CollidePlayer(Body *q) {
     s32 unused0[4];
     Body a;
     Body b;
@@ -111,9 +113,9 @@ s32 func_80028AE4(Body *q) {
             r[2] = 0;
             break;
     }
-    b.x = q->x + D_800A7308[0];
+    b.x = q->x + gWorldShift[0];
     b.y = q->y;
-    b.z = q->z + D_800A7308[2];
+    b.z = q->z + gWorldShift[2];
     b.radius = q->radius;
     b.unk18 = q->unk18;
     b.unkC = q->unkC;
@@ -123,14 +125,14 @@ s32 func_80028AE4(Body *q) {
         return hit;
     }
     for (i = 0; i < 3; i++) {
-        a.x = D_8009F0D0[i].x;
-        a.y = D_8009F0D0[i].y;
-        a.z = D_8009F0D0[i].z;
+        a.x = gPlayerPoints[i].x;
+        a.y = gPlayerPoints[i].y;
+        a.z = gPlayerPoints[i].z;
         a.radius = r[i];
-        hit |= func_8002971C(&a, &b);
+        hit |= SpheresOverlap(&a, &b);
         h = hit;
         if (h == 1 && sHits[i].unk0 == 0) {
-            sHits[i].unk1 = func_80028DBC(i * 6 + 7, (VECTOR *)&b);
+            sHits[i].unk1 = FindNearestPlayerPoint(i * 6 + 7, (VECTOR *)&b);
             sHits[i].unk0 = h;
             sHits[i].unk2 = q->unk18;
             sHits[i].unk3 = q->unk19;
@@ -148,6 +150,6 @@ s32 func_80028AE4(Body *q) {
 - **A return value's extension (`sll`/`sra`) kept above the epilogue's
   register loads: the function has an earlier `return`**, so the final
   return sits after the return label. With one return, sched2 sinks the
-  `sra` among the loads. (func_80028AE4)
+  `sra` among the loads. (CollidePlayer)
 - **An `s8` flag tested and stored from a saved register holding its
-  sign-extended copy: an `s32 h = hit;` copy.** (func_80028AE4)
+  sign-extended copy: an `s32 h = hit;` copy.** (CollidePlayer)

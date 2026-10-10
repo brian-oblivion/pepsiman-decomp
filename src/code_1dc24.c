@@ -1706,9 +1706,9 @@ s32 func_8002FA78(void) {
     if (D_800957C0 > 0xA0) {
         func_80033A08(90, sTotals.unk4);
     }
-    D_800A7308[1] = 0;
-    D_800A7308[0] = -sGameSave.unk348[0];
-    D_800A7308[2] = -sGameSave.unk348[2];
+    gWorldShift[1] = 0;
+    gWorldShift[0] = -sGameSave.unk348[0];
+    gWorldShift[2] = -sGameSave.unk348[2];
     if (gPad & 4) {
         D_800A7680[0].vy -= 11;
     }
@@ -1985,7 +1985,7 @@ s32 func_80030548(void) {
                     at.vx = r->unk50[0];
                     at.vy = r->unk50[1];
                     at.vz = r->unk50[2];
-                    d = func_800297A4(&pos, &at);
+                    d = DistanceSquared(&pos, &at);
                     if (d < best) {
                         sTotals.unk12 = i;
                         best = d;
@@ -2257,7 +2257,7 @@ s32 func_80031064(void) {
                     at.vx = r->unk0[0];
                     at.vy = r->unk0[1];
                     at.vz = r->unk0[2];
-                    d = func_800297A4(&pos, &at);
+                    d = DistanceSquared(&pos, &at);
                     if (d < best) {
                         sTotals.unk18 = i;
                         best = d;
@@ -2557,7 +2557,7 @@ s32 func_80031AEC(void) {
                     at.vx = r->unk4[0];
                     at.vy = r->unk4[1];
                     at.vz = r->unk4[2];
-                    d = func_800297A4(&pos, &at);
+                    d = DistanceSquared(&pos, &at);
                     if (d < best) {
                         sTotals.unk28 = i;
                         best = d;
@@ -3117,9 +3117,9 @@ void func_80033224(VECTOR *pos) {
     line.r = 0xFF;
     line.g = g;
     line.b = g;
-    world.vx = pos->vx + D_800A7308[0];
+    world.vx = pos->vx + gWorldShift[0];
     world.vy = pos->vy;
-    world.vz = pos->vz + D_800A7308[2];
+    world.vz = pos->vz + gWorldShift[2];
     func_800230E0(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
@@ -3148,9 +3148,9 @@ void func_80033388(VECTOR *pos, s16 deg) {
     line.r = 0xFF;
     line.g = g;
     line.b = g;
-    world.vx = pos->vx + D_800A7308[0];
+    world.vx = pos->vx + gWorldShift[0];
     world.vy = pos->vy;
-    world.vz = pos->vz + D_800A7308[2];
+    world.vz = pos->vz + gWorldShift[2];
     func_800230E0(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;

@@ -233,9 +233,9 @@ extern s16 D_8009EF20[];      /**< 2 units, 6 functions */
 extern u8 D_8009EF48[];       /**< 4 units, 7 functions */
 extern s8 D_8009EF4A[];       /**< 2 units, 2 functions */
 extern s32 gCdLoadDest[];     /**< each file's load address in the current CD load */
-extern u8 D_8009F0B0[];       /**< 2 units, 4 functions */
+extern u8 gPlayerHits[];      /**< 2 units, 4 functions */
 extern s32 gCdLoadSectors[];  /**< each file's length in sectors, less one */
-extern s32 D_800A7308[];      /**< 5 units, 22 functions */
+extern s32 gWorldShift[];     /**< 5 units, 22 functions */
 extern s32 D_800A9008[];      /**< 3 units, 17 functions */
 extern s16 D_800AC858[];      /**< 2 units, 6 functions */
 extern s32 D_800D39C8[];      /**< 2 units, 2 functions */
@@ -326,7 +326,7 @@ s32 func_800330D4(void);
 void func_8003DE34(void);
 
 /** @brief Defined in code_1902c. */
-void func_8002980C(void);
+void ResetCollision(void);
 
 /** @brief Defined in code_1902c. */
 void func_80029838(void);
@@ -367,7 +367,7 @@ s32 func_800389B4(s16 mode);
 
 /** @brief Defined in code_1902c: tests a 0x4C-byte record.
  *  @param rec the record */
-void func_80028888(void *rec);
+void PlaceCollisionQuad(void *rec);
 
 /** @brief Defined in code_11dc4: selects one of 23 data sets by `id`
  *         and points three globals at it.

@@ -1,12 +1,14 @@
-# func_8002980C — MATCHED 11/11 (round 4, bravo)
+# ResetCollision — MATCHED 11/11 (round 4, bravo)
+
+> Renamed from `func_8002980C` on 2026-10-10 (tools/rename.py). Address 0x8002980c.
 
 Unit `src/code_1902c.c`. Clears byte 1 of `D_8009EB78`, then calls
-func_8002985C and func_8002988C.
+ResetPlayerHits and func_8002988C.
 
 ```c
-void func_8002980C(void) {
+void ResetCollision(void) {
     D_8009EB78[1] = 0;
-    func_8002985C();
+    ResetPlayerHits();
     func_8002988C();
 }
 ```

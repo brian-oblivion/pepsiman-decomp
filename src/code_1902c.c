@@ -34,21 +34,21 @@ typedef struct {
     u8 unk18;   /**< copied to a hit record */
     u8 unk19;   /**< copied to a hit record */
     u8 pad1A[0x30 - 0x1A];
-} Body;
+} Sphere;
 
 /** @brief A 10-byte hit record, one per player point group. */
 typedef struct {
-    s8 unk0;  /**< the hit flag; 0 when free */
-    u8 unk1;  /**< the nearest point of the group */
+    s8 hit;   /**< the hit flag; 0 when free */
+    u8 point; /**< the nearest point of the group */
     u8 unk2;  /**< from the query */
     u8 unk3;  /**< from the query */
     s16 unk4; /**< from the query */
     s16 unk6; /**< from the query */
     s16 unk8; /**< from the query */
-} Hit10;
+} PlayerHit;
 
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-#define sHits ((Hit10 *)D_8009F0B0)
+#define sHits ((PlayerHit *)gPlayerHits)
 
 /** @brief A 0x4C-byte record: four local corners, their world positions
  *         and the coordinate system that places them. */
@@ -66,7 +66,7 @@ typedef struct {
     } world[4]; /**< the corners placed in the world */
 
     GsCOORDINATE2 *coord; /**< places the corners */
-} Rec4C;
+} CollisionQuad;
 
 /** @brief A point of three words, as the placed-point table holds them. */
 typedef struct {
@@ -75,7 +75,7 @@ typedef struct {
     s32 z; /**< position */
 } Point12;
 
-extern Point12 D_8009F0D0[];
+extern Point12 gPlayerPoints[];
 
 /** @brief A local position and the index of its coordinate system. */
 typedef struct {
@@ -139,13 +139,13 @@ typedef struct {
 extern Quad8 D_80010AE0;
 extern Point12 D_80010B10;
 
-void func_80028984(void);
-s32 func_8002971C(Body *a, Body *b);
-u8 func_80028DBC(u16 start, VECTOR *pos);
-void func_8002985C(void);
+void PlacePlayerPoints(void);
+s32 SpheresOverlap(Sphere *a, Sphere *b);
+u8 FindNearestPlayerPoint(u16 start, VECTOR *pos);
+void ResetPlayerHits(void);
 void func_8002988C(void);
 
-s16 func_8002882C(void) {
+s16 FindFreeSlot48(void) {
     Slot48 *slot = (Slot48 *)D_800959B8;
     u32 i;
 
@@ -161,8 +161,8 @@ s16 func_8002882C(void) {
 /** @brief Places the four corners of the record `rec` in the world: each
  *         is rotated by its coordinate system and offset by the world
  *         origin shift in x and z. */
-void func_80028888(void *rec) {
-    Rec4C *r = rec;
+void PlaceCollisionQuad(void *rec) {
+    CollisionQuad *r = rec;
     MATRIX ls;
     MATRIX lw;
     SVECTOR v;
@@ -178,9 +178,9 @@ void func_80028888(void *rec) {
         v.vy = r->local[i].vy;
         v.vz = r->local[i].vz;
         RotTrans(&v, &out, &flag);
-        r->world[i].vx = out.vx + D_800A7308[0];
+        r->world[i].vx = out.vx + gWorldShift[0];
         r->world[i].vy = out.vy;
-        r->world[i].vz = out.vz + D_800A7308[2];
+        r->world[i].vz = out.vz + gWorldShift[2];
     }
     GsSetLsMatrix(&ls);
 }
@@ -188,7 +188,7 @@ void func_80028888(void *rec) {
 /** @brief Places the 25 local points in the world, each in its own
  *         coordinate system, and stores them in the placed-point table. */
 /* MATCHING: the two copies are initialisers in retail; see the report. */
-void func_80028984(void) {
+void PlacePlayerPoints(void) {
     s32 unused0[6];
     MATRIX ls;
     MATRIX lw;
@@ -209,9 +209,9 @@ void func_80028984(void) {
         GsGetLws(&D_800D86E0[spec.p[i].coord], &lw, &ls);
         GsSetLsMatrix(&lw);
         RotTrans(&v, &out, &flag);
-        D_8009F0D0[i].x = out.vx;
-        D_8009F0D0[i].y = out.vy;
-        D_8009F0D0[i].z = out.vz;
+        gPlayerPoints[i].x = out.vx;
+        gPlayerPoints[i].y = out.vy;
+        gPlayerPoints[i].z = out.vz;
     }
 }
 
@@ -221,10 +221,10 @@ void func_80028984(void) {
  *  @return 1 if any of the three was hit, else 0 */
 /* MATCHING: the early return splits the epilogue from the result's
  * extension, as retail; `h` is an s32 copy of the s8 hit. */
-s32 func_80028AE4(Body *q) {
+s32 CollidePlayer(Sphere *q) {
     s32 unused0[4];
-    Body a;
-    Body b;
+    Sphere a;
+    Sphere b;
     s32 r[3];
     s32 unused1[10];
     s16 i;
@@ -264,9 +264,9 @@ s32 func_80028AE4(Body *q) {
             r[2] = 0;
             break;
     }
-    b.x = q->x + D_800A7308[0];
+    b.x = q->x + gWorldShift[0];
     b.y = q->y;
-    b.z = q->z + D_800A7308[2];
+    b.z = q->z + gWorldShift[2];
     b.radius = q->radius;
     b.unk18 = q->unk18;
     b.unkC = q->unkC;
@@ -276,15 +276,15 @@ s32 func_80028AE4(Body *q) {
         return hit;
     }
     for (i = 0; i < 3; i++) {
-        a.x = D_8009F0D0[i].x;
-        a.y = D_8009F0D0[i].y;
-        a.z = D_8009F0D0[i].z;
+        a.x = gPlayerPoints[i].x;
+        a.y = gPlayerPoints[i].y;
+        a.z = gPlayerPoints[i].z;
         a.radius = r[i];
-        hit |= func_8002971C(&a, &b);
+        hit |= SpheresOverlap(&a, &b);
         h = hit;
-        if (h == 1 && sHits[i].unk0 == 0) {
-            sHits[i].unk1 = func_80028DBC(i * 6 + 7, (VECTOR *)&b);
-            sHits[i].unk0 = h;
+        if (h == 1 && sHits[i].hit == 0) {
+            sHits[i].point = FindNearestPlayerPoint(i * 6 + 7, (VECTOR *)&b);
+            sHits[i].hit = h;
             sHits[i].unk2 = q->unk18;
             sHits[i].unk3 = q->unk19;
             sHits[i].unk4 = q->unkC;
@@ -300,7 +300,7 @@ s32 func_80028AE4(Body *q) {
  *  @return the point's offset from `start`, 0..5 */
 /* MATCHING: `i++, k++` in the step; `dist[k++]` in the body gives the two
  * increments the other way round. */
-u8 func_80028DBC(u16 start, VECTOR *pos) {
+u8 FindNearestPlayerPoint(u16 start, VECTOR *pos) {
     VECTOR a;
     VECTOR b;
     s32 dist[6];
@@ -310,13 +310,13 @@ u8 func_80028DBC(u16 start, VECTOR *pos) {
 
     k = 0;
     for (i = start; i < start + 6; i++, k++) {
-        a.vx = D_8009F0D0[i].x;
-        a.vy = D_8009F0D0[i].y;
-        a.vz = D_8009F0D0[i].z;
+        a.vx = gPlayerPoints[i].x;
+        a.vy = gPlayerPoints[i].y;
+        a.vz = gPlayerPoints[i].z;
         b.vx = pos->vx;
         b.vy = pos->vy;
         b.vz = pos->vz;
-        dist[k] = func_800297A4(&a, &b);
+        dist[k] = DistanceSquared(&a, &b);
     }
     min = dist[0];
     k = 0;
@@ -337,7 +337,7 @@ u8 func_80028DBC(u16 start, VECTOR *pos) {
  *  With the debug flag set, the quad's outline is drawn.
  *  @param out a hit byte, then the height as a word at offset 4 */
 /* MATCHING: the volatile store keeps the normal's z, as retail. */
-void func_80028F0C(void *rec, s8 *out) {
+void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     Quad8 q;
     Point12 org;
     VECTOR p;
@@ -354,22 +354,22 @@ void func_80028F0C(void *rec, s8 *out) {
     org = D_80010B10;
     out[0] = 0;
     *(s32 *)(out + 4) = 0;
-    if ((((Rec4C *)rec)->world[0].vx >= 0 ? ((Rec4C *)rec)->world[0].vx
-                                          : -((Rec4C *)rec)->world[0].vx) > 2000) {
+    if ((((CollisionQuad *)rec)->world[0].vx >= 0 ? ((CollisionQuad *)rec)->world[0].vx
+                                                  : -((CollisionQuad *)rec)->world[0].vx) > 2000) {
         return;
     }
-    if ((((Rec4C *)rec)->world[0].vz >= 0 ? ((Rec4C *)rec)->world[0].vz
-                                          : -((Rec4C *)rec)->world[0].vz) > 2000) {
+    if ((((CollisionQuad *)rec)->world[0].vz >= 0 ? ((CollisionQuad *)rec)->world[0].vz
+                                                  : -((CollisionQuad *)rec)->world[0].vz) > 2000) {
         return;
     }
     for (k = 0; k < 4; k++) {
-        q.p[k].x = ((Rec4C *)rec)->world[k].vx;
-        q.p[k].y = ((Rec4C *)rec)->world[k].vy;
-        q.p[k].z = ((Rec4C *)rec)->world[k].vz;
+        q.p[k].x = ((CollisionQuad *)rec)->world[k].vx;
+        q.p[k].y = ((CollisionQuad *)rec)->world[k].vy;
+        q.p[k].z = ((CollisionQuad *)rec)->world[k].vz;
     }
-    org.x = ((Rec4C *)rec)->coord->coord.t[0] + D_800A7308[0];
-    org.y = ((Rec4C *)rec)->coord->coord.t[1];
-    org.z = ((Rec4C *)rec)->coord->coord.t[2] + D_800A7308[2];
+    org.x = ((CollisionQuad *)rec)->coord->coord.t[0] + gWorldShift[0];
+    org.y = ((CollisionQuad *)rec)->coord->coord.t[1];
+    org.z = ((CollisionQuad *)rec)->coord->coord.t[2] + gWorldShift[2];
     if (D_800958F8 == 1) {
         dbg.unk0 = 0;
         dbg.unkC = 0xFF;
@@ -410,9 +410,9 @@ void func_80028F0C(void *rec, s8 *out) {
     }
     w[1] = -1;
     w[0] = 0;
-    p.vx = sGamePos.x + D_800A7308[0];
+    p.vx = sGamePos.x + gWorldShift[0];
     p.vy = sGamePos.y;
-    p.vz = sGamePos.z + D_800A7308[2];
+    p.vz = sGamePos.z + gWorldShift[2];
     w[2] = 0;
     q.p[4].x = 0;
     q.p[4].z = 0;
@@ -481,7 +481,7 @@ void func_80028F0C(void *rec, s8 *out) {
     *(s32 *)(out + 4) = n.pad;
 }
 
-void func_8002964C(VECTOR *pos, u16 scale) {
+void DrawMarker(VECTOR *pos, u16 scale) {
     SVECTOR size;
     CVECTOR color;
     GsCOORDINATE2 coord;
@@ -499,7 +499,7 @@ void func_8002964C(VECTOR *pos, u16 scale) {
     DrawBillboard(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
 }
 
-s32 func_8002971C(Body *a, Body *b) {
+s32 SpheresOverlap(Sphere *a, Sphere *b) {
     VECTOR d;
     s32 dist;
 
@@ -511,7 +511,7 @@ s32 func_8002971C(Body *a, Body *b) {
     return dist < d.vx;
 }
 
-s32 func_800297A4(VECTOR *a, VECTOR *b) {
+s32 DistanceSquared(VECTOR *a, VECTOR *b) {
     VECTOR d;
 
     d.vx = (b->vx - a->vx) * (b->vx - a->vx);
@@ -520,9 +520,9 @@ s32 func_800297A4(VECTOR *a, VECTOR *b) {
     return d.vx + d.vy + d.vz;
 }
 
-void func_8002980C(void) {
+void ResetCollision(void) {
     D_8009EB78[1] = 0;
-    func_8002985C();
+    ResetPlayerHits();
     func_8002988C();
 }
 
@@ -534,11 +534,11 @@ void func_80029838(void) {
     }
 }
 
-void func_8002985C(void) {
-    D_8009F0B0[0] = 0;
-    D_8009F0B0[10] = 0;
-    D_8009F0B0[20] = 0;
-    func_80028984();
+void ResetPlayerHits(void) {
+    gPlayerHits[0] = 0;
+    gPlayerHits[10] = 0;
+    gPlayerHits[20] = 0;
+    PlacePlayerPoints();
 }
 
 void func_8002988C(void) {

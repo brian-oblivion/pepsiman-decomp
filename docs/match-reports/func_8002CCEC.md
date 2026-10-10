@@ -112,9 +112,9 @@ void func_8002CCEC(void) {
                 } else {
                     DrawStandingBillboard(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
-                pos.x = coord.coord.t[0] - D_800A7308[0];
+                pos.x = coord.coord.t[0] - gWorldShift[0];
                 pos.y = coord.coord.t[1] - 50;
-                pos.z = coord.coord.t[2] - D_800A7308[2];
+                pos.z = coord.coord.t[2] - gWorldShift[2];
                 if (func_8002D0F0(&pos)) {
                     m = n;
                     func_800414EC(m);

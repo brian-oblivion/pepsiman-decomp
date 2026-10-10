@@ -20,7 +20,7 @@ flag bits 0 and 1. First build matched.
 
 ## Declarations
 
-- None new beyond func_80031064's (the `func_800297A4` prototype).
+- None new beyond func_80031064's (the `DistanceSquared` prototype).
 - `config/typeviews-warnings.txt`: one more code_1dc24 "control reaches
   end of non-void function".
 

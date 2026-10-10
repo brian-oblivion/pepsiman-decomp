@@ -238,8 +238,8 @@ extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 /* MATCHING: code_1a098 declares it as its Rec5C records. */
 extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
 
-/** @brief A 0x5C-byte record of the 200-entry table at D_800CF080, as this
- *         unit places it. */
+/** @brief A 0x5C-byte record of the 200-entry record table, as this unit
+ *         places it. */
 typedef struct {
     s8 unk0;       /**< -1 when the record is free */
     u8 unk1[0x4F]; /**< not yet known */

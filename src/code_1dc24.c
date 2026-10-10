@@ -2993,7 +2993,6 @@ void func_80032C28(s16 a, u8 *buf) {
     *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
 }
 
-#ifdef NON_MATCHING
 extern char D_80011284[]; /**< path of slot 0's file on the host */
 extern char D_800112A8[]; /**< path of slot 1's file on the host */
 extern char D_800112CC[]; /**< path of slot 2's file on the host */
@@ -3039,7 +3038,9 @@ s32 func_80032EE4(void) {
         return -1;
     }
     if (write(fd, (u8 *)&s[1] + 0xB174, 0x800) == -1) {
-        close(fd);
+        /* MATCHING: the copy ranks n above fd in global alloc (permuter). */
+        n = fd;
+        close(n);
         return -1;
     }
     close(fd);
@@ -3064,9 +3065,6 @@ s32 func_80032EE4(void) {
     close(fd);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
-#endif
 
 /** @brief Steps the edited value (bits 0x2000 up, 0x8000 down) or the
  *         highlighted line (0x4000 up, 0x1000 down) from the first pad

@@ -30,7 +30,9 @@ typedef struct {
 
 /** @brief The tool state block: counts, totals and saved menu values. */
 typedef struct {
-    u8 unk0[0xC];   /**< not yet known */
+    u8 unk0[3];     /**< not yet known */
+    u8 unk3;        /**< the menu line the tool mode was entered from */
+    u8 unk4[8];     /**< not yet known */
     s32 unkC;       /**< a height offset added to the camera's y */
     u8 unk10[2];    /**< not yet known */
     u16 unk12;      /**< the edited value saved for menu line 0 */
@@ -41,7 +43,8 @@ typedef struct {
     u16 unk1C;      /**< unk38 of the first record placed */
     u16 unk1E;      /**< matched against a Rec48's unk34 */
     s16 unk20;      /**< an angle in degrees, wrapped to 0..359 */
-    u8 unk22[4];    /**< not yet known */
+    u8 unk22[2];    /**< not yet known */
+    u16 unk24;      /**< the edited value saved for tool mode 2 */
     u16 unk26;      /**< a sum over the current block's entries */
     u16 unk28;      /**< the Rec3C slot the next record goes to */
     u16 unk2A;      /**< matched against a Rec3C's unk2C */
@@ -180,6 +183,20 @@ void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
 void func_8002C894(s32 id, Rec3C *r);
 void func_8002B8F8(s32 id, Rec3C *r);
+
+/** @brief A rotation followed by a position (code_13068.h declares the
+ *         record as an SVECTOR array). */
+typedef struct {
+    SVECTOR rot; /**< the rotation */
+    s32 pos[3];  /**< the position */
+} RotPos;
+
+#define sRotPos (*(RotPos *)D_800A7680)
+
+/* MATCHING: declared per unit (code_1a098 and code_308ec give their own
+ * views); here the start position is passed as words. */
+s32 func_800183B0(s32 *pos);
+extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
@@ -420,7 +437,86 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002DC44);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F270);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F6A0);
+/** @brief Runs the menu editor, then on flag bit 5 enters the tool mode
+ *         of the highlighted line.
+ *  @return nothing; the value is undefined. */
+s32 func_8002F6A0(void) {
+    /* MATCHING: non-void with no return puts the index sll in the bound
+     * check's delay slot. */
+    func_800330D4();
+    if (D_80095970 & 0x20) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 200;
+                D_800958B2 = 1;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk24;
+                D_8009574A = 0;
+                D_800958DA = 2;
+                break;
+            case 1:
+                D_800958B0 = 200;
+                D_800958B2 = 2;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk12;
+                D_8009574A = 0;
+                D_800958DA = 3;
+                break;
+            case 2:
+                D_800958B0 = 200;
+                D_800958B2 = 5;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk18;
+                D_8009574A = 0;
+                D_800958A6 = 0;
+                D_800958DA = 4;
+                break;
+            case 3:
+                D_800958B0 = 100;
+                D_800958B2 = 9;
+                D_800958D8 = 0;
+                D_800959D8 = 0;
+                sTotals.unk3 = D_8009574A;
+                D_80095748 = sTotals.unk28;
+                D_8009574A = 0;
+                D_800958A6 = 0;
+                D_800958DA = 5;
+                break;
+            case 4:
+                D_800958D8 = 1;
+                D_800959D8 = 0;
+                D_800958A6 = 0;
+                break;
+            case 5:
+                D_800959D8 = 1;
+                /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
+                D_800958D8 = D_800959D8 != 0;
+                D_800958A6 = 0;
+                D_800958DA = 0;
+                break;
+            case 6:
+                D_800958DA = 0;
+                sGameSave.unk348[0] = sRotPos.pos[0];
+                sGameSave.unk348[1] = sRotPos.pos[1];
+                sGameSave.unk348[2] = sRotPos.pos[2];
+                sRotPos.rot.vy = sRotPos.rot.vz;
+                D_800957F4 = func_800183B0(sGameSave.unk348);
+                D_8009578C = 0;
+                D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
+                break;
+            case 7:
+                D_800958DA = 6;
+                D_800958A6 = 0;
+                break;
+        }
+    }
+}
 
 /** @brief Fills the six camera words from the yaw in the first rotation
  *         and the view's orbit angle. */

@@ -127,7 +127,6 @@ extern Placement D_800A7680;
 
 extern u8 D_80095900;
 extern s8 D_8007AD58[];
-extern s32 D_800957F4;
 
 /** @brief The record the start heading is read from. */
 typedef struct {

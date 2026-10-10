@@ -128,14 +128,12 @@ extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
 extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
 extern PathPt *D_800958A0;  /**< the current path */
-extern s32 *D_800D81B0[];   /**< per-entry data pointers */
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sGameHead (*(GameHead *)D_8009EB78)
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
 
-s32 func_80018D70(void *pos, void *arg, s32 cur);
 s32 func_80028AE4(Query30 *q);
 /* MATCHING: s32, though the callee returns a sign-extended s16: retail
  * stores the result with no re-extension. */

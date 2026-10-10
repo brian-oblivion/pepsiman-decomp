@@ -68,7 +68,6 @@ extern u8 D_800D8960[];
 extern s16 D_800D38DE[];
 extern s8 D_8009EF4D[];
 
-extern s32 D_80095964;
 extern s32 D_800AC860;
 extern s16 D_800959B2;
 extern s32 D_800957EC;

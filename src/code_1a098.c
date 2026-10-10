@@ -1280,7 +1280,103 @@ void func_8002CC24(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CCEC);
+/** @brief A zone's run of group indices. */
+typedef struct {
+    s16 start; /**< first index into the group list */
+    s16 count; /**< how many */
+} Zone4;
+
+/** @brief A run of block entries. */
+typedef struct {
+    u32 first; /**< first entry */
+    u32 count; /**< how many */
+} Group8;
+
+extern Zone4 *D_80095934; /**< the zones */
+extern s8 *D_8009593C;    /**< the group list the zones index */
+void func_800414EC(s16 n);
+
+/** @brief The magnitude of `x`. */
+/* MATCHING: this ternary is cc1's abs, a bgez with its delay slot a nop. */
+static __inline__ s32 absInt(s32 x) {
+    return x >= 0 ? x : -x;
+}
+
+s8 func_8002D0F0(Vec3 *pos);
+void func_8001B004(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot);
+
+/** @brief Draws the markers of the current zone: each block entry marked 2
+ *         whose flag is set and not yet collected gets a sprite, near or
+ *         far by its distance, and when the player is over it it is
+ *         collected (its effect, a sound, bit 15 of its flag index). */
+void func_8002CCEC(void) {
+    GsCOORDINATE2 coord;
+    MATRIX mat;
+    SVECTOR size;
+    Vec3 pos;
+    s32 j;
+    u32 i;
+    u32 k;
+    u16 n;
+    Ent8 *e;
+    s16 m;
+
+    GsInitCoordinate2(WORLD, &coord);
+    for (j = 0; j < D_80095934[D_8009578C].count; j++) {
+        if (D_8009593C[D_80095934[D_8009578C].start + j] < D_800959C8) {
+            for (i = 0;
+                 i < ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].count; i++) {
+                k = ((Group8 *)D_800959C0)[D_8009593C[D_80095934[D_8009578C].start + j]].first + i;
+                if ((s8)D_800A7550[k] != 2) {
+                    continue;
+                }
+                e = (Ent8 *)(k * 8 + (u32)D_800959C4);
+                n = e->unk6;
+                if ((s8)D_800A74D0[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
+                    continue;
+                }
+                coord.coord.t[0] = -sGameHead.unk348 + e->unk0;
+                coord.coord.t[1] = e->unk2;
+                coord.coord.t[2] = -sGameHead.unk350 + (s16)e->unk4;
+                coord.flg = 0;
+                GsGetLs(&coord, &mat);
+                GsSetLsMatrix(&mat);
+                size.vy = 75;
+                size.vx = 75;
+                if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
+                    func_8001B004(0xFA, &size, NULL, 2, &D_800A7318[D_80095750]);
+                } else {
+                    func_8001A69C(0xFA, &size, NULL, 2, &D_800ACEA8[D_80095750]);
+                }
+                pos.x = coord.coord.t[0] - D_800A7308[0];
+                pos.y = coord.coord.t[1] - 50;
+                pos.z = coord.coord.t[2] - D_800A7308[2];
+                if (func_8002D0F0(&pos)) {
+                    m = n;
+                    func_800414EC(m);
+                    switch (m) {
+                        case 0:
+                            break;
+                        case 1:
+                        default:
+                            func_80042538(0x35);
+                            func_8003F834(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
+                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            break;
+                        case 2:
+                            func_80042538(0x35);
+                            func_8003F834(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
+                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
+                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            break;
+                    }
+                    ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk6 |= 0x8000;
+                }
+            }
+        }
+    }
+}
 
 /** @brief Points the current-block globals at the block `hdr` heads. */
 void func_8002D0C4(BlockHeader *hdr) {

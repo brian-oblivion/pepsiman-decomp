@@ -29,7 +29,6 @@ extern Pair8 D_800D8340[];
 extern Pair8 D_80010454[];
 extern u8 D_800957DA;
 extern s8 D_800957A0;
-extern s32 D_80095758;
 extern u8 D_800958A5;
 extern s32 D_80095984;
 extern s32 D_80095998;
@@ -43,7 +42,6 @@ s8 func_80013B38(void);
 s32 func_800426A4(void);
 void func_80014AC8(void);
 void func_80014CF0(void);
-s32 func_80014DB0(void);
 s8 func_80015584(void);
 void func_80014044(void);
 void func_80016D14(void);
@@ -889,8 +887,6 @@ extern u16 D_800958E6;
 /* MATCHING: signed, so the zero test in func_80014DB0 is its own `lh`. */
 extern s16 D_800957D8;
 extern u16 D_800957E0;
-
-void func_80015328(s32 offset, u8 a, u8 b);
 
 /**
  * @brief Selects record @p index of @p tbl and unpacks it into the record

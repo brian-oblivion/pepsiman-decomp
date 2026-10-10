@@ -201,6 +201,7 @@ extern s32 D_8009578C;  /**< stamped on placed records; 2 units */
 extern u16 D_800958A6;  /**< a state switched on in main; cleared after placing; 2 units */
 extern s16 D_800958DA;  /**< an error code; cleared when flag bit 6 is set; 2 units */
 extern s32 D_800957F4;  /**< the result of the start-position lookup; 2 units */
+extern s32 D_80095758;  /**< 2 units */
 
 /* Per-stage tables, three words per stage; a global flag picks the set. */
 extern s32 D_8007AF84[][3]; /**< 2 units */
@@ -425,5 +426,30 @@ s16 func_80040CD0(u8 stage);
 /** @brief Defined in code_31958.
  *  @param sel not yet known */
 void func_8004121C(u16 sel);
+
+
+/** @brief Defined in code_29f54. */
+void func_8003C2E8(void);
+
+/** @brief Defined in code_29f54. */
+void func_8003CC94(void);
+
+/** @brief Defined in code_13068.
+ *  @return not yet known */
+s32 func_80026D9C(void);
+
+/** @brief Defined in main.
+ *  @return not yet known */
+s32 func_80014DB0(void);
+
+/** @brief Defined in main.
+ *  @param offset not yet known
+ *  @param a      not yet known
+ *  @param b      not yet known */
+void func_80015328(s32 offset, u8 a, u8 b);
+
+/** @brief Defined in code_31cec: sets a volume.
+ *  @param vol the volume */
+void func_80042968(s32 vol);
 
 #endif

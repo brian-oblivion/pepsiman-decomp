@@ -332,7 +332,6 @@ s32 func_80042150(u16 song) {
 /* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
 s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
-void func_80042968(s32 vol);
 
 extern s16 D_80095724;
 extern s16 D_80095AE8;

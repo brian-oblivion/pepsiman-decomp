@@ -164,7 +164,6 @@ typedef struct {
 
 extern s32 D_800957A4;
 extern u16 D_800958EA;
-extern s32 D_80095758;
 
 void func_800F00A0(void);
 void func_800F1654(void);
@@ -180,12 +179,6 @@ void func_800F7A9C(void);
 void func_800F7F40(void);
 void func_800F809C(void);
 void func_800F8264(void);
-void func_8003CC94(void);
-void func_8003C2E8(void);
-s32 func_80026D9C(void);
-s32 func_80014DB0(void);
-void func_80015328(s32 offset, u8 a, u8 b);
-void func_80042968(s32 vol);
 void func_80040628(void);
 
 /* MATCHING: main.c types the object as its Stepper; here it is the game

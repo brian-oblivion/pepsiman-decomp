@@ -207,7 +207,74 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003A84C);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003AFAC);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B780);
+/**
+ * @brief Absolute value.
+ * @param v the value
+ * @return |v|
+ */
+static __inline__ s32 iabs(s32 v) {
+    return v >= 0 ? v : -v;
+}
+
+void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+    s32 swapped;
+    s32 t;
+    s32 m;
+    s32 b;
+    s32 c;
+    s32 a;
+    s32 r0;
+    s32 r1;
+    s32 h;
+    s32 nb;
+    s32 sq;
+
+    swapped = 0;
+    if (iabs(x1 - x0) < iabs(y1 - y0)) {
+        t = x0;
+        x0 = y0;
+        y0 = -t;
+        t = x1;
+        /* MATCHING: the negation goes through m (free until the slope). */
+        m = -t;
+        x1 = y1;
+        y1 = m;
+        swapped = 1;
+    }
+    m = ((y1 - y0) << 16) / (x1 - x0);
+    a = (y1 - y0) * (y1 - y0) * 4 / ((x1 - x0) * (x1 - x0));
+    c = y0 - ((m * x0) >> 16);
+    b = (m * c) >> 15;
+    a += 4;
+    /* MATCHING: one local carries the discriminant and then the half
+     * leading coefficient, b * b computed into it first. */
+    h = b * b;
+    h -= a * (c * c - 250000);
+    if (h >= 0) {
+        sq = SquareRoot0(h);
+        h = a >> 1;
+        nb = -b;
+        r1 = (nb + sq) / h;
+        r0 = (nb - sq) / h;
+        if (iabs(x0 - r1) <= iabs(x0 - r0)) {
+            if (swapped) {
+                out[1] = r1;
+                out[0] = -(((m * r1) >> 16) + c);
+            } else {
+                out[0] = r1;
+                out[1] = ((m * r1) >> 16) + c;
+            }
+        } else {
+            if (swapped) {
+                out[1] = r0;
+                out[0] = -(((m * r0) >> 16) + c);
+            } else {
+                out[0] = r0;
+                out[1] = ((m * r0) >> 16) + c;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
 

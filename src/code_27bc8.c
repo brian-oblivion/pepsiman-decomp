@@ -125,7 +125,49 @@ INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_800377E8);
 
 INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_8003796C);
 
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037AE4);
+/** @brief Creates and writes the first save file, up to ten tries per step; 0, or -1 with the failed step recorded. */
+s32 func_80037AE4(void) {
+    s32 ret;
+    s16 i;
+    s32 fd;
+
+    ret = 0;
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 0xF0200);
+        if (fd != -1) {
+            goto created;
+        }
+    }
+    /* MATCHING: ret before the code keeps the three fail tails apart */
+    ret = -1;
+    D_800959D0 = 8;
+    goto end;
+created:
+    close(fd);
+    for (i = 0; i < 10; i++) {
+        fd = open(D_80011998, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    ret = -1;
+    D_800959D0 = 9;
+    goto end;
+opened:
+    for (i = 0; i < 10; i++) {
+        if (write(fd, D_80095A18, 0x1E000) == 0x1E000) {
+            goto written;
+        }
+    }
+    close(fd);
+    ret = -1;
+    D_800959D0 = 10;
+    goto end;
+written:
+    close(fd);
+end:
+    return ret;
+}
 
 #ifdef NON_MATCHING
 s32 func_80037C2C(void) {

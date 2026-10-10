@@ -255,15 +255,64 @@ void func_80014044(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800142EC);
-
-void func_80013EE4(void);
-void func_80014B8C(s16 frames);
-
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
 extern s32 D_80095850[2];
 extern s32 D_80095870[2];
 extern s32 D_80095848[2];
+
+extern s8 D_8009575D;
+extern u8 D_80095784;
+extern u32 D_800957C8;
+extern u32 D_800957C0;
+extern u8 D_800956EA;
+extern u8 D_800956DB;
+extern u8 D_800956E8[2];
+extern u8 D_800956D8[3];
+
+void func_80014FA8(void);
+
+/**
+ * @brief Auto-repeat for one held button: once @p cnt has counted 30
+ *        frames (scaled by the speed byte), @p bit repeats into the
+ *        pressed-flags word every few frames. A release clears @p cnt.
+ */
+/* MATCHING: a bare block; `do { } while (0)` changes the branch layout. */
+#define REPEAT(bit, cnt)                                                          \
+    {                                                                             \
+        if (D_80095964 & (bit)) {                                                 \
+            if ((cnt) >= 30 / D_8009575D && D_8009585C % (4 / D_8009575D) == 0) { \
+                D_80095970 |= (bit);                                              \
+            } else if ((cnt) < 30 / D_8009575D) {                                 \
+                (cnt)++;                                                          \
+            }                                                                     \
+        } else {                                                                  \
+            (cnt) = 0;                                                            \
+        }                                                                         \
+    }
+
+void func_800142EC(s32 arg) {
+    D_8009575D = 4;
+    func_80014FA8();
+    if (D_80095784 == 0x41) {
+        D_800957C0 = D_800957C8 = 0x80;
+    }
+    /* MATCHING: this order builds D_80095870's address first, as retail;
+     * the stores still come out D_80095964 first. */
+    D_80095970 = D_80095870[(u16)arg];
+    D_80095964 = D_80095848[(u16)arg];
+    REPEAT(0x1000, D_800956EA)
+    REPEAT(0x4000, D_800956DB)
+    REPEAT(0x8000, D_800956E8[0])
+    REPEAT(0x2000, D_800956E8[1])
+    if (D_800956F7 == 1) {
+        REPEAT(0x80, D_800956D8[0])
+        REPEAT(0x40, D_800956D8[1])
+        REPEAT(0x20, D_800956D8[2])
+    }
+}
+
+void func_80013EE4(void);
+void func_80014B8C(s16 frames);
 
 void func_800148B0(void) {
     s32 x;

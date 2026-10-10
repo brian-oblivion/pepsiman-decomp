@@ -1612,7 +1612,6 @@ void func_8003708C(void) {
     D_80095A30 = D_80095A30 < 0 ? 0 : D_80095A30 > D_8009588E - 1 ? D_8009588E - 1 : D_80095A30;
 }
 
-#ifdef NON_MATCHING
 void func_80037114(void) {
     D_80095774 = 1;
     func_8002980C();
@@ -1629,9 +1628,6 @@ void func_80037114(void) {
     func_80029838();
     D_80095774 = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80037114);
-#endif
 
 /* MATCHING: the unused 8 bytes give the 0x20-byte frame. */
 void func_800371A0(void) {

@@ -236,7 +236,59 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034070);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034388);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800345C8);
+void func_800345C8(void) {
+    D_800958B0 = 1;
+    D_800958B2 = 5;
+    func_800330D4();
+    if (D_80095970 & 0x20) {
+        switch (D_8009574A) {
+            case 0:
+                D_80095A29 = D_8009574A;
+                D_800958B0 = 0x33;
+                D_800958B2 = 2;
+                D_8009574A = 0;
+                D_800958DA = 2;
+                D_80095A58 = 0;
+                D_80095A28 = 0;
+                D_80095748 = D_80095A3C;
+                break;
+            case 1:
+                D_80095A29 = D_8009574A;
+                D_8009574A = 0;
+                D_80095748 = 0;
+                D_800958DA = 4;
+                D_80095A58 = 0;
+                D_80095A28 = 0;
+                break;
+            case 2:
+                D_80095A28 = 0;
+                D_80095A58 ^= 1;
+            case 3:
+                if (D_8009574A == 3) {
+                    D_80095A58 = D_80095A28 = D_80095A28 ^ 1;
+                }
+                D_800958A6 = 0;
+                if (D_80095A58 == 1) {
+                    switch (D_80095A29) {
+                        case 0:
+                            D_800958DA = 3;
+                            break;
+                        case 1:
+                            D_800958DA = 5;
+                            break;
+                    }
+                }
+                break;
+            case 4:
+                D_800958A6 = 0;
+                D_800958DA = 7;
+                break;
+        }
+    }
+    if (D_80095970 & 0x40) {
+        D_800958DA = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034788);
 

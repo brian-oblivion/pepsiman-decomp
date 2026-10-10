@@ -1,0 +1,43 @@
+# CompareBytes — MATCHED (round 1, bravo)
+
+> Renamed from `func_8003828C` on 2026-10-10 (tools/rename.py). Address 0x8003828c.
+
+20/20 words. A `memcmp`-style equality test over `n` bytes, -1 on the first
+difference, 0 when equal:
+
+```c
+s16 CompareBytes(u8 *a, u8 *b, s16 n) {
+    s16 i;
+
+    for (i = 0; i < n; i++) {
+        if (*a != *b) {
+            return -1;
+        }
+        a++;
+        b++;
+    }
+    return 0;
+}
+```
+
+`n` and `i` are `s16` (the `sll/sra 16` on the argument and on each `i + 1`).
+
+## Lever
+
+`if (*a++ != *b++) return -1;` builds one word long: 2.8.1 emits `b++`
+between the two loads. Comparing first and advancing both pointers after the
+`if` gives retail's schedule (`a++` in the `beq` delay slot, `b++` in the
+loop branch's delay slot).
+
+### Proposed learning
+
+With GCC 2.8.1, a post-increment inside a compare that guards an early
+return is scheduled before the other operand's load; spell the increments as
+separate statements after the test.
+
+## Return type changed to `s32` (round 5, echo)
+
+Its two callers, `FindSave1` and `FindSave2`, test the result with
+`bnez $v0` straight after the `jal`; with an `s16` return type cc1 adds
+`sll $v0, $v0, 16` first. The body returns only the constants -1 and 0, so
+`s32` builds the same 20 words here. See `FindSave1.md`.

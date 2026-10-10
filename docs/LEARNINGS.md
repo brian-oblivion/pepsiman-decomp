@@ -44,9 +44,9 @@ function's match report, not here.
   func_8002D0C4's byte-pointer read. (func_800337E4)
 - **A callee result tested with no `sll`/`sra`: the callee is `s32` in this
   unit's view**; a definition that returns only constants can simply be
-  `s32`. (func_800384DC, func_80039580)
+  `s32`. (FindSave1, FindSave2)
 - **A word written with `sw` and summed elsewhere with `lhu`: a union**
-  (`{ s32 w; u16 lo; }`). (func_8003828C's table, code_27bc8)
+  (`{ s32 w; u16 lo; }`). (CompareBytes's table, code_27bc8)
 - **A result kept in `$a3` that skips `$a1`/`$a2`, which the function never
   touches: extra arguments passed straight through to callees.**
   (CallStageHook)
@@ -151,12 +151,12 @@ function's match report, not here.
   `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (func_8003E444)
 - **Four `lw` then four `sw`, both pointers bumped by 16 to an end pointer:
   a block move**, `*(Big *)dst = *(Big *)src` with a one-member `u8 b[N]`
-  struct; also for an odd, byte-aligned size. (func_80033930, func_800385E0)
+  struct; also for an odd, byte-aligned size. (func_80033930, BuildSave1Header)
   More than four registers per batch, the first word through `%lo(sym)`:
   separate `s32` assignments, not a struct copy. (func_800335E8)
 - **A zero returned from a saved register (`addu $v0, $s2, $zero`): an `s32
   ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
-  (func_800383F8, func_80038468, func_8003950C)
+  (FormatCard, EraseSave1, EraseSave2)
 - **`andi 0xFFFF` / `sltiu` on the counter with `sll`/`sra 16` on the index:
   a `u16` counter indexed through `(s16)i`.** (func_8002C650)
 - **A parameter masked once in the prologue: `mode &= 1;` at the top**, not
@@ -180,10 +180,10 @@ function's match report, not here.
 - **An offset above 0x7FFF built whole (`lui`/`ori`, `addu`) comes from byte
   arithmetic or an offset in a local**, `(u8 *)p + 0x8294`, or `off =
   0x1DFFE; *(u16 *)(p + off) = v;`. A member access or a constant index is
-  split into `%hi` plus the remainder. (func_80030278, func_80037CF0)
+  split into `%hi` plus the remainder. (func_80030278, CopySave1Icon)
 - **Block-move batches of three words through a base in its own register:
   the destination is an unknown-size array**, `*(T *)D_800DF630 = x;`. A
-  struct member at a fixed offset moves four words per batch. (func_80037CF0)
+  struct member at a fixed offset moves four words per batch. (CopySave1Icon)
 - **A table base built by `addiu` from another symbol's address: the array
   starts before the symbol splat named.** This needs a symbol (and a linker
   definition if no instruction references it), not a C spelling.
@@ -241,7 +241,7 @@ function's match report, not here.
 - **A compare loop that loads both bytes before either increment: the
   increments are separate statements after the test**, `if (*a != *b) return
   -1; a++; b++;`. In `*a++ != *b++`, 2.8.1 schedules `b++` before the load of
-  `*a`. (func_8003828C)
+  `*a`. (CompareBytes)
 - **A loop bound kept in a saved register across calls, never reloaded: the
   source copied it to a local** before the loop (`n = pack->count;`).
   Testing the member in the `for` reloads it every pass. (LoadTimPack)
@@ -290,9 +290,9 @@ function's match report, not here.
   (code_29f54, round 8)
 
 - **A parameter re-extended at every use inside a poll loop: the loop was a
-  `goto` label.** A C loop hoists the extension. (func_80037440)
+  `goto` label.** A C loop hoists the extension. (RunCardOp1)
 - **`addiu` of the counter in the back-branch delay slot: `if (n < K) { n++;
-  goto top; }`.** `if (n++ < K)` copies the old value first. (func_80037440)
+  goto top; }`.** `if (n++ < K)` copies the old value first. (RunCardOp1)
 - **A constant store after a search loop that retail keeps as its own block,
   with the constant loaded in the preheader: the store is inside the loop**,
   `if (++i == N) { G = K; return; }`. After the loop, cross-jumping merges it
@@ -341,7 +341,7 @@ function's match report, not here.
 - **`addiu -K; sltiu N`: `(u32)(x - K) < N`.** `x >= K && x < K+N` stays two
   compares. (func_80027BEC)
 - **`beq K` / `slti K+1` / `beq K+1`: a switch with an empty `case K-1:
-  break;`.** (func_80037700)
+  break;`.** (ProbeCard)
 - **A NULL return as the last block: `if (found) { ...; return p; } return
   NULL;`.** (RemoveTodObj)
 - **An `abs` that must not move a later branch target: write it inline**,
@@ -354,7 +354,7 @@ function's match report, not here.
   with one shared branch is two compares that `goto` one label. (func_80028448)
 - **The value in a branch's delay slot follows the early return**: `if (x >=
   4) return -1; return 0;` gives `beqz` with -1 in the slot; the inverted form
-  gives `bnez` with 0. (func_80039618)
+  gives `bnez` with 0. (CheckSave2Space)
 - **A non-leaf frame whose locals all sit N bytes high: an unused `s32
   unused[N/4];` declared at that point.** Locals are laid out from `sp+0x10`
   in declaration order. (func_80023194, 8 bytes; func_800230E0, 88)
@@ -380,7 +380,7 @@ function's match report, not here.
 - **Retail setting -1 in a saved register in each `j end` delay slot and
   copying it to `$v0` once at the exit: a single-exit `ret` local with `goto
   end`**, not `return -1`. Separate fail tails were `ret = -1; G = K;`; one
-  shared tail was `G = K; ret = -1;`. (func_80037AE4, func_800377E8)
+  shared tail was `G = K; ret = -1;`. (CreateSave1, ReadSave1)
 - **`beqz r; blez r; beq r, 1` on a call result: `switch (r) { case 0: ...;
   case 1: ...; case -1: break; }`.** (func_800345C8)
 - **`bgez r; nop; negu r` with the delay slot unfilled is cc1's abs: only `v
@@ -420,7 +420,7 @@ function's match report, not here.
   cross-jumping merges the blocks afterwards. (func_80032EE4)
 - **An exit block retail keeps inline after a `goto loop`: an unreachable
   `for (;;) {}` after the goto.** Its label blocks jump.c's "if (foo) bar;
-  else break;" swap; flow deletes the dead loop. (func_80037C2C)
+  else break;" swap; flow deletes the dead loop. (ScanCardFiles)
 - **A store whose register is loaded in the delay slot of the branch that
   reaches it: read that slot's value before calling it a register choice.**
   Retail's `sb $v0` after a `li $v0, 3` slot was `D_80095A24++` with the index
@@ -581,7 +581,7 @@ function's match report, not here.
   (StepAnimation, SetTodPacket, func_8002B220)
 - **`do { i++; } while (0)` keeps an independent instruction from being
   hoisted** inside its block (loop notes split cse1 paths; cse2 ignores
-  them). (func_80037C2C)
+  them). (ScanCardFiles)
 - **Copies `move sN, sM` after a loop guard: assign the loop's pointer locals
   inside the loop body**, not before it. (func_8002B220)
 - **A redundant `andi 0xFFFF` after `xori 0xFFFF` of two shifted bytes, which

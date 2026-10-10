@@ -386,9 +386,9 @@ void func_80033388(VECTOR *pos, s16 deg);
 /* MATCHING: defined in code_1902c, which has no header. */
 
 /* MATCHING: defined in code_27bc8, which has no header. */
-s32 func_80037440(s16 mode);
+s32 RunCardOp1(s16 mode);
 /* MATCHING: s16 in code_27bc8; its result is compared here unextended. */
-s32 func_80038394(void);
+s32 CheckCard(void);
 s32 func_80032EE4(void);
 s32 func_80033680(s16 i);
 void func_800335E8(s16 a);
@@ -2621,7 +2621,7 @@ s32 func_80031EF4(void) {
     err = 0;
     switch (gSubStep) {
         case 0:
-            func_80038124();
+            OpenCardEvents();
             D_800959E4 = 0;
             D_8009574A = 0;
             D_80095748 = 0;
@@ -2631,13 +2631,13 @@ s32 func_80031EF4(void) {
             switch (D_800959E4) {
                 case 0:
                     D_80095A14 = 0;
-                    err = func_80037440(0);
+                    err = RunCardOp1(0);
                     if (err == 0) {
                         D_800959E4 = 1;
                     }
                     break;
                 case 1:
-                    if (func_80038394() == -1 || (gPadTrig & 0x40)) {
+                    if (CheckCard() == -1 || (gPadTrig & 0x40)) {
                         D_800959E4 = 18;
                         break;
                     }
@@ -2719,7 +2719,7 @@ s32 func_80031EF4(void) {
                     break;
                 case 8:
                     func_800335E8(D_80095A0C);
-                    err = func_80037440(1);
+                    err = RunCardOp1(1);
                     if (err == 0) {
                         D_800959E4 = 10;
                     }
@@ -2785,13 +2785,13 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 16:
-                    err = func_80037440(2);
+                    err = RunCardOp1(2);
                     if (err == 0) {
                         D_800959E4 = 0;
                     }
                     break;
                 case 17:
-                    err = func_80037440(3);
+                    err = RunCardOp1(3);
                     if (err == 0) {
                         D_800959E4 = 0;
                     }
@@ -2820,7 +2820,7 @@ s32 func_80031EF4(void) {
             }
             break;
         case 2:
-            func_800386A8();
+            CloseCardEvents();
             D_800958DA = 0;
             break;
     }

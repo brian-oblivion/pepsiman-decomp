@@ -2,16 +2,16 @@
 #include "libapi.h"
 #include "string.h"
 
-extern u8 *D_80095A18;
+extern u8 *gSaveBuf;
 extern u8 *D_800959D4;
-extern s32 D_800959E8;
-extern s32 D_800959EC;
-extern s32 D_800959F0;
-extern s32 D_800959F4;
-extern s32 D_800959FC;
-extern s32 D_80095A00;
-extern s32 D_80095A04;
-extern s32 D_80095A08;
+extern s32 gCardSwIoe;
+extern s32 gCardSwError;
+extern s32 gCardSwTimeout;
+extern s32 gCardSwNew;
+extern s32 gCardHwIoe;
+extern s32 gCardHwError;
+extern s32 gCardHwTimeout;
+extern s32 gCardHwNew;
 
 /** @brief A file's size in 8 KiB blocks, stored as a word, summed as a halfword. */
 typedef union {
@@ -23,16 +23,16 @@ typedef union {
 typedef struct {
     char name[20];     /**< file name, from the directory entry */
     BlockCount blocks; /**< size in 8 KiB blocks */
-} Rec18;
+} CardFile;
 
-extern Rec18 D_800DF858[];
-extern u16 D_800959DA;
-extern s32 D_800959DC;    /**< number of records in use */
-extern s16 D_800959D0;    /**< 11 after a failed format, 12 after a failed erase */
-extern char *D_80095A1C;  /**< name of the file last erased */
-extern char D_800956A8[]; /**< "bu10:" */
-extern char D_80011998[]; /**< "bu10:BISLPS-12345PEPTOOL" */
-extern char D_80011C24[]; /**< "bu10:BISLPS-67890PEPTOOL" */
+extern CardFile gCardFiles[];
+extern u16 gCardStatus;
+extern s32 gCardFileCount;  /**< number of records in use */
+extern s16 gCardError;      /**< 11 after a failed format, 12 after a failed erase */
+extern char *gCardFileName; /**< name of the file last erased */
+extern char D_800956A8[];   /**< "bu10:" */
+extern char D_80011998[];   /**< "bu10:BISLPS-12345PEPTOOL" */
+extern char D_80011C24[];   /**< "bu10:BISLPS-67890PEPTOOL" */
 
 /** @brief A loaded record bank file: a count word, then the bank. */
 typedef struct {
@@ -71,7 +71,7 @@ typedef struct {
     CardTitle title; /**< Shift-JIS title */
 } CardHeader;
 
-extern CardHeader D_800DF5D0;
+extern CardHeader gCardHeader;
 extern u8 D_800119C8[]; /**< title of the first save file */
 extern u8 D_80011C54[]; /**< title of the second save file */
 extern u8 D_800119E4[]; /**< first save file's icon frames, three TIMs */
@@ -89,34 +89,34 @@ typedef struct {
     u8 b[0x200]; /**< header bytes */
 } SaveImage;
 
-extern u16 D_800959F8; /**< checksum of the save buffer */
+extern u16 gSaveSum; /**< checksum of the save buffer */
 
-s16 func_80037700(void);
-s32 func_800377E8(void);
-s32 func_8003796C(void);
-s32 func_80037AE4(void);
-s32 func_80037C2C(void);
-void func_80037CF0(void);
-s32 func_800383F8(void);
-s32 func_80038468(void);
-s32 func_800384DC(void);
-s32 func_80038574(void);
-u16 func_800382DC(void);
-void func_800385E0(void);
-s32 func_80038C74(void);
-s32 func_80038DF8(void);
-s32 func_80038F70(void);
-s32 func_8003950C(void);
-s32 func_80039580(void);
-s32 func_80039618(void);
-void func_8003968C(void);
-void func_80038730(void);
-void func_800387A8(void);
-s16 func_80038820(void);
-s16 func_80038890(void);
-void func_80038900(void);
-void func_80038948(void);
-void func_800390B8(void);
+s16 ProbeCard(void);
+s32 ReadSave1(void);
+s32 RewriteSave1(void);
+s32 CreateSave1(void);
+s32 ScanCardFiles(void);
+void CopySave1Icon(void);
+s32 FormatCard(void);
+s32 EraseSave1(void);
+s32 FindSave1(void);
+s32 CheckSave1Space(void);
+u16 SumSaveBuffer(void);
+void BuildSave1Header(void);
+s32 ReadSave2(void);
+s32 RewriteSave2(void);
+s32 CreateSave2(void);
+s32 EraseSave2(void);
+s32 FindSave2(void);
+s32 CheckSave2Space(void);
+void BuildSave2Header(void);
+void EnableCardEvents(void);
+void DisableCardEvents(void);
+s16 WaitCardSwEvent(void);
+s16 WaitCardHwEvent(void);
+void ClearCardSwEvents(void);
+void ClearCardHwEvents(void);
+void CopySave2Icon(void);
 
 void func_800373C8(BankFile *a, BankFile *b) {
     u8 *bank; /* MATCHING: one local for both bank addresses */
@@ -137,7 +137,7 @@ void func_800373C8(BankFile *a, BankFile *b) {
 }
 
 /** @brief Runs one memory card operation on the first save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
-s32 func_80037440(s16 mode) {
+s32 RunCardOp1(s16 mode) {
     s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
     s32 ret;
     s16 retry;
@@ -146,14 +146,14 @@ s32 func_80037440(s16 mode) {
 
     ret = 0;
     retry = 0;
-    D_800959DA = 0;
-    D_800959D0 = 0;
+    gCardStatus = 0;
+    gCardError = 0;
     D_800959D4 = (u8 *)0x8018D000;
-    D_80095A18 = (u8 *)0x8016D000;
-    func_80038730();
+    gSaveBuf = (u8 *)0x8016D000;
+    EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
-    D_800959DA = func_80037700();
-    switch (D_800959DA) {
+    gCardStatus = ProbeCard();
+    switch (gCardStatus) {
         case 0: /* MATCHING: the empty case gives retail's compare tree */
             break;
         case 1:
@@ -164,11 +164,11 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             ret = -2;
             goto end;
         case 2:
-            D_800959DC = 0;
+            gCardFileCount = 0;
             ret = 2;
             goto end;
         case 3:
-            D_800959DC = 0;
+            gCardFileCount = 0;
             ret = 4;
             if (mode == 3) {
                 goto format;
@@ -178,59 +178,59 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
     if (mode == -1) {
         goto end;
     }
-    func_80037C2C();
+    ScanCardFiles();
     if (mode == 5) {
-        if (func_800384DC() != -1) {
+        if (FindSave1() != -1) {
             ret = 0;
         } else {
-            ret = func_80038574() == -1;
+            ret = CheckSave1Space() == -1;
         }
     } else if (mode == 0 || mode == 1 || mode == 4) {
-        if (func_800384DC() == -1) {
+        if (FindSave1() == -1) {
             ret = 3;
             goto end;
         }
         switch (mode) {
             case 0:
-                ret = func_800377E8();
+                ret = ReadSave1();
                 break;
             case 1:
-                ret = func_8003796C();
+                ret = RewriteSave1();
                 break;
             case 4:
-                ret = func_80038468();
+                ret = EraseSave1();
                 break;
         }
     } else if (mode == 2) {
-        if (func_80038574() == -1) {
+        if (CheckSave1Space() == -1) {
             ret = 1;
         } else {
-            func_800385E0();
-            *(SaveImage *)D_80095A18 = *(SaveImage *)&D_800DF5D0;
-            sum = func_800382DC();
-            D_800959F8 = sum;
+            BuildSave1Header();
+            *(SaveImage *)gSaveBuf = *(SaveImage *)&gCardHeader;
+            sum = SumSaveBuffer();
+            gSaveSum = sum;
             off = 0x1DFFE;
             *(u16 *)(D_800959D4 + off) = sum;
-            ret = func_80037AE4();
+            ret = CreateSave1();
         }
     } else if (mode == 3) {
     format:
-        ret = func_800383F8();
+        ret = FormatCard();
     }
 end:
-    func_800387A8();
+    DisableCardEvents();
     return ret;
 }
 
-s16 func_80037700(void) {
+s16 ProbeCard(void) {
     s16 retry;
     s16 r;
 
     retry = 0;
     do {
-        func_80038900();
+        ClearCardSwEvents();
         _card_info(0x10);
-        r = func_80038820();
+        r = WaitCardSwEvent();
         switch (r) {
             case 1: /* MATCHING: the empty case gives retail's compare tree */
                 break;
@@ -241,15 +241,15 @@ s16 func_80037700(void) {
                 }
                 break;
             case 3:
-                func_80038948();
+                ClearCardHwEvents();
                 _card_clear(0x10);
-                func_80038890();
+                WaitCardHwEvent();
                 D_80095A14 = 1;
                 break;
         }
-        func_80038900();
+        ClearCardSwEvents();
         _card_load(0x10);
-        r = func_80038820();
+        r = WaitCardSwEvent();
     } while (r == 1 || r == 2);
     if (r == 0) {
         return 0;
@@ -258,7 +258,7 @@ s16 func_80037700(void) {
 }
 
 /** @brief Reads the first save file into the save buffer, up to ten tries per step; 0, or -1 with the failed step recorded. */
-s32 func_800377E8(void) {
+s32 ReadSave1(void) {
     s32 ret;
     s16 i;
     s32 fd;
@@ -272,7 +272,7 @@ s32 func_800377E8(void) {
             goto opened;
         }
     }
-    D_800959D0 = 1;
+    gCardError = 1;
     ret = -1;
     goto end;
 opened:
@@ -282,11 +282,11 @@ opened:
         }
     }
     close(fd);
-    D_800959D0 = 2;
+    gCardError = 2;
     ret = -1;
     goto end;
 seeked:
-    buf = D_80095A18;
+    buf = gSaveBuf;
     for (tries = 0; tries < 10; tries++) {
         if (read(fd, buf, 0x1E000) == 0x1E000) {
             goto done;
@@ -297,13 +297,13 @@ seeked:
             }
         }
         close(fd);
-        D_800959D0 = 2;
+        gCardError = 2;
         ret = -1;
         goto end;
     reseeked:;
     }
     close(fd);
-    D_800959D0 = 3;
+    gCardError = 3;
     ret = -1;
     goto end;
 done:
@@ -313,7 +313,7 @@ end:
 }
 
 /** @brief Rewrites the first save file in place, up to ten tries per step; 0, or -1 with the failed step recorded. */
-s32 func_8003796C(void) {
+s32 RewriteSave1(void) {
     s32 ret;
     s16 i;
     s32 fd;
@@ -327,7 +327,7 @@ s32 func_8003796C(void) {
         }
     }
     ret = -1;
-    D_800959D0 = 5;
+    gCardError = 5;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -337,10 +337,10 @@ opened:
     }
     close(fd);
     ret = -1;
-    D_800959D0 = 6;
+    gCardError = 6;
     goto end;
 seeked:
-    buf = D_80095A18;
+    buf = gSaveBuf;
     for (i = 0; i < 10; i++) {
         if (write(fd, buf, 0x1E000) == 0x1E000) {
             goto written;
@@ -352,13 +352,13 @@ seeked:
         }
         close(fd);
         ret = -1;
-        D_800959D0 = 6;
+        gCardError = 6;
         goto end;
     reseeked:;
     }
     close(fd);
     ret = -1;
-    D_800959D0 = 7;
+    gCardError = 7;
     goto end;
 written:
     close(fd);
@@ -367,7 +367,7 @@ end:
 }
 
 /** @brief Creates and writes the first save file, up to ten tries per step; 0, or -1 with the failed step recorded. */
-s32 func_80037AE4(void) {
+s32 CreateSave1(void) {
     s32 ret;
     s16 i;
     s32 fd;
@@ -381,7 +381,7 @@ s32 func_80037AE4(void) {
     }
     /* MATCHING: ret before the code keeps the three fail tails apart */
     ret = -1;
-    D_800959D0 = 8;
+    gCardError = 8;
     goto end;
 created:
     close(fd);
@@ -392,17 +392,17 @@ created:
         }
     }
     ret = -1;
-    D_800959D0 = 9;
+    gCardError = 9;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
-        if (write(fd, D_80095A18, 0x1E000) == 0x1E000) {
+        if (write(fd, gSaveBuf, 0x1E000) == 0x1E000) {
             goto written;
         }
     }
     close(fd);
     ret = -1;
-    D_800959D0 = 10;
+    gCardError = 10;
     goto end;
 written:
     close(fd);
@@ -410,31 +410,31 @@ end:
     return ret;
 }
 
-s32 func_80037C2C(void) {
+s32 ScanCardFiles(void) {
     struct DIRENTRY de;
-    Rec18 *rec;
+    CardFile *rec;
     s32 i;
 
     i = 0;
-    D_800959DC = 0;
+    gCardFileCount = 0;
     if (firstfile(D_800956A8, &de) == NULL) {
-        D_800959DA = 0xFFFF;
+        gCardStatus = 0xFFFF;
         return 0xFFFF;
     }
-    rec = D_800DF858;
+    rec = gCardFiles;
 loop:
     strcpy(rec->name, de.name);
     rec->blocks.w = de.size / 8192;
-    D_800959DC++;
+    gCardFileCount++;
     /* MATCHING: the loop notes keep i++ just above the call. */
     do {
         i++;
     } while (0);
     if (nextfile(&de) == NULL) {
-        D_800959DA = 0;
+        gCardStatus = 0;
         return 0;
     }
-    rec = &D_800DF858[i];
+    rec = &gCardFiles[i];
     goto loop;
     /* MATCHING: unreachable; its label keeps jump.c from moving the exit. */
     for (;;) {
@@ -442,7 +442,7 @@ loop:
 }
 
 /** @brief Copies the first save file's three icon TIMs into the card header's CLUT and frames. */
-void func_80037CF0(void) {
+void CopySave1Icon(void) {
     IconTim tim[3];
 
     tim[0] = *(IconTim *)D_800119E4;
@@ -455,29 +455,29 @@ void func_80037CF0(void) {
 }
 
 /** @brief Opens the eight memory card events (four software, four hardware) and leaves them disabled. */
-void func_80038124(void) {
+void OpenCardEvents(void) {
     EnterCriticalSection();
-    D_800959E8 = OpenEvent(0xF4000001, 4, 0x2000, NULL);
-    D_800959EC = OpenEvent(0xF4000001, 0x8000, 0x2000, NULL);
-    D_800959F0 = OpenEvent(0xF4000001, 0x100, 0x2000, NULL);
-    D_800959F4 = OpenEvent(0xF4000001, 0x2000, 0x2000, NULL);
-    D_800959FC = OpenEvent(0xF0000011, 4, 0x2000, NULL);
-    D_80095A00 = OpenEvent(0xF0000011, 0x8000, 0x2000, NULL);
-    D_80095A04 = OpenEvent(0xF0000011, 0x100, 0x2000, NULL);
-    D_80095A08 = OpenEvent(0xF0000011, 0x2000, 0x2000, NULL);
+    gCardSwIoe = OpenEvent(0xF4000001, 4, 0x2000, NULL);
+    gCardSwError = OpenEvent(0xF4000001, 0x8000, 0x2000, NULL);
+    gCardSwTimeout = OpenEvent(0xF4000001, 0x100, 0x2000, NULL);
+    gCardSwNew = OpenEvent(0xF4000001, 0x2000, 0x2000, NULL);
+    gCardHwIoe = OpenEvent(0xF0000011, 4, 0x2000, NULL);
+    gCardHwError = OpenEvent(0xF0000011, 0x8000, 0x2000, NULL);
+    gCardHwTimeout = OpenEvent(0xF0000011, 0x100, 0x2000, NULL);
+    gCardHwNew = OpenEvent(0xF0000011, 0x2000, 0x2000, NULL);
     ExitCriticalSection();
-    DisableEvent(D_800959E8);
-    DisableEvent(D_800959EC);
-    DisableEvent(D_800959F0);
-    DisableEvent(D_800959F4);
-    DisableEvent(D_800959FC);
-    DisableEvent(D_80095A00);
-    DisableEvent(D_80095A04);
-    DisableEvent(D_80095A08);
+    DisableEvent(gCardSwIoe);
+    DisableEvent(gCardSwError);
+    DisableEvent(gCardSwTimeout);
+    DisableEvent(gCardSwNew);
+    DisableEvent(gCardHwIoe);
+    DisableEvent(gCardHwError);
+    DisableEvent(gCardHwTimeout);
+    DisableEvent(gCardHwNew);
 }
 
 /* MATCHING: s32, not s16: both callers test the result unextended. */
-s32 func_8003828C(u8 *a, u8 *b, s16 n) {
+s32 CompareBytes(u8 *a, u8 *b, s16 n) {
     s16 i;
 
     for (i = 0; i < n; i++) {
@@ -490,14 +490,14 @@ s32 func_8003828C(u8 *a, u8 *b, s16 n) {
     return 0;
 }
 
-u16 func_800382DC(void) {
+u16 SumSaveBuffer(void) {
     u8 *p;
     u16 sum;
     s32 i;
     u8 lo;
     u8 hi;
 
-    p = D_80095A18;
+    p = gSaveBuf;
     sum = 0;
     for (i = 0; i < 0xEFFF; i++) {
         lo = *p++;
@@ -507,14 +507,14 @@ u16 func_800382DC(void) {
     return sum;
 }
 
-s16 func_8003831C(u16 expected) {
+s16 CheckSaveSum(u16 expected) {
     u8 *p;
     u16 sum;
     s32 i;
     u8 lo;
     u8 hi;
 
-    p = D_80095A18;
+    p = gSaveBuf;
     sum = 0;
     for (i = 0; i < 0xEFFF; i++) {
         lo = *p++;
@@ -527,26 +527,26 @@ s16 func_8003831C(u16 expected) {
     return 0;
 }
 
-void func_80038374(void) {
+void SetSave1Buffers(void) {
     D_800959D4 = (u8 *)0x8018D000;
-    D_80095A18 = (u8 *)0x8016D000;
+    gSaveBuf = (u8 *)0x8016D000;
 }
 
-s16 func_80038394(void) {
+s16 CheckCard(void) {
     s16 result;
 
     result = 0;
-    func_80038730();
-    func_80038900();
+    EnableCardEvents();
+    ClearCardSwEvents();
     _card_info(0x10);
-    if (func_80038820() == 2) {
+    if (WaitCardSwEvent() == 2) {
         result = -1;
     }
-    func_800387A8();
+    DisableCardEvents();
     return result;
 }
 
-s32 func_800383F8(void) {
+s32 FormatCard(void) {
     s32 ret;
     s16 i;
 
@@ -556,46 +556,46 @@ s32 func_800383F8(void) {
             return ret;
         }
     }
-    D_800959D0 = 11;
+    gCardError = 11;
     return -1;
 }
 
-s32 func_80038468(void) {
+s32 EraseSave1(void) {
     s32 ret;
     s16 i;
 
     ret = 0;
-    D_80095A1C = D_80011998;
+    gCardFileName = D_80011998;
     for (i = 0; i < 10; i++) {
-        if (erase(D_80095A1C) != 0) {
+        if (erase(gCardFileName) != 0) {
             return ret;
         }
     }
-    D_800959D0 = 12;
+    gCardError = 12;
     return -1;
 }
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
 
-s32 func_800384DC(void) {
+s32 FindSave1(void) {
     s16 i;
 
-    D_80095A1C = "BISLPS-12345PEPTOOL";
-    for (i = 0; i < D_800959DC; i++) {
-        if (func_8003828C((u8 *)D_800DF858[i].name, (u8 *)D_80095A1C, 0x14) == 0) {
+    gCardFileName = "BISLPS-12345PEPTOOL";
+    for (i = 0; i < gCardFileCount; i++) {
+        if (CompareBytes((u8 *)gCardFiles[i].name, (u8 *)gCardFileName, 0x14) == 0) {
             return 0;
         }
     }
     return -1;
 }
 
-s32 func_80038574(void) {
+s32 CheckSave1Space(void) {
     s16 sum;
     s16 i;
 
     sum = 0;
-    for (i = 0; i < D_800959DC; i++) {
-        sum += D_800DF858[i].blocks.lo;
+    for (i = 0; i < gCardFileCount; i++) {
+        sum += gCardFiles[i].blocks.lo;
     }
     if (sum > 0) {
         return -1;
@@ -603,99 +603,99 @@ s32 func_80038574(void) {
     return 0;
 }
 
-void func_800385E0(void) {
-    D_800DF5D0.magic[0] = 'S';
-    D_800DF5D0.magic[1] = 'C';
-    D_800DF5D0.iconFlag = 0x13;
-    D_800DF5D0.blocks = 15;
-    D_800DF5D0.title = *(CardTitle *)D_800119C8;
-    func_80037CF0();
+void BuildSave1Header(void) {
+    gCardHeader.magic[0] = 'S';
+    gCardHeader.magic[1] = 'C';
+    gCardHeader.iconFlag = 0x13;
+    gCardHeader.blocks = 15;
+    gCardHeader.title = *(CardTitle *)D_800119C8;
+    CopySave1Icon();
 }
 
-void func_800386A8(void) {
+void CloseCardEvents(void) {
     EnterCriticalSection();
-    CloseEvent(D_800959E8);
-    CloseEvent(D_800959EC);
-    CloseEvent(D_800959F0);
-    CloseEvent(D_800959F4);
-    CloseEvent(D_800959FC);
-    CloseEvent(D_80095A00);
-    CloseEvent(D_80095A04);
-    CloseEvent(D_80095A08);
+    CloseEvent(gCardSwIoe);
+    CloseEvent(gCardSwError);
+    CloseEvent(gCardSwTimeout);
+    CloseEvent(gCardSwNew);
+    CloseEvent(gCardHwIoe);
+    CloseEvent(gCardHwError);
+    CloseEvent(gCardHwTimeout);
+    CloseEvent(gCardHwNew);
     ExitCriticalSection();
 }
 
-void func_80038730(void) {
-    EnableEvent(D_800959E8);
-    EnableEvent(D_800959EC);
-    EnableEvent(D_800959F0);
-    EnableEvent(D_800959F4);
-    EnableEvent(D_800959FC);
-    EnableEvent(D_80095A00);
-    EnableEvent(D_80095A04);
-    EnableEvent(D_80095A08);
+void EnableCardEvents(void) {
+    EnableEvent(gCardSwIoe);
+    EnableEvent(gCardSwError);
+    EnableEvent(gCardSwTimeout);
+    EnableEvent(gCardSwNew);
+    EnableEvent(gCardHwIoe);
+    EnableEvent(gCardHwError);
+    EnableEvent(gCardHwTimeout);
+    EnableEvent(gCardHwNew);
 }
 
-void func_800387A8(void) {
-    DisableEvent(D_800959E8);
-    DisableEvent(D_800959EC);
-    DisableEvent(D_800959F0);
-    DisableEvent(D_800959F4);
-    DisableEvent(D_800959FC);
-    DisableEvent(D_80095A00);
-    DisableEvent(D_80095A04);
-    DisableEvent(D_80095A08);
+void DisableCardEvents(void) {
+    DisableEvent(gCardSwIoe);
+    DisableEvent(gCardSwError);
+    DisableEvent(gCardSwTimeout);
+    DisableEvent(gCardSwNew);
+    DisableEvent(gCardHwIoe);
+    DisableEvent(gCardHwError);
+    DisableEvent(gCardHwTimeout);
+    DisableEvent(gCardHwNew);
 }
 
-s16 func_80038820(void) {
+s16 WaitCardSwEvent(void) {
     while (1) {
-        if (TestEvent(D_800959E8) == 1) {
+        if (TestEvent(gCardSwIoe) == 1) {
             return 0;
         }
-        if (TestEvent(D_800959EC) == 1) {
+        if (TestEvent(gCardSwError) == 1) {
             return 1;
         }
-        if (TestEvent(D_800959F0) == 1) {
+        if (TestEvent(gCardSwTimeout) == 1) {
             return 2;
         }
-        if (TestEvent(D_800959F4) == 1) {
+        if (TestEvent(gCardSwNew) == 1) {
             return 3;
         }
     }
 }
 
-s16 func_80038890(void) {
+s16 WaitCardHwEvent(void) {
     while (1) {
-        if (TestEvent(D_800959FC) == 1) {
+        if (TestEvent(gCardHwIoe) == 1) {
             return 0;
         }
-        if (TestEvent(D_80095A00) == 1) {
+        if (TestEvent(gCardHwError) == 1) {
             return 1;
         }
-        if (TestEvent(D_80095A04) == 1) {
+        if (TestEvent(gCardHwTimeout) == 1) {
             return 2;
         }
-        if (TestEvent(D_80095A08) == 1) {
+        if (TestEvent(gCardHwNew) == 1) {
             return 3;
         }
     }
 }
 
-void func_80038900(void) {
-    TestEvent(D_800959E8);
-    TestEvent(D_800959EC);
-    TestEvent(D_800959F0);
-    TestEvent(D_800959F4);
+void ClearCardSwEvents(void) {
+    TestEvent(gCardSwIoe);
+    TestEvent(gCardSwError);
+    TestEvent(gCardSwTimeout);
+    TestEvent(gCardSwNew);
 }
 
-void func_80038948(void) {
-    TestEvent(D_800959FC);
-    TestEvent(D_80095A00);
-    TestEvent(D_80095A04);
-    TestEvent(D_80095A08);
+void ClearCardHwEvents(void) {
+    TestEvent(gCardHwIoe);
+    TestEvent(gCardHwError);
+    TestEvent(gCardHwTimeout);
+    TestEvent(gCardHwNew);
 }
 
-void func_80038990(u8 *p, s32 n) {
+void ZeroBytes(u8 *p, s32 n) {
     s32 i;
 
     for (i = 0; i < n; i++) {
@@ -704,7 +704,7 @@ void func_80038990(u8 *p, s32 n) {
 }
 
 /** @brief Runs one memory card operation on the second save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
-s32 func_800389B4(s16 mode) {
+s32 RunCardOp2(s16 mode) {
     s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
     s32 ret;
     s16 retry;
@@ -713,14 +713,14 @@ s32 func_800389B4(s16 mode) {
 
     ret = 0;
     retry = 0;
-    D_800959DA = 0;
-    D_800959D0 = 0;
+    gCardStatus = 0;
+    gCardError = 0;
     D_800959D4 = (u8 *)0x80195000;
-    D_80095A18 = (u8 *)0x8018D000;
-    func_80038730();
+    gSaveBuf = (u8 *)0x8018D000;
+    EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
-    D_800959DA = func_80037700();
-    switch (D_800959DA) {
+    gCardStatus = ProbeCard();
+    switch (gCardStatus) {
         case 0: /* MATCHING: the empty case gives retail's compare tree */
             break;
         case 1:
@@ -731,11 +731,11 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             ret = -2;
             goto end;
         case 2:
-            D_800959DC = 0;
+            gCardFileCount = 0;
             ret = 2;
             goto end;
         case 3:
-            D_800959DC = 0;
+            gCardFileCount = 0;
             ret = 4;
             if (mode == 3) {
                 goto format;
@@ -745,52 +745,52 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
     if (mode == -1) {
         goto end;
     }
-    func_80037C2C();
+    ScanCardFiles();
     if (mode == 5) {
-        if (func_80039580() != -1) {
+        if (FindSave2() != -1) {
             ret = 0;
         } else {
-            ret = func_80039618() == -1;
+            ret = CheckSave2Space() == -1;
         }
     } else if (mode == 0 || mode == 1 || mode == 4) {
-        if (func_80039580() == -1) {
+        if (FindSave2() == -1) {
             ret = 3;
             goto end;
         }
         switch (mode) {
             case 0:
-                ret = func_80038C74();
+                ret = ReadSave2();
                 break;
             case 1:
-                ret = func_80038DF8();
+                ret = RewriteSave2();
                 break;
             case 4:
-                ret = func_8003950C();
+                ret = EraseSave2();
                 break;
         }
     } else if (mode == 2) {
-        if (func_80039618() == -1) {
+        if (CheckSave2Space() == -1) {
             ret = 1;
         } else {
-            func_8003968C();
-            *(SaveImage *)D_80095A18 = *(SaveImage *)&D_800DF5D0;
-            sum = func_800382DC();
-            D_800959F8 = sum;
+            BuildSave2Header();
+            *(SaveImage *)gSaveBuf = *(SaveImage *)&gCardHeader;
+            sum = SumSaveBuffer();
+            gSaveSum = sum;
             off = 0x17FFE;
             *(u16 *)(D_800959D4 + off) = sum;
-            ret = func_80038F70();
+            ret = CreateSave2();
         }
     } else if (mode == 3) {
     format:
-        ret = func_800383F8();
+        ret = FormatCard();
     }
 end:
-    func_800387A8();
+    DisableCardEvents();
     return ret;
 }
 
 /** @brief Reads the second save file into the save buffer, up to ten tries per step; 0, or -1 with the failed step recorded. */
-s32 func_80038C74(void) {
+s32 ReadSave2(void) {
     s32 ret;
     s16 i;
     s32 fd;
@@ -804,7 +804,7 @@ s32 func_80038C74(void) {
             goto opened;
         }
     }
-    D_800959D0 = 1;
+    gCardError = 1;
     ret = -1;
     goto end;
 opened:
@@ -814,11 +814,11 @@ opened:
         }
     }
     close(fd);
-    D_800959D0 = 2;
+    gCardError = 2;
     ret = -1;
     goto end;
 seeked:
-    buf = D_80095A18;
+    buf = gSaveBuf;
     for (tries = 0; tries < 10; tries++) {
         if (read(fd, buf, 0x18000) == 0x18000) {
             goto done;
@@ -829,13 +829,13 @@ seeked:
             }
         }
         close(fd);
-        D_800959D0 = 2;
+        gCardError = 2;
         ret = -1;
         goto end;
     reseeked:;
     }
     close(fd);
-    D_800959D0 = 3;
+    gCardError = 3;
     ret = -1;
     goto end;
 done:
@@ -845,7 +845,7 @@ end:
 }
 
 /** @brief Rewrites the second save file in place, up to ten tries per step; 0, or -1 with the failed step recorded. */
-s32 func_80038DF8(void) {
+s32 RewriteSave2(void) {
     s32 ret;
     s16 i;
     s32 fd;
@@ -859,7 +859,7 @@ s32 func_80038DF8(void) {
         }
     }
     ret = -1;
-    D_800959D0 = 5;
+    gCardError = 5;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -869,10 +869,10 @@ opened:
     }
     close(fd);
     ret = -1;
-    D_800959D0 = 6;
+    gCardError = 6;
     goto end;
 seeked:
-    buf = D_80095A18;
+    buf = gSaveBuf;
     for (i = 0; i < 10; i++) {
         if (write(fd, buf, 0x18000) == 0x18000) {
             goto written;
@@ -884,13 +884,13 @@ seeked:
         }
         close(fd);
         ret = -1;
-        D_800959D0 = 6;
+        gCardError = 6;
         goto end;
     reseeked:;
     }
     close(fd);
     ret = -1;
-    D_800959D0 = 7;
+    gCardError = 7;
     goto end;
 written:
     close(fd);
@@ -899,7 +899,7 @@ end:
 }
 
 /** @brief Creates and writes the second save file, up to ten tries per step; 0, or -1 with the failed step recorded. */
-s32 func_80038F70(void) {
+s32 CreateSave2(void) {
     s32 ret;
     s16 i;
     s32 fd;
@@ -913,7 +913,7 @@ s32 func_80038F70(void) {
     }
     /* MATCHING: ret before the code keeps the three fail tails apart */
     ret = -1;
-    D_800959D0 = 8;
+    gCardError = 8;
     goto end;
 created:
     close(fd);
@@ -924,17 +924,17 @@ created:
         }
     }
     ret = -1;
-    D_800959D0 = 9;
+    gCardError = 9;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
-        if (write(fd, D_80095A18, 0x18000) == 0x18000) {
+        if (write(fd, gSaveBuf, 0x18000) == 0x18000) {
             goto written;
         }
     }
     close(fd);
     ret = -1;
-    D_800959D0 = 10;
+    gCardError = 10;
     goto end;
 written:
     close(fd);
@@ -943,7 +943,7 @@ end:
 }
 
 /** @brief Copies the second save file's three icon TIMs into the card header's CLUT and frames. */
-void func_800390B8(void) {
+void CopySave2Icon(void) {
     IconTim tim[3];
 
     tim[0] = *(IconTim *)D_80011C70;
@@ -955,23 +955,23 @@ void func_800390B8(void) {
     *(IconBits *)D_800DF750 = tim[2].bits;
 }
 
-void func_800394EC(void) {
+void SetSave2Buffers(void) {
     D_800959D4 = (u8 *)0x80195000;
-    D_80095A18 = (u8 *)0x8018D000;
+    gSaveBuf = (u8 *)0x8018D000;
 }
 
-s32 func_8003950C(void) {
+s32 EraseSave2(void) {
     s32 ret;
     s16 i;
 
     ret = 0;
-    D_80095A1C = D_80011C24;
+    gCardFileName = D_80011C24;
     for (i = 0; i < 10; i++) {
-        if (erase(D_80095A1C) != 0) {
+        if (erase(gCardFileName) != 0) {
             return ret;
         }
     }
-    D_800959D0 = 12;
+    gCardError = 12;
     return -1;
 }
 
@@ -985,25 +985,25 @@ INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011B64);
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C24);
 
-s32 func_80039580(void) {
+s32 FindSave2(void) {
     s16 i;
 
-    D_80095A1C = "BISLPS-67890PEPTOOL";
-    for (i = 0; i < D_800959DC; i++) {
-        if (func_8003828C((u8 *)D_800DF858[i].name, (u8 *)D_80095A1C, 0x14) == 0) {
+    gCardFileName = "BISLPS-67890PEPTOOL";
+    for (i = 0; i < gCardFileCount; i++) {
+        if (CompareBytes((u8 *)gCardFiles[i].name, (u8 *)gCardFileName, 0x14) == 0) {
             return 0;
         }
     }
     return -1;
 }
 
-s32 func_80039618(void) {
+s32 CheckSave2Space(void) {
     s16 sum;
     s16 i;
 
     sum = 0;
-    for (i = 0; i < D_800959DC; i++) {
-        sum += D_800DF858[i].blocks.lo;
+    for (i = 0; i < gCardFileCount; i++) {
+        sum += gCardFiles[i].blocks.lo;
     }
     if (sum >= 4) {
         return -1;
@@ -1011,13 +1011,13 @@ s32 func_80039618(void) {
     return 0;
 }
 
-void func_8003968C(void) {
-    D_800DF5D0.magic[0] = 'S';
-    D_800DF5D0.magic[1] = 'C';
-    D_800DF5D0.iconFlag = 0x13;
-    D_800DF5D0.blocks = 12;
-    D_800DF5D0.title = *(CardTitle *)D_80011C54;
-    func_800390B8();
+void BuildSave2Header(void) {
+    gCardHeader.magic[0] = 'S';
+    gCardHeader.magic[1] = 'C';
+    gCardHeader.iconFlag = 0x13;
+    gCardHeader.blocks = 12;
+    gCardHeader.title = *(CardTitle *)D_80011C54;
+    CopySave2Icon();
 }
 
 INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C54);

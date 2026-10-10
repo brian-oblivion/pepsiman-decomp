@@ -1,0 +1,171 @@
+# ScanCardFiles — MATCHED (round 13, alpha)
+
+> Renamed from `func_80037C2C` on 2026-10-10 (tools/rename.py). Address 0x80037c2c.
+
+Unit `src/code_27bc8.c`. Scans the memory card directory `"bu10:"`
+(`D_800956A8`) with libapi's `firstfile`/`nextfile`, copying each file's
+name and its size in 8 KiB blocks into the 0x18-byte records of
+`gCardFiles` and counting them in `gCardFileCount`. Stores 0xFFFF in
+`gCardStatus` and returns 0xFFFF when the card has no file; stores 0 and
+returns 0 at the end of the directory.
+
+Parked under `#ifdef NON_MATCHING` (readable near-miss) until round 13. About 31 builds
+without beating the best figure; stopped at the 30-build rule.
+
+```c
+#if 0
+#include "libapi.h"
+#include "string.h"
+
+typedef union {
+    s32 w;  /* the block count as written */
+    u16 lo; /* its low half, which the sums read */
+} BlockCount;
+
+typedef struct {
+    char name[20];
+    BlockCount blocks;
+} Rec18;
+
+extern Rec18 gCardFiles[];
+extern s32 gCardFileCount;
+extern u16 gCardStatus;    /* only sh: stored 0xFFFF / 0 */
+extern char D_800956A8[]; /* "bu10:" */
+
+s32 ScanCardFiles(void) {
+    struct DIRENTRY de;
+    Rec18 *rec;
+    s32 i;
+
+    i = 0;
+    gCardFileCount = 0;
+    if (firstfile(D_800956A8, &de) == NULL) {
+        gCardStatus = 0xFFFF;
+        return 0xFFFF;
+    }
+    rec = gCardFiles;
+loop:
+    strcpy(rec->name, de.name);
+    rec->blocks.w = de.size / 8192;
+    gCardFileCount++;
+    i++;
+    if (nextfile(&de) == NULL) {
+        gCardStatus = 0;
+        return 0;
+    }
+    rec = &gCardFiles[i];
+    goto loop;
+}
+#endif
+```
+
+## What is right
+
+The prologue, the empty-card block, the record base taken once before the
+loop and recomputed from the counter at the bottom (`i*3*8 + gCardFiles`,
+not strength-reduced), the division by 8192 and the epilogue.
+
+- **The record type changed** (kept live in `src/`, since the whole image
+  verifies): `Rec18` is the file name (`char name[20]`) and a word at 0x14
+  that this function writes with `sw` and the two sums (`CheckSave1Space`,
+  `CheckSave2Space`) read with `lhu`. It is now a union `BlockCount { s32 w;
+  u16 lo; }`. The cast store `*(s32 *)&rec->unk14` kept the load of
+  `gCardFileCount` below the record store (a non-struct access may alias the
+  global). The member store `rec->blocks.w` lets it rise above, as in
+  retail. This is the round 3 in-struct alias finding again.
+- **The goto loop allocates the registers as retail does** (size in `$v1`,
+  count in `$v0`). `while (1)`, `for (;;)`, `do ... while (1)` and the
+  `if`/`else` and `continue` forms all give the swapped pair (23/49).
+- **`while`/`do` loops that `break` and return after the loop let loop.c
+  strength-reduce `rec` to `addiu $s0, $s0, 0x18`**, which retail does not
+  have. Retail's loop has its exits inside it.
+
+## The residue
+
+1. **Layout of the end-of-directory exit.** Retail keeps `bnez $v0, cont`
+   with the exit block (`sh $zero; j epilogue; move $v0, $zero`) as the
+   fall-through and the `rec = &D[i]; j loop` block after it. Every
+   spelling tried (`if (nextfile(&de) == NULL) {...; return 0;}` inside
+   `while (1)`/`for (;;)`/`do`/goto; `if (nextfile != NULL) {rec = ...;
+   continue/goto loop;}` then the exit; if/else) is turned into `beqz exit`,
+   with the exit block moved down to fall into the epilogue. That saves
+   retail's `j`, hence one word short. Putting the empty-card block AFTER
+   the loop (`if (firstfile(...) != NULL) { loop } fail;`) does keep the
+   inner exit in place, so the move happens only when the continuation
+   block runs straight into the return label. It then moves the empty-card
+   block to the end instead (9/49).
+2. **`i++` placement.** Retail does `addiu $s1` last, just before the call.
+   The build puts it first in the join block after the division whatever
+   the statement order (all six orders of the store, `gCardFileCount++` and
+   `i++`; with the quotient in a local and `i++` between). Moving `i++`
+   above the division puts it in the `bgez` delay slot (27/49, retail has a
+   `nop` there).
+
+Not tried: the permuter. Both residues look like a pass decision (jump
+optimisation, scheduling tie-break), not something a statement edit
+reaches.
+
+### Proposed learning
+
+A record field written as a word and summed as a halfword elsewhere in the
+unit: declare it as a union member (`union { s32 w; u16 lo; }`). The cast
+store `*(s32 *)&rec->h` counts as a non-struct access and pins later loads
+of plain globals below it. (ScanCardFiles; the sums CheckSave1Space and
+CheckSave2Space still match.)
+
+## Round 13 (alpha)
+
+Built from the `NON_MATCHING` body as it stood: 26/49, 4 insertions / 4
+deletions, one word short, as recorded. Matched 49/49 with two additions,
+each closing one residue:
+
+```c
+    gCardFileCount++;
+    /* MATCHING: the loop notes keep i++ just above the call. */
+    do {
+        i++;
+    } while (0);
+    if (nextfile(&de) == NULL) {
+        gCardStatus = 0;
+        return 0;
+    }
+    rec = &gCardFiles[i];
+    goto loop;
+    /* MATCHING: unreachable; its label keeps jump.c from moving the exit. */
+    for (;;) {
+    }
+}
+```
+
+1. **`i++`** (32/49, 3/3): sched2 hoisted the independent `addiu $s1` to
+   the top of its block. The `do { } while (0)` puts loop notes
+   (`NOTE_INSN_LOOP_BEG`/`END`) in the middle of the block, and sched
+   treats loop notes as a barrier, so the increment stays below the
+   `gCardFileCount` store. Wrapping the three statements above it instead keeps
+   the order but swaps `$v0`/`$v1` (24/49).
+2. **The exit layout** (49/49): gcc 2.8.1's jump.c "if (foo) bar; else
+   break;" swap (jump.c, after the first round of every pre-reload jump
+   pass) inverts `condjump label1; range1; jump label2; label1: range2;
+   jump; barrier; label2:` when label2 is the **next label** after label1.
+   Here range1 is the exit (`jump` to the return label) and range2 the
+   continuation ending in `goto loop`, with the return label right after
+   it, so the build always swapped them. An unreachable `for (;;) {}` after
+   the `goto` puts a used label between range2 and the return label, so the
+   swap is refused; flow later deletes the unreachable block. `while (1);`
+   and `dead: goto dead;` do the same.
+
+Also tried: a `one = 1; ... if (one) goto loop;` back edge (cse does not
+fold it; 5/49), `do {} while (1)`, `while (1)`, `for (;;)` as the main loop
+(24/49 each), a `ret` local with `goto end` (32/49, still swapped), the
+trailing loop without the `i++` wrapper (43/49).
+
+### Proposed learning
+
+- **An exit block that ends in `j epilogue` with the loop's continuation
+  after it, where the build inverts the branch and moves the exit down to
+  fall into the epilogue: an unreachable `for (;;) {}` after the
+  continuation's `goto`.** jump.c only swaps the two ranges when the return
+  label is the next label after the continuation. (ScanCardFiles)
+- **An independent instruction sched2 hoists to the top of its block: wrap
+  its statement in `do { } while (0);`.** Loop notes are a scheduling
+  barrier inside a basic block. (ScanCardFiles)

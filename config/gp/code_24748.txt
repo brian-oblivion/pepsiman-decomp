@@ -27,3 +27,6 @@ D_80095A59
 D_80095A5C
 D_80095A60
 D_80095A61
+gCardFileCount
+gCardFileName
+gCardHwNew

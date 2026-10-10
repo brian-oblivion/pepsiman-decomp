@@ -354,16 +354,16 @@ void func_80033D3C(void);
 s32 func_8003356C(s16 n);
 
 /** @brief Defined in code_27bc8. */
-void func_80038124(void);
+void OpenCardEvents(void);
 
 /** @brief Defined in code_27bc8. */
-void func_800386A8(void);
+void CloseCardEvents(void);
 
 /** @brief Defined in code_27bc8: runs one memory card operation on the
  *         second save file.
  *  @param mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks
  *  @return 0 or -1 */
-s32 func_800389B4(s16 mode);
+s32 RunCardOp2(s16 mode);
 
 /** @brief Defined in code_1902c: tests a 0x4C-byte record.
  *  @param rec the record */

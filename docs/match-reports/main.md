@@ -36,7 +36,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
   the hoisted `$a2`/`$a3` bases (621/627).
 - The five movie names are string literals: splat migrated
   D_80010010..D_80010050 into main's own `.s`, so the literals are their
-  definitions (as func_800384DC). Cases 2 and 3 share `"\\MOVIE3.STR;1"`.
+  definitions (as FindSave1). Cases 2 and 3 share `"\\MOVIE3.STR;1"`.
 - The loop keeps 1, 2, 6 and 0x26 in `$s0..$s3` by itself; no locals
   needed.
 - Case 20 stores 23 and then 21 to `gGameMode`; retail has both stores.

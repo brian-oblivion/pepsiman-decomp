@@ -155,6 +155,28 @@ typedef struct {
     u16 pad;    /**< padding */
 } TmdGT3U;
 
+/** @brief A gouraud-textured unlit TMD quad: a header, four UV words (the
+ *  CLUT, the texture page, padding in their top halves), four colours and
+ *  four vertex indices. */
+typedef struct {
+    u8 olen;    /**< the TMD header: output length */
+    u8 ilen;    /**< input length */
+    u8 flag;    /**< flags */
+    u8 mode;    /**< the primitive code, copied into the packet */
+    TmdUV uv0;  /**< u0, v0 and the CLUT */
+    TmdUV uv1;  /**< u1, v1 and the texture page */
+    TmdUV uv2;  /**< u2, v2 and padding */
+    TmdUV uv3;  /**< u3, v3 and padding */
+    CVECTOR c0; /**< first vertex colour */
+    CVECTOR c1; /**< second vertex colour */
+    CVECTOR c2; /**< third vertex colour */
+    CVECTOR c3; /**< fourth vertex colour */
+    u16 v0;     /**< first vertex index */
+    u16 v1;     /**< second vertex index */
+    u16 v2;     /**< third vertex index */
+    u16 v3;     /**< fourth vertex index */
+} TmdGT4U;
+
 /** @brief An eight-byte table entry: two halfwords and four bytes. */
 typedef struct {
     u16 unk0; /**< a byte and a bit packed together */
@@ -203,7 +225,7 @@ PACKET *func_8001C878(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
 PACKET *func_8001D39C(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001DAD4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
-PACKET *func_8001EE30();
+PACKET *func_8001EE30(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot);
 PACKET *func_8001FE5C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY_FT4 *pkt, s32 n,
@@ -1688,7 +1710,207 @@ PACKET *func_8001E558(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
     return (PACKET *)pkt;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_8001EE30);
+PACKET *func_8001EE30(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot) {
+    POLY_GT4 *pkt;
+    SVECTOR m[5];
+    s32 sz[4];
+    s32 flg;
+    s32 v;
+    s32 dp;
+    s32 i;
+    s32 j;
+    u32 *tag;
+    /* MATCHING: u8 UV midpoints, and grouped u, v, r, g, b so the spill
+     * slots fall in retail's order. */
+    u8 u01, u02, u13, u23, uc;
+    u8 v01, v02, v13, v23, vc;
+    u32 r01, r02, r13, r23, rc;
+    u32 g01, g02, g13, g23, gc;
+    u32 b01, b02, b13, b23, bc;
+
+    /* MATCHING: a copy of the parameter, as in func_8001D39C. */
+    pkt = (POLY_GT4 *)packet;
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&flg);
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_gt4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        gte_stsxy2(&pkt->x3);
+        gte_stsz4c(sz);
+        if (sz[0] > sz[1]) {
+            v = sz[0];
+        } else {
+            v = sz[1];
+        }
+        if (sz[2] > v) {
+            v = sz[2];
+        } else if (sz[3] > v) {
+            v = sz[3];
+        }
+        v >>= 2;
+        gte_stdp(&dp);
+        if (flg >= 0) {
+            gte_ldrgb3(&prim->c0, &prim->c1, &prim->c2);
+            gte_lddp(dp);
+            gte_dpct();
+            gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
+            gte_ldrgb(&prim->c3);
+            gte_lddp(dp);
+            gte_dpcs();
+            gte_strgb(&pkt->r3);
+            ((volatile POLY_GT4 *)pkt)->code = prim->mode & 0xFE;
+            *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
+            *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
+            *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
+            *(u16 *)&pkt->u3 = *(u16 *)&prim->uv3;
+            tag = (u32 *)ot->org + (v >> shift) + 1;
+            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
+            *tag = (u32)pkt & 0xFFFFFF;
+            pkt++;
+        }
+        tag = (u32 *)ot->org + (v >> shift);
+        if (v < 250) {
+            m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
+            m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
+            m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
+            m[1].vx = (vtx[prim->v0].vx + vtx[prim->v2].vx) >> 1;
+            m[1].vy = (vtx[prim->v0].vy + vtx[prim->v2].vy) >> 1;
+            m[1].vz = (vtx[prim->v0].vz + vtx[prim->v2].vz) >> 1;
+            m[2].vx = (vtx[prim->v1].vx + vtx[prim->v3].vx) >> 1;
+            m[2].vy = (vtx[prim->v1].vy + vtx[prim->v3].vy) >> 1;
+            m[2].vz = (vtx[prim->v1].vz + vtx[prim->v3].vz) >> 1;
+            m[3].vx = (vtx[prim->v2].vx + vtx[prim->v3].vx) >> 1;
+            m[3].vy = (vtx[prim->v2].vy + vtx[prim->v3].vy) >> 1;
+            m[3].vz = (vtx[prim->v2].vz + vtx[prim->v3].vz) >> 1;
+            m[4].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx + vtx[prim->v2].vx + vtx[prim->v3].vx) >> 2;
+            m[4].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy + vtx[prim->v2].vy + vtx[prim->v3].vy) >> 2;
+            m[4].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz + vtx[prim->v2].vz + vtx[prim->v3].vz) >> 2;
+            u01 = (u32)(prim->uv0.u + prim->uv1.u) >> 1;
+            u02 = (u32)(prim->uv0.u + prim->uv2.u) >> 1;
+            u13 = (u32)(prim->uv1.u + prim->uv3.u) >> 1;
+            u23 = (u32)(prim->uv2.u + prim->uv3.u) >> 1;
+            uc = (u32)(prim->uv0.u + prim->uv1.u + prim->uv2.u + prim->uv3.u) >> 2;
+            v01 = (u32)(prim->uv0.v + prim->uv1.v) >> 1;
+            v02 = (u32)(prim->uv0.v + prim->uv2.v) >> 1;
+            v13 = (u32)(prim->uv1.v + prim->uv3.v) >> 1;
+            v23 = (u32)(prim->uv2.v + prim->uv3.v) >> 1;
+            vc = (u32)(prim->uv0.v + prim->uv1.v + prim->uv2.v + prim->uv3.v) >> 2;
+            r01 = (u32)(prim->c0.r + prim->c1.r) >> 1;
+            g01 = (u32)(prim->c0.g + prim->c1.g) >> 1;
+            b01 = (u32)(prim->c0.b + prim->c1.b) >> 1;
+            r02 = (u32)(prim->c0.r + prim->c2.r) >> 1;
+            g02 = (u32)(prim->c0.g + prim->c2.g) >> 1;
+            b02 = (u32)(prim->c0.b + prim->c2.b) >> 1;
+            r13 = (u32)(prim->c1.r + prim->c3.r) >> 1;
+            g13 = (u32)(prim->c1.g + prim->c3.g) >> 1;
+            b13 = (u32)(prim->c1.b + prim->c3.b) >> 1;
+            r23 = (u32)(prim->c2.r + prim->c3.r) >> 1;
+            g23 = (u32)(prim->c2.g + prim->c3.g) >> 1;
+            b23 = (u32)(prim->c2.b + prim->c3.b) >> 1;
+            rc = (u32)(prim->c0.r + prim->c1.r + prim->c2.r + prim->c3.r) >> 2;
+            gc = (u32)(prim->c0.g + prim->c1.g + prim->c2.g + prim->c3.g) >> 2;
+            bc = (u32)(prim->c0.b + prim->c1.b + prim->c2.b + prim->c3.b) >> 2;
+            for (j = 0; j < 4; j++) {
+                switch (j) {
+                    case 0:
+                        gte_ldv3(&vtx[prim->v0], &m[0], &m[1]);
+                        break;
+                    case 1:
+                        gte_ldv3(&m[0], &vtx[prim->v1], &m[4]);
+                        break;
+                    case 2:
+                        gte_ldv3(&m[1], &m[4], &vtx[prim->v2]);
+                        break;
+                    case 3:
+                        gte_ldv3(&m[4], &m[2], &m[3]);
+                        break;
+                }
+                gte_rtpt();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy3_gt4(pkt);
+                switch (j) {
+                    case 0:
+                        gte_ldv0(&m[4]);
+                        break;
+                    case 1:
+                        gte_ldv0(&m[2]);
+                        break;
+                    case 2:
+                        gte_ldv0(&m[3]);
+                        break;
+                    case 3:
+                        gte_ldv0(&vtx[prim->v3]);
+                        break;
+                }
+                gte_rtps();
+                gte_stflg(&v);
+                if (v & 0x7F85E000) {
+                    continue;
+                }
+                gte_stsxy2(&pkt->x3);
+                switch (j) {
+                    case 0:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (prim->uv0.v << 8) | prim->uv0.u;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u2 = (v02 << 8) | u02;
+                        *(u32 *)&pkt->u3 = (vc << 8) | uc;
+                        *(u32 *)&pkt->r0 =
+                            0x3C000000 | (prim->c0.b << 16) | (prim->c0.g << 8) | prim->c0.r;
+                        *(u32 *)&pkt->r1 = (b01 << 16) | (g01 << 8) | r01;
+                        *(u32 *)&pkt->r2 = (b02 << 16) | (g02 << 8) | r02;
+                        *(u32 *)&pkt->r3 = (bc << 16) | (gc << 8) | rc;
+                        break;
+                    case 1:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (prim->uv1.v << 8) | prim->uv1.u;
+                        *(u32 *)&pkt->u2 = (vc << 8) | uc;
+                        *(u32 *)&pkt->u3 = (v13 << 8) | u13;
+                        *(u32 *)&pkt->r0 = 0x3C000000 | (b01 << 16) | (g01 << 8) | r01;
+                        *(u32 *)&pkt->r1 = (prim->c1.b << 16) | (prim->c1.g << 8) | prim->c1.r;
+                        *(u32 *)&pkt->r2 = (bc << 16) | (gc << 8) | rc;
+                        *(u32 *)&pkt->r3 = (b13 << 16) | (g13 << 8) | r13;
+                        break;
+                    case 2:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v02 << 8) | u02;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (vc << 8) | uc;
+                        *(u32 *)&pkt->u2 = (prim->uv2.v << 8) | prim->uv2.u;
+                        *(u32 *)&pkt->u3 = (v23 << 8) | u23;
+                        *(u32 *)&pkt->r0 = 0x3C000000 | (b02 << 16) | (g02 << 8) | r02;
+                        *(u32 *)&pkt->r1 = (bc << 16) | (gc << 8) | rc;
+                        *(u32 *)&pkt->r2 = (prim->c2.b << 16) | (prim->c2.g << 8) | prim->c2.r;
+                        *(u32 *)&pkt->r3 = (b23 << 16) | (g23 << 8) | r23;
+                        break;
+                    case 3:
+                        *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (vc << 8) | uc;
+                        *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v13 << 8) | u13;
+                        *(u32 *)&pkt->u2 = (v23 << 8) | u23;
+                        *(u32 *)&pkt->u3 = (prim->uv3.v << 8) | prim->uv3.u;
+                        *(u32 *)&pkt->r0 = 0x3C000000 | (bc << 16) | (gc << 8) | rc;
+                        *(u32 *)&pkt->r1 = (b13 << 16) | (g13 << 8) | r13;
+                        *(u32 *)&pkt->r2 = (b23 << 16) | (g23 << 8) | r23;
+                        *(u32 *)&pkt->r3 = (prim->c3.b << 16) | (prim->c3.g << 8) | prim->c3.r;
+                        break;
+                }
+                ((volatile POLY_GT4 *)pkt)->code = prim->mode & 0xFE;
+                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
+                *tag = (u32)pkt & 0xFFFFFF;
+                pkt++;
+            }
+        }
+    }
+    return (PACKET *)pkt;
+}
 
 PACKET *func_8001FBBC(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, s32 n, s32 shift,
                       GsOT *ot) {

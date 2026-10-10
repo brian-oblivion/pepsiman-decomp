@@ -28,4 +28,5 @@ code_7d74: warning: control reaches end of non-void function
 code_7d74: warning: `return' with no value, in function returning non-void
 code_7d74: warning: unused variable `unused'
 code_a0bc: warning: control reaches end of non-void function
+code_a0bc: warning: unused variable `unused'
 main: warning: unused variable `unused'

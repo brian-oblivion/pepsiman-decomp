@@ -56,6 +56,16 @@ function's match report, not here.
   assignment gives `li 0xFF`. (func_8003FFAC)
 - **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
   (func_80033E98)
+- **A constant rebuilt (`li $a0, 1`) where the build copies it from a saved
+  register: the local holding it is narrower than `s32`.** (func_80013B38)
+- **A single-bit flag as `andi K` + `sltu $zero`: `c = x & K; f = c != 0;`.**
+  One-expression spellings give `srl` + `andi 1`. (func_80017640)
+- **An `s16` loaded with `lh` before a halfword store of a scale: `w * 4`,
+  not `w << 2`** (the shift narrows the load to `lhu`). (func_80017640)
+- **A chained store that reads its first target back (`sh X; lhu X; sh Y`):
+  a volatile target.** (func_8001FBBC)
+- **Two sign tests, one `bltz` and one `and`/`bnez` sharing a `lui 0x8000`:
+  both written `v & 0x80000000`.** (code_a0bc, round 7)
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
@@ -135,6 +145,17 @@ function's match report, not here.
   `tmd++; f(tmd); tmd += 2; g(tmd);`, not `tmd + 2`. (func_8002C20C)
 - **`addPrim(ot, p); p++; G = (u8 *)p;`**, not `G = (u8 *)(p + 1);`, for a
   primitive-buffer bump. libgpu's macros match unchanged. (func_80040F14)
+- **A loop that jumps to its test at the bottom with no guard: `goto test;
+  do { ... test:; } while (k < n);`** with the bound in a local; every
+  `for`/`while` is rotated into a guarded loop. (func_80034BCC, func_80034F38)
+- **A store left on the loop variable beside a strength-reduced pointer: a
+  volatile store**, `((volatile T *)p)->code = x;`. `*(volatile u8 *)&p->code`
+  loses the volatile. (func_800210B4, func_80021434, func_80021240)
+- **A loop pointer copied out of its argument register: the source looped on
+  a local copy of the parameter.** (func_800210B4)
+- **The order of stores in a strength-reduced loop sets the order of the
+  pointer setup before it**, and `o++, i++` differs from `i++, o++`.
+  (func_80013EE4, func_80017270)
 - **A row offset built as `row*21` then plus the column: a flat index**,
   `tbl[row*21 + col]`; `T t[][21]` scales the row by the row size.
   (func_800229A8)
@@ -249,6 +270,20 @@ function's match report, not here.
 - **Asm splat calls handwritten, with `cfc2 $t4, $31` / `mtc2 x, $8`:
   compiled C using `gte_stflg` / `gte_lddp`** (include/gte.h).
   (func_80020DD8, func_80020F24)
+- **A near-miss that differs only in delay slots: try `s32` with no return
+  first.** It closed four of round 7's code_13068 functions; the permuter
+  finds it as `volatile int`. (func_8002670C, func_80027714)
+- **A clamp bound computed into a scratch register in a delay slot, then
+  copied: `if (x <= hi) v = x; else v = hi;`.** (code_13068, round 7)
+- **An inlined search whose hit path moves the counter to `$v0` and whose
+  join sign-extends it: an inlined `s16` helper.** (func_800278B0)
+- **A load that must stay below a store to another global, with no C
+  spelling found: a bare `__asm__("")` barrier**, noted `MATCHING:`.
+  (func_80028008, func_80027A00)
+- **The stack moved to the scratchpad around a call: `SetSpadStack()` /
+  `ResetSpadStack()` from include/spad.h.** (func_80017270)
+- **Jump tables 4 bytes off in a whole unit: its rodata starts earlier than
+  the yaml says** (cc1 puts `.align 3` before each table). (func_80036FE8)
 - **Two addresses computed into one register in turn: one local reused**,
   `p = a->data; G1 = (s32)p; p = b->data; G2 = (s32)p;`. (func_800373C8)
 - **A register parameter spilled where retail spills a stack one: name an

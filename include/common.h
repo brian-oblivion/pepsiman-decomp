@@ -145,6 +145,11 @@ extern u8 D_80095784;   /**< 2 units */
 extern u32 D_800957C8;  /**< an analogue stick axis, 0x80 at rest; 2 units */
 extern u32 D_800957C0;  /**< the other analogue stick axis, 0x80 at rest; 2 units */
 extern s16 D_800958E2;  /**< the selected Rec78 entry; 2 units */
+extern u16 D_80095868;  /**< 2 units */
+extern s8 D_80095908;   /**< 2 units */
+extern s8 *D_8009593C;  /**< the group list the zones index; 2 units */
+extern s32 D_80095968;  /**< 2 units */
+extern u8 D_800958C8;   /**< 2 units */
 extern s32 D_800958B4;  /**< the address of the floor data a probe tests; 2 units */
 extern u8 D_800D3CA8[]; /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
 extern u8 D_800DB2C0[]; /**< a 0x1DB0-byte buffer of 0x4C-byte records */

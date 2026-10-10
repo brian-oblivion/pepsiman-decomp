@@ -23,20 +23,18 @@ typedef struct {
     s32 b; /**< second word */
 } Pair8;
 
+/* MATCHING: per-unit views; code_29f54 reads the same pairs as words. */
 extern Pair8 D_80096A58[];
 extern Pair8 D_800D8340[];
 extern Pair8 D_80010454[];
 extern u8 D_800957DA;
-extern u8 D_800958C8;
 extern s8 D_800957A0;
 extern s32 D_80095758;
-extern s8 D_80095908;
 extern u8 D_800958A5;
 extern s32 D_80095984;
 extern s32 D_80095998;
 extern u16 D_80095764;
 extern u16 D_80095766;
-extern s32 D_80095968;
 extern char D_800954C8[];
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */

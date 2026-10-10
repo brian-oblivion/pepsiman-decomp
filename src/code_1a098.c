@@ -221,11 +221,12 @@ extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction *
 extern Quad16 D_800DD0A0[]; /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];  /**< 200 Rec5C records */
 extern u8 D_800A7550[];     /**< 200 byte marks, one per block entry */
-extern PathPt *D_800958A0;  /**< the current path */
-extern Rec3C D_800A7898[];  /**< 100 Rec3C records */
-extern s32 D_80095824;      /**< zeroed by the full reset */
-extern u8 D_800958D8;       /**< zeroed by the full reset */
-extern u8 D_800959D8;       /**< zeroed by the full reset */
+/* MATCHING: a per-unit view; code_29f54 reads the same path as Edge. */
+extern PathPt *D_800958A0; /**< the current path */
+extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
+extern s32 D_80095824;     /**< zeroed by the full reset */
+extern u8 D_800958D8;      /**< zeroed by the full reset */
+extern u8 D_800959D8;      /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)D_800956D4)
@@ -1293,8 +1294,8 @@ typedef struct {
     u32 count; /**< how many */
 } Group8;
 
+/* MATCHING: a per-unit view; code_29f54 types the same list as Run. */
 extern Zone4 *D_80095934; /**< the zones */
-extern s8 *D_8009593C;    /**< the group list the zones index */
 
 /** @brief The magnitude of `x`. */
 /* MATCHING: this ternary is cc1's abs, a bgez with its delay slot a nop. */

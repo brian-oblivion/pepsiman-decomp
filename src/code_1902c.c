@@ -54,15 +54,15 @@ typedef struct {
  *         and the coordinate system that places them. */
 typedef struct {
     struct {
-        s16 vx;
-        s16 vy;
-        s16 vz;
+        s16 vx; /**< x */
+        s16 vy; /**< y */
+        s16 vz; /**< z */
     } local[4]; /**< corners in the record's own space */
 
     struct {
-        s32 vx;
-        s32 vy;
-        s32 vz;
+        s32 vx; /**< x */
+        s32 vy; /**< y */
+        s32 vz; /**< z */
     } world[4]; /**< the corners placed in the world */
 
     GsCOORDINATE2 *coord; /**< places the corners */

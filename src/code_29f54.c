@@ -57,7 +57,6 @@ extern u32 D_80095798;
 extern GsDOBJ2 D_800ACB88[];
 extern GsCOORDINATE2 D_800A72B8;
 
-extern s32 D_80095968;
 extern s32 D_800A7278[];
 extern u8 D_800AC848[];
 extern u8 D_800A7888[];
@@ -69,9 +68,9 @@ typedef struct {
     s16 count; /**< the number of entries */
 } Run;
 
+/* MATCHING: a per-unit view; code_1a098 types the same list as Zone4. */
 extern Run *D_80095934;
 extern Run *D_80095938;
-extern s8 *D_8009593C;
 extern s8 *D_80095940;
 
 extern DR_STP D_800DFA90;
@@ -305,6 +304,7 @@ void func_8003A84C(void) {
 }
 
 extern u32 D_80095A84;
+/* MATCHING: a per-unit view; code_1a098 reads the same path as PathPt. */
 extern Edge *D_800958A0;
 
 /** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
@@ -519,7 +519,6 @@ void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     }
 }
 
-extern u16 D_80095868;
 extern s32 D_80095828;
 extern s16 D_80095994;
 extern s16 D_80095996;
@@ -816,10 +815,10 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
  * through & the stores in func_8003CC94 schedule the address first. */
 extern s32 D_800958F0[2];
 extern s32 D_80095838[2];
+/* MATCHING: per-unit views; main.c reads the same pairs as Pair8. */
 extern s32 D_80096A58[][2];
 extern s32 D_800D8340[][2];
 extern s32 D_80010454[][2];
-extern u8 D_800958C8;
 
 void func_8003C494(SVECTOR *pos, s32 n);
 
@@ -1191,7 +1190,6 @@ typedef struct {
 } Bytes16;
 
 extern Bytes16 D_80011EB0;
-extern s8 D_80095908;
 
 void func_8003DE34(void) {
     Bytes16 tbl;

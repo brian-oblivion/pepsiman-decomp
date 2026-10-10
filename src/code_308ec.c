@@ -162,7 +162,6 @@ typedef struct {
 #define sSaved (*(SavedStart *)D_800D86B8)
 
 extern s32 D_800957A4;
-extern u16 D_80095868;
 extern s32 D_8007B038[][3];
 extern s32 D_8007AF84[][3];
 

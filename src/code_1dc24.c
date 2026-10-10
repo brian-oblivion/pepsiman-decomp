@@ -2993,7 +2993,80 @@ void func_80032C28(s16 a, u8 *buf) {
     *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
 }
 
+#ifdef NON_MATCHING
+extern char D_80011284[]; /**< path of slot 0's file on the host */
+extern char D_800112A8[]; /**< path of slot 1's file on the host */
+extern char D_800112CC[]; /**< path of slot 2's file on the host */
+
+/** @brief Writes the four data blocks of each save slot of the tool buffer
+ *         to its file on the host.
+ *  @return 0, or -1 when a write fails. */
+s32 func_80032EE4(void) {
+    s32 fd;
+    s32 n;
+    SaveSlot *s;
+
+    s = (SaveSlot *)0x8016D000;
+    fd = open(D_80011284, O_CREAT | O_WRONLY);
+    if (write(fd, &s[0].unk274, 0x3840) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[0].unk3AB4, 0x47E0) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[0].unk8294, 0x1770) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, (u8 *)&s[0] + 0xB174, 0x800) == -1) {
+        close(fd);
+        return -1;
+    }
+    close(fd);
+    fd = open(D_800112A8, O_CREAT | O_WRONLY);
+    if (write(fd, &s[1].unk274, 0x3840) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[1].unk3AB4, 0x47E0) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[1].unk8294, 0x1770) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, (u8 *)&s[1] + 0xB174, 0x800) == -1) {
+        close(fd);
+        return -1;
+    }
+    close(fd);
+    fd = open(D_800112CC, O_CREAT | O_WRONLY);
+    if (write(fd, &s[2].unk274, 0x3840) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[2].unk3AB4, 0x47E0) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[2].unk8294, 0x1770) == -1) {
+        close(fd);
+        return -1;
+    }
+    n = write(fd, (u8 *)&s[2] + 0xB174, 0x800);
+    if (n == -1) {
+        close(fd);
+        return n;
+    }
+    close(fd);
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
+#endif
 
 /** @brief Steps the edited value (bits 0x2000 up, 0x8000 down) or the
  *         highlighted line (0x4000 up, 0x1000 down) from the first pad

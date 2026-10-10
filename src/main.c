@@ -507,6 +507,7 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
+/* MATCHING: per-unit view; code_7d74.c reads it as a word array. */
 extern Model70 D_800963A0;
 
 /** @brief A 0x78-byte model slot: a Model70 and 8 bytes not yet known. */

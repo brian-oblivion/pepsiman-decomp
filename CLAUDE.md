@@ -45,7 +45,9 @@ general guides from it are already in `docs/lsd-reference/`.
    an instruction with no C spelling and no `gte_*` macro in `include/gte.h`
    (COP2 `lwc2`/`swc2`), and those constraints live inside `include/gte.h`.
    Moving `$sp` to the scratchpad and back has no C spelling either; it is
-   the operand-free `SetSpadStack`/`ResetSpadStack` pair in `include/spad.h`.
+   the `SetSpadStack`/`ResetSpadStack` pair in `include/spad.h`, in Sony's
+   own form: an `"r"` input (cc1 picks the register) and declared clobbers,
+   never a constraint that names a register.
 
 ## The loop
 

@@ -7,12 +7,18 @@
  *        ResetSpadStack sample macros do.
  */
 
-/** Saves the stack pointer at the scratchpad top and moves the stack below it. */
-#define SetSpadStack()                                                                    \
-    __asm__ volatile("lui $9,0x1F80\n\tori $9,$9,0x3FC\n\tmove $8,$9\n\tsw $29,0($8)\n\t" \
-                     "addiu $8,$8,-24\n\tmove $29,$8")
+/**
+ * Saves the stack pointer at the scratchpad top and moves the stack below it.
+ * Sony's own form of the macro: the scratchpad address is an input operand
+ * and the asm declares what it overwrites.
+ */
+#define SetSpadStack()                                                              \
+    __asm__ volatile("move $8,%0\n\tsw $29,0($8)\n\taddiu $8,$8,-24\n\tmove $29,$8" \
+                     :                                                              \
+                     : "r"(0x1F8003FC)                                              \
+                     : "$8", "memory")
 
 /** Restores the stack pointer that SetSpadStack saved. */
-#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $sp,0($sp)")
+#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $sp,0($sp)" : : : "memory")
 
 #endif

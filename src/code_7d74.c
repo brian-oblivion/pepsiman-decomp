@@ -436,7 +436,6 @@ void func_80018094(void) {
     GsSetFogParam(&fog);
 }
 
-#ifdef NON_MATCHING
 /** @brief The game state's fields the model draw reads. */
 typedef struct {
     u8 unk0[2];     /**< not yet known */
@@ -455,6 +454,7 @@ typedef struct {
     s32 count;     /**< how many */
 } DrawList;
 
+/* MATCHING: per-unit view; main.c reads the same slot as a Model70. */
 extern s32 D_800963A0[];
 
 s32 func_8001819C(void) {
@@ -500,9 +500,6 @@ s32 func_8001819C(void) {
         __asm__("");
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_8001819C);
-#endif
 
 s32 func_800183B0(Vec3i *pos) {
     Vec3i p;

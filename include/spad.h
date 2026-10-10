@@ -7,12 +7,8 @@
  *        ResetSpadStack sample macros do.
  */
 
-/* Retail moves the stack pointer to the top of the 1 KiB scratchpad around a
- * deep call (GsSortObject4J) and back afterwards. That has no C spelling, so
- * these are plain __asm__ sequences with no operands: the one sanctioned use
- * besides include/gte.h (CLAUDE.md, hard rule 7). They use $8/$9 as retail
- * does without telling cc1, so nothing may be live in those registers across
- * them; the byte match is what checks it. */
+/* The stack pointer has no C spelling, so both are operand-free __asm__
+ * sequences. They use two temporaries the compiler is not told about. */
 
 /** Saves the stack pointer at the scratchpad top and moves the stack below it. */
 #define SetSpadStack()                                                                    \

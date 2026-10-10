@@ -565,6 +565,7 @@ void func_80017270(Stepper *obj) {
             GsSetLsMatrix(&m);
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
+            /* MATCHING: retail runs this sort on the scratchpad stack. */
             SetSpadStack();
             GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
             ResetSpadStack();

@@ -425,15 +425,72 @@ s32 func_800299D8(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
     return 0x7FFF;
 }
 
-#undef VTX
+/** @brief Finds the face of zone `zone` of the wall data `hdr` whose centre
+ *         is nearest `pos` and tells which side of it `pos` is on.
+ *  @return -1 behind the nearest face, 0 in front of it or with no face */
+s32 func_80029E74(s32 zone, VECTOR *pos, FloorHdr *hdr) {
+    VECTOR a;
+    VECTOR b;
+    VECTOR n;
+    FloorVtx *v;
+    FloorFace *f;
+    FloorFace *best;
+    u32 k;
+    s32 d;
+    s32 min;
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_80029E74);
+    min = 1000000;
+    f = (FloorFace *)(((FloorZone *)(zone * 8 + (s32)hdr))[1].offset + (s32)hdr);
+    v = (FloorVtx *)(hdr->vtx + (s32)hdr);
+    for (k = 0; k < ((FloorZone *)(zone * 8 + (s32)hdr))[1].count; k++, f++) {
+        if (f->flag != 0) {
+            continue;
+        }
+        if (f->v[3] == 0xFFFF) {
+            a.vx = (VTX(f->v[0])->x + VTX(f->v[1])->x + VTX(f->v[2])->x) / 3;
+            a.vy = (VTX(f->v[0])->y + VTX(f->v[1])->y + VTX(f->v[2])->y) / 3;
+            a.vz = (VTX(f->v[0])->z + VTX(f->v[1])->z + VTX(f->v[2])->z) / 3;
+        } else {
+            a.vx = (VTX(f->v[0])->x + VTX(f->v[1])->x + VTX(f->v[2])->x + VTX(f->v[3])->x) >> 2;
+            a.vy = (VTX(f->v[0])->y + VTX(f->v[1])->y + VTX(f->v[2])->y + VTX(f->v[3])->y) >> 2;
+            a.vz = (VTX(f->v[0])->z + VTX(f->v[1])->z + VTX(f->v[2])->z + VTX(f->v[3])->z) >> 2;
+        }
+        d = (a.vx - pos->vx) * (a.vx - pos->vx) + (a.vy - pos->vy) * (a.vy - pos->vy) +
+            (a.vz - pos->vz) * (a.vz - pos->vz);
+        if (d <= min) {
+            min = d;
+            best = f;
+        }
+    }
+    if (min == 1000000) {
+        return 0;
+    }
+    f = best;
+    a.vx = VTX(f->v[2])->x - VTX(f->v[0])->x;
+    a.vy = VTX(f->v[2])->y - VTX(f->v[0])->y;
+    a.vz = VTX(f->v[2])->z - VTX(f->v[0])->z;
+    b.vx = VTX(f->v[1])->x - VTX(f->v[0])->x;
+    b.vy = VTX(f->v[1])->y - VTX(f->v[0])->y;
+    b.vz = VTX(f->v[1])->z - VTX(f->v[0])->z;
+    OuterProduct0(&a, &b, &n);
+    n.vx >>= 6;
+    n.vy >>= 6;
+    n.vz >>= 6;
+    VectorNormal(&n, &a);
+    if (a.vx * (pos->vx - VTX(f->v[0])->x) + a.vy * (pos->vy - VTX(f->v[0])->y) +
+            a.vz * (pos->vz - VTX(f->v[0])->z) <
+        0) {
+        return -1;
+    }
+    return 0;
+}
+
+#undef VTX
 
 /* MATCHING: code_29f54 defines x and y as s16; this unit passes them
  * unextended. */
 void func_8003A3F4(s32 *index, s32 x, s32 y);
 
-s32 func_80029E74(s32 index, VECTOR *pos, u8 *data);
 s32 func_8002A558(void);
 
 /** @brief Probes 50 units ahead of the player, 45 degrees either side of
@@ -448,7 +505,7 @@ void func_8002A328(void) {
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
     func_8003A3F4(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+    if (func_80029E74(idx, &pos, (FloorHdr *)D_800958B4)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
     }
@@ -457,7 +514,7 @@ void func_8002A328(void) {
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
     func_8003A3F4(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (u8 *)D_800958B4)) {
+    if (func_80029E74(idx, &pos, (FloorHdr *)D_800958B4)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
     }

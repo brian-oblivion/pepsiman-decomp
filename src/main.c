@@ -9,16 +9,100 @@
 #include "libsnd.h"
 #include "libmcrd.h"
 #include "memory.h"
+#include "code_a0bc.h"
+#include "code_7d74.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
 
 INCLUDE_ASM("asm/nonmatchings/main", main);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80013B38);
+extern u16 D_800958A6;
+extern s32 D_80072484[];
+extern s32 D_800724C4[];
+s32 func_80013CDC(void);
+
+/* MATCHING: code_7d74 types the pack as its own PackEntry. */
+void func_8001797C(void *pack);
+
+/* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
+void func_80018DE8(s32 arg);
+
+s8 func_80013B38(void) {
+    /* MATCHING: a byte, so the later constant 1 is not copied from it. */
+    s8 ret;
+
+    ret = 0;
+    switch (D_800958A6) {
+        case 0:
+            D_80096748[0] = (s32)&D_80072484[0];
+            D_8009F090[0] = 0x8014D000;
+            D_80096748[1] = (s32)&D_80072484[1];
+            D_8009F090[1] = 0x8018D000;
+            D_80096748[2] = (s32)&D_80072484[2];
+            D_8009F090[2] = 0x80123000;
+            D_80096748[3] = (s32)&D_80072484[3];
+            D_8009F090[3] = 0x8016D000;
+            D_80096748[4] = (s32)&D_80072484[4];
+            D_8009F090[4] = 0x80101000;
+            D_80095960 = 5;
+            D_8009F248[0] = D_800724C4[0];
+            D_8009F248[1] = D_800724C4[1];
+            D_8009F248[2] = D_800724C4[2];
+            D_8009F248[3] = D_800724C4[3];
+            D_8009F248[4] = D_800724C4[4];
+            D_8009596C = 1;
+            D_800958A6 = 1;
+            break;
+        case 1:
+            if (D_8009596C == 6) {
+                func_80018DE8(0);
+                D_800958A6++;
+            }
+            break;
+        case 2:
+            ret = 1;
+            func_80013CDC();
+            func_8001797C((void *)0x8018D000);
+            func_8003E13C((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
+            func_8003A84C();
+            func_80018DE8(1);
+            break;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80013CDC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80013EE4);
+/* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
+void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
+
+extern GsOT_TAG D_80096A78[2][0x1000];
+extern GsOT_TAG D_8009F278[2][0x1000];
+extern PACKET D_800ACF00[2][67200];
+extern GsOT *D_80095884;
+
+void func_80013EE4(void) {
+    s32 i;
+
+    func_80056774(320, 240, 4, 1, 0);
+    GsDefDispBuff(0, 0, 0, 240);
+    for (i = 0; i < 2; i++) {
+        D_800ACEA8[i].length = 12;
+        D_800ACEA8[i].org = D_8009F278[i];
+        D_800ACEA8[i].point = 0;
+        D_800ACEA8[i].offset = 0;
+        D_800A7318[i].length = 12;
+        D_800A7318[i].org = D_80096A78[i];
+        /* MATCHING: retail stores this field twice. */
+        D_800ACEA8[i].point = 300;
+        D_800A7318[i].offset = 0;
+    }
+    D_80095750 = GsGetActiveBuff();
+    GsSetWorkBase(D_800ACF00[D_80095750]);
+    GsClearOt(0, 300, &D_800A7318[D_80095750]);
+    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
+    D_80095884 = &D_800A7318[D_80095750];
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014044);
 
@@ -330,9 +414,47 @@ void func_80015754(char *name, void *buf) {
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800157DC);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015A28);
+void func_80015A28(void) {
+    SVECTOR pos;
+    RECT rect;
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015B78);
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    D_800958A6 = 0;
+    D_80095880 = 0x2A;
+}
+
+void func_80015B78(void) {
+    SVECTOR pos;
+    RECT rect;
+
+    func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    rect.x = 0;
+    rect.y = D_800E474C * 240;
+    rect.w = 320;
+    rect.h = 240;
+    MoveImage(&rect, 640, 0);
+    pos.vx = -160;
+    pos.vy = -120;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -120;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    D_800958A6 = 0;
+    D_80095880 = 0x2B;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80015CC8);
 
@@ -340,11 +462,53 @@ INCLUDE_ASM("asm/nonmatchings/main", func_800160E8);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80016D14);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80016FC0);
+void func_800160E8(void);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80017124);
+extern s32 D_80095980;
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80017270);
+void func_80016FC0(void) {
+    SVECTOR pos;
+
+    pos.vx = 0x70;
+    pos.vy = 0x48;
+    func_8001B354(D_8009585C % 10 + 0xFB, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = -0xA0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_800160E8();
+    if (D_800958A6 == 100) {
+        D_80095760 = 4;
+        D_80095980 = 0;
+        D_800958A6 = 0;
+        D_80095880 = 14;
+        func_80014C58(D_80095830);
+    }
+}
+
+void func_80015CC8(void);
+
+void func_80017124(void) {
+    SVECTOR pos;
+
+    pos.vx = 0x70;
+    pos.vy = 0x48;
+    func_8001B354(D_8009585C % 10 + 0xFB, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = -0xA0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    pos.vx = 0;
+    pos.vy = -0x78;
+    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_80015CC8();
+    if (D_800958A6 == 100) {
+        D_80095760 = 4;
+        D_800958A6 = 0;
+        D_80095880 = 14;
+    }
+}
 
 /**
  * @brief A per-channel stepping state (the name is a guess): its stepper
@@ -352,14 +516,67 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80017270);
  *        Only the bytes this unit touches are named.
  */
 typedef struct {
-    u8 unk0[4];     /**< not yet known */
-    u8 unk4;        /**< passed on as the stepper's third argument */
-    u8 unk5;        /**< a kind: 0x60 and 0x61 are tested */
-    u8 unk6[2];     /**< not yet known */
-    u8 unk8;        /**< set to 0xFF when a 0x61 step returns zero */
-    u8 unk9[0x337]; /**< not yet known */
-    u8 unk340;      /**< the stepper's last result */
+    u8 unk0[4];      /**< not yet known */
+    u8 unk4;         /**< passed on as the stepper's third argument */
+    u8 unk5;         /**< a kind: 0x60 and 0x61 are tested */
+    u8 unk6[2];      /**< not yet known */
+    u8 unk8;         /**< set to 0xFF when a 0x61 step returns zero */
+    u8 unk9[0x337];  /**< not yet known */
+    u8 unk340;       /**< the stepper's last result */
+    u8 unk341[7];    /**< not yet known */
+    s32 unk348;      /**< a position, x: the model's translation */
+    s32 unk34C;      /**< a position, y */
+    s32 unk350;      /**< a position, z */
+    u8 unk354[0x2C]; /**< not yet known */
+    u16 unk380;      /**< a rotation about y */
 } Stepper;
+
+/** @brief A list of models drawn together (a unit-local view). */
+typedef struct {
+    GsDOBJ2 *objs; /**< the models */
+    s32 count;     /**< how many */
+} ModelSet;
+
+/* MATCHING: a struct lvalue over the shared array declaration. */
+#define sModels (*(ModelSet *)D_800D8360)
+
+extern s32 D_80095758;
+
+/* MATCHING: switches the stack to the scratchpad and back; moving $sp has
+   no C spelling. */
+#define SetSpadStack() \
+    __asm__ volatile(  \
+        "lui $9,0x1F80\n\tori $9,$9,0x3FC\n\tmove $8,$9\n\tsw $29,0($8)\n\taddiu $8,$8,-24\n\tmove $29,$8")
+#define ResetSpadStack() __asm__ volatile("addiu $29,$29,24\n\tlw $29,0($29)")
+
+void func_80017270(Stepper *obj) {
+    MATRIX m;
+    SVECTOR rot;
+    GsDOBJ2 *o;
+    s32 i;
+
+    func_80020CF8(D_80095758);
+    o = sModels.objs;
+    o->coord2->coord.t[0] = obj->unk348;
+    o->coord2->coord.t[1] = obj->unk34C;
+    o->coord2->coord.t[2] = obj->unk350;
+    rot.vx = 0;
+    rot.vy = obj->unk380;
+    rot.vz = 0;
+    func_80018AE0(&rot, o->coord2);
+    for (i = 0; i < sModels.count; o++, i++) {
+        o->coord2->flg = 0;
+        if (o->id != -1 && o->tmd != NULL) {
+            GsGetLs(o->coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(o->coord2, &m);
+            GsSetLightMatrix(&m);
+            SetSpadStack();
+            GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+            ResetSpadStack();
+        }
+    }
+}
 
 /* MATCHING: code_308ec passes the game state's head in its own view. */
 u8 func_80017F0C(Stepper *obj, u16 index, u8 arg);
@@ -381,6 +598,44 @@ void func_800173E8(Stepper *obj) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80017440);
+extern CdlLOC D_80095FE0[];
+extern s32 D_80095710;
+extern s32 D_80095718;
+/* MATCHING: a known small size, so the byte store is `$gp`-relative. */
+extern u8 D_80095AC0[4];
+
+void func_80017440(s32 track, s32 arg) {
+    CdlATV atv;
+
+    if (D_800958C9 == 1) {
+        func_80017574();
+    }
+    if (D_80095AEE) {
+        atv.val2 = 0x50;
+        atv.val0 = 0x50;
+        atv.val3 = 0;
+        atv.val1 = 0;
+    } else {
+        atv.val2 = 0x50;
+        atv.val0 = 0x50;
+        atv.val3 = 0x50;
+        atv.val1 = 0x50;
+    }
+    CdMix(&atv);
+    D_80095718 = arg;
+    CdGetToc(D_80095FE0);
+    D_80095720 = CdPosToInt(&D_80095FE0[track]);
+    D_80095710 = CdPosToInt(&D_80095FE0[track + 1]) - 20;
+    D_8009571C = 0;
+    D_80095714 = D_80095720;
+    SsSetSerialAttr(0, 0, 1);
+    SsSetSerialVol(0, 0x72, 0x72);
+    D_80095AC0[0] = 3;
+    CdControlB(CdlSetmode, D_80095AC0, 0);
+    VSync(3);
+    CdReadyCallback((CdlCB)func_80017614);
+    func_800175AC(CdlPlay);
+    D_800958C9 = 1;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010404);

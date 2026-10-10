@@ -4,6 +4,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "libcd.h"
+#include "code_7d74.h"
 
 /** @brief A 16-byte entry of a pack's directory; the first entry's count is
  *         the number of entries. */

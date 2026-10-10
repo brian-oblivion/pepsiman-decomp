@@ -60,8 +60,6 @@ extern u8 D_800AC848[];
 extern u8 D_800A7888[];
 extern u8 D_800A76E8[];
 
-extern GsOT D_800A7318[];
-
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_80039754);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);

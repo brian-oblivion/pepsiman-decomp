@@ -13,6 +13,7 @@
 #include "libgs.h"
 
 extern GsOT D_800ACEA8[]; /**< the ordering tables the sprite drawer is handed */
+extern GsOT D_800A7318[]; /**< a second pair of ordering tables, cleared to depth 300 */
 
 /** @brief Draws a sprite into an ordering table.
  *  @param id    which sprite
@@ -30,5 +31,10 @@ void func_8001A3D4(s32 id, SVECTOR *size, CVECTOR *color, s32 mode, GsOT *ot);
  *  @param mode  how it is drawn
  *  @param ot    the ordering table */
 void func_8001B354(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot);
+
+/** @brief Installs the TMD primitive handlers for a drawing mode.
+ *  @param mode which handler set
+ *  @return undefined: the definition has no return statement */
+s32 func_80020CF8(s32 mode);
 
 #endif

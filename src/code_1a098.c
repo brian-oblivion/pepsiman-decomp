@@ -121,6 +121,26 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
+/** @brief A 0x3C-byte record of a 100-entry table (code_1dc24 has the same
+ *         record, with fewer fields known). */
+typedef struct {
+    u16 unk0;       /**< a counter; bumped on a state change */
+    u8 unk2[2];     /**< not yet known */
+    s32 unk4;       /**< x */
+    s32 unk8;       /**< y */
+    s32 unkC;       /**< z */
+    s32 unk10;      /**< zeroed on a state change */
+    s32 unk14;      /**< set from a fixed object's y on a state change */
+    s32 unk18;      /**< zeroed on a state change */
+    u8 unk1C[2];    /**< not yet known */
+    u16 unk1E;      /**< a height; the query is centred half of it lower */
+    s32 unk20;      /**< a third of its magnitude is the query's range */
+    u8 unk24;       /**< set to 1 before the query */
+    u8 unk25;       /**< bit 0 of the query's result */
+    u8 unk26;       /**< flags: bit 7, bit 6, and a state in bits 0..5 */
+    u8 unk27[0x15]; /**< not yet known */
+} Rec3C;
+
 extern u8 D_800A74D0[];  /**< 128 byte flags; cleared together */
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
@@ -150,6 +170,7 @@ s32 func_800297A4(void *a, void *b);
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_8002A5B0(Rec78 *rec, Rec48 *r);
+void func_8002B8F8(u16 id, Rec3C *r);
 
 extern SVECTOR D_800957E4; /**< a local position to transform to world */
 extern VECTOR D_8009F268;  /**< the world position of that local one */
@@ -557,7 +578,35 @@ void func_8002C85C(u16 i, Quad16 *out) {
     *out = *src;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C894);
+/** @brief Runs record `r`'s step, then queries its surroundings; on a hit
+ *  while flagged in state 2, moves it to state 3 and resets its motion. */
+/* MATCHING: the fixed object's y read as a VECTOR member; a plain word
+ * read lets the scheduler hoist the r->unk18 store above it. */
+void func_8002C894(s16 id, Rec3C *r) {
+    Query30 q;
+    s32 v;
+
+    func_8002B8F8(id, r);
+    q.pos.x = r->unk4;
+    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
+    q.pos.z = r->unkC;
+    r->unk24 = 1;
+    q.unk18 = 1;
+    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
+    v = func_80028AE4(&q) & 1;
+    r->unk25 = v;
+    if (v) {
+        if (r->unk26 & 0x80) {
+            if ((r->unk26 & 0x3F) == 2) {
+                r->unk10 = 0;
+                r->unk0++;
+                r->unk26 = (r->unk26 & 0x40) | 3;
+                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
+                r->unk18 = 0;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C994);
 

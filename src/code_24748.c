@@ -552,7 +552,35 @@ void func_80036AB8(VECTOR *pos, u16 scale) {
     func_8001A3D4(0x15D, &size, &color, 2, &D_800ACEA8[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036B90);
+/** @brief The first block of one hit-data slot. */
+typedef struct {
+    u8 b[0x4744]; /**< not yet known */
+} HitBlockA;
+
+/** @brief The second block of one hit-data slot. */
+typedef struct {
+    u8 b[0x2034]; /**< not yet known */
+} HitBlockB;
+
+/** @brief One hit-data slot: the two blocks a HITDATA file holds. */
+typedef struct {
+    HitBlockA a; /**< the first block */
+    HitBlockB b; /**< the second block */
+} HitSlot;
+
+/** @brief The tool buffer: a header, then the three hit-data slots. */
+typedef struct {
+    u8 hdr[0x200];    /**< not yet known */
+    HitSlot slots[3]; /**< one per HITDATA file */
+} ToolBuf;
+
+/* MATCHING: (&slot)->b puts the second address sum offset-first. */
+void func_80036B90(s16 n) {
+    ToolBuf *tool = (ToolBuf *)0x8018D000;
+
+    *(HitBlockA *)0x8016D000 = tool->slots[n].a;
+    *(HitBlockB *)0x8017D000 = (&tool->slots[n])->b;
+}
 
 void func_80036D50(void) {
     D_800A7308[0] = 0;

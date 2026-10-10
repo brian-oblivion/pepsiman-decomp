@@ -12,21 +12,24 @@
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
 typedef struct {
-    s16 unk0;      /**< -1 when the record is free (a guess) */
-    u8 unk2[2];    /**< not yet known */
-    s32 unk4[3];   /**< a position */
-    s32 unk10[3];  /**< a copy of unk4 */
-    u8 unk1C[0xA]; /**< not yet known */
-    u8 unk26;      /**< bit 7 picks one of two handlers */
-    u8 unk27;      /**< sTotals.unk6C when placed */
-    u8 unk28;      /**< sTotals.unk6D when placed */
-    u8 unk29;      /**< not yet known */
-    u16 unk2A;     /**< sTotals.unk6A when placed */
-    s16 unk2C;     /**< matched against sTotals.unk2A */
-    u8 unk2E[2];   /**< not yet known */
-    s32 unk30;     /**< a global stamp when placed */
-    s32 unk34;     /**< the current entry when placed */
-    u8 unk38[4];   /**< not yet known */
+    s16 unk0;     /**< -1 when the record is free (a guess) */
+    u8 unk2[2];   /**< not yet known */
+    s32 unk4[3];  /**< a position */
+    s32 unk10[3]; /**< a copy of unk4 */
+    s16 unk1C;    /**< a height from the template's entry */
+    s16 unk1E;    /**< a second height from the template's entry */
+    s32 unk20;    /**< a copy of unk1C */
+    u8 unk24[2];  /**< not yet known */
+    u8 unk26;     /**< bit 7 picks one of two handlers */
+    u8 unk27;     /**< sTotals.unk6C when placed */
+    u8 unk28;     /**< sTotals.unk6D when placed */
+    u8 unk29;     /**< not yet known */
+    u16 unk2A;    /**< sTotals.unk6A when placed */
+    s16 unk2C;    /**< matched against sTotals.unk2A */
+    u8 unk2E[2];  /**< not yet known */
+    s32 unk30;    /**< a global stamp when placed */
+    s32 unk34;    /**< the current entry when placed */
+    u8 unk38[4];  /**< not yet known */
 } Rec3C;
 
 /** @brief The tool state block: counts, totals and saved menu values. */
@@ -51,15 +54,18 @@ typedef struct {
     u16 unk28;      /**< the Rec3C slot the next record goes to */
     u16 unk2A;      /**< matched against a Rec3C's unk2C */
     u16 unk2C;      /**< a Rec3C kind, less 30 */
-    u8 unk2E[2];    /**< not yet known */
+    u16 unk2E;      /**< a height base for the Rec3C template */
     u16 unk30;      /**< number of Rec3C records in use */
     u16 unk32;      /**< picks one of two Rec3C handlers */
-    u8 unk34[0x34]; /**< not yet known */
+    u16 unk34;      /**< negates the Rec3C template's height when set */
+    u8 unk36[0x32]; /**< not yet known */
     u8 unk68;       /**< copied into a placed record's unk42 */
     u8 unk69;       /**< copied into a placed record's unk43 */
-    u16 unk6A;      /**< copied into a placed Rec3C's unk2A */
+    s16 unk6A;      /**< an angle in degrees; copied into a placed Rec3C's unk2A */
     u8 unk6C;       /**< copied into a placed Rec3C's unk27 */
     u8 unk6D;       /**< copied into a placed Rec3C's unk28 */
+    u8 unk6E[2];    /**< not yet known */
+    s32 unk70;      /**< the global stamp, saved on leaving the tool */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -129,6 +135,34 @@ extern char D_80095648[]; /**< "1" */
 extern char D_8009564C[]; /**< "2" */
 extern char D_80095650[]; /**< "BOSS" */
 extern char D_80095524[]; /**< "\n" */
+extern char D_80010FCC[]; /**< "\n\nCAN NO.  %d\n" */
+extern char D_80010FDC[]; /**< "CAN NUM. %d\n" */
+extern char D_80010FEC[]; /**< "\n\nSWITCH NO.%d\n" */
+extern char D_80010FFC[]; /**< "\n\nTRAP NO. %d / " */
+extern char D_80011010[]; /**< "MODEL.%2d / " */
+extern char D_80011020[]; /**< "OPTIONS  / " */
+extern char D_8001102C[]; /**< "SWITCH NO.%d\n" */
+extern char D_8001103C[]; /**< "TYPE. %d / " */
+extern char D_80011048[]; /**< "ACT. %d\n" */
+extern char D_80011054[]; /**< "\n\nSPRITE. %d / " */
+extern char D_80011064[]; /**< "MODEL. %d / " */
+extern char D_80011074[]; /**< "SWITCH. %d\n" */
+extern char D_80011080[]; /**< "NO ACT  / " */
+extern char D_8001108C[]; /**< "NEAR ACT/ " */
+extern char D_80011098[]; /**< "HIT ACT / " */
+extern char D_800110A4[]; /**< "TYPE %d\n" */
+extern char D_800110B0[]; /**< "NO SE / " */
+extern char D_800110BC[]; /**< "MAN   / " */
+extern char D_800110C8[]; /**< "WOMAN / " */
+extern char D_800110D4[]; /**< "CHILD / " */
+extern char D_800110E0[]; /**< "DOG   / " */
+extern char D_800955E8[]; /**< "HIT. " */
+extern char D_800955F0[]; /**< " OFF / " */
+extern char D_800955F8[]; /**< " ON  / " */
+extern char D_80095600[]; /**< "ACT. " */
+extern char D_80095608[]; /**< "WALK." */
+extern char D_80095610[]; /**< " OFF\n" */
+extern char D_80095618[]; /**< "SE. " */
 
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
@@ -145,7 +179,8 @@ typedef struct {
 typedef struct {
     u8 unk0[0x348];  /**< not yet known */
     s32 unk348[3];   /**< saved into sToolSave.unk38 */
-    u8 unk354[0x70]; /**< not yet known */
+    u8 unk354[0x6C]; /**< not yet known */
+    s32 unk3C0;      /**< handed to the view setup with the position */
     s32 unk3C4;      /**< a copy of unk348[1] */
 } GameSave;
 
@@ -302,8 +337,71 @@ extern char D_80011208[]; /**< "CREATE NEW FILE ?" */
 extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
 extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 
+/* Defined in other units, without a header. */
+void func_8002D2C0(Rec48 *recs);
+s32 func_8002D16C(void);
+void func_8002AA58(void);
+/* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
+void func_8002CCEC(GsOT *ot);
+void func_8002C47C(void);
+void func_800413BC(void);
+void func_800184BC(void);
+void func_8003A008(s16 x, s16 y, s16 z);
+void func_8003B9B4(s16 x, s16 y, s16 z, s16 w);
+
+s32 func_8002F6A0(void);
+void func_8002F8FC(void);
+s32 func_8002FA78(void);
+void func_8002FDB4(void);
+s32 func_8002FF74(void);
+s32 func_80030278(void);
+s32 func_80030548(void);
+void func_80030984(void);
+s32 func_80030B6C(void);
+s32 func_80030DA0(void);
+s32 func_80031064(void);
+void func_8003146C(void);
+s32 func_800317D0(void);
+void func_80031A48(void);
+s32 func_80031AEC(void);
+s32 func_80031EF4(void);
+void func_80033224(VECTOR *pos);
+void func_80033930(void);
+void func_80033AB8(void);
+void func_80033B08(void);
+void func_80033B34(void);
+void func_80033BF8(void);
+void func_8002DC44(void);
+extern u8 D_800A74D0[]; /**< 128 byte flags */
+extern s32 D_80095770;  /**< set to 0xFF on leaving the tool */
+extern u8 D_80095962;   /**< set on leaving the tool */
+
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
+
+/** @brief Eight bytes, copied whole. */
+typedef struct {
+    u8 b[8]; /**< the bytes */
+} Bytes8;
+
+/* MATCHING: code_1a098 defines it as (u16, Quad16 *); this unit passes the
+ * index unextended. */
+void func_8002C85C(s32 i, Bytes8 *out);
+void func_80033388(VECTOR *pos, s16 deg);
+
+/* MATCHING: defined in code_1902c, which has no header. */
+s32 func_800297A4(VECTOR *a, VECTOR *b);
+
+/* MATCHING: defined in code_27bc8, which has no header. */
+s32 func_80037440(s16 mode);
+/* MATCHING: s16 in code_27bc8; its result is compared here unextended. */
+s32 func_80038394(void);
+s32 func_80032EE4(void);
+s32 func_80033680(s16 i);
+void func_800335E8(s16 a);
+void func_800336F8(s16 a);
+s32 func_80033DE8(void);
+s32 func_80033E40(void);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -535,11 +633,303 @@ INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112A8);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112CC);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002D424);
+/** @brief The tool's main step: sets the tool up on the first pass;
+ *         then runs the current tool mode's editor, the camera and the
+ *         view, and handles the flag bits that leave the tool and step
+ *         the move distance.
+ *  @return nothing; the value is undefined. */
+s32 func_8002D424(void) {
+    /* MATCHING: an unused 16-byte local gives retail's 0x30 frame. */
+    s32 unused[4];
+    Obj48 *r;
+    s32 i;
+
+    /* MATCHING: non-void with no return keeps the move-distance test's
+     * delay slot for the constant 100. */
+    switch (D_80095760) {
+        case 0:
+            func_8002D2C0((Rec48 *)0x8016D000);
+            D_800958DA = 0;
+            func_800413BC();
+            D_800956F7 = 1;
+            D_80095760++;
+            break;
+        case 1:
+            func_80033AB8();
+            for (i = 1; i < 128; i++) {
+                D_800A74D0[i] = 1;
+            }
+            func_8002D16C();
+            /* MATCHING: the s16 error code switched as u16 (lhu). */
+            switch ((u16)D_800958DA) {
+                case 0:
+                    func_8002FA78();
+                    if (D_800958D8 == 0) {
+                        switch (sTotals.unk3) {
+                            case 0:
+                                func_8002FDB4();
+                                break;
+                            case 1:
+                                func_80030278();
+                                func_8002AA58();
+                                break;
+                            case 2:
+                                func_80030984();
+                                func_80030DA0();
+                                break;
+                            case 3:
+                                func_800317D0();
+                                break;
+                        }
+                    } else {
+                        switch (sTotals.unk3) {
+                            case 0:
+                                func_8002FF74();
+                                break;
+                            case 1:
+                                func_80030548();
+                                func_8002AA58();
+                                break;
+                            case 2:
+                                func_80031064();
+                                if (D_800959D8 == 1 && (D_80095970 & 0x20)) {
+                                    sGameSave.unk348[0] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
+                                    sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
+                                    sGameSave.unk348[2] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
+                                    sTotals.unk1C = ((Obj48 *)D_800A9008)[sTotals.unk18].unk38;
+                                    D_800958DA = 4;
+                                    sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
+                                    sTotals.unk68 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk42;
+                                    sTotals.unk69 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk43;
+                                    sTotals.unk20 =
+                                        ((Obj48 *)D_800A9008)[sTotals.unk18].unk1A * 360 / 4096;
+                                    D_8009596E = func_80040E04(sTotals.unk1C, D_80096788, D_80096788);
+                                    for (i = 1; i < D_8009596E; i++) {
+                                        /* MATCHING: base taken in the body */
+                                        r = (Obj48 *)D_800A9008;
+                                        r[sTotals.unk18 + i].unk36 = -1;
+                                    }
+                                    D_800958B0 = 200;
+                                    D_800958D8 = 0;
+                                    D_800958B2 = 5;
+                                    D_8009574A = 0;
+                                    D_800958A6 = 0;
+                                    D_80095748 = sTotals.unk18;
+                                }
+                                break;
+                            case 3:
+                                func_80031AEC();
+                                if (D_800959D8 == 1 && (D_80095970 & 0x20)) {
+                                    sGameSave.unk348[0] = D_800A7898[sTotals.unk28].unk4[0];
+                                    sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
+                                    sGameSave.unk348[2] = D_800A7898[sTotals.unk28].unk4[2];
+                                    sTotals.unk2C = D_800A7898[sTotals.unk28].unk0 - 30;
+                                    D_800958DA = 5;
+                                    sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
+                                    sTotals.unk6D = D_800A7898[sTotals.unk28].unk28;
+                                    sTotals.unk6C = D_800A7898[sTotals.unk28].unk27;
+                                    D_800958B0 = 100;
+                                    D_800958D8 = 0;
+                                    D_800958B2 = 9;
+                                    D_80095748 = sTotals.unk28;
+                                    D_8009574A = 0;
+                                    D_800958A6 = 0;
+                                    sTotals.unk6A = D_800A7898[sTotals.unk28].unk2A;
+                                }
+                                break;
+                        }
+                    }
+                    if (D_80095970 & 0x10) {
+                        D_800958DA = 1;
+                        D_80095748 = 0;
+                        D_8009574A = 0;
+                    }
+                    break;
+                case 1:
+                    func_8002F6A0();
+                    if (D_80095970 & 0x40) {
+                        if (D_8009574A == 2) {
+                            D_800958A6 = 0;
+                        }
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 2:
+                    func_80033B08();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 3:
+                    func_80033B34();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 4:
+                    func_80030B6C();
+                    func_80030DA0();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 5:
+                    func_8003146C();
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 6:
+                    func_80031EF4();
+                    break;
+                case 7:
+                case 8:
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                    }
+                    break;
+                case 9:
+                case 10:
+                case 11:
+                    if (D_80095970 & 0x40) {
+                        D_800958DA = 0;
+                        D_800958D8 = 0;
+                        D_800959D8 = 0;
+                    }
+                    break;
+            }
+            if (D_800958D8 == 0) {
+                func_80033F48((VECTOR *)D_8009EEC0);
+                func_80033224((VECTOR *)D_8009EEC0);
+            }
+            func_8002CCEC(&D_800ACEA8[D_80095750]);
+            func_80033BF8();
+            func_80031A48();
+            func_8003A008(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
+            func_800184BC();
+            func_8003B9B4(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
+            func_8002F8FC();
+            func_8002DC44();
+            break;
+    }
+    if (D_80095970 & 0x800) {
+        sTotals.unk70 = D_8009578C;
+        func_80033930();
+        D_80095770 = 0xFF;
+        D_80095962 = 1;
+        func_8002C47C();
+        D_80095760 = 3;
+        D_80095880 = 14;
+    }
+    if (D_80095970 & 0x100) {
+        switch (sTotals.unk4) {
+            case 50:
+                sTotals.unk4 = 100;
+                break;
+            case 100:
+                sTotals.unk4 = 2;
+                break;
+            case 1000:
+                sTotals.unk4 = 10;
+                break;
+            default:
+                sTotals.unk4 = 50;
+                break;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002DC44);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002F270);
+/** @brief Prints the tool mode's caption for the current mode: the
+ *         selected point, switch, record or sprite with their settings,
+ *         then draws the frame around it. Runs only while the tool flag
+ *         is 1. */
+void func_8002F270(void) {
+    /* MATCHING: an unused eight-byte local gives retail's 0x40 frame. */
+    s32 unused[2];
+    Span8 *e;
+    Obj48 *r;
+
+    if (D_800959D8 != 1) {
+        return;
+    }
+    switch (sTotals.unk3) {
+        case 0:
+            e = (Span8 *)D_800959C0;
+            e += D_80095824;
+            FntPrint(D_80010FCC, sTotals.unk22);
+            FntPrint(D_80010FDC, e->count);
+            break;
+        case 1:
+            FntPrint(D_80010FEC, sTotals.unk12);
+            break;
+        case 2:
+            FntPrint(D_80010FFC, sTotals.unk18);
+            if (((Obj48 *)D_800A9008)[sTotals.unk18].unk38 != -1) {
+                FntPrint(D_80011010, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
+            } else {
+                FntPrint(D_80011020);
+            }
+            /* MATCHING: the table base in a pointer local after the join
+             * takes $s1, the totals' base $s0. */
+            r = (Obj48 *)D_800A9008;
+            FntPrint(D_8001102C, r[sTotals.unk18].unk34);
+            FntPrint(D_8001103C, r[sTotals.unk18].unk42);
+            FntPrint(D_80011048, r[sTotals.unk18].unk43);
+            break;
+        case 3:
+            FntPrint(D_80011054, sTotals.unk28);
+            FntPrint(D_80011064, D_800A7898[sTotals.unk28].unk0 - 30);
+            FntPrint(D_80011074, D_800A7898[sTotals.unk28].unk2C);
+            FntPrint(D_800955E8);
+            /* MATCHING: the clear-bit arm first, as retail's bnez. */
+            if (!(D_800A7898[sTotals.unk28].unk26 & 0x80)) {
+                FntPrint(D_800955F0);
+            } else {
+                FntPrint(D_800955F8);
+            }
+            FntPrint(D_80095600);
+            switch (D_800A7898[sTotals.unk28].unk26 & 0x3F) {
+                case 0:
+                    FntPrint(D_80011080);
+                    break;
+                case 1:
+                    FntPrint(D_8001108C);
+                    break;
+                case 2:
+                    FntPrint(D_80011098);
+                    break;
+            }
+            FntPrint(D_80095608);
+            if (D_800A7898[sTotals.unk28].unk27 == 0) {
+                FntPrint(D_80095610);
+            } else {
+                FntPrint(D_800110A4, D_800A7898[sTotals.unk28].unk27);
+            }
+            FntPrint(D_80095618);
+            switch (D_800A7898[sTotals.unk28].unk28) {
+                case 0:
+                    FntPrint(D_800110B0);
+                    break;
+                case 1:
+                    FntPrint(D_800110BC);
+                    break;
+                case 2:
+                    FntPrint(D_800110C8);
+                    break;
+                case 3:
+                    FntPrint(D_800110D4);
+                    break;
+                case 4:
+                    FntPrint(D_800110E0);
+                    break;
+            }
+            FntPrint(D_80095524);
+            break;
+    }
+    func_800179F8(0x7C21, -160, -70, 160, -70, 160, -44, -160, -44, 0);
+}
 
 /** @brief Runs the menu editor, then on flag bit 5 enters the tool mode
  *         of the highlighted line.
@@ -906,7 +1296,99 @@ s32 func_80030278(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030548);
+/** @brief Box picker: counts the used 0x5C-byte records (clearing them to
+ *         0); on the first pass selects the one nearest the game position
+ *         (error 9 with none, 11 when none is in range); then moves the
+ *         game position to the selection, frees it on flag bit 5, or else
+ *         steps the selection over the free records on flag bits 0 and 1.
+ *  @return nothing; the value is undefined. */
+s32 func_80030548(void) {
+    VECTOR pos;
+    VECTOR at;
+    VECTOR sel;
+    Rec5Cv *r;
+    u32 i;
+    s32 best;
+    s32 d;
+
+    /* MATCHING: non-void with no return keeps the last test's delay slot a
+     * nop; the counter cleared before the count, as retail's prologue. */
+    i = 0;
+    sTotals.unk16 = 0;
+    for (; i < 200; i++) {
+        if (sRecs5C[i].unk0 != -1) {
+            sRecs5C[i].unk0 = 0;
+            sTotals.unk16++;
+        }
+    }
+    switch (D_800958A6) {
+        case 0:
+            if (sTotals.unk16 == 0) {
+                D_800958DA = 9;
+                break;
+            }
+            best = 25000000;
+            pos.vx = sGameSave.unk348[0];
+            pos.vy = sGameSave.unk348[1];
+            pos.vz = sGameSave.unk348[2];
+            /* MATCHING: the record pointer taken inside the body keeps -1
+             * rebuilt every pass. */
+            for (i = 0; i < 200; i++) {
+                r = &sRecs5C[i];
+                if (r->unk0 != -1) {
+                    at.vx = r->unk50[0];
+                    at.vy = r->unk50[1];
+                    at.vz = r->unk50[2];
+                    d = func_800297A4(&pos, &at);
+                    if (d < best) {
+                        sTotals.unk12 = i;
+                        best = d;
+                    }
+                }
+            }
+            if (best == 25000000) {
+                D_800958DA = 11;
+            } else {
+                D_800958A6++;
+            }
+            break;
+        case 1:
+            /* MATCHING: the table base in the record pointer first; indexing
+             * sRecs5C directly builds the totals' address first. */
+            r = sRecs5C;
+            sel.vx = r[sTotals.unk12].unk50[0];
+            sel.vy = r[sTotals.unk12].unk50[1];
+            sel.vz = r[sTotals.unk12].unk50[2];
+            func_80033F48(&sel);
+            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+                sRecs5C[sTotals.unk12].unk0 = -1;
+                D_800958A6 = 0;
+                break;
+            }
+            if (D_80095970 & 1) {
+                if (--sTotals.unk12 >= 200) {
+                    sTotals.unk12 = 199;
+                }
+                while (sRecs5C[sTotals.unk12].unk0 == -1) {
+                    if (--sTotals.unk12 >= 200) {
+                        sTotals.unk12 = 199;
+                    }
+                }
+            }
+            if (D_80095970 & 2) {
+                /* the first step up clamps to 199, the later ones wrap to 0 */
+                if (++sTotals.unk12 >= 200) {
+                    sTotals.unk12 = 199;
+                }
+                while (sRecs5C[sTotals.unk12].unk0 == -1) {
+                    if (++sTotals.unk12 >= 200) {
+                        sTotals.unk12 = 0;
+                    }
+                }
+            }
+            break;
+    }
+}
 
 /** @brief Counts the live Obj48 records; on flag bit 5, places every
  *         waiting record into the table (error 8 when it is full). */
@@ -1087,9 +1569,214 @@ s32 func_80030DA0(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031064);
+/** @brief Record picker: counts the live Obj48 records; on the first pass
+ *         selects the one nearest the game position (error 9 with none,
+ *         11 when none is in range); then moves the game position to the
+ *         selection, frees it on flag bit 5 and steps the selection over
+ *         the free records on flag bits 0 and 1.
+ *  @return nothing; the value is undefined. */
+s32 func_80031064(void) {
+    VECTOR pos;
+    VECTOR at;
+    VECTOR sel;
+    Obj48 *r;
+    u32 i;
+    s32 best;
+    s32 d;
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003146C);
+    /* MATCHING: non-void with no return keeps the last test's delay slot a
+     * nop; the counter cleared before the count, as retail's prologue. */
+    i = 0;
+    sTotals.unk1A = 0;
+    for (; i < 200; i++) {
+        if (((Obj48 *)D_800A9008)[i].unk36 != -1) {
+            sTotals.unk1A++;
+        }
+    }
+    switch (D_800958A6) {
+        case 0:
+            if (sTotals.unk1A == 0) {
+                D_800958DA = 9;
+                break;
+            }
+            best = 25000000;
+            pos.vx = sGameSave.unk348[0];
+            pos.vy = sGameSave.unk348[1];
+            pos.vz = sGameSave.unk348[2];
+            /* MATCHING: the record pointer taken inside the body keeps -1
+             * rebuilt every pass. */
+            for (i = 0; i < 200; i++) {
+                r = &((Obj48 *)D_800A9008)[i];
+                if (r->unk36 != -1) {
+                    at.vx = r->unk0[0];
+                    at.vy = r->unk0[1];
+                    at.vz = r->unk0[2];
+                    d = func_800297A4(&pos, &at);
+                    if (d < best) {
+                        sTotals.unk18 = i;
+                        best = d;
+                    }
+                }
+            }
+            if (best == 25000000) {
+                D_800958DA = 11;
+            } else {
+                D_800958A6++;
+            }
+            break;
+        case 1:
+            sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
+            sel.vx = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
+            sel.vy = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
+            sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
+            func_80033F48(&sel);
+            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+                D_800958A6 = 0;
+                ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
+            }
+            if (D_80095970 & 1) {
+                if (--sTotals.unk18 >= 200) {
+                    sTotals.unk18 = 199;
+                }
+                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                    if (--sTotals.unk18 >= 200) {
+                        sTotals.unk18 = 199;
+                    }
+                }
+            }
+            if (D_80095970 & 2) {
+                /* the first step up clamps to 199, the later ones wrap to 0 */
+                if (++sTotals.unk18 >= 200) {
+                    sTotals.unk18 = 199;
+                }
+                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                    if (++sTotals.unk18 >= 200) {
+                        sTotals.unk18 = 0;
+                    }
+                }
+            }
+            break;
+    }
+}
+
+/** @brief Runs the Rec3C template's menu editor: on a line change loads
+ *         the new line's value and limit, else stores the edited value
+ *         back; steps the template's angle on flag bits 3 and 2, then
+ *         rebuilds the template at the game position and runs its handler. */
+void func_8003146C(void) {
+    s16 line;
+    Bytes8 e;
+    s32 h0;
+    s32 h1;
+    s32 h2;
+
+    line = D_8009574A;
+    func_800330D4();
+    if (line != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 100;
+                D_80095748 = sTotals.unk28;
+                break;
+            case 1:
+                D_800958B0 = 0x200;
+                D_80095748 = sTotals.unk2C;
+                break;
+            case 2:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk2A;
+                break;
+            case 3:
+                D_800958B0 = 1000;
+                D_80095748 = sTotals.unk2E;
+                break;
+            case 4:
+                D_800958B0 = 2;
+                D_80095748 = sTotals.unk32;
+                break;
+            case 5:
+                D_800958B0 = 2;
+                D_80095748 = sTotals.unk34;
+                break;
+            case 6:
+                D_800958B0 = 3;
+                D_80095748 = D_800959E2;
+                break;
+            case 7:
+                D_800958B0 = 2;
+                D_80095748 = sTotals.unk6C;
+                break;
+            case 8:
+                D_800958B0 = 5;
+                D_80095748 = sTotals.unk6D;
+                break;
+        }
+    } else {
+        switch (line) {
+            case 0:
+                sTotals.unk28 = D_80095748;
+                break;
+            case 1:
+                sTotals.unk2C = D_80095748;
+                break;
+            case 2:
+                sTotals.unk2A = D_80095748;
+                break;
+            case 3:
+                sTotals.unk2E = D_80095748;
+                break;
+            case 4:
+                sTotals.unk32 = D_80095748;
+                break;
+            case 5:
+                sTotals.unk34 = D_80095748;
+                break;
+            case 6:
+                D_800959E2 = D_80095748;
+                break;
+            case 7:
+                sTotals.unk6C = D_80095748;
+                break;
+            case 8:
+                sTotals.unk6D = D_80095748;
+                break;
+        }
+    }
+    if (D_80095964 & 8) {
+        if (++sTotals.unk6A >= 360) {
+            sTotals.unk6A = 0;
+        }
+    }
+    if (D_80095964 & 4) {
+        if (--sTotals.unk6A < 0) {
+            sTotals.unk6A = 359;
+        }
+    }
+    if (sTotals.unk6C != 0) {
+        func_80033388((VECTOR *)D_8009EEC0, sTotals.unk6A);
+    }
+    D_800DF818.unk4[0] = sGameSave.unk348[0];
+    D_800DF818.unk4[1] = sGameSave.unk348[1];
+    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    func_8002C85C(sTotals.unk2C + 30, &e);
+    /* MATCHING: each offset in its own s32 local; inline, the sum is
+     * narrowed to a halfword add, and one shared local merges the arms. */
+    if (sTotals.unk34 == 0) {
+        h0 = e.b[6] - 500;
+        D_800DF818.unk1C = sTotals.unk2E + h0;
+    } else {
+        h1 = e.b[6] - 500;
+        D_800DF818.unk1C = -(sTotals.unk2E + h1);
+    }
+    h2 = e.b[7] - 500;
+    D_800DF818.unk1E = sTotals.unk2E + h2;
+    D_800DF818.unk20 = D_800DF818.unk1C;
+    if (sTotals.unk32 == 0) {
+        func_8002B8F8(sTotals.unk2C + 30, &D_800DF818);
+    } else {
+        func_8002C894(sTotals.unk2C + 30, &D_800DF818);
+    }
+}
 
 /** @brief Fills the Rec3C template at the game position and runs its
  *         handler, counts the used Rec3C records, and on flag bit 5 places
@@ -1181,9 +1868,317 @@ void func_80031A48(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031AEC);
+/** @brief Rec3C picker, the Obj48 picker's twin: counts the used Rec3C
+ *         records; on the first pass selects the one nearest the game
+ *         position (error 9 with none, 11 when none is in range); then
+ *         moves the game position to the selection, frees it on flag
+ *         bit 5 and steps the selection over the free records on flag
+ *         bits 0 and 1.
+ *  @return nothing; the value is undefined. */
+s32 func_80031AEC(void) {
+    VECTOR pos;
+    VECTOR at;
+    VECTOR sel;
+    Rec3C *r;
+    u32 i;
+    s32 best;
+    s32 d;
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
+    /* MATCHING: non-void with no return keeps the last test's delay slot a
+     * nop; the counter cleared before the count, as retail's prologue. */
+    i = 0;
+    sTotals.unk30 = 0;
+    for (; i < 100; i++) {
+        if (D_800A7898[i].unk0 != -1) {
+            sTotals.unk30++;
+        }
+    }
+    switch (D_800958A6) {
+        case 0:
+            if (sTotals.unk30 == 0) {
+                D_800958DA = 9;
+                break;
+            }
+            best = 25000000;
+            pos.vx = sGameSave.unk348[0];
+            pos.vy = sGameSave.unk348[1];
+            pos.vz = sGameSave.unk348[2];
+            /* MATCHING: the record pointer taken inside the body keeps -1
+             * rebuilt every pass. */
+            for (i = 0; i < 100; i++) {
+                r = &D_800A7898[i];
+                if (r->unk0 != -1) {
+                    at.vx = r->unk4[0];
+                    at.vy = r->unk4[1];
+                    at.vz = r->unk4[2];
+                    d = func_800297A4(&pos, &at);
+                    if (d < best) {
+                        sTotals.unk28 = i;
+                        best = d;
+                    }
+                }
+            }
+            if (best == 25000000) {
+                D_800958DA = 11;
+            } else {
+                D_800958A6++;
+            }
+            break;
+        case 1:
+            sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
+            sel.vx = D_800A7898[sTotals.unk28].unk4[0];
+            sel.vy = D_800A7898[sTotals.unk28].unk4[1];
+            sel.vz = D_800A7898[sTotals.unk28].unk4[2];
+            func_80033F48(&sel);
+            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+                D_800958A6 = 0;
+                D_800A7898[sTotals.unk28].unk0 = -1;
+            }
+            if (D_80095970 & 1) {
+                if (--sTotals.unk28 >= 100) {
+                    sTotals.unk28 = 99;
+                }
+                while (D_800A7898[sTotals.unk28].unk0 == -1) {
+                    if (--sTotals.unk28 >= 100) {
+                        sTotals.unk28 = 99;
+                    }
+                }
+            }
+            if (D_80095970 & 2) {
+                /* the first step up clamps to 99, the later ones wrap to 0 */
+                if (++sTotals.unk28 >= 100) {
+                    sTotals.unk28 = 99;
+                }
+                while (D_800A7898[sTotals.unk28].unk0 == -1) {
+                    if (++sTotals.unk28 >= 100) {
+                        sTotals.unk28 = 0;
+                    }
+                }
+            }
+            break;
+    }
+}
+
+/** @brief The tool's data-mode state machine: opens the memory card,
+ *         steps the data-mode screen (yes/no menus, card and host-file
+ *         reads and writes, the save slots of the tool buffer), maps a
+ *         card error to a message screen, and closes the card.
+ *  @return nothing; the value is undefined. */
+s32 func_80031EF4(void) {
+    s32 err;
+    /* MATCHING: an s16 answer, both menus a switch on it: case 4's tail
+     * then cross-jumps into case 6's. */
+    s16 r;
+
+    /* MATCHING: non-void with no return keeps the error table's index
+     * shift in its bound check's delay slot. */
+    err = 0;
+    switch (D_800958A6) {
+        case 0:
+            func_80038124();
+            D_800959E4 = 0;
+            D_8009574A = 0;
+            D_80095748 = 0;
+            D_800958A6++;
+            break;
+        case 1:
+            switch (D_800959E4) {
+                case 0:
+                    D_80095A14 = 0;
+                    err = func_80037440(0);
+                    if (err == 0) {
+                        D_800959E4 = 1;
+                    }
+                    break;
+                case 1:
+                    if (func_80038394() == -1 || (D_80095970 & 0x40)) {
+                        D_800959E4 = 18;
+                        break;
+                    }
+                    D_800959E0 = func_8003356C(2);
+                    switch (D_800959E0) {
+                        case 2:
+                            if (func_80033DE8() == -1) {
+                                D_800959E4 = 11;
+                            } else if (func_80032EE4() == -1) {
+                                D_800959E4 = 11;
+                            } else {
+                                D_800959E4 = 10;
+                            }
+                            break;
+                        case 3:
+                            if (func_80033E40() == -1) {
+                                D_800959E4 = 11;
+                            } else {
+                                D_800959E0 = 1;
+                                D_800959E4 = 2;
+                            }
+                            break;
+                        case -1:
+                            break;
+                        default:
+                            D_800959E4 = 2;
+                            break;
+                    }
+                    break;
+                case 2:
+                    if (D_80095970 & 0x40) {
+                        D_800959E4 = 1;
+                        break;
+                    }
+                    D_80095A0C = func_8003356C(3);
+                    if (D_80095A0C == -1) {
+                        break;
+                    }
+                    switch (D_800959E0) {
+                        case 0:
+                            D_800959E4 = 3;
+                            break;
+                        case 1:
+                            D_800959E4 = 5;
+                            break;
+                    }
+                    break;
+                case 10:
+                    if (D_80095970 & 0x60) {
+                        sGameSave.unk348[0] = sRotPos.pos[0];
+                        sGameSave.unk348[1] = sRotPos.pos[1];
+                        sGameSave.unk348[2] = sRotPos.pos[2];
+                        sRotPos.rot.vy = sRotPos.rot.vz;
+                        D_800957F4 = func_800183B0(sGameSave.unk348);
+                        D_8009578C = 0;
+                        D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
+                        func_8002D0C4((BlockHeader *)0x801FD000);
+                        D_800959E4 = 1;
+                    }
+                    break;
+                case 3:
+                    if ((s16)func_80033680(D_80095A0C) == -1) {
+                        D_800959E4 = 8;
+                    } else {
+                        D_800959E4 = 4;
+                        D_8009574A = 0;
+                    }
+                    break;
+                case 4:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 8;
+                            break;
+                        case 1:
+                            D_800959E4 = 1;
+                            break;
+                    }
+                    break;
+                case 8:
+                    func_800335E8(D_80095A0C);
+                    err = func_80037440(1);
+                    if (err == 0) {
+                        D_800959E4 = 10;
+                    }
+                    break;
+                case 5:
+                    if ((s16)func_80033680(D_80095A0C) == -1) {
+                        D_800959E4 = 7;
+                    } else {
+                        D_800959E4 = 6;
+                        D_8009574A = 0;
+                    }
+                    break;
+                case 6:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 9;
+                            break;
+                        case 1:
+                            D_800959E4 = 1;
+                            break;
+                    }
+                    break;
+                case 7:
+                    if (D_80095970 & 0x20) {
+                        D_800959E4 = 5;
+                    }
+                    break;
+                case 9:
+                    func_800336F8(D_80095A0C);
+                    D_800959E4 = 10;
+                    break;
+                case 11:
+                case 13:
+                    if (D_80095970 & 0x40) {
+                        D_800959E4 = 18;
+                    }
+                    break;
+                case 14:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 16;
+                            break;
+                        case 1:
+                            D_800959E4 = 18;
+                            break;
+                        case -1:
+                            break;
+                    }
+                    break;
+                case 15:
+                    r = func_8003356C(2);
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 17;
+                            break;
+                        case 1:
+                            D_800959E4 = 18;
+                            break;
+                        case -1:
+                            break;
+                    }
+                    break;
+                case 16:
+                    err = func_80037440(2);
+                    if (err == 0) {
+                        D_800959E4 = 0;
+                    }
+                    break;
+                case 17:
+                    err = func_80037440(3);
+                    if (err == 0) {
+                        D_800959E4 = 0;
+                    }
+                    break;
+                case 18:
+                    D_800958A6++;
+                    break;
+            }
+            switch (err) {
+                case -2:
+                case -1:
+                    D_800959E4 = 11;
+                    break;
+                case 1:
+                    D_800959E4 = 12;
+                    break;
+                case 2:
+                    D_800959E4 = 13;
+                    break;
+                case 3:
+                    D_800959E4 = 14;
+                    break;
+                case 4:
+                    D_800959E4 = 15;
+                    break;
+            }
+            break;
+        case 2:
+            func_800386A8();
+            D_800958DA = 0;
+            break;
+    }
+}
 
 /** @brief Prints the data mode's screen for the current memory-card
  *         state, with the save-slot list or a yes/no menu where the state

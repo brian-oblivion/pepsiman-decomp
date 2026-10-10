@@ -181,7 +181,8 @@ PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
 PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 
-/* Handlers code_11dc4 defines. */
+/* Handlers code_11dc4 defines; their parameter types are that unit's. */
+/* MATCHING: a per-unit view; here they only fill the PrimFunc table. */
 PACKET *func_800215C4();
 PACKET *func_800217A8();
 PACKET *func_80021958();

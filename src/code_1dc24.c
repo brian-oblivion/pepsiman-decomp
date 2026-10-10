@@ -61,6 +61,13 @@ extern char D_80095628[]; /**< "  YES\n" */
 extern char D_80095630[]; /**< "  NO" */
 extern char D_80095638[]; /**< "  SAVE\n" */
 extern char D_80095640[]; /**< "  LOAD\n" */
+extern char D_8001123C[]; /**< "DATA:%d " */
+extern char D_80011248[]; /**< "STAGE %d-" */
+extern char D_80011254[]; /**< "NO DATA\n" */
+extern char D_80095648[]; /**< "1" */
+extern char D_8009564C[]; /**< "2" */
+extern char D_80095650[]; /**< "BOSS" */
+extern char D_80095524[]; /**< "\n" */
 
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
@@ -390,7 +397,49 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003245C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800327BC);
+/** @brief Prints the three save slots of the tool buffer as a menu, each
+ *         with its stage and part, or "NO DATA". */
+void func_800327BC(void) {
+    s16 i;
+    SaveSlot *slots;
+    SaveSlot *slot;
+    u16 stage;
+    u16 part;
+    u16 v;
+
+    slots = (SaveSlot *)0x8016D000;
+    FntPrint(D_800955DC);
+    for (i = 0; i < 3; i++) {
+        func_80014BF0(3);
+        if (D_8009574A == i) {
+            FntPrint(D_800954F4);
+        } else {
+            FntPrint(D_8009550C);
+        }
+        slot = &slots[i];
+        if (slot->unk200 == 0x38) {
+            FntPrint(D_8001123C, i + 1);
+            v = slot->unk202;
+            stage = v / 3;
+            FntPrint(D_80011248, stage + 1);
+            part = v % 3;
+            switch (part) {
+                case 0:
+                    FntPrint(D_80095648);
+                    break;
+                case 1:
+                    FntPrint(D_8009564C);
+                    break;
+                case 2:
+                    FntPrint(D_80095650);
+                    break;
+            }
+            FntPrint(D_80095524);
+        } else {
+            FntPrint(D_80011254);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032964);
 

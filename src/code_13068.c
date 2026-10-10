@@ -15,12 +15,17 @@ typedef struct {
     u8 unk0; /**< set to 1 on a reset; not yet known */
     u8 unk1; /**< the steering mode last applied; a repeat only resets unk380 */
     u8 unk2; /**< cleared on a reset when the flag byte is 1 */
-    u8 pad3[2];
+    u8 unk3; /**< nonzero steps two animation tracks instead of one */
+    u8 unk4; /**< the argument of the single-track step */
     u8 unk5; /**< cleared on a reset */
     u8 unk6; /**< 2 on a reset, 0x33 when unk3D0's low nibble is 3 */
-    u8 pad7[0x340 - 0x7];
+    u8 unk7; /**< 0x13 or 0xFF; not yet known */
+    u8 unk8; /**< set to 0xFF; not yet known */
+    u8 unk9; /**< set to 0xFF; not yet known */
+    u8 padA[0x340 - 0xA];
     s8 unk340; /**< 2 lets the band in unk3AC pick the next mode */
-    u8 pad341[0x344 - 0x341];
+    s8 unk341; /**< the second animation track's step result */
+    u8 pad342[0x344 - 0x342];
     s32 unk344; /**< (40 - unk3A8) / 3 + 1 */
     s32 unk348; /**< pushed back along the sine of an angle */
     s32 unk34C; /**< raised to a cap: unk3C0, or a global one when unk3B8 is 1 */
@@ -28,9 +33,17 @@ typedef struct {
     s32 unk354; /**< added to unk348 for a drawn position */
     s32 unk358; /**< added to unk34C for the drawn position */
     s32 unk35C; /**< added to unk350 for a drawn position */
-    u8 pad360[0x374 - 0x360];
+    s16 unk360; /**< an angle copied to the camera rotation's x */
+    s16 unk362; /**< an angle added to unk380 for the camera rotation's y */
+    u8 pad364[0x368 - 0x364];
+    s32 unk368; /**< cleared; not yet known */
+    u8 pad36C[0x370 - 0x36C];
+    s32 unk370; /**< cleared; not yet known */
     s16 unk374; /**< cleared when unk34C passes the goal line */
-    u8 pad376[0x380 - 0x376];
+    s16 unk376; /**< a step counter of the current mode */
+    s16 unk378; /**< a second step counter of the current mode */
+    s16 unk37A; /**< cleared with unk378 */
+    u8 pad37C[0x380 - 0x37C];
     s32 unk380; /**< an angle that follows the camera's yaw in bounded steps */
     s32 unk384; /**< decays towards 0 by one a step */
     u8 pad388[0x38C - 0x388];
@@ -44,10 +57,10 @@ typedef struct {
     u8 pad39A[0x39C - 0x39A];
     s32 unk39C; /**< with unk3CC, picks which cap unk34C gets */
     s32 unk3A0; /**< 0, 1 or 2, set as unk390 goes to 2 */
-    u8 pad3A4[0x3A6 - 0x3A4];
+    s16 unk3A4; /**< a countdown set to 1 by some unk3A8 ranges */
     s16 unk3A6; /**< raised by 2 when unk34C passes the goal line */
     s16 unk3A8; /**< a count that unk3AC grades in three bands */
-    u8 pad3AA[0x3AC - 0x3AA];
+    s16 unk3AA; /**< unk3A8 saved when a mode starts */
     u16 unk3AC; /**< 0 below 13 in unk3A8, 1 below 26, else 2 */
     s16 unk3AE; /**< unk3A8 along the sine of the heading */
     s16 unk3B0; /**< unk3A8 along the cosine of the heading */
@@ -62,10 +75,10 @@ typedef struct {
     s32 unk3CC; /**< with unk39C, picks which cap unk34C gets */
     u8 unk3D0;  /**< low nibble read on a reset */
     u8 unk3D1;  /**< set to 1 when a stage ends with a mode in unk3D0 */
-    u8 pad3D2;
-    s8 unk3D3; /**< nonzero draws the gauge sprite */
-    u8 pad3D4;
-    u8 unk3D5; /**< set to 1 by some pickups */
+    u8 unk3D2;  /**< set to 1 by one mode */
+    s8 unk3D3;  /**< nonzero draws the gauge sprite */
+    u8 unk3D4;  /**< 1 while mode 0xF runs */
+    u8 unk3D5;  /**< set to 1 by some pickups */
 } GameState;
 
 /* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
@@ -967,7 +980,1128 @@ void func_80023F80(u8 *state) {
     D_8009575F = 0;
 }
 
+/* MATCHING: code_7d74 types the object as its own view; this unit passes the state block. */
+u8 func_80017F0C(GameState *obj, u16 index, u8 arg);
+/* MATCHING: code_7d74 defines this with s16/u16 parameters and an s16 result; this unit's
+ * calls pass halfwords unextended and store the result as a word. */
+s32 func_80018D04(s32 from, s32 to, s32 step, s32 steps);
+/* MATCHING: code_7d74 defines this as an empty void(void); this unit's calls pass the state
+ * block and the step in $a0 and $a1. */
+void func_80018CAC(GameState *g, s32 step);
+
+s32 func_800281B8(GameState *g);
+void func_800283E4(void);
+extern s32 D_80095740;
+extern s32 D_80095744;
+
+#ifdef NON_MATCHING
+/* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for
+ * every step so global-alloc gives it $a1, the step's argument register. */
+s32 func_80024450(GameState *state) {
+    u8 m;
+    s16 t;
+    s32 v;
+    s8 r;
+    s32 d;
+
+    m = state->unk6;
+    t = --sGame.unk3C8;
+    if (t < 0) {
+        sGame.unk3C8 = 0;
+        sGame.unk2 = 1;
+    } else {
+        if (sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) {
+            if (t == 1) {
+                sGame.unk3C8 = 2;
+            }
+        }
+        sGame.unk2 = 0;
+    }
+    if (state->unk3 == 0) {
+        state->unk340 = func_80017F0C(state, 0, state->unk4);
+    } else {
+        state->unk340 = func_80017F0C(state, 0, 1);
+        state->unk341 = func_80017F0C(state, 1, 2);
+    }
+top:
+    switch (state->unk5) {
+        case 0x7:
+            state->unk5 = 8;
+            state->unk6 = 0xD;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 1);
+            break;
+        case 0x9:
+            state->unk5 = 0xA;
+            state->unk6 = 0xD;
+            state->unk0 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            func_80015450(D_800734AC, 2);
+            break;
+        case 0xF:
+            state->unk5 = 0x10;
+            state->unk4 = 0x80;
+            break;
+        case 0x11:
+            state->unk5 = 0x12;
+            state->unk374 = 0;
+            state->unk368 = 0;
+            state->unk370 = 0;
+            break;
+        case 0x12:
+            if (state->unk374 < 60) {
+                state->unk374++;
+            }
+            D_80095740 = func_80018D04(D_80095740, 0, state->unk374, 60);
+            /* MATCHING: a byte-pointer read keeps the load below the store to D_80095740. */
+            D_80095744 = func_80018D04(D_80095744, 0, *(s16 *)((u8 *)state + 0x374), 60);
+
+            if (D_80095740 == 0) {
+                state->unk4 = 0;
+                state->unk5 = 0;
+            }
+            break;
+        case 0x13:
+            state->unk5 = 0x14;
+            state->unk6 = 0x15;
+            state->unk0 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            func_80015450(D_800734AC, 7);
+            break;
+        case 0x17:
+            if ((u8)(m - 2) < 3) {
+                state->unk5 = 0x18;
+                state->unk6 = 0x10;
+                state->unk374 = 0;
+                state->unk0 = 0;
+                state->unk3AA = state->unk3A8;
+            }
+            break;
+        case 0x23:
+            state->unk5 = 0x24;
+            state->unk6 = 0xE;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            state->unk3AA = state->unk3A8;
+            break;
+        case 0x19:
+            state->unk5 = 0x1A;
+            state->unk0 = 0;
+            state->unk374 = 0;
+            if (state->unk3A8 == 0) {
+                state->unk6 = 0xF;
+            } else {
+                state->unk6 = 0x10;
+                state->unk374 = 0;
+                state->unk3AA = state->unk3A8;
+            }
+            break;
+        case 0x1B:
+            state->unk5 = 0x1C;
+            state->unk0 = 0;
+            if (state->unk3A8 == 0) {
+                state->unk340 = 1;
+                state->unk374 = 0;
+                state->unk6 = 0x11;
+            } else {
+                state->unk6 = 0x10;
+                state->unk374 = 0;
+                state->unk3AA = state->unk3A8;
+            }
+            break;
+        case 0x1F:
+            state->unk5 = 0x20;
+            state->unk0 = 0;
+            if (state->unk3A8 != 0) {
+                state->unk6 = 0x10;
+                state->unk374 = 0;
+                state->unk3AA = state->unk3A8;
+            } else {
+                state->unk340 = 1;
+                state->unk6 = 0x12;
+            }
+            break;
+        case 0x27:
+            func_80042538(0x3C);
+            state->unk5 = 0x28;
+            state->unk6 = 0x14;
+            state->unk398 = 70;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            break;
+        case 0x39:
+            state->unk5 = 0x3A;
+            state->unk6 = 0x1A;
+            state->unk376 = 0;
+            state->unk3AA = state->unk3A8;
+            func_80015450(D_800734AC, 10);
+        case 0x3A:
+            if (state->unk376 < 5) {
+                func_8003C014();
+                D_800957D2 = 0x5A0;
+            } else {
+                D_800957D2 = 0x460;
+            }
+            state->unk376++;
+            state->unk3A8 = (s16)D_800957D2 >> 4;
+            func_80022F68((VECTOR *)&state->unk348);
+            if (state->unk376 >= 30) {
+                state->unk5 = 0;
+                if (sGame.unk34C >= sGame.unk3C0 && (u32)(sGame.unk6 - 5) >= 3) {
+                    state->unk6 = 4;
+                }
+            }
+            break;
+        case 0x3B:
+            func_80042538(0x16);
+            state->unk5 = 0x3C;
+            state->unk0 = 0;
+            state->unk6 = 0x18;
+            state->unk378 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk3AA = state->unk3A8;
+            func_80015450(D_800734AC, 12);
+        case 0x3C:
+            D_800957D2 -= 0x20;
+            if (++state->unk378 >= 16 || (s16)D_800957D2 < 0) {
+                D_800957D2 = 0;
+                state->unk5 = 0x3D;
+                state->unk6 = 0x19;
+                state->unk0 = 1;
+            }
+            state->unk3A8 = (s16)D_800957D2 >> 4;
+            func_80022F68((VECTOR *)&state->unk348);
+            break;
+        case 0x3D:
+            if (state->unk340 == 1) {
+                state->unk6 = 4;
+                state->unk5 = 0;
+                state->unk38E = 0;
+                D_800957D2 = 0x320;
+            }
+            break;
+        case 0x3E:
+            state->unk5 = 0x3F;
+            state->unk6 = 0x1B;
+            state->unk398 = 70;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 2);
+            break;
+        case 0x40:
+            state->unk5 = 0x41;
+            state->unk6 = 0x1B;
+            state->unk398 = 70;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 2);
+            break;
+        case 0x42:
+            state->unk5 = 0x43;
+            state->unk6 = 0x23;
+            if (state->unk3A8 < 90) {
+                state->unk3A8 = 70;
+            }
+            state->unk0 = 0;
+            state->unk398 = state->unk3A8;
+            /* MATCHING: *= -1 reloads the halfword with lh. */
+            state->unk3A8 *= -1;
+            func_80015450(D_800734AC, 4);
+            break;
+        case 0x44:
+            state->unk5 = 0x45;
+            state->unk6 = 0x23;
+            if (state->unk3A8 < 90) {
+                state->unk3A8 = 70;
+            }
+            state->unk0 = 0;
+            state->unk398 = state->unk3A8;
+            state->unk3A8 *= -1;
+            func_80015450(D_800734AC, 4);
+            break;
+        case 0x46:
+            state->unk5 = 0x47;
+            state->unk6 = 0x28;
+            func_800287C0();
+            state->unk374 = 10;
+            state->unk376 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 5);
+            break;
+        case 0x48:
+            state->unk5 = 0x49;
+            state->unk6 = 0x2C;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            if (func_80028260(0) <= 0) {
+                state->unk5 = 0x42;
+                goto top;
+            }
+            func_80015450(D_800734AC, 4);
+            func_800287C0();
+            break;
+        case 0x4A:
+            state->unk5 = 0x4B;
+            state->unk6 = 0x2E;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 4);
+            break;
+        case 0x4C:
+            state->unk5 = 0x4D;
+            state->unk6 = 0x2F;
+            func_800287C0();
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 4);
+            break;
+        case 0x4E:
+            state->unk5 = 0x4F;
+            state->unk6 = 0x30;
+            func_800287C0();
+            state->unk37A = 0;
+            state->unk378 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 8);
+            break;
+        case 0x50:
+            if (rand() & 1) {
+                state->unk5 = 0x51;
+                state->unk6 = 0x30;
+            } else {
+                state->unk5 = 0x55;
+                state->unk6 = 0x23;
+            }
+            func_800287C0();
+            state->unk37A = 0;
+            state->unk378 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            state->unk2 = 0;
+            state->unk3C8 = 150;
+            func_80015450(D_800734AC, 4);
+            break;
+        case 0x52:
+            state->unk5 = 0x53;
+            state->unk6 = 0x32;
+            state->unk3D2 = 1;
+            func_800287C0();
+            state->unk37A = 0;
+            state->unk378 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 9);
+            break;
+        case 0x56:
+            D_80095858 = -1;
+            state->unk5 = 0x57;
+            state->unk6 = 0x23;
+            func_800287C0();
+            state->unk398 = 300;
+            /* MATCHING: a bare barrier keeps the call's arguments below this store. */
+            __asm__("");
+            state->unk37A = 0;
+            state->unk378 = 0;
+            state->unk376 = 0;
+            state->unk374 = 0;
+            state->unk0 = 0;
+            func_80015450(D_800734AC, 4);
+            break;
+        case 0x33:
+            switch (state->unk6) {
+                case 0x33:
+                    break;
+                case 0x36:
+                    if (state->unk340 == 0) {
+                        state->unk6 = 0x37;
+                    }
+                    break;
+                case 0x34:
+                    if (state->unk340 == 0) {
+                        state->unk6 = 0x35;
+                    }
+                    break;
+                case 0x35:
+                case 0x37:
+                    if (state->unk340 == 0) {
+                        state->unk5 = 0x34;
+                        state->unk6 = 0x33;
+                    }
+                    break;
+            }
+            break;
+        case 0x35:
+            switch (state->unk6) {
+                case 0x35:
+                case 0x36:
+                    break;
+                case 0x33:
+                case 0x37:
+                    if (state->unk340 == 0) {
+                        state->unk5 = 0x36;
+                        state->unk6 = 0x34;
+                    }
+                    break;
+            }
+            break;
+        case 0x37:
+            switch (state->unk6) {
+                case 0x34:
+                    break;
+                case 0x33:
+                case 0x35:
+                    if (state->unk340 == 0) {
+                        state->unk5 = 0x38;
+                        state->unk6 = 0x36;
+                    }
+                    break;
+            }
+            break;
+        case 0x5A:
+            state->unk6 = 0x34;
+            break;
+        case 0x5C:
+            state->unk6 = 0x35;
+            break;
+        case 0x58:
+        case 0x5E:
+            state->unk6 = 0x33;
+            break;
+    }
+    switch (state->unk6) {
+        case 2:
+            if (D_80095880 == 0xE && D_8009586C == 0 && (D_8009585C & 7) == 0) {
+                func_80042538(0x13);
+            }
+            break;
+        case 3:
+            if (D_80095880 == 0xE && D_8009586C == 0 && D_8009585C % 6 == 0) {
+                func_80042538(0x13);
+            }
+            break;
+        case 4:
+            if (D_80095880 == 0xE && D_8009586C == 0 && (D_8009585C & 3) == 0) {
+                func_80042538(0x13);
+            }
+            break;
+        case 8:
+        case 9:
+        case 0xA:
+        case 0xB:
+        case 0x38:
+        case 0x39:
+            state->unk398 -= 5;
+            d = state->unk398;
+            state->unk34C -= d;
+            if (state->unk39C <= sGame.unk3CC && state->unk3B8 == 1) {
+                if (state->unk34C >= sGame.unk3CC) {
+                    state->unk34C = sGame.unk3CC;
+                    func_80018CAC(&sGame, d);
+                    /* MATCHING: case 0 shares the default body, which the compare tree reaches first. */
+                    switch ((s8)sGame.unk38E) {
+                        case 0:
+                        default:
+                            state->unk6 = 3;
+                            break;
+                        case 2:
+                            state->unk6 = 0x1A;
+                            break;
+                    }
+                    func_80022F68((VECTOR *)&state->unk348);
+                    state->unk38F = 0;
+                    state->unk3BC = 1;
+                    func_80015450(D_800734AC, 13);
+                }
+            } else if (state->unk34C >= state->unk3C0) {
+                state->unk34C = D_800AC858[0];
+                func_80018CAC(&sGame, d);
+                switch ((s8)sGame.unk38E) {
+                    case 0:
+                    default:
+                        state->unk6 = 3;
+                        break;
+                    case 2:
+                        state->unk6 = 0x1A;
+                        break;
+                }
+                func_80022F68((VECTOR *)&state->unk348);
+                state->unk38F = 0;
+                state->unk3BC = 0;
+                func_80015450(D_800734AC, 13);
+                D_800DF5B0[0] = state->unk348;
+                D_800DF5B0[1] = state->unk34C;
+                D_800DF5B0[2] = state->unk350;
+                D_800956E0 = SquareRoot0(func_800297A4((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+            }
+            break;
+        case 0xD:
+            state->unk3A8 -= 2;
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+            }
+            /* MATCHING: cases 7, 0x1F and 0x26 branch here; their own calls would be the copies
+             * cross-jumping keeps. */
+            if (state->unk340 == 0 && (state->unk5 == 8 || state->unk5 == 0xA)) {
+            reset:
+                func_800283E4();
+            }
+            break;
+        case 0x15:
+        case 0x16:
+        case 0x17:
+            state->unk3A8 -= 4;
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+            }
+            if (sGame.unk374 == 0) {
+                func_80042538(0x1A);
+            }
+            state->unk0 = 0;
+            sGame.unk374++;
+            sGame.unk362 += ANGLE_DEG(sGame.unk374 / 2);
+            if (state->unk340 == 0) {
+                sGame.unk376 = (sGame.unk376 + 20) % 360;
+                if (sGame.unk376 == 80 || sGame.unk376 == 260) {
+                    state->unk6 = 0x16;
+                }
+                if (sGame.unk376 == 160 || sGame.unk376 == 340) {
+                    state->unk6 = 0x17;
+                }
+                v = rsin(ANGLE_DEG(sGame.unk376));
+                /* MATCHING: one expression, so the table's %hi is built before the abs. */
+                sGame.unk34C =
+                    D_800AC858[0] - ((v * 100 >> 12) >= 0 ? (v * 100 >> 12) : -(v * 100 >> 12));
+
+                if (sGame.unk374 >= 30) {
+                    state->unk362 = 0;
+                    func_800287C0();
+                    if (func_80028260(0) != 0) {
+                        func_800283E4();
+                    } else {
+                        sGame.unk374 = 0;
+                        state->unk6 = 0x31;
+                    }
+                }
+            }
+            D_8009EAB8[1] = sGame.unk380 + sGame.unk362;
+            D_800D86E0[0].coord.t[0] = sGame.unk354;
+            D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+            D_800D86E0[0].coord.t[2] = sGame.unk35C;
+            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            break;
+        case 0x10:
+            if (state->unk374 < 10) {
+                state->unk374++;
+            }
+            state->unk3A8 = func_80018D04(state->unk3AA, 0, state->unk374, 10);
+            switch (state->unk5) {
+                case 0x18:
+                    if (state->unk340 == 0) {
+                        state->unk6 = 0x13;
+                    }
+                    break;
+                case 0x1A:
+                    if (state->unk340 == 0) {
+                        state->unk6 = 0xF;
+                    }
+                    break;
+                case 0x1C:
+                    if (state->unk340 == 0) {
+                        state->unk6 = 0x11;
+                    }
+                    break;
+                case 0x20:
+                    if (state->unk340 == 0) {
+                        state->unk6 = 0x12;
+                    }
+                    break;
+            }
+            break;
+        case 0xE:
+            if (state->unk374 < 60) {
+                state->unk374++;
+            }
+            state->unk3A8 = func_80018D04(state->unk3AA, 0, state->unk374, 60);
+            break;
+        case 0x13:
+            state->unk0 = 0;
+            break;
+        case 0xF:
+            sGame.unk3D4 = 1;
+            if (state->unk340 == 0) {
+                if (++state->unk374 >= 46) {
+                    state->unk5 = 0;
+                    state->unk6 = 0x13;
+                    sGame.unk3D4 = 0;
+                }
+            }
+            break;
+        case 0x11:
+            if (++state->unk374 == 13) {
+                func_80042538(0x30);
+            }
+            if (state->unk374 == 20) {
+                func_80042538(0x31);
+            }
+            if (state->unk374 == 40) {
+                state->unk3D0 = (state->unk3D0 & 0xF) | 0x50;
+            }
+            if (state->unk374 == 90) {
+                func_80042538(0x2B);
+            }
+            if (state->unk374 == 110) {
+                func_80042538(0x2B);
+            }
+            if (state->unk374 == 130) {
+                func_80042538(0x2B);
+            }
+            if (state->unk374 == 90) {
+                state->unk3 = 1;
+                state->unk7 = 0x13;
+            }
+            if (state->unk341 == 0) {
+                state->unk3 = 0;
+                state->unk7 = 0xFF;
+                state->unk9 = 0xFF;
+            }
+        case 0x12:
+            if (state->unk340 == 0) {
+                state->unk5 = 0;
+                state->unk6 = 0x13;
+                state->unk3D0 &= 0xF;
+            }
+            break;
+        case 5:
+            state->unk3 = 0;
+            if (state->unk340 == 0) {
+                state->unk6 = 6;
+                if (state->unk3A8 >= 0xB0) {
+                    state->unk3A4 = 1;
+                }
+                if ((u32)((u16)state->unk3A8 - 0x97) < 0x19) {
+                    state->unk3A4 = 1;
+                }
+                if ((u32)((u16)state->unk3A8 - 0x7E) < 0x19) {
+                    state->unk3A4 = 1;
+                }
+                if (state->unk3A8 < 0x7E) {
+                    state->unk3A4 = 1;
+                }
+            }
+            if (sGame.unk34C == sGame.unk3C0) {
+                func_80022F68((VECTOR *)&state->unk348);
+            }
+            func_80015450(D_800734AC, 14);
+            break;
+        case 6:
+            if (D_8009585C % 3 == 0) {
+                func_80022F68((VECTOR *)&state->unk348);
+            }
+            if (state->unk3A4 == 0) {
+                state->unk6 = 7;
+            }
+            state->unk3A4--;
+            break;
+        case 0x14:
+            state->unk3A8 -= 4;
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+            }
+            if (state->unk398 > 0) {
+                state->unk398 -= 7;
+                d = state->unk398;
+                state->unk34C -= d;
+            }
+            r = func_800281B8(state);
+            /* MATCHING: three nested tests; one condition folds into a range check. */
+            if (r != 0)
+                if (r >= 0)
+                    if (r < 3) {
+                        state->unk6 = 0x24;
+                    }
+            break;
+        case 0x1B:
+            state->unk3A8 -= 2;
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+            }
+            state->unk398 -= 7;
+            d = state->unk398;
+            state->unk34C -= d;
+            r = func_800281B8(state);
+            if (r != 0)
+                if (r >= 0)
+                    if (r < 3) {
+                        switch (state->unk5) {
+                            case 0x41:
+                                func_80015450(D_800734AC, 3);
+                                state->unk6 = 0x20;
+                                break;
+                            case 0x3F:
+                                state->unk6 = 0x1C;
+                                break;
+                        }
+                    }
+            break;
+        case 0x1C:
+            state->unk3A8 -= 2;
+            if (state->unk3A8 >= 0x15) {
+                func_80022F68((VECTOR *)D_8009EEC0);
+            }
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+                if (++state->unk374 >= 16) {
+                    state->unk374 = 0;
+                    state->unk6 = 0x1D;
+                }
+            }
+            break;
+        case 0x1D:
+            state->unk374++;
+            if (state->unk340 == 0) {
+                if (func_80028260(0) != 0) {
+                    state->unk376 = 0;
+                    state->unk6 = 0x1F;
+                } else {
+                    if (state->unk374 == 30) {
+                        func_80042538(0x34);
+                    }
+                    if (state->unk374 >= 61) {
+                        D_80095858 = 100;
+                    }
+                }
+            }
+            break;
+        case 0x1E:
+            if (state->unk340 == 0) {
+                switch (state->unk5) {
+                    case 0x14:
+                    case 0x28:
+                    case 0x3F:
+                    case 0x43:
+                        state->unk376 = 0;
+                        state->unk6 = 0x1F;
+                        break;
+                    case 0x41:
+                    case 0x45:
+                        state->unk376 = 0;
+                        state->unk6 = 0x22;
+                        break;
+                }
+            }
+            break;
+        case 0x20:
+            if (state->unk340 == 0) {
+                state->unk374++;
+                func_80022F68((VECTOR *)D_8009EEC0);
+                state->unk6 = 0x20;
+                state->unk8 = 0xFF;
+            }
+            if (state->unk374 == 2) {
+                state->unk374 = 0;
+                state->unk6 = 0x21;
+            }
+            break;
+        case 0x21:
+            state->unk3A8 -= 1;
+            if (state->unk3A8 >= 6) {
+                func_80022F68((VECTOR *)D_8009EEC0);
+                func_80015450(D_800734AC, 11);
+            }
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+                if (++state->unk374 >= 16) {
+                    switch (state->unk5) {
+                        default:
+                            if (func_80028260(0) != 0) {
+                                state->unk374 = 0;
+                                state->unk376 = 0;
+                                state->unk6 = 0x1F;
+                            } else {
+                                if (state->unk374 == 30) {
+                                    func_80042538(0x34);
+                                }
+                                if (state->unk374 >= 61) {
+                                    D_80095858 = 100;
+                                }
+                            }
+                            break;
+                        case 0x49:
+                            if (func_80028260(0) != 0) {
+                                state->unk376 = 0;
+                                state->unk6 = 0x2D;
+                            } else {
+                                if (state->unk374 == 30) {
+                                    func_80042538(0x34);
+                                }
+                                if (state->unk374 >= 61) {
+                                    D_80095858 = 100;
+                                }
+                            }
+                            break;
+                        case 0x4F:
+                            if (func_80028260(0) != 0) {
+                                state->unk6 = 0x22;
+                            } else {
+                                if (state->unk374 == 30) {
+                                    func_80042538(0x34);
+                                }
+                                if (state->unk374 >= 61) {
+                                    D_80095858 = 100;
+                                }
+                            }
+                            break;
+                        case 0x57:
+                            D_80095858 = -1;
+                            if (state->unk374 >= 61) {
+                                if (D_80095830 == 4 && D_8009578C == 0) {
+                                    state->unk6 = 0x22;
+                                    D_80095858 = 0;
+                                } else {
+                                    D_80095858 = 100;
+                                }
+                            }
+                            if ((D_80095830 != 4 || D_8009578C != 0) && state->unk374 == 30) {
+                                func_80042538(0x34);
+                            }
+                            break;
+                    }
+                }
+            }
+            break;
+        case 0x23:
+            if (state->unk5 == 0x55) {
+                sGame.unk354 = func_80018D04(0, D_80096768[0], state->unk378, 5);
+                sGame.unk358 = func_80018D04(0, -50, state->unk378, 5);
+                sGame.unk35C = func_80018D04(0, D_80096768[2], state->unk378, 5);
+                if (++state->unk378 >= 5) {
+                    func_80015450(D_800734AC, 5);
+                    state->unk6 = 0x28;
+                    state->unk37A = 0;
+                    state->unk378 = 0;
+                    state->unk376 = 0;
+                    state->unk374 = 0;
+                }
+                D_800D86E0[0].coord.t[0] = sGame.unk354;
+                D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+                D_800D86E0[0].coord.t[2] = sGame.unk35C;
+                func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+                break;
+            }
+            state->unk3A8 += 4;
+            if (state->unk3A8 >= 0) {
+                func_800287C0();
+            }
+            state->unk398 -= 7;
+            d = state->unk398;
+            state->unk34C -= d;
+            r = func_800281B8(state);
+            if (r != 0)
+                if (r >= 0)
+                    if (r < 3) {
+                        state->unk6 = 0x24;
+                    }
+            break;
+        case 0x24:
+            func_80022F68((VECTOR *)D_8009EEC0);
+            if (state->unk340 == 0) {
+                switch (state->unk5) {
+                    case 0x28:
+                    case 0x43:
+                    case 0x57:
+                        state->unk6 = 0x25;
+                        break;
+                    case 0x45:
+                        func_80015450(D_800734AC, 3);
+                        state->unk6 = 0x27;
+                        break;
+                }
+            }
+            break;
+        case 0x25:
+            if (state->unk340 == 0) {
+                state->unk376 = 0;
+                state->unk374 = 0;
+                state->unk6 = 0x21;
+            }
+            break;
+        case 0x27:
+            if (state->unk340 == 0) {
+                state->unk374++;
+                func_80022F68((VECTOR *)D_8009EEC0);
+                state->unk6 = 0x27;
+                state->unk8 = 0xFF;
+            }
+            state->unk376++;
+            if (state->unk374 >= 2) {
+                if (func_80028260(0) > 0) {
+                    switch (state->unk5) {
+                        case 0x45:
+                            state->unk374 = 0;
+                            state->unk6 = 0x21;
+                            break;
+                        case 0x47:
+                            state->unk374 = 0;
+                            state->unk376 = 0;
+                            state->unk6 = 0x1F;
+                            state->unk3A8 = 0;
+                            state->unk374 = 0;
+                            break;
+                    }
+                } else {
+                    func_80015450(D_800734AC, 6);
+                    state->unk6 = 0x21;
+                    state->unk374 = 0;
+                    if (state->unk376 == 30) {
+                        func_80042538(0x34);
+                    }
+                    if (state->unk376 >= 61) {
+                        D_80095858 = 100;
+                    }
+                }
+            }
+            break;
+        case 0x28:
+            switch (state->unk5) {
+                case 0x51:
+                    D_8009EAB8[1] = sGame.unk362 = D_800A7680[0].vy + 0x800;
+                case 0x55:
+                    D_800D86E0[0].coord.t[0] = sGame.unk354;
+                    D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+                    D_800D86E0[0].coord.t[2] = sGame.unk35C;
+                    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+                    if (++state->unk378 < 10) {
+                        /* MATCHING: x - (5 - r) keeps the -5 on the loaded word. */
+                        D_80096768[0] = D_80096768[0] - (5 - rand() % 10);
+                        D_80096768[1] = D_80096768[1] - (5 - rand() % 10);
+                        D_80096768[2] = D_80096768[2] - (5 - rand() % 10);
+                        GsSetRefView2((GsRVIEW2 *)D_80096768);
+                    }
+                    if (state->unk378 >= 31) {
+                        sGame.unk358 += 2;
+                    }
+                    D_80095858 = -1;
+                    if (state->unk378 >= 121) {
+                        D_80095858 = 100;
+                    }
+                    break;
+                default:
+                    state->unk374--;
+                    state->unk376++;
+                    if (state->unk374 <= 0) {
+                        state->unk374 = 1;
+                    }
+                    if (state->unk376 & 1) {
+                        sGame.unk360 = -(state->unk374 * 0x5000 / 360);
+                    } else {
+                        sGame.unk360 = state->unk374 * 0x5000 / 360;
+                    }
+                    D_8009EAB8[0] = sGame.unk360;
+                    D_800D86E0[0].coord.t[0] = sGame.unk354;
+                    D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+                    D_800D86E0[0].coord.t[2] = sGame.unk35C;
+                    func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+                    if (state->unk340 == 0) {
+                        sGame.unk360 = 0;
+                        D_8009EAB8[0] = 0;
+                        state->unk6 = 0x29;
+                    }
+                    break;
+            }
+            break;
+        case 0x29:
+            if (state->unk340 == 0) {
+                state->unk374 = 0;
+                state->unk376 = 0;
+                state->unk3A8 = -5;
+                func_80015450(D_800734AC, 3);
+                state->unk6 = 0x27;
+            }
+            break;
+        case 0x2A:
+            switch (state->unk5) {
+                default:
+                    if (state->unk340 == 0 && ++state->unk374 >= 16) {
+                        if (func_80028260(0) != 0) {
+                            state->unk6 = 0x2B;
+                        } else {
+                            if (state->unk374 == 30) {
+                                func_80042538(0x34);
+                            }
+                            if (state->unk374 >= 61) {
+                                D_80095858 = 100;
+                            }
+                        }
+                    }
+                    break;
+                case 0x4B:
+                    if (state->unk3A8 >= 0x15) {
+                        func_80022F68((VECTOR *)D_8009EEC0);
+                    }
+                    state->unk3A8 -= 2;
+                    if (state->unk3A8 <= 0) {
+                        func_800287C0();
+                    }
+                    if (state->unk340 == 0 && state->unk3A8 == 0 && ++state->unk374 >= 16) {
+                        if (func_80028260(0) != 0) {
+                            state->unk6 = 0x2B;
+                        } else {
+                            if (state->unk374 == 30) {
+                                func_80042538(0x34);
+                            }
+                            if (state->unk374 >= 61) {
+                                D_80095858 = 100;
+                            }
+                        }
+                    }
+                    break;
+                case 0x4D:
+                    if (state->unk340 == 0 && ++state->unk374 >= 16) {
+                        if (func_80028260(0) != 0) {
+                            state->unk376 = 0;
+                            state->unk6 = 0x26;
+                            state->unk374 = 0;
+                        } else {
+                            if (state->unk374 == 30) {
+                                func_80042538(0x34);
+                            }
+                            if (state->unk374 >= 61) {
+                                D_80095858 = 100;
+                            }
+                        }
+                    }
+                    break;
+            }
+            break;
+        case 0x2B:
+            if (state->unk340 == 0) {
+                state->unk376 = 0;
+                state->unk6 = 0x1F;
+            }
+            break;
+        case 0x2C:
+            if (state->unk340 == 0) {
+                state->unk376 = 0;
+                state->unk6 = 0x2D;
+            }
+            break;
+        case 0x2D:
+            sGame.unk354 = rsin(D_800A7680[0].vy + 0x400) * 20 >> 12;
+            sGame.unk35C = rcos(D_800A7680[0].vy + 0x400) * 20 >> 12;
+            D_800D86E0[0].coord.t[2] = sGame.unk35C;
+            D_800D86E0[0].coord.t[0] = sGame.unk354;
+            D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            sGame.unk35C = 0;
+            sGame.unk354 = 0;
+        case 0x22:
+            if (++state->unk376 == 1) {
+                func_80042538(0x50);
+            }
+        case 0x7:
+            if (state->unk340 == 0) {
+                goto reset;
+            }
+            break;
+        case 0x2E:
+            state->unk3A8 -= 2;
+            if (state->unk3A8 <= 0) {
+                func_800287C0();
+            }
+            if (state->unk340 == 0) {
+                state->unk6 = 0x2A;
+            }
+            break;
+        case 0x2F:
+            if (state->unk340 == 0) {
+                r = func_800281B8(state);
+                if (r != 0)
+                    if (r >= 0)
+                        if (r < 3) {
+                            state->unk6 = 0x2A;
+                        }
+            }
+            break;
+        case 0x1F:
+        case 0x26:
+            if (++state->unk376 == 1) {
+                func_80042538(0x50);
+            }
+            if (state->unk340 == 0 && ++state->unk374 >= 16) {
+                goto reset;
+            }
+
+            break;
+        case 0x30:
+            switch (state->unk5) {
+                case 0x51:
+                    sGame.unk362 = state->unk376 =
+                        func_80018D04(state->unk376, 0x6000, state->unk374, 30);
+                    sGame.unk354 = func_80018D04(0, D_80096768[0], state->unk378, 15);
+                    sGame.unk358 = func_80018D04(0, -50, state->unk378, 15);
+                    sGame.unk35C = func_80018D04(0, D_80096768[2], state->unk378, 15);
+                    state->unk374++;
+                    if (++state->unk378 >= 14) {
+                        func_80015450(D_800734AC, 5);
+                        state->unk6 = 0x28;
+                        state->unk37A = 0;
+                        state->unk378 = 0;
+                        state->unk376 = 0;
+                        state->unk374 = 0;
+                    }
+                    break;
+                case 0x4F:
+                    if (++state->unk378 >= 41) {
+                        state->unk378 = 60;
+                        state->unk6 = 0x31;
+                        state->unk374 = 0;
+                    }
+                    sGame.unk362 = state->unk376 =
+                        func_80018D04(state->unk376, 0x5800, state->unk378, 60);
+                    break;
+            }
+            D_8009EAB8[1] = sGame.unk362;
+            D_800D86E0[0].coord.t[0] = sGame.unk354;
+            D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+            D_800D86E0[0].coord.t[2] = sGame.unk35C;
+            func_80018AE0((SVECTOR *)D_8009EAB8, D_800D86E0);
+            break;
+        case 0x31:
+            if (state->unk340 == 0) {
+                func_80015450(D_800734AC, 6);
+                state->unk374 = 0;
+                state->unk6 = 0x21;
+            }
+            break;
+        case 0x32:
+            D_80095858 = -1;
+            if (++state->unk374 >= 91) {
+                D_80095858 = 100;
+            }
+            break;
+        case 0x33:
+        case 0x34:
+        case 0x35:
+            if ((u32)((D_8009EF48[0] & 0xF) - 2) < 2 && state->unk340 == 0) {
+                state->unk8 = 0xFF;
+            }
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
+#endif
 
 /* MATCHING: non-void with no return keeps two bnez delay slots nops. */
 s32 func_80026548(void) {

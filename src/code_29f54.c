@@ -26,17 +26,17 @@ extern u8 D_800956B8[];
 /** @brief The 0x14-byte records of common.h's NumberedSlot table, as this
  *         unit writes them. */
 typedef struct {
-    s16 unk0;   /**< animation frame; cleared when the record is taken */
-    s16 unk2;   /**< frames to wait before the animation starts */
-    s16 unk4;   /**< per-frame step of the rising sprite's y offset */
-    s16 unk6;   /**< the rising sprite's end distance */
-    s16 unk8;   /**< per-frame step subtracted from the y offset */
-    s16 unkA;   /**< per-frame turn of a spinning piece, in degrees */
-    s16 unkC;   /**< x offset added to the drawing position */
-    s16 unkE;   /**< y offset added to the drawing position */
-    s16 unk10;  /**< z offset added to the drawing position */
-    u8 unk12;   /**< not yet known */
-    u8 next;    /**< free-list link: the next record's index */
+    s16 unk0;  /**< animation frame; cleared when the record is taken */
+    s16 unk2;  /**< frames to wait before the animation starts */
+    s16 unk4;  /**< per-frame step of the rising sprite's y offset */
+    s16 unk6;  /**< the rising sprite's end distance */
+    s16 unk8;  /**< per-frame step subtracted from the y offset */
+    s16 unkA;  /**< per-frame turn of a spinning piece, in degrees */
+    s16 unkC;  /**< x offset added to the drawing position */
+    s16 unkE;  /**< y offset added to the drawing position */
+    s16 unk10; /**< z offset added to the drawing position */
+    u8 unk12;  /**< not yet known */
+    u8 next;   /**< free-list link: the next record's index */
 } Slot;
 
 #define sSlots ((Slot *)D_800DFAB0)

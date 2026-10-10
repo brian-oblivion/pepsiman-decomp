@@ -409,6 +409,20 @@
 /* clang-format on */
 
 /**
+ * @brief Stores RGB0-RGB2 into a POLY_GT3 or POLY_GT4's colours, +0x4,
+ * +0x10, +0x1C from `r1`: Sony's gte_strgb3_gt3. Operand: `r1` by "r";
+ * clobbers memory.
+ */
+/* clang-format off */
+#define gte_strgb3_gt3(r1) \
+    __asm__ volatile ( \
+        "swc2 $20, 0x4(%0)\n\t" \
+        "swc2 $21, 0x10(%0)\n\t" \
+        "swc2 $22, 0x1C(%0)" \
+        : : "r" (r1) : "memory")
+/* clang-format on */
+
+/**
  * @brief Saves the whole current MATRIX (control 0-7: the 3x3 rotation and
  * the translation vector, 0x20 bytes) to `r1`.
  *

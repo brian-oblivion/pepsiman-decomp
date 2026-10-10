@@ -1,4 +1,5 @@
 #include "common.h"
+#include "memory.h"
 #include "libsnd.h"
 #include "libcd.h"
 #include "libetc.h"
@@ -24,7 +25,7 @@ typedef struct {
 extern volatile s32 D_80095AD0;
 
 u_long *func_80041A6C(DECENV *dec);
-void func_80041F28(s16 arg0);
+s32 func_80041F28(s16 bank);
 
 extern s16 D_800E0570[];
 extern char D_800E0588[];
@@ -32,6 +33,7 @@ extern s32 D_80095AB4;
 extern u16 D_80095B1A;
 extern s32 D_8009579C;
 extern s16 D_80095B14;
+extern u8 *D_80095B08;
 extern s16 D_80095B18;
 extern s16 D_80095B16;
 extern s16 D_80095AEA;
@@ -292,7 +294,42 @@ void func_80041EE0(CdlLOC *loc) {
     } while (CdRead2(CdlModeStream | CdlModeSpeed | CdlModeRT) == 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041F28);
+s32 func_80041F28(s16 bank) {
+    u32 *vh = (u32 *)0x8016D000;
+    u32 *rec;
+    u8 *dst;
+    u32 src;
+    s16 *slot;
+    s16 vab;
+
+    D_8009579C = 0;
+    switch (bank) {
+        case 0:
+            rec = (u32 *)0x80101000;
+            rec += (u16)(((u16 *)rec)[7] - 1) * 4;
+            dst = (u8 *)rec[0];
+            dst += rec[1];
+            dst += 0x80101000;
+            D_80095B08 = dst + vh[1];
+            break;
+        case 1:
+            dst = D_80095B08;
+            break;
+    }
+    src = 0x8016D000;
+    memcpy(dst, vh[0] + src, vh[1]);
+    src = 0; /* MATCHING: a dead store, so cse rebuilds 0x8016D000 below. */
+    vab = SsVabOpenHead(dst, -1);
+    slot = &(&D_80095B14)[bank];
+    *slot = vab;
+    if (vab != -1) {
+        *slot = SsVabTransBody((u8 *)(vh[4] + 0x8016D000), vab);
+        SsVabTransCompleted(1);
+        return 0;
+    }
+    D_8009579C = vab;
+    return -1;
+}
 
 s32 func_80042058(void) {
     s16 i;

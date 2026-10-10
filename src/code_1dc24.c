@@ -31,7 +31,8 @@ typedef struct {
     u16 unk1A;      /**< number of Obj48 records counted live */
     u16 unk1C;      /**< unk38 of the first record placed */
     u16 unk1E;      /**< matched against a Rec48's unk34 */
-    u8 unk20[6];    /**< not yet known */
+    s16 unk20;      /**< an angle in degrees, wrapped to 0..359 */
+    u8 unk22[4];    /**< not yet known */
     u16 unk26;      /**< a sum over the current block's entries */
     u8 unk28[2];    /**< not yet known */
     u16 unk2A;      /**< matched against a Rec3C's unk2C */
@@ -531,7 +532,75 @@ void func_80030984(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030B6C);
+/** @brief Runs the menu editor; on a line change loads the new line's
+ *         value and limit, else stores the edited value back; then steps
+ *         the angle in sTotals.unk20 on flag bits 3 and 2.
+ *  @return nothing; the value is undefined. */
+s32 func_80030B6C(void) {
+    s16 line;
+    s16 val;
+
+    /* MATCHING: non-void with no return keeps the last two branches' delay
+     * slots nops. */
+    line = D_8009574A;
+    val = D_80095748;
+    func_800330D4();
+    if (D_8009574A == 1 && val != (s16)D_80095748) {
+        D_800958A6 = 0;
+    }
+    if (line != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk18;
+                break;
+            case 1:
+                D_800958B0 = D_8009588E;
+                D_80095748 = sTotals.unk1C;
+                break;
+            case 2:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk1E;
+                break;
+            case 3:
+                D_800958B0 = 0x100;
+                D_80095748 = sTotals.unk68;
+                break;
+            case 4:
+                D_800958B0 = 0x100;
+                D_80095748 = sTotals.unk69;
+                break;
+        }
+    } else {
+        switch (line) {
+            case 0:
+                sTotals.unk18 = D_80095748;
+                break;
+            case 1:
+                sTotals.unk1C = D_80095748;
+                break;
+            case 2:
+                sTotals.unk1E = D_80095748;
+                break;
+            case 3:
+                sTotals.unk68 = D_80095748;
+                break;
+            case 4:
+                sTotals.unk69 = D_80095748;
+                break;
+        }
+    }
+    if (D_80095964 & 8) {
+        if (++sTotals.unk20 >= 360) {
+            sTotals.unk20 = 0;
+        }
+    }
+    if (D_80095964 & 4) {
+        if (--sTotals.unk20 < 0) {
+            sTotals.unk20 = 359;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030DA0);
 

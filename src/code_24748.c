@@ -149,7 +149,7 @@ void func_800350C8(void);
 void func_80035350(void);
 void func_800355D8(void);
 void func_800356FC(void);
-void func_80035970(void);
+s32 func_80035970(void);
 void func_80035E24(void);
 void func_80036184(s16 n);
 s32 func_8003634C(void);
@@ -969,8 +969,9 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
  * func_80035970 compares the result with -1 unextended. */
 s32 func_80038394(void);
 
-#ifdef NON_MATCHING
-void func_80035970(void) {
+/* MATCHING: s32 with no return keeps the error table's index shift in its
+ * bound check's delay slot. */
+s32 func_80035970(void) {
     s32 err = 0;
     s32 r;
 
@@ -1046,6 +1047,10 @@ void func_80035970(void) {
                         D_800959E4 = 1;
                     }
                     break;
+                /* MATCHING: before case 4, so its block merges into 4's. */
+                case 3:
+                    D_800959E4 = 8;
+                    break;
                 case 4:
                     r = func_8003356C(2);
                     switch (r) {
@@ -1056,9 +1061,6 @@ void func_80035970(void) {
                             D_800959E4 = 1;
                             break;
                     }
-                    break;
-                case 3:
-                    D_800959E4 = 8;
                     break;
                 case 8:
                     func_80036184(D_80095A0C);
@@ -1073,10 +1075,13 @@ void func_80035970(void) {
                     break;
                 case 6:
                     r = func_8003356C(2);
-                    if (r == 0) {
-                        D_800959E4 = 9;
-                    } else if (r == 1) {
-                        D_800959E4 = 1;
+                    switch (r) {
+                        case 0:
+                            D_800959E4 = 9;
+                            break;
+                        case 1:
+                            D_800959E4 = 1;
+                            break;
                     }
                     break;
                 case 7:
@@ -1163,9 +1168,6 @@ void func_80035970(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035970);
-#endif
 
 extern char D_80095698[]; /**< a line prefix */
 extern char D_8009569C[]; /**< not yet known */

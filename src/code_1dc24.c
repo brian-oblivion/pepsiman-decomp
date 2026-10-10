@@ -12,21 +12,24 @@
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
 typedef struct {
-    s16 unk0;      /**< -1 when the record is free (a guess) */
-    u8 unk2[2];    /**< not yet known */
-    s32 unk4[3];   /**< a position */
-    s32 unk10[3];  /**< a copy of unk4 */
-    u8 unk1C[0xA]; /**< not yet known */
-    u8 unk26;      /**< bit 7 picks one of two handlers */
-    u8 unk27;      /**< sTotals.unk6C when placed */
-    u8 unk28;      /**< sTotals.unk6D when placed */
-    u8 unk29;      /**< not yet known */
-    u16 unk2A;     /**< sTotals.unk6A when placed */
-    s16 unk2C;     /**< matched against sTotals.unk2A */
-    u8 unk2E[2];   /**< not yet known */
-    s32 unk30;     /**< a global stamp when placed */
-    s32 unk34;     /**< the current entry when placed */
-    u8 unk38[4];   /**< not yet known */
+    s16 unk0;     /**< -1 when the record is free (a guess) */
+    u8 unk2[2];   /**< not yet known */
+    s32 unk4[3];  /**< a position */
+    s32 unk10[3]; /**< a copy of unk4 */
+    s16 unk1C;    /**< a height from the template's entry */
+    s16 unk1E;    /**< a second height from the template's entry */
+    s32 unk20;    /**< a copy of unk1C */
+    u8 unk24[2];  /**< not yet known */
+    u8 unk26;     /**< bit 7 picks one of two handlers */
+    u8 unk27;     /**< sTotals.unk6C when placed */
+    u8 unk28;     /**< sTotals.unk6D when placed */
+    u8 unk29;     /**< not yet known */
+    u16 unk2A;    /**< sTotals.unk6A when placed */
+    s16 unk2C;    /**< matched against sTotals.unk2A */
+    u8 unk2E[2];  /**< not yet known */
+    s32 unk30;    /**< a global stamp when placed */
+    s32 unk34;    /**< the current entry when placed */
+    u8 unk38[4];  /**< not yet known */
 } Rec3C;
 
 /** @brief The tool state block: counts, totals and saved menu values. */
@@ -51,13 +54,14 @@ typedef struct {
     u16 unk28;      /**< the Rec3C slot the next record goes to */
     u16 unk2A;      /**< matched against a Rec3C's unk2C */
     u16 unk2C;      /**< a Rec3C kind, less 30 */
-    u8 unk2E[2];    /**< not yet known */
+    u16 unk2E;      /**< a height base for the Rec3C template */
     u16 unk30;      /**< number of Rec3C records in use */
     u16 unk32;      /**< picks one of two Rec3C handlers */
-    u8 unk34[0x34]; /**< not yet known */
+    u16 unk34;      /**< negates the Rec3C template's height when set */
+    u8 unk36[0x32]; /**< not yet known */
     u8 unk68;       /**< copied into a placed record's unk42 */
     u8 unk69;       /**< copied into a placed record's unk43 */
-    u16 unk6A;      /**< copied into a placed Rec3C's unk2A */
+    s16 unk6A;      /**< an angle in degrees; copied into a placed Rec3C's unk2A */
     u8 unk6C;       /**< copied into a placed Rec3C's unk27 */
     u8 unk6D;       /**< copied into a placed Rec3C's unk28 */
 } Totals28;
@@ -304,6 +308,16 @@ extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
+
+/** @brief Eight bytes, copied whole. */
+typedef struct {
+    u8 b[8]; /**< the bytes */
+} Bytes8;
+
+/* MATCHING: code_1a098 defines it as (u16, Quad16 *); this unit passes the
+ * index unextended. */
+void func_8002C85C(s32 i, Bytes8 *out);
+void func_80033388(VECTOR *pos, s16 deg);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -1089,7 +1103,124 @@ s32 func_80030DA0(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031064);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003146C);
+/** @brief Runs the Rec3C template's menu editor: on a line change loads
+ *         the new line's value and limit, else stores the edited value
+ *         back; steps the template's angle on flag bits 3 and 2, then
+ *         rebuilds the template at the game position and runs its handler. */
+void func_8003146C(void) {
+    s16 line;
+    Bytes8 e;
+    s32 h0;
+    s32 h1;
+    s32 h2;
+
+    line = D_8009574A;
+    func_800330D4();
+    if (line != D_8009574A) {
+        switch (D_8009574A) {
+            case 0:
+                D_800958B0 = 100;
+                D_80095748 = sTotals.unk28;
+                break;
+            case 1:
+                D_800958B0 = 0x200;
+                D_80095748 = sTotals.unk2C;
+                break;
+            case 2:
+                D_800958B0 = 200;
+                D_80095748 = sTotals.unk2A;
+                break;
+            case 3:
+                D_800958B0 = 1000;
+                D_80095748 = sTotals.unk2E;
+                break;
+            case 4:
+                D_800958B0 = 2;
+                D_80095748 = sTotals.unk32;
+                break;
+            case 5:
+                D_800958B0 = 2;
+                D_80095748 = sTotals.unk34;
+                break;
+            case 6:
+                D_800958B0 = 3;
+                D_80095748 = D_800959E2;
+                break;
+            case 7:
+                D_800958B0 = 2;
+                D_80095748 = sTotals.unk6C;
+                break;
+            case 8:
+                D_800958B0 = 5;
+                D_80095748 = sTotals.unk6D;
+                break;
+        }
+    } else {
+        switch (line) {
+            case 0:
+                sTotals.unk28 = D_80095748;
+                break;
+            case 1:
+                sTotals.unk2C = D_80095748;
+                break;
+            case 2:
+                sTotals.unk2A = D_80095748;
+                break;
+            case 3:
+                sTotals.unk2E = D_80095748;
+                break;
+            case 4:
+                sTotals.unk32 = D_80095748;
+                break;
+            case 5:
+                sTotals.unk34 = D_80095748;
+                break;
+            case 6:
+                D_800959E2 = D_80095748;
+                break;
+            case 7:
+                sTotals.unk6C = D_80095748;
+                break;
+            case 8:
+                sTotals.unk6D = D_80095748;
+                break;
+        }
+    }
+    if (D_80095964 & 8) {
+        if (++sTotals.unk6A >= 360) {
+            sTotals.unk6A = 0;
+        }
+    }
+    if (D_80095964 & 4) {
+        if (--sTotals.unk6A < 0) {
+            sTotals.unk6A = 359;
+        }
+    }
+    if (sTotals.unk6C != 0) {
+        func_80033388((VECTOR *)D_8009EEC0, sTotals.unk6A);
+    }
+    D_800DF818.unk4[0] = sGameSave.unk348[0];
+    D_800DF818.unk4[1] = sGameSave.unk348[1];
+    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    func_8002C85C(sTotals.unk2C + 30, &e);
+    /* MATCHING: each offset in its own s32 local; inline, the sum is
+     * narrowed to a halfword add, and one shared local merges the arms. */
+    if (sTotals.unk34 == 0) {
+        h0 = e.b[6] - 500;
+        D_800DF818.unk1C = sTotals.unk2E + h0;
+    } else {
+        h1 = e.b[6] - 500;
+        D_800DF818.unk1C = -(sTotals.unk2E + h1);
+    }
+    h2 = e.b[7] - 500;
+    D_800DF818.unk1E = sTotals.unk2E + h2;
+    D_800DF818.unk20 = D_800DF818.unk1C;
+    if (sTotals.unk32 == 0) {
+        func_8002B8F8(sTotals.unk2C + 30, &D_800DF818);
+    } else {
+        func_8002C894(sTotals.unk2C + 30, &D_800DF818);
+    }
+}
 
 /** @brief Fills the Rec3C template at the game position and runs its
  *         handler, counts the used Rec3C records, and on flag bit 5 places

@@ -148,6 +148,11 @@ s32 func_800297A4(void *a, void *b);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
+void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
+void func_8002A5B0(Rec78 *rec, Rec48 *r);
+
+extern SVECTOR D_800957E4; /**< a local position to transform to world */
+extern VECTOR D_8009F268;  /**< the world position of that local one */
 
 /** @brief Sets `p->pos` to the world position of its local position. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
@@ -506,7 +511,28 @@ s32 func_8002C6A4(Rec48 *r, s32 range) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002C724);
+/** @brief Places `b` at its stored position in the coordinate system of
+ *         `a`'s Rec78 entry, takes `a`'s angles, adds `a`'s heading to its
+ *         own, and updates `b`'s Rec78 entry from it. */
+/* MATCHING: the Rec48s' first 0x34 bytes read through the Obj34 view. */
+void func_8002C724(Rec48 *a, Rec48 *b) {
+    Obj34 *pa;
+    Obj34 *pb;
+
+    pa = (Obj34 *)a;
+    pb = (Obj34 *)b;
+    D_800957E4.vx = pb->unkC;
+    D_800957E4.vy = pb->unk10;
+    D_800957E4.vz = pb->unk14;
+    func_80023194((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
+    pb->unk0 = D_8009F268.vx;
+    pb->unk4 = D_8009F268.vy;
+    pb->unk8 = D_8009F268.vz;
+    pb->unk2C = pa->unk2C;
+    pb->unk30 = pa->unk30;
+    pb->unk1A = pa->unk1A + pb->unk20;
+    func_8002A5B0(&D_800D8D20[b->unk36], b);
+}
 
 /** @brief Resets an object's current values from its stored copy. */
 void func_8002C820(Obj34 *p) {

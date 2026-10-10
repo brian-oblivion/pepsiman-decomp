@@ -1403,7 +1403,96 @@ void func_80031A48(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031AEC);
+/** @brief Rec3C picker, the Obj48 picker's twin: counts the used Rec3C
+ *         records; on the first pass selects the one nearest the game
+ *         position (error 9 with none, 11 when none is in range); then
+ *         moves the game position to the selection, frees it on flag
+ *         bit 5 and steps the selection over the free records on flag
+ *         bits 0 and 1.
+ *  @return nothing; the value is undefined. */
+s32 func_80031AEC(void) {
+    VECTOR pos;
+    VECTOR at;
+    VECTOR sel;
+    Rec3C *r;
+    u32 i;
+    s32 best;
+    s32 d;
+
+    /* MATCHING: non-void with no return keeps the last test's delay slot a
+     * nop; the counter cleared before the count, as retail's prologue. */
+    i = 0;
+    sTotals.unk30 = 0;
+    for (; i < 100; i++) {
+        if (D_800A7898[i].unk0 != -1) {
+            sTotals.unk30++;
+        }
+    }
+    switch (D_800958A6) {
+        case 0:
+            if (sTotals.unk30 == 0) {
+                D_800958DA = 9;
+                break;
+            }
+            best = 25000000;
+            pos.vx = sGameSave.unk348[0];
+            pos.vy = sGameSave.unk348[1];
+            pos.vz = sGameSave.unk348[2];
+            /* MATCHING: the record pointer taken inside the body keeps -1
+             * rebuilt every pass. */
+            for (i = 0; i < 100; i++) {
+                r = &D_800A7898[i];
+                if (r->unk0 != -1) {
+                    at.vx = r->unk4[0];
+                    at.vy = r->unk4[1];
+                    at.vz = r->unk4[2];
+                    d = func_800297A4(&pos, &at);
+                    if (d < best) {
+                        sTotals.unk28 = i;
+                        best = d;
+                    }
+                }
+            }
+            if (best == 25000000) {
+                D_800958DA = 11;
+            } else {
+                D_800958A6++;
+            }
+            break;
+        case 1:
+            sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
+            sel.vx = D_800A7898[sTotals.unk28].unk4[0];
+            sel.vy = D_800A7898[sTotals.unk28].unk4[1];
+            sel.vz = D_800A7898[sTotals.unk28].unk4[2];
+            func_80033F48(&sel);
+            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+                D_800958A6 = 0;
+                D_800A7898[sTotals.unk28].unk0 = -1;
+            }
+            if (D_80095970 & 1) {
+                if (--sTotals.unk28 >= 100) {
+                    sTotals.unk28 = 99;
+                }
+                while (D_800A7898[sTotals.unk28].unk0 == -1) {
+                    if (--sTotals.unk28 >= 100) {
+                        sTotals.unk28 = 99;
+                    }
+                }
+            }
+            if (D_80095970 & 2) {
+                /* the first step up clamps to 99, the later ones wrap to 0 */
+                if (++sTotals.unk28 >= 100) {
+                    sTotals.unk28 = 99;
+                }
+                while (D_800A7898[sTotals.unk28].unk0 == -1) {
+                    if (++sTotals.unk28 >= 100) {
+                        sTotals.unk28 = 0;
+                    }
+                }
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031EF4);
 

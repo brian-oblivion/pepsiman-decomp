@@ -40,6 +40,23 @@ typedef struct {
     u16 pad;    /**< padding */
 } TmdG3;
 
+/** @brief A gouraud unlit TMD quad: a header, four colours and four
+ *  vertex indices. */
+typedef struct {
+    u8 olen;    /**< the TMD header: output length */
+    u8 ilen;    /**< input length */
+    u8 flag;    /**< flags */
+    u8 mode;    /**< the primitive code, copied into the packet */
+    CVECTOR c0; /**< first vertex colour */
+    CVECTOR c1; /**< second vertex colour */
+    CVECTOR c2; /**< third vertex colour */
+    CVECTOR c3; /**< fourth vertex colour */
+    u16 v0;     /**< first vertex index */
+    u16 v1;     /**< second vertex index */
+    u16 v2;     /**< third vertex index */
+    u16 v3;     /**< fourth vertex index */
+} TmdG4;
+
 /** @brief A flat-textured unlit TMD triangle: a header, three UV words
  *  (the CLUT, the texture page, padding in their top halves), a colour and
  *  three vertex indices. */
@@ -94,7 +111,7 @@ PACKET *func_8002097C();
 PACKET *func_80020DD8(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80020F24(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift, GsOT *ot);
-PACKET *func_80021240();
+PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, POLY_G4 *pkt, s32 n, s32 shift, GsOT *ot);
 PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, POLY_FT3 *pkt, s32 n, s32 shift, GsOT *ot);
 
 /* Handlers code_11dc4 defines. */
@@ -399,7 +416,55 @@ PACKET *func_800210B4(TmdG3 *prim, SVECTOR *vtx, POLY_G3 *pkt, s32 n, s32 shift,
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_800210B4);
 #endif
 
+#ifdef NON_MATCHING
+PACKET *func_80021240(TmdG4 *prim, SVECTOR *vtx, POLY_G4 *pkt, s32 n, s32 shift, GsOT *ot) {
+    s32 v;
+    s32 dp;
+    s32 i;
+    u32 *tag;
+
+    for (i = 0; i < n; i++, prim++) {
+        gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
+        gte_rtpt();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_nclip();
+        gte_stopz(&v);
+        if (v <= 0) {
+            continue;
+        }
+        gte_stsxy3_g4(pkt);
+        gte_ldv0(&vtx[prim->v3]);
+        gte_rtps();
+        gte_stflg(&v);
+        if (v & 0x7F85E000) {
+            continue;
+        }
+        gte_stsxy2(&pkt->x3);
+        gte_avsz4();
+        gte_stotz(&v);
+        gte_stdp(&dp);
+        gte_ldrgb3(&prim->c0, &prim->c1, &prim->c2);
+        gte_lddp(dp);
+        gte_dpct();
+        gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
+        gte_ldrgb(&prim->c3);
+        gte_lddp(dp);
+        gte_dpcs();
+        gte_strgb(&pkt->r3);
+        pkt->code = prim->mode;
+        tag = (u32 *)ot->org + (v >> shift);
+        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x08000000;
+        *tag = (u32)pkt & 0xFFFFFF;
+        pkt++;
+    }
+    return (PACKET *)pkt;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_a0bc", func_80021240);
+#endif
 
 #ifdef NON_MATCHING
 PACKET *func_80021434(TmdFT3 *prim, SVECTOR *vtx, POLY_FT3 *pkt, s32 n, s32 shift, GsOT *ot) {

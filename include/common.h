@@ -336,4 +336,9 @@ s32 func_800389B4(s16 mode);
  *  @param rec the record */
 void func_80028888(void *rec);
 
+/** @brief Defined in code_11dc4: selects one of 23 data sets by `id`
+ *         and points three globals at it.
+ *  @param id the set, 0 to 22 (read as a byte) */
+void func_80022554(s32 id);
+
 #endif

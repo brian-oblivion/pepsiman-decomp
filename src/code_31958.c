@@ -6,8 +6,6 @@ INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041178);
 
 INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041198);
 
-void func_80022554(s32 id);
-
 void func_8004121C(u16 sel) {
     s32 id;
 

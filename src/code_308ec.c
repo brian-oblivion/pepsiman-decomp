@@ -162,8 +162,6 @@ typedef struct {
 #define sSaved (*(SavedStart *)D_800D86B8)
 
 extern s32 D_800957A4;
-extern s32 D_8007B038[][3];
-extern s32 D_8007AF84[][3];
 
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */

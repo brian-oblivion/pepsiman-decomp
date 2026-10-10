@@ -11,7 +11,12 @@ s32 func_80041178(u16 stage) {
     return D_8007B10C[stage];
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041198);
+s32 func_80041198(u8 mode, s32 k) {
+    if (D_800958AC != 1) {
+        return D_8007AF84[mode][k] * 30;
+    }
+    return D_8007B038[mode][k] * 30;
+}
 
 void func_8004121C(u16 sel) {
     s32 id;

@@ -100,6 +100,13 @@ function's match report, not here.
   whose first member really is `s8`**, passed as `(CVECTOR *)&c`; the
   `*(s8 *)&c.r` cast lets the store sink. (func_8003EF40)
 
+- **A global reached `lui` in one function of a unit and `$gp` in the rest:
+  read it by literal address there**, `*(u8 *)0x80095AEE`, with a
+  `MATCHING:` note. cc1 splits a constant address itself and maspsx leaves
+  it alone. Probably a source-file seam inside the unit. (func_80041BAC)
+- **`swc2 $17..$19` (or `$16..$19`) off one base: `gte_stsz3c` /
+  `gte_stsz4c`** (include/gte.h). (func_8001B4BC)
+
 ## Types
 
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
@@ -149,6 +156,20 @@ function's match report, not here.
   starts before the symbol splat named.** This needs a symbol (and a linker
   definition if no instruction references it), not a C spelling.
   (func_8003F100, still open)
+
+- **A `u8` field average compiled to `srl`: `(u32)(a + b) >> 1`.** `s32`
+  locals give `sra`. (func_8001B4BC)
+- **A spill-choice residue with identical code otherwise: declare values
+  that need no extension `s16`**; only the allocation changes (permuter
+  find). (func_8001D39C)
+- **A redundant `andi 0xFFFF` on an `lhu`-loaded index: an `s16` local
+  indexed through `(u16)i`.** (func_80042538)
+- **A constant local copied before a `sb` (`li sN, 1; move v1, sN`): the
+  local is `s16` or `u8`, not `s32`.** (func_80041534)
+- **`lb` of a `char *` argument's first byte: `*(s8 *)name`;** `(s8)name[0]`
+  folds to `lbu`. (func_80041534)
+- **A constant narrowed to a halfword add (`li 0xFE0C`) where retail has
+  `addiu -500`: give each offset its own `s32` local.** (func_8003146C)
 
 ## Loops
 
@@ -313,6 +334,18 @@ function's match report, not here.
 - **A body repeating another function of the unit: a `static __inline__`
   helper with both functions as callers.** (func_8002BD00, func_8002C894)
 
+- **A compare tree split one case lower than expected: an empty `case -2:
+  break;` outside the visible range.** gcc 2.8 splits n nodes after node
+  (n+1)/2. Listing `case 0:` or not flips a small tree between `== 0` first
+  and `< 3` first; identical arms retail tests separately are two arms, not
+  `case 1: case 2:`. (func_80026D9C, func_80023F80, func_80023228)
+- **`switch` with the default arm last, not `if/else`**, keeps the default's
+  tail from cross-jumping into a sibling. (func_80027E14)
+- **Menu answers whose case tails cross-jump: switch on an `s16`**; as `s32`
+  the tails stay separate. (func_80031EF4)
+- **`s32` with no return also frees a forward branch's delay slot** for a
+  constant where `void` fills it with `lui`. (func_8002D424)
+
 ## Scheduling
 
 - **A field loaded after earlier global stores: read it through a byte
@@ -407,3 +440,21 @@ function's match report, not here.
 - **A load-delay `nop` missing right after inline asm: name the register in
   the asm the way cc1 does (`$sp`, not `$29`).** maspsx compares register
   names as text. (func_8003A008)
+- **A struct load retail keeps below stores to unrelated globals, every
+  statement order identical: make the first read volatile**, `*(volatile
+  s32 *)&sGame.f`. A field re-loaded at every use after one test was read
+  through `*(volatile u8 *)&p->f`. (func_80026848, func_80023F80)
+- **`lw x; move y, x; sltu y` with x stored afterwards: the source read the
+  member twice**, `G = p->f; if (p->f >= L)`. (func_80041A6C)
+- **A dead `lhu` of a field just before a store to its neighbour: a
+  self-assignment**, `x.f = x.f;`. (func_80041534)
+- **A table index shifted before the table's `lui`: the table address went
+  into a pointer local first.** (func_80042538, func_80030548, func_8002F270)
+- **Two loop-invariant base copies in swapped registers: assign the pointer
+  local as the loop body's first statement.** (func_8002D424)
+- **A counter's `move $sN, $zero` above a global's `lui` in the prologue:
+  `i = 0; G = 0; for (; i < N; i++)`.** (func_80031064)
+- **Interleaved stores `A[0], B[0], A[1], B[1]` were written in that order.**
+  (func_800426A4)
+- **A pointer parameter in the wrong saved register: drop the typed local
+  copy and cast the parameter at each use.** (func_80023F80)

@@ -841,7 +841,97 @@ void func_8002B04C(void) {
     FntPrint(D_80010B34, D_800958E2, D_8009588E);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002B220);
+/** @brief A Rec48 record seen as an Obj34 followed by its indices. */
+typedef struct {
+    Obj34 o;        /**< position, stored copy and angles */
+    s16 unk34;      /**< as Rec48's */
+    s16 unk36;      /**< the Rec78 entry it belongs to */
+    u8 unk38[0x10]; /**< not yet known */
+} Rec48v;
+
+/* MATCHING: per-unit views of code_1dc24's placement record, count and filler. */
+extern Obj34 D_80096788; /**< the record the placement starts from */
+extern u16 D_8009596E;   /**< how many records the placement filled */
+u16 func_80040E04(s16 arg0, s32 arg1, s32 arg2);
+
+/** @brief The trap viewer's step: state 0 sets the fixed view, state 1
+ *         fills the Rec48 table from a turning start record, state 2 steps
+ *         the selected entry with the pad and places every record
+ *         relative to record 0; every state prints the entry number. */
+void func_8002B220(void) {
+    s32 unused[18];
+    s32 flags;
+    s16 old;
+    u16 i;
+    Rec48v *recs;
+    Rec48v *r;
+    Rec78 *tbl;
+
+    switch (D_80095760) {
+        case 0:
+            D_800A7308[0] = 0;
+            D_800A7308[2] = 0;
+            D_800DB2A0[0] = 100;
+            D_800DB2A0[1] = -200;
+            D_800DB2A0[2] = 1000;
+            D_800DB2A0[3] = 0;
+            D_800DB2A0[4] = 0;
+            D_800DB2A0[5] = 0;
+            D_8009574C = 0;
+            D_80095754 = 0;
+            D_8009575C = 0;
+            D_80095760 = 1;
+            break;
+        case 1:
+            D_80096788.unk0 = 0;
+            D_80096788.unk4 = 0;
+            D_80096788.unk8 = 0;
+            D_80096788.unk18 = 0;
+            D_80096788.unk1A = D_8009585C % 360 * 4096 / 360;
+            D_80096788.unk1C = 0;
+            D_8009596E = func_80040E04(D_800958E2, (s32)&D_80096788, (s32)D_800A9008);
+            D_80095760++;
+            break;
+        case 2:
+            flags = D_80095970;
+            old = D_800958E2;
+            if (flags & 2) {
+                D_800958E2++;
+            }
+            if (flags & 1) {
+                D_800958E2--;
+            }
+            D_800958E2 = D_800958E2 < 0                ? 0
+                         : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1
+                                                       : D_800958E2;
+            if (D_800958E2 != old) {
+                D_80095760 = 1;
+            }
+            func_8002980C();
+            ((Rec48v *)D_800A9008)->o.unk1A = D_8009585C % 360 * 4096 / 360;
+            func_8002A7D8(&D_800D8D20[((Rec48v *)D_800A9008)->unk36], (Rec48 *)D_800A9008);
+            for (i = 1; i < D_8009596E; i++) {
+                /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
+                recs = (Rec48v *)D_800A9008;
+                r = (Rec48v *)(i * 72 + (u32)recs);
+                D_800957E4.vx = r->o.unkC;
+                D_800957E4.vy = r->o.unk10;
+                D_800957E4.vz = r->o.unk14;
+                func_80023194((GsCOORDINATE2 *)D_800D8D20[recs->unk36].unk10, &D_800957E4, &D_8009F268);
+                r->o.unk0 = D_8009F268.vx;
+                r->o.unk4 = D_8009F268.vy;
+                r->o.unk8 = D_8009F268.vz;
+                r->o.unk1A = recs->o.unk1A + r->o.unk20;
+                tbl = D_800D8D20;
+                func_8002A7D8((Rec78 *)(r->unk36 * 120 + (u32)tbl), (Rec48 *)r);
+            }
+            func_80023F80(D_8009EB78);
+            func_80029838();
+            func_8002B5FC();
+            break;
+    }
+    FntPrint(D_80010B34, D_800958E2, D_8009588E);
+}
 
 /** @brief Sorts three white lines 400 units long through the origin, one
  *         along each axis, into the current ordering table. */

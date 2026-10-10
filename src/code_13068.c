@@ -4,6 +4,7 @@
 #include "libgs.h"
 #include "code_a0bc.h"
 #include "code_13068.h"
+#include "code_1a098.h"
 #include "rand.h"
 
 /** @brief The game-wide state record, as far as this unit reads it. The
@@ -119,6 +120,12 @@ extern s32 D_800D8698[];
 extern s32 D_800D84B8[];
 extern s32 D_800D8620[];
 extern u8 D_800D3358[];
+extern s16 D_800D3896[];
+extern s16 D_800D3926[];
+extern s16 D_800D396E[];
+extern s16 D_800D39B6[];
+extern s16 D_800D39FE[];
+extern s16 D_800D3A46[];
 
 void func_80023834(u8 mode, u16 a, u16 b);
 void func_80023B20(void);
@@ -423,7 +430,52 @@ INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026D9C);
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_800272D4);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027714);
+/* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
+s32 func_80027714(void) {
+    switch (sGame.unk3D0 & 0xF) {
+        case 1:
+            if ((u32)(sGame.unk6 - 0x33) >= 7) {
+                sGame.unk6 = 0x33;
+                D_800D83C8[0] = (s32)&D_800D86E0[16];
+                D_800D3896[0] = 0;
+            }
+            break;
+        case 4:
+            if ((u32)(sGame.unk6 - 0x33) >= 7) {
+                sGame.unk6 = 0x33;
+                D_800D8620[0] = (s32)&D_800D86E0[16];
+                D_800D39FE[0] = 5;
+            }
+            break;
+        case 2:
+            if ((u32)(sGame.unk6 - 0x33) >= 3) {
+                sGame.unk6 = 0x33;
+                switch (D_80095830) {
+                    case 3:
+                        D_800D8530[0] = (s32)&D_800D86E0[0];
+                        D_800D396E[0] = 3;
+                        break;
+                    case 10:
+                        D_800D8698[0] = (s32)&D_800D86E0[0];
+                        D_800D3A46[0] = 6;
+                        break;
+                }
+            }
+            break;
+        case 3:
+            switch (D_80095830) {
+                case 0:
+                    D_800D85A8[0] = (s32)&D_800D86E0[1];
+                    D_800D39B6[0] = 4;
+                    break;
+                case 12:
+                    D_800D84B8[0] = (s32)&D_800D86E0[1];
+                    D_800D3926[0] = 2;
+                    break;
+            }
+            break;
+    }
+}
 
 static __inline__ s16 findFreeSlot(SlotRec *slot) {
     u32 i;

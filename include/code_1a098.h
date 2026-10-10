@@ -8,6 +8,9 @@
  */
 
 #include "common.h"
+#include "libgte.h"
+#include "libgpu.h"
+#include "libgs.h"
 
 /** @brief A 0x5C-byte record of a 200-entry table; only byte 0 is known. */
 typedef struct {
@@ -45,6 +48,8 @@ typedef struct {
     u16 unk4; /**< summed over the entries */
     s16 unk6; /**< an index into the 128 byte flags */
 } Ent8;
+
+extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems; code_13068 points records at [0], [1] and [16] */
 
 /** @brief Points the current-block globals at the block `hdr` heads.
  *  @param hdr the header */

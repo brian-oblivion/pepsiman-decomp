@@ -346,4 +346,8 @@ void func_80022554(s32 id);
 /** @brief Defined in code_31958. */
 void func_800413BC(void);
 
+/** @brief Defined in main.
+ *  @param arg not yet known */
+void func_800142EC(s32 arg);
+
 #endif

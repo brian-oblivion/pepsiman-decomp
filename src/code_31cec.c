@@ -55,7 +55,6 @@ void func_800414EC(s16 arg0) {
     }
 }
 
-void func_800142EC(s32 arg);
 void func_80041964(void);
 void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1);
 void func_80041D18(CdlLOC *loc, void (*callback)());

@@ -461,7 +461,9 @@ s32 func_8003E550(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003E6F8);
 
-void func_800198BC(u16 id, s16 *quad, CVECTOR *color, s32 mode, GsOT *ot);
+/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
+ * unit passes the same eight halfwords as an array. */
+void func_800198BC(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 
 s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];

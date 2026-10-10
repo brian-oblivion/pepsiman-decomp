@@ -2,7 +2,7 @@
 
 Unit `src/code_1a098.c`. Debug axes: projects (0, ±200, 0), (±200, 0, 0)
 and (0, 0, ±200) through func_800230E0 and sorts a white `GsLINE` between
-each pair into `D_800ACEA8[D_80095750]`, at priority 50, 50 and `world.vz
+each pair into `gSubOt[gActiveBuff]`, at priority 50, 50 and `world.vz
 >> 2` (the third reads `vz` back from the stack after the call).
 
 ```c
@@ -29,7 +29,7 @@ void func_8002B5FC(void) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = -200;
     world.vy = 0;
     world.vz = 0;
@@ -42,7 +42,7 @@ void func_8002B5FC(void) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = 0;
     world.vy = 0;
     world.vz = -200;
@@ -55,8 +55,8 @@ void func_8002B5FC(void) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], world.vz >> 2);
+    GsSortLine(&line, &gSubOt[gActiveBuff], world.vz >> 2);
 }```
 
 First build; the shape is code_1dc24's line drawers (func_80033388 and
-its neighbour). The unit now includes `code_a0bc.h` for `D_800ACEA8`.
+its neighbour). The unit now includes `code_a0bc.h` for `gSubOt`.

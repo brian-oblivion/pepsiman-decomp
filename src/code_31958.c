@@ -43,10 +43,10 @@ s32 func_80041198(u8 mode, s32 k) {
     return D_8007B038[mode][k] * 30;
 }
 
-void func_8004121C(u16 sel) {
+void LoadStageOverlay(u16 stage) {
     s32 id;
 
-    switch (sel) {
+    switch (stage) {
         case 0:
             id = 3;
             break;
@@ -95,11 +95,11 @@ void func_8004121C(u16 sel) {
         default:
             return;
     }
-    func_80022554(id);
+    LoadOverlay(id);
 }
 
 void func_800412DC(void) {
-    switch (D_80095830) {
+    switch (gStage) {
         case 0:
             func_800FAB9C();
             break;
@@ -136,7 +136,7 @@ void func_800412DC(void) {
 }
 
 void func_800413BC(void) {
-    switch (D_80095830) {
+    switch (gStage) {
         case 0:
             func_800FAA30();
             break;

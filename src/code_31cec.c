@@ -47,7 +47,7 @@ void func_800FA610(s16 index);
 void StartMovieRead(CdlLOC *loc);
 
 void func_800414EC(s16 index) {
-    s32 mode = D_80095830;
+    s32 mode = gStage;
 
     if (mode != 1) {
         if (mode < 2) {
@@ -127,8 +127,8 @@ s32 PlayMovieFile(char *name, s16 skippable) {
             DrawSync(0);
             break;
         }
-        func_800142EC(0);
-        if ((D_80095970 & 0x800) && skippable == one) {
+        ReadPad(0);
+        if ((gPadTrig & 0x800) && skippable == one) {
             atv.val3 = 0;
             atv.val2 = 0;
             atv.val1 = 0;
@@ -476,32 +476,32 @@ s32 func_800426A4(void) {
 
     switch (D_800958A6) {
         case 0:
-            D_80096748[0] = (s32)&D_8007B69C[0];
-            D_8009F090[0] = 0x80101000;
-            D_80096748[1] = (s32)&D_8007B69C[2];
-            D_8009F090[1] = 0x8016D000;
-            D_80095960 = 2;
-            D_8009596C = 1;
-            D_8009F248[0] = D_8007B6CC[4];
-            D_8009F248[1] = D_8007B6CC[6];
+            gCdLoadLoc[0] = (s32)&D_8007B69C[0];
+            gCdLoadDest[0] = 0x80101000;
+            gCdLoadLoc[1] = (s32)&D_8007B69C[2];
+            gCdLoadDest[1] = 0x8016D000;
+            gCdLoadCount = 2;
+            gCdLoadState = 1;
+            gCdLoadSectors[0] = D_8007B6CC[4];
+            gCdLoadSectors[1] = D_8007B6CC[6];
             D_800958A6++;
             break;
         case 1:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_80041F28(0);
                 D_800958A6++;
             }
             break;
         case 2:
-            D_80096748[0] = (s32)&D_8007B69C[3];
-            D_8009F090[0] = 0x8016D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
-            D_8009F248[0] = D_8007B6CC[7];
+            gCdLoadLoc[0] = (s32)&D_8007B69C[3];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
+            gCdLoadSectors[0] = D_8007B6CC[7];
             D_800958A6++;
             break;
         case 3:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_80041F28(1);
                 func_80042058();
                 D_80095AFC = 1;
@@ -590,15 +590,15 @@ s32 func_80042A88(u16 bank) {
     }
     switch (D_80095B0E) {
         case 0:
-            D_80096748[0] = (s32)&D_8007B6A4[bank];
-            D_8009F248[0] = D_8007B6CC[bank + 6];
-            D_8009F090[0] = 0x8016D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadLoc[0] = (s32)&D_8007B6A4[bank];
+            gCdLoadSectors[0] = D_8007B6CC[bank + 6];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_80095B0E++;
             break;
         case 1:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 SsVabClose(D_80095B16);
                 D_80095AFC = bank;
                 func_80041F28(1);

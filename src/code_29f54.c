@@ -72,17 +72,17 @@ void func_80039754(s32 clip) {
         env.clip.w = 319;
         env.clip.h = 175;
         SetDrawStp(&D_800DFA90, 1);
-        addPrim(D_800A7318[D_80095750].org + 0xFFF, &D_800DFA90);
+        addPrim(gOt[gActiveBuff].org + 0xFFF, &D_800DFA90);
         SetDrawEnv(&D_800DFA10, &env);
-        addPrim(D_800A7318[D_80095750].org + 0xFFF, &D_800DFA10);
+        addPrim(gOt[gActiveBuff].org + 0xFFF, &D_800DFA10);
         env.clip.x = 0;
         env.clip.y = D_800E474C * 240;
         env.clip.w = 319;
         env.clip.h = 239;
         SetDrawStp(&D_800DFAA0, 1);
-        addPrim(D_800ACEA8[D_80095750].org, &D_800DFAA0);
+        addPrim(gSubOt[gActiveBuff].org, &D_800DFAA0);
         SetDrawEnv(&D_800DFA50, &env);
-        addPrim(D_800ACEA8[D_80095750].org, &D_800DFA50);
+        addPrim(gSubOt[gActiveBuff].org, &D_800DFA50);
     }
 }
 
@@ -264,13 +264,13 @@ void func_8003A008(s16 x, s16 y, s16 z) {
     for (i = 0; i < D_80095934[D_8009578C].count; i++) {
         k = D_8009593C[D_80095934[D_8009578C].start + i];
         if ((u32)k < D_80095794) {
-            GsSortObject4J(&D_800AC868[k], D_80095884, 2, (u_long *)0x1F800000);
+            GsSortObject4J(&D_800AC868[k], gCurOt, 2, (u_long *)0x1F800000);
         }
     }
     for (i = 0; i < D_80095938[D_8009578C].count; i++) {
         k = D_80095940[D_80095938[D_8009578C].start + i];
         if ((u32)k < D_80095798 && k != -1) {
-            GsSortObject4J(&D_800ACB88[k], D_80095884, 2, (u_long *)0x1F800000);
+            GsSortObject4J(&D_800ACB88[k], gCurOt, 2, (u_long *)0x1F800000);
         }
     }
     ResetSpadStack();
@@ -311,8 +311,8 @@ void func_8003A20C(s32 pos, s32 unused, s32 z, s32 range) {
         func_80018AE0(&rot, &D_800A72B8);
         GsGetLs(&D_800A72B8, &ls);
         GsSetLsMatrix(&ls);
-        GsSortObject4J(&D_800AC868[k], D_80095884, 2, (u_long *)0x1F800000);
-        GsSortObject4J(&D_800ACB88[k], D_80095884, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&D_800AC868[k], gCurOt, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&D_800ACB88[k], gCurOt, 2, (u_long *)0x1F800000);
     }
 }
 
@@ -346,7 +346,7 @@ void func_8003A3F4(s32 *index, s16 x, s16 y) {
  */
 static __inline__ void putDigit(SVECTOR *pos, u16 id) {
     pos->vx -= 6;
-    func_8001B354(id, pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(id, pos, NULL, 0, &gSubOt[gActiveBuff]);
 }
 
 void func_8003A4B4(SVECTOR *pos, s32 frames) {
@@ -477,7 +477,7 @@ void func_8003AFAC(void) {
     if (n == 0) {
         pos.vx = -120;
         pos.vy = -96;
-        func_8001B354(0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     }
     k = 1;
     pos.vx = (digits - 1) * 12 - 120;
@@ -485,7 +485,7 @@ void func_8003AFAC(void) {
     for (; k < 101; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -494,7 +494,7 @@ void func_8003AFAC(void) {
     quad[4] = quad[5] = 0x800;
     quad[6] = 0;
     quad[7] = 0;
-    func_800198BC(0xFA, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_800198BC(0xFA, quad, NULL, 0, &gSubOt[gActiveBuff]);
     quad[0] = quad[2] = -0x40;
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
@@ -503,19 +503,19 @@ void func_8003AFAC(void) {
     switch (D_800958A8) {
         case 1:
             quad[4] = quad[5] = 0x800;
-            if ((D_8009585C >> 1) & 1) {
-                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            if ((gFrameCount >> 1) & 1) {
+                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
     if (D_80095988 == 0x14A) {
@@ -531,7 +531,7 @@ void func_8003AFAC(void) {
     } else {
         color.g = color.b = color.cd = 0x80;
     }
-    if (n >= 5 || ((D_8009585C >> 1) & 1)) {
+    if (n >= 5 || ((gFrameCount >> 1) & 1)) {
         /* MATCHING: a digit count whose result is never used; the
          * divisions stay. */
         for (k = 1; k < 101; k *= 10) {
@@ -542,7 +542,7 @@ void func_8003AFAC(void) {
         if (n == 0) {
             pos.vx = 4;
             pos.vy = -0x68;
-            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         k = 1;
         pos.vx = 4;
@@ -550,7 +550,7 @@ void func_8003AFAC(void) {
         for (; k < 101; k *= 10) {
             q = n / k;
             if (q != 0) {
-                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
                 pos.vx -= 18;
             }
         }
@@ -559,14 +559,14 @@ void func_8003AFAC(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = (D_8009578C * 11 << 15) / ((s32 *)D_800958A0)[-1] / 4096 + 0x34;
     pos.vy = -0x69;
-    func_8001B354(((D_8009585C >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(((gFrameCount >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     k = 1;
     pos.vx = 0x34;
     pos.vy = -0x64;
-    func_8001B354(0x12E, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x12E, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x34;
     pos.vy = -0x54;
-    func_8001B354(0x122, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x122, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x90;
     pos.vy = -0x54;
     func_8003A4B4(&pos, D_80095980);
@@ -576,7 +576,7 @@ void func_8003AFAC(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -584,7 +584,7 @@ void func_8003AFAC(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
-    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
 }
 
 /**
@@ -805,7 +805,7 @@ void func_8003BDF4(void) {
             p->r0 = D_800AC848[i];
             p->g0 = D_800A7888[i];
             p->b0 = D_800A76E8[i];
-            addPrim(D_80095884->org, p);
+            addPrim(gCurOt->org, p);
             p++;
             D_800E48D0 = (u8 *)p;
         }
@@ -818,7 +818,7 @@ void func_8003BDF4(void) {
     p->y2 = p->y3 = 9;
     setRGB0(p, 0xFF, 0xFF, 0xFF);
     D_80095968 = 0;
-    addPrim(D_80095884->org, p);
+    addPrim(gCurOt->org, p);
     p++;
     D_800E48D0 = (u8 *)p;
 }
@@ -839,10 +839,10 @@ void func_8003C014(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
 void func_8003C17C(u8 level) {
@@ -862,10 +862,10 @@ void func_8003C17C(u8 level) {
     color.g = color.b = color.cd = level;
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
+    func_8001B354(0x1FE, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
+    func_8001B354(0x1FF, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
 }
 
 void func_8003C2E8(void) {
@@ -891,7 +891,7 @@ void func_8003C2E8(void) {
         p->u1 = p->u3 = p->u0 + 0x7F;
         p->v2 = p->v3 = p->v0 + 0x5F;
         p->tpage = getTPage(0, 0, n / 4 * 64 + 704, 256);
-        addPrim(D_800ACEA8[D_80095750].org, p);
+        addPrim(gSubOt[gActiveBuff].org, p);
         D_80095A78++;
         p++;
         D_800E48D0 = (u8 *)p;
@@ -912,34 +912,34 @@ void func_8003C494(SVECTOR *pos, s32 n) {
     shadow.g = shadow.b = shadow.cd = 0x80;
     color.g = color.b = color.cd = 0x80;
     pos->vx -= 16;
-    func_8001B354(0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
-    func_8001B354(0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    func_8001B354(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
-    func_8001B354(0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    func_8001B354(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x138, pos, &color, 0, &D_800ACEA8[D_80095750]);
-    func_8001B354(0x144, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x138, pos, &color, 0, &gSubOt[gActiveBuff]);
+    func_8001B354(0x144, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x142, pos, &color, 0, &D_800ACEA8[D_80095750]);
-    func_8001B354(0x14E, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x142, pos, &color, 0, &gSubOt[gActiveBuff]);
+    func_8001B354(0x14E, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
     t = n / 10;
     x = (u32)n / 100;
     d = n % 10;
-    func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
-    func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+    func_8001B354(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     if (t != 0) {
         pos->vx -= 12;
         d = t % 10;
-        func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
-        func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+        func_8001B354(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     }
     if (n / 100 != 0) {
         pos->vx -= 12;
         d = n / 100 % 10;
-        func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
-        func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
+        func_8001B354(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -963,11 +963,11 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 16;
-    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     sec = frames / 30;
     m = sec / 60;
     n = sec % 60;
@@ -975,17 +975,17 @@ void func_8003C8D0(SVECTOR *pos, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 12;
-    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     n = m;
     pos->vx -= 12;
-    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     for (; k < 11; k *= 10) {
         t = n / k;
         if (t != 0 || (k == 1 && n == 0)) {
             pos->vx -= 12;
-            func_8001B354(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
     }
 }
@@ -1016,7 +1016,7 @@ void func_8003CC94(void) {
     if (D_80095A80 == 0) {
         return;
     }
-    place = D_80095830;
+    place = gStage;
     if (place >= 0) {
         if (place < 6) {
             rank = place;
@@ -1207,7 +1207,7 @@ void func_8003CC94(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -1215,21 +1215,21 @@ void func_8003CC94(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = -0x58;
-    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = 0x80;
     color.cd = 0;
     pos.vy = -16;
     pos.vx = D_80095AA0[6] * 32 - 0x34;
-    func_8001B354(0x15B, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x15B, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -16;
     pos.vx = D_80095AA0[7] * 32 - 0x40;
-    func_8001B354(0x15C, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x15C, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
     pos.vx = -0x28;
     pos.vy = D_80095AA0[0] * 4 - 0x48;
-    func_8001B354(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     if (D_80095AA0[1] != -25) {
         quad[1] = -0x20;
         quad[3] = -0x40;
@@ -1238,26 +1238,26 @@ void func_8003CC94(void) {
         quad[2] = 0;
         quad[6] = 0;
         quad[7] = 1;
-        func_800198BC(0x151, quad, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+        func_800198BC(0x151, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     pos.vy = 0;
     pos.vx = D_80095AA0[2] * 32 - 0x80;
-    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[2] * 32 + 0x80;
     func_8003C494(&pos, D_80095A7C);
     pos.vy = 0x18;
     pos.vx = D_80095AA0[3] * 32 - 0x80;
-    func_8001B354(0x158, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x158, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[3] * 32 + 0x80;
     func_8003C494(&pos, D_80096A58[rank / 3][rank % 3]);
     pos.vy = 0x38;
     pos.vx = D_80095AA0[4] * 32 - 0x80;
-    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[4] * 32 + 0x80;
     func_8003C8D0(&pos, D_80095980);
     pos.vy = 0x50;
     pos.vx = D_80095AA0[5] * 32 - 0x80;
-    func_8001B354(0x15A, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x15A, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[5] * 32 + 0x80;
     func_8003C8D0(&pos, D_800D8340[rank / 3][rank % 3]);
 }
@@ -1275,7 +1275,7 @@ void func_8003D960(void) {
     if (D_80095A80 == 0) {
         return;
     }
-    k = D_80095830;
+    k = gStage;
     if (k >= 0) {
         if (k < 6) {
             rank = k;
@@ -1332,33 +1332,33 @@ void func_8003D960(void) {
     }
     pos.vx = -80;
     pos.vy = D_80095AA0[0] * 4 - 88;
-    func_8001B354(0x152, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x152, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 48;
-    func_8001B354(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -48;
     pos.vx = D_80095AA0[1] * 32 - 40;
-    func_8001B354(0x14F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -24;
     pos.vx = D_80095AA0[2] * 32 - 128;
-    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[2] * 32 + 128;
     func_8003C494(&pos, D_800958F0[0]);
     pos.vy = 0;
     pos.vx = D_80095AA0[3] * 32 - 128;
-    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[3] * 32 + 128;
     func_8003C8D0(&pos, D_80095838[0]);
     pos.vy = 24;
     pos.vx = D_80095AA0[4] * 32 - 40;
-    func_8001B354(0x150, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x150, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = 48;
     pos.vx = D_80095AA0[5] * 32 - 128;
-    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[5] * 32 + 128;
     func_8003C494(&pos, D_800958F4);
     pos.vy = 72;
     pos.vx = D_80095AA0[6] * 32 - 128;
-    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = D_80095AA0[6] * 32 + 128;
     func_8003C8D0(&pos, D_8009583C);
 }
@@ -1379,8 +1379,8 @@ void func_8003DE34(void) {
     /* MATCHING: the row index in a local, indexed per use; a row pointer
      * moves the address add above the first andi. */
     tbl = D_80011EB0;
-    a = D_80095970;
-    b = D_80095964;
+    a = gPadTrig;
+    b = gPad;
     k = D_80095908;
     D_800957EC = a;
     D_800957B4 = b;
@@ -1647,7 +1647,7 @@ s32 func_8003EA04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         q[7] = 1;
         color.r = 0;
         color.g = color.b = color.cd = ~(p->frame << 4);
-        func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
+        func_800198BC(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->frame == 8) {
             D_800958E8++;
             func_80028448();
@@ -1684,7 +1684,7 @@ s32 func_8003EC04(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
             q[7] = 1;
             color.r = 0;
             color.g = color.b = color.cd = ~(p->frame << 4);
-            func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
+            func_800198BC(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         }
         if (++p->frame == 8) {
             D_800958E8 += 5;
@@ -1707,21 +1707,21 @@ s32 func_8003EF40(Effect *p) {
             pos.vy = -12;
             color.r = -1;
             color.g = color.b = color.cd = 0x80;
-            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else if (p->frame < 32) {
             pos.vx = -72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = (8 - (p->frame - 16) % 8) * 16;
-            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else {
             pos.vx = (p->frame - 32) * 15 - 72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = 0;
-            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         return ++p->frame == 48;
     }
@@ -1809,9 +1809,9 @@ void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
         d = x + slot->x;
         next = slot->next;
         if (d * (d * 2) > 0x77A0F) {
-            done = gEffectSteps[slot->kind](slot, &D_800A7318[D_80095750], x, y, z);
+            done = gEffectSteps[slot->kind](slot, &gOt[gActiveBuff], x, y, z);
         } else {
-            done = gEffectSteps[slot->kind](slot, &D_800ACEA8[D_80095750], x, y, z);
+            done = gEffectSteps[slot->kind](slot, &gSubOt[gActiveBuff], x, y, z);
         }
         if (done) {
             if (prev == 0xFF) {

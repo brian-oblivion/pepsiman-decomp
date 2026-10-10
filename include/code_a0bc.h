@@ -12,9 +12,9 @@
 #include "libgpu.h"
 #include "libgs.h"
 
-extern GsOT D_800ACEA8[]; /**< the ordering tables the sprite drawer is handed */
-extern GsOT D_800A7318[]; /**< a second pair of ordering tables, cleared to depth 300 */
-extern GsOT *D_80095884;  /**< this frame's entry of the second pair (set in main) */
+extern GsOT gSubOt[];     /**< the ordering tables the sprite drawer is handed */
+extern GsOT gOt[];        /**< a second pair of ordering tables, cleared to depth 300 */
+extern GsOT *gCurOt;      /**< this frame's entry of the second pair (set in main) */
 extern MATRIX D_800E4858; /**< the rotation matrix the billboard sprites are drawn with */
 
 /** @brief Draws a sprite as a billboard centred on the current

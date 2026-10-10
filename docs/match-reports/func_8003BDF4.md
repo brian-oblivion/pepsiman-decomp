@@ -27,7 +27,7 @@ void func_8003BDF4(void) {
             p->r0 = D_800AC848[i];
             p->g0 = D_800A7888[i];
             p->b0 = D_800A76E8[i];
-            addPrim(D_80095884->org, p);
+            addPrim(gCurOt->org, p);
             p++;
             D_800E48D0 = (u8 *)p;
         }
@@ -40,7 +40,7 @@ void func_8003BDF4(void) {
     p->y2 = p->y3 = 9;
     setRGB0(p, 0xFF, 0xFF, 0xFF);
     D_80095968 = 0;
-    addPrim(D_80095884->org, p);
+    addPrim(gCurOt->org, p);
     p++;
     D_800E48D0 = (u8 *)p;
 }

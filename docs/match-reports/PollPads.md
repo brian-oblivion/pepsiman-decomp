@@ -1,15 +1,17 @@
-# func_80014FA8 — MATCHED (round 14, alpha)
+# PollPads — MATCHED (round 14, alpha)
+
+> Renamed from `func_80014FA8` on 2026-10-10 (tools/rename.py). Address 0x80014fa8.
 
 Previously: STALL, length exact, 101/118 raw, first real diff at 0x800157E4 (round 8, echo; round 13, echo). The matched source is live in `src/main.c`; the sections below are the history.
 
 ## Earlier title
 
-func_80014FA8 — STALL: length exact, 101/118 raw, first real diff at 0x800157E4 (port 0's two pad-byte loads in swapped $v0/$v1; then the D_80095854 load sinks below port 0's stores) (round 8, echo; round 13, echo)
+PollPads — STALL: length exact, 101/118 raw, first real diff at 0x800157E4 (port 0's two pad-byte loads in swapped $v0/$v1; then the D_80095854 load sinks below port 0's stores) (round 8, echo; round 13, echo)
 
-Unit `src/main.c`. Per-frame pad read: polls the pads (`func_80015180`),
-stores port 0's id byte in `D_80095784`, builds each port's buttons
-(active high) into `D_80095850[i]`/`D_80095848[i]` and the newly pressed
-ones into `D_80095870[i]`, and for an analog pad (id 0x73) turns the
+Unit `src/main.c`. Per-frame pad read: polls the pads (`UpdatePadActuators`),
+stores port 0's id byte in `gPadType`, builds each port's buttons
+(active high) into `gPadPrev[i]`/`gPadHeld[i]` and the newly pressed
+ones into `gPadPressed[i]`, and for an analog pad (id 0x73) turns the
 stick's extremes into direction bits (`D_80095928`/`D_80095920`, pressed
 edges in `D_80095958`/`D_80095950`) and keeps the raw axes in
 `D_800957C0`/`D_800957C8`.
@@ -21,13 +23,13 @@ address after the missing word drifts by 4):
 ```c
 #if 0
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
-extern s32 D_80095850[2];
-extern s32 D_80095870[2];
-extern s32 D_80095848[2];
+extern s32 gPadPrev[2];
+extern s32 gPadPressed[2];
+extern s32 gPadHeld[2];
 
 extern u8 D_80072F44[];
-extern u8 D_80095784;
-extern u8 D_80095BA0[];
+extern u8 gPadType;
+extern u8 gPadBuf[];
 extern s32 D_80095928;
 extern s32 D_80095920;
 extern s32 D_80095958;
@@ -39,51 +41,51 @@ extern s32 D_80095854;
 extern s32 D_8009584C;
 extern s32 D_80095874;
 
-u32 func_80015180(void);
+u32 UpdatePadActuators(void);
 
-void func_80014FA8(void) {
+void PollPads(void) {
     u8 id;
     s32 btn;
     s32 m0;
     s32 m1;
     s32 m;
 
-    func_80015180();
-    id = D_80095BA0[1];
-    D_80095784 = id;
-    btn = ((D_80095BA0[D_80072F44[0] + 2] << 8) | D_80095BA0[D_80072F44[0] + 3]) ^ 0xFFFF;
+    UpdatePadActuators();
+    id = gPadBuf[1];
+    gPadType = id;
+    btn = ((gPadBuf[D_80072F44[0] + 2] << 8) | gPadBuf[D_80072F44[0] + 3]) ^ 0xFFFF;
     if (id == 0) {
         btn = 0;
     }
-    m0 = D_80095850[0] ^ 0xFFFF;
+    m0 = gPadPrev[0] ^ 0xFFFF;
     m1 = D_80095854 ^ 0xFFFF;
-    D_80095848[0] = D_80095850[0] = (u16)btn;
-    D_80095870[0] = (u16)btn & m0;
-    btn = ((D_80095BA0[D_80072F44[1] + 0x24] << 8) | D_80095BA0[D_80072F44[1] + 0x25]) ^ 0xFFFF;
+    gPadHeld[0] = gPadPrev[0] = (u16)btn;
+    gPadPressed[0] = (u16)btn & m0;
+    btn = ((gPadBuf[D_80072F44[1] + 0x24] << 8) | gPadBuf[D_80072F44[1] + 0x25]) ^ 0xFFFF;
     D_8009584C = D_80095854 = (u16)btn;
     btn = (u16)btn & m1;
     D_80095874 = btn;
     if (id == 0x73) {
         m = D_80095928 ^ 0xFFFF;
-        if (D_80095BA0[7] < 10) {
+        if (gPadBuf[7] < 10) {
             D_80095928 = 0x1000;
-        } else if (D_80095BA0[7] >= 0xF6) {
+        } else if (gPadBuf[7] >= 0xF6) {
             D_80095928 = 0x4000;
         } else {
             D_80095928 = 0;
         }
         D_80095958 = D_80095928 & m;
         m = D_80095920 ^ 0xFFFF;
-        if (D_80095BA0[6] < 10) {
+        if (gPadBuf[6] < 10) {
             D_80095920 = 0x8000;
-        } else if (D_80095BA0[6] >= 0xF6) {
+        } else if (gPadBuf[6] >= 0xF6) {
             D_80095920 = 0x2000;
         } else {
             D_80095920 = 0;
         }
         D_80095950 = D_80095920 & m;
-        D_800957C0 = D_80095BA0[6];
-        D_800957C8 = D_80095BA0[7];
+        D_800957C0 = gPadBuf[6];
+        D_800957C8 = gPadBuf[7];
     }
 }
 #endif
@@ -95,7 +97,7 @@ Everything from the analog block on matches, and so does port 0's half.
 Port 1's buttons: retail computes `or; xori 0xFFFF; andi v0, v1, 0xFFFF`
 and ands the `andi` result with the old-state mask. The build drops the
 `andi` (cc1 knows the `or` of two shifted bytes fits 16 bits), which also
-moves the `D_80095870[0]` store up two slots. 117 vs 118 words.
+moves the `gPadPressed[0]` store up two slots. 117 vs 118 words.
 
 ## What was tried (about 30 builds and one permuter run)
 
@@ -126,9 +128,9 @@ Retail vs this body, around the residue:
 
 ```
 5828:  and   v1,v1,a2            (port 0 pressed)
-582c:  lbu   v0,1(t0)            ; build stores D_80095870[0] here
+582c:  lbu   v0,1(t0)            ; build stores gPadPressed[0] here
 5830:  xori  a2,a0,0xffff
-5834:  sw    v1,D_80095870[0]
+5834:  sw    v1,gPadPressed[0]
 ...
 5850:  or    v1,v1,v0
 5854:  xori  v1,v1,0xffff
@@ -149,18 +151,18 @@ word short (as recorded). This round: 117 -> 118 words, 14 -> 101/118.
 
 ### Best body (101/118, `insertions 5 / deletions 5`, length exact)
 
-Declarations `D_80095850[2]`, `D_80095870[2]`, `D_80095848[2]` (main.c,
-above func_80014FA8's prototype) and `D_80095784`, `D_80095958`,
+Declarations `gPadPrev[2]`, `gPadPressed[2]`, `gPadHeld[2]` (main.c,
+above PollPads's prototype) and `gPadType`, `D_80095958`,
 `D_800957C0`, `D_800957C8` (common.h) already exist. Splicing it in also
-means deleting main.c's later `extern u8 D_80095BA0[];` (above
-func_8001534C) and giving `D_80095950` a `MATCHING:` note in one of its
+means deleting main.c's later `extern u8 gPadBuf[];` (above
+InitPads) and giving `D_80095950` a `MATCHING:` note in one of its
 two units for declcheck (code_1dc24 declares it too). Splice-tested in
 this session (101/118).
 
 ```c
 #if 0
 extern u8 D_80072F44[];
-extern u8 D_80095BA0[];
+extern u8 gPadBuf[];
 extern s32 D_80095928;
 extern s32 D_80095920;
 extern s32 D_80095950;
@@ -169,51 +171,51 @@ extern s32 D_80095854;
 extern s32 D_8009584C;
 extern s32 D_80095874;
 
-u32 func_80015180(void);
+u32 UpdatePadActuators(void);
 
-void func_80014FA8(void) {
+void PollPads(void) {
     u8 id;
     s32 btn;
     s32 m;
 
-    func_80015180();
-    id = D_80095BA0[1];
-    D_80095784 = id;
-    btn = (D_80095BA0[D_80072F44[0] + 3] | (D_80095BA0[D_80072F44[0] + 2] << 8)) ^ 0xFFFF;
+    UpdatePadActuators();
+    id = gPadBuf[1];
+    gPadType = id;
+    btn = (gPadBuf[D_80072F44[0] + 3] | (gPadBuf[D_80072F44[0] + 2] << 8)) ^ 0xFFFF;
     if (id == 0) {
         btn = 0;
     }
-    m = D_80095850[0] ^ 0xFFFF;
+    m = gPadPrev[0] ^ 0xFFFF;
     btn = (u16)btn;
-    D_80095848[0] = D_80095850[0] = btn;
-    D_80095870[0] = btn & m;
+    gPadHeld[0] = gPadPrev[0] = btn;
+    gPadPressed[0] = btn & m;
     m = D_80095854 ^ 0xFFFF;
-    btn = (D_80095BA0[D_80072F44[1] + 0x25] | (D_80095BA0[D_80072F44[1] + 0x24] << 8)) ^ 0xFFFF;
+    btn = (gPadBuf[D_80072F44[1] + 0x25] | (gPadBuf[D_80072F44[1] + 0x24] << 8)) ^ 0xFFFF;
     __asm__ __volatile__("" : : );
     D_8009584C = D_80095854 = (u16)btn;
     btn = (u16)btn & m;
     D_80095874 = btn;
     if (id == 0x73) {
         m = D_80095928 ^ 0xFFFF;
-        if (D_80095BA0[7] < 10) {
+        if (gPadBuf[7] < 10) {
             D_80095928 = 0x1000;
-        } else if (D_80095BA0[7] >= 0xF6) {
+        } else if (gPadBuf[7] >= 0xF6) {
             D_80095928 = 0x4000;
         } else {
             D_80095928 = 0;
         }
         D_80095958 = D_80095928 & m;
         m = D_80095920 ^ 0xFFFF;
-        if (D_80095BA0[6] < 10) {
+        if (gPadBuf[6] < 10) {
             D_80095920 = 0x8000;
-        } else if (D_80095BA0[6] >= 0xF6) {
+        } else if (gPadBuf[6] >= 0xF6) {
             D_80095920 = 0x2000;
         } else {
             D_80095920 = 0;
         }
         D_80095950 = D_80095920 & m;
-        D_800957C0 = D_80095BA0[6];
-        D_800957C8 = D_80095BA0[7];
+        D_800957C0 = gPadBuf[6];
+        D_800957C8 = gPadBuf[7];
     }
 }
 #endif
@@ -246,7 +248,7 @@ allows it** (posted on the broadcast). It is also a sched barrier.
 - bare `__asm__("")` before the cast: no change (14, andi still dropped).
 - an address-taken label between xor and cast (`(void)&&l; l:`): the label
   is deleted before flow, no change.
-- `D_80095870[0] = btn = btn & m;` / `btn &= m;`: 79 and 81 (btn gains refs
+- `gPadPressed[0] = btn = btn & m;` / `btn &= m;`: 79 and 81 (btn gains refs
   and moves to `$a2`).
 - `m0`/`m1` both before the stores (round 8's shape) with the asm: 86.
 - `+` or `* 256` in place of the `|`/`<<`: 91-95.
@@ -270,7 +272,7 @@ Permuter: one run on the 96 body (Gate 3: scaffold builds, base 835;
 scaffold 3/4 vs in-tree 4/4, objdump of both objects identical apart from
 branch relocations, so AGREE). `timeout 900`, rc 124, 127953 iterations,
 best 170 (the 96 body's residue with the `D_80095854` load moved, through
-a dead store to `D_80095870`); nothing better than the hand-found 101.
+a dead store to `gPadPressed`); nothing better than the hand-found 101.
 About 30 builds this round.
 
 ### Proposed learning
@@ -278,10 +280,10 @@ About 30 builds this round.
 - **A redundant `andi` that combine removes (nonzero_bits) survives a
   volatile empty extended asm between the producer and the mask, not a
   bare `__asm__("")`** (ASM_INPUT is not a volatile insn to combine).
-  Pending the head's ruling on hard rule 7. (func_80014FA8)
+  Pending the head's ruling on hard rule 7. (PollPads)
 - **A load retail keeps far above its single use: load into a local that
   is set more than once**; sched1 boosts a load that births a single-set
-  pseudo and sinks it to the use. (func_80014FA8, func_80023D68)
+  pseudo and sinks it to the use. (PollPads, func_80023D68)
 
 ## Round 14 (alpha)
 
@@ -340,12 +342,12 @@ Why each works:
   build the value up in one local over several statements** (`v = hi <<
   8; v |= lo; v ^= 0xFFFF;`). Written as one expression, combine sees the
   xor's operand is 16 bits and drops the mask. The same split also decides
-  which byte load gets which address register. (func_80014FA8)
+  which byte load gets which address register. (PollPads)
 - **A mask that combine deletes can be kept with no code: a test that cse
   cannot fold but combine can** (`if (v >> 16) v = 0;` on a value known to
   be 16 bits). The label splits the block before combine, and jump2 deletes
-  the dead arm. (func_80014FA8, round 14; not needed in the final source)
+  the dead arm. (PollPads, round 14; not needed in the final source)
 - **A narrowed value reused in a block: put it in a new local** (`b =
   (u16)btn;`, not `btn = (u16)btn;`). The block-local pseudo goes through
   local-alloc first and takes `$v1`, which moves a neighbouring load to
-  another register. (func_80014FA8)
+  another register. (PollPads)

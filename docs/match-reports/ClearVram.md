@@ -1,9 +1,11 @@
-# func_80014D20 — MATCHED (19/19), round 1, runner charlie
+# ClearVram — MATCHED (19/19), round 1, runner charlie
+
+> Renamed from `func_80014D20` on 2026-10-10 (tools/rename.py). Address 0x80014d20.
 
 Clears the whole 1024x512 VRAM to black and waits for the GPU.
 
 ```c
-void func_80014D20(void) {
+void ClearVram(void) {
     RECT rect;
 
     rect.x = 0;

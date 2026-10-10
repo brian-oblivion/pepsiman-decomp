@@ -1,4 +1,6 @@
-# func_80015180 — MATCHED 106/106 (round 8, echo)
+# UpdatePadActuators — MATCHED 106/106 (round 8, echo)
+
+> Renamed from `func_80015180` on 2026-10-10 (tools/rename.py). Address 0x80015180.
 
 Unit `src/main.c`. Per-frame pad service for the two ports: re-arms the
 actuators of a port that has (re)connected (`PadSetAct`, and
@@ -13,7 +15,7 @@ extern u8 *D_80095704;
 /* MATCHING: a known small size, so its address is one `la` register. */
 extern u8 D_800954E4[6];
 
-u32 func_80015180(void) {
+u32 UpdatePadActuators(void) {
     u8 *buf;
     u8 *act;
     s32 k;

@@ -1,36 +1,38 @@
-# func_80014044 — MATCHED 170/170 (round 8, echo)
+# EndFrame — MATCHED 170/170 (round 8, echo)
+
+> Renamed from `func_80014044` on 2026-10-10 (tools/rename.py). Address 0x80014044.
 
 Unit `src/main.c`. The end-of-frame routine: sets the reference view (the
-game's at `D_800DB2A0` unless state 14, or a fixed view 400 out), waits
-for VSync (count kept in `D_800959A0`), swaps buffers, clears to the fog
+game's at `gRefView` unless state 14, or a fixed view 400 out), waits
+for VSync (count kept in `gVSyncTime`), swaps buffers, clears to the fog
 colour, adds the two `DR_STP` primitives around the 3D ordering table,
 draws, switches the work buffer, re-clears both ordering tables, sorts the
-sprite table into the 3D one, runs func_800142EC and func_8003DE34, and
+sprite table into the 3D one, runs ReadPad and func_8003DE34, and
 counts the frame unless `D_80095974` is set.
 
-Declaration changes: `D_8009586C`, `D_80095974` and `ClipF` moved from
+Declaration changes: `gLoading`, `D_80095974` and `ClipF` moved from
 `src/code_308ec.c` to `include/common.h` (declcheck MULTI); `D_80095974`
 is now `s8` (was `u8`; code_308ec only stores 0 to it, no byte change).
-The prototype of func_800142EC moved up to this function.
+The prototype of ReadPad moved up to this function.
 
 ```c
 /* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
 void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
 void func_80039754(s32 clip);
 void func_8003DE34(void);
-void func_800142EC(s32 arg);
+void ReadPad(s32 arg);
 
-extern s32 D_800959A0;
+extern s32 gVSyncTime;
 extern DR_STP D_800CEBD0;
 extern DR_STP D_800CEBC0;
 
-void func_80014044(void) {
+void EndFrame(void) {
     GsRVIEW2 view;
 
-    switch (D_8009586C) {
+    switch (gLoading) {
         case 0:
-            if (D_80095880 != 14) {
-                GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+            if (gGameMode != 14) {
+                GsSetRefView2((GsRVIEW2 *)gRefView);
             }
             break;
         case 1:
@@ -44,26 +46,26 @@ void func_80014044(void) {
             GsSetRefView2(&view);
             break;
     }
-    D_800959A0 = VSync(D_800957A8);
+    gVSyncTime = VSync(gVSyncMode);
     DrawSync(0);
     GsSwapDispBuff();
-    func_80056B8C(D_8009575C, D_80095754, D_8009574C, &D_800A7318[D_80095750]);
+    func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
     SetDrawStp(&D_800CEBD0, 1);
-    AddPrim(&D_800A7318[D_80095750].org[0xFFF], &D_800CEBD0);
+    AddPrim(&gOt[gActiveBuff].org[0xFFF], &D_800CEBD0);
     func_80039754(ClipF);
-    GsDrawOt(&D_800A7318[D_80095750]);
-    D_80095750 = GsGetActiveBuff();
-    GsSetWorkBase(D_800ACF00[D_80095750]);
-    GsClearOt(0, 300, &D_800A7318[D_80095750]);
-    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
-    GsSortOt(&D_800ACEA8[D_80095750], &D_800A7318[D_80095750]);
-    D_80095884 = &D_800A7318[D_80095750];
+    GsDrawOt(&gOt[gActiveBuff]);
+    gActiveBuff = GsGetActiveBuff();
+    GsSetWorkBase(gGpuWork[gActiveBuff]);
+    GsClearOt(0, 300, &gOt[gActiveBuff]);
+    GsClearOt(0, 0, &gSubOt[gActiveBuff]);
+    GsSortOt(&gSubOt[gActiveBuff], &gOt[gActiveBuff]);
+    gCurOt = &gOt[gActiveBuff];
     SetDrawStp(&D_800CEBC0, 0);
-    AddPrim(D_800ACEA8[D_80095750].org, &D_800CEBC0);
-    func_800142EC(0);
+    AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
+    ReadPad(0);
     func_8003DE34();
     if (D_80095974 == 0) {
-        D_8009585C++;
+        gFrameCount++;
     }
 }
 ```

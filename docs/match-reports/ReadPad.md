@@ -1,27 +1,29 @@
-# func_800142EC — MATCHED 369/369 (round 11, delta)
+# ReadPad — MATCHED 369/369 (round 11, delta)
+
+> Renamed from `func_800142EC` on 2026-10-10 (tools/rename.py). Address 0x800142ec.
 
 Unit `src/main.c`. The per-frame pad update: sets the speed byte
-`D_8009575D` to 4, polls the pads (func_80014FA8), centres both analogue
+`D_8009575D` to 4, polls the pads (PollPads), centres both analogue
 axes when the pad type is 0x41, copies pad `arg`'s held and pressed words
-(`D_80095848[arg]` to `D_80095964`, `D_80095870[arg]` to `D_80095970`),
+(`gPadHeld[arg]` to `gPad`, `gPadPressed[arg]` to `gPadTrig`),
 then runs an auto-repeat on the four d-pad bits and, when
-`D_800956F7 == 1`, on 0x80, 0x40 and 0x20. Called from func_80014044,
+`D_800956F7 == 1`, on 0x80, 0x40 and 0x20. Called from EndFrame,
 func_800148B0 and code_31cec.
 
-The signature is common.h's, `void func_800142EC(s32 arg)`; the body
+The signature is common.h's, `void ReadPad(s32 arg)`; the body
 indexes with `(u16)arg`, which gives retail's `andi 0xFFFF` at the use.
 
 The body is in `src/main.c`: seven expansions of one `REPEAT(bit, cnt)`
 macro (held for 30/speed frames, then the bit repeats every 4/speed
-frames on the frame counter `D_8009585C`; release clears the counter).
+frames on the frame counter `gFrameCount`; release clears the counter).
 
 ## Levers
 
 Four builds: 362 -> 369 -> 363 (do/while macro) -> 369.
 
 - **The two pad-word copies are written pressed-word first.** Retail
-  builds `D_80095870`'s address before `D_80095848`'s; source order sets
-  that. The stores still come out `D_80095964` first (362 -> 369; the
+  builds `gPadPressed`'s address before `gPadHeld`'s; source order sets
+  that. The stores still come out `gPad` first (362 -> 369; the
   only residue was the two loads' registers).
 - **The repeat macro is a bare `{ }` block.** Wrapping it in
   `do { } while (0)` changes the branch layout (369 -> 363).
@@ -33,11 +35,11 @@ Four builds: 362 -> 369 -> 363 (do/while macro) -> 369.
 ## Declarations left for the head
 
 declcheck flags three globals this unit now shares with another unit's
-local declaration: `D_80095784` (`u8`, code_13068.c), `D_800957C8` and
+local declaration: `gPadType` (`u8`, code_13068.c), `D_800957C8` and
 `D_800957C0` (`u32`, code_1dc24.c). They belong in common.h.
 
 ### Proposed learning
 
 - **Two indexed loads whose addresses are built in the other order:
   swap the two statements**; the stores can keep retail's order.
-  (func_800142EC)
+  (ReadPad)

@@ -1,16 +1,18 @@
-# func_80014CF0 — MATCHED (12/12), round 1, runner charlie
+# ResetClearColor — MATCHED (12/12), round 1, runner charlie
+
+> Renamed from `func_80014CF0` on 2026-10-10 (tools/rename.py). Address 0x80014cf0.
 
 Leaf, no arguments: stores 2 to one word global and clears three byte globals.
 
 ```c
-void func_80014CF0(void) {
+void ResetClearColor(void) {
     /* MATCHING: retail reserves an 8-byte frame it never touches. */
     s32 unused[2];
 
-    D_800957A8 = 2;
-    D_8009574C = 0;
-    D_80095754 = 0;
-    D_8009575C = 0;
+    gVSyncMode = 2;
+    gClearB = 0;
+    gClearG = 0;
+    gClearR = 0;
 }
 ```
 
@@ -18,7 +20,7 @@ void func_80014CF0(void) {
 
 All four lie in `.sdata` but are not in `config/gp-symbols.txt`, so retail
 reaches each with `lui $at` / `%lo`: a plain complete `extern` gives exactly that.
-`D_800957A8` is `s32` (`sw`); the other three are `u8` (`sb $zero`, never loaded
+`gVSyncMode` is `s32` (`sw`); the other three are `u8` (`sb $zero`, never loaded
 here, so the sign is unknown).
 
 ## Lever

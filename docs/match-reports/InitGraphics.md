@@ -1,41 +1,43 @@
-# func_80013EE4 — MATCHED (88/88), round 7, runner bravo
+# InitGraphics — MATCHED (88/88), round 7, runner bravo
+
+> Renamed from `func_80013EE4` on 2026-10-10 (tools/rename.py). Address 0x80013ee4.
 
 Graphics init: `GsInitGraph` (Sony's, still carved as asm,
 `func_80056774`), one display buffer pair, two pairs of 12-bit ordering
-tables (`D_800ACEA8` over tags `D_8009F278`, `D_800A7318` over tags
-`D_80096A78`), then the active buffer's work base and both tables cleared,
-and `D_80095884` pointed at the active `D_800A7318` table.
+tables (`gSubOt` over tags `gSubOtTags`, `gOt` over tags
+`gOtTags`), then the active buffer's work base and both tables cleared,
+and `gCurOt` pointed at the active `gOt` table.
 
 ```c
 /* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
 void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
 
-extern GsOT_TAG D_80096A78[2][0x1000];
-extern GsOT_TAG D_8009F278[2][0x1000];
-extern PACKET D_800ACF00[2][67200];
-extern GsOT *D_80095884;
+extern GsOT_TAG gOtTags[2][0x1000];
+extern GsOT_TAG gSubOtTags[2][0x1000];
+extern PACKET gGpuWork[2][67200];
+extern GsOT *gCurOt;
 
-void func_80013EE4(void) {
+void InitGraphics(void) {
     s32 i;
 
     func_80056774(320, 240, 4, 1, 0);
     GsDefDispBuff(0, 0, 0, 240);
     for (i = 0; i < 2; i++) {
-        D_800ACEA8[i].length = 12;
-        D_800ACEA8[i].org = D_8009F278[i];
-        D_800ACEA8[i].point = 0;
-        D_800ACEA8[i].offset = 0;
-        D_800A7318[i].length = 12;
-        D_800A7318[i].org = D_80096A78[i];
+        gSubOt[i].length = 12;
+        gSubOt[i].org = gSubOtTags[i];
+        gSubOt[i].point = 0;
+        gSubOt[i].offset = 0;
+        gOt[i].length = 12;
+        gOt[i].org = gOtTags[i];
         /* MATCHING: retail stores this field twice. */
-        D_800ACEA8[i].point = 300;
-        D_800A7318[i].offset = 0;
+        gSubOt[i].point = 300;
+        gOt[i].offset = 0;
     }
-    D_80095750 = GsGetActiveBuff();
-    GsSetWorkBase(D_800ACF00[D_80095750]);
-    GsClearOt(0, 300, &D_800A7318[D_80095750]);
-    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
-    D_80095884 = &D_800A7318[D_80095750];
+    gActiveBuff = GsGetActiveBuff();
+    GsSetWorkBase(gGpuWork[gActiveBuff]);
+    GsClearOt(0, 300, &gOt[gActiveBuff]);
+    GsClearOt(0, 0, &gSubOt[gActiveBuff]);
+    gCurOt = &gOt[gActiveBuff];
 }
 ```
 
@@ -43,7 +45,7 @@ void func_80013EE4(void) {
 
 1. Stores in retail's printed order (len, org, point, offset; org2, len2,
    point=300, offset2): 79/88. The loop's pointer inits came out with
-   `D_800A7318` before `D_80096A78`, and the tag-pointer bump moved.
+   `gOt` before `gOtTags`, and the tag-pointer bump moved.
 2. Each table's stores as length, org, offset, point: 82/88. The pointer
    inits and the bump now right; the two zero stores swapped and the
    `point = 300` store sank below `offset2`.
@@ -57,8 +59,8 @@ The doubled `point` store is in retail (`sw $zero, 0xC($v1)` then `sw $t1,
 
 ## Declarations
 
-- `D_800A7318` moved from `src/code_29f54.c` to `include/code_a0bc.h`, next
-  to its twin `D_800ACEA8` (additive to the header).
+- `gOt` moved from `src/code_29f54.c` to `include/code_a0bc.h`, next
+  to its twin `gSubOt` (additive to the header).
 - `func_80056774` sits in `asm/psyq_46F74.s` (Sony libgs, not yet named);
   its arguments are GsInitGraph's. A local prototype in `src/main.c`.
 
@@ -67,4 +69,4 @@ The doubled `point` store is in retail (`sw $zero, 0xC($v1)` then `sw $t1,
 - **Stores in a strength-reduced loop: the source order of the stores sets
   the order of the pointer inits before the loop**, even when the scheduler
   later reorders the stores themselves. Read the `la` order as well as the
-  store order. (func_80013EE4)
+  store order. (InitGraphics)

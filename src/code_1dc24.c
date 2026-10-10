@@ -685,7 +685,7 @@ s32 func_8002D424(void) {
                                 break;
                             case 2:
                                 func_80031064();
-                                if (D_800959D8 == 1 && (D_80095970 & 0x20)) {
+                                if (D_800959D8 == 1 && (gPadTrig & 0x20)) {
                                     sGameSave.unk348[0] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
                                     sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
                                     sGameSave.unk348[2] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
@@ -712,7 +712,7 @@ s32 func_8002D424(void) {
                                 break;
                             case 3:
                                 func_80031AEC();
-                                if (D_800959D8 == 1 && (D_80095970 & 0x20)) {
+                                if (D_800959D8 == 1 && (gPadTrig & 0x20)) {
                                     sGameSave.unk348[0] = D_800A7898[sTotals.unk28].unk4[0];
                                     sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
                                     sGameSave.unk348[2] = D_800A7898[sTotals.unk28].unk4[2];
@@ -732,7 +732,7 @@ s32 func_8002D424(void) {
                                 break;
                         }
                     }
-                    if (D_80095970 & 0x10) {
+                    if (gPadTrig & 0x10) {
                         D_800958DA = 1;
                         D_80095748 = 0;
                         D_8009574A = 0;
@@ -740,7 +740,7 @@ s32 func_8002D424(void) {
                     break;
                 case 1:
                     func_8002F6A0();
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         if (D_8009574A == 2) {
                             D_800958A6 = 0;
                         }
@@ -749,26 +749,26 @@ s32 func_8002D424(void) {
                     break;
                 case 2:
                     func_80033B08();
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800958DA = 0;
                     }
                     break;
                 case 3:
                     func_80033B34();
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800958DA = 0;
                     }
                     break;
                 case 4:
                     func_80030B6C();
                     func_80030DA0();
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800958DA = 0;
                     }
                     break;
                 case 5:
                     func_8003146C();
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800958DA = 0;
                     }
                     break;
@@ -777,14 +777,14 @@ s32 func_8002D424(void) {
                     break;
                 case 7:
                 case 8:
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800958DA = 0;
                     }
                     break;
                 case 9:
                 case 10:
                 case 11:
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800958DA = 0;
                         D_800958D8 = 0;
                         D_800959D8 = 0;
@@ -795,7 +795,7 @@ s32 func_8002D424(void) {
                 func_80033F48((VECTOR *)D_8009EEC0);
                 func_80033224((VECTOR *)D_8009EEC0);
             }
-            func_8002CCEC(&D_800ACEA8[D_80095750]);
+            func_8002CCEC(&gSubOt[gActiveBuff]);
             func_80033BF8();
             func_80031A48();
             func_8003A008(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
@@ -805,16 +805,16 @@ s32 func_8002D424(void) {
             func_8002DC44();
             break;
     }
-    if (D_80095970 & 0x800) {
+    if (gPadTrig & 0x800) {
         sTotals.unk70 = D_8009578C;
         func_80033930();
         D_80095770 = 0xFF;
         D_80095962 = 1;
         func_8002C47C();
         D_80095760 = 3;
-        D_80095880 = 14;
+        gGameMode = 14;
     }
-    if (D_80095970 & 0x100) {
+    if (gPadTrig & 0x100) {
         switch (sTotals.unk4) {
             case 50:
                 sTotals.unk4 = 100;
@@ -947,13 +947,13 @@ s32 func_8002DC44(void) {
     Obj48 *objs;
 
     FntPrint(D_800954F4);
-    if (D_800959A0 > 400) {
+    if (gVSyncTime > 400) {
         FntPrint(D_800954FC);
     }
-    if (D_800959A0 > 450) {
+    if (gVSyncTime > 450) {
         FntPrint(D_80095504);
     }
-    FntPrint(D_80010B4C, D_800959A0);
+    FntPrint(D_80010B4C, gVSyncTime);
     FntPrint(D_800954F4);
     FntPrint(D_80010B58, sTotals.unk4);
     FntPrint(D_80010B64, D_80095824, D_80095794);
@@ -1000,26 +1000,26 @@ s32 func_8002DC44(void) {
     if (D_800959D8 == 1) {
         FntPrint(D_80010C08);
     } else if (D_800958D8 == 1) {
-        if ((D_8009585C & 0xF) < 8) {
+        if ((gFrameCount & 0xF) < 8) {
             FntPrint(D_800954F4);
         } else {
             FntPrint(D_80095504);
         }
         FntPrint(D_80010C14);
     } else {
-        func_80014BF0(2);
+        PrintTabs(2);
     }
     FntPrint(D_800954F4);
     switch ((u16)D_800958DA) {
         case 0:
-            func_80014BF0(5);
+            PrintTabs(5);
             FntPrint(D_80010C20);
             func_8002F270();
             break;
         case 1:
             D_800958B0 = 1;
             D_800958B2 = 8;
-            func_80014BF0(5);
+            PrintTabs(5);
             FntPrint(D_80010C2C);
             FntPrint(D_80095528);
             if (D_8009574A == 0) {
@@ -1027,76 +1027,76 @@ s32 func_8002DC44(void) {
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_8009552C);
             if (D_8009574A == 1) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_80095534);
             if (D_8009574A == 2) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_8009553C);
             if (D_8009574A == 3) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_80095544);
             if (D_8009574A == 4) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_8009554C);
             if (D_8009574A == 5) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_80095554);
             if (D_8009574A == 6) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_8009555C);
             if (D_8009574A == 7) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(7);
+            PrintTabs(7);
             FntPrint(D_80095564);
             func_800179F8(0x421, 60, -68, 130, -68, 130, 12, 60, 12, 0);
             break;
         case 2:
-            func_80014BF0(4);
+            PrintTabs(4);
             FntPrint(D_80010C38);
             FntPrint(D_80010C48);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010C54);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010C68, D_80095B4C[0] + 1);
             func_800179F8(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case 3:
-            func_80014BF0(4);
+            PrintTabs(4);
             FntPrint(D_80010C78);
             FntPrint(D_80010C88);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010C94);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 0) {
                 FntPrint(D_800954F4);
             } else {
@@ -1116,7 +1116,7 @@ s32 func_8002DC44(void) {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80095578, 199);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 1) {
                 FntPrint(D_800954F4);
             } else {
@@ -1126,16 +1126,16 @@ s32 func_8002DC44(void) {
             func_800179F8(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case 4:
-            func_80014BF0(4);
+            PrintTabs(4);
             FntPrint(D_80010CC4);
             if (D_800959D8 == 0) {
                 FntPrint(D_80095580);
             }
             func_8002F270();
             FntPrint(D_80095580);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010CD4);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 0) {
                 FntPrint(D_800954F4);
             } else {
@@ -1155,16 +1155,16 @@ s32 func_8002DC44(void) {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80095588, 199);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 1) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80010CF0, sTotals.unk1C, D_8009588E);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010D04, D_8009596E);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 2) {
                 FntPrint(D_800954F4);
             } else {
@@ -1184,7 +1184,7 @@ s32 func_8002DC44(void) {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80095590, 199);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 3) {
                 FntPrint(D_800954F4);
             } else {
@@ -1193,7 +1193,7 @@ s32 func_8002DC44(void) {
             FntPrint(D_80010D24);
             FntPrint(D_80095574, sTotals.unk68);
             FntPrint(D_80095590, 255);
-            func_80014BF0(3);
+            PrintTabs(3);
             if (D_8009574A == 4) {
                 FntPrint(D_800954F4);
             } else {
@@ -1203,17 +1203,17 @@ s32 func_8002DC44(void) {
             FntPrint(D_80095574, sTotals.unk69);
             FntPrint(D_80095590, 255);
             FntPrint(D_800954F4);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010D3C, sTotals.unk20);
             func_800179F8(0x421, -100, -30, 100, -30, 100, 56, -100, 56, 0);
             break;
         case 5:
-            func_80014BF0(4);
+            PrintTabs(4);
             FntPrint(D_80010D54);
             FntPrint(D_80095598);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010D64);
-            func_80014BF0(2);
+            PrintTabs(2);
             if (D_8009574A == 0) {
                 FntPrint(D_800954F4);
             } else {
@@ -1232,14 +1232,14 @@ s32 func_8002DC44(void) {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80095588, 99);
-            func_80014BF0(2);
+            PrintTabs(2);
             if (D_8009574A == 1) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80010D84, sTotals.unk2C, 512);
-            func_80014BF0(2);
+            PrintTabs(2);
             if (D_8009574A == 2) {
                 FntPrint(D_800954F4);
             } else {
@@ -1259,14 +1259,14 @@ s32 func_8002DC44(void) {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80095590, 199);
-            func_80014BF0(2);
+            PrintTabs(2);
             if (D_8009574A == 3) {
                 FntPrint(D_800954F4);
             } else {
                 FntPrint(D_8009550C);
             }
             FntPrint(D_80010DAC, (s16)sTotals.unk2E - 500, 999);
-            func_80014BF0(2);
+            PrintTabs(2);
             if (D_8009574A == 4) {
                 FntPrint(D_800954F4);
             } else {
@@ -1283,7 +1283,7 @@ s32 func_8002DC44(void) {
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010DD0);
             if (sTotals.unk34 == 0) {
                 FntPrint(D_800955A0);
@@ -1295,7 +1295,7 @@ s32 func_8002DC44(void) {
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010DDC);
             switch (D_800959E2) {
                 case 0:
@@ -1313,7 +1313,7 @@ s32 func_8002DC44(void) {
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E00);
             if (sTotals.unk6C == 0) {
                 FntPrint(D_800955A0);
@@ -1325,7 +1325,7 @@ s32 func_8002DC44(void) {
             } else {
                 FntPrint(D_8009550C);
             }
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E0C);
             switch (sTotals.unk6D) {
                 case 0:
@@ -1345,7 +1345,7 @@ s32 func_8002DC44(void) {
                     break;
             }
             FntPrint(D_800954F4);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010D3C, sTotals.unk6A);
             func_800179F8(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
             break;
@@ -1354,133 +1354,133 @@ s32 func_8002DC44(void) {
             break;
         case 7:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010E18);
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E28);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E3C);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E50);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E60);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_800955E0);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E74);
             func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 8:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010E18);
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E28);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E3C);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E8C);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EA4);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EBC);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EC8);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EE0);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E74);
             func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 9:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010E18);
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E28);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EEC);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F00);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F0C);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EA4);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F24);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E74);
             func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 10:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010E18);
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E28);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010EEC);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F00);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F38);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F50);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F60);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E74);
             func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 11:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80010E18);
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F6C);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F80);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010F98);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010FAC);
             FntPrint(D_80095524);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010FBC);
             FntPrint(D_800955DC);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_80010E74);
             func_800179F8(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
@@ -1584,7 +1584,7 @@ s32 func_8002F6A0(void) {
     /* MATCHING: non-void with no return puts the index sll in the bound
      * check's delay slot. */
     func_800330D4();
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         switch (D_8009574A) {
             case 0:
                 D_800958B0 = 200;
@@ -1664,12 +1664,12 @@ void func_8002F8FC(void) {
     SVECTOR *rot;
 
     rot = D_800A7680;
-    D_800DB2A0[0] = rsin(rot->vy) * 500 / 4096;
-    D_800DB2A0[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
-    D_800DB2A0[2] = rcos(rot->vy) * 500 / 4096;
-    D_800DB2A0[3] = rsin(rot->vy - 0x800) * 900 / 4096;
-    D_800DB2A0[4] = sGameSave.unk348[1];
-    D_800DB2A0[5] = rcos(rot->vy - 0x800) * 900 / 4096;
+    gRefView[0] = rsin(rot->vy) * 500 / 4096;
+    gRefView[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
+    gRefView[2] = rcos(rot->vy) * 500 / 4096;
+    gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;
+    gRefView[4] = sGameSave.unk348[1];
+    gRefView[5] = rcos(rot->vy - 0x800) * 900 / 4096;
 }
 
 /** @brief Free movement in the tool: moves the game position by the pad
@@ -1682,16 +1682,16 @@ s32 func_8002FA78(void) {
 
     /* MATCHING: non-void with no return keeps the flag test's delay slot
      * a nop. */
-    if (D_80095970 & 0x1000) {
+    if (gPadTrig & 0x1000) {
         func_80033A08(0, sTotals.unk4);
     }
-    if (D_80095970 & 0x4000) {
+    if (gPadTrig & 0x4000) {
         func_80033A08(180, sTotals.unk4);
     }
-    if (D_80095970 & 0x8000) {
+    if (gPadTrig & 0x8000) {
         func_80033A08(-90, sTotals.unk4);
     }
-    if (D_80095970 & 0x2000) {
+    if (gPadTrig & 0x2000) {
         func_80033A08(90, sTotals.unk4);
     }
     if (D_800957C8 < 0x60) {
@@ -1709,27 +1709,27 @@ s32 func_8002FA78(void) {
     D_800A7308[1] = 0;
     D_800A7308[0] = -sGameSave.unk348[0];
     D_800A7308[2] = -sGameSave.unk348[2];
-    if (D_80095964 & 4) {
+    if (gPad & 4) {
         D_800A7680[0].vy -= 11;
     }
-    if (D_80095964 & 8) {
+    if (gPad & 8) {
         D_800A7680[0].vy += 11;
     }
     if (D_800958D8 == 0) {
-        if (D_80095964 & 1) {
+        if (gPad & 1) {
             sTotals.unkC -= 5;
         }
-        if (D_80095964 & 2) {
+        if (gPad & 2) {
             sTotals.unkC += 5;
         }
         if (sTotals.unkC > 0) {
             sTotals.unkC = 0;
         }
     }
-    if (D_80095970 & 0x80) {
+    if (gPadTrig & 0x80) {
         sTotals.unk8 -= sTotals.unk4;
     }
-    if (D_80095970 & 0x40) {
+    if (gPadTrig & 0x40) {
         sTotals.unk8 += sTotals.unk4;
     }
     sGameSave.unk3C4 = sGameSave.unk348[1];
@@ -1739,7 +1739,7 @@ s32 func_8002FA78(void) {
         D_800957F4 = cur;
     }
     sGameSave.unk348[1] = D_800AC858[0] + sTotals.unk8;
-    if (D_800958D8 == 0 && (D_80095970 & 0x20) && cur == -1) {
+    if (D_800958D8 == 0 && (gPadTrig & 0x20) && cur == -1) {
         D_800958DA = 7;
     }
 }
@@ -1757,7 +1757,7 @@ void func_8002FDB4(void) {
     s32 i;
     u32 j;
 
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         if (sTotals.unk26 == 200) {
             D_800958DA = 8;
         } else if (D_80095824 == -1) {
@@ -1837,7 +1837,7 @@ s32 func_8002FF74(void) {
         D_800958DA = 10;
         return;
     }
-    if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+    if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
         e = (Span8 *)D_800959C0;
         e += D_80095824;
         if (e->count == 0) {
@@ -1865,10 +1865,10 @@ s32 func_8002FF74(void) {
             e++;
         }
     }
-    if (D_80095970 & 1) {
+    if (gPadTrig & 1) {
         sTotals.unk22--;
     }
-    if (D_80095970 & 2) {
+    if (gPadTrig & 2) {
         sTotals.unk22++;
     }
     e = (Span8 *)D_800959C0;
@@ -1923,7 +1923,7 @@ s32 func_80030278(void) {
     sRecs5C[sTotals.unk12].unk50[1] = sGameSave.unk348[1];
     sRecs5C[sTotals.unk12].unk50[2] = sGameSave.unk348[2];
     sRecs5C[sTotals.unk12].unk0 = -1;
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         if (D_80095824 == -1) {
             D_800958DA = 7;
             return;
@@ -2006,12 +2006,12 @@ s32 func_80030548(void) {
             sel.vy = r[sTotals.unk12].unk50[1];
             sel.vz = r[sTotals.unk12].unk50[2];
             func_80033F48(&sel);
-            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 sRecs5C[sTotals.unk12].unk0 = -1;
                 D_800958A6 = 0;
                 break;
             }
-            if (D_80095970 & 1) {
+            if (gPadTrig & 1) {
                 if (--sTotals.unk12 >= 200) {
                     sTotals.unk12 = 199;
                 }
@@ -2021,7 +2021,7 @@ s32 func_80030548(void) {
                     }
                 }
             }
-            if (D_80095970 & 2) {
+            if (gPadTrig & 2) {
                 /* the first step up clamps to 199, the later ones wrap to 0 */
                 if (++sTotals.unk12 >= 200) {
                     sTotals.unk12 = 199;
@@ -2052,7 +2052,7 @@ void func_80030984(void) {
             sTotals.unk1A++;
         }
     }
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         /* MATCHING: one counter for both loops, unsigned (sltiu) in the
          * first and compared signed (slt) here. */
         for (i = 0; (s32)i < D_8009596E; i++) {
@@ -2147,12 +2147,12 @@ s32 func_80030B6C(void) {
                 break;
         }
     }
-    if (D_80095964 & 8) {
+    if (gPad & 8) {
         if (++sTotals.unk20 >= 360) {
             sTotals.unk20 = 0;
         }
     }
-    if (D_80095964 & 4) {
+    if (gPad & 4) {
         if (--sTotals.unk20 < 0) {
             sTotals.unk20 = 359;
         }
@@ -2276,11 +2276,11 @@ s32 func_80031064(void) {
             sel.vy = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
             sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
             func_80033F48(&sel);
-            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 D_800958A6 = 0;
                 ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
             }
-            if (D_80095970 & 1) {
+            if (gPadTrig & 1) {
                 if (--sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
                 }
@@ -2290,7 +2290,7 @@ s32 func_80031064(void) {
                     }
                 }
             }
-            if (D_80095970 & 2) {
+            if (gPadTrig & 2) {
                 /* the first step up clamps to 199, the later ones wrap to 0 */
                 if (++sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
@@ -2388,12 +2388,12 @@ void func_8003146C(void) {
                 break;
         }
     }
-    if (D_80095964 & 8) {
+    if (gPad & 8) {
         if (++sTotals.unk6A >= 360) {
             sTotals.unk6A = 0;
         }
     }
-    if (D_80095964 & 4) {
+    if (gPad & 4) {
         if (--sTotals.unk6A < 0) {
             sTotals.unk6A = 359;
         }
@@ -2452,7 +2452,7 @@ s32 func_800317D0(void) {
             sTotals.unk30++;
         }
     }
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         if (sTotals.unk30 == 100) {
             D_800958DA = 8;
         } else {
@@ -2576,11 +2576,11 @@ s32 func_80031AEC(void) {
             sel.vy = D_800A7898[sTotals.unk28].unk4[1];
             sel.vz = D_800A7898[sTotals.unk28].unk4[2];
             func_80033F48(&sel);
-            if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 D_800958A6 = 0;
                 D_800A7898[sTotals.unk28].unk0 = -1;
             }
-            if (D_80095970 & 1) {
+            if (gPadTrig & 1) {
                 if (--sTotals.unk28 >= 100) {
                     sTotals.unk28 = 99;
                 }
@@ -2590,7 +2590,7 @@ s32 func_80031AEC(void) {
                     }
                 }
             }
-            if (D_80095970 & 2) {
+            if (gPadTrig & 2) {
                 /* the first step up clamps to 99, the later ones wrap to 0 */
                 if (++sTotals.unk28 >= 100) {
                     sTotals.unk28 = 99;
@@ -2637,7 +2637,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 1:
-                    if (func_80038394() == -1 || (D_80095970 & 0x40)) {
+                    if (func_80038394() == -1 || (gPadTrig & 0x40)) {
                         D_800959E4 = 18;
                         break;
                     }
@@ -2668,7 +2668,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 2:
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800959E4 = 1;
                         break;
                     }
@@ -2686,7 +2686,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 10:
-                    if (D_80095970 & 0x60) {
+                    if (gPadTrig & 0x60) {
                         sGameSave.unk348[0] = sRotPos.pos[0];
                         sGameSave.unk348[1] = sRotPos.pos[1];
                         sGameSave.unk348[2] = sRotPos.pos[2];
@@ -2744,7 +2744,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 7:
-                    if (D_80095970 & 0x20) {
+                    if (gPadTrig & 0x20) {
                         D_800959E4 = 5;
                     }
                     break;
@@ -2754,7 +2754,7 @@ s32 func_80031EF4(void) {
                     break;
                 case 11:
                 case 13:
-                    if (D_80095970 & 0x40) {
+                    if (gPadTrig & 0x40) {
                         D_800959E4 = 18;
                     }
                     break;
@@ -2830,96 +2830,96 @@ s32 func_80031EF4(void) {
  *         state, with the save-slot list or a yes/no menu where the state
  *         asks for one, then draws the frame around it. */
 void func_8003245C(void) {
-    func_80014BF0(5);
+    PrintTabs(5);
     FntPrint(D_800110F8);
     FntPrint(D_80095528);
     switch (D_800959E4) {
         case 0:
             FntPrint(D_80095528);
-            func_80014BF0(4);
+            PrintTabs(4);
             FntPrint(D_80095620);
             break;
         case 1:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011104);
             func_80033D3C();
             break;
         case 2:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011114);
             func_800327BC();
             break;
         case 16:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011124);
             break;
         case 17:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011134);
             break;
         case 4:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011144, D_80095A0C + 1);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011158);
             func_80033C90();
             break;
         case 8:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011168);
             break;
         case 6:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011178, D_80095A0C + 1);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_8001118C);
             func_80033C90();
             break;
         case 7:
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_8001119C, D_80095A0C + 1);
             break;
         case 10:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_800111B4);
             break;
         case 11:
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_800111C0);
             break;
         case 12:
             FntPrint(D_80095528);
-            func_80014BF0(2);
+            PrintTabs(2);
             FntPrint(D_800111D4);
             break;
         case 13:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_800111EC);
             break;
         case 14:
             FntPrint(D_80095528);
-            func_80014BF0(4);
+            PrintTabs(4);
             FntPrint(D_800111FC);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_80011208);
             func_80033C90();
             break;
         case 15:
             FntPrint(D_80095528);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_8001121C);
-            func_80014BF0(3);
+            PrintTabs(3);
             FntPrint(D_8001122C);
             func_80033C90();
             break;
@@ -2940,7 +2940,7 @@ void func_800327BC(void) {
     slots = (SaveSlot *)0x8016D000;
     FntPrint(D_800955DC);
     for (i = 0; i < 3; i++) {
-        func_80014BF0(3);
+        PrintTabs(3);
         if (D_8009574A == i) {
             FntPrint(D_800954F4);
         } else {
@@ -3071,16 +3071,16 @@ s32 func_80032EE4(void) {
  *         word, else from the second and third, then wraps both.
  *  @return 0. */
 s32 func_800330D4(void) {
-    if (D_80095970 & 0x2000) {
+    if (gPadTrig & 0x2000) {
         D_80095748++;
         func_80033E98();
-    } else if (D_80095970 & 0x8000) {
+    } else if (gPadTrig & 0x8000) {
         D_80095748--;
         func_80033E98();
-    } else if (D_80095970 & 0x4000) {
+    } else if (gPadTrig & 0x4000) {
         D_8009574A++;
         func_80033E98();
-    } else if (D_80095970 & 0x1000) {
+    } else if (gPadTrig & 0x1000) {
         D_8009574A--;
         func_80033E98();
     } else if (D_80095950 & 0x2000) {
@@ -3112,7 +3112,7 @@ void func_80033224(VECTOR *pos) {
     GsLINE line;
     s16 g;
 
-    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    g = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
     line.attribute = 0;
     line.r = 0xFF;
     line.g = g;
@@ -3127,7 +3127,7 @@ void func_80033224(VECTOR *pos) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
 }
 
 /** @brief Sorts a pulsing red line from `pos` to 100 units away from it
@@ -3143,7 +3143,7 @@ void func_80033388(VECTOR *pos, s16 deg) {
     s16 g;
     s32 ang;
 
-    g = ((rsin(D_8009585C * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    g = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
     line.attribute = 0;
     line.r = 0xFF;
     line.g = g;
@@ -3160,7 +3160,7 @@ void func_80033388(VECTOR *pos, s16 deg) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
 }
 
 /** @brief Wraps the highlighted line at `n` lines, resets the edited value
@@ -3172,7 +3172,7 @@ s32 func_8003356C(s16 n) {
     D_800958B0 = 1;
     D_8009574A = D_8009574A % n;
     func_800330D4();
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         return D_8009574A;
     }
     return -1;
@@ -3185,12 +3185,12 @@ void func_800335E8(s16 a) {
     sToolSave.unk38[1] = sGameSave.unk348[1];
     sToolSave.unk38[2] = sGameSave.unk348[2];
     sToolSave.unk44 = D_800A7680[0].vy;
-    sToolSave.unk48[0] = D_800DB2A0[0];
-    sToolSave.unk48[1] = D_800DB2A0[1];
-    sToolSave.unk48[2] = D_800DB2A0[2];
-    sToolSave.unk48[3] = D_800DB2A0[3];
-    sToolSave.unk48[4] = D_800DB2A0[4];
-    sToolSave.unk48[5] = D_800DB2A0[5];
+    sToolSave.unk48[0] = gRefView[0];
+    sToolSave.unk48[1] = gRefView[1];
+    sToolSave.unk48[2] = gRefView[2];
+    sToolSave.unk48[3] = gRefView[3];
+    sToolSave.unk48[4] = gRefView[4];
+    sToolSave.unk48[5] = gRefView[5];
     func_80032964(a, (u8 *)0x8016D000);
 }
 
@@ -3206,7 +3206,7 @@ s32 func_80033680(s16 i) {
     if (slot->unk200 != 0x38) {
         return -1;
     }
-    if (slot->unk202 != D_80095830) {
+    if (slot->unk202 != gStage) {
         return -1;
     }
     return 0;
@@ -3220,12 +3220,12 @@ void func_800336F8(s16 a) {
     sGameSave.unk348[1] = sToolSave.unk38[1];
     sGameSave.unk348[2] = sToolSave.unk38[2];
     D_800A7680[0].vy = sToolSave.unk44;
-    D_800DB2A0[0] = sToolSave.unk48[0];
-    D_800DB2A0[1] = sToolSave.unk48[1];
-    D_800DB2A0[2] = sToolSave.unk48[2];
-    D_800DB2A0[3] = sToolSave.unk48[3];
-    D_800DB2A0[4] = sToolSave.unk48[4];
-    D_800DB2A0[5] = sToolSave.unk48[5];
+    gRefView[0] = sToolSave.unk48[0];
+    gRefView[1] = sToolSave.unk48[1];
+    gRefView[2] = sToolSave.unk48[2];
+    gRefView[3] = sToolSave.unk48[3];
+    gRefView[4] = sToolSave.unk48[4];
+    gRefView[5] = sToolSave.unk48[5];
 }
 
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
@@ -3406,14 +3406,14 @@ void func_80033BF8(void) {
  *         the menu cursor selects. */
 void func_80033C90(void) {
     FntPrint(D_800955DC);
-    func_80014BF0(4);
+    PrintTabs(4);
     if (D_8009574A == 0) {
         FntPrint(D_800954F4);
     } else {
         FntPrint(D_8009550C);
     }
     FntPrint(D_80095628);
-    func_80014BF0(4);
+    PrintTabs(4);
     if (D_8009574A == 1) {
         FntPrint(D_800954F4);
     } else {
@@ -3426,14 +3426,14 @@ void func_80033C90(void) {
  *         the menu cursor selects. */
 void func_80033D3C(void) {
     FntPrint(D_800955DC);
-    func_80014BF0(4);
+    PrintTabs(4);
     if (D_8009574A == 0) {
         FntPrint(D_800954F4);
     } else {
         FntPrint(D_8009550C);
     }
     FntPrint(D_80095638);
-    func_80014BF0(4);
+    PrintTabs(4);
     if (D_8009574A == 1) {
         FntPrint(D_800954F4);
     } else {

@@ -47,7 +47,7 @@ void func_8003AFAC(void) {
     if (n == 0) {
         pos.vx = -120;
         pos.vy = -96;
-        func_8001B354(0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     }
     k = 1;
     pos.vx = (digits - 1) * 12 - 120;
@@ -55,7 +55,7 @@ void func_8003AFAC(void) {
     for (; k < 101; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -64,7 +64,7 @@ void func_8003AFAC(void) {
     quad[4] = quad[5] = 0x800;
     quad[6] = 0;
     quad[7] = 0;
-    func_800198BC(0xFA, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_800198BC(0xFA, quad, NULL, 0, &gSubOt[gActiveBuff]);
     quad[0] = quad[2] = -0x40;
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
@@ -73,19 +73,19 @@ void func_8003AFAC(void) {
     switch (D_800958A8) {
         case 1:
             quad[4] = quad[5] = 0x800;
-            if ((D_8009585C >> 1) & 1) {
-                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            if ((gFrameCount >> 1) & 1) {
+                func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_800198BC(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
     if (D_80095988 == 0x14A) {
@@ -101,7 +101,7 @@ void func_8003AFAC(void) {
     } else {
         color.g = color.b = color.cd = 0x80;
     }
-    if (n >= 5 || ((D_8009585C >> 1) & 1)) {
+    if (n >= 5 || ((gFrameCount >> 1) & 1)) {
         /* MATCHING: a digit count whose result is never used; the
          * divisions stay. */
         for (k = 1; k < 101; k *= 10) {
@@ -112,7 +112,7 @@ void func_8003AFAC(void) {
         if (n == 0) {
             pos.vx = 4;
             pos.vy = -0x68;
-            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         k = 1;
         pos.vx = 4;
@@ -120,7 +120,7 @@ void func_8003AFAC(void) {
         for (; k < 101; k *= 10) {
             q = n / k;
             if (q != 0) {
-                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+                func_8001B354(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
                 pos.vx -= 18;
             }
         }
@@ -129,14 +129,14 @@ void func_8003AFAC(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = (D_8009578C * 11 << 15) / ((s32 *)D_800958A0)[-1] / 4096 + 0x34;
     pos.vy = -0x69;
-    func_8001B354(((D_8009585C >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(((gFrameCount >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     k = 1;
     pos.vx = 0x34;
     pos.vy = -0x64;
-    func_8001B354(0x12E, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x12E, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x34;
     pos.vy = -0x54;
-    func_8001B354(0x122, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x122, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x90;
     pos.vy = -0x54;
     func_8003A4B4(&pos, D_80095980);
@@ -146,7 +146,7 @@ void func_8003AFAC(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+            func_8001B354(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -154,7 +154,7 @@ void func_8003AFAC(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
-    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
 }
 ```
 
@@ -171,7 +171,7 @@ void func_8003AFAC(void) {
   from `k`, which holds 1: `k = 1;` is set before `pos.vx` is computed
   (as in func_8003A4B4).
 - **`srlv`/`and` by `$s1` where retail has `srl 1` / `andi 1`**: the same
-  cse in reverse; `k = 1` must not be live yet when `(D_8009585C >> 1) &
+  cse in reverse; `k = 1` must not be live yet when `(gFrameCount >> 1) &
   1` is computed, so it is the `for`'s own init inside the `if`.
 - **A `li $s1, 1` stolen into the wrong delay slot**: the last loop's
   `k = 1` after the progress-marker call; anywhere above it lands in the

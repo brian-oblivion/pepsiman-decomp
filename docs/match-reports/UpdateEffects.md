@@ -7,7 +7,7 @@ active list from `gEffectActive` through each record's `next` byte (a negative
 link ends it), calls the record's step function from the table `gEffectSteps`
 (func_8003F960, func_8003E550, ... indexed by `unk12`) with the drawing
 position, and picks the ordering table by distance (`2*d*d > 0x77A0F`, `d`
-the x offset: far records go to `D_800A7318`). A step that returns nonzero
+the x offset: far records go to `gOt`). A step that returns nonzero
 is unlinked and pushed onto the free list `gEffectFree`, the reverse of
 SpawnEffect. The first parameter is never read.
 
@@ -35,9 +35,9 @@ void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
         d = x + slot->unkC;
         next = slot->next;
         if (d * (d * 2) > 0x77A0F) {
-            done = gEffectSteps[slot->unk12](slot, &D_800A7318[D_80095750], x, y, z);
+            done = gEffectSteps[slot->unk12](slot, &gOt[gActiveBuff], x, y, z);
         } else {
-            done = gEffectSteps[slot->unk12](slot, &D_800ACEA8[D_80095750], x, y, z);
+            done = gEffectSteps[slot->unk12](slot, &gSubOt[gActiveBuff], x, y, z);
         }
         if (done) {
             if (prev == 0xFF) {

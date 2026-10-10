@@ -1,63 +1,65 @@
-# func_80015584 — MATCHED 116/116 (round 8, echo)
+# UpdateCdLoad — MATCHED 116/116 (round 8, echo)
+
+> Renamed from `func_80015584` on 2026-10-10 (tools/rename.py). Address 0x80015584.
 
 Unit `src/main.c`. One step of a CD loading state machine in
-`D_8009596C`: seek to the next file's position (`CdControlF(CdlSetloc)`),
+`gCdLoadState`: seek to the next file's position (`CdControlF(CdlSetloc)`),
 wait for the seek, `CdRead` its sectors into its buffer, wait for the read,
-then advance to the next of `D_80095960` files or finish in state 6. A
+then advance to the next of `gCdLoadCount` files or finish in state 6. A
 failed seek or read goes back to state 1 and counts a retry in
-`D_800957F0`. Returns the state.
+`gCdLoadRetries`. Returns the state.
 
 ```c
-extern s16 D_800954EC;
-extern s32 D_8009582C;
-extern u8 D_800957F0;
+extern s16 gCdLoadIndex;
+extern s32 gCdLoadReadSectors;
+extern u8 gCdLoadRetries;
 
-s8 func_80015584(void) {
+s8 UpdateCdLoad(void) {
     s32 r;
 
-    switch (D_8009596C) {
+    switch (gCdLoadState) {
         case 0:
             break;
         case 1:
-            CdControlF(CdlSetloc, (u_char *)D_80096748[D_800954EC]);
-            D_8009596C++;
+            CdControlF(CdlSetloc, (u_char *)gCdLoadLoc[gCdLoadIndex]);
+            gCdLoadState++;
             break;
         case 2:
             r = CdSync(1, NULL);
             if (r == 2) {
-                D_8009596C++;
+                gCdLoadState++;
             } else if (r == 5) {
-                D_8009596C = 1;
-                D_800957F0++;
+                gCdLoadState = 1;
+                gCdLoadRetries++;
             }
             break;
         case 3:
-            D_8009582C = D_8009F248[D_800954EC] + 1;
-            if (CdRead(D_8009582C, (u_long *)D_8009F090[D_800954EC], 0x80) == 0) {
-                D_800957F0++;
+            gCdLoadReadSectors = gCdLoadSectors[gCdLoadIndex] + 1;
+            if (CdRead(gCdLoadReadSectors, (u_long *)gCdLoadDest[gCdLoadIndex], 0x80) == 0) {
+                gCdLoadRetries++;
             } else {
-                D_8009596C++;
+                gCdLoadState++;
             }
             break;
         case 4:
             r = CdReadSync(1, NULL);
             if (r == 0) {
-                D_8009596C++;
+                gCdLoadState++;
             } else if (r == -1) {
-                D_8009596C = 1;
-                D_800957F0++;
+                gCdLoadState = 1;
+                gCdLoadRetries++;
             }
             break;
         case 5:
-            if (++D_800954EC >= D_80095960) {
-                D_8009596C = 6;
-                D_800954EC = 0;
+            if (++gCdLoadIndex >= gCdLoadCount) {
+                gCdLoadState = 6;
+                gCdLoadIndex = 0;
             } else {
-                D_8009596C = 1;
+                gCdLoadState = 1;
             }
             break;
     }
-    return D_8009596C;
+    return gCdLoadState;
 }
 ```
 
@@ -65,9 +67,9 @@ Second build. The first had everything right except two layout points:
 
 - The jump table covers 0..5 (`sltiu 6`), with entry 0 pointing at the
   exit: an empty `case 0: break;`. Without it the table is biased by -1.
-- Retail shares only the final `sb` of every `D_8009596C++` arm, jumping to
+- Retail shares only the final `sb` of every `gCdLoadState++` arm, jumping to
   a store that falls through to the exit; that store belongs to case 5's
-  `D_8009596C = 1`. Cross-jumping merges each arm's tail with the block that
+  `gCdLoadState = 1`. Cross-jumping merges each arm's tail with the block that
   falls into the exit label, so that block must be the `= 1` arm: written
   `if (++x >= n) { = 6; ... } else { = 1; }`. With the `< n` arm first, the
   `= 6` arm fell into the exit, and cross-jumping merged whole

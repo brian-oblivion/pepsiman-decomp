@@ -576,12 +576,12 @@ void func_8002A5B0(Rec78 *rec, Rec48 *r) {
     param.scale.vz = m->scale.vz;
     ScaleMatrix(&mat, &param.scale);
     GsSetLsMatrix(&mat);
-    if (D_80095880 == 0x25) {
-        GsSortObject4(&m->obj, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+    if (gGameMode == 0x25) {
+        GsSortObject4(&m->obj, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
     } else if (absInt(m->coord.coord.t[0]) > 700 || absInt(m->coord.coord.t[2]) > 700) {
-        GsSortObject4J(&m->obj, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+        GsSortObject4J(&m->obj, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
     } else {
-        GsSortObject4(&m->obj, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+        GsSortObject4(&m->obj, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
     }
     m->coord.coord.t[0] -= D_800A7308[0];
     m->coord.coord.t[2] -= D_800A7308[2];
@@ -810,16 +810,16 @@ void func_8002B04C(void) {
 
     D_800A7308[0] = 0;
     D_800A7308[2] = 0;
-    D_800DB2A0[0] = 100;
-    D_800DB2A0[1] = -200;
-    D_800DB2A0[2] = 1000;
-    D_800DB2A0[3] = 0;
-    D_800DB2A0[4] = 0;
-    D_800DB2A0[5] = 0;
-    flags = D_80095970;
-    D_8009574C = 0;
-    D_80095754 = 0;
-    D_8009575C = 0;
+    gRefView[0] = 100;
+    gRefView[1] = -200;
+    gRefView[2] = 1000;
+    gRefView[3] = 0;
+    gRefView[4] = 0;
+    gRefView[5] = 0;
+    flags = gPadTrig;
+    gClearB = 0;
+    gClearG = 0;
+    gClearR = 0;
     if (flags & 2) {
         D_800958E2++;
     }
@@ -832,7 +832,7 @@ void func_8002B04C(void) {
     D_800A9008[1] = 0;
     D_800A9008[2] = 0;
     ((s16 *)D_800A9008)[12] = 0;
-    ((s16 *)D_800A9008)[13] = D_8009585C % 360 * 4096 / 360;
+    ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
     func_8002A7D8(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
     func_80023F80(D_8009EB78);
@@ -871,15 +871,15 @@ void func_8002B220(void) {
         case 0:
             D_800A7308[0] = 0;
             D_800A7308[2] = 0;
-            D_800DB2A0[0] = 100;
-            D_800DB2A0[1] = -200;
-            D_800DB2A0[2] = 1000;
-            D_800DB2A0[3] = 0;
-            D_800DB2A0[4] = 0;
-            D_800DB2A0[5] = 0;
-            D_8009574C = 0;
-            D_80095754 = 0;
-            D_8009575C = 0;
+            gRefView[0] = 100;
+            gRefView[1] = -200;
+            gRefView[2] = 1000;
+            gRefView[3] = 0;
+            gRefView[4] = 0;
+            gRefView[5] = 0;
+            gClearB = 0;
+            gClearG = 0;
+            gClearR = 0;
             D_80095760 = 1;
             break;
         case 1:
@@ -887,13 +887,13 @@ void func_8002B220(void) {
             D_80096788.unk4 = 0;
             D_80096788.unk8 = 0;
             D_80096788.unk18 = 0;
-            D_80096788.unk1A = D_8009585C % 360 * 4096 / 360;
+            D_80096788.unk1A = gFrameCount % 360 * 4096 / 360;
             D_80096788.unk1C = 0;
             D_8009596E = func_80040E04(D_800958E2, (s32)&D_80096788, (s32)D_800A9008);
             D_80095760++;
             break;
         case 2:
-            flags = D_80095970;
+            flags = gPadTrig;
             old = D_800958E2;
             if (flags & 2) {
                 D_800958E2++;
@@ -908,7 +908,7 @@ void func_8002B220(void) {
                 D_80095760 = 1;
             }
             func_8002980C();
-            ((Rec48v *)D_800A9008)->o.unk1A = D_8009585C % 360 * 4096 / 360;
+            ((Rec48v *)D_800A9008)->o.unk1A = gFrameCount % 360 * 4096 / 360;
             func_8002A7D8(&D_800D8D20[((Rec48v *)D_800A9008)->unk36], (Rec48 *)D_800A9008);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
@@ -956,7 +956,7 @@ void func_8002B5FC(void) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = -200;
     world.vy = 0;
     world.vz = 0;
@@ -969,7 +969,7 @@ void func_8002B5FC(void) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = 0;
     world.vy = 0;
     world.vz = -200;
@@ -982,7 +982,7 @@ void func_8002B5FC(void) {
     func_800230E0(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
-    GsSortLine(&line, &D_800ACEA8[D_80095750], world.vz >> 2);
+    GsSortLine(&line, &gSubOt[gActiveBuff], world.vz >> 2);
 }
 
 /** @brief Loads every image of the directory `dir` and registers each as a
@@ -1031,7 +1031,7 @@ void func_8002B8F8(u16 id, Rec3C *r) {
     coord.flg = 0;
     GsGetLs(&coord, &mat);
     GsSetLsMatrix(&mat);
-    if (D_80095880 != 0x20 && (r->unk26 & 0x3F) == 1 && absInt(r->unk4 + D_800A7308[0]) < 600 &&
+    if (gGameMode != 0x20 && (r->unk26 & 0x3F) == 1 && absInt(r->unk4 + D_800A7308[0]) < 600 &&
         absInt(r->unkC + D_800A7308[2]) < 600) {
         k = id + 1;
     }
@@ -1057,9 +1057,9 @@ void func_8002B8F8(u16 id, Rec3C *r) {
         size.vx *= -1;
     }
     if (absInt(r->unk4 + D_800A7308[0]) > 700 || absInt(r->unkC + D_800A7308[2]) > 700) {
-        func_8001B004(k, &size, NULL, 2, &D_800A7318[D_80095750]);
+        func_8001B004(k, &size, NULL, 2, &gOt[gActiveBuff]);
     } else {
-        func_8001A69C(k, &size, NULL, 2, &D_800ACEA8[D_80095750]);
+        func_8001A69C(k, &size, NULL, 2, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -1528,9 +1528,9 @@ void func_8002CCEC(void) {
                 size.vy = 75;
                 size.vx = 75;
                 if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
-                    func_8001B004(0xFA, &size, NULL, 2, &D_800A7318[D_80095750]);
+                    func_8001B004(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
                 } else {
-                    func_8001A69C(0xFA, &size, NULL, 2, &D_800ACEA8[D_80095750]);
+                    func_8001A69C(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
                 pos.x = coord.coord.t[0] - D_800A7308[0];
                 pos.y = coord.coord.t[1] - 50;
@@ -1630,7 +1630,7 @@ void func_8002D230(void) {
     u32 i;
     Ent8 *e;
 
-    if (D_8009585C & 1) {
+    if (gFrameCount & 1) {
         return;
     }
     for (i = 0; i < 200; i++) {
@@ -1696,5 +1696,5 @@ void func_8002D2C0(Rec48 *recs) {
     D_80095824 = 0;
     D_800958D8 = 0;
     D_800959D8 = 0;
-    sProgress.unk2 = D_80095830;
+    sProgress.unk2 = gStage;
 }

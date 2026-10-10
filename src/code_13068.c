@@ -281,7 +281,7 @@ void func_80022868(void) {
         size.vx = 100 - d;
         size.vy = size.vx / 2;
         color.g = color.b = color.cd = 0x40 - d;
-        func_8001A3D4(0x12D, &size, &color, 2, &D_800ACEA8[D_80095750]);
+        func_8001A3D4(0x12D, &size, &color, 2, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -293,13 +293,13 @@ void func_800229A8(void) {
             D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = 0;
         }
     }
-    D_800DB2A0[0] = 0;
+    gRefView[0] = 0;
     D_800959A8 = 0;
-    D_800DB2A0[1] = 0;
-    D_800DB2A0[2] = 1000;
-    D_800DB2A0[3] = 0;
-    D_800DB2A0[4] = 0;
-    D_800DB2A0[5] = 0;
+    gRefView[1] = 0;
+    gRefView[2] = 1000;
+    gRefView[3] = 0;
+    gRefView[4] = 0;
+    gRefView[5] = 0;
 }
 
 /* MATCHING: the parity mask through y, the first loop's local, keeps 0xFF out of the preheader. */
@@ -316,29 +316,29 @@ void func_80022A74(void) {
     s32 y;
     POLY_F4 *pp;
 
-    if (D_80095970 & 0x10) {
+    if (gPadTrig & 0x10) {
         D_800959A8 = 0;
     }
-    if (D_80095964 & 4) {
+    if (gPad & 4) {
         D_800959A8 += 2;
     }
-    if (D_80095964 & 8) {
+    if (gPad & 8) {
         D_800959A8 -= 2;
     }
-    if (D_80095970 & 0x800) {
-        D_80095880 = 3;
+    if (gPadTrig & 0x800) {
+        gGameMode = 3;
     }
-    if (D_80095964 & 0x8000) {
-        D_800DB2A0[0]++;
+    if (gPad & 0x8000) {
+        gRefView[0]++;
     }
-    if (D_80095964 & 0x2000) {
-        D_800DB2A0[0]--;
+    if (gPad & 0x2000) {
+        gRefView[0]--;
     }
-    if (D_80095964 & 0x1000) {
-        D_800DB2A0[1]++;
+    if (gPad & 0x1000) {
+        gRefView[1]++;
     }
-    if (D_80095964 & 0x4000) {
-        D_800DB2A0[1]--;
+    if (gPad & 0x4000) {
+        gRefView[1]--;
     }
     line.attribute = 0;
     line.b = line.g = line.r = 0xFF;
@@ -357,7 +357,7 @@ void func_80022A74(void) {
             D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
             D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx = line.x0 = line.x1 = sxy.vx;
             D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy = line.y0 = line.y1 = sxy.vy;
-            GsSortLine(&line, &D_800A7318[D_80095750], 0);
+            GsSortLine(&line, &gOt[gActiveBuff], 0);
         }
     }
     pp = &poly;
@@ -392,7 +392,7 @@ void func_80022A74(void) {
                 pp->g0 = 0x70;
                 pp->b0 = 0x80;
             }
-            GsSortPoly(pp, &D_800A7318[D_80095750], D_800DE5E0[D_800958D0 * 21 + D_800958CC].z >> 6);
+            GsSortPoly(pp, &gOt[gActiveBuff], D_800DE5E0[D_800958D0 * 21 + D_800958CC].z >> 6);
         }
     }
     D_800957F8 = D_800959A8;
@@ -604,20 +604,20 @@ void func_80023228(void) {
 
 void func_80023764(void) {
     if (sGame.unk0 != 0) {
-        switch (D_80095784) {
+        switch (gPadType) {
             case 0x73:
-                if (D_80095964 & 0x8000) {
+                if (gPad & 0x8000) {
                     func_80023834(3, 16, 15);
-                } else if (D_80095964 & 0x2000) {
+                } else if (gPad & 0x2000) {
                     func_80023834(2, 16, 15);
                 } else {
                     func_80023B20();
                 }
                 break;
             case 0x41:
-                if (D_80095964 & 0x8000) {
+                if (gPad & 0x8000) {
                     func_80023834(3, 16, 15);
-                } else if (D_80095964 & 0x2000) {
+                } else if (gPad & 0x2000) {
                     func_80023834(2, 16, 15);
                 } else {
                     func_80023B20();
@@ -1378,17 +1378,17 @@ top:
     }
     switch (state->unk6) {
         case 2:
-            if (D_80095880 == 0xE && D_8009586C == 0 && (D_8009585C & 7) == 0) {
+            if (gGameMode == 0xE && gLoading == 0 && (gFrameCount & 7) == 0) {
                 func_80042538(0x13);
             }
             break;
         case 3:
-            if (D_80095880 == 0xE && D_8009586C == 0 && D_8009585C % 6 == 0) {
+            if (gGameMode == 0xE && gLoading == 0 && gFrameCount % 6 == 0) {
                 func_80042538(0x13);
             }
             break;
         case 4:
-            if (D_80095880 == 0xE && D_8009586C == 0 && (D_8009585C & 3) == 0) {
+            if (gGameMode == 0xE && gLoading == 0 && (gFrameCount & 3) == 0) {
                 func_80042538(0x13);
             }
             break;
@@ -1602,7 +1602,7 @@ top:
             func_80015450(D_800734AC, 14);
             break;
         case 6:
-            if (D_8009585C % 3 == 0) {
+            if (gFrameCount % 3 == 0) {
                 func_80022F68((VECTOR *)&state->unk348);
             }
             if (state->unk3A4 == 0) {
@@ -1762,14 +1762,14 @@ top:
                         case 0x57:
                             D_80095858 = -1;
                             if (state->unk374 >= 61) {
-                                if (D_80095830 == 4 && D_8009578C == 0) {
+                                if (gStage == 4 && D_8009578C == 0) {
                                     state->unk6 = 0x22;
                                     D_80095858 = 0;
                                 } else {
                                     D_80095858 = 100;
                                 }
                             }
-                            if ((D_80095830 != 4 || D_8009578C != 0) && state->unk374 == 30) {
+                            if ((gStage != 4 || D_8009578C != 0) && state->unk374 == 30) {
                                 func_80042538(0x34);
                             }
                             break;
@@ -2106,12 +2106,12 @@ s32 func_80026548(void) {
             v = sGame.unk3A8;
             if (v < 40) {
                 D_800957D2 += 16;
-            } else if (D_80095964 & 0x1000) {
+            } else if (gPad & 0x1000) {
                 D_800957D2 += 32;
                 if ((s16)D_800957D2 >> 4 > 40) {
                     D_800957D2 = 640;
                 }
-            } else if (D_80095964 & 0x4000) {
+            } else if (gPad & 0x4000) {
                 D_800957D2 -= 32;
                 if ((s16)D_800957D2 >> 4 < 40) {
                     D_800957D2 = 640;
@@ -2148,7 +2148,7 @@ s32 func_8002670C(void) {
                 sGame.unk38E = 0;
                 sGame.unk38C = 0;
                 if ((u32)(sGame.unk6 - 2) < 3 && sGame.unk34C >= sGame.unk3C0 && (D_800957EC & 0x40)) {
-                    btn = D_80095964;
+                    btn = gPad;
                     if (btn & 0x4000) {
                         sGame.unk38E = 1;
                         sGame.unk38C = 0;
@@ -2242,14 +2242,14 @@ void func_80026848(void) {
 
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
 s32 func_80026A60(void) {
-    D_800DB2A0[0] = 0;
-    D_800DB2A0[1] = rsin((D_80095914 << 12) / 360) * 500 / 4096 + sGame.unk3C0;
-    D_800DB2A0[2] = rcos((D_80095914 << 12) / 360) * 600 / 4096;
-    D_800DB2A0[4] = sGame.unk34C;
-    D_800DB2A0[0] = rsin(D_800A7680->vy) * 400 / 4096;
-    D_800DB2A0[2] = rcos(D_800A7680->vy) * 400 / 4096;
-    D_800DB2A0[3] = rsin(D_800A7680->vy - 0x800) * 900 / 4096;
-    D_800DB2A0[5] = rcos(D_800A7680->vy - 0x800) * 900 / 4096;
+    gRefView[0] = 0;
+    gRefView[1] = rsin((D_80095914 << 12) / 360) * 500 / 4096 + sGame.unk3C0;
+    gRefView[2] = rcos((D_80095914 << 12) / 360) * 600 / 4096;
+    gRefView[4] = sGame.unk34C;
+    gRefView[0] = rsin(D_800A7680->vy) * 400 / 4096;
+    gRefView[2] = rcos(D_800A7680->vy) * 400 / 4096;
+    gRefView[3] = rsin(D_800A7680->vy - 0x800) * 900 / 4096;
+    gRefView[5] = rcos(D_800A7680->vy - 0x800) * 900 / 4096;
     if (D_8009587E < sGame.unk3A8) {
         D_8009587E++;
     }
@@ -2278,7 +2278,7 @@ void func_80026C70(void) {
     sLights.l[2].vy = 100;
     sLights.l[2].vz = -50;
     GsSetFlatLight(2, &sLights.l[2]);
-    if (D_8009576A == 100 || D_80095830 % 3 == 2) {
+    if (D_8009576A == 100 || gStage % 3 == 2) {
         func_80028650();
     }
 }
@@ -2291,7 +2291,7 @@ s32 func_80026D9C(void) {
     s32 x;
     s16 t;
 
-    if (D_80095830 % 3 == 2) {
+    if (gStage % 3 == 2) {
         goto end;
     }
 top:
@@ -2316,11 +2316,11 @@ top:
             if (D_8009EF4D[0] == 1) {
                 D_800958A8 = 0;
             }
-            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (D_80095830 != 4 || D_8009578C != 0)) {
+            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || D_8009578C != 0)) {
                 D_80095980++;
                 D_80095988--;
             }
-            if (D_80095830 % 3 == 2) {
+            if (gStage % 3 == 2) {
                 break;
             }
             func_80040F14();
@@ -2402,7 +2402,7 @@ top:
             ClipF = 0;
             if (D_80095770 == 0) {
                 D_8009EF4A[0] = 0;
-                D_80095880 = 6;
+                gGameMode = 6;
                 D_80095760 = 0xFFFF;
             } else {
                 func_8004079C();
@@ -2413,7 +2413,7 @@ top:
             t = ++D_800957DC;
             func_8003E360(t);
             if (t == 0x180) {
-                D_80095880 = 6;
+                gGameMode = 6;
             }
             break;
     }
@@ -2442,7 +2442,7 @@ void func_800272D4(void) {
             func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
             break;
         case 2:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 3:
                     D_800D3860[3].unk4 = 0x3C;
                     D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
@@ -2450,7 +2450,7 @@ void func_800272D4(void) {
                     D_800D3860[3].unk8 = -D_800A7308[2];
                     D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
-                    if (D_8009585C % 20 == 0) {
+                    if (gFrameCount % 20 == 0) {
                         func_80042538(0x81);
                     }
                     break;
@@ -2461,14 +2461,14 @@ void func_800272D4(void) {
                     D_800D3860[6].unk8 = -D_800A7308[2];
                     D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
                     func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
-                    if (D_8009585C % 20 == 0) {
+                    if (gFrameCount % 20 == 0) {
                         func_80042538(0x81);
                     }
                     break;
             }
             break;
         case 3:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
                     D_800D3860[4].unk4 = 0;
                     D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
@@ -2514,7 +2514,7 @@ s32 func_80027714(void) {
         case 2:
             if ((u32)(sGame.unk6 - 0x33) >= 3) {
                 sGame.unk6 = 0x33;
-                switch (D_80095830) {
+                switch (gStage) {
                     case 3:
                         D_800D8530[0] = (s32)&D_800D86E0[0];
                         D_800D396E[0] = 3;
@@ -2527,7 +2527,7 @@ s32 func_80027714(void) {
             }
             break;
         case 3:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
                     D_800D85A8[0] = (s32)&D_800D86E0[1];
                     D_800D39B6[0] = 4;
@@ -2562,7 +2562,7 @@ void func_800278B0(void) {
         idx = findFreeSlot(slot);
         if (idx != -1) {
             slot += idx;
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
                     D_800D85A8[0] = 0;
                     slot->unk36 = 4;
@@ -2609,10 +2609,10 @@ void func_80027A00(void) {
     s32 hi;
 
     if (sGame.unk0 != 0) {
-        if (D_80095964 & 0x8000) {
+        if (gPad & 0x8000) {
             func_80023834(3, 16, 5);
             D_800959B2 -= 4;
-        } else if (D_80095964 & 0x2000) {
+        } else if (gPad & 0x2000) {
             func_80023834(2, 16, 5);
             D_800959B2 += 4;
         } else {
@@ -2625,7 +2625,7 @@ void func_80027A00(void) {
                 }
             }
         }
-        switch (D_80095830) {
+        switch (gStage) {
             case 3:
                 sGame.unk34C = sGame.unk3C0 - 0x5A;
                 break;
@@ -2661,12 +2661,12 @@ void func_80027BEC(void) {
         v = sGame.unk3A8;
         if (v < 35) {
             D_800957D2 += 16;
-        } else if (D_80095964 & 0x1000) {
+        } else if (gPad & 0x1000) {
             D_800957D2 += 32;
             if ((s16)D_800957D2 >> 4 > 35) {
                 D_800957D2 = 560;
             }
-        } else if (D_80095964 & 0x4000) {
+        } else if (gPad & 0x4000) {
             D_800957D2 -= 32;
             if ((s16)D_800957D2 >> 4 < 35) {
                 D_800957D2 = 560;
@@ -2687,12 +2687,12 @@ void func_80027D04(void) {
         v = sGame.unk3A8;
         if (v < 30) {
             D_800957D2 += 16;
-        } else if (D_80095964 & 0x1000) {
+        } else if (gPad & 0x1000) {
             D_800957D2 += 32;
             if ((s16)D_800957D2 >> 4 > 30) {
                 D_800957D2 = 480;
             }
-        } else if (D_80095964 & 0x4000) {
+        } else if (gPad & 0x4000) {
             D_800957D2 -= 32;
             if ((s16)D_800957D2 >> 4 < 30) {
                 D_800957D2 = 480;
@@ -2771,10 +2771,10 @@ void func_80028008(void) {
     s32 hi;
 
     if (sGame.unk0 != 0) {
-        if (D_80095964 & 0x2000) {
+        if (gPad & 0x2000) {
             func_80023834(3, 16, 8);
             D_800959B2 -= 4;
-        } else if (D_80095964 & 0x8000) {
+        } else if (gPad & 0x8000) {
             func_80023834(2, 16, 8);
             D_800959B2 += 4;
         } else if (sGame.unk34C >= sGame.unk3C0) {
@@ -2915,7 +2915,7 @@ void func_80028500(void) {}
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
 s32 func_80028508(void) {
     if (sGame.unk0 != 0 && (sGame.unk6 < 5 || sGame.unk6 >= 8) &&
-        (sGame.unk38F != 1 || sGame.unk398 < 6) && !(D_80095964 & 0x1000) && (D_800957EC & 0x40)) {
+        (sGame.unk38F != 1 || sGame.unk398 < 6) && !(gPad & 0x1000) && (D_800957EC & 0x40)) {
         func_80042538(22);
         sGame.unk6 = 5;
     }
@@ -2962,7 +2962,7 @@ void func_800286B0(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 
     p->y2 = y3;
     p->x3 = x2;
     p->y3 = y2;
-    GsSortPoly(p, &D_800ACEA8[D_80095750], pri);
+    GsSortPoly(p, &gSubOt[gActiveBuff], pri);
 }
 
 void func_800287C0(void) {

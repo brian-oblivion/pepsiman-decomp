@@ -3,7 +3,7 @@
 Unit `src/code_13068.c`. The twin of func_80027D04 for game-state modes
 0x33..0x35 with 35 in place of 30: steers `D_800957D2` (1/16 units)
 towards 35 from the count at 0x3A8 and pad bits 0x1000/0x4000 of
-`D_80095964`, snapping to 560 (35 whole), and stores the whole part in
+`gPad`, snapping to 560 (35 whole), and stores the whole part in
 `D_8009EF20[0]`.
 
 ```c
@@ -14,12 +14,12 @@ void func_80027BEC(void) {
         v = sGame.unk3A8;
         if (v < 35) {
             D_800957D2 += 16;
-        } else if (D_80095964 & 0x1000) {
+        } else if (gPad & 0x1000) {
             D_800957D2 += 32;
             if ((s16)D_800957D2 >> 4 > 35) {
                 D_800957D2 = 560;
             }
-        } else if (D_80095964 & 0x4000) {
+        } else if (gPad & 0x4000) {
             D_800957D2 -= 32;
             if ((s16)D_800957D2 >> 4 < 35) {
                 D_800957D2 = 560;

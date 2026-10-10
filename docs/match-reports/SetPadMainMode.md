@@ -1,4 +1,6 @@
-# func_800153CC — MATCHED 33/33 (round 4, delta)
+# SetPadMainMode — MATCHED 33/33 (round 4, delta)
+
+> Renamed from `func_800153CC` on 2026-10-10 (tools/rename.py). Address 0x800153cc.
 
 Unit `src/main.c`. Waits up to ten frames for pad 0 to report state 6
 (`PadGetState`), counting in `D_800958CC`; once it does, sets the pad's main
@@ -7,7 +9,7 @@ mode to the low bit of the argument and returns.
 ```c
 extern s32 D_800958CC;
 
-void func_800153CC(s32 mode) {
+void SetPadMainMode(s32 mode) {
     mode &= 1;
     D_800958CC = 0;
     do {

@@ -1,10 +1,12 @@
-# func_80022554 — MATCHED (197/197), round 10, runner alpha
+# LoadOverlay — MATCHED (197/197), round 10, runner alpha
 
-Unit `src/code_11dc4.c`. A selector code_31958's func_8004121C calls with
+> Renamed from `func_80022554` on 2026-10-10 (tools/rename.py). Address 0x80022554.
+
+Unit `src/code_11dc4.c`. A selector code_31958's LoadStageOverlay calls with
 an id from 3 to 17: a 23-way switch on the id's low byte (no case 1) that
-stores one of 22 data addresses in D_80096748[0] and copies one of 22 words
-into D_8009F248[0], then sets D_8009F090[0] to 0x800F0000 and D_80095960
-and D_8009596C to 1. code_31cec's func_80042A88 writes the same five
+stores one of 22 data addresses in gCdLoadLoc[0] and copies one of 22 words
+into gCdLoadSectors[0], then sets gCdLoadDest[0] to 0x800F0000 and gCdLoadCount
+and gCdLoadState to 1. code_31cec's func_80042A88 writes the same five
 globals in the same order with SsVab calls nearby, so these are likely
 sound-bank parameters. splat's instruction count (220) included the
 jump table's 23 words.
@@ -16,25 +18,25 @@ jump table's 23 words.
 extern s32 D_800761AC[];
 /* ... one `extern s32 D_800xxxxx[];` per symbol below ... */
 
-void func_80022554(s32 id) {
+void LoadOverlay(s32 id) {
     /* MATCHING: s32 in code_31958's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
-            D_80096748[0] = (s32)D_800761AC;
-            D_8009F248[0] = D_800761FC[0];
+            gCdLoadLoc[0] = (s32)D_800761AC;
+            gCdLoadSectors[0] = D_800761FC[0];
             break;
         case 2:
-            D_80096748[0] = (s32)D_800761B0;
-            D_8009F248[0] = D_80076200[0];
+            gCdLoadLoc[0] = (s32)D_800761B0;
+            gCdLoadSectors[0] = D_80076200[0];
             break;
         /* cases 3 to 17: address D_8007624C + 0x48 * (k - 3), word
          * D_80076270 + 0x48 * (k - 3); cases 18 to 22: address D_800761D4
          * + 8 * (k - 18), word D_80076224 + 8 * (k - 18) (the full list
          * is in src/code_11dc4.c) */
     }
-    D_8009F090[0] = 0x800F0000;
-    D_80095960 = 1;
-    D_8009596C = 1;
+    gCdLoadDest[0] = 0x800F0000;
+    gCdLoadCount = 1;
+    gCdLoadState = 1;
 }
 ```
 

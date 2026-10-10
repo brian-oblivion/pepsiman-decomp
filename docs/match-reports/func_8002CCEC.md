@@ -108,9 +108,9 @@ void func_8002CCEC(void) {
                 size.vy = 75;
                 size.vx = 75;
                 if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
-                    func_8001B004(0xFA, &size, NULL, 2, &D_800A7318[D_80095750]);
+                    func_8001B004(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
                 } else {
-                    func_8001A69C(0xFA, &size, NULL, 2, &D_800ACEA8[D_80095750]);
+                    func_8001A69C(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
                 pos.x = coord.coord.t[0] - D_800A7308[0];
                 pos.y = coord.coord.t[1] - 50;

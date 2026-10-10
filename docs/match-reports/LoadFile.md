@@ -1,4 +1,6 @@
-# func_80015754 — MATCHED 34/34 (round 4, delta)
+# LoadFile — MATCHED 34/34 (round 4, delta)
+
+> Renamed from `func_80015754` on 2026-10-10 (tools/rename.py). Address 0x80015754.
 
 Unit `src/main.c`. Loads a whole file into a buffer: `open` for reading,
 `read` up to 1 MiB, `close`. If the open fails it never returns: it keeps
@@ -7,7 +9,7 @@ swapping display buffers and printing "Can't open %s" with the name.
 ```c
 extern char D_80010148[]; /* "Can't open %s\n" */
 
-void func_80015754(char *name, void *buf) {
+void LoadFile(char *name, void *buf) {
     s32 fd;
 
     fd = open(name, 1);

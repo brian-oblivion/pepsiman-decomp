@@ -1,4 +1,6 @@
-# func_80014AC8 — MATCHED 49/49 (round 4, delta)
+# InitSystem — MATCHED 49/49 (round 4, delta)
+
+> Renamed from `func_80014AC8` on 2026-10-10 (tools/rename.py). Address 0x80014ac8.
 
 Unit `src/main.c`. The boot-time system init: resets callbacks, zeroes
 0xFC800 bytes from 0x80101000, brings up the memory card (BIOS and
@@ -6,7 +8,7 @@ libmcrd), the pads, the CD and the sound system, clears four byte flags,
 then runs the game's own graphics and font setup.
 
 ```c
-void func_80014AC8(void) {
+void InitSystem(void) {
     ResetCallback();
     bzero((u8 *)0x80101000, 0xFC800);
     InitCARD(1);
@@ -15,25 +17,25 @@ void func_80014AC8(void) {
     MemCardStart();
     ChangeClearPAD(0);
     _bu_init();
-    func_8001534C();
+    InitPads();
     func_800428B0();
     CdInit();
     SsStart();
-    D_8009574C = 0;
-    D_80095754 = 0;
-    D_8009575C = 0;
-    func_80013EE4();
+    gClearB = 0;
+    gClearG = 0;
+    gClearR = 0;
+    InitGraphics();
     GsInit3D();
-    func_80014D20();
+    ClearVram();
     D_80095820 = 0;
-    func_80014D6C();
+    InitDebugFont();
 }
 ```
 
 First build. All Sony prototypes come from Sony's headers; main.c now also
 includes `libcd.h`, `libsnd.h`, `libmcrd.h` and `memory.h`. The four byte
 flags are plain `u8` externs (`lui $at` stores); three of them were already
-declared for `func_80014CF0` and moved up the file. `func_800428B0` is
+declared for `ResetClearColor` and moved up the file. `func_800428B0` is
 defined in code_31cec, so its prototype went into `include/common.h`
 (additive; declcheck rejects a local prototype of another unit's
 function). The game functions defined later in main.c get local

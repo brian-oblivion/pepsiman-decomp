@@ -10,12 +10,12 @@ callback OnMovieSliceDecoded) and the first frame (DecodeNextMovieFrame), switch
 display to 24-bit, then decodes frame after frame, flipping the display
 to the finished frame area each time. It stops at the movie's end
 (`gMovieEnded`) or, when `skip` is 1, on the pad's start bit
-(`D_80095970 & 0x800`, returning 1): mutes the CD, pauses it, clears the
+(`gPadTrig & 0x800`, returning 1): mutes the CD, pauses it, clears the
 frame, copies the last frame into place, unhooks the decoder and the
 ring, and restores a 16-bit display.
 
 ```c
-void func_800142EC(s32 arg);
+void ReadPad(s32 arg);
 void OnMovieSliceDecoded(void);
 void InitMovieDecoder(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1);
 void InitMovieStream(CdlLOC *loc, void (*callback)());
@@ -85,8 +85,8 @@ s32 PlayMovieFile(char *name, s16 skip) {
             DrawSync(0);
             break;
         }
-        func_800142EC(0);
-        if ((D_80095970 & 0x800) && skip == one) {
+        ReadPad(0);
+        if ((gPadTrig & 0x800) && skip == one) {
             atv.val3 = 0;
             atv.val2 = 0;
             atv.val1 = 0;
@@ -146,7 +146,7 @@ s32 PlayMovieFile(char *name, s16 skip) {
   stays 48/48.
 - `CdControlB`, `StUnSetRing`, `ChangeClearPAD` (`libapi.h`, now
   included) come from Sony's headers. The prototype of main's
-  `func_800142EC` is in this `.c` (declcheck MULTI with main.c; it
+  `ReadPad` is in this `.c` (declcheck MULTI with main.c; it
   belongs in a shared header, left for the head).
 
 ### Proposed learning

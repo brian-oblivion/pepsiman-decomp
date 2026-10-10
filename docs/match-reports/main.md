@@ -1,13 +1,13 @@
 # main — MATCHED 627/627 (round 11, delta)
 
 Unit `src/main.c`. The game's entry, called from SN's crt0
-(`__SN_ENTRY_POINT`). It initialises the system (func_80014AC8,
+(`__SN_ENTRY_POINT`). It initialises the system (InitSystem,
 func_80020C14, func_80018DE8(1), func_80018CB4, func_80018094, fog),
 sets the start-up globals, fills two four-entry tables (clears
 `D_80096A58`, copies `D_80010454` into `D_800D8340`), then loops forever:
-`FntPrint`, the 45-state top-level `switch (D_80095880)` (boot, title,
-stage load and play, demo, movies), `FntFlush(-1)`, func_80015584,
-func_80042208, func_80014044.
+`FntPrint`, the 45-state top-level `switch (gGameMode)` (boot, title,
+stage load and play, demo, movies), `FntFlush(-1)`, UpdateCdLoad,
+func_80042208, EndFrame.
 
 The definition is `int main(void)`; the name stays `main`.
 
@@ -39,7 +39,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
   definitions (as func_800384DC). Cases 2 and 3 share `"\\MOVIE3.STR;1"`.
 - The loop keeps 1, 2, 6 and 0x26 in `$s0..$s3` by itself; no locals
   needed.
-- Case 20 stores 23 and then 21 to `D_80095880`; retail has both stores.
+- Case 20 stores 23 and then 21 to `gGameMode`; retail has both stores.
 
 ## Declarations left for the head
 
@@ -47,7 +47,7 @@ declcheck MULTI: `D_800956D0` (code_7d74), `D_800958E2` (code_1a098),
 `D_80095908` and `D_80095968` (code_29f54) are now declared in main.c as
 well. LOCAL: prototypes for other units' functions (func_80017B38,
 func_80020C14, func_800229A8, func_80022A74, func_8002B04C,
-func_8002D424, func_80034070, func_80040CD0, func_8004121C,
+func_8002D424, func_80034070, func_80040CD0, LoadStageOverlay,
 PlayMovie, func_80042208).
 
 ### Proposed learning

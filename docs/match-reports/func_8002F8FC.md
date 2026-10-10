@@ -1,6 +1,6 @@
 # func_8002F8FC — MATCHED 95/95 (round 8, bravo)
 
-Unit `src/code_1dc24.c`. Fills the six camera words `D_800DB2A0[0..5]`:
+Unit `src/code_1dc24.c`. Fills the six camera words `gRefView[0..5]`:
 the sine and cosine of the first rotation's yaw times 500, the game
 height `sGameSave.unk348[1]` plus `sTotals.unkC` plus the sine of the
 view's orbit angle `D_80095914` (degrees, `* 4096 / 360`) times 500, and
@@ -25,12 +25,12 @@ void func_8002F8FC(void) {
     SVECTOR *rot;
 
     rot = D_800A7680;
-    D_800DB2A0[0] = rsin(rot->vy) * 500 / 4096;
-    D_800DB2A0[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 +
+    gRefView[0] = rsin(rot->vy) * 500 / 4096;
+    gRefView[1] = rsin(D_80095914 * 4096 / 360) * 500 / 4096 +
                     (sGameSave.unk348[1] + sTotals.unkC);
-    D_800DB2A0[2] = rcos(rot->vy) * 500 / 4096;
-    D_800DB2A0[3] = rsin(rot->vy - 0x800) * 900 / 4096;
-    D_800DB2A0[4] = sGameSave.unk348[1];
-    D_800DB2A0[5] = rcos(rot->vy - 0x800) * 900 / 4096;
+    gRefView[2] = rcos(rot->vy) * 500 / 4096;
+    gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;
+    gRefView[4] = sGameSave.unk348[1];
+    gRefView[5] = rcos(rot->vy - 0x800) * 900 / 4096;
 }
 ```

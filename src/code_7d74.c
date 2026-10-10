@@ -260,7 +260,7 @@ void func_800179F8(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 
     p->y2 = y3;
     p->x3 = x2;
     p->y3 = y2;
-    GsSortPoly(p, &D_800ACEA8[D_80095750], pri);
+    GsSortPoly(p, &gSubOt[gActiveBuff], pri);
 }
 
 s32 func_80017B18(void) {
@@ -273,15 +273,15 @@ void func_80017B38(void) {
 
     switch (D_80095760) {
         case 0:
-            D_8009575C = 0x10;
-            D_80095754 = 0x20;
-            D_8009574C = 0x80;
-            D_800DB2A0[0] = 0;
-            D_800DB2A0[1] = 0;
-            D_800DB2A0[2] = -1000;
-            D_800DB2A0[3] = 0;
-            D_800DB2A0[4] = 0;
-            D_800DB2A0[5] = 0;
+            gClearR = 0x10;
+            gClearG = 0x20;
+            gClearB = 0x80;
+            gRefView[0] = 0;
+            gRefView[1] = 0;
+            gRefView[2] = -1000;
+            gRefView[3] = 0;
+            gRefView[4] = 0;
+            gRefView[5] = 0;
             D_80095914 = -90;
             sPlayer.unk380 = 0;
             sPlayer.unk384 = 0;
@@ -311,22 +311,22 @@ void func_80017B38(void) {
             func_8001819C();
             func_80018BD8();
             func_80017DD4();
-            if (D_80095964 & 0x2000) {
+            if (gPad & 0x2000) {
                 D_800D86E0[0].coord.t[0]++;
             }
-            if (D_80095964 & 0x8000) {
+            if (gPad & 0x8000) {
                 D_800D86E0[0].coord.t[0]--;
             }
-            if (D_80095964 & 0x4000) {
+            if (gPad & 0x4000) {
                 D_800D86E0[0].coord.t[1]++;
             }
-            if (D_80095964 & 0x1000) {
+            if (gPad & 0x1000) {
                 D_800D86E0[0].coord.t[1]--;
             }
-            if (D_80095964 & 1) {
+            if (gPad & 1) {
                 D_800D86E0[0].coord.t[2]--;
             }
-            if (D_80095964 & 2) {
+            if (gPad & 2) {
                 D_800D86E0[0].coord.t[2]++;
             }
             break;
@@ -335,17 +335,17 @@ void func_80017B38(void) {
 }
 
 void func_80017DD4(void) {
-    D_800DB2A0[0] = rcos((D_80095914 << 12) / 360) * 400 / 4096;
-    D_800DB2A0[1] = -100;
-    D_800DB2A0[2] = rsin((D_80095914 << 12) / 360) * 400 / 4096;
-    D_800DB2A0[6] = 0;
-    D_800DB2A0[3] = 0;
-    D_800DB2A0[4] = -100;
-    D_800DB2A0[5] = 0;
-    if (D_80095964 & 4) {
+    gRefView[0] = rcos((D_80095914 << 12) / 360) * 400 / 4096;
+    gRefView[1] = -100;
+    gRefView[2] = rsin((D_80095914 << 12) / 360) * 400 / 4096;
+    gRefView[6] = 0;
+    gRefView[3] = 0;
+    gRefView[4] = -100;
+    gRefView[5] = 0;
+    if (gPad & 4) {
         D_80095914 += 2;
     }
-    if (D_80095964 & 8) {
+    if (gPad & 8) {
         D_80095914 -= 2;
     }
 }
@@ -423,9 +423,9 @@ void func_80018094(void) {
     GsSetLightMode(0);
     fog.dqa = -0x3200;
     fog.dqb = 0x1400000;
-    fog.rfc = D_8009575C;
-    fog.gfc = D_80095754;
-    fog.bfc = D_8009574C;
+    fog.rfc = gClearR;
+    fog.gfc = gClearG;
+    fog.bfc = gClearB;
     GsSetFogParam(&fog);
 }
 
@@ -457,7 +457,7 @@ s32 func_8001819C(void) {
     GsDOBJ2 *q;
     s32 i;
 
-    if ((*(DrawHead *)D_8009EB78).unk2 == 0 && (D_8009585C & 3) < 2) {
+    if ((*(DrawHead *)D_8009EB78).unk2 == 0 && (gFrameCount & 3) < 2) {
         if ((*(DrawHead *)D_8009EB78).unk5 == 0 || (*(DrawHead *)D_8009EB78).unk5 == 0x5E) {
             return;
         }
@@ -480,9 +480,9 @@ s32 func_8001819C(void) {
             GsSetLightMatrix(&m);
             SetSpadStack();
             if ((*(DrawHead *)D_8009EB78).unk3CA == 0) {
-                GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+                GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             } else {
-                GsSortObject4J(o, &D_800A7318[D_80095750], 2, (u_long *)0x1F800000);
+                GsSortObject4J(o, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
             }
             ResetSpadStack();
             /* MATCHING: the loop pointer is reloaded from the copy. */
@@ -557,7 +557,7 @@ void func_800184BC(u32 arg) {
     y = D_80096768[4] - D_80096768[1];
     p = (volatile POLY_G4 *)D_800E48D0;
     y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
-    if (D_8009576A != 100 && D_80095830 % 3 != 2) {
+    if (D_8009576A != 100 && gStage % 3 != 2) {
         p->r0 = p->r1 = D_8009590C[set].c[0].r * (D_8009576A << 11) / 0x10000;
         p->g0 = p->g1 = D_8009590C[set].c[0].g * (D_8009576A << 11) / 0x10000;
         p->b0 = p->b1 = D_8009590C[set].c[0].b * (D_8009576A << 11) / 0x10000;
@@ -577,11 +577,11 @@ void func_800184BC(u32 arg) {
     p->x3 = 159;
     p->y3 = 8 - y;
     setcode(p, 0x38);
-    tag = (u32 *)D_800A7318[D_80095750].org + 0xFFF;
+    tag = (u32 *)gOt[gActiveBuff].org + 0xFFF;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
     *tag = (u32)p & 0xFFFFFF;
     p++;
-    if (D_8009576A != 100 && D_80095830 % 3 != 2) {
+    if (D_8009576A != 100 && gStage % 3 != 2) {
         p->r0 = p->r1 = D_8009590C[set].c[2].r * (D_8009576A << 11) / 0x10000;
         p->g0 = p->g1 = D_8009590C[set].c[2].g * (D_8009576A << 11) / 0x10000;
         p->b0 = p->b1 = D_8009590C[set].c[2].b * (D_8009576A << 11) / 0x10000;
@@ -601,7 +601,7 @@ void func_800184BC(u32 arg) {
     p->x3 = 159;
     p->y3 = 119;
     setcode(p, 0x38);
-    tag = (u32 *)D_800A7318[D_80095750].org + 0xFFF;
+    tag = (u32 *)gOt[gActiveBuff].org + 0xFFF;
     *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
     *tag = (u32)p & 0xFFFFFF;
     D_800E48D0 = (u8 *)(p + 1);
@@ -630,7 +630,7 @@ typedef struct {
 } LevelHead;
 
 void func_80018BD8(void) {
-    s32 flags = D_80095970;
+    s32 flags = gPadTrig;
 
     if (flags & 0x10) {
         D_800956D0++;
@@ -657,15 +657,15 @@ void func_80018CAC(void) {}
 
 void func_80018CB4(void) {
     GsSetProjection(250);
-    D_800DB2A0[0] = 0;
-    D_800DB2A0[1] = 0;
-    D_800DB2A0[2] = 4000;
-    D_800DB2A0[3] = 0;
-    D_800DB2A0[4] = 0;
-    D_800DB2A0[5] = 0;
-    D_800DB2A0[6] = 0;
-    D_800DB2A0[7] = 0;
-    GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+    gRefView[0] = 0;
+    gRefView[1] = 0;
+    gRefView[2] = 4000;
+    gRefView[3] = 0;
+    gRefView[4] = 0;
+    gRefView[5] = 0;
+    gRefView[6] = 0;
+    gRefView[7] = 0;
+    GsSetRefView2((GsRVIEW2 *)gRefView);
 }
 
 s16 func_80018D04(s16 from, s16 to, u16 step, u16 steps) {

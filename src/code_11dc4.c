@@ -557,99 +557,99 @@ PACKET *func_8002230C(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
     return (PACKET *)pkt;
 }
 
-void func_80022554(s32 id) {
+void LoadOverlay(s32 id) {
     /* MATCHING: s32 in code_31958's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
-            D_80096748[0] = (s32)D_800761AC;
-            D_8009F248[0] = D_800761FC[0];
+            gCdLoadLoc[0] = (s32)D_800761AC;
+            gCdLoadSectors[0] = D_800761FC[0];
             break;
         case 2:
-            D_80096748[0] = (s32)D_800761B0;
-            D_8009F248[0] = D_80076200[0];
+            gCdLoadLoc[0] = (s32)D_800761B0;
+            gCdLoadSectors[0] = D_80076200[0];
             break;
         case 3:
-            D_80096748[0] = (s32)D_8007624C;
-            D_8009F248[0] = D_80076270[0];
+            gCdLoadLoc[0] = (s32)D_8007624C;
+            gCdLoadSectors[0] = D_80076270[0];
             break;
         case 4:
-            D_80096748[0] = (s32)D_80076294;
-            D_8009F248[0] = D_800762B8[0];
+            gCdLoadLoc[0] = (s32)D_80076294;
+            gCdLoadSectors[0] = D_800762B8[0];
             break;
         case 5:
-            D_80096748[0] = (s32)D_800762DC;
-            D_8009F248[0] = D_80076300[0];
+            gCdLoadLoc[0] = (s32)D_800762DC;
+            gCdLoadSectors[0] = D_80076300[0];
             break;
         case 6:
-            D_80096748[0] = (s32)D_80076324;
-            D_8009F248[0] = D_80076348[0];
+            gCdLoadLoc[0] = (s32)D_80076324;
+            gCdLoadSectors[0] = D_80076348[0];
             break;
         case 7:
-            D_80096748[0] = (s32)D_8007636C;
-            D_8009F248[0] = D_80076390[0];
+            gCdLoadLoc[0] = (s32)D_8007636C;
+            gCdLoadSectors[0] = D_80076390[0];
             break;
         case 8:
-            D_80096748[0] = (s32)D_800763B4;
-            D_8009F248[0] = D_800763D8[0];
+            gCdLoadLoc[0] = (s32)D_800763B4;
+            gCdLoadSectors[0] = D_800763D8[0];
             break;
         case 9:
-            D_80096748[0] = (s32)D_800763FC;
-            D_8009F248[0] = D_80076420[0];
+            gCdLoadLoc[0] = (s32)D_800763FC;
+            gCdLoadSectors[0] = D_80076420[0];
             break;
         case 10:
-            D_80096748[0] = (s32)D_80076444;
-            D_8009F248[0] = D_80076468[0];
+            gCdLoadLoc[0] = (s32)D_80076444;
+            gCdLoadSectors[0] = D_80076468[0];
             break;
         case 11:
-            D_80096748[0] = (s32)D_8007648C;
-            D_8009F248[0] = D_800764B0[0];
+            gCdLoadLoc[0] = (s32)D_8007648C;
+            gCdLoadSectors[0] = D_800764B0[0];
             break;
         case 12:
-            D_80096748[0] = (s32)D_800764D4;
-            D_8009F248[0] = D_800764F8[0];
+            gCdLoadLoc[0] = (s32)D_800764D4;
+            gCdLoadSectors[0] = D_800764F8[0];
             break;
         case 13:
-            D_80096748[0] = (s32)D_8007651C;
-            D_8009F248[0] = D_80076540[0];
+            gCdLoadLoc[0] = (s32)D_8007651C;
+            gCdLoadSectors[0] = D_80076540[0];
             break;
         case 14:
-            D_80096748[0] = (s32)D_80076564;
-            D_8009F248[0] = D_80076588[0];
+            gCdLoadLoc[0] = (s32)D_80076564;
+            gCdLoadSectors[0] = D_80076588[0];
             break;
         case 15:
-            D_80096748[0] = (s32)D_800765AC;
-            D_8009F248[0] = D_800765D0[0];
+            gCdLoadLoc[0] = (s32)D_800765AC;
+            gCdLoadSectors[0] = D_800765D0[0];
             break;
         case 16:
-            D_80096748[0] = (s32)D_800765F4;
-            D_8009F248[0] = D_80076618[0];
+            gCdLoadLoc[0] = (s32)D_800765F4;
+            gCdLoadSectors[0] = D_80076618[0];
             break;
         case 17:
-            D_80096748[0] = (s32)D_8007663C;
-            D_8009F248[0] = D_80076660[0];
+            gCdLoadLoc[0] = (s32)D_8007663C;
+            gCdLoadSectors[0] = D_80076660[0];
             break;
         case 18:
-            D_80096748[0] = (s32)D_800761D4;
-            D_8009F248[0] = D_80076224[0];
+            gCdLoadLoc[0] = (s32)D_800761D4;
+            gCdLoadSectors[0] = D_80076224[0];
             break;
         case 19:
-            D_80096748[0] = (s32)D_800761DC;
-            D_8009F248[0] = D_8007622C[0];
+            gCdLoadLoc[0] = (s32)D_800761DC;
+            gCdLoadSectors[0] = D_8007622C[0];
             break;
         case 20:
-            D_80096748[0] = (s32)D_800761E4;
-            D_8009F248[0] = D_80076234[0];
+            gCdLoadLoc[0] = (s32)D_800761E4;
+            gCdLoadSectors[0] = D_80076234[0];
             break;
         case 21:
-            D_80096748[0] = (s32)D_800761EC;
-            D_8009F248[0] = D_8007623C[0];
+            gCdLoadLoc[0] = (s32)D_800761EC;
+            gCdLoadSectors[0] = D_8007623C[0];
             break;
         case 22:
-            D_80096748[0] = (s32)D_800761F4;
-            D_8009F248[0] = D_80076244[0];
+            gCdLoadLoc[0] = (s32)D_800761F4;
+            gCdLoadSectors[0] = D_80076244[0];
             break;
     }
-    D_8009F090[0] = 0x800F0000;
-    D_80095960 = 1;
-    D_8009596C = 1;
+    gCdLoadDest[0] = 0x800F0000;
+    gCdLoadCount = 1;
+    gCdLoadState = 1;
 }

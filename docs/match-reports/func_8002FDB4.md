@@ -65,7 +65,7 @@ void func_8002FDB4(void) {
     s32 i;
     u32 j;
 
-    if (D_80095970 & 0x20) {
+    if (gPadTrig & 0x20) {
         if (sTotals.unk26 == 200) {
             D_800958DA = 8;
         } else if (D_80095824 == -1) {

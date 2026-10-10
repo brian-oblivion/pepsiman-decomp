@@ -40,10 +40,10 @@ extern char D_800954C8[];
 void func_80018DE8(s32 arg);
 s8 func_80013B38(void);
 s32 func_800426A4(void);
-void func_80014AC8(void);
-void func_80014CF0(void);
-s8 func_80015584(void);
-void func_80014044(void);
+void InitSystem(void);
+void ResetClearColor(void);
+s8 UpdateCdLoad(void);
+void EndFrame(void);
 void func_80016D14(void);
 void func_80016FC0(void);
 void func_80017124(void);
@@ -66,7 +66,7 @@ int main(void) {
     s32 a;
     s32 b;
 
-    func_80014AC8();
+    InitSystem();
     func_80020C14();
     func_80018DE8(1);
     func_80018CB4();
@@ -96,8 +96,8 @@ int main(void) {
     }
     D_800956D0 = 0;
     D_80095760 = 0;
-    D_80095880 = 0;
-    D_8009586C = 0;
+    gGameMode = 0;
+    gLoading = 0;
     D_80095766 = 0;
     D_80095764 = 0;
     D_800957DA = 0;
@@ -106,59 +106,59 @@ int main(void) {
     D_800958C9 = 0;
     for (;;) {
         FntPrint(D_800954C8);
-        if (D_8009586C == 1) {
-            func_80014CF0();
+        if (gLoading == 1) {
+            ResetClearColor();
         }
-        switch (D_80095880) {
+        switch (gGameMode) {
             case 0:
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
                 D_800958A6 = 0;
-                D_80095880 = 1;
-                D_800957A8 = 2;
+                gGameMode = 1;
+                gVSyncMode = 2;
                 break;
             case 1:
                 if (func_80013B38() == 1) {
                     D_800958A6 = 0;
-                    D_80095880 = 2;
+                    gGameMode = 2;
                 }
                 break;
             case 2:
                 if (func_800426A4() == 1) {
-                    D_80095880 = 6;
+                    gGameMode = 6;
                 }
                 break;
             case 3:
-                D_8009586C = 1;
-                D_80095880 = 4;
-                func_80022554(0);
+                gLoading = 1;
+                gGameMode = 4;
+                LoadOverlay(0);
                 break;
             case 4:
-                if (D_8009596C == 6) {
-                    D_80095880 = 5;
+                if (gCdLoadState == 6) {
+                    gGameMode = 5;
                     D_80095760 = 0;
-                    D_8009586C = 0;
+                    gLoading = 0;
                 }
                 break;
             case 5:
                 func_800F026C();
                 break;
             case 6:
-                D_8009586C = 1;
+                gLoading = 1;
                 D_800958F8 = 0;
-                D_80095880 = 7;
-                func_80022554(2);
+                gGameMode = 7;
+                LoadOverlay(2);
                 break;
             case 7:
-                if (D_8009596C == 6) {
-                    D_80095880 = 8;
+                if (gCdLoadState == 6) {
+                    gGameMode = 8;
                     if (D_80095760 == 0xFFFF) {
                         D_80095760 = 50;
                     } else {
                         D_80095760 = 0;
                     }
-                    D_8009586C = 0;
+                    gLoading = 0;
                 }
                 break;
             case 8:
@@ -166,23 +166,23 @@ int main(void) {
                 func_80014DB0();
                 break;
             case 38:
-                world = D_80095830 / 3;
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
-                D_8009586C = 1;
-                D_80095880 = 39;
-                func_80022554(world + 18);
+                world = gStage / 3;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
+                gLoading = 1;
+                gGameMode = 39;
+                LoadOverlay(world + 18);
                 break;
             case 39:
-                if (D_8009596C == 6) {
-                    D_80095880 = 40;
+                if (gCdLoadState == 6) {
+                    gGameMode = 40;
                 }
                 D_80095760 = 0;
                 D_80095768 = 0;
                 break;
             case 40:
-                switch ((u8)(D_80095830 / 3)) {
+                switch ((u8)(gStage / 3)) {
                     case 0:
                         func_800F03BC();
                         break;
@@ -203,88 +203,88 @@ int main(void) {
                 }
                 break;
             case 12:
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
                 D_800958F8 = 0;
-                D_8009586C = 1;
-                D_80095880 = 13;
-                func_8004121C(D_80095830);
+                gLoading = 1;
+                gGameMode = 13;
+                LoadStageOverlay(gStage);
                 break;
             case 13:
-                if (D_8009596C == 6) {
-                    D_80095880 = 14;
+                if (gCdLoadState == 6) {
+                    gGameMode = 14;
                 }
                 D_80095760 = 0;
                 break;
             case 14:
-                func_800401F0(D_80095830);
+                func_800401F0(gStage);
                 break;
             case 15:
-                D_80095880 = 16;
+                gGameMode = 16;
                 func_800229A8();
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
-                D_800957A8 = 2;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
+                gVSyncMode = 2;
                 break;
             case 16:
                 func_80022A74();
                 break;
             case 17:
-                D_800957A8 = 2;
-                D_80095880 = 19;
+                gVSyncMode = 2;
+                gGameMode = 19;
                 D_80095760 = 0;
                 break;
             case 19:
                 func_80017B38();
                 break;
             case 20:
-                D_80095880 = 23;
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
-                D_8009586C = 1;
-                D_80095880 = 21;
+                gGameMode = 23;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
+                gLoading = 1;
+                gGameMode = 21;
                 D_800958A6 = 0;
                 D_800958E2 = 0;
-                func_8004121C(D_80095830);
-                D_800957A8 = 0;
+                LoadStageOverlay(gStage);
+                gVSyncMode = 0;
                 break;
             case 21:
-                if (D_8009596C == 6) {
-                    D_80095880 = 22;
+                if (gCdLoadState == 6) {
+                    gGameMode = 22;
                 }
                 break;
             case 22:
-                if (func_80040CD0(D_80095830) == 1) {
-                    D_80095880 = 23;
-                    D_8009586C = 0;
+                if (func_80040CD0(gStage) == 1) {
+                    gGameMode = 23;
+                    gLoading = 0;
                 }
                 break;
             case 23:
                 func_8002B04C();
                 break;
             case 24:
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
-                D_8009586C = 1;
-                D_80095880 = 25;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
+                gLoading = 1;
+                gGameMode = 25;
                 D_800958A6 = 0;
                 D_800958E2 = 0;
-                func_8004121C(D_80095830);
-                D_800957A8 = 0;
+                LoadStageOverlay(gStage);
+                gVSyncMode = 0;
                 break;
             case 25:
-                if (D_8009596C == 6) {
-                    D_80095880 = 26;
+                if (gCdLoadState == 6) {
+                    gGameMode = 26;
                 }
                 break;
             case 26:
-                if (func_80040CD0(D_80095830) == 1) {
-                    D_80095880 = 27;
-                    D_8009586C = 0;
+                if (func_80040CD0(gStage) == 1) {
+                    gGameMode = 27;
+                    gLoading = 0;
                     D_80095760 = 0;
                 }
                 break;
@@ -293,33 +293,33 @@ int main(void) {
                 break;
             case 28:
                 D_800958F8 = 1;
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
-                D_8009586C = 1;
-                D_80095880 = 29;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
+                gLoading = 1;
+                gGameMode = 29;
                 D_800958A6 = 0;
                 D_800958E2 = 0;
-                func_8004121C(D_80095830);
-                D_800957A8 = 2;
+                LoadStageOverlay(gStage);
+                gVSyncMode = 2;
                 break;
             case 29:
-                if (D_8009596C == 6) {
-                    D_80095880 = 30;
+                if (gCdLoadState == 6) {
+                    gGameMode = 30;
                 }
                 break;
             case 30:
-                if (func_80040CD0(D_80095830) == 1) {
-                    D_80095880 = 32;
+                if (func_80040CD0(gStage) == 1) {
+                    gGameMode = 32;
                     D_80095760 = 0;
-                    D_8009586C = 0;
+                    gLoading = 0;
                 }
                 break;
             case 31:
-                if (D_8009596C == 6) {
-                    D_80095880 = 32;
+                if (gCdLoadState == 6) {
+                    gGameMode = 32;
                     D_80095760 = 0;
-                    D_8009586C = 0;
+                    gLoading = 0;
                 }
                 break;
             case 32:
@@ -327,33 +327,33 @@ int main(void) {
                 break;
             case 33:
                 D_800958F8 = 1;
-                D_8009574C = 0;
-                D_80095754 = 0;
-                D_8009575C = 0;
-                D_8009586C = 1;
-                D_80095880 = 34;
+                gClearB = 0;
+                gClearG = 0;
+                gClearR = 0;
+                gLoading = 1;
+                gGameMode = 34;
                 D_800958A6 = 0;
                 D_800958E2 = 0;
-                func_8004121C(D_80095830);
-                D_800957A8 = 2;
+                LoadStageOverlay(gStage);
+                gVSyncMode = 2;
                 break;
             case 34:
-                if (D_8009596C == 6) {
-                    D_80095880 = 35;
+                if (gCdLoadState == 6) {
+                    gGameMode = 35;
                 }
                 break;
             case 35:
-                if (func_80040CD0(D_80095830) == 1) {
-                    D_80095880 = 37;
+                if (func_80040CD0(gStage) == 1) {
+                    gGameMode = 37;
                     D_80095760 = 0;
-                    D_8009586C = 0;
+                    gLoading = 0;
                 }
                 break;
             case 36:
-                if (D_8009596C == 6) {
-                    D_80095880 = 37;
+                if (gCdLoadState == 6) {
+                    gGameMode = 37;
                     D_80095760 = 0;
-                    D_8009586C = 0;
+                    gLoading = 0;
                 }
                 break;
             case 37:
@@ -369,26 +369,26 @@ int main(void) {
                 func_80017124();
                 break;
             case 44:
-                switch ((u8)(D_80095830 / 3)) {
+                switch ((u8)(gStage / 3)) {
                     case 0:
                         PlayMovie("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
-                        D_80095880 = 38;
+                        gGameMode = 38;
                         break;
                     case 1:
                         PlayMovie("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
-                        D_80095880 = 38;
+                        gGameMode = 38;
                         break;
                     case 2:
                         PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
-                        D_80095880 = 38;
+                        gGameMode = 38;
                         break;
                     case 3:
                         PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
-                        D_80095880 = 38;
+                        gGameMode = 38;
                         break;
                     case 4:
                         PlayMovie("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
-                        D_80095880 = 38;
+                        gGameMode = 38;
                         break;
                     case 5:
                         PlayMovie("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
@@ -399,16 +399,16 @@ int main(void) {
                             D_800958C8 |= 8;
                         }
                         D_800957A0 = -1;
-                        D_80095880 = 6;
+                        gGameMode = 6;
                         D_80095760 = 0;
                         break;
                 }
                 break;
         }
         FntFlush(-1);
-        func_80015584();
+        UpdateCdLoad();
         func_80042208();
-        func_80014044();
+        EndFrame();
     }
 }
 
@@ -426,27 +426,27 @@ s8 func_80013B38(void) {
     ret = 0;
     switch (D_800958A6) {
         case 0:
-            D_80096748[0] = (s32)&D_80072484[0];
-            D_8009F090[0] = 0x8014D000;
-            D_80096748[1] = (s32)&D_80072484[1];
-            D_8009F090[1] = 0x8018D000;
-            D_80096748[2] = (s32)&D_80072484[2];
-            D_8009F090[2] = 0x80123000;
-            D_80096748[3] = (s32)&D_80072484[3];
-            D_8009F090[3] = 0x8016D000;
-            D_80096748[4] = (s32)&D_80072484[4];
-            D_8009F090[4] = 0x80101000;
-            D_80095960 = 5;
-            D_8009F248[0] = D_800724C4[0];
-            D_8009F248[1] = D_800724C4[1];
-            D_8009F248[2] = D_800724C4[2];
-            D_8009F248[3] = D_800724C4[3];
-            D_8009F248[4] = D_800724C4[4];
-            D_8009596C = 1;
+            gCdLoadLoc[0] = (s32)&D_80072484[0];
+            gCdLoadDest[0] = 0x8014D000;
+            gCdLoadLoc[1] = (s32)&D_80072484[1];
+            gCdLoadDest[1] = 0x8018D000;
+            gCdLoadLoc[2] = (s32)&D_80072484[2];
+            gCdLoadDest[2] = 0x80123000;
+            gCdLoadLoc[3] = (s32)&D_80072484[3];
+            gCdLoadDest[3] = 0x8016D000;
+            gCdLoadLoc[4] = (s32)&D_80072484[4];
+            gCdLoadDest[4] = 0x80101000;
+            gCdLoadCount = 5;
+            gCdLoadSectors[0] = D_800724C4[0];
+            gCdLoadSectors[1] = D_800724C4[1];
+            gCdLoadSectors[2] = D_800724C4[2];
+            gCdLoadSectors[3] = D_800724C4[3];
+            gCdLoadSectors[4] = D_800724C4[4];
+            gCdLoadState = 1;
             D_800958A6 = 1;
             break;
         case 1:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_80018DE8(0);
                 D_800958A6++;
             }
@@ -571,31 +571,31 @@ void func_80013CDC(void) {
 /* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
 void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
 
-extern GsOT_TAG D_80096A78[2][0x1000];
-extern GsOT_TAG D_8009F278[2][0x1000];
-extern PACKET D_800ACF00[2][67200];
+extern GsOT_TAG gOtTags[2][0x1000];
+extern GsOT_TAG gSubOtTags[2][0x1000];
+extern PACKET gGpuWork[2][67200];
 
-void func_80013EE4(void) {
+void InitGraphics(void) {
     s32 i;
 
     func_80056774(320, 240, 4, 1, 0);
     GsDefDispBuff(0, 0, 0, 240);
     for (i = 0; i < 2; i++) {
-        D_800ACEA8[i].length = 12;
-        D_800ACEA8[i].org = D_8009F278[i];
-        D_800ACEA8[i].point = 0;
-        D_800ACEA8[i].offset = 0;
-        D_800A7318[i].length = 12;
-        D_800A7318[i].org = D_80096A78[i];
+        gSubOt[i].length = 12;
+        gSubOt[i].org = gSubOtTags[i];
+        gSubOt[i].point = 0;
+        gSubOt[i].offset = 0;
+        gOt[i].length = 12;
+        gOt[i].org = gOtTags[i];
         /* MATCHING: retail stores this field twice. */
-        D_800ACEA8[i].point = 300;
-        D_800A7318[i].offset = 0;
+        gSubOt[i].point = 300;
+        gOt[i].offset = 0;
     }
-    D_80095750 = GsGetActiveBuff();
-    GsSetWorkBase(D_800ACF00[D_80095750]);
-    GsClearOt(0, 300, &D_800A7318[D_80095750]);
-    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
-    D_80095884 = &D_800A7318[D_80095750];
+    gActiveBuff = GsGetActiveBuff();
+    GsSetWorkBase(gGpuWork[gActiveBuff]);
+    GsClearOt(0, 300, &gOt[gActiveBuff]);
+    GsClearOt(0, 0, &gSubOt[gActiveBuff]);
+    gCurOt = &gOt[gActiveBuff];
 }
 
 /* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
@@ -604,13 +604,13 @@ void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
 extern DR_STP D_800CEBD0;
 extern DR_STP D_800CEBC0;
 
-void func_80014044(void) {
+void EndFrame(void) {
     GsRVIEW2 view;
 
-    switch (D_8009586C) {
+    switch (gLoading) {
         case 0:
-            if (D_80095880 != 14) {
-                GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+            if (gGameMode != 14) {
+                GsSetRefView2((GsRVIEW2 *)gRefView);
             }
             break;
         case 1:
@@ -624,33 +624,33 @@ void func_80014044(void) {
             GsSetRefView2(&view);
             break;
     }
-    D_800959A0 = VSync(D_800957A8);
+    gVSyncTime = VSync(gVSyncMode);
     DrawSync(0);
     GsSwapDispBuff();
-    func_80056B8C(D_8009575C, D_80095754, D_8009574C, &D_800A7318[D_80095750]);
+    func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
     SetDrawStp(&D_800CEBD0, 1);
-    AddPrim(&D_800A7318[D_80095750].org[0xFFF], &D_800CEBD0);
+    AddPrim(&gOt[gActiveBuff].org[0xFFF], &D_800CEBD0);
     func_80039754(ClipF);
-    GsDrawOt(&D_800A7318[D_80095750]);
-    D_80095750 = GsGetActiveBuff();
-    GsSetWorkBase(D_800ACF00[D_80095750]);
-    GsClearOt(0, 300, &D_800A7318[D_80095750]);
-    GsClearOt(0, 0, &D_800ACEA8[D_80095750]);
-    GsSortOt(&D_800ACEA8[D_80095750], &D_800A7318[D_80095750]);
-    D_80095884 = &D_800A7318[D_80095750];
+    GsDrawOt(&gOt[gActiveBuff]);
+    gActiveBuff = GsGetActiveBuff();
+    GsSetWorkBase(gGpuWork[gActiveBuff]);
+    GsClearOt(0, 300, &gOt[gActiveBuff]);
+    GsClearOt(0, 0, &gSubOt[gActiveBuff]);
+    GsSortOt(&gSubOt[gActiveBuff], &gOt[gActiveBuff]);
+    gCurOt = &gOt[gActiveBuff];
     SetDrawStp(&D_800CEBC0, 0);
-    AddPrim(D_800ACEA8[D_80095750].org, &D_800CEBC0);
-    func_800142EC(0);
+    AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
+    ReadPad(0);
     func_8003DE34();
     if (D_80095974 == 0) {
-        D_8009585C++;
+        gFrameCount++;
     }
 }
 
 /* MATCHING: declared at most 8 bytes, so each base is one `la` register. */
-extern s32 D_80095850[2];
-extern s32 D_80095870[2];
-extern s32 D_80095848[2];
+extern s32 gPadPrev[2];
+extern s32 gPadPressed[2];
+extern s32 gPadHeld[2];
 
 extern s8 D_8009575D;
 extern u8 D_800956EA;
@@ -658,7 +658,7 @@ extern u8 D_800956DB;
 extern u8 D_800956E8[2];
 extern u8 D_800956D8[3];
 
-void func_80014FA8(void);
+void PollPads(void);
 
 /**
  * @brief Auto-repeat for one held button: once @p cnt has counted 30
@@ -666,29 +666,29 @@ void func_80014FA8(void);
  *        pressed-flags word every few frames. A release clears @p cnt.
  */
 /* MATCHING: a bare block; `do { } while (0)` changes the branch layout. */
-#define REPEAT(bit, cnt)                                                          \
-    {                                                                             \
-        if (D_80095964 & (bit)) {                                                 \
-            if ((cnt) >= 30 / D_8009575D && D_8009585C % (4 / D_8009575D) == 0) { \
-                D_80095970 |= (bit);                                              \
-            } else if ((cnt) < 30 / D_8009575D) {                                 \
-                (cnt)++;                                                          \
-            }                                                                     \
-        } else {                                                                  \
-            (cnt) = 0;                                                            \
-        }                                                                         \
+#define REPEAT(bit, cnt)                                                           \
+    {                                                                              \
+        if (gPad & (bit)) {                                                        \
+            if ((cnt) >= 30 / D_8009575D && gFrameCount % (4 / D_8009575D) == 0) { \
+                gPadTrig |= (bit);                                                 \
+            } else if ((cnt) < 30 / D_8009575D) {                                  \
+                (cnt)++;                                                           \
+            }                                                                      \
+        } else {                                                                   \
+            (cnt) = 0;                                                             \
+        }                                                                          \
     }
 
-void func_800142EC(s32 arg) {
+void ReadPad(s32 port) {
     D_8009575D = 4;
-    func_80014FA8();
-    if (D_80095784 == 0x41) {
+    PollPads();
+    if (gPadType == 0x41) {
         D_800957C0 = D_800957C8 = 0x80;
     }
-    /* MATCHING: this order builds D_80095870's address first, as retail;
-     * the stores still come out D_80095964 first. */
-    D_80095970 = D_80095870[(u16)arg];
-    D_80095964 = D_80095848[(u16)arg];
+    /* MATCHING: this order builds gPadPressed's address first, as retail;
+     * the stores still come out gPad first. */
+    gPadTrig = gPadPressed[(u16)port];
+    gPad = gPadHeld[(u16)port];
     REPEAT(0x1000, D_800956EA)
     REPEAT(0x4000, D_800956DB)
     REPEAT(0x8000, D_800956E8[0])
@@ -700,8 +700,8 @@ void func_800142EC(s32 arg) {
     }
 }
 
-void func_80013EE4(void);
-void func_80014B8C(s16 frames);
+void InitGraphics(void);
+void WaitFrames(s16 frames);
 
 void func_800148B0(void) {
     s32 x;
@@ -710,9 +710,9 @@ void func_800148B0(void) {
 
     x = 0;
     y = 0;
-    func_80014B8C(20);
+    WaitFrames(20);
     for (;;) {
-        pad = D_80095848[0];
+        pad = gPadHeld[0];
         if (pad & 0x2000) {
             x += 8;
         }
@@ -731,16 +731,16 @@ void func_800148B0(void) {
         x = x < 0 ? 0 : x > 0x2C0 ? 0x2C0 : x;
         y = y < 0 ? 0 : y > 0x110 ? 0x110 : y;
         GsDefDispBuff(x, y, x, y);
-        func_800142EC(0);
+        ReadPad(0);
         DrawSync(0);
         VSync(0);
         GsSwapDispBuff();
     }
-    func_80013EE4();
+    InitGraphics();
     GsInit3D();
     func_80018CB4();
     func_80018094();
-    func_80014B8C(5);
+    WaitFrames(5);
 }
 
 extern char D_800954CC[];
@@ -775,13 +775,13 @@ void func_800149D0(u8 *base) {
     }
 }
 
-void func_8001534C(void);
-void func_80014D20(void);
-void func_80014D6C(void);
+void InitPads(void);
+void ClearVram(void);
+void InitDebugFont(void);
 
 extern u8 D_80095820;
 
-void func_80014AC8(void) {
+void InitSystem(void) {
     ResetCallback();
     bzero((u8 *)0x80101000, 0xFC800);
     InitCARD(1);
@@ -790,30 +790,30 @@ void func_80014AC8(void) {
     MemCardStart();
     ChangeClearPAD(0);
     _bu_init();
-    func_8001534C();
+    InitPads();
     func_800428B0();
     CdInit();
     SsStart();
-    D_8009574C = 0;
-    D_80095754 = 0;
-    D_8009575C = 0;
-    func_80013EE4();
+    gClearB = 0;
+    gClearG = 0;
+    gClearR = 0;
+    InitGraphics();
     GsInit3D();
-    func_80014D20();
+    ClearVram();
     D_80095820 = 0;
-    func_80014D6C();
+    InitDebugFont();
 }
 
-void func_80014B8C(s16 frames) {
+void WaitFrames(s16 frames) {
     s16 i;
 
     for (i = 0; i < frames; i++) {
-        func_800142EC(0);
+        ReadPad(0);
         VSync(0);
     }
 }
 
-void func_80014BF0(s16 count) {
+void PrintTabs(s16 count) {
     s16 i;
 
     for (i = 0; i < count; i++) {
@@ -840,17 +840,17 @@ void func_80014C58(u8 idx) {
     func_80017440(tbl.b[idx], 1);
 }
 
-void func_80014CF0(void) {
+void ResetClearColor(void) {
     /* MATCHING: retail reserves an 8-byte frame it never touches. */
     s32 unused[2];
 
-    D_800957A8 = 2;
-    D_8009574C = 0;
-    D_80095754 = 0;
-    D_8009575C = 0;
+    gVSyncMode = 2;
+    gClearB = 0;
+    gClearG = 0;
+    gClearR = 0;
 }
 
-void func_80014D20(void) {
+void ClearVram(void) {
     RECT rect;
 
     rect.x = 0;
@@ -861,7 +861,7 @@ void func_80014D20(void) {
     DrawSync(0);
 }
 
-void func_80014D6C(void) {
+void InitDebugFont(void) {
     FntLoad(0x3C0, 0);
     FntOpen(-0x9A, -0x74, 0x140, 0x100, 0, 0x400);
 }
@@ -933,14 +933,14 @@ static __inline__ void repeatRecord(TableHeader *tbl, u16 index, u8 count) {
 /* MATCHING: s32 with a bare return, so the `bgtz` keeps its `nop` slot. */
 s32 func_80014DB0(void) {
     if ((s16)D_800958E6 > 0 && D_800957DA == 1) {
-        func_80015328(0, D_80095764, D_80095766);
+        SetPadVibration(0, D_80095764, D_80095766);
         D_800958E6--;
         return;
     }
     D_800958E6 = 0;
     D_80095764 = 0;
     D_80095766 = 0;
-    func_80015328(0, 0, 0);
+    SetPadVibration(0, 0, 0);
     if ((s16)D_800957E0 > 0) {
         if ((s16)--D_8009586A <= 0) {
             if ((s16)D_800957E0 < 2) {
@@ -958,7 +958,7 @@ s32 func_80014DB0(void) {
 }
 
 extern u8 D_80072F44[];
-extern u8 D_80095BA0[];
+extern u8 gPadBuf[];
 extern s32 D_80095928;
 extern s32 D_80095920;
 /* MATCHING: code_1dc24 declares it too; both reach it the same way. */
@@ -968,7 +968,7 @@ extern s32 D_80095854;
 extern s32 D_8009584C;
 extern s32 D_80095874;
 
-u32 func_80015180(void);
+u32 UpdatePadActuators(void);
 
 /**
  * @brief Per-frame pad read: polls both pads, keeps port 0's id byte,
@@ -976,57 +976,57 @@ u32 func_80015180(void);
  *        newly pressed ones, and for an analog pad (id 0x73) turns the
  *        stick's extremes into direction bits and keeps the raw axes.
  */
-void func_80014FA8(void) {
+void PollPads(void) {
     u8 id;
     s32 btn;
     s32 m;
     s32 b;
 
-    func_80015180();
-    id = D_80095BA0[1];
-    D_80095784 = id;
+    UpdatePadActuators();
+    id = gPadBuf[1];
+    gPadType = id;
     /* MATCHING: built up in one local over three statements; as one
      * expression, combine drops port 1's `andi 0xFFFF`. */
-    btn = D_80095BA0[D_80072F44[0] + 2] << 8;
-    btn |= D_80095BA0[D_80072F44[0] + 3];
+    btn = gPadBuf[D_80072F44[0] + 2] << 8;
+    btn |= gPadBuf[D_80072F44[0] + 3];
     btn ^= 0xFFFF;
     if (id == 0) {
         btn = 0;
     }
-    m = D_80095850[0] ^ 0xFFFF;
+    m = gPadPrev[0] ^ 0xFFFF;
     /* MATCHING: a new local, not `btn = (u16)btn;`: it takes $v1 in
      * local-alloc, so the D_80095854 load lands in $a0 and is hoisted. */
     b = (u16)btn;
-    D_80095848[0] = D_80095850[0] = b;
-    D_80095870[0] = b & m;
+    gPadHeld[0] = gPadPrev[0] = b;
+    gPadPressed[0] = b & m;
     m = D_80095854 ^ 0xFFFF;
-    btn = D_80095BA0[D_80072F44[1] + 0x24] << 8;
-    btn |= D_80095BA0[D_80072F44[1] + 0x25];
+    btn = gPadBuf[D_80072F44[1] + 0x24] << 8;
+    btn |= gPadBuf[D_80072F44[1] + 0x25];
     btn ^= 0xFFFF;
     D_8009584C = D_80095854 = (u16)btn;
     btn = (u16)btn & m;
     D_80095874 = btn;
     if (id == 0x73) {
         m = D_80095928 ^ 0xFFFF;
-        if (D_80095BA0[7] < 10) {
+        if (gPadBuf[7] < 10) {
             D_80095928 = 0x1000;
-        } else if (D_80095BA0[7] >= 0xF6) {
+        } else if (gPadBuf[7] >= 0xF6) {
             D_80095928 = 0x4000;
         } else {
             D_80095928 = 0;
         }
         D_80095958 = D_80095928 & m;
         m = D_80095920 ^ 0xFFFF;
-        if (D_80095BA0[6] < 10) {
+        if (gPadBuf[6] < 10) {
             D_80095920 = 0x8000;
-        } else if (D_80095BA0[6] >= 0xF6) {
+        } else if (gPadBuf[6] >= 0xF6) {
             D_80095920 = 0x2000;
         } else {
             D_80095920 = 0;
         }
         D_80095950 = D_80095920 & m;
-        D_800957C0 = D_80095BA0[6];
-        D_800957C8 = D_80095BA0[7];
+        D_800957C0 = gPadBuf[6];
+        D_800957C8 = gPadBuf[7];
     }
 }
 
@@ -1035,7 +1035,7 @@ extern u8 *D_80095704;
 /* MATCHING: a known small size, so its address is one `la` register. */
 extern u8 D_800954E4[6];
 
-u32 func_80015180(void) {
+u32 UpdatePadActuators(void) {
     u8 *buf;
     u8 *act;
     s32 k;
@@ -1070,7 +1070,7 @@ u32 func_80015180(void) {
     return ~((buf[0x24] << 24) | (buf[0x25] << 16) | (buf[2] << 8) | buf[3]);
 }
 
-void func_80015328(s32 offset, u8 a, u8 b) {
+void SetPadVibration(s32 offset, u8 a, u8 b) {
     D_80095704[offset + 2] = a;
     D_80095704[offset + 3] = b;
 }
@@ -1079,18 +1079,18 @@ void func_8001552C(u8 *a, u8 *b);
 
 extern u8 D_80095BE8[];
 
-void func_8001534C(void) {
+void InitPads(void) {
     s16 i;
 
-    func_8001552C(D_80095BA0, D_80095BE8);
+    func_8001552C(gPadBuf, D_80095BE8);
     for (i = 0; i < 6; i++) {
-        D_80095850[i] = 0;
-        D_80095870[i] = 0;
-        D_80095848[i] = 0;
+        gPadPrev[i] = 0;
+        gPadPressed[i] = 0;
+        gPadHeld[i] = 0;
     }
 }
 
-void func_800153CC(s32 mode) {
+void SetPadMainMode(s32 mode) {
     mode &= 1;
     D_800958CC = 0;
     do {
@@ -1147,61 +1147,61 @@ void func_8001552C(u8 *a, u8 *b) {
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
 
-extern s16 D_800954EC;
-extern s32 D_8009582C;
-extern u8 D_800957F0;
+extern s16 gCdLoadIndex;
+extern s32 gCdLoadReadSectors;
+extern u8 gCdLoadRetries;
 
-s8 func_80015584(void) {
+s8 UpdateCdLoad(void) {
     s32 r;
 
-    switch (D_8009596C) {
+    switch (gCdLoadState) {
         case 0:
             break;
         case 1:
-            CdControlF(CdlSetloc, (u_char *)D_80096748[D_800954EC]);
-            D_8009596C++;
+            CdControlF(CdlSetloc, (u_char *)gCdLoadLoc[gCdLoadIndex]);
+            gCdLoadState++;
             break;
         case 2:
             r = CdSync(1, NULL);
             if (r == 2) {
-                D_8009596C++;
+                gCdLoadState++;
             } else if (r == 5) {
-                D_8009596C = 1;
-                D_800957F0++;
+                gCdLoadState = 1;
+                gCdLoadRetries++;
             }
             break;
         case 3:
-            D_8009582C = D_8009F248[D_800954EC] + 1;
-            if (CdRead(D_8009582C, (u_long *)D_8009F090[D_800954EC], 0x80) == 0) {
-                D_800957F0++;
+            gCdLoadReadSectors = gCdLoadSectors[gCdLoadIndex] + 1;
+            if (CdRead(gCdLoadReadSectors, (u_long *)gCdLoadDest[gCdLoadIndex], 0x80) == 0) {
+                gCdLoadRetries++;
             } else {
-                D_8009596C++;
+                gCdLoadState++;
             }
             break;
         case 4:
             r = CdReadSync(1, NULL);
             if (r == 0) {
-                D_8009596C++;
+                gCdLoadState++;
             } else if (r == -1) {
-                D_8009596C = 1;
-                D_800957F0++;
+                gCdLoadState = 1;
+                gCdLoadRetries++;
             }
             break;
         case 5:
-            if (++D_800954EC >= D_80095960) {
-                D_8009596C = 6;
-                D_800954EC = 0;
+            if (++gCdLoadIndex >= gCdLoadCount) {
+                gCdLoadState = 6;
+                gCdLoadIndex = 0;
             } else {
-                D_8009596C = 1;
+                gCdLoadState = 1;
             }
             break;
     }
-    return D_8009596C;
+    return gCdLoadState;
 }
 
 extern char D_80010148[];
 
-void func_80015754(char *name, void *buf) {
+void LoadFile(char *name, void *buf) {
     s32 fd;
 
     fd = open(name, 1);
@@ -1251,10 +1251,10 @@ void func_800157DC(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     D_80095C08 = *(StateCopy *)D_8009EB78;
     D_80095C08.unk380 = 0x800;
     D_80095C08.unk6 = 3;
@@ -1264,14 +1264,14 @@ void func_800157DC(void) {
     D_80095C08.unk5 = 0x61;
     D_80095C08.unk3A8 = 0;
     D_80095C08.unk0 = 0;
-    D_800DB2A0[0] = rsin(0x800) * 400 / 4096;
-    D_800DB2A0[1] = -150;
-    D_800DB2A0[2] = rcos(0x800) * 400 / 4096;
-    D_800DB2A0[3] = 0;
-    D_800DB2A0[4] = -150;
-    D_800DB2A0[5] = 0;
+    gRefView[0] = rsin(0x800) * 400 / 4096;
+    gRefView[1] = -150;
+    gRefView[2] = rcos(0x800) * 400 / 4096;
+    gRefView[3] = 0;
+    gRefView[4] = -150;
+    gRefView[5] = 0;
     D_800958A6 = 0;
-    D_80095880 = 0x29;
+    gGameMode = 0x29;
 }
 
 void func_80015A28(void) {
@@ -1287,12 +1287,12 @@ void func_80015A28(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     D_800958A6 = 0;
-    D_80095880 = 0x2A;
+    gGameMode = 0x2A;
 }
 
 void func_80015B78(void) {
@@ -1308,12 +1308,12 @@ void func_80015B78(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     D_800958A6 = 0;
-    D_80095880 = 0x2B;
+    gGameMode = 0x2B;
 }
 
 /* Each stage's disc directory (the names are guesses): file positions,
@@ -1349,7 +1349,7 @@ void func_80015CC8(void) {
             D_800958A6++;
             break;
         case 1:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 2:
                     bank = 2;
                     break;
@@ -1371,81 +1371,81 @@ void func_80015CC8(void) {
             }
             break;
         case 2:
-            func_8004121C(D_80095830);
+            LoadStageOverlay(gStage);
             D_800958A6++;
             break;
         case 3:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 D_800958A6++;
             }
             break;
         case 4:
             func_80018DE8(0);
-            switch (D_80095830) {
+            switch (gStage) {
                 case 2:
-                    D_80096748[0] = (s32)&D_80073D00[0];
-                    D_8009F248[0] = D_80073D24[0];
+                    gCdLoadLoc[0] = (s32)&D_80073D00[0];
+                    gCdLoadSectors[0] = D_80073D24[0];
                     break;
                 case 5:
-                    D_80096748[0] = (s32)&D_80073DD8[0];
-                    D_8009F248[0] = D_80073DFC[0];
+                    gCdLoadLoc[0] = (s32)&D_80073DD8[0];
+                    gCdLoadSectors[0] = D_80073DFC[0];
                     break;
                 case 8:
-                    D_80096748[0] = (s32)&D_80073EB0[0];
-                    D_8009F248[0] = D_80073ED4[0];
+                    gCdLoadLoc[0] = (s32)&D_80073EB0[0];
+                    gCdLoadSectors[0] = D_80073ED4[0];
                     break;
                 case 11:
-                    D_80096748[0] = (s32)&D_80073F88[0];
-                    D_8009F248[0] = D_80073FAC[0];
+                    gCdLoadLoc[0] = (s32)&D_80073F88[0];
+                    gCdLoadSectors[0] = D_80073FAC[0];
                     break;
                 case 14:
-                    D_80096748[0] = (s32)&D_80074060[0];
-                    D_8009F248[0] = D_80074084[0];
+                    gCdLoadLoc[0] = (s32)&D_80074060[0];
+                    gCdLoadSectors[0] = D_80074084[0];
                     break;
             }
-            D_8009F090[0] = 0x8019D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 5:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_8003E13C((unsigned long *)0x8019D000);
                 D_800958A6++;
             }
             break;
         case 6:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 2:
-                    D_80096748[0] = (s32)&D_80073D00[1];
-                    D_8009F248[0] = D_80073D24[1];
+                    gCdLoadLoc[0] = (s32)&D_80073D00[1];
+                    gCdLoadSectors[0] = D_80073D24[1];
                     break;
                 case 5:
-                    D_80096748[0] = (s32)&D_80073DD8[1];
-                    D_8009F248[0] = D_80073DFC[1];
+                    gCdLoadLoc[0] = (s32)&D_80073DD8[1];
+                    gCdLoadSectors[0] = D_80073DFC[1];
                     break;
                 case 8:
-                    D_80096748[0] = (s32)&D_80073EB0[1];
-                    D_8009F248[0] = D_80073ED4[1];
+                    gCdLoadLoc[0] = (s32)&D_80073EB0[1];
+                    gCdLoadSectors[0] = D_80073ED4[1];
                     break;
                 case 11:
-                    D_80096748[0] = (s32)&D_80073F88[1];
-                    D_8009F248[0] = D_80073FAC[1];
+                    gCdLoadLoc[0] = (s32)&D_80073F88[1];
+                    gCdLoadSectors[0] = D_80073FAC[1];
                     break;
                 case 14:
-                    D_80096748[0] = (s32)&D_80074060[1];
-                    D_8009F248[0] = D_80074084[1];
+                    gCdLoadLoc[0] = (s32)&D_80074060[1];
+                    gCdLoadSectors[0] = D_80074084[1];
                     break;
             }
-            D_8009F090[0] = 0x8019D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 7:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_80039C3C((unsigned long *)0x8019D000);
-                switch (D_80095830) {
+                switch (gStage) {
                     case 2:
                         func_800F6C60();
                         break;
@@ -1509,253 +1509,253 @@ void func_800160E8(void) {
             D_80095B0E = 0;
             D_800958A6++;
         case 1:
-            if (func_80042A88(func_80041178(D_80095830)) == 1) {
+            if (func_80042A88(func_80041178(gStage)) == 1) {
                 D_800958A6++;
             }
             break;
         case 2:
-            func_8004121C(D_80095830);
+            LoadStageOverlay(gStage);
             D_800958A6++;
             break;
         case 3:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 D_800958A6++;
             }
             break;
         case 4:
             func_80018DE8(0);
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
-                    D_80096748[0] = (s32)&D_80073C70[0];
-                    D_8009F248[0] = D_80073C90[1];
+                    gCdLoadLoc[0] = (s32)&D_80073C70[0];
+                    gCdLoadSectors[0] = D_80073C90[1];
                     break;
                 case 1:
-                    D_80096748[0] = (s32)&D_80073CB8[0];
-                    D_8009F248[0] = D_80073CD8[1];
+                    gCdLoadLoc[0] = (s32)&D_80073CB8[0];
+                    gCdLoadSectors[0] = D_80073CD8[1];
                     break;
                 case 3:
-                    D_80096748[0] = (s32)&D_80073D48[0];
-                    D_8009F248[0] = D_80073D68[1];
+                    gCdLoadLoc[0] = (s32)&D_80073D48[0];
+                    gCdLoadSectors[0] = D_80073D68[1];
                     break;
                 case 4:
-                    D_80096748[0] = (s32)&D_80073D90[0];
-                    D_8009F248[0] = D_80073DB0[1];
+                    gCdLoadLoc[0] = (s32)&D_80073D90[0];
+                    gCdLoadSectors[0] = D_80073DB0[1];
                     break;
                 case 6:
-                    D_80096748[0] = (s32)&D_80073E20[0];
-                    D_8009F248[0] = D_80073E40[1];
+                    gCdLoadLoc[0] = (s32)&D_80073E20[0];
+                    gCdLoadSectors[0] = D_80073E40[1];
                     break;
                 case 7:
-                    D_80096748[0] = (s32)&D_80073E68[0];
-                    D_8009F248[0] = D_80073E88[1];
+                    gCdLoadLoc[0] = (s32)&D_80073E68[0];
+                    gCdLoadSectors[0] = D_80073E88[1];
                     break;
                 case 9:
-                    D_80096748[0] = (s32)&D_80073EF8[0];
-                    D_8009F248[0] = D_80073F18[1];
+                    gCdLoadLoc[0] = (s32)&D_80073EF8[0];
+                    gCdLoadSectors[0] = D_80073F18[1];
                     break;
                 case 10:
-                    D_80096748[0] = (s32)&D_80073F40[0];
-                    D_8009F248[0] = D_80073F60[1];
+                    gCdLoadLoc[0] = (s32)&D_80073F40[0];
+                    gCdLoadSectors[0] = D_80073F60[1];
                     break;
                 case 12:
-                    D_80096748[0] = (s32)&D_80073FD0[0];
-                    D_8009F248[0] = D_80073FF0[1];
+                    gCdLoadLoc[0] = (s32)&D_80073FD0[0];
+                    gCdLoadSectors[0] = D_80073FF0[1];
                     break;
                 case 13:
-                    D_80096748[0] = (s32)&D_80074018[0];
-                    D_8009F248[0] = D_80074038[1];
+                    gCdLoadLoc[0] = (s32)&D_80074018[0];
+                    gCdLoadSectors[0] = D_80074038[1];
                     break;
             }
-            D_8009F090[0] = 0x8019D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 5:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_8003E13C((unsigned long *)0x8019D000);
                 D_800958A6++;
             }
             break;
         case 6:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
-                    D_80096748[0] = (s32)&D_80073C70[1];
-                    D_8009F248[0] = D_80073C90[2];
+                    gCdLoadLoc[0] = (s32)&D_80073C70[1];
+                    gCdLoadSectors[0] = D_80073C90[2];
                     break;
                 case 1:
-                    D_80096748[0] = (s32)&D_80073CB8[1];
-                    D_8009F248[0] = D_80073CD8[2];
+                    gCdLoadLoc[0] = (s32)&D_80073CB8[1];
+                    gCdLoadSectors[0] = D_80073CD8[2];
                     break;
                 case 3:
-                    D_80096748[0] = (s32)&D_80073D48[1];
-                    D_8009F248[0] = D_80073D68[2];
+                    gCdLoadLoc[0] = (s32)&D_80073D48[1];
+                    gCdLoadSectors[0] = D_80073D68[2];
                     break;
                 case 4:
-                    D_80096748[0] = (s32)&D_80073D90[1];
-                    D_8009F248[0] = D_80073DB0[2];
+                    gCdLoadLoc[0] = (s32)&D_80073D90[1];
+                    gCdLoadSectors[0] = D_80073DB0[2];
                     break;
                 case 6:
-                    D_80096748[0] = (s32)&D_80073E20[1];
-                    D_8009F248[0] = D_80073E40[2];
+                    gCdLoadLoc[0] = (s32)&D_80073E20[1];
+                    gCdLoadSectors[0] = D_80073E40[2];
                     break;
                 case 7:
-                    D_80096748[0] = (s32)&D_80073E68[1];
-                    D_8009F248[0] = D_80073E88[2];
+                    gCdLoadLoc[0] = (s32)&D_80073E68[1];
+                    gCdLoadSectors[0] = D_80073E88[2];
                     break;
                 case 9:
-                    D_80096748[0] = (s32)&D_80073EF8[1];
-                    D_8009F248[0] = D_80073F18[2];
+                    gCdLoadLoc[0] = (s32)&D_80073EF8[1];
+                    gCdLoadSectors[0] = D_80073F18[2];
                     break;
                 case 10:
-                    D_80096748[0] = (s32)&D_80073F40[1];
-                    D_8009F248[0] = D_80073F60[2];
+                    gCdLoadLoc[0] = (s32)&D_80073F40[1];
+                    gCdLoadSectors[0] = D_80073F60[2];
                     break;
                 case 12:
-                    D_80096748[0] = (s32)&D_80073FD0[1];
-                    D_8009F248[0] = D_80073FF0[2];
+                    gCdLoadLoc[0] = (s32)&D_80073FD0[1];
+                    gCdLoadSectors[0] = D_80073FF0[2];
                     break;
                 case 13:
-                    D_80096748[0] = (s32)&D_80074018[1];
-                    D_8009F248[0] = D_80074038[2];
+                    gCdLoadLoc[0] = (s32)&D_80074018[1];
+                    gCdLoadSectors[0] = D_80074038[2];
                     break;
             }
-            D_8009F090[0] = 0x8019D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 7:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_8001797C((void *)0x8019D000);
                 D_800958A6++;
             }
             break;
         case 8:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
-                    D_80096748[0] = (s32)&D_80073C70[2];
-                    D_80096748[1] = (s32)&D_80073C70[3];
-                    D_8009F248[0] = D_80073C90[3];
-                    D_8009F248[1] = D_80073C90[4];
+                    gCdLoadLoc[0] = (s32)&D_80073C70[2];
+                    gCdLoadLoc[1] = (s32)&D_80073C70[3];
+                    gCdLoadSectors[0] = D_80073C90[3];
+                    gCdLoadSectors[1] = D_80073C90[4];
                     break;
                 case 1:
-                    D_80096748[0] = (s32)&D_80073CB8[2];
-                    D_80096748[1] = (s32)&D_80073CB8[3];
-                    D_8009F248[0] = D_80073CD8[3];
-                    D_8009F248[1] = D_80073CD8[4];
+                    gCdLoadLoc[0] = (s32)&D_80073CB8[2];
+                    gCdLoadLoc[1] = (s32)&D_80073CB8[3];
+                    gCdLoadSectors[0] = D_80073CD8[3];
+                    gCdLoadSectors[1] = D_80073CD8[4];
                     break;
                 case 3:
-                    D_80096748[0] = (s32)&D_80073D48[2];
-                    D_80096748[1] = (s32)&D_80073D48[3];
-                    D_8009F248[0] = D_80073D68[3];
-                    D_8009F248[1] = D_80073D68[4];
+                    gCdLoadLoc[0] = (s32)&D_80073D48[2];
+                    gCdLoadLoc[1] = (s32)&D_80073D48[3];
+                    gCdLoadSectors[0] = D_80073D68[3];
+                    gCdLoadSectors[1] = D_80073D68[4];
                     break;
                 case 4:
-                    D_80096748[0] = (s32)&D_80073D90[2];
-                    D_80096748[1] = (s32)&D_80073D90[3];
-                    D_8009F248[0] = D_80073DB0[3];
-                    D_8009F248[1] = D_80073DB0[4];
+                    gCdLoadLoc[0] = (s32)&D_80073D90[2];
+                    gCdLoadLoc[1] = (s32)&D_80073D90[3];
+                    gCdLoadSectors[0] = D_80073DB0[3];
+                    gCdLoadSectors[1] = D_80073DB0[4];
                     break;
                 case 6:
-                    D_80096748[0] = (s32)&D_80073E20[2];
-                    D_80096748[1] = (s32)&D_80073E20[3];
-                    D_8009F248[0] = D_80073E40[3];
-                    D_8009F248[1] = D_80073E40[4];
+                    gCdLoadLoc[0] = (s32)&D_80073E20[2];
+                    gCdLoadLoc[1] = (s32)&D_80073E20[3];
+                    gCdLoadSectors[0] = D_80073E40[3];
+                    gCdLoadSectors[1] = D_80073E40[4];
                     break;
                 case 7:
-                    D_80096748[0] = (s32)&D_80073E68[2];
-                    D_80096748[1] = (s32)&D_80073E68[3];
-                    D_8009F248[0] = D_80073E88[3];
-                    D_8009F248[1] = D_80073E88[4];
+                    gCdLoadLoc[0] = (s32)&D_80073E68[2];
+                    gCdLoadLoc[1] = (s32)&D_80073E68[3];
+                    gCdLoadSectors[0] = D_80073E88[3];
+                    gCdLoadSectors[1] = D_80073E88[4];
                     break;
                 case 9:
-                    D_80096748[0] = (s32)&D_80073EF8[2];
-                    D_80096748[1] = (s32)&D_80073EF8[3];
-                    D_8009F248[0] = D_80073F18[3];
-                    D_8009F248[1] = D_80073F18[4];
+                    gCdLoadLoc[0] = (s32)&D_80073EF8[2];
+                    gCdLoadLoc[1] = (s32)&D_80073EF8[3];
+                    gCdLoadSectors[0] = D_80073F18[3];
+                    gCdLoadSectors[1] = D_80073F18[4];
                     break;
                 case 10:
-                    D_80096748[0] = (s32)&D_80073F40[2];
-                    D_80096748[1] = (s32)&D_80073F40[3];
-                    D_8009F248[0] = D_80073F60[3];
-                    D_8009F248[1] = D_80073F60[4];
+                    gCdLoadLoc[0] = (s32)&D_80073F40[2];
+                    gCdLoadLoc[1] = (s32)&D_80073F40[3];
+                    gCdLoadSectors[0] = D_80073F60[3];
+                    gCdLoadSectors[1] = D_80073F60[4];
                     break;
                 case 12:
-                    D_80096748[0] = (s32)&D_80073FD0[2];
-                    D_80096748[1] = (s32)&D_80073FD0[3];
-                    D_8009F248[0] = D_80073FF0[3];
-                    D_8009F248[1] = D_80073FF0[4];
+                    gCdLoadLoc[0] = (s32)&D_80073FD0[2];
+                    gCdLoadLoc[1] = (s32)&D_80073FD0[3];
+                    gCdLoadSectors[0] = D_80073FF0[3];
+                    gCdLoadSectors[1] = D_80073FF0[4];
                     break;
                 case 13:
-                    D_80096748[0] = (s32)&D_80074018[2];
-                    D_80096748[1] = (s32)&D_80074018[3];
-                    D_8009F248[0] = D_80074038[3];
-                    D_8009F248[1] = D_80074038[4];
+                    gCdLoadLoc[0] = (s32)&D_80074018[2];
+                    gCdLoadLoc[1] = (s32)&D_80074018[3];
+                    gCdLoadSectors[0] = D_80074038[3];
+                    gCdLoadSectors[1] = D_80074038[4];
                     break;
             }
-            D_8009F090[0] = 0x8019D000;
-            D_8009F090[1] = 0x80155000;
-            D_80095960 = 2;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[1] = 0x80155000;
+            gCdLoadCount = 2;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 9:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_800399A8((unsigned long *)0x8019D000);
                 D_800958A6++;
             }
             break;
         case 10:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
-                    D_80096748[0] = (s32)&D_80073C70[4];
-                    D_8009F248[0] = D_80073C90[5];
+                    gCdLoadLoc[0] = (s32)&D_80073C70[4];
+                    gCdLoadSectors[0] = D_80073C90[5];
                     break;
                 case 1:
-                    D_80096748[0] = (s32)&D_80073CB8[4];
-                    D_8009F248[0] = D_80073CD8[5];
+                    gCdLoadLoc[0] = (s32)&D_80073CB8[4];
+                    gCdLoadSectors[0] = D_80073CD8[5];
                     break;
                 case 3:
-                    D_80096748[0] = (s32)&D_80073D48[4];
-                    D_8009F248[0] = D_80073D68[5];
+                    gCdLoadLoc[0] = (s32)&D_80073D48[4];
+                    gCdLoadSectors[0] = D_80073D68[5];
                     break;
                 case 4:
-                    D_80096748[0] = (s32)&D_80073D90[4];
-                    D_8009F248[0] = D_80073DB0[5];
+                    gCdLoadLoc[0] = (s32)&D_80073D90[4];
+                    gCdLoadSectors[0] = D_80073DB0[5];
                     break;
                 case 6:
-                    D_80096748[0] = (s32)&D_80073E20[4];
-                    D_8009F248[0] = D_80073E40[5];
+                    gCdLoadLoc[0] = (s32)&D_80073E20[4];
+                    gCdLoadSectors[0] = D_80073E40[5];
                     break;
                 case 7:
-                    D_80096748[0] = (s32)&D_80073E68[4];
-                    D_8009F248[0] = D_80073E88[5];
+                    gCdLoadLoc[0] = (s32)&D_80073E68[4];
+                    gCdLoadSectors[0] = D_80073E88[5];
                     break;
                 case 9:
-                    D_80096748[0] = (s32)&D_80073EF8[4];
-                    D_8009F248[0] = D_80073F18[5];
+                    gCdLoadLoc[0] = (s32)&D_80073EF8[4];
+                    gCdLoadSectors[0] = D_80073F18[5];
                     break;
                 case 10:
-                    D_80096748[0] = (s32)&D_80073F40[4];
-                    D_8009F248[0] = D_80073F60[5];
+                    gCdLoadLoc[0] = (s32)&D_80073F40[4];
+                    gCdLoadSectors[0] = D_80073F60[5];
                     break;
                 case 12:
-                    D_80096748[0] = (s32)&D_80073FD0[4];
-                    D_8009F248[0] = D_80073FF0[5];
+                    gCdLoadLoc[0] = (s32)&D_80073FD0[4];
+                    gCdLoadSectors[0] = D_80073FF0[5];
                     break;
                 case 13:
-                    D_80096748[0] = (s32)&D_80074018[4];
-                    D_8009F248[0] = D_80074038[5];
+                    gCdLoadLoc[0] = (s32)&D_80074018[4];
+                    gCdLoadSectors[0] = D_80074038[5];
                     break;
             }
-            D_8009F090[0] = 0x8016D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 11:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_8002B7C8((DirEnt16 *)0x8016D000, 30);
                 D_800958A6++;
             }
@@ -1765,55 +1765,55 @@ void func_800160E8(void) {
             D_800958A6++;
             break;
         case 13:
-            switch (D_80095830) {
+            switch (gStage) {
                 case 0:
-                    D_80096748[0] = (s32)&D_80073C70[5];
-                    D_8009F248[0] = D_80073C90[6];
+                    gCdLoadLoc[0] = (s32)&D_80073C70[5];
+                    gCdLoadSectors[0] = D_80073C90[6];
                     break;
                 case 1:
-                    D_80096748[0] = (s32)&D_80073CB8[5];
-                    D_8009F248[0] = D_80073CD8[6];
+                    gCdLoadLoc[0] = (s32)&D_80073CB8[5];
+                    gCdLoadSectors[0] = D_80073CD8[6];
                     break;
                 case 3:
-                    D_80096748[0] = (s32)&D_80073D48[5];
-                    D_8009F248[0] = D_80073D68[6];
+                    gCdLoadLoc[0] = (s32)&D_80073D48[5];
+                    gCdLoadSectors[0] = D_80073D68[6];
                     break;
                 case 4:
-                    D_80096748[0] = (s32)&D_80073D90[5];
-                    D_8009F248[0] = D_80073DB0[6];
+                    gCdLoadLoc[0] = (s32)&D_80073D90[5];
+                    gCdLoadSectors[0] = D_80073DB0[6];
                     break;
                 case 6:
-                    D_80096748[0] = (s32)&D_80073E20[5];
-                    D_8009F248[0] = D_80073E40[6];
+                    gCdLoadLoc[0] = (s32)&D_80073E20[5];
+                    gCdLoadSectors[0] = D_80073E40[6];
                     break;
                 case 7:
-                    D_80096748[0] = (s32)&D_80073E68[5];
-                    D_8009F248[0] = D_80073E88[6];
+                    gCdLoadLoc[0] = (s32)&D_80073E68[5];
+                    gCdLoadSectors[0] = D_80073E88[6];
                     break;
                 case 9:
-                    D_80096748[0] = (s32)&D_80073EF8[5];
-                    D_8009F248[0] = D_80073F18[6];
+                    gCdLoadLoc[0] = (s32)&D_80073EF8[5];
+                    gCdLoadSectors[0] = D_80073F18[6];
                     break;
                 case 10:
-                    D_80096748[0] = (s32)&D_80073F40[5];
-                    D_8009F248[0] = D_80073F60[6];
+                    gCdLoadLoc[0] = (s32)&D_80073F40[5];
+                    gCdLoadSectors[0] = D_80073F60[6];
                     break;
                 case 12:
-                    D_80096748[0] = (s32)&D_80073FD0[5];
-                    D_8009F248[0] = D_80073FF0[6];
+                    gCdLoadLoc[0] = (s32)&D_80073FD0[5];
+                    gCdLoadSectors[0] = D_80073FF0[6];
                     break;
                 case 13:
-                    D_80096748[0] = (s32)&D_80074018[5];
-                    D_8009F248[0] = D_80074038[6];
+                    gCdLoadLoc[0] = (s32)&D_80074018[5];
+                    gCdLoadSectors[0] = D_80074038[6];
                     break;
             }
-            D_8009F090[0] = 0x8016D000;
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 14:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_800373C8((void *)0x8016D000, (void *)0x80171744);
                 func_8002C2B4();
                 func_8002C044();
@@ -1821,37 +1821,37 @@ void func_800160E8(void) {
             }
             break;
         case 15:
-            if ((u8)(D_80095830 % 3) == 1) {
-                switch (D_80095830) {
+            if ((u8)(gStage % 3) == 1) {
+                switch (gStage) {
                     case 1:
-                        D_80096748[0] = (s32)&D_80073CB8[6];
-                        D_8009F248[0] = D_80073CD8[7];
+                        gCdLoadLoc[0] = (s32)&D_80073CB8[6];
+                        gCdLoadSectors[0] = D_80073CD8[7];
                         break;
                     case 4:
-                        D_80096748[0] = (s32)&D_80073D90[6];
-                        D_8009F248[0] = D_80073DB0[7];
+                        gCdLoadLoc[0] = (s32)&D_80073D90[6];
+                        gCdLoadSectors[0] = D_80073DB0[7];
                         break;
                     case 7:
-                        D_80096748[0] = (s32)&D_80073E68[6];
-                        D_8009F248[0] = D_80073E88[7];
+                        gCdLoadLoc[0] = (s32)&D_80073E68[6];
+                        gCdLoadSectors[0] = D_80073E88[7];
                         break;
                     case 10:
-                        D_80096748[0] = (s32)&D_80073F40[6];
-                        D_8009F248[0] = D_80073F60[7];
+                        gCdLoadLoc[0] = (s32)&D_80073F40[6];
+                        gCdLoadSectors[0] = D_80073F60[7];
                         break;
                     case 13:
-                        D_80096748[0] = (s32)&D_80074018[6];
-                        D_8009F248[0] = D_80074038[7];
+                        gCdLoadLoc[0] = (s32)&D_80074018[6];
+                        gCdLoadSectors[0] = D_80074038[7];
                         break;
                 }
-                D_8009F090[0] = 0x8018D000;
+                gCdLoadDest[0] = 0x8018D000;
             }
-            D_80095960 = 1;
-            D_8009596C = 1;
+            gCdLoadCount = 1;
+            gCdLoadState = 1;
             D_800958A6++;
             break;
         case 16:
-            if (D_8009596C == 6) {
+            if (gCdLoadState == 6) {
                 func_8002C47C();
                 func_800412DC();
                 func_80018DE8(1);
@@ -1920,7 +1920,7 @@ static __inline__ void drawObj(Stepper *obj) {
             GsSetLightMatrix(&m);
             /* MATCHING: retail runs this sort on the scratchpad stack. */
             SetSpadStack();
-            GsSortObject4J(o, &D_800ACEA8[D_80095750], 2, (u_long *)0x1F800000);
+            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             ResetSpadStack();
         }
     }
@@ -1930,13 +1930,13 @@ void func_80016D14(void) {
     /* MATCHING: retail reserves 8 bytes below the inlined draw's locals. */
     s32 unused[2];
 
-    D_800DB2A0[0] = rsin(0x800) * 400 / 4096;
-    D_800DB2A0[1] = -150;
-    D_800DB2A0[2] = rcos(0x800) * 400 / 4096;
-    D_800DB2A0[3] = 0;
-    D_800DB2A0[4] = -150;
-    D_800DB2A0[5] = 0;
-    GsSetRefView2((GsRVIEW2 *)D_800DB2A0);
+    gRefView[0] = rsin(0x800) * 400 / 4096;
+    gRefView[1] = -150;
+    gRefView[2] = rcos(0x800) * 400 / 4096;
+    gRefView[3] = 0;
+    gRefView[4] = -150;
+    gRefView[5] = 0;
+    GsSetRefView2((GsRVIEW2 *)gRefView);
     stepObj((Stepper *)&D_80095C08);
     drawObj((Stepper *)&D_80095C08);
     func_800160E8();
@@ -1946,8 +1946,8 @@ void func_80016D14(void) {
         D_80095760 = 4;
         D_80095980 = 0;
         D_800958A6 = 0;
-        D_80095880 = 14;
-        func_80014C58(D_80095830);
+        gGameMode = 14;
+        func_80014C58(gStage);
     }
 }
 
@@ -1956,20 +1956,20 @@ void func_80016FC0(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    func_8001B354(D_8009585C % 10 + 0xFB, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     func_800160E8();
     if (D_800958A6 == 100) {
         D_80095760 = 4;
         D_80095980 = 0;
         D_800958A6 = 0;
-        D_80095880 = 14;
-        func_80014C58(D_80095830);
+        gGameMode = 14;
+        func_80014C58(gStage);
     }
 }
 
@@ -1980,18 +1980,18 @@ void func_80017124(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    func_8001B354(D_8009585C % 10 + 0xFB, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, NULL, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     func_80015CC8();
     if (D_800958A6 == 100) {
         D_80095760 = 4;
         D_800958A6 = 0;
-        D_80095880 = 14;
+        gGameMode = 14;
     }
 }
 

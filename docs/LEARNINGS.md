@@ -13,13 +13,13 @@ function's match report, not here.
   worth knowing"). Confirmed across round 1: `%gp_rel` and `lui $at` are a
   plain extern; `lui <reg>` + `%lo(sym)(<reg>)` is an array of unknown size,
   including a `.sdata` string reached `lui`/`addiu` (`extern char
-  D_800954CC[];`, func_80014BF0) and a halfword table head stored through
+  D_800954CC[];`, PrintTabs) and a halfword table head stored through
   `lui $v0` (`extern u16 D_80095B4C[];`, func_800338D8).
 - **A LOAD whose `lui` and destination are the same register is a scalar**,
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
   load. cc1's split of an array puts the address and the value in different
   registers (`lui $v0` / `lbu $v1`). Check every retail load before declaring.
-  (func_800414EC, `u8 D_80095830`; func_80028650, `s32 D_80095864`)
+  (func_800414EC, `u8 gStage`; func_80028650, `s32 D_80095864`)
   Only when the two are ADJACENT: a `lui` in a delay slot with another load
   before its `lw` is cc1's array split (`extern s32 D_8009EF44[];`,
   func_800281B8).
@@ -27,7 +27,7 @@ function's match report, not here.
   cc1's `la` of an object of known size at most 8**, e.g. `extern s8
   D_80095AA0[8];` or `extern CdlLOC D_80095728;`. Declared `[]`, cc1 splits
   it over two registers. (func_8003E444, func_800175AC) This holds even for
-  a loop base the loop writes past: `extern s32 D[2];` (func_8001534C).
+  a loop base the loop writes past: `extern s32 D[2];` (InitPads).
 - **A global every access reloads right after storing it: `volatile`**, in
   the unit, with a `MATCHING:` note. (gMovieTimeout, code_31cec)
 - **A global reached `$gp` in one stretch of a unit and `lui` in another
@@ -85,7 +85,7 @@ function's match report, not here.
 - **Sony's prototypes come from Sony's headers.** They include cleanly after
   `common.h`; `libgpu.h` needs `libgte.h` first (SVECTOR, MATRIX). A local
   prototype of a Sony function fails declcheck as soon as a header declares
-  it. (func_80014D20, func_80014D6C)
+  it. (ClearVram, InitDebugFont)
 - **A redundant `lbu; andi 0xFF` / `lhu; andi 0xFFFF` on a value: the narrow
   parameter of an inlined `static __inline__` helper.** Locals and casts
   never keep the mask. (func_8002CC24, func_80014DB0)
@@ -160,7 +160,7 @@ function's match report, not here.
 - **`andi 0xFFFF` / `sltiu` on the counter with `sll`/`sra 16` on the index:
   a `u16` counter indexed through `(s16)i`.** (func_8002C650)
 - **A parameter masked once in the prologue: `mode &= 1;` at the top**, not
-  at its use. (func_800153CC)
+  at its use. (SetPadMainMode)
 - **A test result copied to a saved register (`sltu a0; move s3, a0`): the
   result variable is `u8` or `s16`.** (func_8002BEC0)
 - **`s16 % 64` gives `sll/sra 16` around a halfword remainder on 2.8.1;
@@ -271,7 +271,7 @@ function's match report, not here.
   a local copy of the parameter.** (func_800210B4)
 - **The order of stores in a strength-reduced loop sets the order of the
   pointer setup before it**, and `o++, i++` differs from `i++, o++`.
-  (func_80013EE4, func_80017270)
+  (InitGraphics, func_80017270)
 - **A row offset built as `row*21` then plus the column: a flat index**,
   `tbl[row*21 + col]`; `T t[][21]` scales the row by the row size.
   (func_800229A8)
@@ -282,7 +282,7 @@ function's match report, not here.
   reverse a short `s32` count-up here. (code_29f54, round 5)
 - **A loop compared on a pointer with signed `slt`: an `s32` counter cc1
   replaced with the pointer.** Write the counter; bump the pointer in the
-  `for` step after `k++`. (func_80015180)
+  `for` step after `k++`. (UpdatePadActuators)
 - **One counter tested `sltiu` in one loop and `slt` in the next: one `u32`
   counter compared `(s32)i < g` in the second.** (func_80030984)
 - **A loop bottom testing `next` with `i = next` in the delay slot:
@@ -310,7 +310,7 @@ function's match report, not here.
 - **A leaf with `addiu $sp, -8` / `+8` and no stack access: an unused local**,
   `s32 unused[2];`. Without it 2.8.1 emits no frame. Triggers `-Wall`'s unused
   variable warning, which is baselined in `config/typeviews-warnings.txt`.
-  (func_80014CF0)
+  (ResetClearColor)
 - **A `nop` in a loop's back-branch delay slot where the build fills it from
   the loop target with an instruction writing `$v0`: the function is non-void
   with no `return`** (likely K&R implicit int). The live return register
@@ -366,7 +366,7 @@ function's match report, not here.
   after the chain; cross-jumping folds the calls and leaves the blocks.
   (func_800330D4, func_8003C2E8) Every switch arm jumping to one shared store
   before the exit: write the arm that falls into the exit last.
-  (func_80015584)
+  (UpdateCdLoad)
 - **Products recomputed per arm that CSE would merge: assign the copies in
   each arm** (`x0 = x2 = (...) >> 12;`), so the join loses the equality.
   (func_800198BC)
@@ -588,4 +588,4 @@ function's match report, not here.
   combine would drop: build the value in one local over three statements**,
   `b = D[k + 2] << 8; b |= D[k + 3]; b ^= 0xFFFF;`. A narrowed copy reused in
   one block goes in a new local (`n = (u16)b;`), which local-alloc places and
-  which moves a neighbouring load. (func_80014FA8)
+  which moves a neighbouring load. (PollPads)

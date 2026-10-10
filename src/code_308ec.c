@@ -212,7 +212,7 @@ s32 SpawnEffectWithParams(s32 kind, s16 x, s16 y, s16 z, s16 delay, s16 param0, 
 void func_800401F0(u8 stage) {
     RECT r;
 
-    if (D_80095830 % 3 != 2) {
+    if (gStage % 3 != 2) {
         func_8003CC94();
         func_8003C2E8();
     }
@@ -222,7 +222,7 @@ void func_800401F0(u8 stage) {
             D_80095760++;
             break;
         case 1:
-            if (func_80040CD0(D_80095830) == 1) {
+            if (func_80040CD0(gStage) == 1) {
                 D_80095760++;
             }
             break;
@@ -294,11 +294,11 @@ void func_800401F0(u8 stage) {
                         break;
                 }
             } else {
-                func_80015328(0, 0, 0);
+                SetPadVibration(0, 0, 0);
                 switch (D_80095974) {
                     case 1:
                         r.x = 0;
-                        r.y = D_80095750 * 240;
+                        r.y = gActiveBuff * 240;
                         r.w = 320;
                         r.h = 240;
                         MoveImage(&r, 0x280, 0);
@@ -313,15 +313,15 @@ void func_800401F0(u8 stage) {
             break;
     }
     D_80095900 = 0;
-    if (D_80095970 & 0x800) {
+    if (gPadTrig & 0x800) {
         if ((u16)(D_80095858 + 1) < 2) {
             if (D_80095974 == 0) {
                 func_80042968(30);
                 D_80095974 = 1;
             } else {
-                if (D_80095964 & 0x100) {
+                if (gPad & 0x100) {
                     func_80015450(D_800734AC, 0);
-                    D_80095880 = 6;
+                    gGameMode = 6;
                     D_80095760 = 0;
                     func_80017574();
                     sStage.unk3D2 = 0;
@@ -342,16 +342,16 @@ void func_80040628(void) {
     pos.vy = -0x10;
     color.r = 1;
     color.g = color.b = color.cd = 0x80;
-    func_8001B354(0x15F, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x15F, &pos, &color, 0, &gSubOt[gActiveBuff]);
     func_8001B2F4(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
     func_8001B2F4(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     color.g = color.b = color.cd = 0x40;
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    func_8001B354(0x1FE, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    func_8001B354(0x1FF, &pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: an unused 8-byte local gives retail's 0x20 frame; the start
@@ -374,7 +374,7 @@ void func_8004079C(u8 stage) {
     sStage.unk348.vz = D_800A7680.pos.vz;
     D_80095858 = 0;
     sStage.unk3CA = 0;
-    if (D_8007AD58[D_80095830] == 1) {
+    if (D_8007AD58[gStage] == 1) {
         D_800957F4 = func_800183B0(&sStage.unk348);
     } else {
         D_800957F4 = 0;
@@ -392,7 +392,7 @@ void func_8004079C(u8 stage) {
         func_8003399C();
     }
     func_8002C47C();
-    func_80041118(D_80095830);
+    func_80041118(gStage);
     sStage.unk6 = 2;
     sStage.unk0 = 1;
     D_800958EC = 0;
@@ -402,7 +402,7 @@ void func_8004079C(u8 stage) {
     }
     func_80040998();
     func_800412DC();
-    func_80014C58(D_80095830);
+    func_80014C58(gStage);
 }
 
 /* MATCHING: the table indices go into locals before the final if, so both
@@ -414,7 +414,7 @@ void func_80040998(void) {
 
     D_80095900 = 1;
     func_80017574();
-    if (D_80095880 != 0x29) {
+    if (gGameMode != 0x29) {
         r.x = 0;
         r.y = D_800E474C * 240;
         r.w = 320;
@@ -422,8 +422,8 @@ void func_80040998(void) {
         MoveImage(&r, 0x280, 0);
     }
     InitEffects();
-    D_8009586C = 0;
-    D_800957A8 = 2;
+    gLoading = 0;
+    gVSyncMode = 2;
     func_800413BC();
     if (D_800958AC == 1) {
         D_800958A8 = 2;
@@ -472,7 +472,7 @@ void func_80040998(void) {
         D_80095868 = sSaved.unk18;
         D_800958E8 = sSaved.unk1A;
         D_80096768[1] = sSaved.unk20;
-    } else if (D_80095830 == 4) {
+    } else if (gStage == 4) {
         sStage.unk5 = 0x57;
         sStage.unk6 = 0x23;
         sStage.unk398 = 0;
@@ -482,7 +482,7 @@ void func_80040998(void) {
         sStage.unk0 = 0;
         sStage.unk348.vy = D_800A7680.pos.vy - 1000;
     }
-    mode = D_80095830;
+    mode = gStage;
     saved = sSaved.valid;
     if (D_800958AC == 1) {
         D_80095988 = D_8007B038[mode][saved] * 30;
@@ -554,7 +554,7 @@ s16 func_80040CD0(u8 stage) {
 u16 func_80040E04(s16 id, s32 a, s32 b) {
     u16 ret = 1;
 
-    switch (D_80095830) {
+    switch (gStage) {
         case 0:
             ret = func_800FAD08(id, a, b);
             break;
@@ -599,7 +599,7 @@ void func_80040F14(void) {
             setPolyF4(p);
             p->r0 = p->g0 = p->b0 = 0xFF;
             setXY4(p, -160, -120, 160, -120, -160, 120, 160, 120);
-            addPrim(D_800ACEA8[D_80095750].org, p);
+            addPrim(gSubOt[gActiveBuff].org, p);
             p++;
             D_800E48D0 = (u8 *)p;
         }

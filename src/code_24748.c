@@ -342,7 +342,45 @@ void func_800365A0(VECTOR *pos) {
     GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
 }
 
+#ifdef NON_MATCHING
+/* MATCHING: retail's 0x2A-byte copy is word-aligned; no type found for it. */
+/** @brief The first 0x2A bytes of a 0x2C-byte record, copied as a block. */
+typedef struct {
+    s16 h[21]; /**< not yet known */
+} Copy2A;
+
+/** @brief A record of the first bank as the bank installer reads it. */
+typedef struct {
+    u8 unk0[0x28]; /**< copied as a block */
+    s16 unk28;     /**< index of the owning 0x78-byte record */
+    u8 pad[2];     /**< not copied */
+} Bank2CRec;
+
+/** @brief A record of the live buffer the first bank is copied into. */
+typedef struct {
+    u8 unk0[0x28]; /**< copied from the bank record */
+    void *unk28;   /**< the owning record's unk10 */
+} Live2C;
+
+void func_80036704(void) {
+    s16 i;
+    BankEntry *e = ((Bank2C *)D_80095A50)->entries;
+    Bank2CRec *rec;
+
+    for (i = 0; i < (u32)D_80095780; i++) {
+        D_800D8D20[i].unk72 = e->first;
+        D_800D8D20[i].unk74 = e->unk4;
+        e++;
+    }
+    for (i = 0; i < 400; i++) {
+        rec = (Bank2CRec *)func_80036A50(0, i);
+        *(Copy2A *)&((Live2C *)D_800D3CA8)[i] = *(Copy2A *)rec;
+        ((Live2C *)D_800D3CA8)[i].unk28 = D_800D8D20[rec->unk28].unk10;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036878);
 

@@ -3,6 +3,7 @@
 #include "libcd.h"
 #include "libetc.h"
 #include "libpress.h"
+#include "libapi.h"
 #include "stdio.h"
 #include "libgte.h"
 #include "libgpu.h"
@@ -54,10 +55,111 @@ void func_800414EC(s16 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041534);
+void func_800142EC(s32 arg);
+void func_80041964(void);
+void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1);
+void func_80041D18(CdlLOC *loc, void (*callback)());
+s32 func_80041D88(DECENV *dec);
+void func_80041E20(DECENV *dec, s32 mode);
+
+extern CdlLOC D_80095AB0;
+extern s32 D_80095AD8;
+extern RECT D_80095AE0;
+extern DECENV D_800E04B0;
+extern CdlFILE D_800E04E0;
+extern DRAWENV D_800E04F8;
+extern DISPENV D_800E0558;
+
+s32 func_80041534(char *name, s16 skip) {
+    CdlATV atv;
+    s16 one;
+    s32 id;
+    s32 ret;
+
+    ret = 0;
+    if (*(s8 *)name != 0) {
+        while (CdSearchFile(&D_800E04E0, name) == 0) {
+        }
+        D_80095AB0.minute = D_800E04E0.pos.minute;
+        D_80095AB0.second = D_800E04E0.pos.second;
+        D_80095AB0.sector = D_800E04E0.pos.sector;
+    }
+    func_80041C7C(&D_800E04B0, 0, 0, 0, 240);
+    func_80041D18(&D_80095AB0, func_80041964);
+    func_80041D88(&D_800E04B0);
+    SetDefDispEnv(&D_800E0558, 0, 0, 0, 0);
+    SetDefDrawEnv(&D_800E04F8, 0, 0, 0, 0);
+    one = 1;
+    D_800E0558.disp.w = D_800E0558.disp.w * 2 / 3;
+    D_800E0558.isrgb24 = one;
+    PutDispEnv(&D_800E0558);
+    PutDrawEnv(&D_800E04F8);
+    SetDispMask(0);
+    while (1) {
+        DecDCTin(D_800E04B0.vlcbuf[D_800E04B0.vlcid], 3);
+        DecDCTout((u_long *)D_800E04B0.imgbuf, D_800E04B0.slice.w * D_800E04B0.slice.h / 2);
+        func_80041D88(&D_800E04B0);
+        func_80041E20(&D_800E04B0, 0);
+        VSync(0);
+        id = D_800E04B0.rectid == 0;
+        SetDefDispEnv(&D_800E0558, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y,
+                      D_800E04B0.rect[id].w, D_800E04B0.rect[id].h);
+        SetDefDrawEnv(&D_800E04F8, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y,
+                      D_800E04B0.rect[id].w, D_800E04B0.rect[id].h);
+        D_800E0558.disp.w = D_800E0558.disp.w * 2 / 3;
+        D_800E0558.isrgb24 = 1;
+        PutDispEnv(&D_800E0558);
+        PutDrawEnv(&D_800E04F8);
+        SetDispMask(1);
+        if (D_80095AB4 == one) {
+            atv.val3 = 0;
+            atv.val2 = 0;
+            atv.val1 = 0;
+            atv.val0 = 0;
+            CdMix(&atv);
+            VSync(0);
+            while (CdControl(CdlPause, 0, 0) == 0) {
+            }
+            setRECT(&D_80095AE0, 0, 0, 480, 480);
+            ClearImage(&D_80095AE0, 0, 0, 0);
+            DrawSync(0);
+            break;
+        }
+        func_800142EC(0);
+        if ((D_80095970 & 0x800) && skip == one) {
+            atv.val3 = 0;
+            atv.val2 = 0;
+            atv.val1 = 0;
+            atv.val0 = 0;
+            CdMix(&atv);
+            VSync(0);
+            while (CdControl(CdlPause, 0, 0) == 0) {
+            }
+            setRECT(&D_80095AE0, 0, 0, 480, 480);
+            ClearImage(&D_80095AE0, 0, 0, 0);
+            DrawSync(0);
+            ret = 1;
+            break;
+        }
+    }
+    MoveImage(&D_800E04B0.rect[D_800E04B0.rectid], D_800E04B0.rect[id].x, D_800E04B0.rect[id].y);
+    DrawSync(0);
+    DecDCToutCallback(0);
+    StUnSetRing();
+    while (CdControlB(CdlPause, 0, 0) == 0) {
+    }
+    ChangeClearPAD(0);
+    /* MATCHING: retail keeps this load and drops the store. */
+    D_800E0558.disp.w = D_800E0558.disp.w;
+    D_800E0558.isrgb24 = 0;
+    SetDefDispEnv(&D_800E0558, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y, D_800E04B0.rect[id].w,
+                  D_800E04B0.rect[id].h);
+    SetDefDrawEnv(&D_800E04F8, D_800E04B0.rect[id].x, D_800E04B0.rect[id].y, D_800E04B0.rect[id].w,
+                  D_800E04B0.rect[id].h);
+    return ret;
+}
 
 extern s32 D_800E1F1C;
-extern DECENV D_800E04B0;
 
 void func_80041964(void) {
     if (D_800E1F1C) {
@@ -76,9 +178,6 @@ void func_80041964(void) {
         D_800E04B0.slice.y = D_800E04B0.rect[D_800E04B0.rectid].y + (240 - D_80095AC8) / 2;
     }
 }
-
-extern s32 D_80095AD8;
-extern RECT D_80095AE0;
 
 extern u_long D_80095ABC;
 extern StHEADER *D_80095ACC;
@@ -108,10 +207,6 @@ u_long *func_80041A6C(DECENV *dec) {
     dec->slice.h = dec->rect[0].h = dec->rect[1].h = D_800956C8;
     return D_80095AD4;
 }
-
-void func_80041534(char *name, s16 arg1);
-
-extern CdlLOC D_80095AB0;
 
 void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
     CdlATV atv;
@@ -176,7 +271,7 @@ s32 func_80041D88(DECENV *dec) {
     return 0;
 }
 
-void func_80041E20(DECENV *dec) {
+void func_80041E20(DECENV *dec, s32 mode) {
     D_80095AD0 = 0x800000;
     while (dec->isdone == 0) {
         if (--D_80095AD0 == 0) {

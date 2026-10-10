@@ -8,6 +8,7 @@
 #include "code_13068.h"
 #include "code_a0bc.h"
 #include "code_7d74.h"
+#include "code_1902c.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
@@ -383,7 +384,6 @@ void func_8002C85C(s32 i, Bytes8 *out);
 void func_80033388(VECTOR *pos, s16 deg);
 
 /* MATCHING: defined in code_1902c, which has no header. */
-s32 func_800297A4(VECTOR *a, VECTOR *b);
 
 /* MATCHING: defined in code_27bc8, which has no header. */
 s32 func_80037440(s16 mode);

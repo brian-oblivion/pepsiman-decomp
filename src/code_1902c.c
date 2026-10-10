@@ -6,6 +6,7 @@
 #include "code_1a098.h"
 #include "code_13068.h"
 #include "code_7d74.h"
+#include "code_1902c.h"
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
@@ -141,7 +142,6 @@ extern Point12 D_80010B10;
 void func_80028984(void);
 s32 func_8002971C(Body *a, Body *b);
 u8 func_80028DBC(u16 start, VECTOR *pos);
-s32 func_800297A4(VECTOR *a, VECTOR *b);
 void func_8002985C(void);
 void func_8002988C(void);
 

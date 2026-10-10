@@ -237,6 +237,7 @@ extern u8 D_800959D8;       /**< zeroed by the full reset */
 extern u8 D_80095B28[];
 #define sProgress (*(Progress6E *)D_80095B28)
 
+/* MATCHING: a per-unit view; code_1902c calls the same 0x30-byte block Body. */
 s32 func_80028AE4(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
  * the result nor extends the a and b it passes. */

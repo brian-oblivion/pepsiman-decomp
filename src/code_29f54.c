@@ -31,7 +31,7 @@ typedef struct {
     s16 unk4;   /**< per-frame step of the rising sprite's y offset */
     s16 unk6;   /**< the rising sprite's end distance */
     s16 unk8;   /**< per-frame step subtracted from the y offset */
-    u8 unkA[2]; /**< not yet known */
+    s16 unkA;   /**< per-frame turn of a spinning piece, in degrees */
     s16 unkC;   /**< x offset added to the drawing position */
     s16 unkE;   /**< y offset added to the drawing position */
     s16 unk10;  /**< z offset added to the drawing position */

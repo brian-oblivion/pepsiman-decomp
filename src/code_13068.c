@@ -70,6 +70,7 @@ extern s8 D_8009EF4D[];
 
 extern s32 D_80095964;
 extern s32 D_800AC860;
+extern s16 D_800959B2;
 extern s32 D_800957EC;
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
  * from the lw), so it is an array here, though both halves use one register. */
@@ -633,7 +634,62 @@ void func_80027D04(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80027E14);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80028008);
+/* MATCHING: func_800282F0's body as an inline helper; calling it with the s16 step
+ * keeps the step's sign extension ahead of the rsin call. */
+static __inline__ void pushBack(s32 deg, s32 dist) {
+    s32 angle;
+    SVECTOR *rot;
+
+    rot = D_800A7680;
+    angle = ANGLE_DEG(deg);
+    sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+}
+
+void func_80028008(void) {
+    s16 step;
+    s32 v;
+    s32 x;
+    GameState *g;
+    s32 hi;
+
+    if (sGame.unk0 != 0) {
+        if (D_80095964 & 0x2000) {
+            func_80023834(3, 16, 8);
+            D_800959B2 -= 4;
+        } else if (D_80095964 & 0x8000) {
+            func_80023834(2, 16, 8);
+            D_800959B2 += 4;
+        } else if (sGame.unk34C >= sGame.unk3C0) {
+            sGame.unk5 = 0x5E;
+            if (D_800959B2 != 0) {
+                if (D_800959B2 < 0) {
+                    D_800959B2 += 2;
+                } else {
+                    D_800959B2 -= 2;
+                }
+            }
+        }
+        D_800959B2 = D_800959B2 < -7 ? -7 : D_800959B2 > 7 ? 7 : D_800959B2;
+        step = D_800959B2 / 10;
+        pushBack(90, step);
+        /* MATCHING: the barrier keeps the yaw and unk380 loads below the unk350 store;
+         * g keeps the sGame base in a register for the store at the join. */
+        __asm__("");
+        g = &sGame;
+        x = g->unk380;
+        v = D_800A7680->vy - 0x71;
+        if (x >= v) {
+            hi = D_800A7680->vy + 0x71;
+            if (x <= hi) {
+                v = x;
+            } else {
+                v = hi;
+            }
+        }
+        g->unk380 = v;
+    }
+}
 
 s32 func_800281B8(GameState *g) {
     s32 ret;

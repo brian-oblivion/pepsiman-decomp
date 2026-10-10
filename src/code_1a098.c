@@ -482,7 +482,8 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 extern s8 D_80095898;  /**< 1 on a hit */
 extern s32 D_8009589C; /**< the word reported with a hit */
 /* code_1902c's tests of a 0x4C-byte record; types not yet known. */
-void func_80028F0C(void *rec, s8 *out);
+/* MATCHING: s32 (its body leaves a value); void moves a register. */
+s32 func_80028F0C(void *rec, s8 *out);
 
 /** @brief Updates the entry `rec` and places and tests its records: the
  *         first-buffer ones collect a hit bit into `r->unk40`, and, when
@@ -547,7 +548,91 @@ void func_8002A98C(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
     v[3][1] = c->vy;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
+/** @brief Tests every box not yet hit. With the mode byte clear, a box is
+ *         hit when the player stands inside its corners (halved); with it
+ *         set, its corners are placed in the world around it and the
+ *         record test decides.
+ *  @return nothing; the value is undefined. */
+/* MATCHING: non-void with no return keeps two delay slots nops. */
+s32 func_8002AA58(void) {
+    MATRIX world;
+    MATRIX local;
+    SVECTOR sv;
+    VECTOR t;
+    s32 unused[2];
+    GsCOORDINATE2 coord;
+    long flag;
+    u16 i;
+    s16 j;
+    Rec5C *b;
+    s16(*v)[3];
+    s16 px;
+    s16 pz;
+
+    if (D_80095858 > 0) {
+        return;
+    }
+    i = 0;
+    if (D_800958F8 == 0) {
+        for (; i < 200; i++) {
+            b = &D_800CF080[(s16)i];
+            v = D_800CF080[(s16)i].v;
+            if (b->unk0 != 0) {
+                continue;
+            }
+            px = sGameHead.unk348 - b->x;
+            pz = sGameHead.unk350 - b->z;
+            if ((px - v[0][0] / 2) * ((v[1][2] - v[0][2]) / 2) +
+                    (pz - v[0][2] / 2) * -((v[1][0] - v[0][0]) / 2) <
+                0) {
+                continue;
+            }
+            if ((px - v[1][0] / 2) * ((v[3][2] - v[1][2]) / 2) +
+                    (pz - v[1][2] / 2) * -((v[3][0] - v[1][0]) / 2) <
+                0) {
+                continue;
+            }
+            if ((px - v[2][0] / 2) * ((v[0][2] - v[2][2]) / 2) +
+                    (pz - v[2][2] / 2) * -((v[0][0] - v[2][0]) / 2) <
+                0) {
+                continue;
+            }
+            if ((px - v[3][0] / 2) * ((v[2][2] - v[3][2]) / 2) +
+                    ((pz - v[3][2]) / 2) * -((v[2][0] - v[3][0]) / 2) <
+                0) {
+                continue;
+            }
+            b->unk0 = 1;
+        }
+    } else {
+        for (; i < 200; i++) {
+            if (D_800CF080[(s16)i].unk0 != 0) {
+                continue;
+            }
+            GsInitCoordinate2(WORLD, &coord);
+            coord.coord.t[0] = D_800CF080[(s16)i].x;
+            coord.coord.t[1] = D_800CF080[(s16)i].y;
+            coord.coord.t[2] = D_800CF080[(s16)i].z;
+            D_800CF080[(s16)i].coord = &coord;
+            GsGetLws(D_800CF080[(s16)i].coord, &local, &world);
+            GsSetLsMatrix(&local);
+            for (j = 0; j < 4; j++) {
+                sv.vx = D_800CF080[(s16)i].v[j][0];
+                sv.vy = D_800CF080[(s16)i].v[j][1];
+                sv.vz = D_800CF080[(s16)i].v[j][2];
+                RotTrans(&sv, &t, &flag);
+                D_800CF080[(s16)i].w[j][0] = t.vx + D_800A7308[0];
+                D_800CF080[(s16)i].w[j][1] = t.vy;
+                D_800CF080[(s16)i].w[j][2] = t.vz + D_800A7308[2];
+            }
+            GsSetLsMatrix(&world);
+            func_80028F0C(D_800CF080[(s16)i].v, &D_80095898);
+            if (D_80095898 == 1) {
+                D_800CF080[(s16)i].unk0 = 1;
+            }
+        }
+    }
+}
 
 /** @brief Moves `u` to the next or previous path segment once it has
  *         passed the next point or not yet reached its own.

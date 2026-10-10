@@ -114,6 +114,7 @@ extern s32 D_80095800;
 extern s32 D_80095804;
 extern s32 D_8009580C;
 
+/* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
 extern u8 *D_80095790;
 
 /** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */

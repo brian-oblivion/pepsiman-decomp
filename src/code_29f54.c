@@ -104,7 +104,67 @@ void func_80039754(s32 clip) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_800399A8);
+/* MATCHING: per-unit views; this loader stores the stage pointers plainly. */
+extern Edge *D_800958A0;
+extern s32 D_80095840;
+extern s32 D_80095790;
+extern s8 *D_80095808;
+extern s32 D_8009590C;
+extern s32 D_80095948;
+extern s32 D_8009594C;
+
+void func_800399A8(unsigned long *hdr) {
+    u32 i;
+    GsDOBJ2 *obj;
+    unsigned long *tmd;
+
+    tmd = (unsigned long *)(hdr[0] + (s32)hdr);
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095794 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095794; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800AC868[i], i);
+    }
+    obj = D_800AC868;
+    for (i = 0; i < D_80095794; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0x200;
+        obj++;
+    }
+    tmd = (unsigned long *)(hdr[1] + (s32)hdr);
+    tmd++;
+    GsMapModelingData(tmd);
+    tmd++;
+    D_80095798 = *tmd;
+    tmd++;
+    for (i = 0; i < D_80095798; i++) {
+        GsLinkObject4((unsigned long)tmd, &D_800ACB88[i], i);
+    }
+    obj = D_800ACB88;
+    for (i = 0; i < D_80095798; i++) {
+        obj->coord2 = &D_800A72B8;
+        obj->attribute = 0;
+        obj++;
+    }
+    D_8009578C = 0;
+    D_800957F4 = 0;
+    D_800958B4 = hdr[2] + (s32)hdr;
+    D_800958A0 = (Edge *)(hdr[3] + (s32)hdr + 4);
+    D_800958D4 = (Edge *)(hdr[4] + (s32)hdr + 4);
+    D_80095948 = *(s32 *)(hdr[5] + (s32)hdr);
+    D_80095934 = (Run *)(hdr[5] + (s32)hdr + 4);
+    D_8009593C = (s8 *)(hdr[5] + (s32)hdr + D_80095948 * 4 + 4);
+    D_8009594C = *(s32 *)(hdr[6] + (s32)hdr);
+    D_80095938 = (Run *)(hdr[6] + (s32)hdr + 4);
+    D_80095840 = hdr[7] + (s32)hdr;
+    D_80095808 = (s8 *)(hdr[8] + (s32)hdr);
+    D_800958FC = (u8 *)(hdr[9] + (s32)hdr);
+    D_80095790 = hdr[10] + (s32)hdr;
+    D_8009590C = hdr[11] + (s32)hdr;
+    D_80095940 = (s8 *)(hdr[6] + (s32)hdr + D_8009594C * 4 + 4);
+}
 
 extern GsDOBJ2 D_800CEF00[];
 extern GsCOORDINATE2 D_800CEF40[];
@@ -401,8 +461,6 @@ void func_8003A84C(void) {
 }
 
 extern u32 D_80095A84;
-/* MATCHING: a per-unit view; code_1a098 reads the same path as PathPt. */
-extern Edge *D_800958A0;
 
 /** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
 typedef struct {
@@ -619,7 +677,6 @@ void func_8003B780(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
 extern s32 D_80095828;
 extern s16 D_80095994;
 extern s16 D_80095996;
-extern s8 *D_80095808;
 extern s16 D_80095890;
 extern s16 D_800957DE;
 
@@ -859,7 +916,50 @@ void func_8003C2E8(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
+void func_8003C494(SVECTOR *pos, s32 n) {
+    CVECTOR color;
+    CVECTOR shadow;
+    u16 d;
+    s32 t;
+    /* MATCHING: dead x keeps both magic constants in prologue registers. */
+    u32 x;
+
+    x = (s16)n / 10;
+    color.r = 1;
+    shadow.r = 2;
+    shadow.g = shadow.b = shadow.cd = 0x80;
+    color.g = color.b = color.cd = 0x80;
+    pos->vx -= 16;
+    func_8001B354(0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x138, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x144, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x142, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x14E, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    t = n / 10;
+    x = (u32)n / 100;
+    d = n % 10;
+    func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    if (t != 0) {
+        pos->vx -= 12;
+        d = t % 10;
+        func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    }
+    if (n / 100 != 0) {
+        pos->vx -= 12;
+        d = n / 100 % 10;
+        func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    }
+}
 
 void func_8003C8D0(SVECTOR *pos, s32 frames) {
     s32 n;

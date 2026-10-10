@@ -135,6 +135,7 @@ typedef struct {
     s16 unk6;   /**< the start heading, negated */
 } StartRec;
 
+/* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
 extern StartRec *D_80095840;
 
 /* MATCHING: code_1a098 hands it a Rec48; here it gets a position. */

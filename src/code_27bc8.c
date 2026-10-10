@@ -410,7 +410,6 @@ end:
     return ret;
 }
 
-#ifdef NON_MATCHING
 s32 func_80037C2C(void) {
     struct DIRENTRY de;
     Rec18 *rec;
@@ -427,17 +426,20 @@ loop:
     strcpy(rec->name, de.name);
     rec->blocks.w = de.size / 8192;
     D_800959DC++;
-    i++;
+    /* MATCHING: the loop notes keep i++ just above the call. */
+    do {
+        i++;
+    } while (0);
     if (nextfile(&de) == NULL) {
         D_800959DA = 0;
         return 0;
     }
     rec = &D_800DF858[i];
     goto loop;
+    /* MATCHING: unreachable; its label keeps jump.c from moving the exit. */
+    for (;;) {
+    }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_27bc8", func_80037C2C);
-#endif
 
 /** @brief Copies the first save file's three icon TIMs into the card header's CLUT and frames. */
 void func_80037CF0(void) {

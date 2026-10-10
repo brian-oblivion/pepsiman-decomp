@@ -1421,6 +1421,7 @@ extern s32 D_80073FF0[];
 extern CdlLOC D_80074018[];
 extern s32 D_80074038[];
 
+/* MATCHING: code_29f54 defines it and has no header to declare it. */
 void func_800399A8(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void func_8002B7C8(DirEnt16 *dir, u16 id);

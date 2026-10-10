@@ -49,7 +49,6 @@ void func_80014044(void);
 void func_80016D14(void);
 void func_80016FC0(void);
 void func_80017124(void);
-void func_800401F0(u8 stage);
 void func_8002B220(void);
 void func_800F026C(void);
 void func_800F6670(void);
@@ -1426,7 +1425,6 @@ extern s32 D_80073FF0[];
 extern CdlLOC D_80074018[];
 extern s32 D_80074038[];
 
-s32 func_80041178(u8 stage);
 void func_800399A8(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void func_8002B7C8(DirEnt16 *dir, u16 id);

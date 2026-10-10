@@ -94,7 +94,8 @@ typedef struct {
     u8 pad3AA[0x3C8 - 0x3AA]; /**< not yet known */
     s16 unk3C8;               /**< cleared when a stage starts */
     s16 unk3CA;               /**< cleared when a stage starts */
-    u8 pad3CC[0x3D1 - 0x3CC]; /**< not yet known */
+    u8 pad3CC[0x3D0 - 0x3CC]; /**< not yet known */
+    u8 unk3D0;                /**< cleared when leaving through the menu */
     u8 unk3D1;                /**< cleared on a reset */
     u8 unk3D2;                /**< cleared on a reset */
     u8 unk3D3;                /**< 1 on a reset */
@@ -162,8 +163,30 @@ typedef struct {
 #define sSaved (*(SavedStart *)D_800D86B8)
 
 extern s32 D_800957A4;
-extern s32 D_8007B038[][3];
-extern s32 D_8007AF84[][3];
+extern u16 D_800958EA;
+extern s32 D_80095758;
+
+void func_800F00A0(void);
+void func_800F1654(void);
+void func_800F17B0(void);
+void func_800F42E8(void);
+void func_800F4758(void);
+void func_800F4794(void);
+void func_800F5E80(void);
+void func_800F72B8(void);
+void func_800F7724(void);
+void func_800F7844(void);
+void func_800F7A9C(void);
+void func_800F7F40(void);
+void func_800F809C(void);
+void func_800F8264(void);
+void func_8003CC94(void);
+void func_8003C2E8(void);
+s32 func_80026D9C(void);
+s32 func_80014DB0(void);
+void func_80015328(s32 offset, u8 a, u8 b);
+void func_80042968(s32 vol);
+void func_80040628(void);
 
 /* MATCHING: main.c types the object as its Stepper; here it is the game
  * state's head. */
@@ -208,7 +231,130 @@ s32 func_80040130(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_308ec", func_800401F0);
+void func_800401F0(u8 stage) {
+    RECT r;
+
+    if (D_80095830 % 3 != 2) {
+        func_8003CC94();
+        func_8003C2E8();
+    }
+    switch (D_80095760) {
+        case 0:
+            D_800958A6 = 0;
+            D_80095760++;
+            break;
+        case 1:
+            if (func_80040CD0(D_80095830) == 1) {
+                D_80095760++;
+            }
+            break;
+        case 2:
+        case 3:
+            sSaved.valid = 0;
+            D_80095770 = 50;
+            sSaved.unk10 = D_8009578C;
+            sSaved.pos.vx = D_800A7680.pos.vx;
+            sSaved.pos.vy = D_800A7680.pos.vy;
+            sSaved.pos.vz = D_800A7680.pos.vz;
+            sSaved.unk14 = D_800957F4;
+            func_80040998();
+            D_80095900 = 1;
+            D_80095760 = 4;
+            break;
+        case 4:
+            if (D_80095974 == 0) {
+                func_80020CF8(D_80095758);
+                func_80026D9C();
+                func_80014DB0();
+                switch (stage) {
+                    case 0:
+                        func_800F809C();
+                        break;
+                    case 1:
+                        func_800F7A9C();
+                        break;
+                    case 2:
+                        func_800F4794();
+                        break;
+                    case 3:
+                        func_800F8264();
+                        break;
+                    case 4:
+                        func_800F7F40();
+                        break;
+                    case 5:
+                        func_800F4758();
+                        break;
+                    case 6:
+                        func_800F00A0();
+                        break;
+                    case 7:
+                        /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
+                        func_800F00A0();
+                        __asm__("");
+                        break;
+                    case 8:
+                        func_800F42E8();
+                        break;
+                    case 9:
+                        func_800F72B8();
+                        break;
+                    case 10:
+                        func_800F7844();
+                        break;
+                    case 11:
+                        func_800F1654();
+                        break;
+                    case 12:
+                        func_800F7724();
+                        break;
+                    case 13:
+                        func_800F5E80();
+                        break;
+                    case 14:
+                        func_800F17B0();
+                        break;
+                }
+            } else {
+                func_80015328(0, 0, 0);
+                switch (D_80095974) {
+                    case 1:
+                        r.x = 0;
+                        r.y = D_80095750 * 240;
+                        r.w = 320;
+                        r.h = 240;
+                        MoveImage(&r, 0x280, 0);
+                        D_800958EA = 0;
+                        D_80095974++;
+                    case 2:
+                        D_800958EA++;
+                        func_80040628();
+                        break;
+                }
+            }
+            break;
+    }
+    D_80095900 = 0;
+    if (D_80095970 & 0x800) {
+        if ((u16)(D_80095858 + 1) < 2) {
+            if (D_80095974 == 0) {
+                func_80042968(30);
+                D_80095974 = 1;
+            } else {
+                if (D_80095964 & 0x100) {
+                    func_80015450(D_800734AC, 0);
+                    D_80095880 = 6;
+                    D_80095760 = 0;
+                    func_80017574();
+                    sStage.unk3D2 = 0;
+                    sStage.unk3D0 = 0;
+                }
+                func_80042968(80);
+                D_80095974 = 0;
+            }
+        }
+    }
+}
 
 void func_80040628(void) {
     SVECTOR pos;

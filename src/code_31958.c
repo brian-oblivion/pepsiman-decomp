@@ -1,10 +1,47 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041158);
+/* Overlay functions, loaded above the executable's code. */
+void func_800F1908(void);
+void func_800F1BA4(void);
+void func_800F3A28(void);
+void func_800F4984(void);
+void func_800F66BC(void);
+void func_800F6CF0(void);
+void func_800F6F0C(void);
+void func_800F90F4(void);
+void func_800F936C(void);
+void func_800F9980(void);
+void func_800F9BFC(void);
+void func_800F9F18(void);
+void func_800F9F28(void);
+void func_800FA058(void);
+void func_800FA1A0(void);
+void func_800FA6C0(void);
+void func_800FA754(void);
+void func_800FA800(void);
+void func_800FA9D4(void);
+void func_800FAA30(void);
+void func_800FAB9C(void);
+void func_800FABC4(void);
+void func_800FAE44(void);
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041178);
+extern u16 D_8007B0EC[];
+extern u16 D_8007B10C[];
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041198);
+u16 func_80041158(u16 i) {
+    return D_8007B0EC[i];
+}
+
+s32 func_80041178(u16 stage) {
+    return D_8007B10C[stage];
+}
+
+s32 func_80041198(u8 mode, s32 k) {
+    if (D_800958AC != 1) {
+        return D_8007AF84[mode][k] * 30;
+    }
+    return D_8007B038[mode][k] * 30;
+}
 
 void func_8004121C(u16 sel) {
     s32 id;
@@ -61,6 +98,91 @@ void func_8004121C(u16 sel) {
     func_80022554(id);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_800412DC);
+void func_800412DC(void) {
+    switch (D_80095830) {
+        case 0:
+            func_800FAB9C();
+            break;
+        case 1:
+            func_800FAE44();
+            break;
+        case 3:
+            func_800FA9D4();
+            break;
+        case 4:
+            func_800FA800();
+            break;
+        case 6:
+            func_800F1BA4();
+            break;
+        case 7:
+            /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
+            func_800F1BA4();
+            __asm__("");
+            break;
+        case 9:
+            func_800F9BFC();
+            break;
+        case 10:
+            func_800FA058();
+            break;
+        case 12:
+            func_800FA1A0();
+            break;
+        case 13:
+            func_800F936C();
+            break;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_800413BC);
+void func_800413BC(void) {
+    switch (D_80095830) {
+        case 0:
+            func_800FAA30();
+            break;
+        case 1:
+            func_800FABC4();
+            break;
+        case 2:
+            func_800F6F0C();
+            break;
+        case 3:
+            func_800FA754();
+            break;
+        case 4:
+            func_800FA6C0();
+            break;
+        case 5:
+            func_800F6CF0();
+            break;
+        case 6:
+            func_800F1908();
+            break;
+        case 7:
+            /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
+            func_800F1908();
+            __asm__("");
+            break;
+        case 8:
+            func_800F66BC();
+            break;
+        case 9:
+            func_800F9980();
+            break;
+        case 10:
+            func_800F9F18();
+            break;
+        case 11:
+            func_800F4984();
+            break;
+        case 12:
+            func_800F9F28();
+            break;
+        case 13:
+            func_800F90F4();
+            break;
+        case 14:
+            func_800F3A28();
+            break;
+    }
+}

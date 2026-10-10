@@ -202,6 +202,10 @@ extern u16 D_800958A6;  /**< a state switched on in main; cleared after placing;
 extern s16 D_800958DA;  /**< an error code; cleared when flag bit 6 is set; 2 units */
 extern s32 D_800957F4;  /**< the result of the start-position lookup; 2 units */
 
+/* Per-stage tables, three words per stage; a global flag picks the set. */
+extern s32 D_8007AF84[][3]; /**< 2 units */
+extern s32 D_8007B038[][3]; /**< the second set; 2 units */
+
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */
 extern u16 D_800734AC[]; /**< 3 units, 6 functions */
@@ -358,6 +362,15 @@ void func_80028888(void *rec);
  *         and points three globals at it.
  *  @param id the set, 0 to 22 (read as a byte) */
 void func_80022554(s32 id);
+
+/** @brief Defined in code_308ec: one frame of the stage-start sequence.
+ *  @param stage the stage whose overlay runs the frame */
+void func_800401F0(u8 stage);
+
+/** @brief Defined in code_31958: reads a stage's halfword from a table.
+ *  @param stage the stage index
+ *  @return the table entry */
+s32 func_80041178(u16 stage);
 
 /** @brief Defined in code_31958. */
 void func_800413BC(void);

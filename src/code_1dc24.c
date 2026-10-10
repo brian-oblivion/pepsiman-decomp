@@ -43,7 +43,7 @@ typedef struct {
     u16 unk1C;      /**< unk38 of the first record placed */
     u16 unk1E;      /**< matched against a Rec48's unk34 */
     s16 unk20;      /**< an angle in degrees, wrapped to 0..359 */
-    u8 unk22[2];    /**< not yet known */
+    u16 unk22;      /**< the selected point of the current entry */
     u16 unk24;      /**< the edited value saved for tool mode 2 */
     u16 unk26;      /**< a sum over the current block's entries */
     u16 unk28;      /**< the Rec3C slot the next record goes to */
@@ -267,7 +267,10 @@ void func_8002C540(Rec5Cv *b, s16 w, s16 d);
 /* MATCHING: code_308ec defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
 u16 func_80040E04(s32 id, Obj48 *a, Obj48 *b);
+
+/* MATCHING: defined in code_13068 and code_24748, which have no header. */
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
+void func_80033F48(VECTOR *pos);
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
@@ -659,7 +662,90 @@ void func_8002FDB4(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FF74);
+/** @brief Point editor: on the first pass selects the current entry's
+ *         first point; then moves the game position to the selected point,
+ *         deletes it on flag bit 5 (shifting the later points down), steps
+ *         the selection on flag bits 0 and 1 and clamps it to the entry.
+ *  @return nothing; the value is undefined. */
+s32 func_8002FF74(void) {
+    VECTOR pos;
+    Pt8 *dst;
+    Pt8 *src;
+    Span8 *e;
+    s32 i;
+    u32 j;
+
+    /* MATCHING: non-void with no return value; each entry access is
+     * `e = base; e += k;`, which also keeps the second count test. */
+    switch (D_800958A6) {
+        case 0:
+            e = (Span8 *)D_800959C0;
+            e += D_80095824;
+            D_800958A6 = 1;
+            sTotals.unk22 = e->start;
+            return;
+        case 1:
+            break;
+        default:
+            return;
+    }
+    src = (Pt8 *)D_800959C4;
+    src += sTotals.unk22;
+    pos.vx = src->x;
+    pos.vy = src->y;
+    pos.vz = src->z;
+    func_80033F48(&pos);
+    e = (Span8 *)D_800959C0;
+    e += D_80095824;
+    if (e->count == 0 || D_80095824 == -1) {
+        D_800958DA = 10;
+        return;
+    }
+    if (D_800959D8 != 1 && (D_80095970 & 0x20)) {
+        e = (Span8 *)D_800959C0;
+        e += D_80095824;
+        if (e->count == 0) {
+            D_800958DA = 9;
+            return;
+        }
+        e = (Span8 *)D_800959C0;
+        e += D_80095824;
+        dst = (Pt8 *)D_800959C4;
+        src = dst;
+        src += sTotals.unk22 + 1;
+        dst += sTotals.unk22;
+        for (i = e->start + e->count; i < 199; i++) {
+            *dst = *src;
+            dst++;
+            src++;
+        }
+        e = (Span8 *)D_800959C0;
+        e += D_80095824;
+        e->count--;
+        e = (Span8 *)D_800959C0;
+        e += D_80095824 + 1;
+        for (j = D_80095824 + 1; j < D_80095794; j++) {
+            e->start--;
+            e++;
+        }
+    }
+    if (D_80095970 & 1) {
+        sTotals.unk22--;
+    }
+    if (D_80095970 & 2) {
+        sTotals.unk22++;
+    }
+    e = (Span8 *)D_800959C0;
+    e += D_80095824;
+    if (sTotals.unk22 < (u32)e->start) {
+        sTotals.unk22 = e->start;
+    }
+    /* MATCHING: the compare as start + (count - 1), the store as
+     * count - 1 + start; unsigned, as retail's sltu. */
+    if ((u32)e->start + (e->count - 1) < sTotals.unk22) {
+        sTotals.unk22 = (u32)e->count - 1 + e->start;
+    }
+}
 
 /** @brief Counts the used 0x5C-byte records (clearing them to 0), picks a
  *         free slot if the current one is taken, sizes a box there at the

@@ -155,9 +155,9 @@ extern PathPt *D_800958A0;  /**< the current path */
 #define sRecs48 ((Rec48 *)D_800A9008)
 
 s32 func_80028AE4(Query30 *q);
-/* MATCHING: s32, though the callee returns a sign-extended s16: retail
- * stores the result with no re-extension. */
-s32 func_80018D04(s16 a, s16 b, u16 t, u16 n);
+/* MATCHING: all s32 where the callee has s16: retail neither re-extends
+ * the result nor extends the a and b it passes. */
+s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
 s32 func_80028260(s32 n);
 void func_8002C4D8(void);
 s32 func_800183B0(Rec48 *r);
@@ -620,7 +620,16 @@ void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
     out[1] = func_80018D04(a, b, t, n);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002CB24);
+/** @brief Interpolates by `t`/`n` into out[1]: from 0 towards twice `b`
+ *         in the first 80 percent of `n`, else from four times `b` towards
+ *         `b`. */
+void func_8002CB24(s16 b, u16 t, u16 n, s32 *out) {
+    if ((double)(t * 4096 / 100) < (double)(n * 4096 / 100) * 0.8) {
+        out[1] = func_80018D04(0, b * 2, t, n);
+    } else {
+        out[1] = func_80018D04(b * 4, b, t, n);
+    }
+}
 
 /** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
  *         identity transform, and counts it. */

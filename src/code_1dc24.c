@@ -12,11 +12,20 @@
  *         known. */
 typedef struct {
     s16 unk0;      /**< -1 when the record is free (a guess) */
-    u8 unk2[0x24]; /**< not yet known */
+    u8 unk2[2];    /**< not yet known */
+    s32 unk4[3];   /**< a position */
+    s32 unk10[3];  /**< a copy of unk4 */
+    u8 unk1C[0xA]; /**< not yet known */
     u8 unk26;      /**< bit 7 picks one of two handlers */
-    u8 unk27[5];   /**< not yet known */
+    u8 unk27;      /**< sTotals.unk6C when placed */
+    u8 unk28;      /**< sTotals.unk6D when placed */
+    u8 unk29;      /**< not yet known */
+    u16 unk2A;     /**< sTotals.unk6A when placed */
     s16 unk2C;     /**< matched against sTotals.unk2A */
-    u8 unk2E[0xE]; /**< not yet known */
+    u8 unk2E[2];   /**< not yet known */
+    s32 unk30;     /**< a global stamp when placed */
+    s32 unk34;     /**< the current entry when placed */
+    u8 unk38[4];   /**< not yet known */
 } Rec3C;
 
 /** @brief The tool state block: counts, totals and saved menu values. */
@@ -34,11 +43,18 @@ typedef struct {
     s16 unk20;      /**< an angle in degrees, wrapped to 0..359 */
     u8 unk22[4];    /**< not yet known */
     u16 unk26;      /**< a sum over the current block's entries */
-    u8 unk28[2];    /**< not yet known */
+    u16 unk28;      /**< the Rec3C slot the next record goes to */
     u16 unk2A;      /**< matched against a Rec3C's unk2C */
-    u8 unk2C[0x3C]; /**< not yet known */
+    u16 unk2C;      /**< a Rec3C kind, less 30 */
+    u8 unk2E[2];    /**< not yet known */
+    u16 unk30;      /**< number of Rec3C records in use */
+    u16 unk32;      /**< picks one of two Rec3C handlers */
+    u8 unk34[0x34]; /**< not yet known */
     u8 unk68;       /**< copied into a placed record's unk42 */
     u8 unk69;       /**< copied into a placed record's unk43 */
+    u16 unk6A;      /**< copied into a placed Rec3C's unk2A */
+    u8 unk6C;       /**< copied into a placed Rec3C's unk27 */
+    u8 unk6D;       /**< copied into a placed Rec3C's unk28 */
 } Totals28;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -156,14 +172,17 @@ extern Obj48 D_80096788[]; /**< records waiting to be placed */
 extern u16 D_8009596E;     /**< number of records waiting */
 extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
-/* MATCHING: declared per unit with code_1a098 while Rec3C is local to each
- * unit; func_8002B8F8 takes s16 here, u16 there (retail masks it there). */
+/* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
+ * take an s32 id here (passed unextended), u16 and s16 in code_1a098. */
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
-void func_8002C894(s16 id, Rec3C *r);
-void func_8002B8F8(s16 id, Rec3C *r);
+void func_8002C894(s32 id, Rec3C *r);
+void func_8002B8F8(s32 id, Rec3C *r);
+
+extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
+extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -608,7 +627,77 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031064);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8003146C);
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_800317D0);
+/** @brief Fills the Rec3C template at the game position and runs its
+ *         handler, counts the used Rec3C records, and on flag bit 5 places
+ *         the template at the next slot and moves the slot on to a free
+ *         one (error 8 when the table is full).
+ *  @return nothing; the value is undefined. */
+s32 func_800317D0(void) {
+    u32 i;
+    s32 f;
+
+    /* MATCHING: non-void with no return value; void moves the block order
+     * and the delay slots. */
+    D_800DF818.unk4[0] = sGameSave.unk348[0];
+    D_800DF818.unk4[1] = sGameSave.unk348[1];
+    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    if (sTotals.unk32 == 0) {
+        func_8002B8F8(sTotals.unk2C + 30, &D_800DF818);
+    } else {
+        func_8002C894(sTotals.unk2C + 30, &D_800DF818);
+    }
+    /* MATCHING: the counter is cleared before the store, so each arm above
+     * ends with it (one in a jump's delay slot). */
+    i = 0;
+    sTotals.unk30 = 0;
+    for (; i < 100; i++) {
+        if (D_800A7898[i].unk0 != -1) {
+            sTotals.unk30++;
+        }
+    }
+    if (D_80095970 & 0x20) {
+        if (sTotals.unk30 == 100) {
+            D_800958DA = 8;
+        } else {
+            D_800DF818.unk2C = sTotals.unk2A;
+            D_800DF818.unk0 = sTotals.unk2C + 30;
+            D_800DF818.unk10[0] = D_800DF818.unk4[0];
+            D_800DF818.unk10[1] = D_800DF818.unk4[1];
+            D_800DF818.unk10[2] = D_800DF818.unk4[2];
+            /* MATCHING: an s32 local assigned after the copy, and the flag
+             * byte or-ed in by a second store. */
+            f = sTotals.unk32 << 7;
+            D_800DF818.unk26 = f;
+            D_800DF818.unk26 |= D_800959E2;
+            D_800DF818.unk27 = sTotals.unk6C;
+            D_800DF818.unk28 = sTotals.unk6D;
+            D_800DF818.unk2A = sTotals.unk6A;
+            D_800DF818.unk30 = D_8009578C;
+            D_800DF818.unk34 = D_80095824;
+            D_800A7898[sTotals.unk28] = D_800DF818;
+            /* MATCHING: the full-table store inside the loop, so its 8 is
+             * hoisted and the block is not merged with the one above. */
+            i = 0;
+            while (1) {
+                if (D_800A7898[sTotals.unk28].unk0 == -1) {
+                    goto found;
+                }
+                sTotals.unk28++;
+                if (sTotals.unk28 == 100) {
+                    sTotals.unk28 = 0;
+                }
+                if (++i == 100) {
+                    D_800958DA = 8;
+                    return;
+                }
+            }
+        found:
+            if (D_800959D8 == 1) {
+                D_800959D8 = 0;
+            }
+        }
+    }
+}
 
 /** @brief Runs one of two handlers on every used Rec3C whose unk2C equals
  *         sTotals.unk2A, picked by bit 7 of its unk26. */

@@ -634,7 +634,41 @@ s32 func_8003EA04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003EC04);
+s32 func_8003EC04(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+    s16 q[8];
+    CVECTOR color;
+    s32 unused[2];
+    s32 i;
+
+    if (p->unk2 == 0) {
+        if (p->unk0 == 0) {
+            setLs(x, y, z);
+            RotTransPers((SVECTOR *)&p->unkC, (long *)q, NULL, NULL);
+            p->unkC = q[0];
+            p->unkE = q[1];
+        }
+        for (i = 0; i < 5; i++) {
+            q[0] = p->unkC + ((-136 - p->unkC) * p->unk0 >> 3);
+            q[1] = p->unkE + ((-88 - p->unkE) * p->unk0 >> 3);
+            q[0] = q[2] = q[0] + rsin(((p->unk0 * 20 + i * 72) << 12) / 360) * (64 - p->unk0 * 8) / 4096;
+            q[1] = q[3] = q[1] + rcos(((p->unk0 * 20 + i * 72) << 12) / 360) * (64 - p->unk0 * 8) / 4096;
+            q[4] = q[5] = 0x1000 - (p->unk0 << 8);
+            q[6] = -(((p->unk0 * 20 + i * 72 + 90) << 12) / 360);
+            q[7] = 1;
+            color.r = 0;
+            color.g = color.b = color.cd = ~(p->unk0 << 4);
+            func_800198BC(0xFA, q, &color, 0, &D_800ACEA8[D_80095750]);
+        }
+        if (++p->unk0 == 8) {
+            D_800958E8 += 5;
+            func_80028448();
+            return 1;
+        }
+        return 0;
+    }
+    p->unk2--;
+    return 0;
+}
 
 /** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
 typedef struct {

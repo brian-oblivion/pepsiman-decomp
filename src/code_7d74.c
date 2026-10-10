@@ -42,7 +42,6 @@ typedef struct {
     s32 z; /**< z */
 } Vec3i;
 
-extern s8 D_800956D0;     /**< a level, kept within 0..120 */
 extern s8 D_800956D1;     /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */

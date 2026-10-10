@@ -311,8 +311,6 @@ void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_80033F48(VECTOR *pos);
 
 void func_80033A08(s32 deg, s32 dist);
-extern u32 D_800957C8; /**< an analogue stick axis, 0x80 at rest */
-extern u32 D_800957C0; /**< the other analogue stick axis, 0x80 at rest */
 
 void func_800327BC(void);
 extern char D_80095528[]; /**< "\n\n\n" */
@@ -338,7 +336,6 @@ extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
 extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 
 /* Defined in other units, without a header. */
-void func_8002AA58(void);
 /* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
 void func_8002CCEC(GsOT *ot);
 void func_8002C47C(void);

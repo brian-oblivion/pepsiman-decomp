@@ -81,4 +81,8 @@ s32 func_8002D16C(void);
  *  @param recs the block */
 void func_8002D2C0(Rec48 *recs);
 
+/** @brief Defined in code_1a098.
+ *  @return not yet known */
+s32 func_8002AA58(void);
+
 #endif

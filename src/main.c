@@ -7,6 +7,7 @@
 #include "libapi.h"
 #include "libcd.h"
 #include "libsnd.h"
+#include "code_31cec.h"
 #include "libmcrd.h"
 #include "memory.h"
 #include "code_a0bc.h"
@@ -33,14 +34,11 @@ extern s8 D_80095908;
 extern u8 D_800958A5;
 extern s32 D_80095984;
 extern s32 D_80095998;
-extern s8 D_800956D0;
 extern u16 D_80095764;
 extern u16 D_80095766;
 extern s32 D_80095968;
-extern s16 D_800958E2;
 extern char D_800954C8[];
 
-void func_80020C14(void);
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
 void func_80018DE8(s32 arg);
 s8 func_80013B38(void);
@@ -53,19 +51,8 @@ void func_80014044(void);
 void func_80016D14(void);
 void func_80016FC0(void);
 void func_80017124(void);
-/* Defined in code_31958. */
-void func_8004121C(u16 sel);
 void func_800401F0(u8 stage);
-void func_800229A8(void);
-void func_80022A74(void);
-void func_80017B38(void);
-s16 func_80040CD0(u8 stage);
-void func_8002B04C(void);
 void func_8002B220(void);
-s32 func_8002D424(void);
-void func_80034070(void);
-void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4);
-void func_80042208(void);
 void func_800F026C(void);
 void func_800F6670(void);
 void func_800F03B4(void);
@@ -670,9 +657,6 @@ extern s32 D_80095870[2];
 extern s32 D_80095848[2];
 
 extern s8 D_8009575D;
-extern u8 D_80095784;
-extern u32 D_800957C8;
-extern u32 D_800957C0;
 extern u8 D_800956EA;
 extern u8 D_800956DB;
 extern u8 D_800956E8[2];
@@ -1446,8 +1430,8 @@ extern s32 D_80074038[];
 
 s32 func_80041178(u8 stage);
 void func_800399A8(unsigned long *p);
+/* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void func_8002B7C8(DirEnt16 *dir, u16 id);
-void func_8002CC24(void);
 /* MATCHING: code_1dc24 types both as its own BankFile. */
 void func_800373C8(void *a, void *b);
 void func_8002C2B4(void);

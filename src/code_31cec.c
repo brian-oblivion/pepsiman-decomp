@@ -7,6 +7,7 @@
 #include "stdio.h"
 #include "libgte.h"
 #include "libgpu.h"
+#include "code_31cec.h"
 
 /** @brief Movie decode state: double VLC buffers, image buffer, VRAM targets. */
 typedef struct {

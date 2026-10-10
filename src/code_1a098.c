@@ -9,6 +9,7 @@
 #include "code_7d74.h"
 #include "code_13068.h"
 #include "code_a0bc.h"
+#include "code_31cec.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -747,7 +748,6 @@ s16 func_8002AF6C(PathUser *u) {
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 
-extern s16 D_800958E2;    /**< the selected Rec78 entry */
 extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
 void func_8002B5FC(void);
 
@@ -1294,7 +1294,6 @@ typedef struct {
 
 extern Zone4 *D_80095934; /**< the zones */
 extern s8 *D_8009593C;    /**< the group list the zones index */
-void func_800414EC(s16 n);
 
 /** @brief The magnitude of `x`. */
 /* MATCHING: this ternary is cc1's abs, a bgez with its delay slot a nop. */

@@ -101,7 +101,6 @@ extern s32 D_80095800;
 extern s32 D_80095804;
 extern s32 D_8009580C;
 
-extern u8 D_80095784;
 extern u8 *D_80095790;
 
 /** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */

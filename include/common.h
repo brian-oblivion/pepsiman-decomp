@@ -140,6 +140,11 @@ extern s32 D_80095980;  /**< 2 units */
 extern s32 D_80095988;  /**< 2 units */
 extern s16 D_800957B0;  /**< 2 units */
 extern s32 D_800957B4;  /**< 2 units */
+extern s8 D_800956D0;   /**< a level, kept within 0..120; 2 units */
+extern u8 D_80095784;   /**< 2 units */
+extern u32 D_800957C8;  /**< an analogue stick axis, 0x80 at rest; 2 units */
+extern u32 D_800957C0;  /**< the other analogue stick axis, 0x80 at rest; 2 units */
+extern s16 D_800958E2;  /**< the selected Rec78 entry; 2 units */
 extern s32 D_800958B4;  /**< the address of the floor data a probe tests; 2 units */
 extern u8 D_800D3CA8[]; /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
 extern u8 D_800DB2C0[]; /**< a 0x1DB0-byte buffer of 0x4C-byte records */
@@ -368,5 +373,39 @@ void func_80042958(u8 value);
 
 /** @brief Defined in code_13068. */
 void func_800285B0(void);
+
+/** @brief Defined in code_7d74. */
+void func_80017B38(void);
+
+/** @brief Defined in code_a0bc. */
+void func_80020C14(void);
+
+/** @brief Defined in code_13068. */
+void func_800229A8(void);
+
+/** @brief Defined in code_13068. */
+void func_80022A74(void);
+
+/** @brief Defined in code_1a098. */
+void func_8002B04C(void);
+
+/** @brief Defined in code_1a098. */
+void func_8002CC24(void);
+
+/** @brief Defined in code_24748. */
+void func_80034070(void);
+
+/** @brief Defined in code_1dc24.
+ *  @return not yet known */
+s32 func_8002D424(void);
+
+/** @brief Defined in code_308ec: a stage's number.
+ *  @param stage the stage
+ *  @return not yet known */
+s16 func_80040CD0(u8 stage);
+
+/** @brief Defined in code_31958.
+ *  @param sel not yet known */
+void func_8004121C(u16 sel);
 
 #endif

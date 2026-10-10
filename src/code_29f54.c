@@ -182,7 +182,43 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B780);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003B9B4);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003BDF4);
+void func_8003BDF4(void) {
+    POLY_F4 *p;
+    s32 i;
+
+    for (i = 0; i < D_80095968; i++) {
+        if (D_800A7278[i] != 0xFF) {
+            p = (POLY_F4 *)D_800E48D0;
+            setPolyF4(p);
+            p->x0 = p->x2 = -160;
+            p->x1 = p->x3 = -152;
+            p->y0 = p->y1 = (D_800A7278[i] >> 1) - 120;
+            if (i != 0) {
+                p->y3 = (D_800A7278[i - 1] >> 1) - 120;
+            } else {
+                p->y3 = -120;
+            }
+            p->y2 = p->y3;
+            p->r0 = D_800AC848[i];
+            p->g0 = D_800A7888[i];
+            p->b0 = D_800A76E8[i];
+            addPrim(D_80095884->org, p);
+            p++;
+            D_800E48D0 = (u8 *)p;
+        }
+    }
+    p = (POLY_F4 *)D_800E48D0;
+    setPolyF4(p);
+    p->x0 = p->x2 = -160;
+    p->x1 = p->x3 = -144;
+    p->y0 = p->y1 = 8;
+    p->y2 = p->y3 = 9;
+    setRGB0(p, 0xFF, 0xFF, 0xFF);
+    D_80095968 = 0;
+    addPrim(D_80095884->org, p);
+    p++;
+    D_800E48D0 = (u8 *)p;
+}
 
 void func_8003C014(void) {
     RECT rect;

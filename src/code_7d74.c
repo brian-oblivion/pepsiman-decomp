@@ -539,7 +539,79 @@ s32 func_800183B0(Vec3i *pos) {
     return found;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_7d74", func_800184BC);
+/** @brief A sky band's four corner colours. */
+typedef struct {
+    CVECTOR c[4]; /**< top and bottom of the upper band, then of the lower */
+} SkyColors;
+
+extern SkyColors *D_8009590C;
+
+void func_800184BC(u32 arg) {
+    /* MATCHING: volatile keeps every store in source order and in place. */
+    volatile POLY_G4 *p;
+    u32 *tag;
+    s32 set;
+    s32 dx;
+    s32 dz;
+    s32 y;
+
+    dx = D_80096768[3] - D_80096768[0];
+    dz = D_80096768[5] - D_80096768[2];
+    /* MATCHING: two steps keep the shift and the mask in one register. */
+    set = arg >> 10;
+    set &= 3;
+    y = D_80096768[4] - D_80096768[1];
+    p = (volatile POLY_G4 *)D_800E48D0;
+    y = rsin(ratan2(y, SquareRoot0(dx * dx + dz * dz))) * 240 >> 12;
+    if (D_8009576A != 100 && D_80095830 % 3 != 2) {
+        p->r0 = p->r1 = D_8009590C[set].c[0].r * (D_8009576A << 11) / 0x10000;
+        p->g0 = p->g1 = D_8009590C[set].c[0].g * (D_8009576A << 11) / 0x10000;
+        p->b0 = p->b1 = D_8009590C[set].c[0].b * (D_8009576A << 11) / 0x10000;
+        p->r2 = p->r3 = D_8009590C[set].c[1].r * (D_8009576A << 11) / 0x10000;
+        p->g2 = p->g3 = D_8009590C[set].c[1].g * (D_8009576A << 11) / 0x10000;
+        p->b2 = p->b3 = D_8009590C[set].c[1].b * (D_8009576A << 11) / 0x10000;
+    } else {
+        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&D_8009590C[set].c[0];
+        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&D_8009590C[set].c[1];
+    }
+    p->x0 = -160;
+    p->y0 = -160;
+    p->x1 = 159;
+    p->y1 = -160;
+    p->x2 = -160;
+    p->y2 = 8 - y;
+    p->x3 = 159;
+    p->y3 = 8 - y;
+    setcode(p, 0x38);
+    tag = (u32 *)D_800A7318[D_80095750].org + 0xFFF;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
+    *tag = (u32)p & 0xFFFFFF;
+    p++;
+    if (D_8009576A != 100 && D_80095830 % 3 != 2) {
+        p->r0 = p->r1 = D_8009590C[set].c[2].r * (D_8009576A << 11) / 0x10000;
+        p->g0 = p->g1 = D_8009590C[set].c[2].g * (D_8009576A << 11) / 0x10000;
+        p->b0 = p->b1 = D_8009590C[set].c[2].b * (D_8009576A << 11) / 0x10000;
+        p->r2 = p->r3 = D_8009590C[set].c[3].r * (D_8009576A << 11) / 0x10000;
+        p->g2 = p->g3 = D_8009590C[set].c[3].g * (D_8009576A << 11) / 0x10000;
+        p->b2 = p->b3 = D_8009590C[set].c[3].b * (D_8009576A << 11) / 0x10000;
+    } else {
+        *(u32 *)&p->r0 = *(u32 *)&p->r1 = *(u32 *)&D_8009590C[set].c[2];
+        *(u32 *)&p->r2 = *(u32 *)&p->r3 = *(u32 *)&D_8009590C[set].c[3];
+    }
+    p->x0 = -160;
+    p->y0 = 8 - y;
+    p->x1 = 159;
+    p->y1 = 8 - y;
+    p->x2 = -160;
+    p->y2 = 119;
+    p->x3 = 159;
+    p->y3 = 119;
+    setcode(p, 0x38);
+    tag = (u32 *)D_800A7318[D_80095750].org + 0xFFF;
+    *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
+    *tag = (u32)p & 0xFFFFFF;
+    D_800E48D0 = (u8 *)(p + 1);
+}
 
 void func_80018AE0(SVECTOR *rot, GsCOORDINATE2 *coord) {
     MATRIX m;

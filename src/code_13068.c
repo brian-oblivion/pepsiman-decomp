@@ -103,7 +103,14 @@ extern s32 D_8009EEF8[];
 /** @brief A 72-byte record of the shared slot table, as the item
  *         spawner fills it; code_1902c's Slot48 is the same record. */
 typedef struct {
-    u8 pad0[0x24];
+    s32 unk0; /**< set to minus the view offset's x when a stage object is placed */
+    s32 unk4; /**< cleared, or 0x3C or 0x32, when a stage object is placed */
+    s32 unk8; /**< set to minus the view offset's z when a stage object is placed */
+    u8 padC[0x18 - 0xC];
+    s16 unk18; /**< -0x88, or turned by half of unk3A8 degrees */
+    s16 unk1A; /**< 0xAA when a stage object is placed */
+    s16 unk1C; /**< -0x88 for one stage object */
+    u8 pad1E[0x24 - 0x1E];
     s16 unk24; /**< cleared on a spawn */
     s16 unk26; /**< cleared on a spawn */
     u8 pad28[0x34 - 0x28];
@@ -114,6 +121,20 @@ typedef struct {
     u8 unk43; /**< 0x69 on a spawn */
     u8 pad44[0x48 - 0x44];
 } SlotRec;
+
+/** @brief A 0x78-byte model slot, paired with the SlotRec of the same
+ *         index; main's ModelSlot is the same record. */
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58; /**< the address of the coordinate system the model hangs from */
+    u8 pad5C[0x78 - 0x5C];
+} ObjRec;
+
+extern SlotRec D_800D3860[];
+/* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
+extern ObjRec D_800D8370[];
+/* MATCHING: code_1a098 types these Rec78 and Rec48; this unit's records are views of them. */
+void func_8002A5B0(Rec78 *rec, Rec48 *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
 extern u8 D_8009EF49[];
@@ -634,7 +655,79 @@ void func_80026C70(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026D9C);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_800272D4);
+void func_800272D4(void) {
+    switch (sGame.unk3D0 & 0xF) {
+        case 1:
+            D_800D3860[0].unk18 = -0x88;
+            D_800D3860[0].unk1A = 0xAA;
+            D_800D3860[0].unk4 = 0;
+            D_800D8370[0].unk58 = (s32)&D_800D86E0[16];
+            D_800D3860[0].unk0 = -D_800A7308[0];
+            D_800D3860[0].unk8 = -D_800A7308[2];
+            func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
+            break;
+        case 4:
+            D_800D3860[5].unk18 = -0x88;
+            D_800D3860[5].unk1C = -0x88;
+            D_800D3860[5].unk1A = 0xAA;
+            D_800D3860[5].unk4 = 0;
+            D_800D8370[5].unk58 = (s32)&D_800D86E0[16];
+            D_800D3860[5].unk0 = -D_800A7308[0];
+            D_800D3860[5].unk8 = -D_800A7308[2];
+            func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
+            break;
+        case 2:
+            switch (D_80095830) {
+                case 3:
+                    D_800D3860[3].unk4 = 0x3C;
+                    D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
+                    D_800D3860[3].unk0 = -D_800A7308[0];
+                    D_800D3860[3].unk8 = -D_800A7308[2];
+                    D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
+                    if (D_8009585C % 20 == 0) {
+                        func_80042538(0x81);
+                    }
+                    break;
+                case 10:
+                    D_800D3860[6].unk4 = 0x32;
+                    D_800D8370[6].unk58 = (s32)&D_800D86E0[0];
+                    D_800D3860[6].unk0 = -D_800A7308[0];
+                    D_800D3860[6].unk8 = -D_800A7308[2];
+                    D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
+                    if (D_8009585C % 20 == 0) {
+                        func_80042538(0x81);
+                    }
+                    break;
+            }
+            break;
+        case 3:
+            switch (D_80095830) {
+                case 0:
+                    D_800D3860[4].unk4 = 0;
+                    D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
+                    D_800D3860[4].unk0 = -D_800A7308[0];
+                    D_800D3860[4].unk8 = -D_800A7308[2];
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
+                    break;
+                case 12:
+                    D_800D3860[2].unk4 = 0;
+                    D_800D8370[2].unk58 = (s32)&D_800D86E0[1];
+                    D_800D3860[2].unk0 = -D_800A7308[0];
+                    D_800D3860[2].unk8 = -D_800A7308[2];
+                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
+                    break;
+            }
+            break;
+    }
+    if ((D_8009EF48[0] >> 4) == 5) {
+        D_800D3860[1].unk4 = 0;
+        D_800D3860[1].unk0 = -D_800A7308[0];
+        D_800D3860[1].unk8 = -D_800A7308[2];
+        func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[1].unk36], (Rec48 *)&D_800D3860[1]);
+    }
+}
 
 /* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
 s32 func_80027714(void) {

@@ -469,7 +469,50 @@ INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F100);
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F488);
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003F664);
+/** @brief One step of a slot's animation; returns nonzero when it ends. */
+typedef s32 (*SlotStep)(Slot *p, GsOT *ot, s16 x, s16 y, s16 z);
+
+extern SlotStep D_8007A7C4[];
+
+void func_8003F664(s32 unused, s16 x, s16 y, s16 z) {
+    u8 i;
+    u8 prev;
+    u8 next;
+    s32 d;
+    s32 done;
+    Slot *slot;
+
+    prev = 0xFF;
+    if ((s8)D_80095AA8 < 0) {
+        return;
+    }
+    i = D_80095AA8;
+    do {
+        slot = &sSlots[i];
+        d = x + slot->unkC;
+        next = slot->next;
+        if (d * (d * 2) > 0x77A0F) {
+            done = D_8007A7C4[slot->unk12](slot, &D_800A7318[D_80095750], x, y, z);
+        } else {
+            done = D_8007A7C4[slot->unk12](slot, &D_800ACEA8[D_80095750], x, y, z);
+        }
+        if (done) {
+            if (prev == 0xFF) {
+                D_80095AA8 = sSlots[i].next;
+            } else {
+                sSlots[prev].next = sSlots[i].next;
+            }
+            sSlots[i].next = D_80095AA9;
+            D_80095AA9 = i;
+        } else {
+            prev = i;
+        }
+        if ((s8)next < 0) {
+            break;
+        }
+        i = next;
+    } while (1);
+}
 
 s32 func_8003F834(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     u8 prev;

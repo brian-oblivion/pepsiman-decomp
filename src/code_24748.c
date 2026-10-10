@@ -727,7 +727,6 @@ void func_80034F38(void) {
     func_80036704();
 }
 
-#ifdef NON_MATCHING
 void func_800350C8(void) {
     VECTOR pos;
     Bank2C *bank;
@@ -779,7 +778,11 @@ void func_800350C8(void) {
                 for (k = e->first + D_80095A38; k < 399; k++) {
                     *dst = *src;
                     dst++;
-                    src++;
+                    /* MATCHING: the empty do/while gives the source pointer
+                     * $a1 and the block move's end $a3. */
+                    do {
+                        src++;
+                    } while (0);
                 }
                 n = D_8009588E;
                 /* MATCHING: a byte-pointer store keeps the index load below it. */
@@ -796,9 +799,6 @@ void func_800350C8(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
-#endif
 
 #ifdef NON_MATCHING
 void func_80035350(void) {

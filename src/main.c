@@ -1426,7 +1426,6 @@ extern s32 D_80073FF0[];
 extern CdlLOC D_80074018[];
 extern s32 D_80074038[];
 
-s32 func_80041178(u8 stage);
 void func_800399A8(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void func_8002B7C8(DirEnt16 *dir, u16 id);

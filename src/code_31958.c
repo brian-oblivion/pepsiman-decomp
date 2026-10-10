@@ -1,12 +1,15 @@
 #include "common.h"
 
 extern u16 D_8007B0EC[];
+extern u16 D_8007B10C[];
 
 u16 func_80041158(u16 i) {
     return D_8007B0EC[i];
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041178);
+s32 func_80041178(u16 stage) {
+    return D_8007B10C[stage];
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_31958", func_80041198);
 

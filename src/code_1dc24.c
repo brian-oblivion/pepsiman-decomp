@@ -181,23 +181,29 @@ typedef struct {
 /** @brief A 0x48-byte record of the 200-entry record table, as
  *         this unit places it (code_1a098.h's Rec48 is the same record). */
 typedef struct {
-    s32 unk0[3];   /**< a position */
-    s32 unkC[3];   /**< a copy of unk0 */
-    u8 unk18[0xC]; /**< not yet known */
-    s16 unk24;     /**< cleared when placed */
-    s16 unk26;     /**< cleared when placed */
-    s32 unk28;     /**< the current entry when placed */
-    u8 unk2C[8];   /**< not yet known */
-    s16 unk34;     /**< sTotals.unk1E when placed */
-    s16 unk36;     /**< -1 when free */
-    s16 unk38;     /**< sTotals.unk1C for the first placed, else -1 */
-    u8 unk3A[2];   /**< not yet known */
-    s32 unk3C;     /**< a global stamp when placed */
-    u8 unk40;      /**< cleared when placed */
-    u8 unk41;      /**< not yet known */
-    u8 unk42;      /**< sTotals.unk68 when placed */
-    u8 unk43;      /**< sTotals.unk69 when placed */
-    u8 unk44[4];   /**< not yet known */
+    s32 unk0[3]; /**< a position */
+    s32 unkC[3]; /**< a copy of unk0 */
+    s16 unk18;   /**< cleared when the first record is taken */
+    s16 unk1A;   /**< a heading, 0..4095 */
+    s16 unk1C;   /**< cleared when the first record is taken */
+    u8 unk1E[2]; /**< not yet known */
+    u16 unk20;   /**< a heading offset from the first record's */
+    u8 unk22[2]; /**< not yet known */
+    s16 unk24;   /**< cleared when placed */
+    s16 unk26;   /**< cleared when placed */
+    s32 unk28;   /**< the current entry when placed */
+    s32 unk2C;   /**< an angle from the light direction */
+    s32 unk30;   /**< a second angle from the light direction */
+    s16 unk34;   /**< sTotals.unk1E when placed */
+    s16 unk36;   /**< -1 when free */
+    s16 unk38;   /**< sTotals.unk1C for the first placed, else -1 */
+    u8 unk3A[2]; /**< not yet known */
+    s32 unk3C;   /**< a global stamp when placed */
+    u8 unk40;    /**< cleared when placed */
+    u8 unk41;    /**< not yet known */
+    u8 unk42;    /**< sTotals.unk68 when placed */
+    u8 unk43;    /**< sTotals.unk69 when placed */
+    u8 unk44[4]; /**< not yet known */
 } Obj48;
 
 /* MATCHING: code_1a098 declares D_800959D8 as u8 (it only zeroes it); this
@@ -231,6 +237,11 @@ extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 
 /* MATCHING: code_1a098 declares it as its Rec5C records. */
 extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
+
+/* MATCHING: code_308ec defines it with an s16 first parameter; this unit
+ * passes it unextended and hands it two record pointers. */
+u16 func_80040E04(s32 id, Obj48 *a, Obj48 *b);
+void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
@@ -751,7 +762,61 @@ s32 func_80030B6C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80030DA0);
+/** @brief Places the waiting records: on the first pass fetches them for
+ *         the game position, then sets the first one's position, heading
+ *         and light angles and every later one relative to it.
+ *  @return nothing; the value is undefined. */
+s32 func_80030DA0(void) {
+    /* MATCHING: an unused record-sized local gives retail's 0x78 frame. */
+    Obj48 unused;
+    Obj48 *w;
+    Obj48 *r;
+    u16 i;
+
+    /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
+    switch (D_800958A6) {
+        case 0:
+            D_80096788[0].unk18 = 0;
+            D_80096788[0].unk1C = 0;
+            D_80096788[0].unk0[0] = sGameSave.unk348[0];
+            D_80096788[0].unk0[1] = sGameSave.unk348[1];
+            D_80096788[0].unk0[2] = sGameSave.unk348[2];
+            D_80096788[0].unk1A = (sTotals.unk20 << 12) / 360;
+            D_8009596E = func_80040E04(sTotals.unk1C, D_80096788, D_80096788);
+            D_800958A6++;
+            /* fall through */
+        case 1:
+            w = D_80096788;
+            w->unk0[0] = sGameSave.unk348[0];
+            w->unk0[1] = sGameSave.unk348[1];
+            w->unk0[2] = sGameSave.unk348[2];
+            w->unk1A = (sTotals.unk20 << 12) / 360;
+            if (D_80095824 == -1) {
+                D_800AC858[1] = 0;
+                D_800AC858[2] = -0x1000;
+                D_800AC858[3] = 0;
+            }
+            w->unk2C = ratan2(-D_800AC858[3], D_800AC858[2]);
+            w->unk30 = ratan2(-D_800AC858[1], D_800AC858[2]);
+            func_8002A7D8(&D_800D8D20[w->unk36], (Rec48 *)w);
+            for (i = 1; i < D_8009596E; i++) {
+                /* MATCHING: an integer sum puts the index first in the addu. */
+                r = (Obj48 *)(i * sizeof(Obj48) + (u32)w);
+                D_800957E4.vx = r->unkC[0];
+                D_800957E4.vy = r->unkC[1];
+                D_800957E4.vz = r->unkC[2];
+                func_80023194((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
+                r->unk0[0] = D_8009F268.vx;
+                r->unk0[1] = D_8009F268.vy;
+                r->unk0[2] = D_8009F268.vz;
+                r->unk1A = w->unk1A + r->unk20;
+                r->unk2C = w->unk2C;
+                r->unk30 = w->unk30;
+                func_8002A7D8(&D_800D8D20[r->unk36], (Rec48 *)r);
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80031064);
 

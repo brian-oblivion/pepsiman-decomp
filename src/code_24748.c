@@ -144,6 +144,24 @@ extern char D_8001178C[]; /**< path of the first hit-data file, HITDATA0.T1D */
 extern char D_800117B4[]; /**< path of the second hit-data file, HITDATA1.T1D */
 extern char D_800117DC[]; /**< path of the third hit-data file, HITDATA2.T1D */
 
+void func_80034388(void);
+void func_800345C8(void);
+void func_80034788(void);
+void func_80034D5C(Obj48 *obj);
+void func_800350C8(void);
+void func_80035350(void);
+void func_800355D8(void);
+void func_800356FC(void);
+void func_80035970(void);
+void func_80036478(VECTOR *pos);
+void func_800365A0(VECTOR *pos);
+void func_80036AB8(VECTOR *pos, u16 scale);
+void func_80036EF0(void);
+s32 func_80036FE8(void);
+void func_8003708C(void);
+void func_80037114(void);
+void func_800371A0(void);
+
 /* MATCHING: the bob gets its own statement, or cc1 adds -200 to pos->vy. */
 void func_80033F48(VECTOR *pos) {
     SVECTOR size;
@@ -245,7 +263,98 @@ INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117B4);
 
 INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117DC);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80034070);
+void func_80034070(void) {
+    switch (D_80095760) {
+        case 0:
+            D_800A7308[0] = 0;
+            D_800A7308[2] = 0;
+            D_8009588E = 80;
+            bzero((u8 *)0x8016D000, 0x10000);
+            *(s32 *)0x8016D000 = 80;
+            D_80095780 = 80;
+            D_80095A50 = 0x8016D004;
+            func_80036E50();
+            bzero((u8 *)0x8017D000, 0x10000);
+            *(s32 *)0x8017D000 = 80;
+            D_80095810 = 80;
+            D_80095A4C = 0x8017D004;
+            func_80036EA0();
+            sGamePos.unk348 = 0;
+            sGamePos.unk34C = 0;
+            sGamePos.unk350 = 0;
+            D_80095A61 = 10;
+            D_80095A24 = 2;
+            D_80095A26 = 10;
+            D_80095A3C = 5;
+            D_80095A60 = 0;
+            D_80095A22 = 0;
+            D_80095A30 = 0;
+            D_80095A29 = 0;
+            D_80095A38 = 0;
+            D_80095A5C = 0;
+            D_80095A2C = 0;
+            D_80095A40 = 0;
+            D_80095A58 = 0;
+            D_80095A28 = 0;
+            D_800958DA = 0;
+            D_8009574A = 0;
+            D_80095748 = 0;
+            D_800956F7 = 1;
+            D_80095760++;
+            break;
+        case 1:
+            switch ((u16)D_800958DA) {
+                case 0:
+                    func_80034388();
+                    func_80036EF0();
+                    if (D_80095A29 == 1 && (D_80095970 & 0x40)) {
+                        D_80095A59 = 0;
+                    }
+                    break;
+                case 1:
+                    func_800345C8();
+                    break;
+                case 2:
+                    func_800371A0();
+                    break;
+                case 3:
+                    func_800350C8();
+                    break;
+                case 4:
+                    D_80095A59 = 0;
+                    D_800958DA = 0;
+                    break;
+                case 5:
+                    func_80035350();
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    func_80035970();
+                    break;
+            }
+            func_80034788();
+            func_80036FE8();
+            func_80037114();
+            if ((u16)(D_800958DA - 6) >= 2) {
+                func_800355D8();
+            }
+            func_800356FC();
+            if (D_80095A29 == 1 && D_80095A59 == 1) {
+                func_80034D5C(&D_800DF9C0);
+                func_8002A98C(&D_800DF9C0, D_8009EEC0, D_80095A54, D_80095A56);
+            }
+            if (D_80095A58 == 0) {
+                func_8003708C();
+                func_80036478((VECTOR *)D_8009EEC0);
+                func_800365A0((VECTOR *)D_8009EEC0);
+                if (D_80095A29 == 0) {
+                    func_80036AB8((VECTOR *)D_8009EEC0, (s16)D_80095A3C * 10);
+                }
+            }
+            break;
+    }
+}
 
 extern s32 D_80095958; /**< a pad word; bits 12 and 14 step the position's y */
 
@@ -489,9 +598,153 @@ void func_80034F38(void) {
     func_80036704();
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
+#ifdef NON_MATCHING
+void func_800350C8(void) {
+    VECTOR pos;
+    Bank2C *bank;
+    BankEntry *e;
+    Rec2C *recs;
+    Rec2C *src;
+    Rec2C *dst;
+    Rec2C *rec;
+    s32 k;
+    s32 n;
 
+    switch (D_800958A6) {
+        case 0:
+            D_80095A38 = 0;
+            D_800958A6 = 1;
+            break;
+        case 1:
+            bank = (Bank2C *)D_80095A50;
+            e = bank->entries;
+            e += D_80095A30;
+            if (e->unk4 == 0) {
+                D_800958DA = 0;
+                D_80095A58 = 0;
+            }
+            if (D_80095970 & 8) {
+                D_80095A38++;
+            }
+            if (D_80095970 & 4) {
+                D_80095A38--;
+            }
+            e = bank->entries;
+            e += D_80095A30;
+            D_80095A38 = D_80095A38<0 ? 0 : D_80095A38>(u32)(e->unk4 - 1) ? e->unk4 - 1 : D_80095A38;
+            rec = func_80036A50(D_80095A30, D_80095A38);
+            pos.vx = -rec->unk1C;
+            pos.vy = rec->unk20;
+            D_80095A44 = rec;
+            pos.vz = -rec->unk24;
+            if (D_80095970 & 0x40) {
+                D_800958DA = 0;
+                D_80095A58 = 0;
+            }
+            if (D_80095A28 != 1 && (D_80095970 & 0x20)) {
+                bank = (Bank2C *)D_80095A50;
+                e = bank->entries;
+                e += D_80095A30;
+                dst = (Rec2C *)&bank->entries[D_8009588E];
+                src = &dst[e->first + D_80095A38 + 1];
+                dst += e->first + D_80095A38;
+                for (k = e->first + D_80095A38; k < 399; k++) {
+                    *dst = *src;
+                    dst++;
+                    src++;
+                }
+                n = D_8009588E;
+                /* MATCHING: a byte-pointer store keeps the index load below it. */
+                *(s32 *)((u8 *)e + 4) -= 1;
+                k = D_80095A30 + 1;
+                for (; k < n; k++) {
+                    e++;
+                    e->first--;
+                }
+                func_80036704();
+            }
+            func_80036478(&pos);
+            func_800365A0(&pos);
+            break;
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code_24748", func_800350C8);
+#endif
+
+#ifdef NON_MATCHING
+void func_80035350(void) {
+    VECTOR pos;
+    Bank4C *bank;
+    BankEntry *e;
+    Rec4C *recs;
+    Rec4C *src;
+    Rec4C *dst;
+    Rec4C *rec;
+    s32 k;
+    s32 n;
+
+    switch (D_800958A6) {
+        case 0:
+            D_80095A2C = 0;
+            D_800958A6 = 1;
+            break;
+        case 1:
+            bank = (Bank4C *)D_80095A4C;
+            e = bank->entries;
+            e += D_80095A30;
+            if (e->unk4 == 0) {
+                D_800958DA = 0;
+                D_80095A58 = 0;
+            }
+            if (D_80095970 & 8) {
+                D_80095A2C++;
+            }
+            if (D_80095970 & 4) {
+                D_80095A2C--;
+            }
+            e = bank->entries;
+            e += D_80095A30;
+            D_80095A2C = D_80095A2C<0 ? 0 : D_80095A2C>(u32)(e->unk4 - 1) ? e->unk4 - 1 : D_80095A2C;
+            rec = func_80036A84(D_80095A30, D_80095A2C);
+            pos.vx = -rec->pts[0].x;
+            pos.vy = rec->pts[0].y;
+            D_80095A34 = rec;
+            pos.vz = -rec->pts[0].z;
+            if (D_80095970 & 0x40) {
+                D_800958DA = 0;
+                D_80095A58 = 0;
+            }
+            if (D_80095A28 != 1 && (D_80095970 & 0x20)) {
+                bank = (Bank4C *)D_80095A4C;
+                e = bank->entries;
+                e += D_80095A30;
+                dst = (Rec4C *)&bank->entries[D_8009588E];
+                src = &dst[e->first + D_80095A2C + 1];
+                dst += e->first + D_80095A2C;
+                for (k = e->first + D_80095A2C; k < 99; k++) {
+                    *dst = *src;
+                    dst++;
+                    src++;
+                }
+                n = D_8009588E;
+                /* MATCHING: a byte-pointer store keeps the index load below it. */
+                *(s32 *)((u8 *)e + 4) -= 1;
+                k = D_80095A30 + 1;
+                for (; k < n; k++) {
+                    e++;
+                    e->first--;
+                }
+                func_80036878();
+            }
+            func_80036478(&pos);
+            func_800365A0(&pos);
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035350);
+#endif
 
 /* MATCHING: the first clamp is a preloaded local with nested ifs; a nested
  * ternary like the second one moves the value through another register. */

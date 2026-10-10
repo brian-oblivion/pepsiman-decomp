@@ -150,7 +150,35 @@ void func_8003C17C(u8 level) {
     func_8001B354(0x1FF, &pos, &color, 0xFFF, &D_800A7318[D_80095750]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C2E8);
+void func_8003C2E8(void) {
+    POLY_FT4 *p;
+    s32 n;
+
+    if (D_80095A94 != 0) {
+        if (D_80095A78 >= 24) {
+            D_80095A94 = 0;
+            return;
+        }
+        n = D_80095A78 / 3;
+        p = (POLY_FT4 *)D_800E48D0;
+        setPolyFT4(p);
+        p->r0 = p->g0 = p->b0 = 0x80;
+        p->x0 = p->x2 = -160;
+        p->x1 = p->x3 = 160;
+        p->y0 = p->y1 = -120;
+        p->y2 = p->y3 = 120;
+        p->u0 = p->u2 = (n % 2) << 7;
+        p->v0 = p->v1 = (n / 2 % 2) * 96;
+        p->clut = getClut(720, n + 448);
+        p->u1 = p->u3 = p->u0 + 0x7F;
+        p->v2 = p->v3 = p->v0 + 0x5F;
+        p->tpage = getTPage(0, 0, n / 4 * 64 + 704, 256);
+        addPrim(D_800ACEA8[D_80095750].org, p);
+        D_80095A78++;
+        p++;
+        D_800E48D0 = (u8 *)p;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
 

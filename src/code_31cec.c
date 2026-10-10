@@ -397,7 +397,41 @@ void func_80042208(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80042538);
+extern u8 D_8007BBEC[];
+
+s32 func_80042538(s32 id) {
+    s16 *seq;
+    s16 i;
+    u8 bank;
+    s16 *vabs;
+    u32 *hdr;
+
+    for (D_80095B1A = 2; D_80095B1A < 10; D_80095B1A++) {
+        i = D_80095B1A;
+        seq = &D_800E0570[(u16)i];
+        if (SsIsEos(*seq, 0) == 0) {
+            break;
+        }
+    }
+    SsSeqClose(*seq);
+    if (D_8009579C != 0) {
+        return -1;
+    }
+    hdr = (u32 *)0x80101000;
+    hdr += (u16)id * 4;
+    vabs = &D_80095B14;
+    if ((u16)id < 70) {
+        bank = 0;
+    } else {
+        bank = D_8007BBEC[(u16)id - 70];
+    }
+    D_800E0570[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
+    SsSeqPlay(D_800E0570[(u16)i], 1, 1);
+    SsSeqSetVol(D_800E0570[(u16)i], 127, 127);
+    if (++D_80095B1A >= 10) {
+        D_80095B1A = 2;
+    }
+}
 
 extern s32 D_8007B69C[];
 

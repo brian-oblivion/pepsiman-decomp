@@ -49,7 +49,6 @@ void func_80014044(void);
 void func_80016D14(void);
 void func_80016FC0(void);
 void func_80017124(void);
-void func_800401F0(u8 stage);
 void func_8002B220(void);
 void func_800F026C(void);
 void func_800F6670(void);

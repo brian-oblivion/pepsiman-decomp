@@ -363,6 +363,10 @@ void func_80028888(void *rec);
  *  @param id the set, 0 to 22 (read as a byte) */
 void func_80022554(s32 id);
 
+/** @brief Defined in code_308ec: one frame of the stage-start sequence.
+ *  @param stage the stage whose overlay runs the frame */
+void func_800401F0(u8 stage);
+
 /** @brief Defined in code_31958: reads a stage's halfword from a table.
  *  @param stage the stage index
  *  @return the table entry */

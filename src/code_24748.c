@@ -919,9 +919,6 @@ extern s32 D_800DB2B8[]; /**< cleared on every step */
  * returning s16. */
 s32 func_80018D04(s32 a, s32 b, u16 t, u16 n);
 
-#ifdef NON_MATCHING
-/* MATCHING: case 2 stores the switch value ($v1); retail stores the compare
- * constant ($v0). */
 void func_800356FC(void) {
     Rows5 rows;
 
@@ -947,7 +944,7 @@ void func_800356FC(void) {
             break;
         case 2:
             D_800958DA = D_80095A22;
-            D_80095A24 = 2;
+            D_80095A24++;
             break;
         case 3:
             D_800DB2A0[0] = rows.v[(s8)D_80095A60][0] * (s8)D_80095A61;
@@ -960,10 +957,6 @@ void func_800356FC(void) {
     }
     D_800DB2B8[0] = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_800356FC);
-#endif
-
 
 /* MATCHING: a per-unit view; code_27bc8 defines it returning s16, and
  * func_80035970 compares the result with -1 unextended. */
@@ -1394,30 +1387,19 @@ void func_800365A0(VECTOR *pos) {
     GsSortLine(&line, &D_800ACEA8[D_80095750], 50);
 }
 
-#ifdef NON_MATCHING
-/* MATCHING: retail's 0x2A-byte copy is word-aligned; no type found for it. */
-/** @brief The first 0x2A bytes of a 0x2C-byte record, copied as a block. */
-typedef struct {
-    s16 h[21]; /**< not yet known */
-} Copy2A;
-
-/** @brief A record of the first bank as the bank installer reads it. */
-typedef struct {
-    u8 unk0[0x28]; /**< copied as a block */
-    s16 unk28;     /**< index of the owning 0x78-byte record */
-    u8 pad[2];     /**< not copied */
-} Bank2CRec;
-
 /** @brief A record of the live buffer the first bank is copied into. */
 typedef struct {
     u8 unk0[0x28]; /**< copied from the bank record */
     void *unk28;   /**< the owning record's unk10 */
 } Live2C;
 
+void *__builtin_memcpy(void *dst, const void *src, u32 n);
+
+/* MATCHING: __builtin_memcpy, for a word-aligned 42-byte block move. */
 void func_80036704(void) {
     s16 i;
     BankEntry *e = ((Bank2C *)D_80095A50)->entries;
-    Bank2CRec *rec;
+    Rec2C *rec;
 
     for (i = 0; i < (u32)D_80095780; i++) {
         D_800D8D20[i].unk72 = e->first;
@@ -1425,14 +1407,11 @@ void func_80036704(void) {
         e++;
     }
     for (i = 0; i < 400; i++) {
-        rec = (Bank2CRec *)func_80036A50(0, i);
-        *(Copy2A *)&((Live2C *)D_800D3CA8)[i] = *(Copy2A *)rec;
+        rec = func_80036A50(0, i);
+        __builtin_memcpy(&((Live2C *)D_800D3CA8)[i], rec, 0x2A);
         ((Live2C *)D_800D3CA8)[i].unk28 = D_800D8D20[rec->unk28].unk10;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036704);
-#endif
 
 void func_80036878(void) {
     s16 i;

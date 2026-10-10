@@ -392,7 +392,34 @@ INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035970);
 
 INCLUDE_ASM("asm/nonmatchings/code_24748", func_80035E24);
 
-INCLUDE_ASM("asm/nonmatchings/code_24748", func_80036184);
+/** @brief The first block of one hit-data slot. */
+typedef struct {
+    u8 b[0x4744]; /**< not yet known */
+} HitBlockA;
+
+/** @brief The second block of one hit-data slot. */
+typedef struct {
+    u8 b[0x2034]; /**< not yet known */
+} HitBlockB;
+
+/** @brief One hit-data slot: the two blocks a HITDATA file holds. */
+typedef struct {
+    HitBlockA a; /**< the first block */
+    HitBlockB b; /**< the second block */
+} HitSlot;
+
+/** @brief The tool buffer: a header, then the three hit-data slots. */
+typedef struct {
+    u8 hdr[0x200];    /**< not yet known */
+    HitSlot slots[3]; /**< one per HITDATA file */
+} ToolBuf;
+
+void func_80036184(s16 n) {
+    ToolBuf *tool = (ToolBuf *)0x8018D000;
+
+    tool->slots[n].a = *(HitBlockA *)0x8016D000;
+    (&tool->slots[n])->b = *(HitBlockB *)0x8017D000;
+}
 
 s32 func_8003634C(void) {
     s32 fd;
@@ -562,28 +589,6 @@ void func_80036AB8(VECTOR *pos, u16 scale) {
     color.g = color.b = color.cd = 0x80;
     func_8001A3D4(0x15D, &size, &color, 2, &D_800ACEA8[D_80095750]);
 }
-
-/** @brief The first block of one hit-data slot. */
-typedef struct {
-    u8 b[0x4744]; /**< not yet known */
-} HitBlockA;
-
-/** @brief The second block of one hit-data slot. */
-typedef struct {
-    u8 b[0x2034]; /**< not yet known */
-} HitBlockB;
-
-/** @brief One hit-data slot: the two blocks a HITDATA file holds. */
-typedef struct {
-    HitBlockA a; /**< the first block */
-    HitBlockB b; /**< the second block */
-} HitSlot;
-
-/** @brief The tool buffer: a header, then the three hit-data slots. */
-typedef struct {
-    u8 hdr[0x200];    /**< not yet known */
-    HitSlot slots[3]; /**< one per HITDATA file */
-} ToolBuf;
 
 /* MATCHING: (&slot)->b puts the second address sum offset-first. */
 void func_80036B90(s16 n) {

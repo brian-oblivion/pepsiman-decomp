@@ -13,6 +13,7 @@
 #include "libgs.h"
 
 extern GsOT D_800ACEA8[]; /**< the ordering tables the sprite drawer is handed */
+extern MATRIX D_800E4858; /**< the rotation matrix the billboard sprites are drawn with */
 
 /** @brief Draws a sprite into an ordering table.
  *  @param id    which sprite

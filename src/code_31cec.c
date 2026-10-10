@@ -77,13 +77,41 @@ void func_80041964(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041A6C);
+extern s32 D_80095AD8;
+extern RECT D_80095AE0;
+
+extern u_long D_80095ABC;
+extern StHEADER *D_80095ACC;
+extern u_long *D_80095AD4;
+extern s32 D_800956C4;
+extern s32 D_800956C8;
+
+u_long *func_80041A6C(DECENV *dec) {
+    D_80095AD0 = 0x800000;
+    while (StGetNext(&D_80095AD4, (u_long **)&D_80095ACC)) {
+        if (--D_80095AD0 == 0) {
+            return NULL;
+        }
+    }
+    D_80095ABC = D_80095ACC->frameCount;
+    if (D_80095ACC->frameCount >= D_80095AD8) {
+        D_80095AB4 = 1;
+    }
+    if (D_800956C4 != D_80095ACC->width || D_800956C8 != D_80095ACC->height) {
+        setRECT(&D_80095AE0, 0, 0, 480, 480);
+        ClearImage(&D_80095AE0, 0, 0, 0);
+        DrawSync(0);
+        D_800956C4 = D_80095ACC->width;
+        D_800956C8 = D_80095ACC->height;
+    }
+    dec->rect[0].w = dec->rect[1].w = D_800956C4 * 3 / 2;
+    dec->slice.h = dec->rect[0].h = dec->rect[1].h = D_800956C8;
+    return D_80095AD4;
+}
 
 void func_80041534(char *name, s16 arg1);
 
 extern CdlLOC D_80095AB0;
-extern s32 D_80095AD8;
-extern RECT D_80095AE0;
 
 void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
     CdlATV atv;

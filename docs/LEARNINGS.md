@@ -132,6 +132,24 @@ function's match report, not here.
   is a local whose alignment cc1 cannot see**; plain `lw`/`sw` is an
   `s32 w[N/4]` wrapper. (func_8002C2B4)
 
+- **A parameter copied to another register at entry, extended in place at
+  its first use and re-extended from the copy at each later use: an `s16`
+  parameter**, not `s32` plus casts. (func_80032C28, func_80032964)
+- **`x *= -1` on an `s16` member loads it `lh`; `x = -x` loads it `lhu`.**
+  (func_8002B8F8, round 9; the function is still a stall)
+- **An `lhu` switch on an `s16` global: `switch ((u16)g)`.** (func_80034070)
+- **An offset above 0x7FFF built whole (`lui`/`ori`, `addu`) comes from byte
+  arithmetic or an offset in a local**, `(u8 *)p + 0x8294`, or `off =
+  0x1DFFE; *(u16 *)(p + off) = v;`. A member access or a constant index is
+  split into `%hi` plus the remainder. (func_80030278, func_80037CF0)
+- **Block-move batches of three words through a base in its own register:
+  the destination is an unknown-size array**, `*(T *)D_800DF630 = x;`. A
+  struct member at a fixed offset moves four words per batch. (func_80037CF0)
+- **A table base built by `addiu` from another symbol's address: the array
+  starts before the symbol splat named.** This needs a symbol (and a linker
+  definition if no instruction references it), not a C spelling.
+  (func_8003F100, still open)
+
 ## Loops
 
 - **A loop counting up from 0 and tested with `sltiu`: a `u32` counter.** With
@@ -194,6 +212,20 @@ function's match report, not here.
 - **A loop bottom testing `next` with `i = next` in the delay slot:
   `if ((s8)next < 0) break; i = next;` inside `do { } while (1)`.**
   (code_29f54, round 8)
+
+- **A parameter re-extended at every use inside a poll loop: the loop was a
+  `goto` label.** A C loop hoists the extension. (func_80037440)
+- **`addiu` of the counter in the back-branch delay slot: `if (n < K) { n++;
+  goto top; }`.** `if (n++ < K)` copies the old value first. (func_80037440)
+- **A constant store after a search loop that retail keeps as its own block,
+  with the constant loaded in the preheader: the store is inside the loop**,
+  `if (++i == N) { G = K; return; }`. After the loop, cross-jumping merges it
+  with an identical store. (func_800317D0)
+- **Two block-move pointers from one base: advance the base in place as the
+  destination**, `dst = base; src = &dst[k + 1]; dst += k;`. (func_800350C8)
+- **Two loop pointers in swapped registers, no instruction different: wrap
+  one bump as `do { src++; } while (0);`** (permuter find). (func_800350C8,
+  func_80035350)
 
 ## Control flow and frames
 
@@ -268,6 +300,18 @@ function's match report, not here.
 - **A packet used straight from `$a3` at fixed offsets: a `volatile` packet
   parameter.** A volatile local copy when retail moves the pointer to
   another register. (func_8001FE5C, func_8001FBBC)
+
+- **Retail setting -1 in a saved register in each `j end` delay slot and
+  copying it to `$v0` once at the exit: a single-exit `ret` local with `goto
+  end`**, not `return -1`. Separate fail tails were `ret = -1; G = K;`; one
+  shared tail was `G = K; ret = -1;`. (func_80037AE4, func_800377E8)
+- **`beqz r; blez r; beq r, 1` on a call result: `switch (r) { case 0: ...;
+  case 1: ...; case -1: break; }`.** (func_800345C8)
+- **`bgez r; nop; negu r` with the delay slot unfilled is cc1's abs: only `v
+  >= 0 ? v : -v` gives it.** `v < 0 ? -v : v` and `if (v < 0) v = -v;` give
+  a branch with a filled slot. (func_8003B780)
+- **A body repeating another function of the unit: a `static __inline__`
+  helper with both functions as callers.** (func_8002BD00, func_8002C894)
 
 ## Scheduling
 
@@ -346,3 +390,20 @@ function's match report, not here.
 - **`-fschedule-insns` is byte-inert on this cc1**: only the pass after
   register allocation schedules, so register reuse decides load and store
   order. (code_1dc24, round 8)
+- **A value computed into `$a1` and moved to `$a0` in a call's delay slot:
+  one local reused**, `h = b*b; h -= c; f(h); h = a >> 1;`. (func_8003B780)
+- **A quotient in the wrong saved register: `d = n; d /= 10;`** rather than
+  `d = n / 10` (permuter find). (func_8003B780, func_8003A4B4)
+- **`sllv x, x, $sN` where a constant shift is expected: cse took the count
+  from a variable already holding it.** (func_8003A4B4)
+- **`sh X; lhu X; sh Y` after an if/else: `Y = X;` as its own statement
+  after the join.** (func_8003BDF4)
+- **A load at the top of a case whose store comes last: write that
+  assignment as the case's first statement**; the scheduler sinks the store.
+  (func_800345C8)
+- **Retail builds a vertex address in the register that held its index:
+  drop the per-vertex pointer locals and spell each read
+  `((T *)(i * 8 + (s32)base))->x`.** (func_800299D8)
+- **A load-delay `nop` missing right after inline asm: name the register in
+  the asm the way cc1 does (`$sp`, not `$29`).** maspsx compares register
+  names as text. (func_8003A008)

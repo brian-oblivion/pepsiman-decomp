@@ -141,6 +141,13 @@ s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
 extern s32 D_800957B4;
 extern u16 D_8009587E;
+extern s32 D_800956E4;
+extern s32 D_800956E0;
+extern s32 D_800DF5A0[];
+extern s32 D_800DF5B0[];
+/* MATCHING: code_308ec stores this as u8; this unit's test loads it lb. */
+extern s8 D_80095900;
+s32 func_800297A4(VECTOR *a, VECTOR *b);
 /* MATCHING: code_7d74 defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
 void func_80018CA4(GameState *g);
@@ -444,7 +451,68 @@ s32 func_8002670C(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026848);
+/* MATCHING: as func_80027E14 for the switch; the volatile read keeps the unk348 and
+ * unk350 loads below the stores to D_800956E0, D_800DF5A0[1] and D_800956E4. */
+void func_80026848(void) {
+    s16 n;
+
+    if (sGame.unk0 != 0) {
+        if ((D_800957EC & 0x20) &&
+            (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
+            sGame.unk390 == 0) {
+            D_800956E0 = 0;
+            D_800DF5A0[1] = sGame.unk34C;
+            D_800956E4 = sGame.unk34C;
+            D_800DF5A0[0] = *(volatile s32 *)&sGame.unk348;
+            D_800DF5A0[2] = sGame.unk350;
+            sGame.unk38F = 1;
+            sGame.unk3BC = 0;
+            sGame.unk390 = 1;
+            sGame.unk392 = 0;
+            sGame.unk39C = 0;
+            func_80018CA4(&sGame);
+            sGame.unk6 = 8;
+            sGame.unk398 = 0x23;
+            sGame.unk394 = sGame.unk34C;
+            func_80022F68((VECTOR *)&sGame.unk348);
+            func_80042538(0x17);
+        }
+        if (sGame.unk390 == 1) {
+            n = ++sGame.unk392;
+            if (n < 3) {
+                sGame.unk398 = 0x19;
+            } else if ((u16)(n - 4) < 3) {
+                sGame.unk398 = 0x12;
+            } else if (n >= 9) {
+                sGame.unk398 = 0x14;
+                sGame.unk390 = 2;
+                sGame.unk6 = 9;
+                sGame.unk3A0 = 2;
+            } else if (D_800957B4 & 0x20) {
+                sGame.unk398 = 0x14;
+            } else {
+                sGame.unk390 = 2;
+                switch (n) {
+                    case 3:
+                        sGame.unk6 = 0xB;
+                        sGame.unk3A0 = 0;
+                        break;
+                    case 7:
+                        sGame.unk6 = 0xA;
+                        sGame.unk3A0 = 1;
+                        break;
+                    default:
+                        sGame.unk6 = 9;
+                        sGame.unk3A0 = 2;
+                        break;
+                }
+            }
+        }
+        if (sGame.unk390 == 2) {
+            sGame.unk390 = 0;
+        }
+    }
+}
 
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
 s32 func_80026A60(void) {

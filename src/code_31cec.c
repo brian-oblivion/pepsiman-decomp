@@ -60,7 +60,38 @@ INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041964);
 
 INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041A6C);
 
-INCLUDE_ASM("asm/nonmatchings/code_31cec", func_80041BAC);
+void func_80041534(char *name, s16 arg1);
+
+extern CdlLOC D_80095AB0;
+extern s32 D_80095AD8;
+extern RECT D_80095AE0;
+
+void func_80041BAC(char *name, CdlLOC *loc, s32 arg2, s16 arg3, s16 arg4) {
+    CdlATV atv;
+
+    D_80095AD8 = arg2;
+    D_80095AC8 = arg3;
+    D_80095AB0.minute = loc->minute;
+    D_80095AB0.second = loc->second;
+    D_80095AB0.sector = loc->sector;
+    setRECT(&D_80095AE0, 0, 0, 480, 480);
+    ClearImage(&D_80095AE0, 0, 0, 0);
+    DrawSync(0);
+    /* MATCHING: D_80095AEE by address; retail reaches it `lui` only here. */
+    if (*(u8 *)0x80095AEE) {
+        atv.val2 = 80;
+        atv.val0 = 80;
+        atv.val3 = 0;
+        atv.val1 = 0;
+    } else {
+        atv.val2 = 80;
+        atv.val0 = 80;
+        atv.val3 = 80;
+        atv.val1 = 80;
+    }
+    CdMix(&atv);
+    func_80041534(name, arg4);
+}
 
 void func_80041C7C(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
     dec->vlcbuf[0] = (u_long *)0x8015D000;

@@ -32,7 +32,8 @@ typedef struct {
 typedef struct {
     u8 unk0[3];     /**< not yet known */
     u8 unk3;        /**< the menu line the tool mode was entered from */
-    u8 unk4[8];     /**< not yet known */
+    s32 unk4;       /**< a step: the move distance and the height step */
+    s32 unk8;       /**< a height offset added to the ground height */
     s32 unkC;       /**< a height offset added to the camera's y */
     u8 unk10[2];    /**< not yet known */
     u16 unk12;      /**< the edited value saved for menu line 0 */
@@ -141,8 +142,10 @@ typedef struct {
 
 /** @brief The game state, seen as the part the tool state saves. */
 typedef struct {
-    u8 unk0[0x348]; /**< not yet known */
-    s32 unk348[3];  /**< saved into sToolSave.unk38 */
+    u8 unk0[0x348];  /**< not yet known */
+    s32 unk348[3];   /**< saved into sToolSave.unk38 */
+    u8 unk354[0x70]; /**< not yet known */
+    s32 unk3C4;      /**< a copy of unk348[1] */
 } GameSave;
 
 #define sGameSave (*(GameSave *)D_8009EB78)
@@ -271,6 +274,10 @@ u16 func_80040E04(s32 id, Obj48 *a, Obj48 *b);
 /* MATCHING: defined in code_13068 and code_24748, which have no header. */
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void func_80033F48(VECTOR *pos);
+
+void func_80033A08(s32 deg, s32 dist);
+extern u32 D_800957C8; /**< an analogue stick axis, 0x80 at rest */
+extern u32 D_800957C0; /**< the other analogue stick axis, 0x80 at rest */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
 extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
@@ -606,7 +613,77 @@ void func_8002F8FC(void) {
     D_800DB2A0[5] = rcos(rot->vy - 0x800) * 900 / 4096;
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_8002FA78);
+/** @brief Free movement in the tool: moves the game position by the pad
+ *         buttons and the analogue stick, turns, raises or lowers the
+ *         camera and the height offset, then finds the entry under the
+ *         position and puts the position on its ground height.
+ *  @return nothing; the value is undefined. */
+s32 func_8002FA78(void) {
+    s32 cur;
+
+    /* MATCHING: non-void with no return keeps the flag test's delay slot
+     * a nop. */
+    if (D_80095970 & 0x1000) {
+        func_80033A08(0, sTotals.unk4);
+    }
+    if (D_80095970 & 0x4000) {
+        func_80033A08(180, sTotals.unk4);
+    }
+    if (D_80095970 & 0x8000) {
+        func_80033A08(-90, sTotals.unk4);
+    }
+    if (D_80095970 & 0x2000) {
+        func_80033A08(90, sTotals.unk4);
+    }
+    if (D_800957C8 < 0x60) {
+        func_80033A08(0, sTotals.unk4);
+    }
+    if (D_800957C8 > 0xA0) {
+        func_80033A08(180, sTotals.unk4);
+    }
+    if (D_800957C0 < 0x60) {
+        func_80033A08(-90, sTotals.unk4);
+    }
+    if (D_800957C0 > 0xA0) {
+        func_80033A08(90, sTotals.unk4);
+    }
+    D_800A7308[1] = 0;
+    D_800A7308[0] = -sGameSave.unk348[0];
+    D_800A7308[2] = -sGameSave.unk348[2];
+    if (D_80095964 & 4) {
+        D_800A7680[0].vy -= 11;
+    }
+    if (D_80095964 & 8) {
+        D_800A7680[0].vy += 11;
+    }
+    if (D_800958D8 == 0) {
+        if (D_80095964 & 1) {
+            sTotals.unkC -= 5;
+        }
+        if (D_80095964 & 2) {
+            sTotals.unkC += 5;
+        }
+        if (sTotals.unkC > 0) {
+            sTotals.unkC = 0;
+        }
+    }
+    if (D_80095970 & 0x80) {
+        sTotals.unk8 -= sTotals.unk4;
+    }
+    if (D_80095970 & 0x40) {
+        sTotals.unk8 += sTotals.unk4;
+    }
+    sGameSave.unk3C4 = sGameSave.unk348[1];
+    cur = func_80018D70(sGameSave.unk348, D_800AC858, D_800957F4);
+    D_80095824 = cur;
+    if (cur != -1) {
+        D_800957F4 = cur;
+    }
+    sGameSave.unk348[1] = D_800AC858[0] + sTotals.unk8;
+    if (D_800958D8 == 0 && (D_80095970 & 0x20) && cur == -1) {
+        D_800958DA = 7;
+    }
+}
 
 /** @brief On flag bit 5, inserts the game position as a new point at the
  *         end of the current entry, shifting the later points up, then

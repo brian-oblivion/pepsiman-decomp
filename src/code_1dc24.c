@@ -150,28 +150,6 @@ extern Obj48 D_80096788[]; /**< records waiting to be placed */
 extern u16 D_8009596E;     /**< number of records waiting */
 extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
-/** @brief One 0xB774-byte save slot of the tool buffer, from its tag. */
-typedef struct {
-    u8 unk0;            /**< 0x38 when the slot is valid */
-    u8 unk1;            /**< not yet known */
-    u8 unk2;            /**< the owner */
-    u8 unk3[0x71];      /**< not yet known */
-    u8 unk74[0x3840];   /**< the first data block saved */
-    u8 unk38B4[0x47E0]; /**< the second data block saved */
-    u8 unk8094[0x2EE0]; /**< the third; 0x1770 bytes of it are saved */
-    u8 unkAF74[0x800];  /**< the fourth data block saved */
-} ToolSlot;
-
-/** @brief The tool buffer: a 0x200-byte head, then three save slots. */
-typedef struct {
-    u8 unk0[0x200];    /**< not yet known */
-    ToolSlot slots[3]; /**< the save slots */
-} ToolBuf;
-
-extern char D_80011284[]; /**< path of slot 0's file on the host */
-extern char D_800112A8[]; /**< path of slot 1's file on the host */
-extern char D_800112CC[]; /**< path of slot 2's file on the host */
-
 void func_80032964(s32 a, u8 *buf);
 void func_80032C28(s32 a, u8 *buf);
 void func_800337E4(u8 *buf);
@@ -628,67 +606,7 @@ INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032964);
 
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032C28);
 
-#ifdef NON_MATCHING
-/** @brief Writes the data blocks of the three save slots of the tool
- *         buffer to their files on the host.
- *  @return 0, or -1 when a write fails. */
-s32 func_80032EE4(void) {
-    ToolBuf *tool;
-    s32 fd;
-    s32 n;
-
-    tool = (ToolBuf *)0x8016D000;
-    fd = open(D_80011284, O_CREAT | O_WRONLY);
-    if (write(fd, tool->slots[0].unk74, 0x3840) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[0].unk38B4, 0x47E0) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[0].unk8094, 0x1770) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[0].unkAF74, 0x800) == -1) {
-        goto fail;
-    }
-    close(fd);
-    fd = open(D_800112A8, O_CREAT | O_WRONLY);
-    if (write(fd, tool->slots[1].unk74, 0x3840) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[1].unk38B4, 0x47E0) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[1].unk8094, 0x1770) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[1].unkAF74, 0x800) == -1) {
-        goto fail;
-    }
-    close(fd);
-    fd = open(D_800112CC, O_CREAT | O_WRONLY);
-    if (write(fd, tool->slots[2].unk74, 0x3840) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[2].unk38B4, 0x47E0) == -1) {
-        goto fail;
-    }
-    if (write(fd, tool->slots[2].unk8094, 0x1770) == -1) {
-    fail:
-        close(fd);
-        return -1;
-    }
-    n = write(fd, tool->slots[2].unkAF74, 0x800);
-    if (n == -1) {
-        close(fd);
-        return n;
-    }
-    close(fd);
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code_1dc24", func_80032EE4);
-#endif
 
 /** @brief Steps the edited value (bits 0x2000 up, 0x8000 down) or the
  *         highlighted line (0x4000 up, 0x1000 down) from the first pad

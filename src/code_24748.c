@@ -83,6 +83,8 @@ extern s16 D_80095A54;    /**< set to 100 on entering state 1 */
 extern s16 D_80095A56;    /**< set to 100 on entering state 1 */
 
 void func_80034BCC(void);
+/* MATCHING: a per-unit view; code_1a098 defines it as (s16 (*)[3], VECTOR *,
+ * s16, s16), a box's corners around a position. */
 void func_8002A98C(Obj48 *obj, u8 *p, s32 a, s32 b);
 
 extern char D_800956A4[]; /**< the menu's title */

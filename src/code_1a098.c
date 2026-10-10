@@ -214,7 +214,27 @@ INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A5B0);
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A7D8);
 
-INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002A98C);
+/** @brief Sets the four corners of a box `w` wide and `d` deep around the
+ *         position `c`, at its height, relative to it. */
+void func_8002A98C(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
+    s16 x;
+    s16 z;
+
+    x = w / 2;
+    v[0][0] = x - c->vx;
+    v[1][0] = x - c->vx;
+    v[2][0] = -x - c->vx;
+    v[3][0] = -x - c->vx;
+    z = d / 2;
+    v[0][2] = z - c->vz;
+    v[1][2] = -z - c->vz;
+    v[2][2] = z - c->vz;
+    v[3][2] = -z - c->vz;
+    v[0][1] = c->vy;
+    v[1][1] = c->vy;
+    v[2][1] = c->vy;
+    v[3][1] = c->vy;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_1a098", func_8002AA58);
 

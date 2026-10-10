@@ -140,6 +140,7 @@ void func_80028500(void);
 s32 func_8003F834(s32 id, s32 x, s32 y, s32 z, s32 n);
 void func_80015450(u16 *table, s32 index);
 extern s32 D_800957B4;
+extern u16 D_8009587E;
 /* MATCHING: code_7d74 defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
 void func_80018CA4(GameState *g);
@@ -445,7 +446,23 @@ s32 func_8002670C(void) {
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026848);
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80026A60);
+/* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
+s32 func_80026A60(void) {
+    D_800DB2A0[0] = 0;
+    D_800DB2A0[1] = rsin((D_80095914 << 12) / 360) * 500 / 4096 + sGame.unk3C0;
+    D_800DB2A0[2] = rcos((D_80095914 << 12) / 360) * 600 / 4096;
+    D_800DB2A0[4] = sGame.unk34C;
+    D_800DB2A0[0] = rsin(D_800A7680->vy) * 400 / 4096;
+    D_800DB2A0[2] = rcos(D_800A7680->vy) * 400 / 4096;
+    D_800DB2A0[3] = rsin(D_800A7680->vy - 0x800) * 900 / 4096;
+    D_800DB2A0[5] = rcos(D_800A7680->vy - 0x800) * 900 / 4096;
+    if (D_8009587E < sGame.unk3A8) {
+        D_8009587E++;
+    }
+    if (D_8009587E > sGame.unk3A8) {
+        D_8009587E--;
+    }
+}
 
 /* MATCHING: the index-first integer sum gives retail's addu operand order. */
 void func_80026C70(void) {

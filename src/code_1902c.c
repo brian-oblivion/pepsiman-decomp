@@ -20,12 +20,32 @@ typedef struct {
 /** @brief A position with a radius further in, as the collision test
  *         reads it. */
 typedef struct {
-    s32 x; /**< position */
-    s32 y; /**< position */
-    s32 z; /**< position */
-    u8 padC[8];
+    s32 x;     /**< position */
+    s32 y;     /**< position */
+    s32 z;     /**< position */
+    s16 unkC;  /**< copied to a hit record */
+    s16 unkE;  /**< copied to a hit record */
+    s16 unk10; /**< copied to a hit record */
+    u8 pad12[2];
     s32 radius; /**< summed with the other body's radius */
+    u8 unk18;   /**< copied to a hit record */
+    u8 unk19;   /**< copied to a hit record */
+    u8 pad1A[0x30 - 0x1A];
 } Body;
+
+/** @brief A 10-byte hit record, one per player point group. */
+typedef struct {
+    s8 unk0;  /**< the hit flag; 0 when free */
+    u8 unk1;  /**< the nearest point of the group */
+    u8 unk2;  /**< from the query */
+    u8 unk3;  /**< from the query */
+    s16 unk4; /**< from the query */
+    s16 unk6; /**< from the query */
+    s16 unk8; /**< from the query */
+} Hit10;
+
+/* MATCHING: common.h declares the table as bytes; this unit reads its records. */
+#define sHits ((Hit10 *)D_8009F0B0)
 
 /** @brief A 0x4C-byte record: four local corners, their world positions
  *         and the coordinate system that places them. */
@@ -76,6 +96,8 @@ extern PointSpec25 D_80010950;
 extern Bytes3 D_800954F0[];
 
 void func_80028984(void);
+s32 func_8002971C(Body *a, Body *b);
+u8 func_80028DBC(u16 start, VECTOR *pos);
 s32 func_800297A4(VECTOR *a, VECTOR *b);
 void func_8002985C(void);
 void func_8002988C(void);
@@ -150,7 +172,85 @@ void func_80028984(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_1902c", func_80028AE4);
+/** @brief Tests the body `q`, shifted by the world origin, against the
+ *         player's three bodies, whose radii depend on the stage mode;
+ *         a body's first hit records the query in its hit record.
+ *  @return 1 if any of the three was hit, else 0 */
+/* MATCHING: the early return splits the epilogue from the result's
+ * extension, as retail; `h` is an s32 copy of the s8 hit. */
+s32 func_80028AE4(Body *q) {
+    s32 unused0[4];
+    Body a;
+    Body b;
+    s32 r[3];
+    s32 unused1[10];
+    s16 i;
+    s8 hit;
+    s32 h;
+    s32 v;
+
+    hit = 0;
+    switch (D_8009EF48[0] & 0xF) {
+        case 0:
+            r[0] = 20;
+            v = D_8009EB7E[0];
+            r[1] = 35;
+            r[2] = 35;
+            if (v < 5) {
+            } else if (v < 8) {
+                r[0] = 0;
+            } else if (v < 12) {
+                r[2] = 0;
+            }
+            break;
+        case 3:
+        default:
+            r[0] = 20;
+            r[1] = 35;
+            r[2] = 35;
+            break;
+        case 2:
+            r[0] = 20;
+            r[1] = 35;
+            r[2] = 70;
+            break;
+        case 1:
+        case 4:
+            r[0] = 20;
+            r[1] = 20;
+            r[2] = 0;
+            break;
+    }
+    b.x = q->x + D_800A7308[0];
+    b.y = q->y;
+    b.z = q->z + D_800A7308[2];
+    b.radius = q->radius;
+    b.unk18 = q->unk18;
+    b.unkC = q->unkC;
+    b.unkE = q->unkE;
+    b.unk10 = q->unk10;
+    if ((b.x >= 0 ? b.x : -b.x) > 1000 || (b.z >= 0 ? b.z : -b.z) > 1000) {
+        return hit;
+    }
+    for (i = 0; i < 3; i++) {
+        a.x = D_8009F0D0[i].x;
+        a.y = D_8009F0D0[i].y;
+        a.z = D_8009F0D0[i].z;
+        a.radius = r[i];
+        hit |= func_8002971C(&a, &b);
+        h = hit;
+        if (h == 1 && sHits[i].unk0 == 0) {
+            sHits[i].unk1 = func_80028DBC(i * 6 + 7, (VECTOR *)&b);
+            sHits[i].unk0 = h;
+            sHits[i].unk2 = q->unk18;
+            sHits[i].unk3 = q->unk19;
+            sHits[i].unk4 = q->unkC;
+            sHits[i].unk6 = q->unkE;
+            sHits[i].unk8 = q->unk10;
+        }
+    }
+    return hit;
+}
 
 /** @brief Finds which of six placed points from `start` is nearest
  *         `pos`.

@@ -64,6 +64,8 @@ typedef struct {
     u8 unk3D1;  /**< set to 1 when a stage ends with a mode in unk3D0 */
     u8 pad3D2;
     s8 unk3D3; /**< nonzero draws the gauge sprite */
+    u8 pad3D4;
+    u8 unk3D5; /**< set to 1 by some pickups */
 } GameState;
 
 /* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
@@ -181,6 +183,27 @@ void func_800285C8(s32 deg, s32 radius, VECTOR *out);
 void func_800287F4(void);
 s32 func_80028508(void);
 extern s8 D_80095962;
+
+/** @brief A 10-byte pickup slot; three live ones are checked each frame. */
+typedef struct {
+    s8 unk0; /**< nonzero when the slot is live */
+    u8 pad1;
+    u8 unk2; /**< the pickup's kind, a row of the PickupKind table */
+    u8 pad3[7];
+} Pickup;
+
+/* MATCHING: common.h declares the table as bytes; this unit reads its records. */
+#define sPickups ((Pickup *)D_8009F0B0)
+
+/** @brief Eight bytes of a pickup kind's effects. */
+typedef struct {
+    u8 b[8]; /**< per stage mode and flag */
+} PickupKind;
+
+extern PickupKind D_8007714C[];
+extern s8 D_8009575F;
+s32 func_80028260(s32 n);
+void func_800285B0(void);
 /* Overlay entry points: the stage modes' own code. */
 void func_800F8A58(void);
 void func_800F8B60(void);
@@ -819,7 +842,137 @@ end:;
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023D68);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/code_13068", func_80023F80);
+/* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
+void func_80023F80(u8 *state) {
+    u8 v;
+    s16 i;
+    u8 m;
+    Pickup *p;
+
+    v = 0;
+    if (((GameState *)state)->unk2 == 0) {
+        return;
+    }
+    if (D_80095962 == 1) {
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        p = &sPickups[i];
+        if (p->unk0 == 0) {
+            continue;
+        }
+        D_8009599C = 0;
+        if ((u32)(*(volatile u8 *)&p->unk2 - 15) >= 4) {
+            m = ((GameState *)state)->unk6;
+            switch (((GameState *)state)->unk5) {
+                case 0:
+                case 0x5E:
+                    switch (m) {
+                        case 0x33:
+                            if ((sGame.unk3D0 & 0xF) != 3) {
+                                break;
+                            }
+                        case 2:
+                        case 3:
+                        case 4:
+                            v = D_8007714C[sPickups[i].unk2].b[0];
+                            break;
+                        case 8:
+                        case 9:
+                        case 10:
+                        case 11:
+                            v = D_8007714C[sPickups[i].unk2].b[1];
+                            break;
+                        case 5:
+                        case 6:
+                        case 7:
+                            v = D_8007714C[sPickups[i].unk2].b[2];
+                            break;
+                    }
+                    break;
+                case 0x39:
+                case 0x3A:
+                    v = D_8007714C[p->unk2].b[3];
+                    break;
+                case 0x3B:
+                case 0x3C:
+                    v = D_8007714C[p->unk2].b[0];
+                    break;
+                default:
+                    switch (sGame.unk3D0 & 0xF) {
+                        case 1:
+                        case 2:
+                        case 4:
+                            v = 0x42;
+                            break;
+                        case 3:
+                        default:
+                            v = D_8007714C[sPickups[i].unk2].b[4];
+                            break;
+                    }
+                    break;
+            }
+            switch (sGame.unk3D0 & 0xF) {
+                case 1:
+                case 2:
+                case 4:
+                    v = 0x42;
+                    break;
+            }
+        } else {
+            v = D_8007714C[p->unk2].b[2 - i];
+            if (sGame.unk3D0 & 0xF) {
+                v = 0x42;
+            }
+        }
+        switch (sGame.unk3D0 & 0xF) {
+            case 1:
+            case 2:
+            case 4:
+                sGame.unk3D1 = 1;
+                sGame.unk3D5 = 1;
+                D_800958A8 = 0;
+                sGame.unk3D0 &= 0xF0;
+                ((GameState *)state)->unk2 = 0;
+                D_8009599C = 1;
+                ((GameState *)state)->unk3C8 = 750;
+                ((GameState *)state)->unk5 = v;
+                if (sPickups[i].unk2 != 0) {
+                    func_800285B0();
+                }
+                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                return;
+            case 0:
+            default:
+                if (v == 0) {
+                    continue;
+                }
+                if (D_8007714C[sPickups[i].unk2].b[5] == 1) {
+                    ((GameState *)state)->unk2 = 0;
+                    ((GameState *)state)->unk3C8 = 150;
+                    D_8009599C = 1;
+                } else {
+                    ((GameState *)state)->unk2 = 0;
+                    ((GameState *)state)->unk3C8 = 18;
+                }
+                if (D_8007714C[sPickups[i].unk2].b[6] == 1) {
+                    sGame.unk3D5 = 1;
+                    D_800958A8 = 0;
+                }
+                if (D_8007714C[sPickups[i].unk2].b[7] == 1 &&
+                    (s8)(sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) != D_8009575F) {
+                    func_80028260(-1);
+                }
+                ((GameState *)state)->unk5 = v;
+                if (sPickups[i].unk2 != 0) {
+                    func_800285B0();
+                }
+                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                return;
+        }
+    }
+    D_8009575F = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/code_13068", func_80024450);
 

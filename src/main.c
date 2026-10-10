@@ -286,9 +286,45 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80014DB0);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80014FA8);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80015180);
-
+extern u8 *D_80095700;
 extern u8 *D_80095704;
+/* MATCHING: a known small size, so its address is one `la` register. */
+extern u8 D_800954E4[6];
+
+u32 func_80015180(void) {
+    u8 *buf;
+    u8 *act;
+    s32 k;
+    s32 state;
+    s32 i;
+
+    buf = D_80095700;
+    act = D_80095704;
+    for (k = 0; k < 2; k++, act += 0x10) {
+        state = PadGetState(k * 16);
+        if (state == 1) {
+            act[0] = 0;
+        }
+        if (act[0] == 0) {
+            PadSetAct(k * 16, act + 2, 2);
+            if (state == 2 || (state == 6 && PadSetActAlign(k * 16, D_800954E4))) {
+                act[0] = 1;
+            }
+        }
+        if (buf[k * 0x22] != 0) {
+            for (i = 2; i < 8; i++) {
+                buf[k * 0x22 + i] = 0xFF;
+            }
+        } else if ((buf[k * 0x22 + 1] & 0xF0) == 0x70) {
+            for (i = 4; i < 8; i++) {
+                if ((u32)(buf[k * 0x22 + i] - 0x69) < 0x2F) {
+                    buf[k * 0x22 + i] = 0x80;
+                }
+            }
+        }
+    }
+    return ~((buf[0x24] << 24) | (buf[0x25] << 16) | (buf[2] << 8) | buf[3]);
+}
 
 void func_80015328(s32 offset, u8 a, u8 b) {
     D_80095704[offset + 2] = a;
@@ -377,8 +413,6 @@ void func_800154C4(void) {
     D_800957D8 = hdr->unk8;
     D_800957E0 = hdr->unk6;
 }
-
-extern u8 *D_80095700;
 
 void func_8001552C(u8 *a, u8 *b) {
     s32 i;

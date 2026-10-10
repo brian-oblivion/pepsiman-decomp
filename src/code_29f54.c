@@ -859,7 +859,50 @@ void func_8003C2E8(void) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/code_29f54", func_8003C494);
+void func_8003C494(SVECTOR *pos, s32 n) {
+    CVECTOR color;
+    CVECTOR shadow;
+    u16 d;
+    s32 t;
+    /* MATCHING: dead x keeps both magic constants in prologue registers. */
+    u32 x;
+
+    x = (s16)n / 10;
+    color.r = 1;
+    shadow.r = 2;
+    shadow.g = shadow.b = shadow.cd = 0x80;
+    color.g = color.b = color.cd = 0x80;
+    pos->vx -= 16;
+    func_8001B354(0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x138, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x144, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    func_8001B354(0x142, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(0x14E, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    pos->vx -= 12;
+    t = n / 10;
+    x = (u32)n / 100;
+    d = n % 10;
+    func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+    func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    if (t != 0) {
+        pos->vx -= 12;
+        d = t % 10;
+        func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    }
+    if (n / 100 != 0) {
+        pos->vx -= 12;
+        d = n / 100 % 10;
+        func_8001B354(d + 0x137, pos, &color, 0, &D_800ACEA8[D_80095750]);
+        func_8001B354(d + 0x143, pos, &shadow, 0, &D_800ACEA8[D_80095750]);
+    }
+}
 
 void func_8003C8D0(SVECTOR *pos, s32 frames) {
     s32 n;

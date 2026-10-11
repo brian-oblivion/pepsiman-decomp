@@ -162,56 +162,56 @@ extern s8 *gStageRunObjs;  /**< the group list the zones index; 2 units */
 extern s32 gCpuMarkCount;  /**< 2 units */
 extern u8 gUnlocks;        /**< 2 units */
 extern s32 gFloorData;     /**< the address of the floor data a probe tests; 2 units */
-extern u8 D_800D3CA8[];    /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
-extern u8 D_800DB2C0[];    /**< a 0x1DB0-byte buffer of 0x4C-byte records */
+extern u8 gLivePoints[];   /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
+extern u8 gLiveQuads[];    /**< a 0x1DB0-byte buffer of 0x4C-byte records */
 extern u8 gCdTrackPlaying; /**< 1 while CD audio is playing; 2 units */
 extern u16 gGameMode;      /**< the main loop's state */
 extern s16 gCdLoadCount;   /**< files in the current CD load */
 extern u8 gLoading; /**< 1 while a load runs: a fixed view and a black screen; 0 the game's view */
-extern s8 gPauseState;   /**< nonzero stops the frame counter; 2 units */
-extern s32 ClipF;        /**< a word inside libgte's clipf object, as a variable; 2 units */
-extern s32 D_80095904;   /**< the mapped model data's TMD address; 2 units */
-extern s8 gCdLoadState;  /**< UpdateCdLoad's step; 6 when every file has been read */
-extern u8 gStereo;       /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
-extern s16 D_800959E0;   /**< 2 units, 2 functions */
-extern u16 D_800959E4;   /**< 2 units, 4 functions */
-extern s16 D_80095A0C;   /**< 2 units, 4 functions */
-extern u16 D_80095A14;   /**< 3 units, 3 functions; never loaded, sign unknown */
-extern s32 D_80095A4C;   /**< 2 units, 7 functions */
-extern s32 D_80095A50;   /**< 2 units, 7 functions */
-extern s32 D_80095780;   /**< entry count of the first record bank; 2 units */
-extern s32 D_80095810;   /**< entry count of the second record bank; 2 units */
-extern u16 gVabLoadStep; /**< 2 units, 3 functions */
-extern u8 gStage;        /**< the stage being played: stage / 3 is the world, stage % 3 the act */
-extern s32 D_80095864;   /**< 3 units, 5 functions */
-extern u8 gEffectActive; /**< 2 units, 2 functions */
-extern u8 gEffectFree;   /**< 2 units, 2 functions */
-extern u16 gCans;        /**< 5 units, 7 functions */
-extern s16 D_800958B0;   /**< limit of the value being edited */
-extern s16 D_800958B2;   /**< the count a menu line wraps at */
-extern s32 gPadTrig;     /**< port 1's newly pressed buttons this frame, auto-repeat included */
-extern s16 D_800E474C;   /**< libgs's PSDIDX; 2 units */
-extern u8 *D_800959C0;   /**< the bytes after a BlockHeader */
-extern u8 *D_800959C4;   /**< the BlockHeader's second part */
-extern s32 D_800959C8;   /**< the BlockHeader's first word */
-extern s16 gSoundFade;   /**< 2 units, 2 functions */
-extern s32 D_800958A8;   /**< 2 units; 3 when a stage starts */
-extern s16 D_800957BC;   /**< 2 units; a heading */
-extern u8 *gFogColors;   /**< 2 units; far (fog) colours, four bytes each */
-extern u16 gFogFade;     /**< 2 units; fog fade-in step: 0..31, then 100 */
-extern s32 gVSyncMode;   /**< EndFrame's VSync argument: the frames to wait */
-extern s32 D_800958AC;   /**< 2 units; 1 picks the second set of stage tables */
-extern s8 D_8009599C;    /**< 2 units */
-extern u16 D_800957D2;   /**< 2 units */
-extern u32 gFrameCount;  /**< frames drawn while not paused */
-extern s32 D_800958D0;   /**< a loop counter or count kept in a global; 2 units */
-extern s16 D_8009588E;   /**< number of entries; 2 units */
-extern s16 gViewerAngle; /**< the view's orbit angle, in degrees; 2 units */
-extern s32 gSection;     /**< stamped on placed records; 2 units */
-extern u16 gSubStep;     /**< a state switched on in main; cleared after placing; 2 units */
-extern s16 D_800958DA;   /**< an error code; cleared when flag bit 6 is set; 2 units */
-extern s32 D_800957F4;   /**< the result of the start-position lookup; 2 units */
-extern s32 D_80095758;   /**< 2 units */
+extern s8 gPauseState;        /**< nonzero stops the frame counter; 2 units */
+extern s32 ClipF;             /**< a word inside libgte's clipf object, as a variable; 2 units */
+extern s32 D_80095904;        /**< the mapped model data's TMD address; 2 units */
+extern s8 gCdLoadState;       /**< UpdateCdLoad's step; 6 when every file has been read */
+extern u8 gStereo;            /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
+extern s16 D_800959E0;        /**< 2 units, 2 functions */
+extern u16 gToolCardStep;     /**< 2 units, 4 functions */
+extern s16 gToolSlot;         /**< 2 units, 4 functions */
+extern u16 D_80095A14;        /**< 3 units, 3 functions; never loaded, sign unknown */
+extern s32 gHitQuads;         /**< 2 units, 7 functions */
+extern s32 gHitPoints;        /**< 2 units, 7 functions */
+extern s32 gHitPointSections; /**< entry count of the first record bank; 2 units */
+extern s32 gHitQuadSections;  /**< entry count of the second record bank; 2 units */
+extern u16 gVabLoadStep;      /**< 2 units, 3 functions */
+extern u8 gStage;         /**< the stage being played: stage / 3 is the world, stage % 3 the act */
+extern s32 D_80095864;    /**< 3 units, 5 functions */
+extern u8 gEffectActive;  /**< 2 units, 2 functions */
+extern u8 gEffectFree;    /**< 2 units, 2 functions */
+extern u16 gCans;         /**< 5 units, 7 functions */
+extern s16 D_800958B0;    /**< limit of the value being edited */
+extern s16 D_800958B2;    /**< the count a menu line wraps at */
+extern s32 gPadTrig;      /**< port 1's newly pressed buttons this frame, auto-repeat included */
+extern s16 D_800E474C;    /**< libgs's PSDIDX; 2 units */
+extern u8 *D_800959C0;    /**< the bytes after a BlockHeader */
+extern u8 *D_800959C4;    /**< the BlockHeader's second part */
+extern s32 D_800959C8;    /**< the BlockHeader's first word */
+extern s16 gSoundFade;    /**< 2 units, 2 functions */
+extern s32 D_800958A8;    /**< 2 units; 3 when a stage starts */
+extern s16 D_800957BC;    /**< 2 units; a heading */
+extern u8 *gFogColors;    /**< 2 units; far (fog) colours, four bytes each */
+extern u16 gFogFade;      /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern s32 gVSyncMode;    /**< EndFrame's VSync argument: the frames to wait */
+extern s32 D_800958AC;    /**< 2 units; 1 picks the second set of stage tables */
+extern s8 D_8009599C;     /**< 2 units */
+extern u16 D_800957D2;    /**< 2 units */
+extern u32 gFrameCount;   /**< frames drawn while not paused */
+extern s32 D_800958D0;    /**< a loop counter or count kept in a global; 2 units */
+extern s16 gSectionCount; /**< number of entries; 2 units */
+extern s16 gViewerAngle;  /**< the view's orbit angle, in degrees; 2 units */
+extern s32 gSection;      /**< stamped on placed records; 2 units */
+extern u16 gSubStep;      /**< a state switched on in main; cleared after placing; 2 units */
+extern s16 gToolMode;     /**< an error code; cleared when flag bit 6 is set; 2 units */
+extern s32 D_800957F4;    /**< the result of the start-position lookup; 2 units */
+extern s32 D_80095758;    /**< 2 units */
 
 /* Per-stage tables, three words per stage; a global flag picks the set. */
 extern s32 gTimeLimits[][3];    /**< 2 units */
@@ -332,10 +332,10 @@ void ResetCollision(void);
 void func_80029838(void);
 
 /** @brief Defined in code_24748; called from code_27bc8. */
-void func_80036704(void);
+void ApplyHitPoints(void);
 
 /** @brief Defined in code_24748; called from code_27bc8. */
-void func_80036878(void);
+void ApplyHitQuads(void);
 
 /** @brief Defined in code_13068; called from code_308ec. Resets the
  *         stepped value two mode handlers steer, to 40 whole units. */
@@ -424,7 +424,7 @@ void func_8002B04C(void);
 void func_8002CC24(void);
 
 /** @brief Defined in code_24748. */
-void func_80034070(void);
+void UpdateTool(void);
 
 /** @brief Defined in code_1dc24.
  *  @return not yet known */

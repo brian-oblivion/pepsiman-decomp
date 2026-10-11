@@ -1,0 +1,84 @@
+# UpdateToolCard — MATCHED 301/301 (round 12, charlie)
+
+> Renamed from `func_80035970` on 2026-10-11 (tools/rename.py). Address 0x80035970.
+
+Round 12 (charlie): REOPENED line spent; MATCHED. The `s16 r` lever from
+func_80031EF4 does not apply here (retail tests the answer with no
+`sll`/`sra`); the case-4 residue was the ORDER of cases 3 and 4.
+
+Unit `src/code_24748.c`. The tool's save/load state machine: by
+`gSubStep`, state 0 opens it (`OpenCardEvents`), state 2 closes it
+(`CloseCardEvents`); state 1 steps `gToolCardStep` through a 19-entry jump table
+(`jtbl_8001183C`): menus answered through `func_8003356C`, the memory-card
+calls `RunCardOp2(slot)` and `CheckCard`, the tool-file and hit-data
+writers and readers, then maps a card error (`err`, -2..4, second jump
+table `jtbl_8001188C`) to a message state 11..15.
+
+## Rounds
+
+- Round 9 (echo): STALL, 2 words short, 149/301, first diff 0x80035C2C.
+  Body kept under `#ifdef NON_MATCHING`.
+- Round 12 (charlie): inherited body rebuilt first: 149/301, `insertions 5
+  / deletions 5`. Then:
+  - `s16 r`, both menus a switch (func_80031EF4's lever): 133/301, 9/9.
+    The answer gains `sll`/`sra` retail does not have, and case 4 still
+    keeps its own tail. Negative for this function.
+  - `s32 r`, case 4 if/else-if, case 6 a switch (the combination round 9
+    did not try): 129/301.
+  - `s32 r`, both a switch: 140/301; the only skeleton residue is case 4's
+    own `[li 1; beq r, 1; nop; j end]` tail.
+  - **The same with case 3 written BEFORE case 4: 298/301**, 1/1, only the
+    error switch's delay slot left.
+  - **`s32` return type with no `return`** (LEARNINGS, SetTmdSortMode,
+    func_80031EF4): the bound check's delay slot takes the index `sll`.
+    **301/301, `OK: build matches retail`.** New baselined warning
+    (`config/typeviews-warnings.txt`), and the unit's prototype of
+    UpdateToolCard changed from `void` to `s32`.
+
+## Why the case order decides the cross-jump
+
+Read from `cc1 -dg` / `-dJ` dumps of the unit. In the jump2 pass, insns are
+visited in order and each `j end` looks for another jump to `end` with an
+identical tail. Case 3's store of 8 and case 4's `case 0` store of 8 are
+identical blocks; the jump visited FIRST is redirected into the other and
+its block deleted.
+
+- Case 4 before case 3 (round 9's order): case 4's 8-store is redirected to
+  case 3's and deleted, so case 4's `j end` sits right before its `case 1`
+  store block. Once that store has cross-jumped into case 6's, the next
+  pass turns `beq r, 1, L1; j end; L1: j case6_store` into `bne r, 1, end;
+  j case6_store` (jump around a jump) before case 4's tail can be matched
+  with case 6's. Case 4 keeps its own tail.
+- Case 3 before case 4: case 3's block is the one deleted (its jump-table
+  entry then points at case 4's 8-store, which is why retail's block order
+  reads "4, 3"). Case 4's 8-store stays between its `j end` and its `case 1`
+  store, the inversion cannot fire, and the next pass cross-jumps case 4's
+  `[li 1; beq r, 1; j end]` into case 6's. The `beqz` to the 8-store is
+  then inverted into retail's `bnez r` into case 6's test.
+
+func_80031EF4 (round 10) already had case 3 before case 4 in source; its
+`s16 r` was needed for its own `sll`/`sra`, not for the cross-jump.
+
+## Levers found
+
+- **A case block retail seems to place after the case that falls into it
+  (its jump-table entry points inside another case's code): the source had
+  it BEFORE that case**; cross-jumping deleted the earlier copy.
+- `blez` between `beqz r` and `beq r, 1`: an empty `case -1: break;`
+  (round 9; cases 14 and 15).
+- `CheckCard`'s result compared with -1 unextended: an `s32` view of
+  the `s16` function (round 9).
+
+Builds: 6 this round.
+
+### Proposed learning
+
+- **Two identical case blocks, retail keeping the later one: write the
+  deleted case FIRST in the source.** In jump2's cross-jumping the jump
+  visited first is redirected and its block deleted, so a case whose
+  jump-table entry points into a following case's code was written before
+  it. Where the deleted block sat also decides whether a neighbouring menu
+  tail cross-jumps (an adjacent `beq; j; L:` is inverted first).
+  (UpdateToolCard) This refines "Menu answers whose case tails cross-jump:
+  switch on an `s16`" (func_80031EF4): there the `s16` matched its own
+  `sll`/`sra`; the cross-jump came from case 3 preceding case 4.

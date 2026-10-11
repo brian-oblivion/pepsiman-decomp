@@ -613,7 +613,7 @@ s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
     r->unk40 = 0;
     if (n != -1) {
         for (i = start; i < start + n; i++) {
-            p = &((Placed2C *)D_800D3CA8)[i];
+            p = &((Placed2C *)gLivePoints)[i];
             func_80029898(p);
             r->unk40 |= CollidePlayer((Query30 *)p) & 1;
         }
@@ -623,7 +623,7 @@ s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
         n = rec->unk70;
         if (n != -1) {
             for (i = start; i < start + n; i++) {
-                q = D_800DB2C0 + i * 0x4C;
+                q = gLiveQuads + i * 0x4C;
                 PlaceCollisionQuad(q);
                 GetQuadHeightUnderPlayer(q, &D_80095898);
                 if (D_80095898 == 1) {
@@ -826,7 +826,9 @@ void func_8002B04C(void) {
     if (flags & 1) {
         D_800958E2--;
     }
-    D_800958E2 = D_800958E2 < 0 ? 0 : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1 : D_800958E2;
+    D_800958E2 = D_800958E2 < 0                   ? 0
+                 : D_800958E2 > gSectionCount - 1 ? gSectionCount - 1
+                                                  : D_800958E2;
     ResetCollision();
     D_800A9008[0] = 0;
     D_800A9008[1] = 0;
@@ -838,7 +840,7 @@ void func_8002B04C(void) {
     func_80023F80(D_8009EB78);
     func_80029838();
     func_8002B5FC();
-    FntPrint(D_80010B34, D_800958E2, D_8009588E);
+    FntPrint(D_80010B34, D_800958E2, gSectionCount);
 }
 
 /** @brief A Rec48 record seen as an Obj34 followed by its indices. */
@@ -901,9 +903,9 @@ void func_8002B220(void) {
             if (flags & 1) {
                 D_800958E2--;
             }
-            D_800958E2 = D_800958E2 < 0                ? 0
-                         : D_800958E2 > D_8009588E - 1 ? D_8009588E - 1
-                                                       : D_800958E2;
+            D_800958E2 = D_800958E2 < 0                   ? 0
+                         : D_800958E2 > gSectionCount - 1 ? gSectionCount - 1
+                                                          : D_800958E2;
             if (D_800958E2 != old) {
                 gModeStep = 1;
             }
@@ -930,7 +932,7 @@ void func_8002B220(void) {
             func_8002B5FC();
             break;
     }
-    FntPrint(D_80010B34, D_800958E2, D_8009588E);
+    FntPrint(D_80010B34, D_800958E2, gSectionCount);
 }
 
 /** @brief Sorts three white lines 400 units long through the origin, one
@@ -1222,7 +1224,7 @@ void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
     m->rot.vx = 0;
     m->rot.vy = 0;
     m->rot.vz = 0;
-    D_8009588E++;
+    gSectionCount++;
 }
 
 /** @brief Restores the Rec48, Rec5C and Rec3C tables and the block header
@@ -1458,7 +1460,7 @@ static __inline__ void setupModel(Model70 *m, unsigned long *tmd, u8 n) {
     m->rot.vx = 0;
     m->rot.vy = 0;
     m->rot.vz = 0;
-    D_8009588E++;
+    gSectionCount++;
 }
 
 /** @brief Sets up all 80 Rec78 records as objects of the TMD file at a
@@ -1466,7 +1468,7 @@ static __inline__ void setupModel(Model70 *m, unsigned long *tmd, u8 n) {
 void func_8002CC24(void) {
     u32 i;
 
-    D_8009588E = 0;
+    gSectionCount = 0;
     for (i = 0; i < 80; i++) {
         setupModel((Model70 *)&D_800D8D20[i], (unsigned long *)0x80155000, i);
     }

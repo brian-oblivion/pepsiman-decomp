@@ -81,7 +81,7 @@ function's match report, not here.
 - **A trailing array's offset added to the base early, the scaled index
   last: the array base went into its own local**, `T *recs = p->recs; return
   &recs[i];`. `&p->recs[i]` folds the offset into the final add.
-  (func_80036A50)
+  (GetHitPoint)
 - **Sony's prototypes come from Sony's headers.** They include cleanly after
   `common.h`; `libgpu.h` needs `libgte.h` first (SVECTOR, MATRIX). A local
   prototype of a Sony function fails declcheck as soon as a header declares
@@ -129,7 +129,7 @@ function's match report, not here.
   (func_8002DC44)
 - **An odd register that is an argument register holding a value at a
   call: check the callee's argument count first.** A base built in `$a1`
-  was a second argument the old prototype lacked. (func_80037114)
+  was a second argument the old prototype lacked. (RefreshToolPreview)
 - **A table base built `addiu -K` from the symbol splat named, with a second
   pointer walking from that symbol: the array starts K bytes earlier at an
   address no instruction names.** No C spelling keeps the base (cc1 folds
@@ -176,7 +176,7 @@ function's match report, not here.
   parameter**, not `s32` plus casts. (func_80032C28, func_80032964)
 - **`x *= -1` on an `s16` member loads it `lh`; `x = -x` loads it `lhu`.**
   (func_8002B8F8, round 9; the function is still a stall)
-- **An `lhu` switch on an `s16` global: `switch ((u16)g)`.** (func_80034070)
+- **An `lhu` switch on an `s16` global: `switch ((u16)g)`.** (UpdateTool)
 - **An offset above 0x7FFF built whole (`lui`/`ori`, `addu`) comes from byte
   arithmetic or an offset in a local**, `(u8 *)p + 0x8294`, or `off =
   0x1DFFE; *(u16 *)(p + off) = v;`. A member access or a constant index is
@@ -221,7 +221,7 @@ function's match report, not here.
 - **A word-aligned odd-size block move (16-byte loop, then `lw, lw, lh`):
   `__builtin_memcpy(dst, src, 0x2A)` with 4-aligned pointer types.**
   `-fno-builtin` only stops plain `memcpy`; the alignment comes from the
-  pointee types, not the size. (func_80036704)
+  pointee types, not the size. (ApplyHitPoints)
 - **abs as one instruction with no label: `x >= 0 ? x : -x`** (the `abssi2`
   pattern). `if (x < 0) x = -x;` makes a CODE_LABEL that stops reorg filling
   later delay slots. (func_8002A5B0, func_8002B8F8)
@@ -263,7 +263,7 @@ function's match report, not here.
   primitive-buffer bump. libgpu's macros match unchanged. (FadeInFog)
 - **A loop that jumps to its test at the bottom with no guard: `goto test;
   do { ... test:; } while (k < n);`** with the bound in a local; every
-  `for`/`while` is rotated into a guarded loop. (func_80034BCC, func_80034F38)
+  `for`/`while` is rotated into a guarded loop. (InsertHitQuad, InsertHitPoint)
 - **A store left on the loop variable beside a strength-reduced pointer: a
   volatile store**, `((volatile T *)p)->code = x;`. `*(volatile u8 *)&p->code`
   loses the volatile. (SortTmdFastG3, SortTmdFastFT3, SortTmdFastG4)
@@ -298,10 +298,10 @@ function's match report, not here.
   `if (++i == N) { G = K; return; }`. After the loop, cross-jumping merges it
   with an identical store. (func_800317D0)
 - **Two block-move pointers from one base: advance the base in place as the
-  destination**, `dst = base; src = &dst[k + 1]; dst += k;`. (func_800350C8)
+  destination**, `dst = base; src = &dst[k + 1]; dst += k;`. (EditHitPoints)
 - **Two loop pointers in swapped registers, no instruction different: wrap
-  one bump as `do { src++; } while (0);`** (permuter find). (func_800350C8,
-  func_80035350)
+  one bump as `do { src++; } while (0);`** (permuter find). (EditHitPoints,
+  EditHitQuads)
 
 ## Control flow and frames
 
@@ -322,9 +322,9 @@ function's match report, not here.
 - **A clamp whose one store of the global sits at a join every path reaches,
   the unchanged path included: one assignment of a nested ternary**, `x = x <
   0 ? 0 : x > n - 1 ? n - 1 : x;`. An if/else-if clamp stores per branch.
-  (func_8003708C) When the value is loaded straight into the stored register
+  (SelectToolSection) When the value is loaded straight into the stored register
   and the too-low block comes last, it is a local: `v = x; if (x > lo) { if
-  (x > hi) v = hi; } else v = lo; x = v;`. (func_800355D8)
+  (x > hi) v = hi; } else v = lo; x = v;`. (SelectToolView)
 - **A call at a loop head, then `beqz` forward to a countdown that branches
   back**: `while ((x = f()) == NULL) { if (--cnt == 0) return -1; }`.
   Do/while lays the blocks out the other way round. (DecodeNextMovieFrame)
@@ -332,7 +332,7 @@ function's match report, not here.
   value known from the `switch` case), not `state = 1`. (LoadVabBank)
 - **Two `.sdata` strings sharing a `%hi`, each arm building its own `lui`
   before a call at the join: one call per arm**, `if (c) f(A); else f(B);`.
-  A ternary or a `char *` local shares one `%hi`. (func_80037280)
+  A ternary or a `char *` local shares one `%hi`. (PrintToolSlots)
 - **Success falling through to its own `jr ra`, -1 set in the first test's
   delay slot and reused: separate guards**, `if (!A) return -1; if (!B)
   return -1; return 0;`. (func_80033680)
@@ -382,7 +382,7 @@ function's match report, not here.
   end`**, not `return -1`. Separate fail tails were `ret = -1; G = K;`; one
   shared tail was `G = K; ret = -1;`. (CreateSave1, ReadSave1)
 - **`beqz r; blez r; beq r, 1` on a call result: `switch (r) { case 0: ...;
-  case 1: ...; case -1: break; }`.** (func_800345C8)
+  case 1: ...; case -1: break; }`.** (UpdateToolMenu)
 - **`bgez r; nop; negu r` with the delay slot unfilled is cc1's abs: only `v
   >= 0 ? v : -v` gives it.** `v < 0 ? -v : v` and `if (v < 0) v = -v;` give
   a branch with a filled slot. (LineCircleIntersect)
@@ -411,7 +411,7 @@ function's match report, not here.
 
 - **Two identical case blocks with retail keeping the later one: write the
   deleted case FIRST.** jump2's cross-jumping redirects and deletes the
-  block whose jump it visits first. (func_80035970)
+  block whose jump it visits first. (UpdateToolCard)
 - **`FntPrint(c ? A : B)` with `.sdata` strings: two calls, `if (c)
   FntPrint(A); else FntPrint(B);`**; the ternary shares one `%hi`, a word
   short per site. (func_8002DC44)
@@ -423,8 +423,8 @@ function's match report, not here.
   else break;" swap; flow deletes the dead loop. (ScanCardFiles)
 - **A store whose register is loaded in the delay slot of the branch that
   reaches it: read that slot's value before calling it a register choice.**
-  Retail's `sb $v0` after a `li $v0, 3` slot was `D_80095A24++` with the index
-  known on that path. (func_800356FC)
+  Retail's `sb $v0` after a `li $v0, 3` slot was `gToolViewStep++` with the index
+  known on that path. (UpdateToolView)
 
 ## Scheduling
 
@@ -443,12 +443,12 @@ function's match report, not here.
 - **A constant folded onto the wrong operand: parenthesise where retail adds
   it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
   the `rand()` result. (func_80022F68) If cc1 still moves it, give it its own
-  statement: `bob = (...) - 200; y = pos->vy + bob;`. (func_80033F48)
+  statement: `bob = (...) - 200; y = pos->vy + bob;`. (DrawPin)
 - **Operand order sets load order.** `a <= b` and `a - b` load `a` first; a
   `subu` whose subtrahend loads first was `-b + a`. (func_800281B8,
-  func_80036478)
+  DrawToolPin)
 - **Chained assignment stores right to left**: `a.x = a.y = v` stores `y`
-  first. (DrawMarker, func_80036AB8)
+  first. (DrawMarker, DrawToolRadius)
 - **A store into a stack slot that held an earlier value: the source reused
   that local.** A fresh local loses the store. (SpheresOverlap)
 - **One literal address in two registers (`lui`/`ori` twice): load through a
@@ -484,9 +484,9 @@ function's match report, not here.
 - **The stack moved to the scratchpad around a call: `SetSpadStack()` /
   `ResetSpadStack()` from include/spad.h.** (DrawStepper)
 - **Jump tables 4 bytes off in a whole unit: its rodata starts earlier than
-  the yaml says** (cc1 puts `.align 3` before each table). (func_80036FE8)
+  the yaml says** (cc1 puts `.align 3` before each table). (CycleToolStep)
 - **Two addresses computed into one register in turn: one local reused**,
-  `p = a->data; G1 = (s32)p; p = b->data; G2 = (s32)p;`. (func_800373C8)
+  `p = a->data; G1 = (s32)p; p = b->data; G2 = (s32)p;`. (SetHitBanks)
 - **A register parameter spilled where retail spills a stack one: name an
   unrelated early subexpression** (`r = col & 0x1F;`) to flip global-alloc.
   (func_800286B0)
@@ -513,7 +513,7 @@ function's match report, not here.
   after the join.** (DrawCpuMeter)
 - **A load at the top of a case whose store comes last: write that
   assignment as the case's first statement**; the scheduler sinks the store.
-  (func_800345C8)
+  (UpdateToolMenu)
 - **Retail builds a vertex address in the register that held its index:
   drop the per-vertex pointer locals and spell each read
   `((T *)(i * 8 + (s32)base))->x`.** (func_800299D8)

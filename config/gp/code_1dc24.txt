@@ -4,8 +4,7 @@
 D_800959D8
 D_800959E0
 D_800959E2
-D_800959E4
-D_80095A0C
 D_80095A14
 gCardFileCount
-gCardHwNew
+gToolCardStep
+gToolSlot

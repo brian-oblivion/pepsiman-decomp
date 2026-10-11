@@ -1,0 +1,72 @@
+# DrawHitQuad — MATCHED 119/119 (round 9, echo)
+
+> Renamed from `func_80034D5C` on 2026-10-11 (tools/rename.py). Address 0x80034d5c.
+
+Unit `src/code_24748.c`. Draws the dispatch object's box (called by
+UpdateTool with `&gToolNewQuad`): `PlaceCollisionQuad(obj)`, then the owner's
+position (through `obj->unk48`) plus the world offset, four corner offsets
+from `obj->unk18[]` projected with `func_800230E0`, and one
+`SortSemiQuad` quad (colour 0x3E0, priority 0x32) through corners
+0, 1, 3, 2.
+
+```c
+void PlaceCollisionQuad(Obj48 *obj);
+/* Defined by code_7d74, whose header does not declare it yet. */
+void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
+
+void DrawHitQuad(Obj48 *obj) {
+    VECTOR tmp;
+    Pt6 scr[4];
+    VECTOR world;
+    Pt6 pts[4];
+    s32 unused[6];
+    s16 i;
+
+    PlaceCollisionQuad(obj);
+    world.vx = ((ObjOwner *)obj->unk48)->pos.vx + gWorldShift[0];
+    world.vy = ((ObjOwner *)obj->unk48)->pos.vy;
+    world.vz = ((ObjOwner *)obj->unk48)->pos.vz + gWorldShift[2];
+    for (i = 0; i < 4; i++) {
+        pts[i].x = obj->unk18[i].x;
+        pts[i].y = obj->unk18[i].y;
+        pts[i].z = obj->unk18[i].z;
+    }
+    tmp.vx = world.vx + pts[0].x;
+    tmp.vy = pts[0].y;
+    tmp.vz = world.vz + pts[0].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[0]);
+    tmp.vx = world.vx + pts[1].x;
+    tmp.vy = pts[1].y;
+    tmp.vz = world.vz + pts[1].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[1]);
+    tmp.vx = world.vx + pts[3].x;
+    tmp.vy = pts[3].y;
+    tmp.vz = world.vz + pts[3].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[2]);
+    tmp.vx = world.vx + pts[2].x;
+    tmp.vy = pts[2].y;
+    tmp.vz = world.vz + pts[2].z;
+    func_800230E0(&tmp, (SVECTOR *)&scr[3]);
+    SortSemiQuad(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y, scr[3].x,
+                  scr[3].y, 0x32);
+}
+```
+
+## Declarations
+
+- `Obj48`'s `u8 unk18[0x30]` became `Vec3W unk18[4]` (three `s32`, same
+  size); the whole oracle stayed green. Retail reads each word's low half
+  with `lhu` into an `s16`, which is cc1 narrowing the `s32` load.
+- `ObjOwner` (unit-local) is what `unk48` points at: a `VECTOR` at 0x18.
+  `unk48` is `&D_800D8D20[i].unk10`, so that is `Rec78`'s 0x28.
+- `PlaceCollisionQuad` (code_1902c, still asm) and `SortSemiQuad` (code_7d74,
+  undeclared in `code_7d74.h`) are prototyped in this `.c`. declcheck lists
+  `SortSemiQuad` as LOCAL; it belongs in `code_7d74.h` at merge.
+
+## Levers
+
+First build matched. The frame needed `s32 unused[6];` after `pts` (locals
+end at 0x78, `$s0` saves at 0x90). `world.vy` is stored and never read, as
+in retail. Corners are projected in the order 0, 1, 3, 2.
+
+Not a twin of UpdateToolMenu (same length, different body).

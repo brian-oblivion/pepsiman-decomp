@@ -3,8 +3,6 @@
 # and the symbols of C-owned .sdata/.sbss ranges.
 D_800959D4
 D_80095A14
-D_80095A4C
-D_80095A50
 gCardError
 gCardFileCount
 gCardFileName
@@ -17,5 +15,7 @@ gCardSwError
 gCardSwIoe
 gCardSwNew
 gCardSwTimeout
+gHitPoints
+gHitQuads
 gSaveBuf
 gSaveSum

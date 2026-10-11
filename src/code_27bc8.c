@@ -118,22 +118,22 @@ void ClearCardSwEvents(void);
 void ClearCardHwEvents(void);
 void CopySave2Icon(void);
 
-void func_800373C8(BankFile *a, BankFile *b) {
+void SetHitBanks(BankFile *a, BankFile *b) {
     u8 *bank; /* MATCHING: one local for both bank addresses */
     u32 i;
 
     bank = a->data;
-    D_80095A50 = (s32)bank;
+    gHitPoints = (s32)bank;
     bank = b->data;
-    D_80095A4C = (s32)bank;
-    D_80095780 = a->count;
-    D_80095810 = b->count;
+    gHitQuads = (s32)bank;
+    gHitPointSections = a->count;
+    gHitQuadSections = b->count;
     for (i = 0; i < 80; i++) {
         D_800D8D20[i].unk72 = -1;
         D_800D8D20[i].unk74 = 0;
     }
-    func_80036704();
-    func_80036878();
+    ApplyHitPoints();
+    ApplyHitQuads();
 }
 
 /** @brief Runs one memory card operation on the first save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */

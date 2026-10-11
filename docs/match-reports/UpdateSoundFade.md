@@ -86,7 +86,7 @@ void UpdateSoundFade(void) {
 
 | step | result |
 | --- | --- |
-| first write: each clamp as one nested-ternary assignment of the global (LEARNINGS, func_8003708C), state 3 falling into state 4 with no `break`, `s16` loop counters | **204/204 on the first build** |
+| first write: each clamp as one nested-ternary assignment of the global (LEARNINGS, SelectToolSection), state 3 falling into state 4 with no `break`, `s16` loop counters | **204/204 on the first build** |
 
 - `Lerp` is defined in code_7d74 as `s16 (s16, s16, u16, u16)`.
   This unit passes the step count sign-extended (`sll`/`sra` 16, so not

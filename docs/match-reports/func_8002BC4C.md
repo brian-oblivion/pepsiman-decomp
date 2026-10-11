@@ -25,7 +25,7 @@ arguments: its asm keeps `$a1` in `$s2` and clears byte 0x40 through it.
 code_24748.c declared it locally with one (`Rec78 *`). The prototype now
 lives in `include/code_1a098.h` (additive), code_24748.c includes that
 header, its local prototype is gone, and its one call
-(func_80037114) passes the second argument it was already leaving in `$a1`:
-`func_8002A7D8(&D_800D8D20[D_80095A30], (Rec48 *)D_800A9008);`. The whole
+(RefreshToolPreview) passes the second argument it was already leaving in `$a1`:
+`func_8002A7D8(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);`. The whole
 image stays `OK` (cc1 reuses the `D_800A9008` address it had built for the
 stores just before), and declcheck's LOCAL finding for it is gone.

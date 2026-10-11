@@ -309,7 +309,7 @@ u16 CallStageHook(s32 id, Obj48 *a, Obj48 *b);
 
 /* MATCHING: defined in code_13068 and code_24748, which have no header. */
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
-void func_80033F48(VECTOR *pos);
+void DrawPin(VECTOR *pos);
 
 void func_80033A08(s32 deg, s32 dist);
 
@@ -642,7 +642,7 @@ s32 func_8002D424(void) {
     switch (gModeStep) {
         case 0:
             func_8002D2C0((Rec48 *)0x8016D000);
-            D_800958DA = 0;
+            gToolMode = 0;
             ResetStageOverlay();
             D_800956F7 = 1;
             gModeStep++;
@@ -654,7 +654,7 @@ s32 func_8002D424(void) {
             }
             func_8002D16C();
             /* MATCHING: the s16 error code switched as u16 (lhu). */
-            switch ((u16)D_800958DA) {
+            switch ((u16)gToolMode) {
                 case 0:
                     func_8002FA78();
                     if (D_800958D8 == 0) {
@@ -690,7 +690,7 @@ s32 func_8002D424(void) {
                                     sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
                                     sGameSave.unk348[2] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
                                     sTotals.unk1C = ((Obj48 *)D_800A9008)[sTotals.unk18].unk38;
-                                    D_800958DA = 4;
+                                    gToolMode = 4;
                                     sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
                                     sTotals.unk68 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk42;
                                     sTotals.unk69 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk43;
@@ -717,7 +717,7 @@ s32 func_8002D424(void) {
                                     sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
                                     sGameSave.unk348[2] = D_800A7898[sTotals.unk28].unk4[2];
                                     sTotals.unk2C = D_800A7898[sTotals.unk28].unk0 - 30;
-                                    D_800958DA = 5;
+                                    gToolMode = 5;
                                     sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
                                     sTotals.unk6D = D_800A7898[sTotals.unk28].unk28;
                                     sTotals.unk6C = D_800A7898[sTotals.unk28].unk27;
@@ -733,7 +733,7 @@ s32 func_8002D424(void) {
                         }
                     }
                     if (gPadTrig & 0x10) {
-                        D_800958DA = 1;
+                        gToolMode = 1;
                         D_80095748 = 0;
                         D_8009574A = 0;
                     }
@@ -744,32 +744,32 @@ s32 func_8002D424(void) {
                         if (D_8009574A == 2) {
                             gSubStep = 0;
                         }
-                        D_800958DA = 0;
+                        gToolMode = 0;
                     }
                     break;
                 case 2:
                     func_80033B08();
                     if (gPadTrig & 0x40) {
-                        D_800958DA = 0;
+                        gToolMode = 0;
                     }
                     break;
                 case 3:
                     func_80033B34();
                     if (gPadTrig & 0x40) {
-                        D_800958DA = 0;
+                        gToolMode = 0;
                     }
                     break;
                 case 4:
                     func_80030B6C();
                     func_80030DA0();
                     if (gPadTrig & 0x40) {
-                        D_800958DA = 0;
+                        gToolMode = 0;
                     }
                     break;
                 case 5:
                     func_8003146C();
                     if (gPadTrig & 0x40) {
-                        D_800958DA = 0;
+                        gToolMode = 0;
                     }
                     break;
                 case 6:
@@ -778,21 +778,21 @@ s32 func_8002D424(void) {
                 case 7:
                 case 8:
                     if (gPadTrig & 0x40) {
-                        D_800958DA = 0;
+                        gToolMode = 0;
                     }
                     break;
                 case 9:
                 case 10:
                 case 11:
                     if (gPadTrig & 0x40) {
-                        D_800958DA = 0;
+                        gToolMode = 0;
                         D_800958D8 = 0;
                         D_800959D8 = 0;
                     }
                     break;
             }
             if (D_800958D8 == 0) {
-                func_80033F48((VECTOR *)D_8009EEC0);
+                DrawPin((VECTOR *)D_8009EEC0);
                 func_80033224((VECTOR *)D_8009EEC0);
             }
             func_8002CCEC(&gSubOt[gActiveBuff]);
@@ -1010,7 +1010,7 @@ s32 func_8002DC44(void) {
         PrintTabs(2);
     }
     FntPrint(D_800954F4);
-    switch ((u16)D_800958DA) {
+    switch ((u16)gToolMode) {
         case 0:
             PrintTabs(5);
             FntPrint(D_80010C20);
@@ -1161,7 +1161,7 @@ s32 func_8002DC44(void) {
             } else {
                 FntPrint(D_8009550C);
             }
-            FntPrint(D_80010CF0, sTotals.unk1C, D_8009588E);
+            FntPrint(D_80010CF0, sTotals.unk1C, gSectionCount);
             PrintTabs(3);
             FntPrint(D_80010D04, D_8009596E);
             PrintTabs(3);
@@ -1594,7 +1594,7 @@ s32 func_8002F6A0(void) {
                 sTotals.unk3 = D_8009574A;
                 D_80095748 = sTotals.unk24;
                 D_8009574A = 0;
-                D_800958DA = 2;
+                gToolMode = 2;
                 break;
             case 1:
                 D_800958B0 = 200;
@@ -1604,7 +1604,7 @@ s32 func_8002F6A0(void) {
                 sTotals.unk3 = D_8009574A;
                 D_80095748 = sTotals.unk12;
                 D_8009574A = 0;
-                D_800958DA = 3;
+                gToolMode = 3;
                 break;
             case 2:
                 D_800958B0 = 200;
@@ -1615,7 +1615,7 @@ s32 func_8002F6A0(void) {
                 D_80095748 = sTotals.unk18;
                 D_8009574A = 0;
                 gSubStep = 0;
-                D_800958DA = 4;
+                gToolMode = 4;
                 break;
             case 3:
                 D_800958B0 = 100;
@@ -1626,7 +1626,7 @@ s32 func_8002F6A0(void) {
                 D_80095748 = sTotals.unk28;
                 D_8009574A = 0;
                 gSubStep = 0;
-                D_800958DA = 5;
+                gToolMode = 5;
                 break;
             case 4:
                 D_800958D8 = 1;
@@ -1638,10 +1638,10 @@ s32 func_8002F6A0(void) {
                 /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
                 D_800958D8 = D_800959D8 != 0;
                 gSubStep = 0;
-                D_800958DA = 0;
+                gToolMode = 0;
                 break;
             case 6:
-                D_800958DA = 0;
+                gToolMode = 0;
                 sGameSave.unk348[0] = sRotPos.pos[0];
                 sGameSave.unk348[1] = sRotPos.pos[1];
                 sGameSave.unk348[2] = sRotPos.pos[2];
@@ -1651,7 +1651,7 @@ s32 func_8002F6A0(void) {
                 D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                 break;
             case 7:
-                D_800958DA = 6;
+                gToolMode = 6;
                 gSubStep = 0;
                 break;
         }
@@ -1740,7 +1740,7 @@ s32 func_8002FA78(void) {
     }
     sGameSave.unk348[1] = D_800AC858[0] + sTotals.unk8;
     if (D_800958D8 == 0 && (gPadTrig & 0x20) && cur == -1) {
-        D_800958DA = 7;
+        gToolMode = 7;
     }
 }
 
@@ -1759,9 +1759,9 @@ void func_8002FDB4(void) {
 
     if (gPadTrig & 0x20) {
         if (sTotals.unk26 == 200) {
-            D_800958DA = 8;
+            gToolMode = 8;
         } else if (D_80095824 == -1) {
-            D_800958DA = 7;
+            gToolMode = 7;
         } else {
             e = (Span8 *)sCur.ents;
             e += D_80095824;
@@ -1830,18 +1830,18 @@ s32 func_8002FF74(void) {
     pos.vx = src->x;
     pos.vy = src->y;
     pos.vz = src->z;
-    func_80033F48(&pos);
+    DrawPin(&pos);
     e = (Span8 *)D_800959C0;
     e += D_80095824;
     if (e->count == 0 || D_80095824 == -1) {
-        D_800958DA = 10;
+        gToolMode = 10;
         return;
     }
     if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
         e = (Span8 *)D_800959C0;
         e += D_80095824;
         if (e->count == 0) {
-            D_800958DA = 9;
+            gToolMode = 9;
             return;
         }
         e = (Span8 *)D_800959C0;
@@ -1903,7 +1903,7 @@ s32 func_80030278(void) {
         }
     }
     if (sTotals.unk16 == 200) {
-        D_800958DA = 8;
+        gToolMode = 8;
         return;
     }
     if (sRecs5C[sTotals.unk12].unk0 != -1) {
@@ -1913,7 +1913,7 @@ s32 func_80030278(void) {
             }
         }
         if (i == 200) {
-            D_800958DA = 8;
+            gToolMode = 8;
             return;
         }
         sTotals.unk12 = i;
@@ -1925,7 +1925,7 @@ s32 func_80030278(void) {
     sRecs5C[sTotals.unk12].unk0 = -1;
     if (gPadTrig & 0x20) {
         if (D_80095824 == -1) {
-            D_800958DA = 7;
+            gToolMode = 7;
             return;
         }
         sRecs5C[sTotals.unk12].unk0 = 0;
@@ -1935,7 +1935,7 @@ s32 func_80030278(void) {
             }
         }
         if (i == 200) {
-            D_800958DA = 8;
+            gToolMode = 8;
             return;
         }
         sTotals.unk12 = i;
@@ -1970,7 +1970,7 @@ s32 func_80030548(void) {
     switch (gSubStep) {
         case 0:
             if (sTotals.unk16 == 0) {
-                D_800958DA = 9;
+                gToolMode = 9;
                 break;
             }
             best = 25000000;
@@ -1993,7 +1993,7 @@ s32 func_80030548(void) {
                 }
             }
             if (best == 25000000) {
-                D_800958DA = 11;
+                gToolMode = 11;
             } else {
                 gSubStep++;
             }
@@ -2005,7 +2005,7 @@ s32 func_80030548(void) {
             sel.vx = r[sTotals.unk12].unk50[0];
             sel.vy = r[sTotals.unk12].unk50[1];
             sel.vz = r[sTotals.unk12].unk50[2];
-            func_80033F48(&sel);
+            DrawPin(&sel);
             if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 sRecs5C[sTotals.unk12].unk0 = -1;
                 gSubStep = 0;
@@ -2058,7 +2058,7 @@ void func_80030984(void) {
         for (i = 0; (s32)i < D_8009596E; i++) {
             w = &D_80096788[i];
             if (n == 200) {
-                D_800958DA = 8;
+                gToolMode = 8;
                 return;
             }
             w->unkC[0] = w->unk0[0];
@@ -2112,7 +2112,7 @@ s32 func_80030B6C(void) {
                 D_80095748 = sTotals.unk18;
                 break;
             case 1:
-                D_800958B0 = D_8009588E;
+                D_800958B0 = gSectionCount;
                 D_80095748 = sTotals.unk1C;
                 break;
             case 2:
@@ -2242,7 +2242,7 @@ s32 func_80031064(void) {
     switch (gSubStep) {
         case 0:
             if (sTotals.unk1A == 0) {
-                D_800958DA = 9;
+                gToolMode = 9;
                 break;
             }
             best = 25000000;
@@ -2265,7 +2265,7 @@ s32 func_80031064(void) {
                 }
             }
             if (best == 25000000) {
-                D_800958DA = 11;
+                gToolMode = 11;
             } else {
                 gSubStep++;
             }
@@ -2275,7 +2275,7 @@ s32 func_80031064(void) {
             sel.vx = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
             sel.vy = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
             sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
-            func_80033F48(&sel);
+            DrawPin(&sel);
             if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 gSubStep = 0;
                 ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
@@ -2454,7 +2454,7 @@ s32 func_800317D0(void) {
     }
     if (gPadTrig & 0x20) {
         if (sTotals.unk30 == 100) {
-            D_800958DA = 8;
+            gToolMode = 8;
         } else {
             D_800DF818.unk2C = sTotals.unk2A;
             D_800DF818.unk0 = sTotals.unk2C + 30;
@@ -2484,7 +2484,7 @@ s32 func_800317D0(void) {
                     sTotals.unk28 = 0;
                 }
                 if (++i == 100) {
-                    D_800958DA = 8;
+                    gToolMode = 8;
                     return;
                 }
             }
@@ -2542,7 +2542,7 @@ s32 func_80031AEC(void) {
     switch (gSubStep) {
         case 0:
             if (sTotals.unk30 == 0) {
-                D_800958DA = 9;
+                gToolMode = 9;
                 break;
             }
             best = 25000000;
@@ -2565,7 +2565,7 @@ s32 func_80031AEC(void) {
                 }
             }
             if (best == 25000000) {
-                D_800958DA = 11;
+                gToolMode = 11;
             } else {
                 gSubStep++;
             }
@@ -2575,7 +2575,7 @@ s32 func_80031AEC(void) {
             sel.vx = D_800A7898[sTotals.unk28].unk4[0];
             sel.vy = D_800A7898[sTotals.unk28].unk4[1];
             sel.vz = D_800A7898[sTotals.unk28].unk4[2];
-            func_80033F48(&sel);
+            DrawPin(&sel);
             if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
                 gSubStep = 0;
                 D_800A7898[sTotals.unk28].unk0 = -1;
@@ -2622,66 +2622,66 @@ s32 func_80031EF4(void) {
     switch (gSubStep) {
         case 0:
             OpenCardEvents();
-            D_800959E4 = 0;
+            gToolCardStep = 0;
             D_8009574A = 0;
             D_80095748 = 0;
             gSubStep++;
             break;
         case 1:
-            switch (D_800959E4) {
+            switch (gToolCardStep) {
                 case 0:
                     D_80095A14 = 0;
                     err = RunCardOp1(0);
                     if (err == 0) {
-                        D_800959E4 = 1;
+                        gToolCardStep = 1;
                     }
                     break;
                 case 1:
                     if (CheckCard() == -1 || (gPadTrig & 0x40)) {
-                        D_800959E4 = 18;
+                        gToolCardStep = 18;
                         break;
                     }
                     D_800959E0 = func_8003356C(2);
                     switch (D_800959E0) {
                         case 2:
                             if (func_80033DE8() == -1) {
-                                D_800959E4 = 11;
+                                gToolCardStep = 11;
                             } else if (func_80032EE4() == -1) {
-                                D_800959E4 = 11;
+                                gToolCardStep = 11;
                             } else {
-                                D_800959E4 = 10;
+                                gToolCardStep = 10;
                             }
                             break;
                         case 3:
                             if (func_80033E40() == -1) {
-                                D_800959E4 = 11;
+                                gToolCardStep = 11;
                             } else {
                                 D_800959E0 = 1;
-                                D_800959E4 = 2;
+                                gToolCardStep = 2;
                             }
                             break;
                         case -1:
                             break;
                         default:
-                            D_800959E4 = 2;
+                            gToolCardStep = 2;
                             break;
                     }
                     break;
                 case 2:
                     if (gPadTrig & 0x40) {
-                        D_800959E4 = 1;
+                        gToolCardStep = 1;
                         break;
                     }
-                    D_80095A0C = func_8003356C(3);
-                    if (D_80095A0C == -1) {
+                    gToolSlot = func_8003356C(3);
+                    if (gToolSlot == -1) {
                         break;
                     }
                     switch (D_800959E0) {
                         case 0:
-                            D_800959E4 = 3;
+                            gToolCardStep = 3;
                             break;
                         case 1:
-                            D_800959E4 = 5;
+                            gToolCardStep = 5;
                             break;
                     }
                     break;
@@ -2695,14 +2695,14 @@ s32 func_80031EF4(void) {
                         gSection = 0;
                         D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                         func_8002D0C4((BlockHeader *)0x801FD000);
-                        D_800959E4 = 1;
+                        gToolCardStep = 1;
                     }
                     break;
                 case 3:
-                    if ((s16)func_80033680(D_80095A0C) == -1) {
-                        D_800959E4 = 8;
+                    if ((s16)func_80033680(gToolSlot) == -1) {
+                        gToolCardStep = 8;
                     } else {
-                        D_800959E4 = 4;
+                        gToolCardStep = 4;
                         D_8009574A = 0;
                     }
                     break;
@@ -2710,25 +2710,25 @@ s32 func_80031EF4(void) {
                     r = func_8003356C(2);
                     switch (r) {
                         case 0:
-                            D_800959E4 = 8;
+                            gToolCardStep = 8;
                             break;
                         case 1:
-                            D_800959E4 = 1;
+                            gToolCardStep = 1;
                             break;
                     }
                     break;
                 case 8:
-                    func_800335E8(D_80095A0C);
+                    func_800335E8(gToolSlot);
                     err = RunCardOp1(1);
                     if (err == 0) {
-                        D_800959E4 = 10;
+                        gToolCardStep = 10;
                     }
                     break;
                 case 5:
-                    if ((s16)func_80033680(D_80095A0C) == -1) {
-                        D_800959E4 = 7;
+                    if ((s16)func_80033680(gToolSlot) == -1) {
+                        gToolCardStep = 7;
                     } else {
-                        D_800959E4 = 6;
+                        gToolCardStep = 6;
                         D_8009574A = 0;
                     }
                     break;
@@ -2736,36 +2736,36 @@ s32 func_80031EF4(void) {
                     r = func_8003356C(2);
                     switch (r) {
                         case 0:
-                            D_800959E4 = 9;
+                            gToolCardStep = 9;
                             break;
                         case 1:
-                            D_800959E4 = 1;
+                            gToolCardStep = 1;
                             break;
                     }
                     break;
                 case 7:
                     if (gPadTrig & 0x20) {
-                        D_800959E4 = 5;
+                        gToolCardStep = 5;
                     }
                     break;
                 case 9:
-                    func_800336F8(D_80095A0C);
-                    D_800959E4 = 10;
+                    func_800336F8(gToolSlot);
+                    gToolCardStep = 10;
                     break;
                 case 11:
                 case 13:
                     if (gPadTrig & 0x40) {
-                        D_800959E4 = 18;
+                        gToolCardStep = 18;
                     }
                     break;
                 case 14:
                     r = func_8003356C(2);
                     switch (r) {
                         case 0:
-                            D_800959E4 = 16;
+                            gToolCardStep = 16;
                             break;
                         case 1:
-                            D_800959E4 = 18;
+                            gToolCardStep = 18;
                             break;
                         case -1:
                             break;
@@ -2775,10 +2775,10 @@ s32 func_80031EF4(void) {
                     r = func_8003356C(2);
                     switch (r) {
                         case 0:
-                            D_800959E4 = 17;
+                            gToolCardStep = 17;
                             break;
                         case 1:
-                            D_800959E4 = 18;
+                            gToolCardStep = 18;
                             break;
                         case -1:
                             break;
@@ -2787,13 +2787,13 @@ s32 func_80031EF4(void) {
                 case 16:
                     err = RunCardOp1(2);
                     if (err == 0) {
-                        D_800959E4 = 0;
+                        gToolCardStep = 0;
                     }
                     break;
                 case 17:
                     err = RunCardOp1(3);
                     if (err == 0) {
-                        D_800959E4 = 0;
+                        gToolCardStep = 0;
                     }
                     break;
                 case 18:
@@ -2803,25 +2803,25 @@ s32 func_80031EF4(void) {
             switch (err) {
                 case -2:
                 case -1:
-                    D_800959E4 = 11;
+                    gToolCardStep = 11;
                     break;
                 case 1:
-                    D_800959E4 = 12;
+                    gToolCardStep = 12;
                     break;
                 case 2:
-                    D_800959E4 = 13;
+                    gToolCardStep = 13;
                     break;
                 case 3:
-                    D_800959E4 = 14;
+                    gToolCardStep = 14;
                     break;
                 case 4:
-                    D_800959E4 = 15;
+                    gToolCardStep = 15;
                     break;
             }
             break;
         case 2:
             CloseCardEvents();
-            D_800958DA = 0;
+            gToolMode = 0;
             break;
     }
 }
@@ -2833,7 +2833,7 @@ void func_8003245C(void) {
     PrintTabs(5);
     FntPrint(D_800110F8);
     FntPrint(D_80095528);
-    switch (D_800959E4) {
+    switch (gToolCardStep) {
         case 0:
             FntPrint(D_80095528);
             PrintTabs(4);
@@ -2864,7 +2864,7 @@ void func_8003245C(void) {
         case 4:
             FntPrint(D_80095528);
             PrintTabs(3);
-            FntPrint(D_80011144, D_80095A0C + 1);
+            FntPrint(D_80011144, gToolSlot + 1);
             PrintTabs(3);
             FntPrint(D_80011158);
             func_80033C90();
@@ -2877,7 +2877,7 @@ void func_8003245C(void) {
         case 6:
             FntPrint(D_80095528);
             PrintTabs(3);
-            FntPrint(D_80011178, D_80095A0C + 1);
+            FntPrint(D_80011178, gToolSlot + 1);
             PrintTabs(3);
             FntPrint(D_8001118C);
             func_80033C90();
@@ -2885,7 +2885,7 @@ void func_8003245C(void) {
         case 7:
             FntPrint(D_80095528);
             PrintTabs(2);
-            FntPrint(D_8001119C, D_80095A0C + 1);
+            FntPrint(D_8001119C, gToolSlot + 1);
             break;
         case 10:
             FntPrint(D_80095528);
@@ -3103,7 +3103,7 @@ s32 func_800330D4(void) {
 
 /** @brief Sorts a pulsing red line from `pos` to 200 units above it into
  *         the current ordering table. */
-/* MATCHING: the twin of code_24748's func_800365A0 (an s16 colour local, an
+/* MATCHING: the twin of code_24748's DrawToolPole (an s16 colour local, an
  * unused 8 bytes for the frame), without its mirrored x and z. */
 void func_80033224(VECTOR *pos) {
     s32 unused[2];

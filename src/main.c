@@ -357,7 +357,7 @@ int main(void) {
                 }
                 break;
             case 37:
-                func_80034070();
+                UpdateTool();
                 break;
             case 41:
                 UpdateLoadScreenModel();
@@ -1496,7 +1496,7 @@ void LoadStageData(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void LoadSpritePack(DirEnt16 *dir, u16 id);
 /* MATCHING: code_1dc24 types both as its own BankFile. */
-void func_800373C8(void *a, void *b);
+void SetHitBanks(void *a, void *b);
 void func_8002C2B4(void);
 s32 func_8002C044(void);
 void func_8002C47C(void);
@@ -1813,7 +1813,7 @@ void LoadStage(void) {
             break;
         case 14:
             if (gCdLoadState == 6) {
-                func_800373C8((void *)0x8016D000, (void *)0x80171744);
+                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
                 func_8002C2B4();
                 func_8002C044();
                 gSubStep++;

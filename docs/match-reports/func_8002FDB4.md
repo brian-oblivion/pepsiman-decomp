@@ -1,6 +1,6 @@
 # func_8002FDB4 — MATCHED 112/112 (round 8, bravo)
 
-Unit `src/code_1dc24.c`. On flag bit 5: error 8 in `D_800958DA` when
+Unit `src/code_1dc24.c`. On flag bit 5: error 8 in `gToolMode` when
 `sTotals.unk26` is 200, error 7 when there is no current entry
 (`D_80095824 == -1`); otherwise shifts the block's 8-byte points
 (`D_800959C4`) up by one from the end of the current entry, writes the
@@ -53,7 +53,7 @@ object identical apart from addresses, so AGREE (check 3).
   same entry seen as halfwords.
 - `BlockCur` / `sCur`: the unit's member view of `D_800959C0` and
   `D_800959C4` (see 1), with a `MATCHING:` note.
-- `D_80095824` (`s32`) declared in the unit. `D_800958DA` moved from
+- `D_80095824` (`s32`) declared in the unit. `gToolMode` moved from
   code_24748.c to `include/common.h`, type unchanged (declcheck).
 
 ```c
@@ -67,9 +67,9 @@ void func_8002FDB4(void) {
 
     if (gPadTrig & 0x20) {
         if (sTotals.unk26 == 200) {
-            D_800958DA = 8;
+            gToolMode = 8;
         } else if (D_80095824 == -1) {
-            D_800958DA = 7;
+            gToolMode = 7;
         } else {
             e = (Span8 *)sCur.ents;
             e += D_80095824;

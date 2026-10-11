@@ -1,0 +1,178 @@
+# SetHitBanks — MATCHED 30/30 (round 5, echo; round 3 stall at 12/30)
+
+> Renamed from `func_800373C8` on 2026-10-11 (tools/rename.py). Address 0x800373c8.
+
+Unit `src/code_27bc8.c`. Installs two loaded record banks: each argument
+points at a count word followed by the bank. Stores the bank addresses in
+`gHitPoints` and `gHitQuads` (the banks `code_24748`'s `GetHitPoint` and
+`GetHitQuad` index), the counts in `gHitPointSections` and `gHitQuadSections`, resets
+the halfwords at 0x72 (-1) and 0x74 (0) of the 80 0x78-byte records of
+`D_800D8D20`, then calls `ApplyHitPoints` and `ApplyHitQuads`. Called from
+`LoadStage` (unit `main`).
+
+```c
+typedef struct {
+    s32 count;
+    u8 data[4]; /* the bank; real size unknown */
+} BankFile;
+
+/* include/common.h: Rec78, D_800D8D20[], gHitPointSections, gHitQuadSections,
+ * gHitQuads, gHitPoints, ApplyHitPoints, ApplyHitQuads */
+
+void SetHitBanks(BankFile *a, BankFile *b) {
+    u8 *bank; /* MATCHING: one local for both bank addresses */
+    u32 i;
+
+    bank = a->data;
+    gHitPoints = (s32)bank;
+    bank = b->data;
+    gHitQuads = (s32)bank;
+    gHitPointSections = a->count;
+    gHitQuadSections = b->count;
+    for (i = 0; i < 80; i++) {
+        D_800D8D20[i].unk72 = -1;
+        D_800D8D20[i].unk74 = 0;
+    }
+    ApplyHitPoints();
+    ApplyHitQuads();
+}
+```
+
+## The lever: one local reused for both addresses
+
+Retail computes `a + 4` into `$a3`, stores it, then `b + 4` into the same
+`$a3` before the loop constants. That is the source assigning both bank
+addresses to ONE local in turn. Two expressions (round 3's body) give cc1
+two pseudos, and sched hoists the loop constants above them (12/30). The
+permuter found it (below); its candidate was translated by adding the
+`(s32)` cast on the second store and naming the local.
+
+## Permuter (round 5): the project's first real search since the -G8 fix
+
+Seed: round 3's best body (in the history below), the same declarations
+local to the seed file. `tools/setup-permuter.sh` worked first try (cc1
+flags and maspsx flags read from the Makefile).
+
+Gate 3 (PARALLEL-RUNS.md §3.5), all three checks run:
+
+1. **Scaffold compiles and scores:** yes, base score 705.
+2. **`--debug --stack-diffs`:** insertions 3 / deletions 3 (register
+   differences 21).
+3. **Agreement with the real tree:** the same body in `src/` gave funcdiff
+   12/30, insertions 6 / deletions 6. The signatures differ, but the
+   scaffold is CLEANER, so neither decline row applies. objdump of the
+   scaffold's `base.o` and the in-tree `build/src/code_27bc8.c.o` gives
+   IDENTICAL disassembly for the function, so the 3/3 against 6/6 gap is a
+   diff-alignment artifact. Verdict AGREE; search run.
+
+Search: `timeout 600 permuter.py -j 6 --stop-on-zero --best-only`, rc 0
+(stopped on zero, well inside the timeout), **4314 iterations**. Bests on
+the way: 420, 275, 100 (`do { ... } while (0)` around everything after
+the first store; in-tree 20/30, insertions 1 / deletions 1: a block
+boundary after the `gHitPoints` store does most of the work), then 0 with
+the reused local. In tree the zero is 30/30 and `./build-and-verify.sh`
+is OK.
+
+## Declarations moved (code_24748 is not one of round 5's units)
+
+`Rec78` (the typedef) and `extern Rec78 D_800D8D20[]`, `extern s32
+gHitPointSections`, `extern s32 gHitQuadSections` moved from `src/code_24748.c` into
+`include/common.h`, and prototypes for `ApplyHitPoints` and `ApplyHitQuads`
+(defined in code_24748) were added there. Additive in common.h; the
+moved declarations are unchanged except that the `unk72`/`unk74` docs
+mention this function's reset.
+
+### Proposed learning
+
+Two values computed one after the other into the same register, each
+stored before the next is computed, with the loop constants after them:
+the source reused ONE local (`p = a->data; G1 = p; p = b->data; G2 = p;`).
+Separate expressions let sched hoist the constants above them.
+(SetHitBanks, found by the permuter in 4314 iterations)
+
+## History (round 3 stall, 12/30)
+
+Round 3's best body, the permuter seed:
+
+```c
+#if 0
+typedef struct {
+    u8 unk0[0x72];
+    s16 unk72; /* -1 on reset */
+    s16 unk74; /* zeroed on reset */
+    u8 unk76[2];
+} Rec78;
+
+typedef struct {
+    s32 count;  /* copied to gHitPointSections or gHitQuadSections */
+    u8 data[4]; /* the bank; real size unknown */
+} BankFile;
+
+extern Rec78 D_800D8D20[];
+extern s32 gHitPointSections; /* lui $at: plain extern, not in gp-symbols */
+extern s32 gHitQuadSections;
+extern s32 gHitQuads; /* include/common.h */
+extern s32 gHitPoints; /* include/common.h */
+
+void ApplyHitPoints(void);
+void ApplyHitQuads(void);
+
+void SetHitBanks(BankFile *a, BankFile *b) {
+    u32 i;
+
+    gHitPoints = (s32)a->data;
+    gHitQuads = (s32)b->data;
+    gHitPointSections = a->count;
+    gHitQuadSections = b->count;
+    for (i = 0; i < 80; i++) {
+        D_800D8D20[i].unk72 = -1;
+        D_800D8D20[i].unk74 = 0;
+    }
+    ApplyHitPoints();
+    ApplyHitQuads();
+}
+#endif
+```
+
+### What was right
+
+Length, the loop (`u32` counter: `sltiu`; the record pointer strength-reduced
+to `+0x78` steps), the two calls and the epilogue all match.
+
+**The two count loads sit between the `D_80095A50` store and the
+`D_80095A4C` store in retail.** With `s32 *a, *b` and `*a`/`*b`, the loads
+stay below both bank-pointer stores (the pointer may alias the global),
+whichever order the four statements are written in. Reading the counts as
+members of a struct (`a->count`) lets them rise above the `D_80095A4C`
+store, as in retail: GCC 2.8.1's alias analysis treats an in-struct access
+through a pointer as unable to alias a scalar at a fixed address. That is
+why the struct form is kept despite scoring 12/30 against `s32 *`'s 13/30.
+
+### The residue: scheduling of the loop setup
+
+Retail computes `a + 4` into `$a3`, stores it, then `b + 4` into `$a3`
+before the counter, `-1` and the table's `lui`; the table base goes into
+`$a1` after `b` dies. The build hoists the loop constants (`move $a3,$zero`,
+`li $t0,-1`, the table address in `$a2`) to the top and computes `b + 4`
+late, in `$a1` itself after `lw 0($a1)`. Everything from +0x4 to +0x40 is
+that reordering and the register renaming that follows.
+
+Tried, no improvement (funcdiff words in brackets):
+- all 24 orders of the four stores, struct form: identical output [12];
+- `s32 *` params, `*a`/`a[0]`, stores in source order or interleaved [13];
+- counts into locals first, then the stores [12];
+- `*a++` / `*b++`, then storing the advanced pointers [13];
+- the bank addresses in locals before the stores [12];
+- `s32` counter [12];
+- a walking `Rec78 *r` with `r++` [2: the loop changes shape].
+
+Not tried: the permuter. The variants above all leave sched1's choice
+unchanged, which makes this a good first permuter target.
+
+#### Round 3 proposed learning
+
+A load from a pointer parameter that retail schedules above a store to a
+plain global: read it as a struct member (`p->field`), not `*p`. GCC 2.8.1
+lets an in-struct access through a pointer pass a fixed-address scalar
+store. (Hypothesis from this function; it moved the loads but the function
+does not yet match.)

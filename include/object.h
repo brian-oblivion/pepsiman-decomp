@@ -31,11 +31,11 @@ typedef struct {
     u8 unk0[0x24]; /**< not yet known */
     s16 unk24;     /**< zeroed with unk40 */
     u8 unk26[2];   /**< not yet known */
-    s32 unk28;     /**< set from a per-record lookup */
+    s32 block;     /**< the block it was placed in; set from a per-record lookup */
     u8 unk2C[8];   /**< not yet known */
-    s16 unk34;     /**< -1 when reset */
-    s16 unk36;     /**< -1 when reset */
-    s16 unk38;     /**< -1 when fully reset */
+    s16 switchNo;  /**< the switch that triggers it; -1 when reset */
+    s16 model;     /**< its ObjectModel entry; -1 when free */
+    s16 hook;      /**< the stage hook of the first record of a placement, else -1 */
     u8 unk3A[6];   /**< not yet known */
     u8 unk40;      /**< cleared with unk24 */
     u8 unk41;      /**< 1 when reset; only bit 0 survives a clear */

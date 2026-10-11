@@ -15,7 +15,7 @@
  *         only the free marker is known. */
 typedef struct {
     u8 pad0[0x36];
-    s16 unk36; /**< -1 when the record is free */
+    s16 model; /**< its model; -1 when the record is free */
     u8 pad38[0x48 - 0x38];
 } Slot48;
 
@@ -126,7 +126,7 @@ s16 FindFreeSlot48(void) {
     u32 i;
 
     for (i = 0; i < gSlotTableSize / sizeof(Slot48); i++) {
-        if (slot->unk36 == -1) {
+        if (slot->model == -1) {
             return i;
         }
         slot++;

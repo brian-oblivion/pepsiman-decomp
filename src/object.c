@@ -15,22 +15,22 @@
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
 typedef struct {
-    s32 unk0;    /**< current; reset from unkC */
-    s32 unk4;    /**< current; reset from unk10 */
-    s32 unk8;    /**< current; reset from unk14 */
-    s32 unkC;    /**< stored */
-    s32 unk10;   /**< stored */
-    s32 unk14;   /**< stored */
-    u16 unk18;   /**< current; reset from unk1E */
-    u16 unk1A;   /**< current; reset from unk20 */
-    u16 unk1C;   /**< current; reset from unk22 */
-    u16 unk1E;   /**< stored */
-    u16 unk20;   /**< stored */
-    u16 unk22;   /**< stored */
-    u8 unk24[4]; /**< not yet known */
-    s32 unk28;   /**< passed to the lookup and updated from it */
-    s32 unk2C;   /**< zeroed on a reset; an angle from the lookup */
-    s32 unk30;   /**< zeroed on a reset; an angle from the lookup */
+    s32 x;           /**< position x; reset from homeX */
+    s32 y;           /**< position y; reset from homeY */
+    s32 z;           /**< position z; reset from homeZ */
+    s32 homeX;       /**< where it was placed */
+    s32 homeY;       /**< where it was placed */
+    s32 homeZ;       /**< where it was placed */
+    u16 rotX;        /**< rotation; reset from homeRotX */
+    u16 rotY;        /**< rotation; reset from homeRotY */
+    u16 rotZ;        /**< rotation; reset from homeRotZ */
+    u16 homeRotX;    /**< its placed rotation */
+    u16 homeRotY;    /**< its placed rotation */
+    u16 homeRotZ;    /**< its placed rotation */
+    u8 unk24[4];     /**< not yet known */
+    s32 block;       /**< the block it was placed in; passed to the lookup and updated from it */
+    s32 lightAngle;  /**< zeroed on a reset; an angle from the light lookup */
+    s32 lightAngle2; /**< zeroed on a reset; a second angle from the light lookup */
 } Obj34;
 
 /** @brief An object with a word at 0x28 that a lookup updates. */
@@ -537,17 +537,17 @@ void DrawObjectModel(ObjectModel *rec, Trap *r) {
 
     m = (Model70 *)rec;
     o = (Obj34 *)r;
-    m->coord.coord.t[0] = o->unk0;
-    m->coord.coord.t[1] = o->unk4;
-    m->coord.coord.t[2] = o->unk8;
-    m->rot.vx = o->unk18;
-    m->rot.vy = o->unk1A;
-    m->rot.vz = o->unk1C;
+    m->coord.coord.t[0] = o->x;
+    m->coord.coord.t[1] = o->y;
+    m->coord.coord.t[2] = o->z;
+    m->rot.vx = o->rotX;
+    m->rot.vy = o->rotY;
+    m->rot.vz = o->rotZ;
     m->coord.coord.t[0] += gWorldShift[0];
     m->coord.coord.t[2] += gWorldShift[2];
     SetCoordRotation(&m->rot, &m->coord);
-    RotMatrixX(o->unk2C, &m->coord.coord);
-    RotMatrixZ(o->unk30, &m->coord.coord);
+    RotMatrixX(o->lightAngle, &m->coord.coord);
+    RotMatrixZ(o->lightAngle2, &m->coord.coord);
     m->obj.attribute = 0;
     m->obj.coord2->flg = 0;
     m->obj.coord2->param = &param;
@@ -829,8 +829,8 @@ void UpdateTrapViewer(void) {
 /** @brief A Trap record seen as an Obj34 followed by its indices. */
 typedef struct {
     Obj34 o;        /**< position, stored copy and angles */
-    s16 unk34;      /**< as Trap's */
-    s16 unk36;      /**< the ObjectModel entry it belongs to */
+    s16 switchNo;   /**< the switch that triggers it */
+    s16 model;      /**< the ObjectModel entry it belongs to */
     u8 unk38[0x10]; /**< not yet known */
 } TrapPlaced;
 
@@ -868,12 +868,12 @@ void UpdateTrapLayoutViewer(void) {
             gModeStep = 1;
             break;
         case 1:
-            gPlaceQueue.unk0 = 0;
-            gPlaceQueue.unk4 = 0;
-            gPlaceQueue.unk8 = 0;
-            gPlaceQueue.unk18 = 0;
-            gPlaceQueue.unk1A = gFrameCount % 360 * 4096 / 360;
-            gPlaceQueue.unk1C = 0;
+            gPlaceQueue.x = 0;
+            gPlaceQueue.y = 0;
+            gPlaceQueue.z = 0;
+            gPlaceQueue.rotX = 0;
+            gPlaceQueue.rotY = gFrameCount % 360 * 4096 / 360;
+            gPlaceQueue.rotZ = 0;
             gPlaceCount = CallStageHook(gSelectedSection, (s32)&gPlaceQueue, (s32)gTraps);
             gModeStep++;
             break;
@@ -893,23 +893,23 @@ void UpdateTrapLayoutViewer(void) {
                 gModeStep = 1;
             }
             ResetCollision();
-            ((TrapPlaced *)gTraps)->o.unk1A = gFrameCount % 360 * 4096 / 360;
-            UpdateObjectEntry(&gObjectModels[((TrapPlaced *)gTraps)->unk36], (Trap *)gTraps);
+            ((TrapPlaced *)gTraps)->o.rotY = gFrameCount % 360 * 4096 / 360;
+            UpdateObjectEntry(&gObjectModels[((TrapPlaced *)gTraps)->model], (Trap *)gTraps);
             for (i = 1; i < gPlaceCount; i++) {
                 /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
                 recs = (TrapPlaced *)gTraps;
                 r = (TrapPlaced *)(i * 72 + (u32)recs);
-                gLocalPos.vx = r->o.unkC;
-                gLocalPos.vy = r->o.unk10;
-                gLocalPos.vz = r->o.unk14;
-                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->unk36].unk10, &gLocalPos,
+                gLocalPos.vx = r->o.homeX;
+                gLocalPos.vy = r->o.homeY;
+                gLocalPos.vz = r->o.homeZ;
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->model].unk10, &gLocalPos,
                                  &gWorldPos);
-                r->o.unk0 = gWorldPos.vx;
-                r->o.unk4 = gWorldPos.vy;
-                r->o.unk8 = gWorldPos.vz;
-                r->o.unk1A = recs->o.unk1A + r->o.unk20;
+                r->o.x = gWorldPos.vx;
+                r->o.y = gWorldPos.vy;
+                r->o.z = gWorldPos.vz;
+                r->o.rotY = recs->o.rotY + r->o.homeRotY;
                 tbl = gObjectModels;
-                UpdateObjectEntry((ObjectModel *)(r->unk36 * 120 + (u32)tbl), (Trap *)r);
+                UpdateObjectEntry((ObjectModel *)(r->model * 120 + (u32)tbl), (Trap *)r);
             }
             ReactToHits(&gPlayer);
             func_80029838();
@@ -1055,8 +1055,8 @@ void UpdateActiveEntries(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if (sTraps[i].unk36 != -1 && gSwitches[sTraps[i].unk34].unk0 == 1) {
-            UpdateObjectEntry(&gObjectModels[sTraps[i].unk36], &sTraps[i]);
+        if (sTraps[i].model != -1 && gSwitches[sTraps[i].switchNo].unk0 == 1) {
+            UpdateObjectEntry(&gObjectModels[sTraps[i].model], &sTraps[i]);
         }
     }
 }
@@ -1170,12 +1170,12 @@ s32 LoadStageSprites(void) {
 s32 SnapToFloor(Obj34 *p) {
     s32 v;
 
-    v = FindFloorNear(p, sFloorHit, p->unk28);
+    v = FindFloorNear(p, sFloorHit, p->block);
     if (v != -1) {
-        p->unk28 = v;
-        p->unk4 = p->unk10 = sFloorHit[0];
-        p->unk2C = ratan2(-sFloorHit[3], sFloorHit[2]);
-        p->unk30 = ratan2(-sFloorHit[1], sFloorHit[2]);
+        p->block = v;
+        p->y = p->homeY = sFloorHit[0];
+        p->lightAngle = ratan2(-sFloorHit[3], sFloorHit[2]);
+        p->lightAngle2 = ratan2(-sFloorHit[1], sFloorHit[2]);
     }
     return v;
 }
@@ -1257,8 +1257,8 @@ void RefreshAllZones(void) {
 
     /* MATCHING: indexed; a walking Trap pointer is biased to unk28. */
     for (i = 0; i < 200; i++) {
-        if (sTraps[i].unk36 != -1) {
-            sTraps[i].unk28 = FindFloor(&sTraps[i]);
+        if (sTraps[i].model != -1) {
+            sTraps[i].block = FindFloor(&sTraps[i]);
         }
     }
 }
@@ -1354,29 +1354,29 @@ void AttachToParent(Trap *a, Trap *b) {
 
     pa = (Obj34 *)a;
     pb = (Obj34 *)b;
-    gLocalPos.vx = pb->unkC;
-    gLocalPos.vy = pb->unk10;
-    gLocalPos.vz = pb->unk14;
-    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->unk36].unk10, &gLocalPos, &gWorldPos);
-    pb->unk0 = gWorldPos.vx;
-    pb->unk4 = gWorldPos.vy;
-    pb->unk8 = gWorldPos.vz;
-    pb->unk2C = pa->unk2C;
-    pb->unk30 = pa->unk30;
-    pb->unk1A = pa->unk1A + pb->unk20;
-    DrawObjectModel(&gObjectModels[b->unk36], b);
+    gLocalPos.vx = pb->homeX;
+    gLocalPos.vy = pb->homeY;
+    gLocalPos.vz = pb->homeZ;
+    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->model].unk10, &gLocalPos, &gWorldPos);
+    pb->x = gWorldPos.vx;
+    pb->y = gWorldPos.vy;
+    pb->z = gWorldPos.vz;
+    pb->lightAngle = pa->lightAngle;
+    pb->lightAngle2 = pa->lightAngle2;
+    pb->rotY = pa->rotY + pb->homeRotY;
+    DrawObjectModel(&gObjectModels[b->model], b);
 }
 
 /** @brief Resets an object's current values from its stored copy. */
 void ResetObj34(Obj34 *p) {
-    p->unk2C = 0;
-    p->unk30 = 0;
-    p->unk0 = p->unkC;
-    p->unk4 = p->unk10;
-    p->unk8 = p->unk14;
-    p->unk18 = p->unk1E;
-    p->unk1A = p->unk20;
-    p->unk1C = p->unk22;
+    p->lightAngle = 0;
+    p->lightAngle2 = 0;
+    p->x = p->homeX;
+    p->y = p->homeY;
+    p->z = p->homeZ;
+    p->rotX = p->homeRotX;
+    p->rotY = p->homeRotY;
+    p->rotZ = p->homeRotZ;
 }
 
 /** @brief Copies entry `i` of the eight-byte table to `out`. */
@@ -1639,8 +1639,8 @@ void ResetGameState(Trap *recs) {
 
     bzero((u8 *)recs, 0x30000);
     for (i = 0; i < 200; i++) {
-        recs->unk34 = -1;
-        recs->unk36 = -1;
+        recs->switchNo = -1;
+        recs->model = -1;
         recs++;
     }
     bzero((u8 *)0x801FD000, 0x800);

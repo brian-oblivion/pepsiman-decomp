@@ -238,29 +238,29 @@ typedef struct {
 /** @brief A trap (gTraps), as
  *         this unit places it (object.h's Trap is the same record). */
 typedef struct {
-    s32 unk0[3]; /**< a position */
-    s32 unkC[3]; /**< a copy of unk0 */
-    s16 unk18;   /**< cleared when the first record is taken */
-    s16 unk1A;   /**< a heading, 0..4095 */
-    s16 unk1C;   /**< cleared when the first record is taken */
-    u8 unk1E[2]; /**< not yet known */
-    u16 unk20;   /**< a heading offset from the first record's */
-    u8 unk22[2]; /**< not yet known */
-    s16 unk24;   /**< cleared when placed */
-    s16 unk26;   /**< cleared when placed */
-    s32 unk28;   /**< the current entry when placed */
-    s32 unk2C;   /**< an angle from the light direction */
-    s32 unk30;   /**< a second angle from the light direction */
-    s16 unk34;   /**< sTotals.trapSwitch when placed */
-    s16 unk36;   /**< -1 when free */
-    s16 unk38;   /**< sTotals.trapModel for the first placed, else -1 */
-    u8 unk3A[2]; /**< not yet known */
-    s32 unk3C;   /**< a global stamp when placed */
-    u8 unk40;    /**< cleared when placed */
-    u8 unk41;    /**< not yet known */
-    u8 unk42;    /**< sTotals.trapType when placed */
-    u8 unk43;    /**< sTotals.trapAct when placed */
-    u8 unk44[4]; /**< not yet known */
+    s32 pos[3];      /**< a position */
+    s32 home[3];     /**< where it was placed */
+    s16 rotX;        /**< rotation; cleared when the first record is taken */
+    s16 rotY;        /**< the heading, 0..4095 */
+    s16 rotZ;        /**< cleared when the first record is taken */
+    u8 unk1E[2];     /**< not yet known */
+    u16 homeRotY;    /**< the placed heading, as an offset from the first record's */
+    u8 unk22[2];     /**< not yet known */
+    s16 unk24;       /**< cleared when placed */
+    s16 unk26;       /**< cleared when placed */
+    s32 block;       /**< the current block when placed */
+    s32 lightAngle;  /**< an angle from the light direction */
+    s32 lightAngle2; /**< a second angle from the light direction */
+    s16 switchNo;    /**< sTotals.trapSwitch when placed */
+    s16 model;       /**< its ObjectModel entry; -1 when free */
+    s16 hook;        /**< sTotals.trapModel for the first placed, else -1 */
+    u8 unk3A[2];     /**< not yet known */
+    s32 section;     /**< gSection when placed */
+    u8 unk40;        /**< cleared when placed */
+    u8 unk41;        /**< not yet known */
+    u8 type;         /**< sTotals.trapType when placed */
+    u8 act;          /**< sTotals.trapAct when placed */
+    u8 unk44[4];     /**< not yet known */
 } EditorTrap;
 
 /* MATCHING: object declares gEditorInfo as u8 (it only zeroes it); this
@@ -696,22 +696,22 @@ s32 UpdateEditor(void) {
                             case EK_TRAP:
                                 EditorPickRecord();
                                 if (gEditorInfo == 1 && (gPadTrig & PADRright)) {
-                                    gPlayer.x = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[0];
-                                    gPlayer.y = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[1];
-                                    gPlayer.z = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[2];
-                                    sTotals.trapModel = ((EditorTrap *)gTraps)[sTotals.trapNo].unk38;
+                                    gPlayer.x = ((EditorTrap *)gTraps)[sTotals.trapNo].pos[0];
+                                    gPlayer.y = ((EditorTrap *)gTraps)[sTotals.trapNo].pos[1];
+                                    gPlayer.z = ((EditorTrap *)gTraps)[sTotals.trapNo].pos[2];
+                                    sTotals.trapModel = ((EditorTrap *)gTraps)[sTotals.trapNo].hook;
                                     gToolMode = ED_TRAP_SEL;
-                                    sTotals.trapSwitch = ((EditorTrap *)gTraps)[sTotals.trapNo].unk34;
-                                    sTotals.trapType = ((EditorTrap *)gTraps)[sTotals.trapNo].unk42;
-                                    sTotals.trapAct = ((EditorTrap *)gTraps)[sTotals.trapNo].unk43;
+                                    sTotals.trapSwitch = ((EditorTrap *)gTraps)[sTotals.trapNo].switchNo;
+                                    sTotals.trapType = ((EditorTrap *)gTraps)[sTotals.trapNo].type;
+                                    sTotals.trapAct = ((EditorTrap *)gTraps)[sTotals.trapNo].act;
                                     sTotals.trapAngle =
-                                        ((EditorTrap *)gTraps)[sTotals.trapNo].unk1A * 360 / 4096;
+                                        ((EditorTrap *)gTraps)[sTotals.trapNo].rotY * 360 / 4096;
                                     gPlaceCount =
                                         CallStageHook(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
                                     for (i = 1; i < gPlaceCount; i++) {
                                         /* MATCHING: base taken in the body */
                                         r = (EditorTrap *)gTraps;
-                                        r[sTotals.trapNo + i].unk36 = -1;
+                                        r[sTotals.trapNo + i].model = -1;
                                     }
                                     gEditMax = 200;
                                     gEditorPicking = 0;
@@ -1154,7 +1154,7 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdTrapNoRangeText);
             objs = (EditorTrap *)gTraps;
-            if (objs[sTotals.trapNo].unk36 == -1) {
+            if (objs[sTotals.trapNo].model == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -1523,17 +1523,17 @@ void PrintEditorCaption(void) {
             break;
         case EK_TRAP:
             FntPrint(sEdInfoTrapNoFmt, sTotals.trapNo);
-            if (((EditorTrap *)gTraps)[sTotals.trapNo].unk38 != -1) {
-                FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.trapNo].unk38);
+            if (((EditorTrap *)gTraps)[sTotals.trapNo].hook != -1) {
+                FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.trapNo].hook);
             } else {
                 FntPrint(sEdOptionsText);
             }
             /* MATCHING: the table base in a pointer local after the join
              * takes $s1, the totals' base $s0. */
             r = (EditorTrap *)gTraps;
-            FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.trapNo].unk34);
-            FntPrint(sEdInfoTypeFmt, r[sTotals.trapNo].unk42);
-            FntPrint(sEdInfoActFmt, r[sTotals.trapNo].unk43);
+            FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.trapNo].switchNo);
+            FntPrint(sEdInfoTypeFmt, r[sTotals.trapNo].type);
+            FntPrint(sEdInfoActFmt, r[sTotals.trapNo].act);
             break;
         case EK_SPRITE:
             FntPrint(sEdInfoSpriteFmt, sTotals.spriteNo);
@@ -2060,7 +2060,7 @@ void EditorPlaceRecords(void) {
     n = sTotals.trapNo;
     sTotals.trapCount = 0;
     for (i = 0; i < 200; i++) {
-        if (recs[i].unk36 != -1) {
+        if (recs[i].model != -1) {
             sTotals.trapCount++;
         }
     }
@@ -2073,24 +2073,24 @@ void EditorPlaceRecords(void) {
                 gToolMode = ED_FULL;
                 return;
             }
-            w->unkC[0] = w->unk0[0];
-            w->unkC[1] = w->unk0[1];
-            w->unkC[2] = w->unk0[2];
+            w->home[0] = w->pos[0];
+            w->home[1] = w->pos[1];
+            w->home[2] = w->pos[2];
             w->unk40 = 0;
             w->unk24 = 0;
             w->unk26 = 0;
-            w->unk28 = gCurBlock;
-            w->unk3C = gSection;
-            w->unk42 = sTotals.trapType;
-            w->unk43 = sTotals.trapAct;
+            w->block = gCurBlock;
+            w->section = gSection;
+            w->type = sTotals.trapType;
+            w->act = sTotals.trapAct;
             if (i == 0) {
                 /* MATCHING: stored through the table base, not w. */
-                gPlaceQueue[0].unk38 = sTotals.trapModel;
+                gPlaceQueue[0].hook = sTotals.trapModel;
             } else {
-                w->unk38 = -1;
+                w->hook = -1;
             }
             ((EditorTrap *)gTraps)[(s16)n] = *w;
-            ((EditorTrap *)gTraps)[(s16)n].unk34 = sTotals.trapSwitch;
+            ((EditorTrap *)gTraps)[(s16)n].switchNo = sTotals.trapSwitch;
             n++;
             sTotals.trapNo = n;
         }
@@ -2185,43 +2185,43 @@ s32 EditorArrangeRecords(void) {
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     switch (gSubStep) {
         case 0:
-            gPlaceQueue[0].unk18 = 0;
-            gPlaceQueue[0].unk1C = 0;
-            gPlaceQueue[0].unk0[0] = gPlayer.x;
-            gPlaceQueue[0].unk0[1] = gPlayer.y;
-            gPlaceQueue[0].unk0[2] = gPlayer.z;
-            gPlaceQueue[0].unk1A = (sTotals.trapAngle << 12) / 360;
+            gPlaceQueue[0].rotX = 0;
+            gPlaceQueue[0].rotZ = 0;
+            gPlaceQueue[0].pos[0] = gPlayer.x;
+            gPlaceQueue[0].pos[1] = gPlayer.y;
+            gPlaceQueue[0].pos[2] = gPlayer.z;
+            gPlaceQueue[0].rotY = (sTotals.trapAngle << 12) / 360;
             gPlaceCount = CallStageHook(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
             gSubStep++;
             /* fall through */
         case 1:
             w = gPlaceQueue;
-            w->unk0[0] = gPlayer.x;
-            w->unk0[1] = gPlayer.y;
-            w->unk0[2] = gPlayer.z;
-            w->unk1A = (sTotals.trapAngle << 12) / 360;
+            w->pos[0] = gPlayer.x;
+            w->pos[1] = gPlayer.y;
+            w->pos[2] = gPlayer.z;
+            w->rotY = (sTotals.trapAngle << 12) / 360;
             if (gCurBlock == -1) {
                 gFloorY[1] = 0;
                 gFloorY[2] = -0x1000;
                 gFloorY[3] = 0;
             }
-            w->unk2C = ratan2(-gFloorY[3], gFloorY[2]);
-            w->unk30 = ratan2(-gFloorY[1], gFloorY[2]);
-            UpdateObjectEntry(&gObjectModels[w->unk36], (Trap *)w);
+            w->lightAngle = ratan2(-gFloorY[3], gFloorY[2]);
+            w->lightAngle2 = ratan2(-gFloorY[1], gFloorY[2]);
+            UpdateObjectEntry(&gObjectModels[w->model], (Trap *)w);
             for (i = 1; i < gPlaceCount; i++) {
                 /* MATCHING: an integer sum puts the index first in the addu. */
                 r = (EditorTrap *)(i * sizeof(EditorTrap) + (u32)w);
-                gLocalPos.vx = r->unkC[0];
-                gLocalPos.vy = r->unkC[1];
-                gLocalPos.vz = r->unkC[2];
-                TransformByCoord((GsCOORDINATE2 *)gObjectModels[w->unk36].unk10, &gLocalPos, &gWorldPos);
-                r->unk0[0] = gWorldPos.vx;
-                r->unk0[1] = gWorldPos.vy;
-                r->unk0[2] = gWorldPos.vz;
-                r->unk1A = w->unk1A + r->unk20;
-                r->unk2C = w->unk2C;
-                r->unk30 = w->unk30;
-                UpdateObjectEntry(&gObjectModels[r->unk36], (Trap *)r);
+                gLocalPos.vx = r->home[0];
+                gLocalPos.vy = r->home[1];
+                gLocalPos.vz = r->home[2];
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[w->model].unk10, &gLocalPos, &gWorldPos);
+                r->pos[0] = gWorldPos.vx;
+                r->pos[1] = gWorldPos.vy;
+                r->pos[2] = gWorldPos.vz;
+                r->rotY = w->rotY + r->homeRotY;
+                r->lightAngle = w->lightAngle;
+                r->lightAngle2 = w->lightAngle2;
+                UpdateObjectEntry(&gObjectModels[r->model], (Trap *)r);
             }
             break;
     }
@@ -2247,7 +2247,7 @@ s32 EditorPickRecord(void) {
     i = 0;
     sTotals.trapCount = 0;
     for (; i < 200; i++) {
-        if (((EditorTrap *)gTraps)[i].unk36 != -1) {
+        if (((EditorTrap *)gTraps)[i].model != -1) {
             sTotals.trapCount++;
         }
     }
@@ -2265,10 +2265,10 @@ s32 EditorPickRecord(void) {
              * rebuilt every pass. */
             for (i = 0; i < 200; i++) {
                 r = &((EditorTrap *)gTraps)[i];
-                if (r->unk36 != -1) {
-                    at.vx = r->unk0[0];
-                    at.vy = r->unk0[1];
-                    at.vz = r->unk0[2];
+                if (r->model != -1) {
+                    at.vx = r->pos[0];
+                    at.vy = r->pos[1];
+                    at.vz = r->pos[2];
                     d = DistanceSquared(&pos, &at);
                     if (d < best) {
                         sTotals.trapNo = i;
@@ -2283,20 +2283,20 @@ s32 EditorPickRecord(void) {
             }
             break;
         case 1:
-            sTotals.trapSwitch = ((EditorTrap *)gTraps)[sTotals.trapNo].unk34;
-            sel.vx = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[0];
-            sel.vy = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[1];
-            sel.vz = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[2];
+            sTotals.trapSwitch = ((EditorTrap *)gTraps)[sTotals.trapNo].switchNo;
+            sel.vx = ((EditorTrap *)gTraps)[sTotals.trapNo].pos[0];
+            sel.vy = ((EditorTrap *)gTraps)[sTotals.trapNo].pos[1];
+            sel.vz = ((EditorTrap *)gTraps)[sTotals.trapNo].pos[2];
             DrawPin(&sel);
             if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
-                ((EditorTrap *)gTraps)[sTotals.trapNo].unk36 = -1;
+                ((EditorTrap *)gTraps)[sTotals.trapNo].model = -1;
             }
             if (gPadTrig & PADL2) {
                 if (--sTotals.trapNo >= 200) {
                     sTotals.trapNo = 199;
                 }
-                while (((EditorTrap *)gTraps)[sTotals.trapNo].unk36 == -1) {
+                while (((EditorTrap *)gTraps)[sTotals.trapNo].model == -1) {
                     if (--sTotals.trapNo >= 200) {
                         sTotals.trapNo = 199;
                     }
@@ -2307,7 +2307,7 @@ s32 EditorPickRecord(void) {
                 if (++sTotals.trapNo >= 200) {
                     sTotals.trapNo = 199;
                 }
-                while (((EditorTrap *)gTraps)[sTotals.trapNo].unk36 == -1) {
+                while (((EditorTrap *)gTraps)[sTotals.trapNo].model == -1) {
                     if (++sTotals.trapNo >= 200) {
                         sTotals.trapNo = 0;
                     }
@@ -3291,9 +3291,9 @@ void ResetTraps(Trap *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        recs->unk36 = -1;
-        recs->unk38 = -1;
-        recs->unk34 = -1;
+        recs->model = -1;
+        recs->hook = -1;
+        recs->switchNo = -1;
         recs->unk41 = 1;
         recs++;
     }
@@ -3306,8 +3306,8 @@ void ResetTrapUpper(Trap *recs) {
 
     r = &recs[150];
     for (i = 150; i < 200; i++) {
-        r->unk36 = -1;
-        r->unk34 = -1;
+        r->model = -1;
+        r->switchNo = -1;
         r->unk41 = 1;
         r++;
     }
@@ -3408,8 +3408,8 @@ void ApplyRecordsToEntries(void) {
 
     for (i = 0; i < 200; i++) {
         r = &((Trap *)gTraps)[i];
-        if (r->unk36 != -1 && sTotals.trapSwitch == r->unk34) {
-            UpdateObjectEntry(&gObjectModels[r->unk36], r);
+        if (r->model != -1 && sTotals.trapSwitch == r->switchNo) {
+            UpdateObjectEntry(&gObjectModels[r->model], r);
         }
     }
 }

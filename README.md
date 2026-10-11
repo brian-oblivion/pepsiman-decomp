@@ -9,13 +9,31 @@ toolchain the game was built with, into an executable that is
 
 ## Status
 
-Early. The executable rebuilds byte for byte. Sony's library code is linked
-from Sony's own Psy-Q objects; the game's code is one unit, `src/main.c`,
-almost all of it still `INCLUDE_ASM`. To measure:
+Every game function is C and the executable rebuilds byte for byte. Sony's
+library code is linked from Sony's own Psy-Q objects. The work now is
+readability: names, types and constants. To measure:
 
 ```sh
-python3 tools/progress.py
+python3 tools/progress.py      # matching
+python3 tools/readability.py   # what still reads like a decompiler's output
 ```
+
+## The source
+
+| file | what it holds |
+| --- | --- |
+| `src/main.c` | `main` and its game-mode loop, frame end, CD loader, pads and rumble, load screens |
+| `src/stage_flow.c` | playing a stage: pause, reset, restart, the effect pool, the stage overlay dispatch |
+| `src/stage_overlay.c` | per-stage overlay loading and entry points, stage tables |
+| `src/stage.c` | stage models and sections, the HUD, the camera, results screens, effect steps |
+| `src/player.c` | the player: steering, speed, jump, slide, hit reactions, the miss sequence |
+| `src/object.c` | stage objects, floor and wall queries, paths, pickups, two debug viewers |
+| `src/collision.c` | the player's collision points, spheres and quads |
+| `src/model.c` | TIM and TOD (animation) players, CD audio tracks, lights, sky, the motion viewer |
+| `src/draw.c`, `src/draw_tmd.c` | sprites and billboards, the TMD polygon handlers; the overlay loader |
+| `src/sound.c` | SEQ/VAB sound, fades, XA, and the streamed-movie player |
+| `src/card.c` | memory card files |
+| `src/editor.c`, `src/hit_tool.c` | the developers' stage-object editor and hit-data tool, still in the retail build |
 
 ## What is and is not in this repository
 
@@ -73,7 +91,7 @@ segmentation, measured from the bytes:
 | file offset | vram | what |
 | --- | --- | --- |
 | `0x800` | `0x80010000` | read-only data: strings, jump tables |
-| `0x396C` | `0x8001316C` | game code (`src/main.c`) |
+| `0x396C` | `0x8001316C` | game code (`src/`) |
 | `0x33458` | `0x80042C58` | Sony: SN's crt0 (the entry point), then the Psy-Q 4.4 objects, to `0x80072484` |
 | `0x62C84` | `0x80072484` | initialized data |
 | `0x85CC4` | `0x800954C4` | `.sdata` (gp-relative) |
@@ -82,7 +100,6 @@ segmentation, measured from the bytes:
 Sony's objects are listed in `config/psyq-objects.txt` and linked from
 `lib/`; two pieces stay disassembly (SN's crt0, which the object converter
 cannot read, and `libgs/gs_001`, whose `.bss` Sony's linker scattered).
-Carving the game's code into its source files is the next job.
 
 ## Changing the code and keeping it matching
 

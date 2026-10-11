@@ -350,7 +350,7 @@ extern s16 gSectionCount; /**< number of entries; 2 units */
 extern s16 gViewerAngle;  /**< the view's orbit angle, in degrees; 2 units */
 extern s32 gSection;      /**< stamped on placed records; 2 units */
 extern u16 gSubStep;      /**< a state switched on in main; cleared after placing; 2 units */
-extern s16 gToolMode;     /**< an error code; cleared when flag bit 6 is set; 2 units */
+extern s16 gToolMode;     /**< the editor's EditorMode or the hit tool's ToolMode */
 extern s32 gFloorIndex; /**< the floor under the player, from FindFloor; the hint FindFloorNear starts from */
 extern s32 gTmdSortMode; /**< SetTmdSortMode's argument for the models */
 

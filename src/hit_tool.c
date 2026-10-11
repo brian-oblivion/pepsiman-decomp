@@ -60,8 +60,25 @@ typedef struct {
 HitPoint *GetHitPoint(s32 idx, s32 sub);
 HitQuad *GetHitQuad(s32 idx, s32 sub);
 
+/** @brief What the hit tool places, gToolKind: the first two lines of its menu. */
+enum ToolKind {
+    TK_BALL = 0, /**< "BALL HIT": HitPoint spheres */
+    TK_RIDE = 1  /**< "RIDE HIT": HitQuad boxes */
+};
 
-extern u8 gToolKind; /**< state of that dispatch: 0 or 1 */
+/** @brief The hit tool's modes, gToolMode. */
+enum ToolMode {
+    TM_MOVE = 0,       /**< moves the cursor and places */
+    TM_MENU = 1,       /**< the menu */
+    TM_BALL_SEL = 2,   /**< "HIT SEL": a ball hit's size and type */
+    TM_PICK_POINT = 3, /**< DELETE or INFO on ball hits */
+    TM_RIDE_START = 4, /**< starts a new ride hit, then back to TM_MOVE */
+    TM_PICK_QUAD = 5,  /**< DELETE or INFO on ride hits */
+    TM_VIEW_MOVE = 6,  /**< the view moves to a preset */
+    TM_DATA = 7        /**< "DATA MODE": the memory card screen */
+};
+
+extern u8 gToolKind; /**< what is placed, a ToolKind */
 
 extern s16 gToolSection; /**< current index, clamped to the entry count */
 
@@ -284,14 +301,14 @@ void UpdateTool(void) {
             gToolViewPreset = 0;
             sToolModeSaved = 0;
             gToolSection = 0;
-            gToolKind = 0;
+            gToolKind = TK_BALL;
             gToolPointIndex = 0;
             D_80095A5C = 0;
             gToolQuadIndex = 0;
             D_80095A40 = 0;
             sToolPickMode = 0;
             sToolInfoMode = 0;
-            gToolMode = 0;
+            gToolMode = TM_MOVE;
             gMenuLine = 0;
             gEditValue = 0;
             gRepeatButtonsOn = 1;
@@ -299,43 +316,43 @@ void UpdateTool(void) {
             break;
         case 1:
             switch ((u16)gToolMode) {
-                case 0:
+                case TM_MOVE:
                     MoveToolCursor();
                     ToolPlace();
-                    if (gToolKind == 1 && (gPadTrig & PADRdown)) {
+                    if (gToolKind == TK_RIDE && (gPadTrig & PADRdown)) {
                         gToolQuadStage = 0;
                     }
                     break;
-                case 1:
+                case TM_MENU:
                     UpdateToolMenu();
                     break;
-                case 2:
+                case TM_BALL_SEL:
                     EditToolValues();
                     break;
-                case 3:
+                case TM_PICK_POINT:
                     EditHitPoints();
                     break;
-                case 4:
+                case TM_RIDE_START:
                     gToolQuadStage = 0;
-                    gToolMode = 0;
+                    gToolMode = TM_MOVE;
                     break;
-                case 5:
+                case TM_PICK_QUAD:
                     EditHitQuads();
                     break;
-                case 6:
+                case TM_VIEW_MOVE:
                     break;
-                case 7:
+                case TM_DATA:
                     UpdateToolCard();
                     break;
             }
             PrintToolStatus();
             CycleToolStep();
             RefreshToolPreview();
-            if ((u16)(gToolMode - 6) >= 2) {
+            if ((u16)(gToolMode - TM_VIEW_MOVE) >= 2) { /* neither TM_VIEW_MOVE nor TM_DATA */
                 SelectToolView();
             }
             UpdateToolView();
-            if (gToolKind == 1 && gToolQuadStage == 1) {
+            if (gToolKind == TK_RIDE && gToolQuadStage == 1) {
                 DrawHitQuad(&gToolNewQuad);
                 SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, gToolQuadW, gToolQuadH);
             }
@@ -343,7 +360,7 @@ void UpdateTool(void) {
                 SelectToolSection();
                 DrawToolPin((VECTOR *)&gPlayer.x);
                 DrawToolPole((VECTOR *)&gPlayer.x);
-                if (gToolKind == 0) {
+                if (gToolKind == TK_BALL) {
                     DrawToolRadius((VECTOR *)&gPlayer.x, (s16)gToolRadius * 10);
                 }
             }
@@ -392,7 +409,7 @@ void MoveToolCursor(void) {
     }
     if (gPadTrig & PADRup) {
         gToolQuadStage = 0;
-        gToolMode = 1;
+        gToolMode = TM_MENU;
     }
 }
 
@@ -407,7 +424,7 @@ void UpdateToolMenu(void) {
                 gEditMax = 0x33;
                 gMenuLineCount = 2;
                 gMenuLine = 0;
-                gToolMode = 2;
+                gToolMode = TM_BALL_SEL;
                 sToolPickMode = 0;
                 sToolInfoMode = 0;
                 gEditValue = gToolRadius;
@@ -416,7 +433,7 @@ void UpdateToolMenu(void) {
                 gToolKind = gMenuLine;
                 gMenuLine = 0;
                 gEditValue = 0;
-                gToolMode = 4;
+                gToolMode = TM_RIDE_START;
                 sToolPickMode = 0;
                 sToolInfoMode = 0;
                 break;
@@ -430,23 +447,23 @@ void UpdateToolMenu(void) {
                 gSubStep = 0;
                 if (sToolPickMode == 1) {
                     switch (gToolKind) {
-                        case 0:
-                            gToolMode = 3;
+                        case TK_BALL:
+                            gToolMode = TM_PICK_POINT;
                             break;
-                        case 1:
-                            gToolMode = 5;
+                        case TK_RIDE:
+                            gToolMode = TM_PICK_QUAD;
                             break;
                     }
                 }
                 break;
             case 4:
                 gSubStep = 0;
-                gToolMode = 7;
+                gToolMode = TM_DATA;
                 break;
         }
     }
     if (gPadTrig & PADRdown) {
-        gToolMode = 0;
+        gToolMode = TM_MOVE;
     }
 }
 
@@ -481,10 +498,10 @@ void PrintToolStatus(void) {
     FntPrint(sHitPosFmt, gPlayer.x, gPlayer.y, gPlayer.z);
     FntPrint(sHitItemText);
     switch (gToolKind) {
-        case 0:
+        case TK_BALL:
             FntPrint(sHitBallHitText);
             break;
-        case 1:
+        case TK_RIDE:
             FntPrint(sHitRideHitText);
             break;
     }
@@ -496,18 +513,18 @@ void PrintToolStatus(void) {
     FntPrint(sHitNewlines6);
     if (sToolInfoMode == 1) {
         switch (gToolKind) {
-            case 0:
+            case TK_BALL:
                 FntPrint(sHitRadiusFmt, gToolPoint->radius);
                 FntPrint(sHitInfoTypeFmt, gToolPoint->type);
                 FntPrint(sHitInfoPosFmt, -gToolPoint->x, gToolPoint->y, -gToolPoint->z);
                 break;
-            case 1:
+            case TK_RIDE:
                 FntPrint(sHitNoSupportText);
                 break;
         }
     }
     switch ((u16)gToolMode) {
-        case 1:
+        case TM_MENU:
             sToolPickMode = 0;
             sToolInfoMode = 0;
             if (gMenuLine == 0) {
@@ -547,7 +564,7 @@ void PrintToolStatus(void) {
             FntPrint(sHitMenuDataText);
             SortSemiQuad(0x2821, 60, -68, 140, -68, 140, 12, 60, 12, 0);
             break;
-        case 2:
+        case TM_BALL_SEL:
             FntPrint(sHitNewlines5);
             PrintTabs(3);
             FntPrint(sHitHitSelText);
@@ -567,7 +584,7 @@ void PrintToolStatus(void) {
             FntPrint(sHitTypeFmt, gToolType);
             SortSemiQuad(0x2821, -80, -30, 80, -30, 80, 30, -80, 30, 0);
             break;
-        case 7:
+        case TM_DATA:
             PrintToolCardMenu();
             break;
     }
@@ -728,7 +745,7 @@ void EditHitPoints(void) {
             e = bank->entries;
             e += gToolSection;
             if (e->count == 0) {
-                gToolMode = 0;
+                gToolMode = TM_MOVE;
                 sToolPickMode = 0;
             }
             if (gPadTrig & PADR1) {
@@ -748,7 +765,7 @@ void EditHitPoints(void) {
             gToolPoint = rec;
             pos.vz = -rec->z;
             if (gPadTrig & PADRdown) {
-                gToolMode = 0;
+                gToolMode = TM_MOVE;
                 sToolPickMode = 0;
             }
             if (sToolInfoMode != 1 && (gPadTrig & PADRright)) {
@@ -803,7 +820,7 @@ void EditHitQuads(void) {
             e = bank->entries;
             e += gToolSection;
             if (e->count == 0) {
-                gToolMode = 0;
+                gToolMode = TM_MOVE;
                 sToolPickMode = 0;
             }
             if (gPadTrig & PADR1) {
@@ -823,7 +840,7 @@ void EditHitQuads(void) {
             gToolQuad = rec;
             pos.vz = -rec->pts[0].z;
             if (gPadTrig & PADRdown) {
-                gToolMode = 0;
+                gToolMode = TM_MOVE;
                 sToolPickMode = 0;
             }
             if (sToolInfoMode != 1 && (gPadTrig & PADRright)) {
@@ -867,25 +884,25 @@ void SelectToolView(void) {
     if (flags & PADL2) {
         gToolViewPreset++;
         sToolModeSaved = gToolMode;
-        gToolMode = 6;
+        gToolMode = TM_VIEW_MOVE;
         gToolViewStep = 0;
     }
     if (flags & PADR2) {
         gToolViewPreset--;
         sToolModeSaved = gToolMode;
-        gToolMode = 6;
+        gToolMode = TM_VIEW_MOVE;
         gToolViewStep = 0;
     }
     if (flags & PADRleft) {
         gToolZoom++;
         sToolModeSaved = gToolMode;
-        gToolMode = 6;
+        gToolMode = TM_VIEW_MOVE;
         gToolViewStep = 0;
     }
     if (flags & PADRdown) {
         gToolZoom--;
         sToolModeSaved = gToolMode;
-        gToolMode = 6;
+        gToolMode = TM_VIEW_MOVE;
         gToolViewStep = 0;
     }
     v = gToolZoom;
@@ -1151,7 +1168,7 @@ s32 UpdateToolCard(void) {
             break;
         case 2:
             CloseCardEvents();
-            gToolMode = 0;
+            gToolMode = TM_MOVE;
             break;
     }
 }
@@ -1491,7 +1508,7 @@ void ResetTool(void) {
     gToolViewPreset = 0;
     sToolModeSaved = 0;
     gToolSection = 0;
-    gToolKind = 0;
+    gToolKind = TK_BALL;
     gToolPointIndex = 0;
     D_80095A5C = 0;
     gToolQuadIndex = 0;
@@ -1524,10 +1541,10 @@ void ClearHitQuads(void) {
 void ToolPlace(void) {
     if (gPadTrig & PADRright) {
         switch (gToolKind) {
-            case 0:
+            case TK_BALL:
                 InsertHitPoint();
                 break;
-            case 1:
+            case TK_RIDE:
                 PlaceHitQuad();
                 break;
         }
@@ -1632,7 +1649,7 @@ void EditToolValues(void) {
         }
     }
     if (gPadTrig & PADRdown) {
-        gToolMode = 0;
+        gToolMode = TM_MOVE;
     }
 }
 

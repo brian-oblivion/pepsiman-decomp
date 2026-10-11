@@ -34,10 +34,35 @@ typedef struct {
     u8 unk38[4];  /**< not yet known */
 } StageSprite;
 
+/** @brief The editor's modes, gToolMode, named from each screen's title. */
+enum EditorMode {
+    ED_MOVE = 0,       /**< "MOVE MODE": moves the cursor, places or picks */
+    ED_MENU = 1,       /**< "MENU MODE" */
+    ED_PEPSI_SEL = 2,  /**< "PEPSI SEL MODE": the can group */
+    ED_SWITCH_SEL = 3, /**< "SWITCH SEL MODE" */
+    ED_TRAP_SEL = 4,   /**< "TRAP SEL MODE" */
+    ED_SPRITE_SEL = 5, /**< "SPR SEL MODE" */
+    ED_DATA = 6,       /**< "DATA MODE": the memory card screen */
+    ED_NO_GROUND = 7,  /**< warning: no ground hit here, nothing can be placed */
+    ED_FULL = 8,       /**< warning: the buffer is full */
+    ED_EMPTY = 9,      /**< warning: the buffer is empty, nothing to delete */
+    ED_NONE_HERE = 10, /**< warning: nothing in this area to delete */
+    ED_NONE_NEAR = 11  /**< warning: no trap or switch near enough to erase */
+};
+
+/** @brief What the editor places and picks, EditorState.kind: the first
+ *         four lines of its menu. */
+enum EditKind {
+    EK_PEPSI = 0,  /**< Pepsi can points */
+    EK_SWITCH = 1, /**< switch boxes */
+    EK_TRAP = 2,   /**< traps */
+    EK_SPRITE = 3  /**< stage sprites */
+};
+
 /** @brief The tool state block: counts, totals and saved menu values. */
 typedef struct {
     u8 unk0[3];  /**< not yet known */
-    u8 unk3;     /**< the menu line the tool mode was entered from */
+    u8 kind;     /**< what is placed and picked, an EditKind */
     s32 unk4;    /**< a step: the move distance and the height step */
     s32 unk8;    /**< a height offset added to the ground height */
     s32 unkC;    /**< a height offset added to the camera's y */
@@ -51,15 +76,15 @@ typedef struct {
     u16 unk1E;   /**< matched against a Trap's unk34 */
     s16 unk20;   /**< an angle in degrees, wrapped to 0..359 */
     u16 unk22;   /**< the selected point of the current entry */
-    u16 canGroup; /**< the group the next can gets, less one; the edited value saved for tool mode 2 */
-    u16 unk26;    /**< a sum over the current block's entries */
-    u16 unk28;    /**< the StageSprite slot the next record goes to */
-    u16 unk2A;    /**< matched against a StageSprite's unk2C */
-    u16 unk2C;    /**< a StageSprite kind, less 30 */
-    u16 unk2E;    /**< a height base for the StageSprite template */
-    u16 unk30;    /**< number of StageSprite records in use */
-    u16 unk32;    /**< picks one of two StageSprite handlers */
-    u16 unk34;    /**< negates the StageSprite template's height when set */
+    u16 canGroup; /**< the group the next can gets, less one; the edited value saved for ED_PEPSI_SEL */
+    u16 unk26;      /**< a sum over the current block's entries */
+    u16 unk28;      /**< the StageSprite slot the next record goes to */
+    u16 unk2A;      /**< matched against a StageSprite's unk2C */
+    u16 unk2C;      /**< a StageSprite kind, less 30 */
+    u16 unk2E;      /**< a height base for the StageSprite template */
+    u16 unk30;      /**< number of StageSprite records in use */
+    u16 unk32;      /**< picks one of two StageSprite handlers */
+    u16 unk34;      /**< negates the StageSprite template's height when set */
     u8 unk36[0x32]; /**< not yet known */
     u8 unk68;       /**< copied into a placed record's unk42 */
     u8 unk69;       /**< copied into a placed record's unk43 */
@@ -624,7 +649,7 @@ s32 UpdateEditor(void) {
     switch (gModeStep) {
         case 0:
             ResetGameState((Trap *)0x8016D000);
-            gToolMode = 0;
+            gToolMode = ED_MOVE;
             ResetStageOverlay();
             gRepeatButtonsOn = 1;
             gModeStep++;
@@ -635,44 +660,44 @@ s32 UpdateEditor(void) {
                 gCanGroupOn[i] = 1;
             }
             ShowRevealedCans();
-            /* MATCHING: the s16 error code switched as u16 (lhu). */
+            /* MATCHING: the s16 mode switched as u16 (lhu). */
             switch ((u16)gToolMode) {
-                case 0:
+                case ED_MOVE:
                     EditorFreeMove();
                     if (D_800958D8 == 0) {
-                        switch (sTotals.unk3) {
-                            case 0:
+                        switch (sTotals.kind) {
+                            case EK_PEPSI:
                                 EditorInsertPoint();
                                 break;
-                            case 1:
+                            case EK_SWITCH:
                                 EditorPlaceBox();
                                 TestBoxes();
                                 break;
-                            case 2:
+                            case EK_TRAP:
                                 EditorPlaceRecords();
                                 EditorArrangeRecords();
                                 break;
-                            case 3:
+                            case EK_SPRITE:
                                 EditorPlaceSprite();
                                 break;
                         }
                     } else {
-                        switch (sTotals.unk3) {
-                            case 0:
+                        switch (sTotals.kind) {
+                            case EK_PEPSI:
                                 EditorEditPoints();
                                 break;
-                            case 1:
+                            case EK_SWITCH:
                                 EditorPickBox();
                                 TestBoxes();
                                 break;
-                            case 2:
+                            case EK_TRAP:
                                 EditorPickRecord();
                                 if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
                                     gPlayer.x = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[0];
                                     gPlayer.y = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[1];
                                     gPlayer.z = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[2];
                                     sTotals.unk1C = ((EditorTrap *)gTraps)[sTotals.unk18].unk38;
-                                    gToolMode = 4;
+                                    gToolMode = ED_TRAP_SEL;
                                     sTotals.unk1E = ((EditorTrap *)gTraps)[sTotals.unk18].unk34;
                                     sTotals.unk68 = ((EditorTrap *)gTraps)[sTotals.unk18].unk42;
                                     sTotals.unk69 = ((EditorTrap *)gTraps)[sTotals.unk18].unk43;
@@ -692,14 +717,14 @@ s32 UpdateEditor(void) {
                                     gEditValue = sTotals.unk18;
                                 }
                                 break;
-                            case 3:
+                            case EK_SPRITE:
                                 EditorPickSprite();
                                 if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
                                     gPlayer.x = gStageSprites[sTotals.unk28].unk4[0];
                                     gPlayer.y = gStageSprites[sTotals.unk28].unk4[1];
                                     gPlayer.z = gStageSprites[sTotals.unk28].unk4[2];
                                     sTotals.unk2C = gStageSprites[sTotals.unk28].unk0 - 30;
-                                    gToolMode = 5;
+                                    gToolMode = ED_SPRITE_SEL;
                                     sTotals.unk2A = gStageSprites[sTotals.unk28].unk2C;
                                     sTotals.unk6D = gStageSprites[sTotals.unk28].unk28;
                                     sTotals.unk6C = gStageSprites[sTotals.unk28].unk27;
@@ -715,59 +740,59 @@ s32 UpdateEditor(void) {
                         }
                     }
                     if (gPadTrig & PADRup) {
-                        gToolMode = 1;
+                        gToolMode = ED_MENU;
                         gEditValue = 0;
                         gMenuLine = 0;
                     }
                     break;
-                case 1:
+                case ED_MENU:
                     UpdateEditorMenu();
                     if (gPadTrig & PADRdown) {
                         if (gMenuLine == 2) {
                             gSubStep = 0;
                         }
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                     }
                     break;
-                case 2:
+                case ED_PEPSI_SEL:
                     func_80033B08();
                     if (gPadTrig & PADRdown) {
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                     }
                     break;
-                case 3:
+                case ED_SWITCH_SEL:
                     RunValueMenu();
                     if (gPadTrig & PADRdown) {
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                     }
                     break;
-                case 4:
+                case ED_TRAP_SEL:
                     EditorEditRecordValues();
                     EditorArrangeRecords();
                     if (gPadTrig & PADRdown) {
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                     }
                     break;
-                case 5:
+                case ED_SPRITE_SEL:
                     EditorEditSpriteValues();
                     if (gPadTrig & PADRdown) {
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                     }
                     break;
-                case 6:
+                case ED_DATA:
                     UpdateEditorData();
                     break;
-                case 7:
-                case 8:
+                case ED_NO_GROUND:
+                case ED_FULL:
                     if (gPadTrig & PADRdown) {
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                     }
                     break;
-                case 9:
-                case 10:
-                case 11:
+                case ED_EMPTY:
+                case ED_NONE_HERE:
+                case ED_NONE_NEAR:
                     if (gPadTrig & PADRdown) {
-                        gToolMode = 0;
+                        gToolMode = ED_MOVE;
                         D_800958D8 = 0;
                         D_800959D8 = 0;
                     }
@@ -962,17 +987,17 @@ s32 PrintEditorStatus(void) {
     FntPrint(sEdTrapNoFmt, sTotals.unk1A, 200);
     FntPrint(sEdPepsiNoFmt, sTotals.unk26, 200);
     FntPrint(sEdItemText);
-    switch (sTotals.unk3) {
-        case 0:
+    switch (sTotals.kind) {
+        case EK_PEPSI:
             FntPrint(sEdPepsiFmt, sTotals.canGroup + 1);
             break;
-        case 1:
+        case EK_SWITCH:
             FntPrint(sEdSwitchFmt, sTotals.unk12);
             break;
-        case 2:
+        case EK_TRAP:
             FntPrint(sEdTrapFmt, sTotals.unk18);
             break;
-        case 3:
+        case EK_SPRITE:
             FntPrint(sEdSpriteFmt, sTotals.unk28);
             break;
     }
@@ -993,12 +1018,12 @@ s32 PrintEditorStatus(void) {
     }
     FntPrint(sEdColorWhite);
     switch ((u16)gToolMode) {
-        case 0:
+        case ED_MOVE:
             PrintTabs(5);
             FntPrint(sEdMoveModeText);
             PrintEditorCaption();
             break;
-        case 1:
+        case ED_MENU:
             gEditMax = 1;
             gMenuLineCount = 8;
             PrintTabs(5);
@@ -1062,7 +1087,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdMenuDataText);
             SortSemiQuad(0x421, 60, -68, 130, -68, 130, 12, 60, 12, 0);
             break;
-        case 2:
+        case ED_PEPSI_SEL:
             PrintTabs(4);
             FntPrint(sEdPepsiSelModeText);
             FntPrint(sEdNewlines9);
@@ -1072,7 +1097,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdPepsiTypeRangeFmt, sTotals.canGroup + 1);
             SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
-        case 3:
+        case ED_SWITCH_SEL:
             PrintTabs(4);
             FntPrint(sEdSwitchSelModeText);
             FntPrint(sEdNewlines8);
@@ -1107,7 +1132,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdSwitchTypeRangeFmt, sTotals.unk14, 2);
             SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
-        case 4:
+        case ED_TRAP_SEL:
             PrintTabs(4);
             FntPrint(sEdTrapSelModeText);
             if (D_800959D8 == 0) {
@@ -1189,7 +1214,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdAngleRangeFmt, sTotals.unk20);
             SortSemiQuad(0x421, -100, -30, 100, -30, 100, 56, -100, 56, 0);
             break;
-        case 5:
+        case ED_SPRITE_SEL:
             PrintTabs(4);
             FntPrint(sEdSpriteSelModeText);
             FntPrint(sEdNewlines5);
@@ -1331,10 +1356,10 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdAngleRangeFmt, sTotals.unk6A);
             SortSemiQuad(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
             break;
-        case 6:
+        case ED_DATA:
             PrintEditorData();
             break;
-        case 7:
+        case ED_NO_GROUND:
             FntPrint(sEdNewlines3);
             PrintTabs(3);
             FntPrint(sEdWarningText);
@@ -1358,7 +1383,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
-        case 8:
+        case ED_FULL:
             FntPrint(sEdNewlines3);
             PrintTabs(3);
             FntPrint(sEdWarningText);
@@ -1388,7 +1413,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
-        case 9:
+        case ED_EMPTY:
             FntPrint(sEdNewlines3);
             PrintTabs(3);
             FntPrint(sEdWarningText);
@@ -1415,7 +1440,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
-        case 10:
+        case ED_NONE_HERE:
             FntPrint(sEdNewlines3);
             PrintTabs(3);
             FntPrint(sEdWarningText);
@@ -1442,7 +1467,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
-        case 11:
+        case ED_NONE_NEAR:
             FntPrint(sEdNewlines3);
             PrintTabs(3);
             FntPrint(sEdWarningText);
@@ -1482,17 +1507,17 @@ void PrintEditorCaption(void) {
     if (D_800959D8 != 1) {
         return;
     }
-    switch (sTotals.unk3) {
-        case 0:
+    switch (sTotals.kind) {
+        case EK_PEPSI:
             e = (Span8 *)gCanSpans;
             e += gCurBlock;
             FntPrint(sEdCanNoFmt, sTotals.unk22);
             FntPrint(sEdCanNumFmt, e->count);
             break;
-        case 1:
+        case EK_SWITCH:
             FntPrint(sEdInfoSwitchNoFmt, sTotals.unk12);
             break;
-        case 2:
+        case EK_TRAP:
             FntPrint(sEdInfoTrapNoFmt, sTotals.unk18);
             if (((EditorTrap *)gTraps)[sTotals.unk18].unk38 != -1) {
                 FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.unk18].unk38);
@@ -1506,7 +1531,7 @@ void PrintEditorCaption(void) {
             FntPrint(sEdInfoTypeFmt, r[sTotals.unk18].unk42);
             FntPrint(sEdInfoActFmt, r[sTotals.unk18].unk43);
             break;
-        case 3:
+        case EK_SPRITE:
             FntPrint(sEdInfoSpriteFmt, sTotals.unk28);
             FntPrint(sEdInfoSpriteModelFmt, gStageSprites[sTotals.unk28].unk0 - 30);
             FntPrint(sEdInfoSpriteSwitchFmt, gStageSprites[sTotals.unk28].unk2C);
@@ -1573,42 +1598,42 @@ s32 UpdateEditorMenu(void) {
                 gMenuLineCount = 1;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = gMenuLine;
+                sTotals.kind = gMenuLine;
                 gEditValue = sTotals.canGroup;
                 gMenuLine = 0;
-                gToolMode = 2;
+                gToolMode = ED_PEPSI_SEL;
                 break;
             case 1:
                 gEditMax = 200;
                 gMenuLineCount = 2;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = gMenuLine;
+                sTotals.kind = gMenuLine;
                 gEditValue = sTotals.unk12;
                 gMenuLine = 0;
-                gToolMode = 3;
+                gToolMode = ED_SWITCH_SEL;
                 break;
             case 2:
                 gEditMax = 200;
                 gMenuLineCount = 5;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = gMenuLine;
+                sTotals.kind = gMenuLine;
                 gEditValue = sTotals.unk18;
                 gMenuLine = 0;
                 gSubStep = 0;
-                gToolMode = 4;
+                gToolMode = ED_TRAP_SEL;
                 break;
             case 3:
                 gEditMax = 100;
                 gMenuLineCount = 9;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = gMenuLine;
+                sTotals.kind = gMenuLine;
                 gEditValue = sTotals.unk28;
                 gMenuLine = 0;
                 gSubStep = 0;
-                gToolMode = 5;
+                gToolMode = ED_SPRITE_SEL;
                 break;
             case 4:
                 D_800958D8 = 1;
@@ -1620,10 +1645,10 @@ s32 UpdateEditorMenu(void) {
                 /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
                 D_800958D8 = D_800959D8 != 0;
                 gSubStep = 0;
-                gToolMode = 0;
+                gToolMode = ED_MOVE;
                 break;
             case 6:
-                gToolMode = 0;
+                gToolMode = ED_MOVE;
                 gPlayer.x = gCourse.x;
                 gPlayer.y = gCourse.y;
                 gPlayer.z = gCourse.z;
@@ -1633,7 +1658,7 @@ s32 UpdateEditorMenu(void) {
                 gView[1] = (s16)(gCourse.y - 500);
                 break;
             case 7:
-                gToolMode = 6;
+                gToolMode = ED_DATA;
                 gSubStep = 0;
                 break;
         }
@@ -1722,7 +1747,7 @@ s32 EditorFreeMove(void) {
     }
     gPlayer.y = gFloorY[0] + sTotals.unk8;
     if (D_800958D8 == 0 && (gPadTrig & PADRright) && cur == -1) {
-        gToolMode = 7;
+        gToolMode = ED_NO_GROUND;
     }
 }
 
@@ -1741,9 +1766,9 @@ void EditorInsertPoint(void) {
 
     if (gPadTrig & PADRright) {
         if (sTotals.unk26 == 200) {
-            gToolMode = 8;
+            gToolMode = ED_FULL;
         } else if (gCurBlock == -1) {
-            gToolMode = 7;
+            gToolMode = ED_NO_GROUND;
         } else {
             e = (Span8 *)sCur.ents;
             e += gCurBlock;
@@ -1816,14 +1841,14 @@ s32 EditorEditPoints(void) {
     e = (Span8 *)gCanSpans;
     e += gCurBlock;
     if (e->count == 0 || gCurBlock == -1) {
-        gToolMode = 10;
+        gToolMode = ED_NONE_HERE;
         return;
     }
     if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
         e = (Span8 *)gCanSpans;
         e += gCurBlock;
         if (e->count == 0) {
-            gToolMode = 9;
+            gToolMode = ED_EMPTY;
             return;
         }
         e = (Span8 *)gCanSpans;
@@ -1885,7 +1910,7 @@ s32 EditorPlaceBox(void) {
         }
     }
     if (sTotals.unk16 == 200) {
-        gToolMode = 8;
+        gToolMode = ED_FULL;
         return;
     }
     if (sSwitches[sTotals.unk12].unk0 != -1) {
@@ -1895,7 +1920,7 @@ s32 EditorPlaceBox(void) {
             }
         }
         if (i == 200) {
-            gToolMode = 8;
+            gToolMode = ED_FULL;
             return;
         }
         sTotals.unk12 = i;
@@ -1907,7 +1932,7 @@ s32 EditorPlaceBox(void) {
     sSwitches[sTotals.unk12].unk0 = -1;
     if (gPadTrig & PADRright) {
         if (gCurBlock == -1) {
-            gToolMode = 7;
+            gToolMode = ED_NO_GROUND;
             return;
         }
         sSwitches[sTotals.unk12].unk0 = 0;
@@ -1917,7 +1942,7 @@ s32 EditorPlaceBox(void) {
             }
         }
         if (i == 200) {
-            gToolMode = 8;
+            gToolMode = ED_FULL;
             return;
         }
         sTotals.unk12 = i;
@@ -1952,7 +1977,7 @@ s32 EditorPickBox(void) {
     switch (gSubStep) {
         case 0:
             if (sTotals.unk16 == 0) {
-                gToolMode = 9;
+                gToolMode = ED_EMPTY;
                 break;
             }
             best = 25000000;
@@ -1975,7 +2000,7 @@ s32 EditorPickBox(void) {
                 }
             }
             if (best == 25000000) {
-                gToolMode = 11;
+                gToolMode = ED_NONE_NEAR;
             } else {
                 gSubStep++;
             }
@@ -2040,7 +2065,7 @@ void EditorPlaceRecords(void) {
         for (i = 0; (s32)i < gPlaceCount; i++) {
             w = &gPlaceQueue[i];
             if (n == 200) {
-                gToolMode = 8;
+                gToolMode = ED_FULL;
                 return;
             }
             w->unkC[0] = w->unk0[0];
@@ -2224,7 +2249,7 @@ s32 EditorPickRecord(void) {
     switch (gSubStep) {
         case 0:
             if (sTotals.unk1A == 0) {
-                gToolMode = 9;
+                gToolMode = ED_EMPTY;
                 break;
             }
             best = 25000000;
@@ -2247,7 +2272,7 @@ s32 EditorPickRecord(void) {
                 }
             }
             if (best == 25000000) {
-                gToolMode = 11;
+                gToolMode = ED_NONE_NEAR;
             } else {
                 gSubStep++;
             }
@@ -2436,7 +2461,7 @@ s32 EditorPlaceSprite(void) {
     }
     if (gPadTrig & PADRright) {
         if (sTotals.unk30 == 100) {
-            gToolMode = 8;
+            gToolMode = ED_FULL;
         } else {
             sSpriteTemplate.unk2C = sTotals.unk2A;
             sSpriteTemplate.unk0 = sTotals.unk2C + 30;
@@ -2466,7 +2491,7 @@ s32 EditorPlaceSprite(void) {
                     sTotals.unk28 = 0;
                 }
                 if (++i == 100) {
-                    gToolMode = 8;
+                    gToolMode = ED_FULL;
                     return;
                 }
             }
@@ -2524,7 +2549,7 @@ s32 EditorPickSprite(void) {
     switch (gSubStep) {
         case 0:
             if (sTotals.unk30 == 0) {
-                gToolMode = 9;
+                gToolMode = ED_EMPTY;
                 break;
             }
             best = 25000000;
@@ -2547,7 +2572,7 @@ s32 EditorPickSprite(void) {
                 }
             }
             if (best == 25000000) {
-                gToolMode = 11;
+                gToolMode = ED_NONE_NEAR;
             } else {
                 gSubStep++;
             }
@@ -2803,7 +2828,7 @@ s32 UpdateEditorData(void) {
             break;
         case 2:
             CloseCardEvents();
-            gToolMode = 0;
+            gToolMode = ED_MOVE;
             break;
     }
 }

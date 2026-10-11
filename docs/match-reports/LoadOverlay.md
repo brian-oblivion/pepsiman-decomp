@@ -15,23 +15,23 @@ jump table's 23 words.
 /* 44 one-word-or-larger data objects, each its own splat symbol, all
  * reached with lui/addiu (address) or lui/lw in different registers
  * (load): declared as arrays of unknown size. */
-extern s32 D_800761AC[];
+extern s32 sOverlay00Loc[];
 /* ... one `extern s32 D_800xxxxx[];` per symbol below ... */
 
 void LoadOverlay(s32 id) {
     /* MATCHING: s32 in stage_overlay's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
-            gCdLoadLoc[0] = (s32)D_800761AC;
-            gCdLoadSectors[0] = D_800761FC[0];
+            gCdLoadLoc[0] = (s32)sOverlay00Loc;
+            gCdLoadSectors[0] = sOverlay00Sectors[0];
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)D_800761B0;
-            gCdLoadSectors[0] = D_80076200[0];
+            gCdLoadLoc[0] = (s32)sOverlay02Loc;
+            gCdLoadSectors[0] = sOverlay02Sectors[0];
             break;
-        /* cases 3 to 17: address D_8007624C + 0x48 * (k - 3), word
-         * D_80076270 + 0x48 * (k - 3); cases 18 to 22: address D_800761D4
-         * + 8 * (k - 18), word D_80076224 + 8 * (k - 18) (the full list
+        /* cases 3 to 17: address sOverlay03Loc + 0x48 * (k - 3), word
+         * sOverlay03Sectors + 0x48 * (k - 3); cases 18 to 22: address sOverlay18Loc
+         * + 8 * (k - 18), word sOverlay18Sectors + 8 * (k - 18) (the full list
          * is in src/draw_tmd.c) */
     }
     gCdLoadDest[0] = 0x800F0000;

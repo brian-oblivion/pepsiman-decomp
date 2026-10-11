@@ -4,52 +4,52 @@
 #include "libgs.h"
 #include "gte.h"
 
-/* The per-case data of the selector at the end of this file: an address
- * it stores, and a word it copies. */
-extern s32 D_800761AC[];
-extern s32 D_800761B0[];
-extern s32 D_800761D4[];
-extern s32 D_800761DC[];
-extern s32 D_800761E4[];
-extern s32 D_800761EC[];
-extern s32 D_800761F4[];
-extern s32 D_8007624C[];
-extern s32 D_80076294[];
-extern s32 D_800762DC[];
-extern s32 D_80076324[];
-extern s32 D_8007636C[];
-extern s32 D_800763B4[];
-extern s32 D_800763FC[];
-extern s32 D_80076444[];
-extern s32 D_8007648C[];
-extern s32 D_800764D4[];
-extern s32 D_8007651C[];
-extern s32 D_80076564[];
-extern s32 D_800765AC[];
-extern s32 D_800765F4[];
-extern s32 D_8007663C[];
-extern s32 D_800761FC[];
-extern s32 D_80076200[];
-extern s32 D_80076224[];
-extern s32 D_8007622C[];
-extern s32 D_80076234[];
-extern s32 D_8007623C[];
-extern s32 D_80076244[];
-extern s32 D_80076270[];
-extern s32 D_800762B8[];
-extern s32 D_80076300[];
-extern s32 D_80076348[];
-extern s32 D_80076390[];
-extern s32 D_800763D8[];
-extern s32 D_80076420[];
-extern s32 D_80076468[];
-extern s32 D_800764B0[];
-extern s32 D_800764F8[];
-extern s32 D_80076540[];
-extern s32 D_80076588[];
-extern s32 D_800765D0[];
-extern s32 D_80076618[];
-extern s32 D_80076660[];
+/* LoadOverlay's files: each overlay's disc position (a CdlLOC, kept as a
+ * word) and its size in sectors. */
+extern s32 sOverlay00Loc[];
+extern s32 sOverlay02Loc[];
+extern s32 sOverlay18Loc[];
+extern s32 sOverlay19Loc[];
+extern s32 sOverlay20Loc[];
+extern s32 sOverlay21Loc[];
+extern s32 sOverlay22Loc[];
+extern s32 sOverlay03Loc[];
+extern s32 sOverlay04Loc[];
+extern s32 sOverlay05Loc[];
+extern s32 sOverlay06Loc[];
+extern s32 sOverlay07Loc[];
+extern s32 sOverlay08Loc[];
+extern s32 sOverlay09Loc[];
+extern s32 sOverlay10Loc[];
+extern s32 sOverlay11Loc[];
+extern s32 sOverlay12Loc[];
+extern s32 sOverlay13Loc[];
+extern s32 sOverlay14Loc[];
+extern s32 sOverlay15Loc[];
+extern s32 sOverlay16Loc[];
+extern s32 sOverlay17Loc[];
+extern s32 sOverlay00Sectors[];
+extern s32 sOverlay02Sectors[];
+extern s32 sOverlay18Sectors[];
+extern s32 sOverlay19Sectors[];
+extern s32 sOverlay20Sectors[];
+extern s32 sOverlay21Sectors[];
+extern s32 sOverlay22Sectors[];
+extern s32 sOverlay03Sectors[];
+extern s32 sOverlay04Sectors[];
+extern s32 sOverlay05Sectors[];
+extern s32 sOverlay06Sectors[];
+extern s32 sOverlay07Sectors[];
+extern s32 sOverlay08Sectors[];
+extern s32 sOverlay09Sectors[];
+extern s32 sOverlay10Sectors[];
+extern s32 sOverlay11Sectors[];
+extern s32 sOverlay12Sectors[];
+extern s32 sOverlay13Sectors[];
+extern s32 sOverlay14Sectors[];
+extern s32 sOverlay15Sectors[];
+extern s32 sOverlay16Sectors[];
+extern s32 sOverlay17Sectors[];
 
 /** @brief A flat-textured unlit TMD quad: a header, four UV words (the
  *  CLUT and the texture page in the first two's top halves), a colour and
@@ -561,92 +561,92 @@ void LoadOverlay(s32 id) {
     /* MATCHING: s32 in stage_overlay's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
-            gCdLoadLoc[0] = (s32)D_800761AC;
-            gCdLoadSectors[0] = D_800761FC[0];
+            gCdLoadLoc[0] = (s32)sOverlay00Loc;
+            gCdLoadSectors[0] = sOverlay00Sectors[0];
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)D_800761B0;
-            gCdLoadSectors[0] = D_80076200[0];
+            gCdLoadLoc[0] = (s32)sOverlay02Loc;
+            gCdLoadSectors[0] = sOverlay02Sectors[0];
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)D_8007624C;
-            gCdLoadSectors[0] = D_80076270[0];
+            gCdLoadLoc[0] = (s32)sOverlay03Loc;
+            gCdLoadSectors[0] = sOverlay03Sectors[0];
             break;
         case 4:
-            gCdLoadLoc[0] = (s32)D_80076294;
-            gCdLoadSectors[0] = D_800762B8[0];
+            gCdLoadLoc[0] = (s32)sOverlay04Loc;
+            gCdLoadSectors[0] = sOverlay04Sectors[0];
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)D_800762DC;
-            gCdLoadSectors[0] = D_80076300[0];
+            gCdLoadLoc[0] = (s32)sOverlay05Loc;
+            gCdLoadSectors[0] = sOverlay05Sectors[0];
             break;
         case 6:
-            gCdLoadLoc[0] = (s32)D_80076324;
-            gCdLoadSectors[0] = D_80076348[0];
+            gCdLoadLoc[0] = (s32)sOverlay06Loc;
+            gCdLoadSectors[0] = sOverlay06Sectors[0];
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)D_8007636C;
-            gCdLoadSectors[0] = D_80076390[0];
+            gCdLoadLoc[0] = (s32)sOverlay07Loc;
+            gCdLoadSectors[0] = sOverlay07Sectors[0];
             break;
         case 8:
-            gCdLoadLoc[0] = (s32)D_800763B4;
-            gCdLoadSectors[0] = D_800763D8[0];
+            gCdLoadLoc[0] = (s32)sOverlay08Loc;
+            gCdLoadSectors[0] = sOverlay08Sectors[0];
             break;
         case 9:
-            gCdLoadLoc[0] = (s32)D_800763FC;
-            gCdLoadSectors[0] = D_80076420[0];
+            gCdLoadLoc[0] = (s32)sOverlay09Loc;
+            gCdLoadSectors[0] = sOverlay09Sectors[0];
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)D_80076444;
-            gCdLoadSectors[0] = D_80076468[0];
+            gCdLoadLoc[0] = (s32)sOverlay10Loc;
+            gCdLoadSectors[0] = sOverlay10Sectors[0];
             break;
         case 11:
-            gCdLoadLoc[0] = (s32)D_8007648C;
-            gCdLoadSectors[0] = D_800764B0[0];
+            gCdLoadLoc[0] = (s32)sOverlay11Loc;
+            gCdLoadSectors[0] = sOverlay11Sectors[0];
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)D_800764D4;
-            gCdLoadSectors[0] = D_800764F8[0];
+            gCdLoadLoc[0] = (s32)sOverlay12Loc;
+            gCdLoadSectors[0] = sOverlay12Sectors[0];
             break;
         case 13:
-            gCdLoadLoc[0] = (s32)D_8007651C;
-            gCdLoadSectors[0] = D_80076540[0];
+            gCdLoadLoc[0] = (s32)sOverlay13Loc;
+            gCdLoadSectors[0] = sOverlay13Sectors[0];
             break;
         case 14:
-            gCdLoadLoc[0] = (s32)D_80076564;
-            gCdLoadSectors[0] = D_80076588[0];
+            gCdLoadLoc[0] = (s32)sOverlay14Loc;
+            gCdLoadSectors[0] = sOverlay14Sectors[0];
             break;
         case 15:
-            gCdLoadLoc[0] = (s32)D_800765AC;
-            gCdLoadSectors[0] = D_800765D0[0];
+            gCdLoadLoc[0] = (s32)sOverlay15Loc;
+            gCdLoadSectors[0] = sOverlay15Sectors[0];
             break;
         case 16:
-            gCdLoadLoc[0] = (s32)D_800765F4;
-            gCdLoadSectors[0] = D_80076618[0];
+            gCdLoadLoc[0] = (s32)sOverlay16Loc;
+            gCdLoadSectors[0] = sOverlay16Sectors[0];
             break;
         case 17:
-            gCdLoadLoc[0] = (s32)D_8007663C;
-            gCdLoadSectors[0] = D_80076660[0];
+            gCdLoadLoc[0] = (s32)sOverlay17Loc;
+            gCdLoadSectors[0] = sOverlay17Sectors[0];
             break;
         case 18:
-            gCdLoadLoc[0] = (s32)D_800761D4;
-            gCdLoadSectors[0] = D_80076224[0];
+            gCdLoadLoc[0] = (s32)sOverlay18Loc;
+            gCdLoadSectors[0] = sOverlay18Sectors[0];
             break;
         case 19:
-            gCdLoadLoc[0] = (s32)D_800761DC;
-            gCdLoadSectors[0] = D_8007622C[0];
+            gCdLoadLoc[0] = (s32)sOverlay19Loc;
+            gCdLoadSectors[0] = sOverlay19Sectors[0];
             break;
         case 20:
-            gCdLoadLoc[0] = (s32)D_800761E4;
-            gCdLoadSectors[0] = D_80076234[0];
+            gCdLoadLoc[0] = (s32)sOverlay20Loc;
+            gCdLoadSectors[0] = sOverlay20Sectors[0];
             break;
         case 21:
-            gCdLoadLoc[0] = (s32)D_800761EC;
-            gCdLoadSectors[0] = D_8007623C[0];
+            gCdLoadLoc[0] = (s32)sOverlay21Loc;
+            gCdLoadSectors[0] = sOverlay21Sectors[0];
             break;
         case 22:
-            gCdLoadLoc[0] = (s32)D_800761F4;
-            gCdLoadSectors[0] = D_80076244[0];
+            gCdLoadLoc[0] = (s32)sOverlay22Loc;
+            gCdLoadSectors[0] = sOverlay22Sectors[0];
             break;
     }
     gCdLoadDest[0] = 0x800F0000;

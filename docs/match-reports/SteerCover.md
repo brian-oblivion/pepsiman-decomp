@@ -1,4 +1,6 @@
-# SteerMode3 — MATCHED 108/108 (round 7, delta)
+# SteerCover — MATCHED 108/108 (round 7, delta)
+
+> Renamed from `SteerMode3` on 2026-10-11 (tools/rename.py). Address 0x80028008.
 
 > Renamed from `func_80028008` on 2026-10-11 (tools/rename.py). Address 0x80028008.
 
@@ -8,7 +10,7 @@ Unit `src/player.c`. While the game runs: pad bits 0x2000/0x8000 call
 decays by 2 towards 0. The speed is clamped to -7..7, a tenth of it pushes
 the position (0x348/0x350) sideways (PushPlayer's body at 90 degrees),
 and the heading 0x380 is clamped to the camera yaw +/- 0x71.
-SteerMode2 is its twin.
+SteerRoller is its twin.
 
 ```c
 /* MATCHING: PushPlayer's body as an inline helper; calling it with the s16 step
@@ -22,7 +24,7 @@ static __inline__ void pushBack(s32 deg, s32 dist) {
     sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
     sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
 }
-void SteerMode3(void) {
+void SteerCover(void) {
     s16 step;
     s32 v;
     s32 x;
@@ -115,4 +117,4 @@ other unit names it.
 
 A clamp whose upper bound is computed into a scratch register in a branch
 delay slot and then copied into the result: `if (x <= hi) v = x; else v =
-hi;`. (SteerMode3)
+hi;`. (SteerCover)

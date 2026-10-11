@@ -1,4 +1,6 @@
-# AttachMode5Object — MATCHED 14/14 (round 2, alpha)
+# AttachHeldItem — MATCHED 14/14 (round 2, alpha)
+
+> Renamed from `AttachMode5Object` on 2026-10-11 (tools/rename.py). Address 0x800287f4.
 
 > Renamed from `func_800287F4` on 2026-10-11 (tools/rename.py). Address 0x800287f4.
 
@@ -7,7 +9,7 @@ stores the address of `D_800D8960` in `D_800D8440[0]` and sets
 `D_800D38DE[0]` to 1.
 
 ```c
-void AttachMode5Object(void) {
+void AttachHeldItem(void) {
     if ((D_8009EF48[0] >> 4) == 5) {
         D_800D8440[0] = (s32)D_800D8960;
         D_800D38DE[0] = 1;

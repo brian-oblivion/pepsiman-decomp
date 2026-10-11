@@ -339,7 +339,7 @@ function's match report, not here.
 - **Case bodies are laid out in source order, not compare order.**
   (SteerPlayer)
 - **`addiu -K; sltiu N`: `(u32)(x - K) < N`.** `x >= K && x < K+N` stays two
-  compares. (UpdateSpeedMode2)
+  compares. (UpdateRollerSpeed)
 - **`beq K` / `slti K+1` / `beq K+1`: a switch with an empty `case K-1:
   break;`.** (ProbeCard)
 - **A NULL return as the last block: `if (found) { ...; return p; } return
@@ -395,7 +395,7 @@ function's match report, not here.
   and `< 3` first; identical arms retail tests separately are two arms, not
   `case 1: case 2:`. (UpdatePlayState, ReactToHits, UpdatePlayer)
 - **`switch` with the default arm last, not `if/else`**, keeps the default's
-  tail from cross-jumping into a sibling. (UpdateJumpMode3)
+  tail from cross-jumping into a sibling. (UpdateCoverJump)
 - **Menu answers whose case tails cross-jump: switch on an `s16`**; as `s32`
   the tails stay separate. (UpdateEditorData)
 - **`s32` with no return also frees a forward branch's delay slot** for a
@@ -480,7 +480,7 @@ function's match report, not here.
   join sign-extends it: an inlined `s16` helper.** (SpawnModeObject)
 - **A load that must stay below a store to another global, with no C
   spelling found: a bare `__asm__("")` barrier**, noted `MATCHING:`.
-  (SteerMode3, SteerMode2)
+  (SteerCover, SteerRoller)
 - **The stack moved to the scratchpad around a call: `SetSpadStack()` /
   `ResetSpadStack()` from include/spad.h.** (DrawStepper)
 - **Jump tables 4 bytes off in a whole unit: its rodata starts earlier than

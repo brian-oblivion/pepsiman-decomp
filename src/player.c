@@ -14,7 +14,7 @@
  * an array of unknown size here. */
 
 extern s32 D_800AC860;
-extern s16 sSteerDrift; /**< SteerMode2's drift: +-4 a step while steering, back by 2, within +-10 */
+extern s16 sSteerDrift; /**< SteerRoller's drift: +-4 a step while steering, back by 2, within +-10 */
 
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
  * from the lw), so it is an array here, though both halves use one register. */
@@ -95,13 +95,13 @@ s32 UpdateSlideDash(void);
 void UpdateJump(void);
 s32 AttachModeObject(void);
 void SpawnModeObject(void);
-void SteerMode2(void);
-void UpdateSpeedMode2(void);
-void UpdateSpeedMode3(void);
-void SteerMode3(void);
+void SteerRoller(void);
+void UpdateRollerSpeed(void);
+void UpdateCoverSpeed(void);
+void SteerCover(void);
 s32 UpdateSpeedBand(void);
 void PolarOffset(s32 deg, s32 radius, VECTOR *out);
-void AttachMode5Object(void);
+void AttachHeldItem(void);
 s32 TrySlide(void);
 /* MATCHING: editor stores it as u8; this unit's tests load it lb. */
 extern s8 gToolExited;
@@ -384,28 +384,28 @@ void UpdatePlayer(void) {
     if (gPlayer.control == 1) {
         AttachModeObject();
     }
-    AttachMode5Object();
+    AttachHeldItem();
     SpawnModeObject();
-    switch (gPlayer.rideMode & 0xF) {
-        case 0:
+    switch (gPlayer.rideMode & RIDE_MASK) {
+        case RIDE_NONE:
             UpdateRunSpeed();
             UpdateSlideDash();
             UpdateJump();
             TrySlide();
             break;
-        case 1:
+        case RIDE_BOARD:
             func_800F8A58();
             func_800F8B60();
             break;
-        case 4:
+        case RIDE_BOARD_2:
             func_800F6FA0();
             func_800F70A8();
             break;
-        case 2:
-            UpdateSpeedMode2();
+        case RIDE_ROLLER:
+            UpdateRollerSpeed();
             break;
-        case 3:
-            UpdateSpeedMode3();
+        case RIDE_COVER:
+            UpdateCoverSpeed();
             break;
     }
     gPlayer.unk344 = (40 - gPlayer.speed) / 3 + 1;
@@ -449,38 +449,38 @@ void UpdatePlayer(void) {
             break;
     }
     gSpeedFixed = t << 4;
-    switch (gPlayer.rideMode & 0xF) {
-        case 0:
-        case 1:
-        case 3:
-        case 4:
+    switch (gPlayer.rideMode & RIDE_MASK) {
+        case RIDE_NONE:
+        case RIDE_BOARD:
+        case RIDE_COVER:
+        case RIDE_BOARD_2:
             gPlayer.stepX = rsin(gCourse.rot.vy) * gPlayer.speed >> 12;
             gPlayer.stepZ = rcos(gCourse.rot.vy) * gPlayer.speed >> 12;
             gPlayer.x -= gPlayer.stepX;
             gPlayer.z -= gPlayer.stepZ;
             break;
-        case 2:
+        case RIDE_ROLLER:
             gPlayer.stepX = rsin(gPlayer.yaw) * gPlayer.speed >> 12;
             gPlayer.stepZ = rcos(gPlayer.yaw) * gPlayer.speed >> 12;
             gPlayer.x -= gPlayer.stepX;
             gPlayer.z -= gPlayer.stepZ;
             break;
     }
-    switch (gPlayer.rideMode & 0xF) {
-        case 0:
+    switch (gPlayer.rideMode & RIDE_MASK) {
+        case RIDE_NONE:
             SteerPlayer();
             break;
-        case 1:
+        case RIDE_BOARD:
             func_800F8D64();
             break;
-        case 4:
+        case RIDE_BOARD_2:
             func_800F729C();
             break;
-        case 2:
-            SteerMode2();
+        case RIDE_ROLLER:
+            SteerRoller();
             break;
-        case 3:
-            SteerMode3();
+        case RIDE_COVER:
+            SteerCover();
             break;
     }
     g = &gPlayer;
@@ -563,7 +563,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 D_800957BC -= a * 2;
                 D_800957B0 -= a;
                 gPlayer.yaw = D_800957BC;
-                if ((gPlayer.rideMode & 0xF) != 2 && yaw < gPlayer.yaw) {
+                if ((gPlayer.rideMode & RIDE_MASK) != RIDE_ROLLER && yaw < gPlayer.yaw) {
                     gPlayer.yaw = yaw;
                 }
                 if (gPlayer.lean < 0) {
@@ -586,7 +586,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 D_800957BC += a * 2;
                 D_800957B0 += a;
                 gPlayer.yaw = D_800957BC;
-                if ((gPlayer.rideMode & 0xF) != 2 && gPlayer.yaw < yaw) {
+                if ((gPlayer.rideMode & RIDE_MASK) != RIDE_ROLLER && gPlayer.yaw < yaw) {
                     gPlayer.yaw = yaw;
                 }
                 if (gPlayer.lean > 0) {
@@ -653,11 +653,11 @@ s32 CheckFall(void) {
     s32 unused[2];
 
     if ((D_800AC860 & 0x40) && gPlayer.motion[0] != MOT_TIME_UP) {
-        if (gPlayer.rideMode & 0xF) {
+        if (gPlayer.rideMode & RIDE_MASK) {
             gPlayer.unk3CA = 1;
-            if ((gPlayer.rideMode & 0xF) != 3) {
+            if ((gPlayer.rideMode & RIDE_MASK) != RIDE_COVER) {
                 gPlayer.jumpPower = 20;
-                gPlayer.rideMode &= 0xF0;
+                gPlayer.rideMode &= RIDE_ITEM_MASK;
             }
             ResetSpeed();
             gPlayer.control = 0;
@@ -672,14 +672,14 @@ s32 CheckFall(void) {
             gPlayer.fallSpeed += 2;
             ResetSpeed();
             gPlayer.unk374 = 0;
-            if (gPlayer.y > gFloorY[0] + 0x8C && (gPlayer.rideMode & 0xF) == 3) {
-                gPlayer.rideMode &= 0xF0;
+            if (gPlayer.y > gFloorY[0] + 0x8C && (gPlayer.rideMode & RIDE_MASK) == RIDE_COVER) {
+                gPlayer.rideMode &= RIDE_ITEM_MASK;
             }
             gPlayer.unk3CA = 1;
             if (gPlayer.y > gFloorY[0] + 1000) {
                 gPlayer.motion[0] = MOT_FALL_OFF;
                 gPlayer.fallSpeed = 0;
-                gPlayer.rideMode &= 0xF0;
+                gPlayer.rideMode &= RIDE_ITEM_MASK;
             }
         }
     }
@@ -703,7 +703,7 @@ s32 ApplyGravity(void) {
     if ((u32)(gPlayer.motion[0] - MOT_JUMP) < 4) {
         goto end;
     }
-    if ((u32)(gPlayer.motion[0] - MOT_RIDE_JUMP) < 2 && (gPlayer.rideMode & 0xF) != 3) {
+    if ((u32)(gPlayer.motion[0] - MOT_RIDE_JUMP) < 2 && (gPlayer.rideMode & RIDE_MASK) != RIDE_COVER) {
         goto end;
     }
     d = gPlayer.groundY - y;
@@ -780,7 +780,7 @@ void ReactToHits(PlayerState *state) {
                 case ACT_RIDE_STRAIGHT:
                     switch (m) {
                         case MOT_RIDE:
-                            if ((gPlayer.rideMode & 0xF) != 3) {
+                            if ((gPlayer.rideMode & RIDE_MASK) != RIDE_COVER) {
                                 break;
                             }
                         case MOT_RUN_SLOW:
@@ -810,40 +810,40 @@ void ReactToHits(PlayerState *state) {
                     v = gHitReactions[p->kind].b[0];
                     break;
                 default:
-                    switch (gPlayer.rideMode & 0xF) {
-                        case 1:
-                        case 2:
-                        case 4:
+                    switch (gPlayer.rideMode & RIDE_MASK) {
+                        case RIDE_BOARD:
+                        case RIDE_ROLLER:
+                        case RIDE_BOARD_2:
                             v = ACT_THROWN_BACK_START;
                             break;
-                        case 3:
+                        case RIDE_COVER:
                         default:
                             v = gHitReactions[gPlayerHits[i].kind].b[4];
                             break;
                     }
                     break;
             }
-            switch (gPlayer.rideMode & 0xF) {
-                case 1:
-                case 2:
-                case 4:
+            switch (gPlayer.rideMode & RIDE_MASK) {
+                case RIDE_BOARD:
+                case RIDE_ROLLER:
+                case RIDE_BOARD_2:
                     v = ACT_THROWN_BACK_START;
                     break;
             }
         } else {
             v = gHitReactions[p->kind].b[2 - i];
-            if (gPlayer.rideMode & 0xF) {
+            if (gPlayer.rideMode & RIDE_MASK) {
                 v = ACT_THROWN_BACK_START;
             }
         }
-        switch (gPlayer.rideMode & 0xF) {
-            case 1:
-            case 2:
-            case 4:
+        switch (gPlayer.rideMode & RIDE_MASK) {
+            case RIDE_BOARD:
+            case RIDE_ROLLER:
+            case RIDE_BOARD_2:
                 gPlayer.unk3D1 = 1;
                 gPlayer.unk3D5 = 1;
                 gBonusLevel = 0;
-                gPlayer.rideMode &= 0xF0;
+                gPlayer.rideMode &= RIDE_ITEM_MASK;
                 state->hittable = 0;
                 gHitRecover = 1;
                 state->invulnTimer = 750;
@@ -853,7 +853,7 @@ void ReactToHits(PlayerState *state) {
                 }
                 sLastHitMask = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
                 return;
-            case 0:
+            case RIDE_NONE:
             default:
                 if (v == 0) {
                     continue;
@@ -1455,7 +1455,7 @@ top:
                 PlaySe(0x31);
             }
             if (state->unk374 == 40) {
-                state->rideMode = (state->rideMode & 0xF) | 0x50;
+                state->rideMode = (state->rideMode & RIDE_MASK) | (RIDE_ITEM << 4);
             }
             if (state->unk374 == 90) {
                 PlaySe(0x2B);
@@ -1479,7 +1479,7 @@ top:
             if (state->motionResult[0] == 0) {
                 state->action = ACT_RUN;
                 state->motion[0] = MOT_STAND;
-                state->rideMode &= 0xF;
+                state->rideMode &= RIDE_MASK;
             }
             break;
         case MOT_SLIDE_START:
@@ -1991,7 +1991,7 @@ top:
         case MOT_RIDE:
         case MOT_RIDE_LEAN_A_IN:
         case MOT_RIDE_LEAN_A_OUT:
-            if ((u32)((gPlayer.rideMode & 0xF) - 2) < 2 && state->motionResult[0] == 0) {
+            if ((u32)((gPlayer.rideMode & RIDE_MASK) - RIDE_ROLLER) < 2 && state->motionResult[0] == 0) {
                 state->curMotion[0] = MOT_OFF;
             }
             break;
@@ -2079,7 +2079,7 @@ s32 UpdateSlideDash(void) {
     }
 }
 
-/* MATCHING: as UpdateJumpMode3 for the switch; the volatile read keeps the unk348 and
+/* MATCHING: as UpdateCoverJump for the switch; the volatile read keeps the unk348 and
  * unk350 loads below the stores to sJumpDistance, sJumpStart[1] and sJumpPeakY. */
 void UpdateJump(void) {
     s16 n;
@@ -2239,9 +2239,9 @@ top:
             gPlayer.invulnTimer = 500;
             gPlayer.slideState = SLIDE_NONE;
             gPlayer.unk38C = 0;
-            if (gPlayer.rideMode & 0xF) {
+            if (gPlayer.rideMode & RIDE_MASK) {
                 gPlayer.action = ACT_RUN;
-                gPlayer.rideMode &= 0xF0;
+                gPlayer.rideMode &= RIDE_ITEM_MASK;
                 gPlayer.unk3D1 = 1;
                 gPlayer.jumpPower = 0;
                 gPlayer.jumpState = JUMP_NONE;
@@ -2323,8 +2323,8 @@ end:;
 }
 
 void DrawModeObject(void) {
-    switch (gPlayer.rideMode & 0xF) {
-        case 1:
+    switch (gPlayer.rideMode & RIDE_MASK) {
+        case RIDE_BOARD:
             gModeObjects[0].unk18 = -0x88;
             gModeObjects[0].unk1A = 0xAA;
             gModeObjects[0].unk4 = 0;
@@ -2334,7 +2334,7 @@ void DrawModeObject(void) {
             DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[0].unk36],
                             (Trap *)&gModeObjects[0]);
             break;
-        case 4:
+        case RIDE_BOARD_2:
             gModeObjects[5].unk18 = -0x88;
             gModeObjects[5].unk1C = -0x88;
             gModeObjects[5].unk1A = 0xAA;
@@ -2345,7 +2345,7 @@ void DrawModeObject(void) {
             DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[5].unk36],
                             (Trap *)&gModeObjects[5]);
             break;
-        case 2:
+        case RIDE_ROLLER:
             switch (gStage) {
                 case 3:
                     gModeObjects[3].unk4 = 0x3C;
@@ -2373,7 +2373,7 @@ void DrawModeObject(void) {
                     break;
             }
             break;
-        case 3:
+        case RIDE_COVER:
             switch (gStage) {
                 case 0:
                     gModeObjects[4].unk4 = 0;
@@ -2394,7 +2394,7 @@ void DrawModeObject(void) {
             }
             break;
     }
-    if ((gPlayer.rideMode >> 4) == 5) {
+    if ((gPlayer.rideMode >> 4) == RIDE_ITEM) {
         gModeObjects[1].unk4 = 0;
         gModeObjects[1].unk0 = -gWorldShift[0];
         gModeObjects[1].unk8 = -gWorldShift[2];
@@ -2405,22 +2405,22 @@ void DrawModeObject(void) {
 
 /* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
 s32 AttachModeObject(void) {
-    switch (gPlayer.rideMode & 0xF) {
-        case 1:
+    switch (gPlayer.rideMode & RIDE_MASK) {
+        case RIDE_BOARD:
             if ((u32)(gPlayer.motion[0] - MOT_RIDE) >= 7) {
                 gPlayer.motion[0] = MOT_RIDE;
                 gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
                 gModeObjects[0].unk36 = 0;
             }
             break;
-        case 4:
+        case RIDE_BOARD_2:
             if ((u32)(gPlayer.motion[0] - MOT_RIDE) >= 7) {
                 gPlayer.motion[0] = MOT_RIDE;
                 gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
                 gModeObjects[5].unk36 = 5;
             }
             break;
-        case 2:
+        case RIDE_ROLLER:
             if ((u32)(gPlayer.motion[0] - MOT_RIDE) >= 3) {
                 gPlayer.motion[0] = MOT_RIDE;
                 switch (gStage) {
@@ -2435,7 +2435,7 @@ s32 AttachModeObject(void) {
                 }
             }
             break;
-        case 3:
+        case RIDE_COVER:
             switch (gStage) {
                 case 0:
                     gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
@@ -2510,7 +2510,7 @@ void SpawnModeObject(void) {
 
 /* MATCHING: PushPlayer's body as an inline helper; calling it with the s16 step
  * keeps the step's sign extension ahead of the rsin call. */
-void SteerMode2(void) {
+void SteerRoller(void) {
     s16 step;
     s32 v;
     s32 x;
@@ -2545,7 +2545,7 @@ void SteerMode2(void) {
         sSteerDrift = sSteerDrift < -10 ? -10 : sSteerDrift > 10 ? 10 : sSteerDrift;
         step = sSteerDrift / 10;
         pushBack(90, step);
-        /* MATCHING: as in SteerMode3. */
+        /* MATCHING: as in SteerCover. */
         __asm__("");
         g = &gPlayer;
         x = g->yaw;
@@ -2563,7 +2563,7 @@ void SteerMode2(void) {
 }
 
 /* MATCHING: the unsigned range test is the single subtract-and-compare retail does. */
-void UpdateSpeedMode2(void) {
+void UpdateRollerSpeed(void) {
     s16 v;
 
     if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - MOT_RIDE) < 3) {
@@ -2589,7 +2589,7 @@ void UpdateSpeedMode2(void) {
     }
 }
 
-void UpdateSpeedMode3(void) {
+void UpdateCoverSpeed(void) {
     s16 v;
 
     if (gPlayer.control != 0 && gPlayer.motion[0] == MOT_RIDE) {
@@ -2616,7 +2616,7 @@ void UpdateSpeedMode3(void) {
 }
 
 /* MATCHING: the switch lays the default arm out last, after its own base reload, as retail. */
-void UpdateJumpMode3(void) {
+void UpdateCoverJump(void) {
     s16 n;
 
     if (gPlayer.control != 0) {
@@ -2672,7 +2672,7 @@ void UpdateJumpMode3(void) {
     }
 }
 
-void SteerMode3(void) {
+void SteerCover(void) {
     s16 step;
     s32 v;
     s32 x;
@@ -2791,7 +2791,7 @@ void ResetPlayerAction(void) {
         gPlayer.invulnTimer = 60;
         gHitRecover = 0;
     }
-    if ((gPlayer.rideMode & 0xF) == 3) {
+    if ((gPlayer.rideMode & RIDE_MASK) == RIDE_COVER) {
         gPlayer.motion[0] = MOT_RIDE;
     }
 }
@@ -2884,8 +2884,8 @@ void StopSpeed(void) {
     gSpeedFixed = 0;
 }
 
-void AttachMode5Object(void) {
-    if ((gPlayer.rideMode >> 4) == 5) {
+void AttachHeldItem(void) {
+    if ((gPlayer.rideMode >> 4) == RIDE_ITEM) {
         gModeObjectModels[1].unk58 = (s32)&gTodCoords[8];
         gModeObjects[1].unk36 = 1;
     }

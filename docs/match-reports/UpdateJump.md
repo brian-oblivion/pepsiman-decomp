@@ -2,7 +2,7 @@
 
 > Renamed from `func_80026848` on 2026-10-11 (tools/rename.py). Address 0x80026848.
 
-Unit `src/player.c`. The twin of UpdateJumpMode3 for another mode set:
+Unit `src/player.c`. The twin of UpdateCoverJump for another mode set:
 on starting the unk390 sequence it also clears `sJumpDistance`, records
 unk34C in `sJumpPeakY` and copies the position words unk348..unk350 into
 `sJumpStart`; the sequence ends in mode 9, 0xB or 0xA instead of 8/9.
@@ -12,7 +12,7 @@ extern s32 sJumpPeakY;
 extern s32 sJumpDistance;
 extern s32 sJumpStart[];
 
-/* MATCHING: as UpdateJumpMode3 for the switch; the volatile read keeps the unk348 and
+/* MATCHING: as UpdateCoverJump for the switch; the volatile read keeps the unk348 and
  * unk350 loads below the stores to sJumpDistance, sJumpStart[1] and sJumpPeakY. */
 void UpdateJump(void) {
     s16 n;
@@ -78,7 +78,7 @@ void UpdateJump(void) {
 
 ## Levers
 
-- UpdateJumpMode3's body with the constants changed matched everything but
+- UpdateCoverJump's body with the constants changed matched everything but
   the first block's schedule: 126/134, three insertions and three deletions.
   Retail keeps `lw 0x348` / `lw 0x350` below the stores to `sJumpDistance`,
   `sJumpStart[1]` and `sJumpPeakY`; the build hoisted the 0x348 load above

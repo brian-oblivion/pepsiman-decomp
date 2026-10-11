@@ -1,4 +1,6 @@
-# UpdateSpeedMode3 — MATCHED 68/68 (round 5, delta)
+# UpdateCoverSpeed — MATCHED 68/68 (round 5, delta)
+
+> Renamed from `UpdateSpeedMode3` on 2026-10-11 (tools/rename.py). Address 0x80027d04.
 
 > Renamed from `func_80027D04` on 2026-10-11 (tools/rename.py). Address 0x80027d04.
 
@@ -14,7 +16,7 @@ extern u16 gSpeedFixed;    /* unit */
 extern s32 gPad;    /* unit */
 extern s16 D_8009EF20[];  /* common.h */
 
-void UpdateSpeedMode3(void) {
+void UpdateCoverSpeed(void) {
     s16 v;
 
     if (sGame.unk0 != 0 && sGame.unk6 == 0x33) {

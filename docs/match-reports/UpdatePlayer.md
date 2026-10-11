@@ -33,7 +33,7 @@ void UpdatePlayer(void) {
     if (sGame.unk0 == 1) {
         AttachModeObject();
     }
-    AttachMode5Object();
+    AttachHeldItem();
     SpawnModeObject();
     switch (sGame.unk3D0 & 0xF) {
         case 0:
@@ -51,10 +51,10 @@ void UpdatePlayer(void) {
             func_800F70A8();
             break;
         case 2:
-            UpdateSpeedMode2();
+            UpdateRollerSpeed();
             break;
         case 3:
-            UpdateSpeedMode3();
+            UpdateCoverSpeed();
             break;
     }
     sGame.unk344 = (40 - sGame.unk3A8) / 3 + 1;
@@ -126,10 +126,10 @@ void UpdatePlayer(void) {
             func_800F729C();
             break;
         case 2:
-            SteerMode2();
+            SteerRoller();
             break;
         case 3:
-            SteerMode3();
+            SteerCover();
             break;
     }
     g = &sGame;
@@ -177,7 +177,7 @@ Four builds: 65 -> 269 -> 335 (plus one for a missing prototype).
 - `sGame.unk344 = (40 - sGame.unk3A8) / 3 + 1; t = sGame.unk3A8;` gives
   retail's `move s3, v1` after the multiply; `t = unk3A8` first, then
   `(40 - t)`, loads straight into `$s3`.
-- The yaw clamp is SteerMode3's shape: a `GameState *g` for the load
+- The yaw clamp is SteerCover's shape: a `GameState *g` for the load
   and the store at the join, a scratch `hi`.
 
 ### Proposed learning

@@ -266,7 +266,7 @@ void UpdateStagePlay(u8 stage) {
                     gModeStep = 0;
                     StopCdTrack();
                     gPlayer.unk3D2 = 0;
-                    gPlayer.rideMode = 0;
+                    gPlayer.rideMode = RIDE_NONE;
                 }
                 SetCdVolume(80);
                 gPauseState = 0;
@@ -430,7 +430,7 @@ void ResetStage(void) {
     } else {
         gTimeLeft = gTimeLimits[mode][saved] * 30;
     }
-    gPlayer.rideMode = 0;
+    gPlayer.rideMode = RIDE_NONE;
     EndJump();
     StartRumble(gRumblePatterns, 0);
 }

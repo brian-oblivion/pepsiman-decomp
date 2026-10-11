@@ -1,4 +1,6 @@
-# UpdateJumpMode3 — MATCHED 125/125 (round 10, bravo)
+# UpdateCoverJump — MATCHED 125/125 (round 10, bravo)
+
+> Renamed from `UpdateJumpMode3` on 2026-10-11 (tools/rename.py). Address 0x80027e14.
 
 > Renamed from `func_80027E14` on 2026-10-11 (tools/rename.py). Address 0x80027e14.
 
@@ -12,7 +14,7 @@ and 0, 1 or 2 in unk3A0.
 
 ```c
 /* MATCHING: the switch lays the default arm out last, after its own base reload, as retail. */
-void UpdateJumpMode3(void) {
+void UpdateCoverJump(void) {
     s16 n;
 
     if (sGame.unk0 != 0) {
@@ -90,4 +92,4 @@ struct is local to this unit.
 
 `beq K1; beq K2; j default` where the default arm rebuilds a base the
 other arms share, and an if/else-if chain cross-jumps the default's tail
-into a sibling arm: a `switch` with `default:` last. (UpdateJumpMode3)
+into a sibling arm: a `switch` with `default:` last. (UpdateCoverJump)

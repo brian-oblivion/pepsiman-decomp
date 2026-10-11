@@ -1,15 +1,17 @@
-# UpdateSpeedMode2 — MATCHED 70/70 (round 5, delta)
+# UpdateRollerSpeed — MATCHED 70/70 (round 5, delta)
+
+> Renamed from `UpdateSpeedMode2` on 2026-10-11 (tools/rename.py). Address 0x80027bec.
 
 > Renamed from `func_80027BEC` on 2026-10-11 (tools/rename.py). Address 0x80027bec.
 
-Unit `src/player.c`. The twin of UpdateSpeedMode3 for game-state modes
+Unit `src/player.c`. The twin of UpdateCoverSpeed for game-state modes
 0x33..0x35 with 35 in place of 30: steers `gSpeedFixed` (1/16 units)
 towards 35 from the count at 0x3A8 and pad bits 0x1000/0x4000 of
 `gPad`, snapping to 560 (35 whole), and stores the whole part in
 `D_8009EF20[0]`.
 
 ```c
-void UpdateSpeedMode2(void) {
+void UpdateRollerSpeed(void) {
     s16 v;
 
     if (sGame.unk0 != 0 && (u32)(sGame.unk6 - 0x33) < 3) {
@@ -43,7 +45,7 @@ void UpdateSpeedMode2(void) {
   -0x33; sltiu 3` is the unsigned form `(u32)(x - 0x33) < 3`. (A `switch`
   with three shared cases would likely give the same range check; not
   tried.)
-- The rest is UpdateSpeedMode3's body with the constants changed.
+- The rest is UpdateCoverSpeed's body with the constants changed.
 
 ### Proposed learning
 

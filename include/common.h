@@ -163,6 +163,24 @@ typedef struct {
 
 extern ObjectModel gObjectModels[]; /**< the 80 object model slots */
 
+/** @brief PlayerState.rideMode. The low nibble (RIDE_MASK) is the ride a
+ *         stage gives: each is drawn from its own mode object, and when a
+ *         stage ends with one, it is left behind as a stage object. The game
+ *         names none; these say what the code does. The high nibble
+ *         (RIDE_ITEM_MASK) is RIDE_ITEM while ACT_STOP_ITEM's object shows. */
+enum RideMode {
+    RIDE_NONE = 0,        /**< on foot */
+    RIDE_BOARD = 1,       /**< stage 1: a board at the feet; the legs cannot be hit */
+    RIDE_ROLLER = 2,      /**< stages 3 and 10: an object turning with the speed, with a
+                        *   rolling sound; steered by heading, a wide hit at the legs */
+    RIDE_COVER = 3,       /**< stages 0 and 12: on the body, hiding most of it; lost on
+                        *   a high fall, and hits react as on foot */
+    RIDE_BOARD_2 = 4,     /**< stage 13: a second board, with its own overlay code */
+    RIDE_ITEM = 5,        /**< in the high nibble: the held object is drawn */
+    RIDE_MASK = 0x0F,     /**< the ride */
+    RIDE_ITEM_MASK = 0xF0 /**< the held object */
+};
+
 /** @brief PlayerState.motion: the TOD motion a channel plays. The game
  *         names none; these follow the PlayerAction that asks for each. */
 enum PlayerMotion {
@@ -394,7 +412,7 @@ typedef struct {
     s16 invulnTimer;          /**< counts down after a hit; the player is hittable again at 0 */
     u16 unk3CA;    /**< set to 1 when the stage ends; selects the second ordering tables */
     s32 unk3CC;    /**< with unk39C, picks which cap y gets */
-    u8 rideMode;   /**< low nibble: 0 on foot, else the stage's ride (1 to 4) */
+    u8 rideMode;   /**< the ride and the held object, RideMode values */
     u8 unk3D1;     /**< set to 1 when a stage ends with a mode in rideMode */
     s8 unk3D2;     /**< set to 1 by one mode */
     s8 showShadow; /**< nonzero draws the shadow under the player */

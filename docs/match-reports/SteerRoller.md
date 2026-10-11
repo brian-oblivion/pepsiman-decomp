@@ -1,17 +1,19 @@
-# SteerMode2 — MATCHED 123/123 (round 7, delta)
+# SteerRoller — MATCHED 123/123 (round 7, delta)
+
+> Renamed from `SteerMode2` on 2026-10-11 (tools/rename.py). Address 0x80027a00.
 
 > Renamed from `func_80027A00` on 2026-10-11 (tools/rename.py). Address 0x80027a00.
 
-Unit `src/player.c`. The twin of SteerMode3 for another mode:
+Unit `src/player.c`. The twin of SteerCover for another mode:
 pad bits 0x8000/0x2000 call `ApplySteer(3|2, 16, 5)` and nudge the
 lateral speed `sSteerDrift` by -/+4, otherwise byte 5 becomes 0x58 and the
 speed decays by 2; on stages 3 and 10 the value 0x34C is pinned below its
 cap (0x5A and 0x50 under 0x3C0). The speed is clamped to -10..10 and the
-tail is SteerMode3's (push sideways by a tenth of it, clamp the
+tail is SteerCover's (push sideways by a tenth of it, clamp the
 heading to the camera yaw +/- 0x71).
 
 ```c
-void SteerMode2(void) {
+void SteerRoller(void) {
     s16 step;
     s32 v;
     s32 x;
@@ -46,7 +48,7 @@ void SteerMode2(void) {
         sSteerDrift = sSteerDrift < -10 ? -10 : sSteerDrift > 10 ? 10 : sSteerDrift;
         step = sSteerDrift / 10;
         pushBack(90, step);
-        /* MATCHING: as in SteerMode3. */
+        /* MATCHING: as in SteerCover. */
         __asm__("");
         g = &sGame;
         x = g->unk380;
@@ -65,16 +67,16 @@ void SteerMode2(void) {
 ```
 
 The `pushBack` inline helper (PushPlayer's body) moved above this
-function so both users follow it; see SteerMode3's report for it.
+function so both users follow it; see SteerCover's report for it.
 
 ## Path
 
-- SteerMode3's matched shape with this function's constants and a
+- SteerCover's matched shape with this function's constants and a
   two-case `switch` on `gStage`: 123/123 and oracle OK on the first
   build.
 
 ## Levers
 
-- Everything from SteerMode3 (inline helper, `__asm__("")` barrier,
+- Everything from SteerCover (inline helper, `__asm__("")` barrier,
   `g = &sGame`, the if/else clamp) carries over unchanged, which is some
   evidence the shared tail was one construct in the original source.

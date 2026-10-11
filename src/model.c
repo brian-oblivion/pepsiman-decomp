@@ -868,7 +868,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                     prm->scale.vy = 0x1000;
                     prm->scale.vz = 0;
                 }
-                if ((gPlayer.rideMode & 0xF) == 3 && (u32)id < 11 && (u32)id >= 2) {
+                if ((gPlayer.rideMode & RIDE_MASK) == RIDE_COVER && (u32)id < 11 && (u32)id >= 2) {
                     prm->scale.vx = 0;
                     prm->scale.vy = 0;
                     prm->scale.vz = 0;

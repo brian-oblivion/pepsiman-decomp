@@ -209,8 +209,8 @@ s32 CollidePlayer(Sphere *q) {
     s32 v;
 
     hit = 0;
-    switch (gPlayer.rideMode & 0xF) {
-        case 0:
+    switch (gPlayer.rideMode & RIDE_MASK) {
+        case RIDE_NONE:
             r[0] = 20;
             v = gPlayer.motion[0];
             r[1] = 35;
@@ -222,19 +222,19 @@ s32 CollidePlayer(Sphere *q) {
                 r[2] = 0; /* jumping: no legs */
             }
             break;
-        case 3:
+        case RIDE_COVER:
         default:
             r[0] = 20;
             r[1] = 35;
             r[2] = 35;
             break;
-        case 2:
+        case RIDE_ROLLER:
             r[0] = 20;
             r[1] = 35;
             r[2] = 70;
             break;
-        case 1:
-        case 4:
+        case RIDE_BOARD:
+        case RIDE_BOARD_2:
             r[0] = 20;
             r[1] = 20;
             r[2] = 0;

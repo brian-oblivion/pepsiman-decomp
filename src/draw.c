@@ -1,6 +1,7 @@
 #include "common.h"
 #include "draw.h"
 #include "gte.h"
+#include "prim.h"
 
 /** @brief A flat, unlit TMD triangle: a header, its colour and three
  *  vertex indices. */
@@ -268,10 +269,10 @@ void DrawSpriteTransformed(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *o
 
     e = &gSpriteDefs[id];
     p = (POLY_FT4 *)GsOUT_PACKET_P;
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     w = e->w;
     h = e->h;
@@ -305,8 +306,7 @@ void DrawSpriteTransformed(u16 id, Sprite2D *s, CVECTOR *color, u16 otz, GsOT *o
     *(u32 *)&p->u2 = ((e->v + h - 1) << 8) | e->u;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + w - 1;
     tag = (u32 *)ot->org + otz;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -321,10 +321,10 @@ void DrawSpriteFlip(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsO
 
     e = &gSpriteDefs[id];
     p = (POLY_FT4 *)GsOUT_PACKET_P;
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     p->x0 = p->x2 = pos->vx;
     p->y0 = p->y1 = pos->vy;
@@ -355,8 +355,7 @@ void DrawSpriteFlip(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, u16 otz, GsO
     *(u32 *)&p->u2 = (v2 << 8) | u2;
     *(u32 *)&p->u3 = (v3 << 8) | u3;
     tag = (u32 *)ot->org + otz;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -373,10 +372,10 @@ void DrawSpriteTransformedFlip(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16
 
     e = &gSpriteDefs[id];
     p = (POLY_FT4 *)GsOUT_PACKET_P;
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     w = e->w;
     h = e->h;
@@ -426,8 +425,7 @@ void DrawSpriteTransformedFlip(u16 id, Sprite2D *s, CVECTOR *color, u8 mode, u16
     *(u32 *)&p->u2 = (y2 << 8) | x2;
     *(u32 *)&p->u3 = (y3 << 8) | x3;
     tag = (u32 *)ot->org + otz;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -452,23 +450,23 @@ void DrawBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     gte_stflg(&v);
     /* MATCHING: both flag tests mask the sign bit; CSE keeps the mask in a
      * register, so only this first one folds into a sign branch. */
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy3_ft4(p);
     gte_ldv0(&sv[3]);
     gte_rtps();
     gte_stflg(&v);
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy2(&p->x3);
     gte_avsz4();
     gte_stotz(&v);
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
@@ -483,8 +481,7 @@ void DrawBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {
     z = v >> shift;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -509,23 +506,23 @@ void DrawStandingBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsO
     gte_stflg(&v);
     /* MATCHING: both flag tests mask the sign bit; CSE keeps the mask in a
      * register, so only this first one folds into a sign branch. */
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy3_ft4(p);
     gte_ldv0(&sv[3]);
     gte_rtps();
     gte_stflg(&v);
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy2(&p->x3);
     gte_avsz4();
     gte_stotz(&v);
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
@@ -540,8 +537,7 @@ void DrawStandingBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsO
     z = v >> shift;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -571,23 +567,23 @@ void DrawBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 
     gte_stflg(&v);
     /* MATCHING: both flag tests mask the sign bit; CSE keeps the mask in a
      * register, so only this first one folds into a sign branch. */
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy3_ft4(p);
     gte_ldv0(&sv[3]);
     gte_rtps();
     gte_stflg(&v);
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy2(&p->x3);
     gte_avsz4();
     gte_stotz(&v);
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
@@ -602,8 +598,7 @@ void DrawBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 angle, s32 
     z = v >> shift;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -633,23 +628,23 @@ void DrawStandingBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 ang
     gte_stflg(&v);
     /* MATCHING: both flag tests mask the sign bit; CSE keeps the mask in a
      * register, so only this first one folds into a sign branch. */
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy3_ft4(p);
     gte_ldv0(&sv[3]);
     gte_rtps();
     gte_stflg(&v);
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy2(&p->x3);
     gte_avsz4();
     gte_stotz(&v);
-    *(u32 *)&p->r0 =
-        color != NULL ? 0x2C000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x2D000000;
+    *(u32 *)&p->r0 = color != NULL ? GPU_COM_TF4 << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                                   : GPU_COM_NTF4 << 24;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
@@ -664,8 +659,7 @@ void DrawStandingBillboardRotated(u16 id, SVECTOR *size, CVECTOR *color, s16 ang
     z = v >> shift;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -690,14 +684,14 @@ void DrawStandingBillboardFog(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, 
     gte_ldv3(&sv[0], &sv[1], &sv[2]);
     gte_rtpt();
     gte_stflg(&v);
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy3_ft4(p);
     gte_ldv0(&sv[3]);
     gte_rtps();
     gte_stflg(&v);
-    if (v & 0x80000000) {
+    if (v & GTE_FLAG_ERROR) {
         return;
     }
     gte_stsxy2(&p->x3);
@@ -713,7 +707,7 @@ void DrawStandingBillboardFog(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, 
      * slot. */
     ((volatile POLY_FT4 *)p)->code = 0x2C;
     if (color != NULL && (s8)color->r != -1) {
-        *(u32 *)&p->r0 |= 0x02000000;
+        *(u32 *)&p->r0 |= PRIM_SEMI_TRANS << 24;
     }
     *(u32 *)&p->u0 = (e->v << 8) | e->u | (e->clut << 16);
     if (color != NULL && (s8)color->r != -1) {
@@ -726,8 +720,7 @@ void DrawStandingBillboardFog(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, 
     z = v >> shift;
     *(u32 *)&p->u3 = *(u32 *)&p->u2 + e->w - 1;
     tag = (u32 *)ot->org + z;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x09000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_FT4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 
@@ -751,23 +744,24 @@ void DrawSprite(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
     p = (u32 *)GsOUT_PACKET_P;
     /* MATCHING: a ternary, and the semi-transparency term through a local,
      * keep cc1 from regrouping the constants. */
-    p[1] = color != NULL ? 0x64000000 | (color->cd << 16) | (color->b << 8) | color->g : 0x65000000;
+    p[1] = color != NULL ? PRIM_SPRT << 24 | (color->cd << 16) | (color->b << 8) | color->g
+                         : (PRIM_SPRT | PRIM_RAW) << 24;
     if (color != NULL && (s8)color->r != -1) {
-        p[1] |= 0x02000000;
+        p[1] |= PRIM_SEMI_TRANS << 24;
     }
     p[2] = (pos->vy << 16) | (u16)pos->vx;
     p[3] = (e->v << 8) | e->u | (e->clut << 16);
     p[4] = (e->h << 16) | e->w;
     tag = (u32 *)ot->org + (u16)mode;
-    p[0] = (*tag & 0xFFFFFF) | 0x04000000;
+    p[0] = (*tag & 0xFFFFFF) | (sizeof(SPRT) / 4 - 1) << 24;
     q = p + 5;
     if (color != NULL && (s8)color->r != -1) {
-        c = (s8)color->r << 5 | 0xE1000600;
+        c = (s8)color->r << 5 | PRIM_TPAGE_WORD;
         q[1] = e->tpage | c;
     } else {
-        q[1] = e->tpage | 0xE1000600;
+        q[1] = e->tpage | PRIM_TPAGE_WORD;
     }
-    q[0] = ((u32)p & 0xFFFFFF) | 0x01000000;
+    q[0] = ((u32)p & 0xFFFFFF) | (sizeof(DR_TPAGE) / 4 - 1) << 24;
     *tag = (u32)q & 0xFFFFFF;
     GsOUT_PACKET_P = (u8 *)(q + 2);
 }
@@ -810,8 +804,7 @@ PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, 
             gte_dpcs();
             gte_strgb(&pkt->r0);
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_F3);
             pkt++;
         }
         if (v < 250) {
@@ -841,7 +834,7 @@ PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, 
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_f3(pkt);
@@ -849,8 +842,7 @@ PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, 
                 gte_stotz(&v);
                 *(u32 *)&pkt->r0 = *(u32 *)&prim->rgb;
                 tag = (u32 *)ot->org + (v >> shift);
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_F3);
                 pkt++;
             }
         }
@@ -901,8 +893,7 @@ PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, 
             gte_dpcs();
             gte_strgb(&pkt->r0);
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x05000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_F4);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -939,7 +930,7 @@ PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, 
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_f4(pkt);
@@ -959,13 +950,12 @@ PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, 
                 }
                 gte_rtps();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy2(&pkt->x3);
                 *(u32 *)&pkt->r0 = *(u32 *)&prim->rgb;
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x05000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_F4);
                 pkt++;
             }
         }
@@ -1018,8 +1008,7 @@ PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
             gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
             pkt->code = prim->mode;
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x06000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_G3);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -1060,7 +1049,7 @@ PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_g3(pkt);
@@ -1087,8 +1076,7 @@ PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
                         *(u32 *)&pkt->r2 = (prim->c2.b << 16) | (prim->c2.g << 8) | prim->c2.r;
                         break;
                 }
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x06000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_G3);
                 pkt++;
             }
         }
@@ -1152,8 +1140,7 @@ PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
             gte_strgb(&pkt->r3);
             pkt->code = prim->mode;
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x08000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_G4);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -1206,7 +1193,7 @@ PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_g4(pkt);
@@ -1226,7 +1213,7 @@ PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
                 }
                 gte_rtps();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy2(&pkt->x3);
@@ -1257,8 +1244,7 @@ PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
                         *(u32 *)&pkt->r3 = (prim->c3.b << 16) | (prim->c3.g << 8) | prim->c3.r;
                         break;
                 }
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x08000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_G4);
                 pkt++;
             }
         }
@@ -1319,8 +1305,7 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
             *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_FT3);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -1357,7 +1342,7 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_ft3(pkt);
@@ -1388,8 +1373,7 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 gte_dpcs();
                 gte_strgb(&pkt->r0);
                 ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_FT3);
                 pkt++;
             }
         }
@@ -1450,8 +1434,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
             *(u16 *)&pkt->u3 = *(u16 *)&prim->uv3;
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_FT4);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -1499,7 +1482,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_ft4(pkt);
@@ -1519,7 +1502,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 }
                 gte_rtps();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy2(&pkt->x3);
@@ -1554,8 +1537,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 gte_dpcs();
                 gte_strgb(&pkt->r0);
                 ((volatile POLY_FT4 *)pkt)->code = prim->mode & 0xFE;
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_FT4);
                 pkt++;
             }
         }
@@ -1612,8 +1594,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
             *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_GT3);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -1659,7 +1640,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_gt3(pkt);
@@ -1671,7 +1652,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v01 << 8) | u01;
                         *(u32 *)&pkt->u2 = (v02 << 8) | u02;
                         *(u32 *)&pkt->r0 =
-                            0x34000000 | (prim->c0.b << 16) | (prim->c0.g << 8) | prim->c0.r;
+                            GPU_COM_TG3 << 24 | (prim->c0.b << 16) | (prim->c0.g << 8) | prim->c0.r;
                         *(u32 *)&pkt->r1 = (b01 << 16) | (g01 << 8) | r01;
                         *(u32 *)&pkt->r2 = (b02 << 16) | (g02 << 8) | r02;
                         break;
@@ -1679,7 +1660,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v12 << 8) | u12;
                         *(u32 *)&pkt->u2 = (v02 << 8) | u02;
-                        *(u32 *)&pkt->r0 = 0x34000000 | (b01 << 16) | (g01 << 8) | r01;
+                        *(u32 *)&pkt->r0 = GPU_COM_TG3 << 24 | (b01 << 16) | (g01 << 8) | r01;
                         *(u32 *)&pkt->r1 = (b12 << 16) | (g12 << 8) | r12;
                         *(u32 *)&pkt->r2 = (b02 << 16) | (g02 << 8) | r02;
                         break;
@@ -1687,7 +1668,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v01 << 8) | u01;
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (prim->uv1.v << 8) | prim->uv1.u;
                         *(u32 *)&pkt->u2 = (v12 << 8) | u12;
-                        *(u32 *)&pkt->r0 = 0x34000000 | (b01 << 16) | (g01 << 8) | r01;
+                        *(u32 *)&pkt->r0 = GPU_COM_TG3 << 24 | (b01 << 16) | (g01 << 8) | r01;
                         *(u32 *)&pkt->r1 = (prim->c1.b << 16) | (prim->c1.g << 8) | prim->c1.r;
                         *(u32 *)&pkt->r2 = (b12 << 16) | (g12 << 8) | r12;
                         break;
@@ -1695,14 +1676,13 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u0 = (prim->uv0.hi << 16) | (v02 << 8) | u02;
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v12 << 8) | u12;
                         *(u32 *)&pkt->u2 = (prim->uv2.v << 8) | prim->uv2.u;
-                        *(u32 *)&pkt->r0 = 0x34000000 | (b02 << 16) | (g02 << 8) | r02;
+                        *(u32 *)&pkt->r0 = GPU_COM_TG3 << 24 | (b02 << 16) | (g02 << 8) | r02;
                         *(u32 *)&pkt->r1 = (b12 << 16) | (g12 << 8) | r12;
                         *(u32 *)&pkt->r2 = (prim->c2.b << 16) | (prim->c2.g << 8) | prim->c2.r;
                         break;
                 }
                 ((volatile POLY_GT3 *)pkt)->code = prim->mode & 0xFE;
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_GT3);
                 pkt++;
             }
         }
@@ -1772,8 +1752,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
             *(u16 *)&pkt->u3 = *(u16 *)&prim->uv3;
             tag = (u32 *)ot->org + (v >> shift) + 1;
-            *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
-            *tag = (u32)pkt & 0xFFFFFF;
+            linkPrim(tag, pkt, POLY_GT4);
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
@@ -1835,7 +1814,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                 }
                 gte_rtpt();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy3_gt4(pkt);
@@ -1855,7 +1834,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                 }
                 gte_rtps();
                 gte_stflg(&v);
-                if (v & 0x7F85E000) {
+                if (v & GTE_FLAG_REJECT) {
                     continue;
                 }
                 gte_stsxy2(&pkt->x3);
@@ -1866,7 +1845,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u2 = (v02 << 8) | u02;
                         *(u32 *)&pkt->u3 = (vc << 8) | uc;
                         *(u32 *)&pkt->r0 =
-                            0x3C000000 | (prim->c0.b << 16) | (prim->c0.g << 8) | prim->c0.r;
+                            GPU_COM_TG4 << 24 | (prim->c0.b << 16) | (prim->c0.g << 8) | prim->c0.r;
                         *(u32 *)&pkt->r1 = (b01 << 16) | (g01 << 8) | r01;
                         *(u32 *)&pkt->r2 = (b02 << 16) | (g02 << 8) | r02;
                         *(u32 *)&pkt->r3 = (bc << 16) | (gc << 8) | rc;
@@ -1876,7 +1855,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (prim->uv1.v << 8) | prim->uv1.u;
                         *(u32 *)&pkt->u2 = (vc << 8) | uc;
                         *(u32 *)&pkt->u3 = (v13 << 8) | u13;
-                        *(u32 *)&pkt->r0 = 0x3C000000 | (b01 << 16) | (g01 << 8) | r01;
+                        *(u32 *)&pkt->r0 = GPU_COM_TG4 << 24 | (b01 << 16) | (g01 << 8) | r01;
                         *(u32 *)&pkt->r1 = (prim->c1.b << 16) | (prim->c1.g << 8) | prim->c1.r;
                         *(u32 *)&pkt->r2 = (bc << 16) | (gc << 8) | rc;
                         *(u32 *)&pkt->r3 = (b13 << 16) | (g13 << 8) | r13;
@@ -1886,7 +1865,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (vc << 8) | uc;
                         *(u32 *)&pkt->u2 = (prim->uv2.v << 8) | prim->uv2.u;
                         *(u32 *)&pkt->u3 = (v23 << 8) | u23;
-                        *(u32 *)&pkt->r0 = 0x3C000000 | (b02 << 16) | (g02 << 8) | r02;
+                        *(u32 *)&pkt->r0 = GPU_COM_TG4 << 24 | (b02 << 16) | (g02 << 8) | r02;
                         *(u32 *)&pkt->r1 = (bc << 16) | (gc << 8) | rc;
                         *(u32 *)&pkt->r2 = (prim->c2.b << 16) | (prim->c2.g << 8) | prim->c2.r;
                         *(u32 *)&pkt->r3 = (b23 << 16) | (g23 << 8) | r23;
@@ -1896,15 +1875,14 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->u1 = (prim->uv1.hi << 16) | (v13 << 8) | u13;
                         *(u32 *)&pkt->u2 = (v23 << 8) | u23;
                         *(u32 *)&pkt->u3 = (prim->uv3.v << 8) | prim->uv3.u;
-                        *(u32 *)&pkt->r0 = 0x3C000000 | (bc << 16) | (gc << 8) | rc;
+                        *(u32 *)&pkt->r0 = GPU_COM_TG4 << 24 | (bc << 16) | (gc << 8) | rc;
                         *(u32 *)&pkt->r1 = (b13 << 16) | (g13 << 8) | r13;
                         *(u32 *)&pkt->r2 = (b23 << 16) | (g23 << 8) | r23;
                         *(u32 *)&pkt->r3 = (prim->c3.b << 16) | (prim->c3.g << 8) | prim->c3.r;
                         break;
                 }
                 ((volatile POLY_GT4 *)pkt)->code = prim->mode & 0xFE;
-                *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
-                *tag = (u32)pkt & 0xFFFFFF;
+                linkPrim(tag, pkt, POLY_GT4);
                 pkt++;
             }
         }
@@ -1930,7 +1908,7 @@ PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packe
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -1967,8 +1945,7 @@ PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packe
         y += mac.vy >> 8;
         pkt->v2 = y - page;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_FT3);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -1991,7 +1968,7 @@ PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2003,7 +1980,7 @@ PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -2040,8 +2017,7 @@ PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY
         y += mac.vy >> 8;
         pkt->v3 = y - page;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_FT4);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -2064,7 +2040,7 @@ PACKET *SortTmdLitEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2098,8 +2074,7 @@ PACKET *SortTmdLitEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         pkt->v2 = (mac.vy >> 7) - 0x20;
         g = (POLY_GT3 *)(pkt + 1);
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_FT3);
         c.r = c.g = c.b = 0x80;
         gte_ldrgb(&c);
         gte_ldv3(&nrm[prim->n0], &nrm[prim->n1], &nrm[prim->n2]);
@@ -2111,8 +2086,7 @@ PACKET *SortTmdLitEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         *(u32 *)&g->x1 = *(u32 *)&pkt->x1;
         *(u32 *)&g->x2 = *(u32 *)&pkt->x2;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)g = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)g & 0xFFFFFF;
+        linkPrim(tag, g, POLY_GT3);
         gte_strgb3_gt3(g);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
@@ -2137,7 +2111,7 @@ PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2149,7 +2123,7 @@ PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -2183,8 +2157,7 @@ PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         pkt->v3 = (mac.vy >> 7) - 0x20;
         g = (POLY_GT4 *)(pkt + 1);
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_FT4);
         c.r = c.g = c.b = 0x80;
         gte_ldrgb(&c);
         gte_ldv3(&nrm[prim->n0], &nrm[prim->n1], &nrm[prim->n2]);
@@ -2201,8 +2174,7 @@ PACKET *SortTmdLitEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pa
         gte_ldv0(&nrm[prim->n3]);
         gte_nccs();
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)g = (*tag & 0xFFFFFF) | 0x0C000000;
-        *tag = (u32)g & 0xFFFFFF;
+        linkPrim(tag, g, POLY_GT4);
         gte_strgb(&g->r3);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
@@ -2229,7 +2201,7 @@ PACKET *SortTmdWireGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet,
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v3]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2243,7 +2215,7 @@ PACKET *SortTmdWireGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet,
         gte_ldv0(&vtx[prim->v2]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt[1].x1);
@@ -2269,12 +2241,10 @@ PACKET *SortTmdWireGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet,
         ((volatile LINE_G3 *)pkt)[0].pad = 0x55555555;
         ((volatile LINE_G3 *)pkt)[1].pad = 0x55555555;
         tag = (u32 *)ot->org + z;
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, LINE_G3);
         pkt++;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, LINE_G3);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -2337,7 +2307,7 @@ PACKET *SortTmdFastF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift,
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2354,8 +2324,7 @@ PACKET *SortTmdFastF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift,
         gte_dpcs();
         gte_strgb(&pkt->r0);
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x04000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_F3);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -2371,7 +2340,7 @@ PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2383,7 +2352,7 @@ PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -2395,8 +2364,7 @@ PACKET *SortTmdFastF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift,
         gte_dpcs();
         gte_strgb(&pkt->r0);
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x05000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_F4);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -2417,7 +2385,7 @@ PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2437,8 +2405,7 @@ PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
          * reduced pointer; it still pays for reducing &pkt->r2. */
         ((volatile POLY_G3 *)pkt)->code = prim->mode;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x06000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_G3);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -2459,7 +2426,7 @@ PACKET *SortTmdFastG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2471,7 +2438,7 @@ PACKET *SortTmdFastG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -2490,8 +2457,7 @@ PACKET *SortTmdFastG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
          * reduced pointer; it still pays for reducing &pkt->r3. */
         ((volatile POLY_G4 *)pkt)->code = prim->mode;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x08000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_G4);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -2512,7 +2478,7 @@ PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -2535,8 +2501,7 @@ PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
         *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x07000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_FT3);
         pkt++;
     }
     return (PACKET *)pkt;

@@ -633,4 +633,13 @@
 
 #endif /* !HOST_BUILD */
 
+/** @brief FLAG (control 31) bit 31: set when any error bit is. */
+#define GTE_FLAG_ERROR 0x80000000
+
+/** @brief The FLAG bits that make a projected vertex unusable: a MAC1-3 or
+ *         IR1-2 overflow, SZ3/OTZ or MAC0 out of range, or SX2/SY2
+ *         saturated (bits 30-23, 18, 16-13). The colour and IR3 bits and
+ *         the divide overflow are left out. */
+#define GTE_FLAG_REJECT 0x7F85E000
+
 #endif

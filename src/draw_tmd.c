@@ -3,6 +3,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "gte.h"
+#include "prim.h"
 
 /* LoadOverlay's files: each overlay's disc position (a CdlLOC, kept as a
  * word) and its size in sectors. */
@@ -163,7 +164,7 @@ PACKET *SortTmdFastFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -175,7 +176,7 @@ PACKET *SortTmdFastFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -194,8 +195,7 @@ PACKET *SortTmdFastFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         *(u16 *)&pkt->u2 = prim->uv2;
         *(u16 *)&pkt->u3 = prim->uv3;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_FT4);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -216,7 +216,7 @@ PACKET *SortTmdFastGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -239,8 +239,7 @@ PACKET *SortTmdFastGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         *(u32 *)&pkt->u1 = prim->uv1;
         *(u16 *)&pkt->u2 = prim->uv2;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_GT3);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -261,7 +260,7 @@ PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -273,7 +272,7 @@ PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -296,8 +295,7 @@ PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         *(u16 *)&pkt->u2 = prim->uv2;
         *(u16 *)&pkt->u3 = prim->uv3;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_GT4);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -338,8 +336,7 @@ PACKET *SortTmdLitSemiGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pack
         *(u32 *)&pkt->u1 = prim->uv1;
         *(u16 *)&pkt->u2 = prim->uv2;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_GT3);
         gte_strgb3_gt3(pkt);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
@@ -365,7 +362,7 @@ PACKET *SortTmdLitSemiGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pack
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x80000000) {
+        if (v & GTE_FLAG_ERROR) {
             continue;
         }
         gte_nclip();
@@ -377,7 +374,7 @@ PACKET *SortTmdLitSemiGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pack
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x80000000) {
+        if (v & GTE_FLAG_ERROR) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -395,8 +392,7 @@ PACKET *SortTmdLitSemiGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *pack
         gte_ldv0(&nrm[prim->n3]);
         gte_nccs();
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_GT4);
         gte_strgb(&pkt->r3);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
@@ -422,7 +418,7 @@ PACKET *SortTmdWireGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet,
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -447,8 +443,7 @@ PACKET *SortTmdWireGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet,
         ((volatile LINE_G4 *)pkt)->code = 0x5C;
         ((volatile LINE_G4 *)pkt)->pad = 0x55555555;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, LINE_G4);
         pkt++;
     }
     return (PACKET *)pkt;
@@ -470,7 +465,7 @@ PACKET *SortTmdLitGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -489,8 +484,7 @@ PACKET *SortTmdLitGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
         *(u32 *)&pkt->u1 = prim->uv1;
         *(u16 *)&pkt->u2 = prim->uv2;
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x09000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_GT3);
         gte_strgb3_gt3(pkt);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
@@ -516,7 +510,7 @@ PACKET *SortTmdLitGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_nclip();
@@ -528,7 +522,7 @@ PACKET *SortTmdLitGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
         gte_ldv0(&vtx[prim->v3]);
         gte_rtps();
         gte_stflg(&v);
-        if (v & 0x7F85E000) {
+        if (v & GTE_FLAG_REJECT) {
             continue;
         }
         gte_stsxy2(&pkt->x3);
@@ -546,8 +540,7 @@ PACKET *SortTmdLitGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
         gte_ldv0(&nrm[prim->n3]);
         gte_nccs();
         tag = (u32 *)ot->org + (v >> shift);
-        *(u32 *)pkt = (*tag & 0xFFFFFF) | 0x0C000000;
-        *tag = (u32)pkt & 0xFFFFFF;
+        linkPrim(tag, pkt, POLY_GT4);
         gte_strgb(&pkt->r3);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */

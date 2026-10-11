@@ -7,6 +7,7 @@
 #include "libcd.h"
 #include "model.h"
 #include "draw.h"
+#include "prim.h"
 #include "object.h"
 #include "spad.h"
 
@@ -541,8 +542,7 @@ void DrawSky(u32 arg) {
     p->y3 = 8 - y;
     setcode(p, 0x38);
     tag = (u32 *)gOt[gActiveBuff].org + 0xFFF;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_G4);
     p++;
     if (gFogFade != 100 && gStage % 3 != 2) {
         p->r0 = p->r1 = gSkyColors[set].c[2].r * (gFogFade << 11) / 0x10000;
@@ -565,8 +565,7 @@ void DrawSky(u32 arg) {
     p->y3 = 119;
     setcode(p, 0x38);
     tag = (u32 *)gOt[gActiveBuff].org + 0xFFF;
-    *(u32 *)p = (*tag & 0xFFFFFF) | 0x08000000;
-    *tag = (u32)p & 0xFFFFFF;
+    linkPrim(tag, p, POLY_G4);
     GsOUT_PACKET_P = (u8 *)(p + 1);
 }
 

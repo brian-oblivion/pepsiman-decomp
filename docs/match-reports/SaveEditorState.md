@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. Saves three pieces of game state into the tool
 state block `D_80095B28`: three words at 0x348 of `gPlayer` into 0x38,
-the halfword `D_800A7680[0].vy` into 0x44, and the first six words of
+the halfword `gCourse[0].vy` into 0x44, and the first six words of
 `gRefView` into 0x48. Then it runs `SaveEditorSlot(a, 0x8016D000)`.
 RestoreEditorState is its inverse.
 
@@ -28,7 +28,7 @@ void SaveEditorState(s16 a) {
     sToolSave.unk38[0] = sGameSave.unk348[0];
     sToolSave.unk38[1] = sGameSave.unk348[1];
     sToolSave.unk38[2] = sGameSave.unk348[2];
-    sToolSave.unk44 = D_800A7680[0].vy;
+    sToolSave.unk44 = gCourse[0].vy;
     sToolSave.unk48[0] = gRefView[0];
     /* ... [1] to [5] the same way ... */
     sToolSave.unk48[5] = gRefView[5];
@@ -50,11 +50,11 @@ void SaveEditorState(s16 a) {
 
 ## Declarations
 
-The halfword is `D_800A7680[0].vy` (splat names the address `D_800A7682`;
+The halfword is `gCourse[0].vy` (splat names the address `D_800A7682`;
 player, object and editor reach it `lui` + `%lo`, `lh`/`lhu`).
 At first it was declared `extern s16 D_800A7682[];` in `include/common.h`;
-with MoveGamePos, which reaches `D_800A7680` as a base with `vy` at +2,
-that line was dropped again and `extern SVECTOR D_800A7680[];` moved from
+with MoveGamePos, which reaches `gCourse` as a base with `vy` at +2,
+that line was dropped again and `extern SVECTOR gCourse[];` moved from
 player.c into `include/player.h` (both units now include it).
 Same bytes either way. `ToolSave` and `GameSave` are unit-local views of
 `D_80095B28` and `gPlayer`.

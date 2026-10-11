@@ -13,7 +13,7 @@ one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
 ```c
 /* Unit-local views: StageState (gPlayer's head, widened for this
  * function), SavedStart (gSavedStart: s32 valid; Pos3 pos; s32 unk10,
- * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (D_800A7680).
+ * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (gCourse).
  * Locals: extern s16 D_800E474C; u16 gGameMode, gCameraYaw; u8
  * gLoading, gPauseState; s32 D_800957A4, gTimeLeft, ClipF;
  * s32 gTimeLimitsAlt[][3], gTimeLimits[][3]. The rest from common.h. */
@@ -90,7 +90,7 @@ void ResetStage(void) {
         gSpeedFixed = 0;
         sStage.unk374 = sStage.unk376 = sStage.unk378 = sStage.unk37A = 0;
         sStage.unk0 = 0;
-        sStage.unk348.vy = D_800A7680.pos.vy - 1000;
+        sStage.unk348.vy = gCourse.pos.vy - 1000;
     }
     mode = gStage;
     saved = sSaved.valid;

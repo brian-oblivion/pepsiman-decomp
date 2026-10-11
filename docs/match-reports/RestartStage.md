@@ -5,7 +5,7 @@
 Unit `src/stage_flow.c`. Stage start. Raises `D_80095900`; when the
 argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
 resets the head of the game state (`gPlayer`), copies the start position
-from `D_800A7680`, looks up a per-stage value when the stage's flag in
+from `gCourse`, looks up a per-stage value when the stage's flag in
 `D_8007AD58` is 1, derives the camera height (`D_8009676C`) and the start
 heading (from `D_80095840`), runs the stage set-up calls and clears a
 halfword in each of the 200 Rec48 records.
@@ -16,7 +16,7 @@ halfword in each of the 200 Rec48 records.
  *   StageState  gPlayer's head: u8 unk0, unk2, unk6; Pos3 unk348 at
  *               0x348; s32 unk37C, unk380; s16 unk3C8, unk3CA
  *   Rec48Clear  object's Rec48 with s16 unk26
- *   Placement   { SVECTOR rot; Pos3 pos; }  (D_800A7680)
+ *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
@@ -37,9 +37,9 @@ void RestartStage(u8 arg0) {
     sStage.unk3C8 = 0;
     sStage.unk2 = 1;
     gBonusLevel = 3;
-    sStage.unk348.vx = D_800A7680.pos.vx;
-    sStage.unk348.vy = D_800A7680.pos.vy;
-    sStage.unk348.vz = D_800A7680.pos.vz;
+    sStage.unk348.vx = gCourse.pos.vx;
+    sStage.unk348.vy = gCourse.pos.vy;
+    sStage.unk348.vz = gCourse.pos.vz;
     gMissState = 0;
     sStage.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
@@ -49,8 +49,8 @@ void RestartStage(u8 arg0) {
     }
     gSection = 0;
     yaw = -D_80095840->unk6;
-    D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
-    D_800A7680.rot.vy = yaw;
+    D_8009676C[0] = (s16)(gCourse.pos.vy - 500);
+    gCourse.rot.vy = yaw;
     sStage.unk37C = sStage.unk380 = yaw;
     D_800957BC = yaw;
     D_800957B0 = yaw;
@@ -86,8 +86,8 @@ void RestartStage(u8 arg0) {
   16-byte VECTOR it even copied a fourth word. Same family as bravo's
   round-6 lever on separate `s32` assignments.
 - **Statement order around the heading.** `gSection = 0; yaw =
-  -D_80095840->unk6; D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
-  D_800A7680.rot.vy = yaw;` matches. With the `D_8009676C` store before
+  -D_80095840->unk6; D_8009676C[0] = (s16)(gCourse.pos.vy - 500);
+  gCourse.rot.vy = yaw;` matches. With the `D_8009676C` store before
   the heading read, the build stored it right after its `sra` and moved
   `gSection` down (107/127).
 - `(s16)(pos.vy - 500)` comes out as retail's `lhu` / `addiu -0x1F4` /
@@ -107,7 +107,7 @@ void RestartStage(u8 arg0) {
 - `gBonusLevel` (`s32`) and `D_800957BC` (`s16`) are now in
   `include/common.h` (additive); their copies in `src/player.c` were
   deleted (same types).
-- `D_800A7680` is an `SVECTOR[]` in player and a `Placement` here;
+- `gCourse` is an `SVECTOR[]` in player and a `Placement` here;
   both declarations carry a `MATCHING:` note.
 - `FindFloor` takes a `Rec48 *` in object's view and a `Pos3 *`
   here (`&sStage.unk348`); this unit's prototype has a `MATCHING:` note.

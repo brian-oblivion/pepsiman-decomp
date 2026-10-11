@@ -3,7 +3,7 @@
 > Renamed from `func_800282F0` on 2026-10-11 (tools/rename.py). Address 0x800282f0.
 
 Unit `src/player.c`. Turns `deg` degrees into a PlayStation angle,
-adds the `vy` of the rotation `D_800A7680` points at, and pushes the
+adds the `vy` of the rotation `gCourse` points at, and pushes the
 game-state pair `unk348`/`unk350` back by `dist` along that heading (sine
 on 0x348, cosine on 0x350, 20.12 fixed point).
 
@@ -13,25 +13,25 @@ void PushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = gCourse;
     angle = ANGLE_DEG(deg);
     sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
     sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
 }
 ```
 
-`D_800A7680` is declared in the unit `extern SVECTOR D_800A7680[];`
+`gCourse` is declared in the unit `extern SVECTOR gCourse[];`
 (retail reaches it `lui`/`addiu` into a saved register and reads `lh 2`);
 `GameState` gained `unk348` and `unk350`.
 
 ## Levers
 
-- **A local pointer for the global's base.** Reading `D_800A7680->vy`
+- **A local pointer for the global's base.** Reading `gCourse->vy`
   directly gave 43/44 words of the same code with a word short: the
-  allocator put the `D_800A7680` base in `$s0` and the angle in `$s1`, so
+  allocator put the `gCourse` base in `$s0` and the angle in `$s1`, so
   the `sGame` base could not reuse the angle's register, and sched2 moved
   the `addu a0,a0,angle` into the `lh` delay slot where retail keeps a
-  `nop`. `SVECTOR *rot = D_800A7680;` swaps the two (`rot` in `$s1`, angle
+  `nop`. `SVECTOR *rot = gCourse;` swaps the two (`rot` in `$s1`, angle
   in `$s0`, which `sGame`'s base takes over once the angle dies): 44/44.
 - `ANGLE_DEG(deg)` gives retail's `sll 12` and the 0xB60B60B7
   multiply-by-reciprocal for `/ 360`, as in PolarOffset.

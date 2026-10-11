@@ -3,7 +3,7 @@
 > Renamed from `func_8002A328` on 2026-10-11 (tools/rename.py). Address 0x8002a328.
 
 Unit `src/object.c`. Two wall probes: a point 50 units from the
-player (`sGameHead` 0x348/0x34C/0x350) at the heading `D_800A7680[0].vy`
+player (`sGameHead` 0x348/0x34C/0x350) at the heading `gCourse[0].vy`
 plus and minus 0x200 (45 degrees); UpdateSection finds the path segment
 from `D_800957F4`, and when QueryWall reports a hit the player moves
 25 units back along heading ±0x400. Then func_8002A558.
@@ -25,23 +25,23 @@ void PushPlayerFromWalls(void) {
     VECTOR pos;
     s32 idx;
 
-    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vx = sGameHead.unk348 + (rsin(gCourse[0].vy + 0x200) * 50 >> 12);
     pos.vy = sGameHead.unk34C;
-    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vz = sGameHead.unk350 + (rcos(gCourse[0].vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (u8 *)gFloorData)) {
-        sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
-        sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
+        sGameHead.unk348 -= rsin(gCourse[0].vy + 0x400) * 25 >> 12;
+        sGameHead.unk350 -= rcos(gCourse[0].vy + 0x400) * 25 >> 12;
     }
-    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vx = sGameHead.unk348 + (rsin(gCourse[0].vy - 0x200) * 50 >> 12);
     pos.vy = sGameHead.unk34C;
-    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vz = sGameHead.unk350 + (rcos(gCourse[0].vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (u8 *)gFloorData)) {
-        sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
-        sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
+        sGameHead.unk348 -= rsin(gCourse[0].vy - 0x400) * 25 >> 12;
+        sGameHead.unk350 -= rcos(gCourse[0].vy - 0x400) * 25 >> 12;
     }
     func_8002A558();
 }```

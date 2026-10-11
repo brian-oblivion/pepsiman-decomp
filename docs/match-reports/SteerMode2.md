@@ -50,9 +50,9 @@ void SteerMode2(void) {
         __asm__("");
         g = &sGame;
         x = g->unk380;
-        v = D_800A7680->vy - 0x71;
+        v = gCourse->vy - 0x71;
         if (x >= v) {
-            hi = D_800A7680->vy + 0x71;
+            hi = gCourse->vy + 0x71;
             if (x <= hi) {
                 v = x;
             } else {

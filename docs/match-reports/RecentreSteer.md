@@ -4,14 +4,14 @@
 
 Unit `src/player.c`. Three steps per call (a `u16` counter): the
 game-state word at 0x384 decays one step towards 0, and the angle at 0x380
-follows the camera yaw (`D_800A7680[0].vy`): by 56 while it is more than
+follows the camera yaw (`gCourse[0].vy`): by 56 while it is more than
 56 away, by 11 once within 56. Each step copies the angle's low half to
 `D_800957BC`. SteerPlayer calls it when no turn button is held.
 
 ```c
 /* GameState gains: s32 unk380 at 0x380, s32 unk384 at 0x384 */
 extern s16 D_800957BC;
-extern SVECTOR D_800A7680[];   /* unit */
+extern SVECTOR gCourse[];   /* unit */
 
 void RecentreSteer(void) {
     u16 i;
@@ -25,7 +25,7 @@ void RecentreSteer(void) {
         if (sGame.unk384 > 0) {
             sGame.unk384--;
         }
-        yaw = D_800A7680->vy;
+        yaw = gCourse->vy;
         d = sGame.unk380 - yaw;
         if ((d < 0 ? -d : d) > 56) {
             if (sGame.unk380 < yaw) {
@@ -49,9 +49,9 @@ void RecentreSteer(void) {
 
 ## Levers
 
-- **The yaw in a local.** `ABS(sGame.unk380 - D_800A7680->vy)` with the
+- **The yaw in a local.** `ABS(sGame.unk380 - gCourse->vy)` with the
   member in every compare reloads the halfword at each test (long). Retail
-  loads it once into `$a0`: `yaw = D_800A7680->vy;`.
+  loads it once into `$a0`: `yaw = gCourse->vy;`.
 - **An inline ternary abs, not an `if (d < 0) d = -d;` statement.** Both
   give the same `bgez`/`negu`, but with the statement (54/55) the first
   `beqz` of the 56-arm lands on the reload of 0x380; with `(d < 0 ? -d :

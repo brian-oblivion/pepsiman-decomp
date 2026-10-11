@@ -72,7 +72,7 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (sGame.unk34C >= sGame.unk3C0) {
-                PolarOffset(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
+                PolarOffset(gCourse->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
                 sGame.unk348 += D_800D39C8[0];
                 sGame.unk350 += D_800D39C8[2];
             }
@@ -91,7 +91,7 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (sGame.unk34C >= sGame.unk3C0) {
-                PolarOffset(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
+                PolarOffset(gCourse->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
                 sGame.unk348 += D_800D39C8[0];
                 sGame.unk350 += D_800D39C8[2];
             }
@@ -103,8 +103,8 @@ void UpdatePlayer(void) {
         case 1:
         case 3:
         case 4:
-            sGame.unk3AE = rsin(D_800A7680->vy) * sGame.unk3A8 >> 12;
-            sGame.unk3B0 = rcos(D_800A7680->vy) * sGame.unk3A8 >> 12;
+            sGame.unk3AE = rsin(gCourse->vy) * sGame.unk3A8 >> 12;
+            sGame.unk3B0 = rcos(gCourse->vy) * sGame.unk3A8 >> 12;
             sGame.unk348 -= sGame.unk3AE;
             sGame.unk350 -= sGame.unk3B0;
             break;
@@ -134,9 +134,9 @@ void UpdatePlayer(void) {
     }
     g = &sGame;
     x = g->unk380;
-    v = D_800A7680->vy - 0x155;
+    v = gCourse->vy - 0x155;
     if (x >= v) {
-        hi = D_800A7680->vy + 0x155;
+        hi = gCourse->vy + 0x155;
         if (x <= hi) {
             v = x;
         } else {

@@ -23,7 +23,7 @@ start); 7 sets mode 6. Fourth build matched.
   `int` 1 that cc1 folds) gives retail's second `li`. Probably not the
   original spelling; no plainer one was found.
 - The start position is reached through a unit-local `RotPos` view of
-  `D_800A7680` (`#define sRotPos (*(RotPos *)D_800A7680)`), base in `$s0`
+  `gCourse` (`#define sRotPos (*(RotPos *)gCourse)`), base in `$s0`
   across the call.
 
 ## Declarations

@@ -436,7 +436,7 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (gPlayer.y >= gPlayer.groundY) {
-                PolarOffset(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
+                PolarOffset(gCourse.rot.vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
                 gPlayer.x += D_800D39C8[0];
                 gPlayer.z += D_800D39C8[2];
             }
@@ -455,7 +455,7 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (gPlayer.y >= gPlayer.groundY) {
-                PolarOffset(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
+                PolarOffset(gCourse.rot.vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
                 gPlayer.x += D_800D39C8[0];
                 gPlayer.z += D_800D39C8[2];
             }
@@ -467,8 +467,8 @@ void UpdatePlayer(void) {
         case 1:
         case 3:
         case 4:
-            gPlayer.stepX = rsin(D_800A7680->vy) * gPlayer.speed >> 12;
-            gPlayer.stepZ = rcos(D_800A7680->vy) * gPlayer.speed >> 12;
+            gPlayer.stepX = rsin(gCourse.rot.vy) * gPlayer.speed >> 12;
+            gPlayer.stepZ = rcos(gCourse.rot.vy) * gPlayer.speed >> 12;
             gPlayer.x -= gPlayer.stepX;
             gPlayer.z -= gPlayer.stepZ;
             break;
@@ -498,9 +498,9 @@ void UpdatePlayer(void) {
     }
     g = &gPlayer;
     x = g->yaw;
-    v = D_800A7680->vy - 0x155;
+    v = gCourse.rot.vy - 0x155;
     if (x >= v) {
-        hi = D_800A7680->vy + 0x155;
+        hi = gCourse.rot.vy + 0x155;
         if (x <= hi) {
             v = x;
         } else {
@@ -548,14 +548,14 @@ void SteerPlayer(void) {
             return;
         }
     }
-    D_8009EEF8[0] = D_800A7680[0].vy;
+    D_8009EEF8[0] = gCourse.rot.vy;
 }
 
 static __inline__ void pushBack(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = &gCourse.rot;
     angle = ANGLE_DEG(deg);
     gPlayer.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
     gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
@@ -569,7 +569,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
     if (gPlayer.unk1 != mode) {
         switch (mode) {
             case 3:
-                yaw = D_800A7680->vy;
+                yaw = gCourse.rot.vy;
                 if (yaw - 0x2D < gPlayer.yaw) {
                     gPlayer.yaw = yaw - 0x2D;
                 }
@@ -592,7 +592,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 pushBack(-90, b);
                 break;
             case 2:
-                yaw = D_800A7680->vy;
+                yaw = gCourse.rot.vy;
                 if (gPlayer.yaw < yaw + 0x4000) {
                     gPlayer.yaw = yaw + 0x2D;
                 }
@@ -615,14 +615,14 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 pushBack(90, b);
                 break;
         }
-        D_800957BC = D_800957BC < D_800A7680->vy - 0x100   ? D_800A7680->vy - 0x100
-                     : D_800A7680->vy + 0x100 < D_800957BC ? D_800A7680->vy + 0x100
+        D_800957BC = D_800957BC < gCourse.rot.vy - 0x100   ? gCourse.rot.vy - 0x100
+                     : gCourse.rot.vy + 0x100 < D_800957BC ? gCourse.rot.vy + 0x100
                                                            : (u16)D_800957BC;
         if (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1 && gPlayer.unk38F == 0) {
             gPlayer.y = gPlayer.groundY;
         }
     } else {
-        gPlayer.yaw = D_800A7680->vy;
+        gPlayer.yaw = gCourse.rot.vy;
     }
 }
 
@@ -640,7 +640,7 @@ void RecentreSteer(void) {
         if (gPlayer.lean > 0) {
             gPlayer.lean--;
         }
-        yaw = D_800A7680->vy;
+        yaw = gCourse.rot.vy;
         d = gPlayer.yaw - yaw;
         if ((d < 0 ? -d : d) > 56) {
             if (gPlayer.yaw < yaw) {
@@ -1786,7 +1786,7 @@ top:
         case 0x28:
             switch (state->action) {
                 case 0x51:
-                    D_8009EAB8[1] = gPlayer.unk362 = D_800A7680[0].vy + 0x800;
+                    D_8009EAB8[1] = gPlayer.unk362 = gCourse.rot.vy + 0x800;
                 case 0x55:
                     D_800D86E0[0].coord.t[0] = gPlayer.drawX;
                     D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
@@ -1908,8 +1908,8 @@ top:
             }
             break;
         case 0x2D:
-            gPlayer.drawX = rsin(D_800A7680[0].vy + 0x400) * 20 >> 12;
-            gPlayer.drawZ = rcos(D_800A7680[0].vy + 0x400) * 20 >> 12;
+            gPlayer.drawX = rsin(gCourse.rot.vy + 0x400) * 20 >> 12;
+            gPlayer.drawZ = rcos(gCourse.rot.vy + 0x400) * 20 >> 12;
             D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
             D_800D86E0[0].coord.t[0] = gPlayer.drawX;
             D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
@@ -2159,10 +2159,10 @@ s32 SetPlayerView(void) {
     gRefView[1] = rsin((gViewerAngle << 12) / 360) * 500 / 4096 + gPlayer.groundY;
     gRefView[2] = rcos((gViewerAngle << 12) / 360) * 600 / 4096;
     gRefView[4] = gPlayer.y;
-    gRefView[0] = rsin(D_800A7680->vy) * 400 / 4096;
-    gRefView[2] = rcos(D_800A7680->vy) * 400 / 4096;
-    gRefView[3] = rsin(D_800A7680->vy - 0x800) * 900 / 4096;
-    gRefView[5] = rcos(D_800A7680->vy - 0x800) * 900 / 4096;
+    gRefView[0] = rsin(gCourse.rot.vy) * 400 / 4096;
+    gRefView[2] = rcos(gCourse.rot.vy) * 400 / 4096;
+    gRefView[3] = rsin(gCourse.rot.vy - 0x800) * 900 / 4096;
+    gRefView[5] = rcos(gCourse.rot.vy - 0x800) * 900 / 4096;
     if (D_8009587E < gPlayer.speed) {
         D_8009587E++;
     }
@@ -2553,9 +2553,9 @@ void SteerMode2(void) {
         __asm__("");
         g = &gPlayer;
         x = g->yaw;
-        v = D_800A7680->vy - 0x71;
+        v = gCourse.rot.vy - 0x71;
         if (x >= v) {
-            hi = D_800A7680->vy + 0x71;
+            hi = gCourse.rot.vy + 0x71;
             if (x <= hi) {
                 v = x;
             } else {
@@ -2708,9 +2708,9 @@ void SteerMode3(void) {
         __asm__("");
         g = &gPlayer;
         x = g->yaw;
-        v = D_800A7680->vy - 0x71;
+        v = gCourse.rot.vy - 0x71;
         if (x >= v) {
-            hi = D_800A7680->vy + 0x71;
+            hi = gCourse.rot.vy + 0x71;
             if (x <= hi) {
                 v = x;
             } else {
@@ -2765,7 +2765,7 @@ void PushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = &gCourse.rot;
     angle = ANGLE_DEG(deg);
     gPlayer.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
     gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;

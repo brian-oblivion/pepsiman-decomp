@@ -5,7 +5,7 @@
 Unit `src/object.c`. One drift step of a `Drifter` (a unit-local
 view: position at 4..0xC, step count at 0x10, base y at 0x14, bob phase in
 degrees at 0x18), for the first 15 steps: moves it 20 units along the yaw
-`D_800A7680[0].vy` (through PolarToXZ into `D_800D39C8`), advances
+`gCourse[0].vy` (through PolarToXZ into `D_800D39C8`), advances
 the phase by 10 degrees and sets y to the base minus `|200 sin(phase)|`.
 Returns 1 on two steps of three, 0 on every third and once done.
 
@@ -18,7 +18,7 @@ s32 StepDrift(Drifter *d) {
     if (d->count < 15) {
         d->count++;
         ret = d->count % 3 != 0;
-        PolarToXZ(20, D_800A7680[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
+        PolarToXZ(20, gCourse[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
         d->x -= ((Vec3 *)D_800D39C8)->x >> 12;
         d->z -= ((Vec3 *)D_800D39C8)->z >> 12;
         d->phase = (d->phase + 10) % 360;

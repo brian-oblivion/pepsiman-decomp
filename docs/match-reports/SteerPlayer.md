@@ -7,12 +7,12 @@ set, picks a per-frame update by the byte `gPadType`: for 0x73 and 0x41,
 pad bit 0x8000 of `gPad` calls `ApplySteer(3, 16, 15)`, bit 0x2000
 calls `ApplySteer(2, 16, 15)`, otherwise `RecentreSteer()`; any other
 value calls `RecentreSteer()`. If the flag is (or became) clear, copies the
-camera angle `D_800A7680[0].vy` into `D_8009EEF8`.
+camera angle `gCourse[0].vy` into `D_8009EEF8`.
 
 ```c
 extern u8 gPadType;
 extern s32 D_8009EEF8[];
-extern SVECTOR D_800A7680[];   /* unit */
+extern SVECTOR gCourse[];   /* unit */
 extern s32 gPad;         /* unit */
 
 void ApplySteer(u8 mode, u16 a, u16 b);
@@ -42,7 +42,7 @@ void SteerPlayer(void) {
             return;
         }
     }
-    D_8009EEF8[0] = D_800A7680[0].vy;
+    D_8009EEF8[0] = gCourse[0].vy;
 }
 ```
 
@@ -63,8 +63,8 @@ void SteerPlayer(void) {
 
 ## Declarations
 
-- `D_800A7682` in the retail asm is `D_800A7680[0].vy` of the unit's
-  existing `SVECTOR D_800A7680[]`.
+- `D_800A7682` in the retail asm is `gCourse[0].vy` of the unit's
+  existing `SVECTOR gCourse[]`.
 - `ApplySteer`'s prototype (`u8, u16, u16`) is a guess from its
   prologue (`andi 0xFF` on `$a0`, `andi 0xFFFF` on `$a1`); the caller only
   passes constants, so it does not affect this match. Revisit when that

@@ -23,6 +23,17 @@ void ReactToHits(PlayerState *state);
  *  @return not yet known */
 s32 AddBonusLevel(s32 n);
 
-extern SVECTOR D_800A7680[]; /**< rotations; [0].vy is a yaw (heading) */
+/** @brief The course where the player is: the heading the player steers
+ *         around, and the point a stage start or restart puts the
+ *         player at. */
+typedef struct {
+    SVECTOR rot; /**< rot.vy is the course heading; the editor keeps a
+                  *   saved heading in rot.vz */
+    s32 x;       /**< the start point's x */
+    s32 y;       /**< the start point's y */
+    s32 z;       /**< the start point's z */
+} CoursePoint;
+
+extern CoursePoint gCourse; /**< the course at the player */
 
 #endif

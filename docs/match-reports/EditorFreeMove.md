@@ -6,7 +6,7 @@ Unit `src/editor.c`. Free movement in the tool: four pad bits and
 the two analogue axes `gStickRawY`/`gStickRawX` (below 0x60 or above
 0xA0) each move the game position with `MoveGamePos` by
 `sTotals.unk4`; sets the camera offset `gWorldShift` to the negated
-position; turns `D_800A7680[0].vy` by 11; unless `D_800958D8`, steps the
+position; turns `gCourse[0].vy` by 11; unless `D_800958D8`, steps the
 camera height `sTotals.unkC` by 5 (clamped to at most 0); steps the height
 offset `sTotals.unk8` by `sTotals.unk4`; then finds the entry under the
 position with `FindFloorNear`, stores it in `D_80095824` (and
@@ -60,10 +60,10 @@ s32 EditorFreeMove(void) {
     gWorldShift[0] = -sGameSave.unk348[0];
     gWorldShift[2] = -sGameSave.unk348[2];
     if (gPad & 4) {
-        D_800A7680[0].vy -= 11;
+        gCourse[0].vy -= 11;
     }
     if (gPad & 8) {
-        D_800A7680[0].vy += 11;
+        gCourse[0].vy += 11;
     }
     if (D_800958D8 == 0) {
         if (gPad & 1) {

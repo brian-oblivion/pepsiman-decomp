@@ -5,7 +5,7 @@
 Unit `src/editor.c`. The inverse of SaveEditorState: runs
 `LoadEditorSlot(a, 0x8016D000)`, then copies the three words at 0x38 of the
 tool state block `D_80095B28` back to 0x348 of `gPlayer`, the halfword
-at 0x44 to `D_800A7680[0].vy`, and the six words at 0x48 to `gRefView[0..5]`.
+at 0x44 to `gCourse[0].vy`, and the six words at 0x48 to `gRefView[0..5]`.
 
 ```c
 void RestoreEditorState(s16 a) {
@@ -13,7 +13,7 @@ void RestoreEditorState(s16 a) {
     sGameSave.unk348[0] = sToolSave.unk38[0];
     sGameSave.unk348[1] = sToolSave.unk38[1];
     sGameSave.unk348[2] = sToolSave.unk38[2];
-    D_800A7680[0].vy = sToolSave.unk44;
+    gCourse[0].vy = sToolSave.unk44;
     gRefView[0] = sToolSave.unk48[0];
     /* ... [1] to [5] the same way ... */
     gRefView[5] = sToolSave.unk48[5];

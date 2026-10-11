@@ -5,6 +5,7 @@
 #include "libgs.h"
 #include "draw.h"
 #include "model.h"
+#include "player.h"
 #include "object.h"
 
 u16 func_800FAD08(s16 id, s32 a, s32 b);
@@ -50,16 +51,6 @@ typedef struct {
 
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48Clear *)D_800A9008)
-
-/** @brief A rotation followed by a position. */
-typedef struct {
-    SVECTOR rot; /**< the rotation */
-    Pos3 pos;    /**< the position */
-} Placement;
-
-/* MATCHING: player reads this as an SVECTOR array; the position copy
- * needs the whole record here. */
-extern Placement D_800A7680;
 
 /* MATCHING: stored as u8 here; player tests it as s8 (lb). */
 extern u8 D_80095900;
@@ -181,9 +172,9 @@ void UpdateStagePlay(u8 stage) {
             sSaved.valid = 0;
             gRetries = 50;
             sSaved.unk10 = gSection;
-            sSaved.pos.vx = D_800A7680.pos.vx;
-            sSaved.pos.vy = D_800A7680.pos.vy;
-            sSaved.pos.vz = D_800A7680.pos.vz;
+            sSaved.pos.vx = gCourse.x;
+            sSaved.pos.vy = gCourse.y;
+            sSaved.pos.vz = gCourse.z;
             sSaved.unk14 = D_800957F4;
             ResetStage();
             D_80095900 = 1;
@@ -319,9 +310,9 @@ void RestartStage(u8 stage) {
     gPlayer.invulnTimer = 0;
     gPlayer.hittable = 1;
     gBonusLevel = 3;
-    gPlayer.x = D_800A7680.pos.vx;
-    gPlayer.y = D_800A7680.pos.vy;
-    gPlayer.z = D_800A7680.pos.vz;
+    gPlayer.x = gCourse.x;
+    gPlayer.y = gCourse.y;
+    gPlayer.z = gCourse.z;
     gMissState = 0;
     gPlayer.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
@@ -331,8 +322,8 @@ void RestartStage(u8 stage) {
     }
     gSection = 0;
     yaw = -D_80095840->unk6;
-    D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
-    D_800A7680.rot.vy = yaw;
+    D_8009676C[0] = (s16)(gCourse.y - 500);
+    gCourse.rot.vy = yaw;
     gPlayer.unk37C = gPlayer.yaw = yaw;
     D_800957BC = yaw;
     D_800957B0 = yaw;
@@ -430,7 +421,7 @@ void ResetStage(void) {
         gSpeedFixed = 0;
         gPlayer.unk374 = gPlayer.unk376 = gPlayer.unk378 = gPlayer.unk37A = 0;
         gPlayer.control = 0;
-        gPlayer.y = D_800A7680.pos.vy - 1000;
+        gPlayer.y = gCourse.y - 1000;
     }
     mode = gStage;
     saved = sSaved.valid;

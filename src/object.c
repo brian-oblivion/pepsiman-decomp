@@ -484,23 +484,23 @@ void PushPlayerFromWalls(void) {
     VECTOR pos;
     s32 idx;
 
-    pos.vx = gPlayer.x + (rsin(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vx = gPlayer.x + (rsin(gCourse.rot.vy + 0x200) * 50 >> 12);
     pos.vy = gPlayer.y;
-    pos.vz = gPlayer.z + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vz = gPlayer.z + (rcos(gCourse.rot.vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
-        gPlayer.x -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
-        gPlayer.z -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
+        gPlayer.x -= rsin(gCourse.rot.vy + 0x400) * 25 >> 12;
+        gPlayer.z -= rcos(gCourse.rot.vy + 0x400) * 25 >> 12;
     }
-    pos.vx = gPlayer.x + (rsin(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vx = gPlayer.x + (rsin(gCourse.rot.vy - 0x200) * 50 >> 12);
     pos.vy = gPlayer.y;
-    pos.vz = gPlayer.z + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vz = gPlayer.z + (rcos(gCourse.rot.vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
-        gPlayer.x -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
-        gPlayer.z -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
+        gPlayer.x -= rsin(gCourse.rot.vy - 0x400) * 25 >> 12;
+        gPlayer.z -= rcos(gCourse.rot.vy - 0x400) * 25 >> 12;
     }
     func_8002A558();
 }
@@ -1124,7 +1124,7 @@ s32 StepDrift(Drifter *d) {
     if (d->count < 15) {
         d->count++;
         ret = d->count % 3 != 0;
-        PolarToXZ(20, D_800A7680[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
+        PolarToXZ(20, gCourse.rot.vy * 360 / 4096, (Vec3 *)D_800D39C8);
         d->x -= ((Vec3 *)D_800D39C8)->x >> 12;
         d->z -= ((Vec3 *)D_800D39C8)->z >> 12;
         d->phase = (d->phase + 10) % 360;

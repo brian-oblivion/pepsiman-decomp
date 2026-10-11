@@ -17,7 +17,7 @@ static __inline__ void pushBack(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = gCourse;
     angle = ANGLE_DEG(deg);
     sGame.unk348 -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
     sGame.unk350 -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
@@ -31,7 +31,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
     if (sGame.unk1 != mode) {
         switch (mode) {
             case 3:
-                yaw = D_800A7680->vy;
+                yaw = gCourse->vy;
                 if (yaw - 0x2D < sGame.unk380) {
                     sGame.unk380 = yaw - 0x2D;
                 }
@@ -54,7 +54,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 pushBack(-90, b);
                 break;
             case 2:
-                yaw = D_800A7680->vy;
+                yaw = gCourse->vy;
                 if (sGame.unk380 < yaw + 0x4000) {
                     sGame.unk380 = yaw + 0x2D;
                 }
@@ -77,14 +77,14 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 pushBack(90, b);
                 break;
         }
-        D_800957BC = D_800957BC < D_800A7680->vy - 0x100   ? D_800A7680->vy - 0x100
-                     : D_800A7680->vy + 0x100 < D_800957BC ? D_800A7680->vy + 0x100
+        D_800957BC = D_800957BC < gCourse->vy - 0x100   ? gCourse->vy - 0x100
+                     : gCourse->vy + 0x100 < D_800957BC ? gCourse->vy + 0x100
                                                            : (u16)D_800957BC;
         if (sGame.unk3B8 == 1 && sGame.unk3BC == 1 && sGame.unk38F == 0) {
             sGame.unk34C = sGame.unk3C0;
         }
     } else {
-        sGame.unk380 = D_800A7680->vy;
+        sGame.unk380 = gCourse->vy;
     }
 }
 ```
@@ -100,7 +100,7 @@ Seven builds, 3 -> 44 -> 81 -> 84 -> 142 -> 157 -> 187.
 - **The rsin/rcos tail is the unit's `static __inline__ pushBack(deg,
   dist)`** (PushPlayer's body), `pushBack(-90, b)` and `pushBack(90,
   b)`. It gives retail's `sll s1, a2, 16; sra s1, s1, 16` in place and
-  the `D_800A7680` pointer in `$s0`. Spelt out with a `k = b;` local the
+  the `gCourse` pointer in `$s0`. Spelt out with a `k = b;` local the
   extension went through a scratch register and the saved registers
   swapped. The helper's definition moved above this function (it was
   further down the file).

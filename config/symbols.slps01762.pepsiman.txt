@@ -1728,3 +1728,4 @@ sOverlay21Loc = 0x800761EC;
 sOverlay21Sectors = 0x8007623C;
 sOverlay22Loc = 0x800761F4;
 sOverlay22Sectors = 0x80076244;
+gCourse = 0x800A7680;

@@ -251,14 +251,6 @@ void ClearRec3CAll(Rec3C *recs);
 void StepSprite(s32 id, Rec3C *r);
 void DrawObjectSprite(s32 id, Rec3C *r);
 
-/** @brief A rotation followed by a position (player.h declares the
- *         record as an SVECTOR array). */
-typedef struct {
-    SVECTOR rot; /**< the rotation */
-    s32 pos[3];  /**< the position */
-} RotPos;
-
-#define sRotPos (*(RotPos *)D_800A7680)
 
 /* MATCHING: declared per unit (object and stage_flow give their own
  * views); here the start position is passed as words. */
@@ -1633,13 +1625,13 @@ s32 UpdateEditorMenu(void) {
                 break;
             case 6:
                 gToolMode = 0;
-                gPlayer.x = sRotPos.pos[0];
-                gPlayer.y = sRotPos.pos[1];
-                gPlayer.z = sRotPos.pos[2];
-                sRotPos.rot.vy = sRotPos.rot.vz;
+                gPlayer.x = gCourse.x;
+                gPlayer.y = gCourse.y;
+                gPlayer.z = gCourse.z;
+                gCourse.rot.vy = gCourse.rot.vz;
                 D_800957F4 = FindFloor(&gPlayer.x);
                 gSection = 0;
-                D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
+                D_8009676C[0] = (s16)(gCourse.y - 500);
                 break;
             case 7:
                 gToolMode = 6;
@@ -1654,7 +1646,7 @@ s32 UpdateEditorMenu(void) {
 void SetEditorCamera(void) {
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = &gCourse.rot;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
     gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (gPlayer.y + sTotals.unkC);
     gRefView[2] = rcos(rot->vy) * 500 / 4096;
@@ -1701,10 +1693,10 @@ s32 EditorFreeMove(void) {
     gWorldShift[0] = -gPlayer.x;
     gWorldShift[2] = -gPlayer.z;
     if (gPad & PADL1) {
-        D_800A7680[0].vy -= 11;
+        gCourse.rot.vy -= 11;
     }
     if (gPad & PADR1) {
-        D_800A7680[0].vy += 11;
+        gCourse.rot.vy += 11;
     }
     if (D_800958D8 == 0) {
         if (gPad & PADL2) {
@@ -2678,13 +2670,13 @@ s32 UpdateEditorData(void) {
                     break;
                 case 10:
                     if (gPadTrig & (PADRdown | PADRright)) {
-                        gPlayer.x = sRotPos.pos[0];
-                        gPlayer.y = sRotPos.pos[1];
-                        gPlayer.z = sRotPos.pos[2];
-                        sRotPos.rot.vy = sRotPos.rot.vz;
+                        gPlayer.x = gCourse.x;
+                        gPlayer.y = gCourse.y;
+                        gPlayer.z = gCourse.z;
+                        gCourse.rot.vy = gCourse.rot.vz;
                         D_800957F4 = FindFloor(&gPlayer.x);
                         gSection = 0;
-                        D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
+                        D_8009676C[0] = (s16)(gCourse.y - 500);
                         SetCurrentBlock((BlockHeader *)0x801FD000);
                         gToolCardStep = 1;
                     }
@@ -3175,7 +3167,7 @@ void SaveEditorState(s16 a) {
     sToolSave.unk38[0] = gPlayer.x;
     sToolSave.unk38[1] = gPlayer.y;
     sToolSave.unk38[2] = gPlayer.z;
-    sToolSave.unk44 = D_800A7680[0].vy;
+    sToolSave.unk44 = gCourse.rot.vy;
     sToolSave.unk48[0] = gRefView[0];
     sToolSave.unk48[1] = gRefView[1];
     sToolSave.unk48[2] = gRefView[2];
@@ -3210,7 +3202,7 @@ void RestoreEditorState(s16 a) {
     gPlayer.x = sToolSave.unk38[0];
     gPlayer.y = sToolSave.unk38[1];
     gPlayer.z = sToolSave.unk38[2];
-    D_800A7680[0].vy = sToolSave.unk44;
+    gCourse.rot.vy = sToolSave.unk44;
     gRefView[0] = sToolSave.unk48[0];
     gRefView[1] = sToolSave.unk48[1];
     gRefView[2] = sToolSave.unk48[2];
@@ -3322,7 +3314,7 @@ void MoveGamePos(s32 deg, s32 dist) {
     s32 ang;
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = &gCourse.rot;
     ang = (deg << 12) / 360;
     gPlayer.x -= rsin(rot->vy + ang) * dist >> 12;
     gPlayer.z -= rcos(rot->vy + ang) * dist >> 12;

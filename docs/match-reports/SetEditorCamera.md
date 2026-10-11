@@ -26,7 +26,7 @@ Second build matched.
 void SetEditorCamera(void) {
     SVECTOR *rot;
 
-    rot = D_800A7680;
+    rot = gCourse;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
     gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 +
                     (sGameSave.unk348[1] + sTotals.unkC);

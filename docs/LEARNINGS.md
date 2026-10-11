@@ -14,7 +14,7 @@ function's match report, not here.
   plain extern; `lui <reg>` + `%lo(sym)(<reg>)` is an array of unknown size,
   including a `.sdata` string reached `lui`/`addiu` (`extern char
   D_800954CC[];`, PrintTabs) and a halfword table head stored through
-  `lui $v0` (`extern u16 D_80095B4C[];`, func_800338D8).
+  `lui $v0` (`extern u16 D_80095B4C[];`, ResetRec48Upper).
 - **A LOAD whose `lui` and destination are the same register is a scalar**,
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
   load. cc1's split of an array puts the address and the value in different
@@ -33,15 +33,15 @@ function's match report, not here.
 - **A global reached `$gp` in one stretch of a unit and `lui` in another
   marks a source-file seam**: maspsx applies one gp list to the whole build,
   so no C spelling closes it. Report it with the addresses; it is a
-  segmentation or toolchain decision. (func_80033AB8, PlayStageMusic)
+  segmentation or toolchain decision. (TotalBlockEntries, PlayStageMusic)
   Between units this is solved: each unit gets its own gp list,
   `config/gp/<unit>.txt` (PlayStageMusic, SelectViewerMotion). Inside one unit it
-  needs the unit split: code_1a098 split at func_8002D424 into code_1dc24,
-  which matched both. (func_80033AB8, func_800337E4)
+  needs the unit split: code_1a098 split at UpdateEditor into code_1dc24,
+  which matched both. (TotalBlockEntries, BuildEmptyBlock)
 - **A word store through a pointer that keeps a later global reload below it:
   a plain `*(s32 *)p` store, not `p->member`.** A member store is assumed not
   to alias a fixed global, so the reload is dropped. The store-side twin of
-  SetCurrentBlock's byte-pointer read. (func_800337E4)
+  SetCurrentBlock's byte-pointer read. (BuildEmptyBlock)
 - **A callee result tested with no `sll`/`sra`: the callee is `s32` in this
   unit's view**; a definition that returns only constants can simply be
   `s32`. (FindSave1, FindSave2)
@@ -55,7 +55,7 @@ function's match report, not here.
 - **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain
   assignment gives `li 0xFF`. (StepEffect9)
 - **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
-  (func_80033E98)
+  (WrapMenuValues)
 - **A constant rebuilt (`li $a0, 1`) where the build copies it from a saved
   register: the local holding it is narrower than `s32`.** (LoadBootData)
 - **A single-bit flag as `andi K` + `sltu $zero`: `c = x & K; f = c != 0;`.**
@@ -91,7 +91,7 @@ function's match report, not here.
   never keep the mask. (InitEntryModels, UpdateRumble)
 - **A global reloaded below pointer stores that the build hoists: read it as
   a member of a struct at a fixed address**, `((VECTOR *)D)->vy` or a unit
-  view `#define sCur (*(BlockCur *)&D)`. (StepSprite, func_8002FDB4)
+  view `#define sCur (*(BlockCur *)&D)`. (StepSprite, EditorInsertPoint)
 - **An argument passed unextended though the callee narrows it: an `s32`
   parameter in the caller's view.** (StepDrift, InterpOvershoot)
 - **An `(s8)` cast on a `u8` global under `== 0` folds to `lbu`; retail's
@@ -126,7 +126,7 @@ function's match report, not here.
 - **A table's `lui` before the index's `lui`: the base went into a pointer
   local just before use** (`recs = (T *)D; recs[i].f`), or the symbol is a
   real array of `T`; the cast `((T *)D)[i]` loads the index first.
-  (func_8002DC44)
+  (PrintEditorStatus)
 - **An odd register that is an argument register holding a value at a
   call: check the callee's argument count first.** A base built in `$a1`
   was a second argument the old prototype lacked. (RefreshToolPreview)
@@ -144,16 +144,16 @@ function's match report, not here.
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
   `andi 0xFF`. (StepStepper)
 - **A byte store of `addiu $x, $zero, -1`: the value is `s8` -1.** A `u8` 0xFF
-  gives `addiu ..., 0xFF`. (func_80033854)
+  gives `addiu ..., 0xFF`. (ClearRec5CAll)
 - **A byte loaded twice, `lb` then `lbu`: read once through an `(s8)` cast
   for the test, once plainly for the value.** (SpawnEffect)
 - **An 8-byte local filled with `lwl`/`lwr` from a global: a struct copy**,
   `buf = *(Bytes8 *)D;` with a one-member `u8 b[8]` struct. (StartActResults)
 - **Four `lw` then four `sw`, both pointers bumped by 16 to an end pointer:
   a block move**, `*(Big *)dst = *(Big *)src` with a one-member `u8 b[N]`
-  struct; also for an odd, byte-aligned size. (func_80033930, BuildSave1Header)
+  struct; also for an odd, byte-aligned size. (BackupToolBuffer, BuildSave1Header)
   More than four registers per batch, the first word through `%lo(sym)`:
-  separate `s32` assignments, not a struct copy. (func_800335E8)
+  separate `s32` assignments, not a struct copy. (SaveEditorState)
 - **A zero returned from a saved register (`addu $v0, $s2, $zero`): an `s32
   ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
   (FormatCard, EraseSave1, EraseSave2)
@@ -173,14 +173,14 @@ function's match report, not here.
 
 - **A parameter copied to another register at entry, extended in place at
   its first use and re-extended from the copy at each later use: an `s16`
-  parameter**, not `s32` plus casts. (func_80032C28, func_80032964)
+  parameter**, not `s32` plus casts. (LoadEditorSlot, SaveEditorSlot)
 - **`x *= -1` on an `s16` member loads it `lh`; `x = -x` loads it `lhu`.**
   (DrawObjectSprite, round 9; the function is still a stall)
 - **An `lhu` switch on an `s16` global: `switch ((u16)g)`.** (UpdateTool)
 - **An offset above 0x7FFF built whole (`lui`/`ori`, `addu`) comes from byte
   arithmetic or an offset in a local**, `(u8 *)p + 0x8294`, or `off =
   0x1DFFE; *(u16 *)(p + off) = v;`. A member access or a constant index is
-  split into `%hi` plus the remainder. (func_80030278, CopySave1Icon)
+  split into `%hi` plus the remainder. (EditorPlaceBox, CopySave1Icon)
 - **Block-move batches of three words through a base in its own register:
   the destination is an unknown-size array**, `*(T *)D_800DF630 = x;`. A
   struct member at a fixed offset moves four words per batch. (CopySave1Icon)
@@ -201,7 +201,7 @@ function's match report, not here.
 - **`lb` of a `char *` argument's first byte: `*(s8 *)name`;** `(s8)name[0]`
   folds to `lbu`. (PlayMovieFile)
 - **A constant narrowed to a halfword add (`li 0xFE0C`) where retail has
-  `addiu -500`: give each offset its own `s32` local.** (func_8003146C)
+  `addiu -500`: give each offset its own `s32` local.** (EditorEditSpriteValues)
 
 - **A callee's return type can decide a register tie**: a `void` callee
   that leaves `$v0` set, declared `s32`, closed 8 register diffs in two
@@ -229,15 +229,15 @@ function's match report, not here.
 ## Loops
 
 - **A loop counting up from 0 and tested with `sltiu`: a `u32` counter.** With
-  `s32`, 2.8.1 reverses the loop into a count-down `bgez`. (func_80033854)
+  `s32`, 2.8.1 reverses the loop into a count-down `bgez`. (ClearRec5CAll)
 - **A pointer bumped before the loop's constants: the source advanced the
   parameter** as its own statement (`recs += 100;`). Indexing `recs[i]` from
   100 strength-reduces to the same loop with the `addiu` after the constants.
-  (func_80033878)
+  (ClearRec5CUpper)
 - **A loop pointer biased to a field other than the first one written (stores
   at negative offsets): the source walked a separate struct pointer**, `r =
   &tbl[k]; ... r->f = ...; r++;`. Every `tbl[i].f` form reduces to the record
-  start. (func_800338D8)
+  start. (ResetRec48Upper)
 - **A compare loop that loads both bytes before either increment: the
   increments are separate statements after the test**, `if (*a != *b) return
   -1; a++; b++;`. In `*a++ != *b++`, 2.8.1 schedules `b++` before the load of
@@ -256,7 +256,7 @@ function's match report, not here.
   (DumpMemory)
 - **A record loop whose pointer stays at the record start and rebuilds a
   constant every pass: `r = &tbl[i];` inside the body.** `r++` biases the
-  pointer and hoists the constant. (func_80033BF8, func_80031A48)
+  pointer and hoists the constant. (ApplyRecordsToEntries, EditorRunSprites)
 - **A parameter advanced in steps pairs saved registers like retail**:
   `tmd++; f(tmd); tmd += 2; g(tmd);`, not `tmd + 2`. (InitModel)
 - **`addPrim(ot, p); p++; G = (u8 *)p;`**, not `G = (u8 *)(p + 1);`, for a
@@ -284,7 +284,7 @@ function's match report, not here.
   replaced with the pointer.** Write the counter; bump the pointer in the
   `for` step after `k++`. (UpdatePadActuators)
 - **One counter tested `sltiu` in one loop and `slt` in the next: one `u32`
-  counter compared `(s32)i < g` in the second.** (func_80030984)
+  counter compared `(s32)i < g` in the second.** (EditorPlaceRecords)
 - **A loop bottom testing `next` with `i = next` in the delay slot:
   `if ((s8)next < 0) break; i = next;` inside `do { } while (1)`.**
   (code_29f54, round 8)
@@ -296,7 +296,7 @@ function's match report, not here.
 - **A constant store after a search loop that retail keeps as its own block,
   with the constant loaded in the preheader: the store is inside the loop**,
   `if (++i == N) { G = K; return; }`. After the loop, cross-jumping merges it
-  with an identical store. (func_800317D0)
+  with an identical store. (EditorPlaceSprite)
 - **Two block-move pointers from one base: advance the base in place as the
   destination**, `dst = base; src = &dst[k + 1]; dst += k;`. (EditHitPoints)
 - **Two loop pointers in swapped registers, no instruction different: wrap
@@ -335,7 +335,7 @@ function's match report, not here.
   A ternary or a `char *` local shares one `%hi`. (PrintToolSlots)
 - **Success falling through to its own `jr ra`, -1 set in the first test's
   delay slot and reused: separate guards**, `if (!A) return -1; if (!B)
-  return -1; return 0;`. (func_80033680)
+  return -1; return 0;`. (CheckEditorSlot)
 - **Case bodies are laid out in source order, not compare order.**
   (func_80023764)
 - **`addiu -K; sltiu N`: `(u32)(x - K) < N`.** `x >= K && x < K+N` stays two
@@ -364,7 +364,7 @@ function's match report, not here.
   (func_800414EC)
 - **Two identical blocks retail keeps apart: one call per branch**, not one
   after the chain; cross-jumping folds the calls and leaves the blocks.
-  (func_800330D4, DrawScreenWipe) Every switch arm jumping to one shared store
+  (StepMenuCursor, DrawScreenWipe) Every switch arm jumping to one shared store
   before the exit: write the arm that falls into the exit last.
   (UpdateCdLoad)
 - **Products recomputed per arm that CSE would merge: assign the copies in
@@ -397,9 +397,9 @@ function's match report, not here.
 - **`switch` with the default arm last, not `if/else`**, keeps the default's
   tail from cross-jumping into a sibling. (func_80027E14)
 - **Menu answers whose case tails cross-jump: switch on an `s16`**; as `s32`
-  the tails stay separate. (func_80031EF4)
+  the tails stay separate. (UpdateEditorData)
 - **`s32` with no return also frees a forward branch's delay slot** for a
-  constant where `void` fills it with `lui`. (func_8002D424)
+  constant where `void` fills it with `lui`. (UpdateEditor)
 
 - **`beqz` to one block and `beq K` to another on one variable, then a `j`
   over both: `switch (s) { case 0: ...; case K: ...; }`.** (code_29f54,
@@ -414,10 +414,10 @@ function's match report, not here.
   block whose jump it visits first. (UpdateToolCard)
 - **`FntPrint(c ? A : B)` with `.sdata` strings: two calls, `if (c)
   FntPrint(A); else FntPrint(B);`**; the ternary shares one `%hi`, a word
-  short per site. (func_8002DC44)
+  short per site. (PrintEditorStatus)
 - **Failure exits whose constants and bases CSE rebuilds partway: one
   `{ close(fd); return -1; }` per site, not a shared `goto fail`**;
-  cross-jumping merges the blocks afterwards. (func_80032EE4)
+  cross-jumping merges the blocks afterwards. (WriteEditorSlotFiles)
 - **An exit block retail keeps inline after a `goto loop`: an unreachable
   `for (;;) {}` after the goto.** Its label blocks jump.c's "if (foo) bar;
   else break;" swap; flow deletes the dead loop. (ScanCardFiles)
@@ -529,11 +529,11 @@ function's match report, not here.
 - **A dead `lhu` of a field just before a store to its neighbour: a
   self-assignment**, `x.f = x.f;`. (PlayMovieFile)
 - **A table index shifted before the table's `lui`: the table address went
-  into a pointer local first.** (PlaySe, func_80030548, func_8002F270)
+  into a pointer local first.** (PlaySe, EditorPickBox, PrintEditorCaption)
 - **Two loop-invariant base copies in swapped registers: assign the pointer
-  local as the loop body's first statement.** (func_8002D424)
+  local as the loop body's first statement.** (UpdateEditor)
 - **A counter's `move $sN, $zero` above a global's `lui` in the prologue:
-  `i = 0; G = 0; for (; i < N; i++)`.** (func_80031064)
+  `i = 0; G = 0; for (; i < N; i++)`.** (EditorPickRecord)
 - **Interleaved stores `A[0], B[0], A[1], B[1]` were written in that order.**
   (LoadSoundData)
 - **A pointer parameter in the wrong saved register: drop the typed local
@@ -556,7 +556,7 @@ function's match report, not here.
   and a short-lived one: one more reference to the short one** (`n = fd;
   close(n);` in a block cross-jumping deletes). Global alloc ranks by
   `floor_log2(refs) * refs / live_length`; `cc1 -dg` prints the order.
-  (func_80032EE4)
+  (WriteEditorSlotFiles)
 - **A primitive whose every store stays in source order, colour stores
   reading their first target back: a `volatile T *` packet local.**
   (DrawSky)

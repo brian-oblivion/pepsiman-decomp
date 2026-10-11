@@ -18,7 +18,7 @@ halfword in each of the 200 Rec48 records.
  *   Rec48Clear  code_1a098's Rec48 with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (D_800A7680)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
- * extern u8 D_80095900, D_800958F8; extern s16 gModeStep, D_80095858,
+ * extern u8 D_80095900, gInEditor; extern s16 gModeStep, D_80095858,
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
  * common.h: D_800958A8 (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
  * D_800957D6, gStage.
@@ -54,10 +54,10 @@ void RestartStage(u8 arg0) {
     sStage.unk37C = sStage.unk380 = yaw;
     D_800957BC = yaw;
     D_800957B0 = yaw;
-    if (D_800958F8 != 1) {
+    if (gInEditor != 1) {
         RestoreStageObjects();
     } else {
-        func_8003399C();
+        RestoreToolBuffer();
     }
     ResetStageObjects();
     func_80041118(gStage);
@@ -99,7 +99,7 @@ void RestartStage(u8 arg0) {
   `((s16 *)&sRecs48[i])[0x13]`, folds 0x26 into the loop pointer (`sh
   zero, 0(a1)`); `*(s16 *)sRecs48[i].unk26` on code_1a098's `u8 unk26[2]`
   did the same.
-- `if (D_800958F8 != 1) RestoreStageObjects(); else func_8003399C();` gives
+- `if (gInEditor != 1) RestoreStageObjects(); else RestoreToolBuffer();` gives
   retail's `beq` to the second call.
 
 ## Declarations

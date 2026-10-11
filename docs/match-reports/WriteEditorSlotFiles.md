@@ -1,0 +1,126 @@
+# WriteEditorSlotFiles — MATCHED 124/124 (round 12, delta)
+
+> Renamed from `func_80032EE4` on 2026-10-11 (tools/rename.py). Address 0x80032ee4.
+
+Unit `src/code_1dc24.c`. Writes the four data blocks of each of the three
+save slots of the tool buffer (`0x8016D000`, the `SaveSlot` view) to
+`DATA0.TLD` .. `DATA2.TLD` on the host (`open(path, O_CREAT | O_WRONLY)`,
+four `write`s, `close`); a failed write closes the file and returns -1, and
+the last write's failure returns its own result.
+
+Round 8 (bravo) left it as a stall, 12 words short, 3/124, with a draft
+that sent every failure to one `goto fail` label.
+
+```c
+extern char D_80011284[]; /**< path of slot 0's file on the host */
+extern char D_800112A8[]; /**< path of slot 1's file on the host */
+extern char D_800112CC[]; /**< path of slot 2's file on the host */
+
+/** @brief Writes the four data blocks of each save slot of the tool buffer
+ *         to its file on the host.
+ *  @return 0, or -1 when a write fails. */
+s32 WriteEditorSlotFiles(void) {
+    s32 fd;
+    s32 n;
+    SaveSlot *s;
+
+    s = (SaveSlot *)0x8016D000;
+    fd = open(D_80011284, O_CREAT | O_WRONLY);
+    if (write(fd, &s[0].unk274, 0x3840) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[0].unk3AB4, 0x47E0) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[0].unk8294, 0x1770) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, (u8 *)&s[0] + 0xB174, 0x800) == -1) {
+        close(fd);
+        return -1;
+    }
+    close(fd);
+    fd = open(D_800112A8, O_CREAT | O_WRONLY);
+    if (write(fd, &s[1].unk274, 0x3840) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[1].unk3AB4, 0x47E0) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[1].unk8294, 0x1770) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, (u8 *)&s[1] + 0xB174, 0x800) == -1) {
+        /* MATCHING: the copy ranks n above fd in global alloc (permuter). */
+        n = fd;
+        close(n);
+        return -1;
+    }
+    close(fd);
+    fd = open(D_800112CC, O_CREAT | O_WRONLY);
+    if (write(fd, &s[2].unk274, 0x3840) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[2].unk3AB4, 0x47E0) == -1) {
+        close(fd);
+        return -1;
+    }
+    if (write(fd, &s[2].unk8294, 0x1770) == -1) {
+        close(fd);
+        return -1;
+    }
+    n = write(fd, (u8 *)&s[2] + 0xB174, 0x800);
+    if (n == -1) {
+        close(fd);
+        return n;
+    }
+    close(fd);
+    return 0;
+}
+```
+
+## How it closed (5 builds, one permuter search)
+
+| step | words |
+| --- | --- |
+| round 8 draft (`goto fail`) | 12 short, 3/124 |
+| `{ close(fd); return -1; }` at every failing write | 95/124, length exact, only `$s0`/`$s1` swapped |
+| `register` on the base, a separate `fd` per file, declaration order, `n` with a second assignment | 95 or worse |
+| permuter find: `n = fd; close(n);` in one failure block | 124/124 |
+
+- **The CSE boundaries.** Retail builds -1 afresh for the first two
+  compares and keeps it in `$s2` from the third, and folds the slot
+  addresses to constants for the first ten writes but builds the last two
+  from the base in `$s0`. One shared `fail:` label lets one CSE block span
+  everything (all twelve folded, -1 shared from the first compare). A
+  close-and-return block at each site reproduces both boundaries exactly;
+  cross-jumping then merges the eleven blocks into retail's one.
+- **The register swap.** Global alloc ordered the pseudos fd (30 refs over
+  97 insns), n (3 refs over 5), -1, base; retail gives `n` (and the base,
+  which shares its register) `$s0`, so `n` ranks above `fd`. The priority
+  is `floor_log2(refs) * refs / live_length`: a fourth reference doubles
+  `n`'s. Gate 3: the scaffold's `--stack-diffs` read 0 insertions / 0
+  deletions, agreeing with funcdiff's 0/0; the search (bound 900 s, `-j 6`)
+  found the copy at iteration 688. The block holding the copy is
+  cross-jumped into the shared failure block, so it costs no code; other
+  placements were not tried.
+
+### Proposed learning
+
+- **Retail's CSE path boundaries from early returns: write the
+  `{ close(fd); return -1; }` failure at each site, not `goto fail`.** The
+  per-site blocks give cse its path breaks (a constant rebuilt for the first
+  compares, a base folded for only the first ten uses); cross-jumping merges
+  the blocks afterwards. (WriteEditorSlotFiles)
+- **Two saved registers swapped between a long-lived, much-used variable and
+  a short-lived one: add a reference to the short one** (permuter:
+  `n = fd; close(n);` in a block cross-jumping deletes). Global alloc's
+  priority is `floor_log2(refs) * refs / live_length`; `cc1 -dg` lists the
+  allocation order. (WriteEditorSlotFiles)

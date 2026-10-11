@@ -2323,7 +2323,7 @@ top:
             }
             FadeInFog();
             DrawHud();
-            if (D_800958F8 == 1) {
+            if (gInEditor == 1) {
                 break;
             }
             if (gTimeLeft > 0) {

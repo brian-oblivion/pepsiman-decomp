@@ -1,0 +1,49 @@
+# DrawHeadingLine — MATCHED 121/121 (round 8, bravo)
+
+> Renamed from `func_80033388` on 2026-10-11 (tools/rename.py). Address 0x80033388.
+
+Unit `src/code_1dc24.c`. A sibling of `DrawPole`: the same pulsing
+red GsLINE from `pos`, but its far end lies 100 units from `pos` along the
+heading `deg` (an `s16` in degrees, `* 4096 / 360`), through `rsin` /
+`rcos`. First build matched.
+
+## Shapes read from retail
+
+- The frame is 0x68 bytes with `world` at 0x18, `screen` at 0x38 and the
+  line at 0x40: an unused 8 bytes before `world` (as in its siblings) and an
+  unused 16 bytes between `world` and `screen`. Both unused arrays raise
+  `-Wall`'s unused-variable warning; config/typeviews-warnings.txt gained
+  the three code_1dc24 lines (this one's two and DrawPole's one).
+- The angle is computed once into a local kept in `$s0` across `rsin` and
+  passed again to `rcos`.
+
+```c
+void DrawHeadingLine(VECTOR *pos, s16 deg) {
+    s32 unused[2];
+    VECTOR world;
+    s32 unused2[4];
+    SVECTOR screen;
+    GsLINE line;
+    s16 g;
+    s32 ang;
+
+    g = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    line.attribute = 0;
+    line.r = 0xFF;
+    line.g = g;
+    line.b = g;
+    world.vx = pos->vx + gWorldShift[0];
+    world.vy = pos->vy;
+    world.vz = pos->vz + gWorldShift[2];
+    func_800230E0(&world, &screen);
+    line.x0 = screen.vx;
+    line.y0 = screen.vy;
+    ang = deg * 4096 / 360;
+    world.vx += rsin(ang) * 100 >> 12;
+    world.vz += rcos(ang) * 100 >> 12;
+    func_800230E0(&world, &screen);
+    line.x1 = screen.vx;
+    line.y1 = screen.vy;
+    GsSortLine(&line, &gSubOt[gActiveBuff], 50);
+}
+```

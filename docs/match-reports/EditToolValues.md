@@ -4,7 +4,7 @@
 
 Unit `src/code_24748.c`. One frame of the two-line value editor whose menu
 `PrintToolSlots` prints: remembers the highlighted line, runs the editor
-(`func_800330D4`), then either loads the newly highlighted line's saved value
+(`StepMenuCursor`), then either loads the newly highlighted line's saved value
 and limit into the edit variables, or, if the line did not change, saves the
 edited value back. Bit 6 of the flag word clears `gToolMode`.
 
@@ -13,7 +13,7 @@ void EditToolValues(void) {
     s32 unused[2];
     s16 line = D_8009574A;
 
-    func_800330D4();
+    StepMenuCursor();
     if (line != D_8009574A) {
         switch (D_8009574A) {
             case 0:
@@ -50,7 +50,7 @@ void EditToolValues(void) {
   its own identical `extern u16 D_80095748;` (line 89), which declcheck now
   reports as MULTI/LOCAL; that unit is alpha's this round, so the two-line
   deletion is left to the merge.
-- `func_800330D4` (an `INCLUDE_ASM` of `code_1a098`): prototype added to
+- `StepMenuCursor` (an `INCLUDE_ASM` of `code_1a098`): prototype added to
   `include/common.h` (additive).
 
 ## Levers

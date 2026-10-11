@@ -1,0 +1,45 @@
+# WrapMenuValues — MATCHED 44/44 (round 6, bravo)
+
+> Renamed from `func_80033E98` on 2026-10-11 (tools/rename.py). Address 0x80033e98.
+
+Unit `src/code_1dc24.c`. Wraps two menu values into range and returns 0:
+the edited value `D_80095748` against its limit `D_800958B0`, then the
+highlighted line `D_8009574A` against the line count `D_800958B2`. A
+value below 0 becomes limit - 1; one at or past the limit becomes 0.
+
+```c
+s32 WrapMenuValues(void) {
+    /* MATCHING: retail reads the edited value signed (lh); common.h's
+     * declaration is u16. */
+    if ((s16)D_80095748 < 0) {
+        D_80095748 = D_800958B0 - 1;
+    }
+    if ((s16)D_80095748 >= D_800958B0) {
+        D_80095748 = 0;
+    }
+    if (D_8009574A < 0) {
+        D_8009574A = D_800958B2 - 1;
+    }
+    if (D_8009574A >= D_800958B2) {
+        D_8009574A = 0;
+    }
+    return 0;
+}
+```
+
+First build. Retail loads `D_80095748` with `lh` (and tests it with
+`bgez`/`slt`), but `include/common.h` declares it `u16`; the `(s16)` cast
+folds into `lh` with no `sll`/`sra`. The reload after the store is cc1's
+own (the stored value is not known sign-extended).
+
+Not changed: `D_80095748`'s shared declaration. Its only `lh` loads are
+the three here; the other retail loads (EditorEditRecordValues, EditorEditSpriteValues,
+StepMenuCursor, RunValueMenu, all still asm in this unit) are `lhu`,
+which an `s16` gives too for plain copies and halfword arithmetic, so it
+may well be `s16`. That is the head's call; the cast is unit-local.
+
+### Proposed learning
+
+- **A global declared unsigned but loaded `lh` and tested signed: an
+  `(s16)` cast at the test folds into the `lh`** with no shifts, when the
+  shared declaration cannot change. (WrapMenuValues)

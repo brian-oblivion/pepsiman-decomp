@@ -259,10 +259,10 @@ s32 StepDrift(Drifter *d);
 void PolarToXZ(s32 r, s32 deg, Vec3 *out);
 /* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
  * unit until a shared header holds it. */
-void func_800337E4(u8 *buf);
-void func_80033854(Rec5C *recs);
-void func_800338A0(Rec48 *recs);
-void func_8003390C(Rec3C *recs);
+void BuildEmptyBlock(u8 *buf);
+void ClearRec5CAll(Rec5C *recs);
+void ResetRec48All(Rec48 *recs);
+void ClearRec3CAll(Rec3C *recs);
 
 /** @brief Sets `p->pos` to the world position of its local position. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
@@ -682,7 +682,7 @@ s32 TestBoxes(void) {
         return;
     }
     i = 0;
-    if (D_800958F8 == 0) {
+    if (gInEditor == 0) {
         for (; i < 200; i++) {
             b = &D_800CF080[(s16)i];
             v = D_800CF080[(s16)i].v;
@@ -1660,13 +1660,13 @@ void ResetGameState(Rec48 *recs) {
         recs++;
     }
     bzero((u8 *)0x801FD000, 0x800);
-    func_800337E4((u8 *)0x801FD000);
+    BuildEmptyBlock((u8 *)0x801FD000);
     bzero((u8 *)D_800CF080, sizeof(Rec5C) * 200);
-    func_80033854(D_800CF080);
+    ClearRec5CAll(D_800CF080);
     bzero((u8 *)sRecs48, sizeof(Rec48) * 200);
-    func_800338A0(sRecs48);
+    ResetRec48All(sRecs48);
     bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
-    func_8003390C(D_800A7898);
+    ClearRec3CAll(D_800A7898);
     sProgress.unk0 = 0x38;
     sProgress.unk1 = 1;
     sProgress.unk68 = 0;

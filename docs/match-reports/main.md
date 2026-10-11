@@ -47,7 +47,7 @@ declcheck MULTI: `gViewerMotion` (code_7d74), `D_800958E2` (code_1a098),
 `gButtonConfig` and `gCpuMarkCount` (code_29f54) are now declared in main.c as
 well. LOCAL: prototypes for other units' functions (UpdateMotionViewer,
 InitTmdSortFuncs, func_800229A8, func_80022A74, UpdateTrapViewer,
-func_8002D424, UpdateTool, InitStageOverlay, LoadStageOverlay,
+UpdateEditor, UpdateTool, InitStageOverlay, LoadStageOverlay,
 PlayMovie, UpdateSoundFade).
 
 ### Proposed learning

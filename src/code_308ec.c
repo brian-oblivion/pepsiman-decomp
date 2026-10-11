@@ -126,7 +126,7 @@ extern StartRec *D_80095840;
 s32 FindFloor(Pos3 *pos);
 void RestoreStageObjects(void);
 void ResetStageObjects(void);
-void func_8003399C(void);
+void RestoreToolBuffer(void);
 void PlayStageMusic(u8 idx);
 void ResetStage(void);
 void StartStageOverlay(void);
@@ -386,10 +386,10 @@ void RestartStage(u8 stage) {
     sStage.unk37C = sStage.unk380 = yaw;
     D_800957BC = yaw;
     D_800957B0 = yaw;
-    if (D_800958F8 != 1) {
+    if (gInEditor != 1) {
         RestoreStageObjects();
     } else {
-        func_8003399C();
+        RestoreToolBuffer();
     }
     ResetStageObjects();
     func_80041118(gStage);

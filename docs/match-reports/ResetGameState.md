@@ -5,7 +5,7 @@
 Unit `src/code_1a098.c`. The full game-state reset: clears the
 0x30000-byte block at `recs` and marks its 200 Rec48 records free
 (`unk34`, `unk36` = -1), clears and rebuilds the block header at
-0x801FD000 (func_800337E4), clears and resets the Rec5C, Rec48 and Rec3C
+0x801FD000 (BuildEmptyBlock), clears and resets the Rec5C, Rec48 and Rec3C
 tables (code_1dc24's resets), and resets the progress block at
 `D_80095B28` and three globals. Matched on the first build.
 
@@ -20,13 +20,13 @@ void ResetGameState(Rec48 *recs) {
         recs++;
     }
     bzero((u8 *)0x801FD000, 0x800);
-    func_800337E4((u8 *)0x801FD000);
+    BuildEmptyBlock((u8 *)0x801FD000);
     bzero((u8 *)D_800CF080, sizeof(Rec5C) * 200);
-    func_80033854(D_800CF080);
+    ClearRec5CAll(D_800CF080);
     bzero((u8 *)sRecs48, sizeof(Rec48) * 200);
-    func_800338A0(sRecs48);
+    ResetRec48All(sRecs48);
     bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
-    func_8003390C(D_800A7898);
+    ClearRec3CAll(D_800A7898);
     sProgress.unk0 = 0x38;
     sProgress.unk1 = 1;
     sProgress.unk68 = 0;
@@ -73,12 +73,12 @@ off it: a struct lvalue). Stores are in retail's order; the copy of
 New in this unit: `extern Rec3C D_800A7898[]`, `extern u8
 D_80095B28[]`, `D_80095824` (s32), `D_800958D8` and `D_800959D8` (u8;
 the last reached `$gp`, already in config/gp/code_1a098.txt), and
-prototypes of code_1dc24's func_800337E4, func_80033854, func_800338A0
-and func_8003390C, under one `MATCHING:` per-unit-view note (Rec3C is
+prototypes of code_1dc24's BuildEmptyBlock, ClearRec5CAll, ResetRec48All
+and ClearRec3CAll, under one `MATCHING:` per-unit-view note (Rec3C is
 local to each unit).
 
 declcheck now reports LOCAL on code_1dc24.c's own declarations of
-D_800A7898, D_80095B28, func_800337E4 and func_8003390C (plus
+D_800A7898, D_80095B28, BuildEmptyBlock and ClearRec3CAll (plus
 DrawObjectSprite and StepSprite from StepSprite). The lasting fix is
 one shared header for the two units: Rec3C (the union of both views),
 those two externs and the prototypes in code_1a098.h, with the local

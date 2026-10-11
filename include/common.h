@@ -146,7 +146,7 @@ extern s32 D_800959B8;     /**< 2 units, 2 functions */
 extern s32 D_80095958;   /**< a pad word; its bits step a position or a highlighted line; 2 units */
 extern s32 gVSyncTime;   /**< what EndFrame's VSync returned; printed first on the status panel */
 extern s32 gRetries;     /**< set to 0xFF on leaving the tool; 2 units */
-extern u8 D_800958F8;    /**< 2 units */
+extern u8 gInEditor;     /**< 2 units */
 extern s32 gElapsed;     /**< 2 units */
 extern s32 gTimeLeft;    /**< 2 units */
 extern s16 D_800957B0;   /**< 2 units */
@@ -319,7 +319,7 @@ void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clu
 
 /** @brief Defined in code_1dc24.
  *  @return 0. */
-s32 func_800330D4(void);
+s32 StepMenuCursor(void);
 
 /** @brief Defined in code_29f54: remaps three buttons of the two button
  *         words by a row of a remap table. */
@@ -342,16 +342,16 @@ void ApplyHitQuads(void);
 void func_800287C0(void);
 
 /** @brief Defined in code_1dc24. */
-void func_80033C90(void);
+void PrintYesNo(void);
 
 /** @brief Defined in code_1dc24. */
-void func_80033D3C(void);
+void PrintSaveLoad(void);
 
 /** @brief Defined in code_1dc24: wraps the highlighted line at `n` lines
  *         and runs an update.
  *  @param n the number of lines
  *  @return the highlighted line when flag bit 5 is set, else -1. */
-s32 func_8003356C(s16 n);
+s32 RunMenu(s16 n);
 
 /** @brief Defined in code_27bc8. */
 void OpenCardEvents(void);
@@ -428,7 +428,7 @@ void UpdateTool(void);
 
 /** @brief Defined in code_1dc24.
  *  @return not yet known */
-s32 func_8002D424(void);
+s32 UpdateEditor(void);
 
 /** @brief Defined in code_308ec: a stage's number.
  *  @param stage the stage

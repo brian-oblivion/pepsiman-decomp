@@ -6,7 +6,7 @@ Unit `src/code_1a098.c`. Restores the Rec48 (`D_800A9008`), Rec5C
 (`D_800CF080`) and Rec3C (`D_800A7898`) tables and the 0x800-byte block
 header area at 0x801FD000 from a saved copy at 0x80173778, then points the
 current-block globals at the restored header (SetCurrentBlock). code_308ec
-calls it on a restart unless a flag picks func_8003399C.
+calls it on a restart unless a flag picks RestoreToolBuffer.
 
 ```c
 typedef struct {

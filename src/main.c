@@ -102,7 +102,7 @@ int main(void) {
     gRumbleSmall = 0;
     gRumbleEnabled = 0;
     gCpuMarkCount = 0;
-    D_800958F8 = 0;
+    gInEditor = 0;
     gCdTrackPlaying = 0;
     for (;;) {
         FntPrint(D_800954C8);
@@ -146,7 +146,7 @@ int main(void) {
                 break;
             case 6:
                 gLoading = 1;
-                D_800958F8 = 0;
+                gInEditor = 0;
                 gGameMode = 7;
                 LoadOverlay(2);
                 break;
@@ -206,7 +206,7 @@ int main(void) {
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
-                D_800958F8 = 0;
+                gInEditor = 0;
                 gLoading = 1;
                 gGameMode = 13;
                 LoadStageOverlay(gStage);
@@ -292,7 +292,7 @@ int main(void) {
                 UpdateTrapLayoutViewer();
                 break;
             case 28:
-                D_800958F8 = 1;
+                gInEditor = 1;
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
@@ -323,10 +323,10 @@ int main(void) {
                 }
                 break;
             case 32:
-                func_8002D424();
+                UpdateEditor();
                 break;
             case 33:
-                D_800958F8 = 1;
+                gInEditor = 1;
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;

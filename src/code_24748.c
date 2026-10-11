@@ -408,7 +408,7 @@ void MoveToolCursor(void) {
 void UpdateToolMenu(void) {
     D_800958B0 = 1;
     D_800958B2 = 5;
-    func_800330D4();
+    StepMenuCursor();
     if (gPadTrig & 0x20) {
         switch (D_8009574A) {
             case 0:
@@ -994,7 +994,7 @@ s32 UpdateToolCard(void) {
                         gToolCardStep = 18;
                         break;
                     }
-                    D_800959E0 = func_8003356C(2);
+                    D_800959E0 = RunMenu(2);
                     switch (D_800959E0) {
                         case 2:
                             if (WriteToolFile() == -1) {
@@ -1026,7 +1026,7 @@ s32 UpdateToolCard(void) {
                         gToolCardStep = 1;
                         break;
                     }
-                    gToolSlot = func_8003356C(3);
+                    gToolSlot = RunMenu(3);
                     if (gToolSlot == -1) {
                         break;
                     }
@@ -1049,7 +1049,7 @@ s32 UpdateToolCard(void) {
                     gToolCardStep = 8;
                     break;
                 case 4:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 8;
@@ -1071,7 +1071,7 @@ s32 UpdateToolCard(void) {
                     D_8009574A = 0;
                     break;
                 case 6:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 9;
@@ -1099,7 +1099,7 @@ s32 UpdateToolCard(void) {
                     }
                     break;
                 case 14:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 16;
@@ -1112,7 +1112,7 @@ s32 UpdateToolCard(void) {
                     }
                     break;
                 case 15:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 17;
@@ -1202,7 +1202,7 @@ void PrintToolCardMenu(void) {
             FntPrint(D_80095698);
             PrintTabs(3);
             FntPrint(D_80011624);
-            func_80033D3C();
+            PrintSaveLoad();
             break;
         case 2:
             FntPrint(D_80095698);
@@ -1226,7 +1226,7 @@ void PrintToolCardMenu(void) {
             FntPrint(D_80011664, gToolSlot + 1);
             PrintTabs(3);
             FntPrint(D_80011678);
-            func_80033C90();
+            PrintYesNo();
             break;
         case 8:
             FntPrint(D_80095698);
@@ -1239,7 +1239,7 @@ void PrintToolCardMenu(void) {
             FntPrint(D_80011698, gToolSlot + 1);
             PrintTabs(3);
             FntPrint(D_800116AC);
-            func_80033C90();
+            PrintYesNo();
             break;
         case 7:
             FntPrint(D_80095698);
@@ -1272,7 +1272,7 @@ void PrintToolCardMenu(void) {
             FntPrint(D_8001171C);
             PrintTabs(3);
             FntPrint(D_80011728);
-            func_80033C90();
+            PrintYesNo();
             break;
         case 15:
             FntPrint(D_80095698);
@@ -1280,7 +1280,7 @@ void PrintToolCardMenu(void) {
             FntPrint(D_8001173C);
             PrintTabs(3);
             FntPrint(D_8001174C);
-            func_80033C90();
+            PrintYesNo();
             break;
     }
     SortSemiQuad(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
@@ -1619,7 +1619,7 @@ void EditToolValues(void) {
     s32 unused[2];
     s16 line = D_8009574A;
 
-    func_800330D4();
+    StepMenuCursor();
     if (line != D_8009574A) {
         switch (D_8009574A) {
             case 0:

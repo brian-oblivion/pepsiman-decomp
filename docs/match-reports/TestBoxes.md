@@ -4,7 +4,7 @@
 
 Unit `src/code_1a098.c`. Walks the 200 `Rec5C` boxes (`D_800CF080`) that
 are not yet hit (byte 0 clear), unless `D_80095858` is positive. With the
-mode byte `D_800958F8` clear it tests the player's x/z (`sGameHead.unk348`
+mode byte `gInEditor` clear it tests the player's x/z (`sGameHead.unk348`
 / `unk350`, relative to the box) against the four edges of the box's
 corners, each halved, and marks the box 1 when the player is inside all
 four. With it set, it builds a coordinate system at the box position,
@@ -54,7 +54,7 @@ s32 TestBoxes(void) {
         return;
     }
     i = 0;
-    if (D_800958F8 == 0) {
+    if (gInEditor == 0) {
         for (; i < 200; i++) {
             b = &D_800CF080[(s16)i];
             v = D_800CF080[(s16)i].v;

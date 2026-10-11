@@ -60,5 +60,5 @@ void DrawAxes(void) {
     GsSortLine(&line, &gSubOt[gActiveBuff], world.vz >> 2);
 }```
 
-First build; the shape is code_1dc24's line drawers (func_80033388 and
+First build; the shape is code_1dc24's line drawers (DrawHeadingLine and
 its neighbour). The unit now includes `code_a0bc.h` for `gSubOt`.

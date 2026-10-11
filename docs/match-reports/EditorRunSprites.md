@@ -1,0 +1,39 @@
+# EditorRunSprites — MATCHED 41/41 (round 6, bravo)
+
+> Renamed from `func_80031A48` on 2026-10-11 (tools/rename.py). Address 0x80031a48.
+
+Unit `src/code_1dc24.c`. Walks the 100 Rec3C records at `D_800A7898`;
+for each used one (`unk0 != -1`) whose `unk2C` equals the halfword at 0x2A
+of `D_80095B28` (`sTotals.unk2A`), calls `StepSprite(r->unk0, r)` when
+bit 7 of byte `unk26` is set, else `DrawObjectSprite(r->unk0, r)`.
+
+```c
+void EditorRunSprites(void) {
+    u32 i;
+    Rec3C *r;
+
+    for (i = 0; i < 100; i++) {
+        r = &D_800A7898[i];
+        if (r->unk0 != -1 && sTotals.unk2A == r->unk2C) {
+            if (r->unk26 & 0x80) {
+                StepSprite(r->unk0, r);
+            } else {
+                DrawObjectSprite(r->unk0, r);
+            }
+        }
+    }
+}
+```
+
+First build, using ApplyRecordsToEntries's shape (`r = &tbl[i];` in the body, a
+`u32` counter tested with `sltiu`). The duplicated `addiu $s0, 0x3C` in
+the `j`'s delay slot is cc1's own.
+
+## Declarations
+
+- Unit-local `Rec3C` gained `u8 unk26` and `s16 unk2C` split out of its
+  pad; unit-local `Totals28` gained `u16 unk2A` past its old end (now 0x2C
+  bytes; only reached through the `sTotals` macro). Whole image OK.
+- `StepSprite` and `DrawObjectSprite` (defined in code_1a098, still asm;
+  no other C declares them) are prototyped in code_1dc24.c as
+  `(s16 id, Rec3C *r)`, since `Rec3C` is a code_1dc24-local type.

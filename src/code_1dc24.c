@@ -191,7 +191,7 @@ typedef struct {
 extern s32 D_80095824; /**< the current entry of the block, -1 for none */
 extern s32 D_80095950; /**< a pad word; bits step the edited value */
 
-s32 func_80033E98(void);
+s32 WrapMenuValues(void);
 
 /** @brief A block entry as its first and count words. */
 typedef struct {
@@ -253,10 +253,10 @@ extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
 /* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
  * take an s32 id here (passed unextended), u16 and s16 in code_1a098. */
-void func_80032964(s16 a, u8 *buf);
-void func_80032C28(s16 a, u8 *buf);
-void func_800337E4(u8 *buf);
-void func_8003390C(Rec3C *recs);
+void SaveEditorSlot(s16 a, u8 *buf);
+void LoadEditorSlot(s16 a, u8 *buf);
+void BuildEmptyBlock(u8 *buf);
+void ClearRec3CAll(Rec3C *recs);
 void StepSprite(s32 id, Rec3C *r);
 void DrawObjectSprite(s32 id, Rec3C *r);
 
@@ -311,9 +311,9 @@ u16 CallStageHook(s32 id, Obj48 *a, Obj48 *b);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void DrawPin(VECTOR *pos);
 
-void func_80033A08(s32 deg, s32 dist);
+void MoveGamePos(s32 deg, s32 dist);
 
-void func_800327BC(void);
+void PrintEditorSlots(void);
 extern char D_80095528[]; /**< "\n\n\n" */
 extern char D_80095620[]; /**< "CHECK" */
 extern char D_800110F8[]; /**< "DATA MODE" */
@@ -344,29 +344,29 @@ void DrawSky(void);
 void DrawStage(s16 x, s16 y, s16 z);
 void UpdateCamera(s16 x, s16 y, s16 z, s16 w);
 
-s32 func_8002F6A0(void);
-void func_8002F8FC(void);
-s32 func_8002FA78(void);
-void func_8002FDB4(void);
-s32 func_8002FF74(void);
-s32 func_80030278(void);
-s32 func_80030548(void);
-void func_80030984(void);
-s32 func_80030B6C(void);
-s32 func_80030DA0(void);
-s32 func_80031064(void);
-void func_8003146C(void);
-s32 func_800317D0(void);
-void func_80031A48(void);
-s32 func_80031AEC(void);
-s32 func_80031EF4(void);
-void func_80033224(VECTOR *pos);
-void func_80033930(void);
-void func_80033AB8(void);
+s32 UpdateEditorMenu(void);
+void SetEditorCamera(void);
+s32 EditorFreeMove(void);
+void EditorInsertPoint(void);
+s32 EditorEditPoints(void);
+s32 EditorPlaceBox(void);
+s32 EditorPickBox(void);
+void EditorPlaceRecords(void);
+s32 EditorEditRecordValues(void);
+s32 EditorArrangeRecords(void);
+s32 EditorPickRecord(void);
+void EditorEditSpriteValues(void);
+s32 EditorPlaceSprite(void);
+void EditorRunSprites(void);
+s32 EditorPickSprite(void);
+s32 UpdateEditorData(void);
+void DrawPole(VECTOR *pos);
+void BackupToolBuffer(void);
+void TotalBlockEntries(void);
 void func_80033B08(void);
-void func_80033B34(void);
-void func_80033BF8(void);
-s32 func_8002DC44(void);
+void RunValueMenu(void);
+void ApplyRecordsToEntries(void);
+s32 PrintEditorStatus(void);
 /* MATCHING: code_13068 tests it as s8. */
 extern u8 D_80095962; /**< set on leaving the tool */
 
@@ -381,7 +381,7 @@ typedef struct {
 /* MATCHING: code_1a098 defines it as (u16, Quad16 *); this unit passes the
  * index unextended. */
 void GetQuad16(s32 i, Bytes8 *out);
-void func_80033388(VECTOR *pos, s16 deg);
+void DrawHeadingLine(VECTOR *pos, s16 deg);
 
 /* MATCHING: defined in code_1902c, which has no header. */
 
@@ -389,12 +389,12 @@ void func_80033388(VECTOR *pos, s16 deg);
 s32 RunCardOp1(s16 mode);
 /* MATCHING: s16 in code_27bc8; its result is compared here unextended. */
 s32 CheckCard(void);
-s32 func_80032EE4(void);
-s32 func_80033680(s16 i);
-void func_800335E8(s16 a);
-void func_800336F8(s16 a);
-s32 func_80033DE8(void);
-s32 func_80033E40(void);
+s32 WriteEditorSlotFiles(void);
+s32 CheckEditorSlot(s16 i);
+void SaveEditorState(s16 a);
+void RestoreEditorState(s16 a);
+s32 WriteEditorFile(void);
+s32 ReadEditorFile(void);
 
 INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
 
@@ -631,7 +631,7 @@ INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112CC);
  *         view, and handles the flag bits that leave the tool and step
  *         the move distance.
  *  @return nothing; the value is undefined. */
-s32 func_8002D424(void) {
+s32 UpdateEditor(void) {
     /* MATCHING: an unused 16-byte local gives retail's 0x30 frame. */
     s32 unused[4];
     Obj48 *r;
@@ -648,7 +648,7 @@ s32 func_8002D424(void) {
             gModeStep++;
             break;
         case 1:
-            func_80033AB8();
+            TotalBlockEntries();
             for (i = 1; i < 128; i++) {
                 D_800A74D0[i] = 1;
             }
@@ -656,35 +656,35 @@ s32 func_8002D424(void) {
             /* MATCHING: the s16 error code switched as u16 (lhu). */
             switch ((u16)gToolMode) {
                 case 0:
-                    func_8002FA78();
+                    EditorFreeMove();
                     if (D_800958D8 == 0) {
                         switch (sTotals.unk3) {
                             case 0:
-                                func_8002FDB4();
+                                EditorInsertPoint();
                                 break;
                             case 1:
-                                func_80030278();
+                                EditorPlaceBox();
                                 TestBoxes();
                                 break;
                             case 2:
-                                func_80030984();
-                                func_80030DA0();
+                                EditorPlaceRecords();
+                                EditorArrangeRecords();
                                 break;
                             case 3:
-                                func_800317D0();
+                                EditorPlaceSprite();
                                 break;
                         }
                     } else {
                         switch (sTotals.unk3) {
                             case 0:
-                                func_8002FF74();
+                                EditorEditPoints();
                                 break;
                             case 1:
-                                func_80030548();
+                                EditorPickBox();
                                 TestBoxes();
                                 break;
                             case 2:
-                                func_80031064();
+                                EditorPickRecord();
                                 if (D_800959D8 == 1 && (gPadTrig & 0x20)) {
                                     sGameSave.unk348[0] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
                                     sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
@@ -711,7 +711,7 @@ s32 func_8002D424(void) {
                                 }
                                 break;
                             case 3:
-                                func_80031AEC();
+                                EditorPickSprite();
                                 if (D_800959D8 == 1 && (gPadTrig & 0x20)) {
                                     sGameSave.unk348[0] = D_800A7898[sTotals.unk28].unk4[0];
                                     sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
@@ -739,7 +739,7 @@ s32 func_8002D424(void) {
                     }
                     break;
                 case 1:
-                    func_8002F6A0();
+                    UpdateEditorMenu();
                     if (gPadTrig & 0x40) {
                         if (D_8009574A == 2) {
                             gSubStep = 0;
@@ -754,26 +754,26 @@ s32 func_8002D424(void) {
                     }
                     break;
                 case 3:
-                    func_80033B34();
+                    RunValueMenu();
                     if (gPadTrig & 0x40) {
                         gToolMode = 0;
                     }
                     break;
                 case 4:
-                    func_80030B6C();
-                    func_80030DA0();
+                    EditorEditRecordValues();
+                    EditorArrangeRecords();
                     if (gPadTrig & 0x40) {
                         gToolMode = 0;
                     }
                     break;
                 case 5:
-                    func_8003146C();
+                    EditorEditSpriteValues();
                     if (gPadTrig & 0x40) {
                         gToolMode = 0;
                     }
                     break;
                 case 6:
-                    func_80031EF4();
+                    UpdateEditorData();
                     break;
                 case 7:
                 case 8:
@@ -793,21 +793,21 @@ s32 func_8002D424(void) {
             }
             if (D_800958D8 == 0) {
                 DrawPin((VECTOR *)D_8009EEC0);
-                func_80033224((VECTOR *)D_8009EEC0);
+                DrawPole((VECTOR *)D_8009EEC0);
             }
             UpdatePickups(&gSubOt[gActiveBuff]);
-            func_80033BF8();
-            func_80031A48();
+            ApplyRecordsToEntries();
+            EditorRunSprites();
             DrawStage(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
             DrawSky();
             UpdateCamera(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
-            func_8002F8FC();
-            func_8002DC44();
+            SetEditorCamera();
+            PrintEditorStatus();
             break;
     }
     if (gPadTrig & 0x800) {
         sTotals.unk70 = gSection;
-        func_80033930();
+        BackupToolBuffer();
         gRetries = 0xFF;
         D_80095962 = 1;
         ResetStageObjects();
@@ -932,14 +932,14 @@ extern char D_800955D4[]; /**< "DOG\n" */
 extern char D_800955E0[]; /**< "IMASU." */
 extern VECTOR D_800ACED0; /**< the position printed on the status panel */
 
-void func_8002F270(void);
-void func_8003245C(void);
+void PrintEditorCaption(void);
+void PrintEditorData(void);
 
 /** @brief Prints the tool's status panel: the sync count, the grid step,
  *         the block, the position, the record counts and the current item,
  *         then the panel of the current tool mode or error.
  *  @return nothing; the value is undefined. */
-s32 func_8002DC44(void) {
+s32 PrintEditorStatus(void) {
     /* MATCHING: s32 with no return; the unused local gives the 0x40 frame. */
     s32 unused[2];
     /* MATCHING: table bases through locals load before the index. */
@@ -1014,7 +1014,7 @@ s32 func_8002DC44(void) {
         case 0:
             PrintTabs(5);
             FntPrint(D_80010C20);
-            func_8002F270();
+            PrintEditorCaption();
             break;
         case 1:
             D_800958B0 = 1;
@@ -1131,7 +1131,7 @@ s32 func_8002DC44(void) {
             if (D_800959D8 == 0) {
                 FntPrint(D_80095580);
             }
-            func_8002F270();
+            PrintEditorCaption();
             FntPrint(D_80095580);
             PrintTabs(3);
             FntPrint(D_80010CD4);
@@ -1350,7 +1350,7 @@ s32 func_8002DC44(void) {
             SortSemiQuad(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
             break;
         case 6:
-            func_8003245C();
+            PrintEditorData();
             break;
         case 7:
             FntPrint(D_80095528);
@@ -1491,7 +1491,7 @@ s32 func_8002DC44(void) {
  *         selected point, switch, record or sprite with their settings,
  *         then draws the frame around it. Runs only while the tool flag
  *         is 1. */
-void func_8002F270(void) {
+void PrintEditorCaption(void) {
     /* MATCHING: an unused eight-byte local gives retail's 0x40 frame. */
     s32 unused[2];
     Span8 *e;
@@ -1580,10 +1580,10 @@ void func_8002F270(void) {
 /** @brief Runs the menu editor, then on flag bit 5 enters the tool mode
  *         of the highlighted line.
  *  @return nothing; the value is undefined. */
-s32 func_8002F6A0(void) {
+s32 UpdateEditorMenu(void) {
     /* MATCHING: non-void with no return puts the index sll in the bound
      * check's delay slot. */
-    func_800330D4();
+    StepMenuCursor();
     if (gPadTrig & 0x20) {
         switch (D_8009574A) {
             case 0:
@@ -1660,7 +1660,7 @@ s32 func_8002F6A0(void) {
 
 /** @brief Fills the six camera words from the yaw in the first rotation
  *         and the view's orbit angle. */
-void func_8002F8FC(void) {
+void SetEditorCamera(void) {
     SVECTOR *rot;
 
     rot = D_800A7680;
@@ -1677,34 +1677,34 @@ void func_8002F8FC(void) {
  *         camera and the height offset, then finds the entry under the
  *         position and puts the position on its ground height.
  *  @return nothing; the value is undefined. */
-s32 func_8002FA78(void) {
+s32 EditorFreeMove(void) {
     s32 cur;
 
     /* MATCHING: non-void with no return keeps the flag test's delay slot
      * a nop. */
     if (gPadTrig & 0x1000) {
-        func_80033A08(0, sTotals.unk4);
+        MoveGamePos(0, sTotals.unk4);
     }
     if (gPadTrig & 0x4000) {
-        func_80033A08(180, sTotals.unk4);
+        MoveGamePos(180, sTotals.unk4);
     }
     if (gPadTrig & 0x8000) {
-        func_80033A08(-90, sTotals.unk4);
+        MoveGamePos(-90, sTotals.unk4);
     }
     if (gPadTrig & 0x2000) {
-        func_80033A08(90, sTotals.unk4);
+        MoveGamePos(90, sTotals.unk4);
     }
     if (D_800957C8 < 0x60) {
-        func_80033A08(0, sTotals.unk4);
+        MoveGamePos(0, sTotals.unk4);
     }
     if (D_800957C8 > 0xA0) {
-        func_80033A08(180, sTotals.unk4);
+        MoveGamePos(180, sTotals.unk4);
     }
     if (D_800957C0 < 0x60) {
-        func_80033A08(-90, sTotals.unk4);
+        MoveGamePos(-90, sTotals.unk4);
     }
     if (D_800957C0 > 0xA0) {
-        func_80033A08(90, sTotals.unk4);
+        MoveGamePos(90, sTotals.unk4);
     }
     gWorldShift[1] = 0;
     gWorldShift[0] = -sGameSave.unk348[0];
@@ -1749,7 +1749,7 @@ s32 func_8002FA78(void) {
  *         rebuilds the block header. */
 /* MATCHING: `e = base; e += k;` and one points pointer for the shift source
  * and the new point. */
-void func_8002FDB4(void) {
+void EditorInsertPoint(void) {
     s16 pos[3];
     Pt8 *dst;
     Pt8 *p;
@@ -1803,7 +1803,7 @@ void func_8002FDB4(void) {
  *         deletes it on flag bit 5 (shifting the later points down), steps
  *         the selection on flag bits 0 and 1 and clamps it to the entry.
  *  @return nothing; the value is undefined. */
-s32 func_8002FF74(void) {
+s32 EditorEditPoints(void) {
     VECTOR pos;
     Pt8 *dst;
     Pt8 *src;
@@ -1888,7 +1888,7 @@ s32 func_8002FF74(void) {
  *         game position, and on flag bit 5 places it and moves the slot on
  *         to the next free one (error 7 with no entry, 8 when full).
  *  @return nothing; the value is undefined. */
-s32 func_80030278(void) {
+s32 EditorPlaceBox(void) {
     Sizes3 sizes;
     u32 i;
 
@@ -1948,7 +1948,7 @@ s32 func_80030278(void) {
  *         game position to the selection, frees it on flag bit 5, or else
  *         steps the selection over the free records on flag bits 0 and 1.
  *  @return nothing; the value is undefined. */
-s32 func_80030548(void) {
+s32 EditorPickBox(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
@@ -2038,7 +2038,7 @@ s32 func_80030548(void) {
 
 /** @brief Counts the live Obj48 records; on flag bit 5, places every
  *         waiting record into the table (error 8 when it is full). */
-void func_80030984(void) {
+void EditorPlaceRecords(void) {
     u32 i;
     u16 n;
     Obj48 *recs;
@@ -2093,7 +2093,7 @@ void func_80030984(void) {
  *         value and limit, else stores the edited value back; then steps
  *         the angle in sTotals.unk20 on flag bits 3 and 2.
  *  @return nothing; the value is undefined. */
-s32 func_80030B6C(void) {
+s32 EditorEditRecordValues(void) {
     s16 line;
     s16 val;
 
@@ -2101,7 +2101,7 @@ s32 func_80030B6C(void) {
      * slots nops. */
     line = D_8009574A;
     val = D_80095748;
-    func_800330D4();
+    StepMenuCursor();
     if (D_8009574A == 1 && val != (s16)D_80095748) {
         gSubStep = 0;
     }
@@ -2163,7 +2163,7 @@ s32 func_80030B6C(void) {
  *         the game position, then sets the first one's position, heading
  *         and light angles and every later one relative to it.
  *  @return nothing; the value is undefined. */
-s32 func_80030DA0(void) {
+s32 EditorArrangeRecords(void) {
     /* MATCHING: an unused record-sized local gives retail's 0x78 frame. */
     Obj48 unused;
     Obj48 *w;
@@ -2221,7 +2221,7 @@ s32 func_80030DA0(void) {
  *         selection, frees it on flag bit 5 and steps the selection over
  *         the free records on flag bits 0 and 1.
  *  @return nothing; the value is undefined. */
-s32 func_80031064(void) {
+s32 EditorPickRecord(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
@@ -2309,7 +2309,7 @@ s32 func_80031064(void) {
  *         the new line's value and limit, else stores the edited value
  *         back; steps the template's angle on flag bits 3 and 2, then
  *         rebuilds the template at the game position and runs its handler. */
-void func_8003146C(void) {
+void EditorEditSpriteValues(void) {
     s16 line;
     Bytes8 e;
     s32 h0;
@@ -2317,7 +2317,7 @@ void func_8003146C(void) {
     s32 h2;
 
     line = D_8009574A;
-    func_800330D4();
+    StepMenuCursor();
     if (line != D_8009574A) {
         switch (D_8009574A) {
             case 0:
@@ -2399,7 +2399,7 @@ void func_8003146C(void) {
         }
     }
     if (sTotals.unk6C != 0) {
-        func_80033388((VECTOR *)D_8009EEC0, sTotals.unk6A);
+        DrawHeadingLine((VECTOR *)D_8009EEC0, sTotals.unk6A);
     }
     D_800DF818.unk4[0] = sGameSave.unk348[0];
     D_800DF818.unk4[1] = sGameSave.unk348[1];
@@ -2429,7 +2429,7 @@ void func_8003146C(void) {
  *         the template at the next slot and moves the slot on to a free
  *         one (error 8 when the table is full).
  *  @return nothing; the value is undefined. */
-s32 func_800317D0(void) {
+s32 EditorPlaceSprite(void) {
     u32 i;
     s32 f;
 
@@ -2498,7 +2498,7 @@ s32 func_800317D0(void) {
 
 /** @brief Runs one of two handlers on every used Rec3C whose unk2C equals
  *         sTotals.unk2A, picked by bit 7 of its unk26. */
-void func_80031A48(void) {
+void EditorRunSprites(void) {
     u32 i;
     Rec3C *r;
 
@@ -2521,7 +2521,7 @@ void func_80031A48(void) {
  *         bit 5 and steps the selection over the free records on flag
  *         bits 0 and 1.
  *  @return nothing; the value is undefined. */
-s32 func_80031AEC(void) {
+s32 EditorPickSprite(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
@@ -2610,7 +2610,7 @@ s32 func_80031AEC(void) {
  *         reads and writes, the save slots of the tool buffer), maps a
  *         card error to a message screen, and closes the card.
  *  @return nothing; the value is undefined. */
-s32 func_80031EF4(void) {
+s32 UpdateEditorData(void) {
     s32 err;
     /* MATCHING: an s16 answer, both menus a switch on it: case 4's tail
      * then cross-jumps into case 6's. */
@@ -2641,19 +2641,19 @@ s32 func_80031EF4(void) {
                         gToolCardStep = 18;
                         break;
                     }
-                    D_800959E0 = func_8003356C(2);
+                    D_800959E0 = RunMenu(2);
                     switch (D_800959E0) {
                         case 2:
-                            if (func_80033DE8() == -1) {
+                            if (WriteEditorFile() == -1) {
                                 gToolCardStep = 11;
-                            } else if (func_80032EE4() == -1) {
+                            } else if (WriteEditorSlotFiles() == -1) {
                                 gToolCardStep = 11;
                             } else {
                                 gToolCardStep = 10;
                             }
                             break;
                         case 3:
-                            if (func_80033E40() == -1) {
+                            if (ReadEditorFile() == -1) {
                                 gToolCardStep = 11;
                             } else {
                                 D_800959E0 = 1;
@@ -2672,7 +2672,7 @@ s32 func_80031EF4(void) {
                         gToolCardStep = 1;
                         break;
                     }
-                    gToolSlot = func_8003356C(3);
+                    gToolSlot = RunMenu(3);
                     if (gToolSlot == -1) {
                         break;
                     }
@@ -2699,7 +2699,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 3:
-                    if ((s16)func_80033680(gToolSlot) == -1) {
+                    if ((s16)CheckEditorSlot(gToolSlot) == -1) {
                         gToolCardStep = 8;
                     } else {
                         gToolCardStep = 4;
@@ -2707,7 +2707,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 4:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 8;
@@ -2718,14 +2718,14 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 8:
-                    func_800335E8(gToolSlot);
+                    SaveEditorState(gToolSlot);
                     err = RunCardOp1(1);
                     if (err == 0) {
                         gToolCardStep = 10;
                     }
                     break;
                 case 5:
-                    if ((s16)func_80033680(gToolSlot) == -1) {
+                    if ((s16)CheckEditorSlot(gToolSlot) == -1) {
                         gToolCardStep = 7;
                     } else {
                         gToolCardStep = 6;
@@ -2733,7 +2733,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 6:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 9;
@@ -2749,7 +2749,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 9:
-                    func_800336F8(gToolSlot);
+                    RestoreEditorState(gToolSlot);
                     gToolCardStep = 10;
                     break;
                 case 11:
@@ -2759,7 +2759,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 14:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 16;
@@ -2772,7 +2772,7 @@ s32 func_80031EF4(void) {
                     }
                     break;
                 case 15:
-                    r = func_8003356C(2);
+                    r = RunMenu(2);
                     switch (r) {
                         case 0:
                             gToolCardStep = 17;
@@ -2829,7 +2829,7 @@ s32 func_80031EF4(void) {
 /** @brief Prints the data mode's screen for the current memory-card
  *         state, with the save-slot list or a yes/no menu where the state
  *         asks for one, then draws the frame around it. */
-void func_8003245C(void) {
+void PrintEditorData(void) {
     PrintTabs(5);
     FntPrint(D_800110F8);
     FntPrint(D_80095528);
@@ -2843,13 +2843,13 @@ void func_8003245C(void) {
             FntPrint(D_80095528);
             PrintTabs(3);
             FntPrint(D_80011104);
-            func_80033D3C();
+            PrintSaveLoad();
             break;
         case 2:
             FntPrint(D_80095528);
             PrintTabs(3);
             FntPrint(D_80011114);
-            func_800327BC();
+            PrintEditorSlots();
             break;
         case 16:
             FntPrint(D_80095528);
@@ -2867,7 +2867,7 @@ void func_8003245C(void) {
             FntPrint(D_80011144, gToolSlot + 1);
             PrintTabs(3);
             FntPrint(D_80011158);
-            func_80033C90();
+            PrintYesNo();
             break;
         case 8:
             FntPrint(D_80095528);
@@ -2880,7 +2880,7 @@ void func_8003245C(void) {
             FntPrint(D_80011178, gToolSlot + 1);
             PrintTabs(3);
             FntPrint(D_8001118C);
-            func_80033C90();
+            PrintYesNo();
             break;
         case 7:
             FntPrint(D_80095528);
@@ -2913,7 +2913,7 @@ void func_8003245C(void) {
             FntPrint(D_800111FC);
             PrintTabs(3);
             FntPrint(D_80011208);
-            func_80033C90();
+            PrintYesNo();
             break;
         case 15:
             FntPrint(D_80095528);
@@ -2921,7 +2921,7 @@ void func_8003245C(void) {
             FntPrint(D_8001121C);
             PrintTabs(3);
             FntPrint(D_8001122C);
-            func_80033C90();
+            PrintYesNo();
             break;
     }
     SortSemiQuad(0x421, -100, -60, 100, -60, 100, 60, -100, 60, 0);
@@ -2929,7 +2929,7 @@ void func_8003245C(void) {
 
 /** @brief Prints the three save slots of the tool buffer as a menu, each
  *         with its stage and part, or "NO DATA". */
-void func_800327BC(void) {
+void PrintEditorSlots(void) {
     s16 i;
     SaveSlot *slots;
     SaveSlot *slot;
@@ -2973,7 +2973,7 @@ void func_800327BC(void) {
 
 /** @brief Saves the record tables, the block header area and the tool
  *         state block into save slot `a` of `buf`. */
-void func_80032964(s16 a, u8 *buf) {
+void SaveEditorSlot(s16 a, u8 *buf) {
     ((SaveSlot *)buf)[a].unk3AB4 = *(Rec5CsCopy *)D_800CF080;
     ((SaveSlot *)buf)[a].unk274 = *(Obj48sCopy *)D_800A9008;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
@@ -2984,7 +2984,7 @@ void func_80032964(s16 a, u8 *buf) {
 
 /** @brief Restores the record tables, the block header area and the tool
  *         state block from save slot `a` of `buf`. */
-void func_80032C28(s16 a, u8 *buf) {
+void LoadEditorSlot(s16 a, u8 *buf) {
     *(Rec5CsCopy *)D_800CF080 = ((SaveSlot *)buf)[a].unk3AB4;
     *(Obj48sCopy *)D_800A9008 = ((SaveSlot *)buf)[a].unk274;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
@@ -3000,7 +3000,7 @@ extern char D_800112CC[]; /**< path of slot 2's file on the host */
 /** @brief Writes the four data blocks of each save slot of the tool buffer
  *         to its file on the host.
  *  @return 0, or -1 when a write fails. */
-s32 func_80032EE4(void) {
+s32 WriteEditorSlotFiles(void) {
     s32 fd;
     s32 n;
     SaveSlot *s;
@@ -3070,31 +3070,31 @@ s32 func_80032EE4(void) {
  *         highlighted line (0x4000 up, 0x1000 down) from the first pad
  *         word, else from the second and third, then wraps both.
  *  @return 0. */
-s32 func_800330D4(void) {
+s32 StepMenuCursor(void) {
     if (gPadTrig & 0x2000) {
         D_80095748++;
-        func_80033E98();
+        WrapMenuValues();
     } else if (gPadTrig & 0x8000) {
         D_80095748--;
-        func_80033E98();
+        WrapMenuValues();
     } else if (gPadTrig & 0x4000) {
         D_8009574A++;
-        func_80033E98();
+        WrapMenuValues();
     } else if (gPadTrig & 0x1000) {
         D_8009574A--;
-        func_80033E98();
+        WrapMenuValues();
     } else if (D_80095950 & 0x2000) {
         D_80095748++;
-        func_80033E98();
+        WrapMenuValues();
     } else if (D_80095950 & 0x8000) {
         D_80095748--;
-        func_80033E98();
+        WrapMenuValues();
     } else if (D_80095958 & 0x4000) {
         D_8009574A++;
-        func_80033E98();
+        WrapMenuValues();
     } else if (D_80095958 & 0x1000) {
         D_8009574A--;
-        func_80033E98();
+        WrapMenuValues();
     } else {
         return 0;
     }
@@ -3105,7 +3105,7 @@ s32 func_800330D4(void) {
  *         the current ordering table. */
 /* MATCHING: the twin of code_24748's DrawToolPole (an s16 colour local, an
  * unused 8 bytes for the frame), without its mirrored x and z. */
-void func_80033224(VECTOR *pos) {
+void DrawPole(VECTOR *pos) {
     s32 unused[2];
     VECTOR world;
     SVECTOR screen;
@@ -3134,7 +3134,7 @@ void func_80033224(VECTOR *pos) {
  *         along heading `deg` (degrees) into the current ordering table. */
 /* MATCHING: the unused 8 and 16 bytes place world at 0x18 and screen at
  * 0x38 in the 0x68-byte frame. */
-void func_80033388(VECTOR *pos, s16 deg) {
+void DrawHeadingLine(VECTOR *pos, s16 deg) {
     s32 unused[2];
     VECTOR world;
     s32 unused2[4];
@@ -3166,12 +3166,12 @@ void func_80033388(VECTOR *pos, s16 deg) {
 /** @brief Wraps the highlighted line at `n` lines, resets the edited value
  *         and runs an update.
  *  @return the highlighted line when flag bit 5 is set, else -1. */
-s32 func_8003356C(s16 n) {
+s32 RunMenu(s16 n) {
     D_80095748 = 0;
     D_800958B2 = n;
     D_800958B0 = 1;
     D_8009574A = D_8009574A % n;
-    func_800330D4();
+    StepMenuCursor();
     if (gPadTrig & 0x20) {
         return D_8009574A;
     }
@@ -3180,7 +3180,7 @@ s32 func_8003356C(s16 n) {
 
 /** @brief Saves three pieces of game state into the tool state block,
  *         then runs a step on the tool buffer. */
-void func_800335E8(s16 a) {
+void SaveEditorState(s16 a) {
     sToolSave.unk38[0] = sGameSave.unk348[0];
     sToolSave.unk38[1] = sGameSave.unk348[1];
     sToolSave.unk38[2] = sGameSave.unk348[2];
@@ -3191,13 +3191,13 @@ void func_800335E8(s16 a) {
     sToolSave.unk48[3] = gRefView[3];
     sToolSave.unk48[4] = gRefView[4];
     sToolSave.unk48[5] = gRefView[5];
-    func_80032964(a, (u8 *)0x8016D000);
+    SaveEditorSlot(a, (u8 *)0x8016D000);
 }
 
 /** @brief Checks that save slot `i` of the tool buffer is valid and
  *         belongs to the current owner.
  *  @return 0 when it does, -1 when not. */
-s32 func_80033680(s16 i) {
+s32 CheckEditorSlot(s16 i) {
     SaveSlot *slot;
 
     slot = &((SaveSlot *)0x8016D000)[i];
@@ -3214,8 +3214,8 @@ s32 func_80033680(s16 i) {
 
 /** @brief Runs a step on the tool buffer, then restores the game state
  *         the save step put in the tool state block. */
-void func_800336F8(s16 a) {
-    func_80032C28(a, (u8 *)0x8016D000);
+void RestoreEditorState(s16 a) {
+    LoadEditorSlot(a, (u8 *)0x8016D000);
     sGameSave.unk348[0] = sToolSave.unk38[0];
     sGameSave.unk348[1] = sToolSave.unk38[1];
     sGameSave.unk348[2] = sToolSave.unk38[2];
@@ -3230,16 +3230,16 @@ void func_800336F8(s16 a) {
 
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
  *         then clears and resets the Rec3C table. */
-void func_80033790(void) {
+void ResetEditorBlock(void) {
     bzero((u8 *)0x801FD000, 0x800);
-    func_800337E4((u8 *)0x801FD000);
+    BuildEmptyBlock((u8 *)0x801FD000);
     bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
-    func_8003390C(D_800A7898);
+    ClearRec3CAll(D_800A7898);
 }
 
 /** @brief Builds an empty block header in `buf` for the current entry
  *         count and points the current-block globals at it. */
-void func_800337E4(u8 *buf) {
+void BuildEmptyBlock(u8 *buf) {
     s32 n;
 
     SetCurrentBlock((BlockHeader *)buf);
@@ -3254,7 +3254,7 @@ void func_800337E4(u8 *buf) {
 }
 
 /** @brief Sets byte 0 of all 200 records of a Rec5C table to -1. */
-void func_80033854(Rec5C *recs) {
+void ClearRec5CAll(Rec5C *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
@@ -3264,7 +3264,7 @@ void func_80033854(Rec5C *recs) {
 }
 
 /** @brief Sets byte 0 of records 100 to 199 of a 200-entry table to -1. */
-void func_80033878(Rec5C *recs) {
+void ClearRec5CUpper(Rec5C *recs) {
     u32 i;
 
     recs += 100;
@@ -3275,7 +3275,7 @@ void func_80033878(Rec5C *recs) {
 }
 
 /** @brief Resets all 200 records of a Rec48 table. */
-void func_800338A0(Rec48 *recs) {
+void ResetRec48All(Rec48 *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
@@ -3288,7 +3288,7 @@ void func_800338A0(Rec48 *recs) {
 }
 
 /** @brief Resets records 150 to 199 of a 200-entry Rec48 table. */
-void func_800338D8(Rec48 *recs) {
+void ResetRec48Upper(Rec48 *recs) {
     u32 i;
     Rec48 *r;
 
@@ -3302,7 +3302,7 @@ void func_800338D8(Rec48 *recs) {
 }
 
 /** @brief Sets the halfword at 0 of all 100 records of a Rec3C table to -1. */
-void func_8003390C(Rec3C *recs) {
+void ClearRec3CAll(Rec3C *recs) {
     u32 i;
 
     for (i = 0; i < 100; i++) {
@@ -3313,21 +3313,21 @@ void func_8003390C(Rec3C *recs) {
 
 /** @brief Runs a step on the tool buffer, then copies its first 64 KiB to
  *         the next 64 KiB. */
-void func_80033930(void) {
-    func_80032964(0, (u8 *)0x8016D000);
+void BackupToolBuffer(void) {
+    SaveEditorSlot(0, (u8 *)0x8016D000);
     *(Page64K *)0x8017D000 = *(Page64K *)0x8016D000;
 }
 
 /** @brief Copies the second 64 KiB of the tool buffer back over the first,
  *         then runs a step on it. */
-void func_8003399C(void) {
+void RestoreToolBuffer(void) {
     *(Page64K *)0x8016D000 = *(Page64K *)0x8017D000;
-    func_80032C28(0, (u8 *)0x8016D000);
+    LoadEditorSlot(0, (u8 *)0x8016D000);
 }
 
 /** @brief Moves the game position `dist` units along heading `deg`
  *         (degrees) relative to the yaw in the first rotation. */
-void func_80033A08(s32 deg, s32 dist) {
+void MoveGamePos(s32 deg, s32 dist) {
     s32 ang;
     SVECTOR *rot;
 
@@ -3338,7 +3338,7 @@ void func_80033A08(s32 deg, s32 dist) {
 }
 
 /** @brief Totals unk4 of the current block's entries into sTotals.unk26. */
-void func_80033AB8(void) {
+void TotalBlockEntries(void) {
     s32 i;
     Ent8 *e;
 
@@ -3353,18 +3353,18 @@ void func_80033AB8(void) {
 /** @brief Runs an update, then latches a halfword into the first slot of a
  *         halfword run. */
 void func_80033B08(void) {
-    func_800330D4();
+    StepMenuCursor();
     D_80095B4C[0] = D_80095748;
 }
 
 /** @brief Runs an update; when the highlighted line moved, loads the
  *         edited value and its limit for the new line, else saves the
  *         edited value for the current one. */
-void func_80033B34(void) {
+void RunValueMenu(void) {
     s16 old;
 
     old = D_8009574A;
-    func_800330D4();
+    StepMenuCursor();
     if (old != D_8009574A) {
         switch (D_8009574A) {
             case 0:
@@ -3390,7 +3390,7 @@ void func_80033B34(void) {
 
 /** @brief Applies every used Rec48 whose unk34 equals sTotals.unk1E to the
  *         Rec78 its unk36 names. */
-void func_80033BF8(void) {
+void ApplyRecordsToEntries(void) {
     u32 i;
     Rec48 *r;
 
@@ -3404,7 +3404,7 @@ void func_80033BF8(void) {
 
 /** @brief Prints a two-line YES/NO menu, highlighting the line
  *         the menu cursor selects. */
-void func_80033C90(void) {
+void PrintYesNo(void) {
     FntPrint(D_800955DC);
     PrintTabs(4);
     if (D_8009574A == 0) {
@@ -3424,7 +3424,7 @@ void func_80033C90(void) {
 
 /** @brief Prints a two-line SAVE/LOAD menu, highlighting the line
  *         the menu cursor selects. */
-void func_80033D3C(void) {
+void PrintSaveLoad(void) {
     FntPrint(D_800955DC);
     PrintTabs(4);
     if (D_8009574A == 0) {
@@ -3444,7 +3444,7 @@ void func_80033D3C(void) {
 
 /** @brief Writes the tool buffer to the tool file on the host.
  *  @return the count written. */
-s32 func_80033DE8(void) {
+s32 WriteEditorFile(void) {
     s32 fd;
     s32 n;
 
@@ -3456,7 +3456,7 @@ s32 func_80033DE8(void) {
 
 /** @brief Reads the tool file on the host into the tool buffer.
  *  @return the count read. */
-s32 func_80033E40(void) {
+s32 ReadEditorFile(void) {
     s32 fd;
     s32 n;
 
@@ -3469,7 +3469,7 @@ s32 func_80033E40(void) {
 /** @brief Wraps the edited value and the highlighted line into their
  *         ranges: below 0 to the top, at or past the limit to 0.
  *  @return 0. */
-s32 func_80033E98(void) {
+s32 WrapMenuValues(void) {
     /* MATCHING: retail reads the edited value signed (lh); common.h's
      * declaration is u16. */
     if ((s16)D_80095748 < 0) {

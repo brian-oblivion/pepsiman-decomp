@@ -5,7 +5,7 @@
 Unit `src/code_27bc8.c`. Inside a critical section, closes the eight
 memory-card events whose handles `EnableCardEvents` enables (`gCardSwIoe` ..
 `gCardHwNew`, all `%gp_rel`). Called from `UpdateToolCard` (code_24748) and
-`func_80031EF4` (code_1a098).
+`UpdateEditorData` (code_1a098).
 
 ```c
 void CloseCardEvents(void) {

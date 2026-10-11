@@ -6,7 +6,7 @@ Unit `src/code_1902c.c`. Floor test of a 0x4C-byte quad record (the
 `Rec4C` PlaceCollisionQuad fills). It clears `out` (a hit byte and a word at
 +4), gives up when corner 0 is more than 2000 from the origin in x or z,
 copies the four world corners to `s16` and adds the record's coordinate
-origin. With the debug flag `D_800958F8` it projects corners with
+origin. With the debug flag `gInEditor` it projects corners with
 func_800230E0 into a dead debug record and, tested again, draws the
 outline with SortSemiQuad. It then tests the player's position
 (`D_8009EB78` + 0x348, shifted by `gWorldShift`) against the four edges
@@ -120,7 +120,7 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     org.x = ((Rec4C *)rec)->coord->coord.t[0] + gWorldShift[0];
     org.y = ((Rec4C *)rec)->coord->coord.t[1];
     org.z = ((Rec4C *)rec)->coord->coord.t[2] + gWorldShift[2];
-    if (D_800958F8 == 1) {
+    if (gInEditor == 1) {
         dbg.unk0 = 0;
         dbg.unkC = 0xFF;
         dbg.unkD = 0;
@@ -137,7 +137,7 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
         sProject(&v, (SVECTOR *)&scr[0]);
         dbg.x0 = scr[0].x;
         dbg.y0 = scr[0].y;
-        if (D_800958F8 == 1) {
+        if (gInEditor == 1) {
             v.vx = org.x + q.p[0].x;
             v.vy = q.p[0].y;
             v.vz = org.z + q.p[0].z;

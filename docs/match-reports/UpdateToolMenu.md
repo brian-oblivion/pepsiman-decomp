@@ -3,7 +3,7 @@
 > Renamed from `func_800345C8` on 2026-10-11 (tools/rename.py). Address 0x800345c8.
 
 Unit `src/code_24748.c`. A five-line menu step: sets the edit limit and
-wrap count, runs the menu (`func_800330D4`), and on flag bit 5 acts on the
+wrap count, runs the menu (`StepMenuCursor`), and on flag bit 5 acts on the
 highlighted line (`D_8009574A`): lines 0 and 1 arm an edit and record the
 line in `gToolKind`; lines 2 and 3 toggle `D_80095A58` / `D_80095A28` and,
 when `D_80095A58` is set, pick an error code by `gToolKind`; line 4 sets
@@ -13,7 +13,7 @@ error 7. Flag bit 6 clears the error code.
 void UpdateToolMenu(void) {
     D_800958B0 = 1;
     D_800958B2 = 5;
-    func_800330D4();
+    StepMenuCursor();
     if (gPadTrig & 0x20) {
         switch (D_8009574A) {
             case 0:

@@ -3,14 +3,14 @@
 > Renamed from `func_80013EE4` on 2026-10-10 (tools/rename.py). Address 0x80013ee4.
 
 Graphics init: `GsInitGraph` (Sony's, still carved as asm,
-`func_80056774`), one display buffer pair, two pairs of 12-bit ordering
+`GsInitGraph`), one display buffer pair, two pairs of 12-bit ordering
 tables (`gSubOt` over tags `gSubOtTags`, `gOt` over tags
 `gOtTags`), then the active buffer's work base and both tables cleared,
 and `gCurOt` pointed at the active `gOt` table.
 
 ```c
 /* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
-void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
+void GsInitGraph(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
 
 extern GsOT_TAG gOtTags[2][0x1000];
 extern GsOT_TAG gSubOtTags[2][0x1000];
@@ -20,7 +20,7 @@ extern GsOT *gCurOt;
 void InitGraphics(void) {
     s32 i;
 
-    func_80056774(320, 240, 4, 1, 0);
+    GsInitGraph(320, 240, 4, 1, 0);
     GsDefDispBuff(0, 0, 0, 240);
     for (i = 0; i < 2; i++) {
         gSubOt[i].length = 12;
@@ -61,7 +61,7 @@ The doubled `point` store is in retail (`sw $zero, 0xC($v1)` then `sw $t1,
 
 - `gOt` moved from `src/stage.c` to `include/draw.h`, next
   to its twin `gSubOt` (additive to the header).
-- `func_80056774` sits in `asm/psyq_46F74.s` (Sony libgs, not yet named);
+- `GsInitGraph` sits in `asm/psyq_46F74.s` (Sony libgs, not yet named);
   its arguments are GsInitGraph's. A local prototype in `src/main.c`.
 
 ### Proposed learning

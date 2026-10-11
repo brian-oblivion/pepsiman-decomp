@@ -17,7 +17,7 @@ The prototype of ReadPad moved up to this function.
 
 ```c
 /* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
-void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
+void GsSortClear(u8 r, u8 g, u8 b, GsOT *ot);
 void SetLetterbox(s32 clip);
 void RemapButtons(void);
 void ReadPad(s32 arg);
@@ -49,7 +49,7 @@ void EndFrame(void) {
     gVSyncTime = VSync(gVSyncMode);
     DrawSync(0);
     GsSwapDispBuff();
-    func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
+    GsSortClear(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
     SetDrawStp(&sDrawStpOn, 1);
     AddPrim(&gOt[gActiveBuff].org[0xFFF], &sDrawStpOn);
     SetLetterbox(ClipF);
@@ -75,6 +75,6 @@ Second build. The switch on {0, 1} with an empty default and a shared
 calls). The `GsRVIEW2` members are assigned in retail's store order
 (`vpx`, `vpy`, `vpz`, `rz`, `vrx`, `vry`, `vrz`; `super` is never set).
 `func_80056B8C` is libgs's `GsSortClear`, carved as asm, declared by its
-arguments like func_80056774. The only residue of the first build was
+arguments like GsInitGraph. The only residue of the first build was
 `lb` for `gPauseState`: an `(s8)` cast on a `u8` folds away under `== 0`,
 so the global's declaration became `s8`.

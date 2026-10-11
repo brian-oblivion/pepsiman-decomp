@@ -541,9 +541,6 @@ void LoadCommonModels(void) {
     StepAnimation(&gPlayer, 0, 0);
 }
 
-/* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
-void func_80056774(s32 w, s32 h, s32 intmode, s32 dith, s32 vram);
-
 extern GsOT_TAG gOtTags[2][0x1000];
 extern GsOT_TAG gSubOtTags[2][0x1000];
 extern PACKET gGpuWork[2][67200];
@@ -551,7 +548,7 @@ extern PACKET gGpuWork[2][67200];
 void InitGraphics(void) {
     s32 i;
 
-    func_80056774(320, 240, 4, 1, 0);
+    GsInitGraph(320, 240, 4, 1, 0);
     GsDefDispBuff(0, 0, 0, 240);
     for (i = 0; i < 2; i++) {
         gSubOt[i].length = 12;
@@ -570,9 +567,6 @@ void InitGraphics(void) {
     GsClearOt(0, 0, &gSubOt[gActiveBuff]);
     gCurOt = &gOt[gActiveBuff];
 }
-
-/* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
-void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
 
 extern DR_STP sDrawStpOn;
 extern DR_STP sDrawStpOff;
@@ -600,7 +594,7 @@ void EndFrame(void) {
     gVSyncTime = VSync(gVSyncMode);
     DrawSync(0);
     GsSwapDispBuff();
-    func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
+    GsSortClear(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
     SetDrawStp(&sDrawStpOn, 1);
     AddPrim(&gOt[gActiveBuff].org[0xFFF], &sDrawStpOn);
     SetLetterbox(ClipF);

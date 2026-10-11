@@ -67,6 +67,7 @@ import sys
 from pathlib import Path
 
 import srcpath
+from psyq_sdk import KEPT_ASM
 
 ROOT = Path(__file__).resolve().parent.parent
 NM = ROOT / "tools/binutils/bin/mipsel-linux-gnu-nm"
@@ -549,12 +550,16 @@ def main():
     # is the discovery corpus `tools/psyq_sdk.py match` writes; absent on a
     # checkout without the SDK discs, in which case this line is skipped.
     placed = []
+    kept = set()
     for mfile in (ROOT / "sdk/work").glob("*/match.txt"):
         for line in mfile.read_text().splitlines():
-            m = re.match(r"\S+\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
+            m = re.match(r"(\S+?)(?:\.o)?\s+text=0x([0-9a-f]+)\s+fileoff=0x([0-9a-f]+)", line)
+            if m and m.group(1) in KEPT_ASM:
+                kept.add(m.group(1))
+                m = None
             if m:
-                off = int(m.group(2), 16)
-                placed.append((off - FILE_BASE + VRAM_BASE, off + int(m.group(1), 16) - FILE_BASE + VRAM_BASE))
+                off = int(m.group(3), 16)
+                placed.append((off - FILE_BASE + VRAM_BASE, off + int(m.group(2), 16) - FILE_BASE + VRAM_BASE))
     if placed and library:
         owned = 0
         for f in sorted(ROOT.glob("asm/psyq_*.s")):
@@ -564,6 +569,8 @@ def main():
                     owned += 1
         print(f"      convertible now:        {owned:5d}  still-asm SDK functions a placed object owns"
               f"  ({library - library_matched - library_queued - owned} more in psyq_* segments stay as disassembly)")
+        if kept:
+            print(f"      kept asm by decision:   {len(kept):5d}  objects ({', '.join(sorted(kept))}; tools/psyq_sdk.py KEPT_ASM)")
     print(f"  total functions:            {total:5d}  ({game} game)")
     if handwritten and game:
         # Keep hand-written asm inside the game denominator and report the

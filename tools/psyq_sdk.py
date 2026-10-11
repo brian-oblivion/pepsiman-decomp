@@ -170,6 +170,18 @@ def superseded_objects():
                 break
     return res
 
+# Placed objects deliberately left as disassembly, with the reason. `runs`
+# lists them apart instead of as work, and progress.py leaves them out of
+# "convertible now". Linking one needs an edited object, a head decision.
+KEPT_ASM = {
+    # Its unnamed 16-byte static block is at 0x800E4690, while its
+    # references into GsDRAWENV/GsDISPENV derive a .bss base of 0x800E46A0:
+    # one input section cannot sit at both, and a static cannot be pinned
+    # by name. lsddecomp kept the same object as asm (round 29) and named
+    # its functions (round 81); so does this project.
+    "libgs/gs_001": "scattered static .bss (two derived bases)",
+}
+
 ARCHIVE = "https://archive.org/download/ps1_sdks"
 DISC_NAMES = {  # version -> the redump zip on archive.org, for the error message
     "3.0": "Programmer Tool - Runtime Library Version 3.0 (Japan) (En,Ja)_DTL-S2180_redump.zip",
@@ -1058,6 +1070,10 @@ def cmd_runs(_args):
             continue
         end = segs[i + 1][0] if i + 1 < len(segs) else 0x85800
         inside = [o for o in objs if o[0] >= off and o[0] < end]
+        for o in inside:
+            if o[2] in KEPT_ASM:
+                print(f"\n{sname}  0x{off:X}..0x{end:X}  kept asm: {o[2]} -- {KEPT_ASM[o[2]]}")
+        inside = [o for o in inside if o[2] not in KEPT_ASM]
         if not inside:
             continue
         where = "SDK asm" if sname.startswith("psyq_") else f"GAME unit ({kind})"

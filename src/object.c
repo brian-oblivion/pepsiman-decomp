@@ -183,7 +183,7 @@ typedef struct {
 /** @brief The editor's state block (editor's EditorState), as far as the
  *         full reset writes it. */
 typedef struct {
-    u8 magic;      /**< 0x38 after a reset, the mark a saved slot is checked for */
+    u8 magic;      /**< EDITOR_MAGIC after a reset, the mark a saved slot is checked for */
     u8 unk1;       /**< 1 after a reset */
     u8 stage;      /**< gStage, on a reset */
     u8 kind;       /**< not written here */
@@ -579,7 +579,7 @@ extern s32 sQuadHitWord; /**< the word reported with a hit */
 s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
 
 /** @brief Updates the entry `rec` and places and tests its records: the
- *         first-buffer ones collect a hit bit into `r->unk40`, and, when
+ *         first-buffer ones collect a hit bit into `r->touched`, and, when
  *         the game head allows, the second-buffer ones report a hit to it.
  *  @return nothing; the value is undefined. */
 /* MATCHING: non-void with no return keeps two delay slots nops (the
@@ -594,12 +594,12 @@ s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
     DrawObjectModel(rec, r);
     start = rec->pointFirst;
     n = rec->pointCount;
-    r->unk40 = 0;
+    r->touched = 0;
     if (n != -1) {
         for (i = start; i < start + n; i++) {
             p = &((Placed2C *)gLivePoints)[i];
             UpdatePlacedPos(p);
-            r->unk40 |= CollidePlayer((Query30 *)p) & 1;
+            r->touched |= CollidePlayer((Query30 *)p) & 1;
         }
     }
     if (gPlayer.hittable != 0) {
@@ -1312,8 +1312,8 @@ s32 PairMarks(void) {
     }
 }
 
-/** @brief Clears unk40 and unk24 of all 200 Trap records and all but bit 0
- *         of unk41.
+/** @brief Clears touched and unk24 of all 200 Trap records and all but bit 0
+ *         of marks.
  *  @return nothing; the value is undefined. */
 s32 ClearObjectHits(void) {
     u16 i;
@@ -1322,13 +1322,13 @@ s32 ClearObjectHits(void) {
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     for (i = 0; i < 200; i++) {
         r = &sTraps[(s16)i];
-        r->unk40 = 0;
+        r->touched = 0;
         r->unk24 = 0;
-        r->unk41 &= 1;
+        r->marks &= 1;
     }
 }
 
-/** @brief Latches bit 1 of `r->unk41` once the record comes within `range`
+/** @brief Latches bit 1 of `r->marks` once the record comes within `range`
  *         of a fixed object.
  *  @return 1 when the bit was set by this call, else 0. */
 s32 LatchProximity(Trap *r, s32 range) {
@@ -1336,10 +1336,10 @@ s32 LatchProximity(Trap *r, s32 range) {
     s32 sq;
 
     ret = 0;
-    if (!((r->unk41 >> 1) & 1)) {
+    if (!((r->marks >> 1) & 1)) {
         sq = range * range;
         if (DistanceSquared(&gPlayer.x, r) < sq) {
-            r->unk41 |= 2;
+            r->marks |= 2;
             ret = 1;
         }
     }
@@ -1653,7 +1653,7 @@ void ResetGameState(Trap *recs) {
     ResetTraps(sTraps);
     bzero((u8 *)gStageSprites, sizeof(StageSprite) * 100);
     ClearStageSprites(gStageSprites);
-    sEditorReset.magic = 0x38;
+    sEditorReset.magic = EDITOR_MAGIC;
     sEditorReset.unk1 = 1;
     sEditorReset.trapType = 0;
     sEditorReset.trapAct = 0;

@@ -62,7 +62,7 @@ enum EditKind {
 /** @brief The editor's state block: the cursor, the counts, and each SEL
  *         screen's values, named from the labels it prints. */
 typedef struct {
-    u8 magic;   /**< 0x38, the mark a saved slot is checked for */
+    u8 magic;   /**< EDITOR_MAGIC, the mark a saved slot is checked for */
     u8 unk1;    /**< 1 after a reset */
     u8 stage;   /**< gStage when the state was reset */
     u8 kind;    /**< what is placed and picked, an EditKind */
@@ -88,7 +88,12 @@ typedef struct {
     u16 spriteCount;  /**< StageSprites in use */
     u16 spriteHit;    /**< "SPRITE SEL" HIT.: off or on; picks one of two StageSprite handlers */
     u16 spriteFlip;   /**< "SPRITE SEL" FLIP.: off or on; negates the template's width */
-    u8 unk36[0x32];   /**< not yet known */
+    u8 unk36[2];      /**< not yet known */
+    s32 savedPos[3];  /**< gPlayer's x, y and z, kept by SaveEditorState */
+    s16 savedYaw;     /**< gCourse.rot.vy, kept with them */
+    u8 unk46[2];      /**< not yet known */
+    s32 savedView[6]; /**< gRefView's first six words, kept with them */
+    u8 unk60[8];      /**< not yet known */
     u8 trapType;      /**< "TRAP SEL" TYPENO. */
     u8 trapAct;       /**< "TRAP SEL" ACT NO. */
     s16 spriteAngle;  /**< the sprite's angle in degrees, 0..359 */
@@ -130,18 +135,15 @@ typedef struct {
 } BlockAreaCopy;
 
 /** @brief A 0xB774-byte slot of the tool buffer, seen 0x200 bytes early:
- *         the slot's data starts at unk200 and its block header area runs
+ *         the slot's data starts at state and its block header area runs
  *         0x200 bytes past this view's end. */
 typedef struct {
-    u8 unk0[0x200];      /**< not yet known */
-    u8 unk200;           /**< 0x38 when the slot is valid */
-    u8 unk201;           /**< not yet known */
-    u8 unk202;           /**< the owner; compared with a global */
-    u8 unk203[0x71];     /**< the rest of the tool state block */
-    TrapTable unk274;    /**< the EditorTrap table */
-    SwitchTable unk3AB4; /**< the switches */
-    SpriteTable unk8294; /**< the StageSprite table */
-    u8 unk9A04[0x1D70];  /**< not yet known; the block area starts at 0xB174 */
+    u8 unk0[0x200];    /**< not yet known */
+    EditorState state; /**< the editor's state block; magic EDITOR_MAGIC when the slot is valid */
+    TrapTable traps;   /**< the EditorTrap table */
+    SwitchTable switches; /**< the switches */
+    SpriteTable sprites;  /**< the StageSprite table */
+    u8 unk9A04[0x1D70];   /**< not yet known; the block area starts at 0xB174 */
 } SaveSlot;
 
 /* MATCHING: gStageSprites and gEditorState are also declared in object, each
@@ -192,17 +194,6 @@ extern char sEdInfoActLabel[];        /**< "ACT. " */
 extern char sEdInfoWalkLabel[];       /**< "WALK." */
 extern char sEdInfoOffLine[];         /**< " OFF\n" */
 extern char sEdInfoSeLabel[];         /**< "SE. " */
-
-/** @brief The tool state block, seen as the save area past its totals. */
-typedef struct {
-    u8 unk0[0x38]; /**< not yet known */
-    s32 unk38[3];  /**< a copy of &gPlayer.x */
-    s16 unk44;     /**< a saved halfword of game state */
-    u8 unk46[2];   /**< not yet known */
-    s32 unk48[6];  /**< six saved words of game state */
-} ToolSave;
-
-#define sToolSave (*(ToolSave *)gEditorState)
 
 
 /* MATCHING: also declared in object, which only zeroes it. */
@@ -256,8 +247,8 @@ typedef struct {
     s16 hook;        /**< sTotals.trapModel for the first placed, else -1 */
     u8 unk3A[2];     /**< not yet known */
     s32 section;     /**< gSection when placed */
-    u8 unk40;        /**< cleared when placed */
-    u8 unk41;        /**< not yet known */
+    u8 touched;      /**< cleared when placed */
+    u8 marks;        /**< 1 when reset */
     u8 type;         /**< sTotals.trapType when placed */
     u8 act;          /**< sTotals.trapAct when placed */
     u8 unk44[4];     /**< not yet known */
@@ -2076,7 +2067,7 @@ void EditorPlaceRecords(void) {
             w->home[0] = w->pos[0];
             w->home[1] = w->pos[1];
             w->home[2] = w->pos[2];
-            w->unk40 = 0;
+            w->touched = 0;
             w->unk24 = 0;
             w->unk26 = 0;
             w->block = gCurBlock;
@@ -2959,9 +2950,9 @@ void PrintEditorSlots(void) {
             FntPrint(sEdColorBlue);
         }
         slot = &slots[i];
-        if (slot->unk200 == 0x38) {
+        if (slot->state.magic == EDITOR_MAGIC) {
             FntPrint(sEdDataNoFmt, i + 1);
-            v = slot->unk202;
+            v = slot->state.stage;
             stage = v / 3;
             FntPrint(sEdStageFmt, stage + 1);
             part = v % 3;
@@ -2986,23 +2977,23 @@ void PrintEditorSlots(void) {
 /** @brief Saves the record tables, the block header area and the tool
  *         state block into save slot `a` of `buf`. */
 void SaveEditorSlot(s16 a, u8 *buf) {
-    ((SaveSlot *)buf)[a].unk3AB4 = *(SwitchTable *)gSwitches;
-    ((SaveSlot *)buf)[a].unk274 = *(TrapTable *)gTraps;
+    ((SaveSlot *)buf)[a].switches = *(SwitchTable *)gSwitches;
+    ((SaveSlot *)buf)[a].traps = *(TrapTable *)gTraps;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(SpriteTable *)gStageSprites;
     *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
-    *(EditorStateCopy *)&((SaveSlot *)buf)[a].unk200 = *(EditorStateCopy *)gEditorState;
+    *(EditorStateCopy *)&((SaveSlot *)buf)[a].state = *(EditorStateCopy *)gEditorState;
 }
 
 /** @brief Restores the record tables, the block header area and the tool
  *         state block from save slot `a` of `buf`. */
 void LoadEditorSlot(s16 a, u8 *buf) {
-    *(SwitchTable *)gSwitches = ((SaveSlot *)buf)[a].unk3AB4;
-    *(TrapTable *)gTraps = ((SaveSlot *)buf)[a].unk274;
+    *(SwitchTable *)gSwitches = ((SaveSlot *)buf)[a].switches;
+    *(TrapTable *)gTraps = ((SaveSlot *)buf)[a].traps;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)gStageSprites = *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
     *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
-    *(EditorStateCopy *)gEditorState = *(EditorStateCopy *)&((SaveSlot *)buf)[a].unk200;
+    *(EditorStateCopy *)gEditorState = *(EditorStateCopy *)&((SaveSlot *)buf)[a].state;
 }
 
 extern char sEdDataFilePath0[]; /**< path of slot 0's file on the host */
@@ -3019,15 +3010,15 @@ s32 WriteEditorSlotFiles(void) {
 
     s = (SaveSlot *)0x8016D000;
     fd = open(sEdDataFilePath0, O_CREAT | O_WRONLY);
-    if (write(fd, &s[0].unk274, 0x3840) == -1) {
+    if (write(fd, &s[0].traps, 0x3840) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[0].unk3AB4, 0x47E0) == -1) {
+    if (write(fd, &s[0].switches, 0x47E0) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[0].unk8294, 0x1770) == -1) {
+    if (write(fd, &s[0].sprites, 0x1770) == -1) {
         close(fd);
         return -1;
     }
@@ -3037,15 +3028,15 @@ s32 WriteEditorSlotFiles(void) {
     }
     close(fd);
     fd = open(sEdDataFilePath1, O_CREAT | O_WRONLY);
-    if (write(fd, &s[1].unk274, 0x3840) == -1) {
+    if (write(fd, &s[1].traps, 0x3840) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[1].unk3AB4, 0x47E0) == -1) {
+    if (write(fd, &s[1].switches, 0x47E0) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[1].unk8294, 0x1770) == -1) {
+    if (write(fd, &s[1].sprites, 0x1770) == -1) {
         close(fd);
         return -1;
     }
@@ -3057,15 +3048,15 @@ s32 WriteEditorSlotFiles(void) {
     }
     close(fd);
     fd = open(sEdDataFilePath2, O_CREAT | O_WRONLY);
-    if (write(fd, &s[2].unk274, 0x3840) == -1) {
+    if (write(fd, &s[2].traps, 0x3840) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[2].unk3AB4, 0x47E0) == -1) {
+    if (write(fd, &s[2].switches, 0x47E0) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[2].unk8294, 0x1770) == -1) {
+    if (write(fd, &s[2].sprites, 0x1770) == -1) {
         close(fd);
         return -1;
     }
@@ -3193,16 +3184,16 @@ s32 RunMenu(s16 n) {
 /** @brief Saves three pieces of game state into the tool state block,
  *         then runs a step on the tool buffer. */
 void SaveEditorState(s16 a) {
-    sToolSave.unk38[0] = gPlayer.x;
-    sToolSave.unk38[1] = gPlayer.y;
-    sToolSave.unk38[2] = gPlayer.z;
-    sToolSave.unk44 = gCourse.rot.vy;
-    sToolSave.unk48[0] = gRefView[0];
-    sToolSave.unk48[1] = gRefView[1];
-    sToolSave.unk48[2] = gRefView[2];
-    sToolSave.unk48[3] = gRefView[3];
-    sToolSave.unk48[4] = gRefView[4];
-    sToolSave.unk48[5] = gRefView[5];
+    sTotals.savedPos[0] = gPlayer.x;
+    sTotals.savedPos[1] = gPlayer.y;
+    sTotals.savedPos[2] = gPlayer.z;
+    sTotals.savedYaw = gCourse.rot.vy;
+    sTotals.savedView[0] = gRefView[0];
+    sTotals.savedView[1] = gRefView[1];
+    sTotals.savedView[2] = gRefView[2];
+    sTotals.savedView[3] = gRefView[3];
+    sTotals.savedView[4] = gRefView[4];
+    sTotals.savedView[5] = gRefView[5];
     SaveEditorSlot(a, (u8 *)0x8016D000);
 }
 
@@ -3215,10 +3206,10 @@ s32 CheckEditorSlot(s16 i) {
     slot = &((SaveSlot *)0x8016D000)[i];
     /* MATCHING: two guards, each returning -1; an && test lays the success
      * path out as the branch target. */
-    if (slot->unk200 != 0x38) {
+    if (slot->state.magic != EDITOR_MAGIC) {
         return -1;
     }
-    if (slot->unk202 != gStage) {
+    if (slot->state.stage != gStage) {
         return -1;
     }
     return 0;
@@ -3228,16 +3219,16 @@ s32 CheckEditorSlot(s16 i) {
  *         the save step put in the tool state block. */
 void RestoreEditorState(s16 a) {
     LoadEditorSlot(a, (u8 *)0x8016D000);
-    gPlayer.x = sToolSave.unk38[0];
-    gPlayer.y = sToolSave.unk38[1];
-    gPlayer.z = sToolSave.unk38[2];
-    gCourse.rot.vy = sToolSave.unk44;
-    gRefView[0] = sToolSave.unk48[0];
-    gRefView[1] = sToolSave.unk48[1];
-    gRefView[2] = sToolSave.unk48[2];
-    gRefView[3] = sToolSave.unk48[3];
-    gRefView[4] = sToolSave.unk48[4];
-    gRefView[5] = sToolSave.unk48[5];
+    gPlayer.x = sTotals.savedPos[0];
+    gPlayer.y = sTotals.savedPos[1];
+    gPlayer.z = sTotals.savedPos[2];
+    gCourse.rot.vy = sTotals.savedYaw;
+    gRefView[0] = sTotals.savedView[0];
+    gRefView[1] = sTotals.savedView[1];
+    gRefView[2] = sTotals.savedView[2];
+    gRefView[3] = sTotals.savedView[3];
+    gRefView[4] = sTotals.savedView[4];
+    gRefView[5] = sTotals.savedView[5];
 }
 
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
@@ -3294,7 +3285,7 @@ void ResetTraps(Trap *recs) {
         recs->model = -1;
         recs->hook = -1;
         recs->switchNo = -1;
-        recs->unk41 = 1;
+        recs->marks = 1;
         recs++;
     }
 }
@@ -3308,7 +3299,7 @@ void ResetTrapUpper(Trap *recs) {
     for (i = 150; i < 200; i++) {
         r->model = -1;
         r->switchNo = -1;
-        r->unk41 = 1;
+        r->marks = 1;
         r++;
     }
 }

@@ -12,6 +12,10 @@
 #include "libgpu.h"
 #include "libgs.h"
 
+/** @brief The editor state's first byte after a reset: a save slot holding
+ *         anything else is empty. */
+#define EDITOR_MAGIC 0x38
+
 /** @brief A StageSprite's flags byte. */
 enum SpriteFlag {
     SPRITE_ACT_MASK = 0x3F, /**< the act, a SpriteAct */
@@ -53,7 +57,7 @@ typedef struct {
  *         object with a model, a switch, a type and an act. */
 typedef struct {
     u8 unk0[0x24]; /**< not yet known */
-    s16 unk24;     /**< zeroed with unk40 */
+    s16 unk24;     /**< zeroed with touched */
     u8 unk26[2];   /**< not yet known */
     s32 block;     /**< the block it was placed in; set from a per-record lookup */
     u8 unk2C[8];   /**< not yet known */
@@ -61,8 +65,8 @@ typedef struct {
     s16 model;     /**< its ObjectModel entry; -1 when free */
     s16 hook;      /**< the stage hook of the first record of a placement, else -1 */
     u8 unk3A[6];   /**< not yet known */
-    u8 unk40;      /**< cleared with unk24 */
-    u8 unk41;      /**< 1 when reset; only bit 0 survives a clear */
+    u8 touched;    /**< 1 when the player touched one of its hit points this frame */
+    u8 marks;      /**< bit 0 set when reset and kept by ClearObjectHits; bit 1 LatchProximity's */
     u8 unk42[6];   /**< not yet known */
 } Trap;
 

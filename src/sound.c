@@ -479,13 +479,13 @@ s32 LoadSoundData(void) {
             gCdLoadLoc[1] = (s32)&sSoundFileLoc[2];
             gCdLoadDest[1] = 0x8016D000;
             gCdLoadCount = 2;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sSoundFileSectors[4];
             gCdLoadSectors[1] = sSoundFileSectors[6];
             gSubStep++;
             break;
         case 1:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadVab(0);
                 gSubStep++;
             }
@@ -494,12 +494,12 @@ s32 LoadSoundData(void) {
             gCdLoadLoc[0] = (s32)&sSoundFileLoc[3];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sSoundFileSectors[7];
             gSubStep++;
             break;
         case 3:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadVab(1);
                 InitSeSeqs();
                 gVabBank = 1;
@@ -592,11 +592,11 @@ s32 LoadVabBank(u16 bank) {
             gCdLoadSectors[0] = sSoundFileSectors[bank + 6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gVabLoadStep++;
             break;
         case 1:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 SsVabClose(gSeVab);
                 gVabBank = bank;
                 LoadVab(1);

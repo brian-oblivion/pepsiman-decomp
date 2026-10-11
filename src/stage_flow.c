@@ -255,7 +255,7 @@ void UpdateStagePlay(u8 stage) {
     }
     gSkipLandRumble = 0;
     if (gPadTrig & PADstart) {
-        if ((u16)(gMissState + 1) < 2) {
+        if ((u16)(gMissState - MISS_DYING) < 2) { /* MISS_DYING or MISS_NONE */
             if (gPauseState == 0) {
                 SetCdVolume(30);
                 gPauseState = 1;
@@ -313,7 +313,7 @@ void RestartStage(u8 stage) {
     gPlayer.x = gCourse.x;
     gPlayer.y = gCourse.y;
     gPlayer.z = gCourse.z;
-    gMissState = 0;
+    gMissState = MISS_NONE;
     gPlayer.unk3CA = 0;
     if (sStageFindsFloor[gStage] == 1) {
         gFloorIndex = FindFloor((Pos3 *)&gPlayer.x);
@@ -371,7 +371,7 @@ void ResetStage(void) {
     } else {
         gBonusLevel = 3;
     }
-    gMissState = 0;
+    gMissState = MISS_NONE;
     SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
     gPlayer.motion[0] = 3;

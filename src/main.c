@@ -135,7 +135,7 @@ int main(void) {
                 LoadOverlay(0);
                 break;
             case GM_OVERLAY0_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_OVERLAY0;
                     gModeStep = 0;
                     gLoading = 0;
@@ -151,7 +151,7 @@ int main(void) {
                 LoadOverlay(2);
                 break;
             case GM_MENU_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_MENU;
                     if (gModeStep == 0xFFFF) {
                         gModeStep = 50;
@@ -175,7 +175,7 @@ int main(void) {
                 LoadOverlay(world + 18);
                 break;
             case GM_WORLD_INTRO_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_WORLD_INTRO;
                 }
                 gModeStep = 0;
@@ -212,7 +212,7 @@ int main(void) {
                 LoadStageOverlay(gStage);
                 break;
             case GM_STAGE_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_STAGE;
                 }
                 gModeStep = 0;
@@ -252,7 +252,7 @@ int main(void) {
                 gVSyncMode = 0;
                 break;
             case GM_TRAP_VIEWER_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_TRAP_VIEWER_INIT;
                 }
                 break;
@@ -277,7 +277,7 @@ int main(void) {
                 gVSyncMode = 0;
                 break;
             case GM_TRAP_LAYOUT_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_TRAP_LAYOUT_INIT;
                 }
                 break;
@@ -304,7 +304,7 @@ int main(void) {
                 gVSyncMode = 2;
                 break;
             case GM_EDITOR_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_EDITOR_INIT;
                 }
                 break;
@@ -316,7 +316,7 @@ int main(void) {
                 }
                 break;
             case GM_EDITOR_RELOAD:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_EDITOR;
                     gModeStep = 0;
                     gLoading = 0;
@@ -338,7 +338,7 @@ int main(void) {
                 gVSyncMode = 2;
                 break;
             case GM_HIT_TOOL_WAIT:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_HIT_TOOL_INIT;
                 }
                 break;
@@ -350,7 +350,7 @@ int main(void) {
                 }
                 break;
             case GM_HIT_TOOL_RELOAD:
-                if (gCdLoadState == 6) {
+                if (gCdLoadState == CD_LOAD_DONE) {
                     gGameMode = GM_HIT_TOOL;
                     gModeStep = 0;
                     gLoading = 0;
@@ -442,11 +442,11 @@ s8 LoadBootData(void) {
             gCdLoadSectors[2] = sBootFileSectors[2];
             gCdLoadSectors[3] = sBootFileSectors[3];
             gCdLoadSectors[4] = sBootFileSectors[4];
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep = 1;
             break;
         case 1:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 func_80018DE8(0);
                 gSubStep++;
             }
@@ -1124,44 +1124,44 @@ s8 UpdateCdLoad(void) {
     s32 r;
 
     switch (gCdLoadState) {
-        case 0:
+        case CD_LOAD_IDLE:
             break;
-        case 1:
+        case CD_LOAD_SEEK:
             CdControlF(CdlSetloc, (u_char *)gCdLoadLoc[gCdLoadIndex]);
             gCdLoadState++;
             break;
-        case 2:
+        case CD_LOAD_SEEK_WAIT:
             r = CdSync(1, NULL);
-            if (r == 2) {
+            if (r == CdlComplete) {
                 gCdLoadState++;
-            } else if (r == 5) {
-                gCdLoadState = 1;
+            } else if (r == CdlDiskError) {
+                gCdLoadState = CD_LOAD_SEEK;
                 gCdLoadRetries++;
             }
             break;
-        case 3:
+        case CD_LOAD_READ:
             gCdLoadReadSectors = gCdLoadSectors[gCdLoadIndex] + 1;
-            if (CdRead(gCdLoadReadSectors, (u_long *)gCdLoadDest[gCdLoadIndex], 0x80) == 0) {
+            if (CdRead(gCdLoadReadSectors, (u_long *)gCdLoadDest[gCdLoadIndex], CdlModeSpeed) == 0) {
                 gCdLoadRetries++;
             } else {
                 gCdLoadState++;
             }
             break;
-        case 4:
+        case CD_LOAD_READ_WAIT:
             r = CdReadSync(1, NULL);
             if (r == 0) {
                 gCdLoadState++;
             } else if (r == -1) {
-                gCdLoadState = 1;
+                gCdLoadState = CD_LOAD_SEEK;
                 gCdLoadRetries++;
             }
             break;
-        case 5:
+        case CD_LOAD_NEXT:
             if (++gCdLoadIndex >= gCdLoadCount) {
-                gCdLoadState = 6;
+                gCdLoadState = CD_LOAD_DONE;
                 gCdLoadIndex = 0;
             } else {
-                gCdLoadState = 1;
+                gCdLoadState = CD_LOAD_SEEK;
             }
             break;
     }
@@ -1324,7 +1324,7 @@ void LoadAct3Stage(void) {
             gSubStep++;
             break;
         case 3:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 gSubStep++;
             }
             break;
@@ -1354,11 +1354,11 @@ void LoadAct3Stage(void) {
             }
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 5:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadTimList((unsigned long *)0x8019D000);
                 gSubStep++;
             }
@@ -1388,11 +1388,11 @@ void LoadAct3Stage(void) {
             }
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 7:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadAct3Data((unsigned long *)0x8019D000);
                 switch (gStage) {
                     case 2:
@@ -1467,7 +1467,7 @@ void LoadStage(void) {
             gSubStep++;
             break;
         case 3:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 gSubStep++;
             }
             break;
@@ -1517,11 +1517,11 @@ void LoadStage(void) {
             }
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 5:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadTimList((unsigned long *)0x8019D000);
                 gSubStep++;
             }
@@ -1571,11 +1571,11 @@ void LoadStage(void) {
             }
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 7:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadTimPack((void *)0x8019D000);
                 gSubStep++;
             }
@@ -1646,11 +1646,11 @@ void LoadStage(void) {
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 9:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadStageData((unsigned long *)0x8019D000);
                 gSubStep++;
             }
@@ -1700,11 +1700,11 @@ void LoadStage(void) {
             }
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 11:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 LoadSpritePack((DirEnt16 *)0x8016D000, 30);
                 gSubStep++;
             }
@@ -1758,11 +1758,11 @@ void LoadStage(void) {
             }
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 14:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 SetHitBanks((void *)0x8016D000, (void *)0x80171744);
                 RestoreStageObjects();
                 LoadStageSprites();
@@ -1796,11 +1796,11 @@ void LoadStage(void) {
                 gCdLoadDest[0] = 0x8018D000;
             }
             gCdLoadCount = 1;
-            gCdLoadState = 1;
+            gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 16:
-            if (gCdLoadState == 6) {
+            if (gCdLoadState == CD_LOAD_DONE) {
                 ResetStageObjects();
                 StartStageOverlay();
                 func_80018DE8(1);

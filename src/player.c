@@ -659,8 +659,8 @@ s32 CheckFall(void) {
         }
         gPlayer.groundY = 30000;
         if (gPlayer.y >= gFloorY[0] + 100) {
-            if (gMissState == 0) {
-                gMissState = 2;
+            if (gMissState == MISS_NONE) {
+                gMissState = MISS_FELL;
             }
             gFellOff = 1;
             gPlayer.control = 0;
@@ -1198,7 +1198,7 @@ top:
             StartRumble(gRumblePatterns, 9);
             break;
         case 0x56:
-            gMissState = -1;
+            gMissState = MISS_DYING;
             state->action = 0x57;
             state->motion[0] = 0x23;
             ResetSpeed();
@@ -1572,7 +1572,7 @@ top:
                         PlaySe(0x34);
                     }
                     if (state->unk374 >= 61) {
-                        gMissState = 100;
+                        gMissState = MISS_RETRY;
                     }
                 }
             }
@@ -1627,7 +1627,7 @@ top:
                                     PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
-                                    gMissState = 100;
+                                    gMissState = MISS_RETRY;
                                 }
                             }
                             break;
@@ -1640,7 +1640,7 @@ top:
                                     PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
-                                    gMissState = 100;
+                                    gMissState = MISS_RETRY;
                                 }
                             }
                             break;
@@ -1652,18 +1652,18 @@ top:
                                     PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
-                                    gMissState = 100;
+                                    gMissState = MISS_RETRY;
                                 }
                             }
                             break;
                         case 0x57:
-                            gMissState = -1;
+                            gMissState = MISS_DYING;
                             if (state->unk374 >= 61) {
                                 if (gStage == 4 && gSection == 0) {
                                     state->motion[0] = 0x22;
-                                    gMissState = 0;
+                                    gMissState = MISS_NONE;
                                 } else {
-                                    gMissState = 100;
+                                    gMissState = MISS_RETRY;
                                 }
                             }
                             if ((gStage != 4 || gSection != 0) && state->unk374 == 30) {
@@ -1761,7 +1761,7 @@ top:
                         PlaySe(0x34);
                     }
                     if (state->unk376 >= 61) {
-                        gMissState = 100;
+                        gMissState = MISS_RETRY;
                     }
                 }
             }
@@ -1785,9 +1785,9 @@ top:
                     if (state->unk378 >= 31) {
                         gPlayer.drawY += 2;
                     }
-                    gMissState = -1;
+                    gMissState = MISS_DYING;
                     if (state->unk378 >= 121) {
-                        gMissState = 100;
+                        gMissState = MISS_RETRY;
                     }
                     break;
                 default:
@@ -1834,7 +1834,7 @@ top:
                                 PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
-                                gMissState = 100;
+                                gMissState = MISS_RETRY;
                             }
                         }
                     }
@@ -1855,7 +1855,7 @@ top:
                                 PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
-                                gMissState = 100;
+                                gMissState = MISS_RETRY;
                             }
                         }
                     }
@@ -1871,7 +1871,7 @@ top:
                                 PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
-                                gMissState = 100;
+                                gMissState = MISS_RETRY;
                             }
                         }
                     }
@@ -1977,9 +1977,9 @@ top:
             }
             break;
         case 0x32:
-            gMissState = -1;
+            gMissState = MISS_DYING;
             if (++state->unk374 >= 91) {
-                gMissState = 100;
+                gMissState = MISS_RETRY;
             }
             break;
         case 0x33:
@@ -2192,12 +2192,12 @@ s32 UpdatePlayState(void) {
     }
 top:
     switch (gMissState) {
-        case -2:
+        case MISS_HALT:
             break;
-        case -1:
+        case MISS_DYING:
             DrawHud();
             break;
-        case 0:
+        case MISS_NONE:
             x = gBonusLevel;
             if (gStageTableSet == 1) {
                 if (x >= 2) {
@@ -2251,7 +2251,7 @@ top:
                     gSpeedFixed = 0xF0;
                 }
                 gPlayer.action = 0x23;
-                gMissState = 1;
+                gMissState = MISS_TIME_UP;
                 D_800959B0 = 0;
                 gMissTimer = 0;
                 gPlayer.speed = (s16)gSpeedFixed >> 4;
@@ -2259,7 +2259,7 @@ top:
                 goto top;
             }
             break;
-        case 1:
+        case MISS_TIME_UP:
             gMissTimer++;
             DrawFrozenFrame();
             if (gMissTimer == 10) {
@@ -2278,23 +2278,23 @@ top:
             if (gMissTimer > 100) {
                 t = gMissTimer - 100;
                 if (t > 60) {
-                    gMissState = 100;
+                    gMissState = MISS_RETRY;
                 }
             }
             break;
-        case 2:
+        case MISS_FELL:
             StopCdTrack();
             PlaySe(0x1B);
             gMissTimer = 0;
-            gMissState = 3;
+            gMissState = MISS_FELL_WAIT;
             break;
-        case 3:
+        case MISS_FELL_WAIT:
             t = ++gMissTimer;
             if (t > 60) {
-                gMissState = 100;
+                gMissState = MISS_RETRY;
             }
             break;
-        case 100:
+        case MISS_RETRY:
             ClipF = 0;
             if (gRetries == 0) {
                 gPlayer.unk3D2 = 0;
@@ -2305,7 +2305,7 @@ top:
                 gRetries--;
             }
             break;
-        case 110:
+        case MISS_TO_MENU:
             t = ++gMissTimer;
             func_8003E360(t);
             if (t == 0x180) {

@@ -281,7 +281,7 @@ extern u16 D_80095768;     /**< 2 units, 2 functions; never loaded, sign unknown
 extern u8 D_800957D5;      /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D6;      /**< 2 units, 3 functions; never loaded, sign unknown */
 extern u8 gFellOff;        /**< set when the player falls below the floor; never read here */
-extern s16 gMissState;     /**< 2 units; set to 2 at the goal when 0 */
+extern s16 gMissState;     /**< the play state, a MissState */
 extern s32 gLoopI;         /**< a loop counter kept in a global */
 extern s32 gSlotTableSize; /**< the slot table's size in bytes */
 extern s32 gSlotTable;     /**< the address of the 72-byte slot records */
@@ -313,7 +313,7 @@ extern u8 gLoading; /**< 1 while a load runs: a fixed view and a black screen; 0
 extern s8 gPauseState;        /**< nonzero stops the frame counter; 2 units */
 extern s32 ClipF;             /**< a word inside libgte's clipf object, as a variable; 2 units */
 extern s32 gModelTmd;         /**< the mapped model data's TMD address; 2 units */
-extern s8 gCdLoadState;       /**< UpdateCdLoad's step; 6 when every file has been read */
+extern s8 gCdLoadState;       /**< UpdateCdLoad's step, a CdLoadState */
 extern u8 gStereo;            /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
 extern s16 gMenuChoice;       /**< what RunMenu returned for the card menus */
 extern u16 gToolCardStep;     /**< the card data screen's step, a CardStep */
@@ -484,6 +484,31 @@ void PrintSaveLoad(void);
  *  @param n the number of lines
  *  @return the highlighted line when flag bit 5 is set, else -1. */
 s32 RunMenu(s16 n);
+
+/** @brief UpdateCdLoad's steps, gCdLoadState: each file of the load is
+ *         sought, then read; an error goes back to the seek. */
+enum CdLoadState {
+    CD_LOAD_IDLE = 0,      /**< nothing to do */
+    CD_LOAD_SEEK = 1,      /**< sets the file's position; a load starts here */
+    CD_LOAD_SEEK_WAIT = 2, /**< waits for the seek */
+    CD_LOAD_READ = 3,      /**< starts the read */
+    CD_LOAD_READ_WAIT = 4, /**< waits for the read */
+    CD_LOAD_NEXT = 5,      /**< the next file, or CD_LOAD_DONE */
+    CD_LOAD_DONE = 6       /**< every file has been read */
+};
+
+/** @brief The play state, gMissState: playing, or a miss and its retry.
+ *         -2 and 110 are not set by this executable. */
+enum MissState {
+    MISS_HALT = -2,     /**< nothing runs, not even the HUD */
+    MISS_DYING = -1,    /**< a miss animation plays: the HUD, but no clock */
+    MISS_NONE = 0,      /**< playing: the clock runs; at zero, MISS_TIME_UP */
+    MISS_TIME_UP = 1,   /**< out of time: a frozen frame, then MISS_RETRY */
+    MISS_FELL = 2,      /**< fell off the course: stops the music */
+    MISS_FELL_WAIT = 3, /**< waits 60 frames, then MISS_RETRY */
+    MISS_RETRY = 100,   /**< restarts the stage, or the menus with no retries left */
+    MISS_TO_MENU = 110  /**< 0x180 frames, then the menus */
+};
 
 /** @brief A memory card operation, RunCardOp1's and RunCardOp2's `mode`. */
 enum CardOp {

@@ -659,7 +659,7 @@ s32 TestBoxes(void) {
     s16 px;
     s16 pz;
 
-    if (gMissState > 0) {
+    if (gMissState > MISS_NONE) {
         return;
     }
     i = 0;

@@ -651,5 +651,5 @@ void LoadOverlay(s32 id) {
     }
     gCdLoadDest[0] = 0x800F0000;
     gCdLoadCount = 1;
-    gCdLoadState = 1;
+    gCdLoadState = CD_LOAD_SEEK;
 }

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002F270` on 2026-10-11 (tools/rename.py). Address 0x8002f270.
 
-Unit `src/code_1dc24.c`. The tool mode's caption printer: while
+Unit `src/editor.c`. The tool mode's caption printer: while
 `D_800959D8` is 1, prints with `FntPrint` the state of the current tool
 mode (`sTotals.unk3`): mode 0 the selected point and the entry's point
 count, mode 1 the selected switch, mode 2 the selected Obj48 record (model
@@ -34,7 +34,7 @@ referenced by symbol).
 
 - 28 string symbols declared in the unit as `extern char D_…[]` with their
   text in the comment (20 rodata, 7 `.sdata`, all new).
-- `config/typeviews-warnings.txt`: one more code_1dc24 "unused variable
+- `config/typeviews-warnings.txt`: one more editor "unused variable
   `unused'".
 
 ```c
@@ -52,4 +52,4 @@ referenced by symbol).
             break;
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)

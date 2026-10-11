@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023B20` on 2026-10-11 (tools/rename.py). Address 0x80023b20.
 
-Unit `src/code_13068.c`. Three steps per call (a `u16` counter): the
+Unit `src/player.c`. Three steps per call (a `u16` counter): the
 game-state word at 0x384 decays one step towards 0, and the angle at 0x380
 follows the camera yaw (`D_800A7680[0].vy`): by 56 while it is more than
 56 away, by 11 once within 56. Each step copies the angle's low half to

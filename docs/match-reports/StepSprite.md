@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C894` on 2026-10-11 (tools/rename.py). Address 0x8002c894.
 
-Unit `src/code_1a098.c`. Runs a Rec3C record's step (DrawObjectSprite), then
+Unit `src/object.c`. Runs a Rec3C record's step (DrawObjectSprite), then
 asks the position query (CollidePlayer) about a point half the record's
 height below it with a third of `|unk20|` as range; keeps bit 0 of the
 answer in `unk25`, and on a hit while flagged (bit 7 of `unk26`) in state 2
@@ -37,7 +37,7 @@ void StepSprite(s16 id, Rec3C *r) {
 }
 ```
 
-`Rec3C` is declared in this unit with the fields above (code_1dc24 has its
+`Rec3C` is declared in this unit with the fields above (editor has its
 own, smaller view of the same 0x3C-byte record). Retail passes `id` to
 DrawObjectSprite through `andi 0xFFFF`: that callee takes a `u16` in this
 unit's view.
@@ -59,11 +59,11 @@ against the record's member stores differently from a plain word read.
 
 ## Declaration note (needs the head or bravo)
 
-declcheck reports LOCAL for code_1dc24.c:82-83, that unit's own
+declcheck reports LOCAL for editor.c:82-83, that unit's own
 prototypes of StepSprite (now defined here) and DrawObjectSprite (used
-here). The definition keeps code_1dc24's `(s16, Rec3C *)` type, so there is
-no TYPE hit. code_1dc24 has DrawObjectSprite as `(s16, Rec3C *)`; this unit
-has it as `(u16, Rec3C *)` (retail's `andi 0xFFFF`). code_1dc24 was live
+here). The definition keeps editor's `(s16, Rec3C *)` type, so there is
+no TYPE hit. editor has DrawObjectSprite as `(s16, Rec3C *)`; this unit
+has it as `(u16, Rec3C *)` (retail's `andi 0xFFFF`). editor was live
 under bravo this round, so I left its file alone and asked on the
 broadcast for a `MATCHING:` per-unit-view note there.
 

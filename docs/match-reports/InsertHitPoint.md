@@ -2,7 +2,7 @@
 
 > Renamed from `func_80034F38` on 2026-10-11 (tools/rename.py). Address 0x80034f38.
 
-Unit `src/code_24748.c`. The first-bank twin of InsertHitQuad: inserts a
+Unit `src/hit_tool.c`. The first-bank twin of InsertHitQuad: inserts a
 0x2C-byte record into the bank at `gHitPoints` for the current entry
 `gToolSection` (shifting records up to record 399), fills the new record
 (`GetHitPoint`) from the game state's position (x and z negated) and the

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041178` on 2026-10-10 (tools/rename.py). Address 0x80041178.
 
-Unit `src/code_31958.c`. The twin of func_80041158 on the halfword table
+Unit `src/stage_overlay.c`. The twin of func_80041158 on the halfword table
 `D_8007B10C`. main.c passes the current stage (`gStage`) and hands the
 result to LoadVabBank.
 

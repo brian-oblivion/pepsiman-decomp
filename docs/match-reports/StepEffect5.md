@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E6F8` on 2026-10-10 (tools/rename.py). Address 0x8003e6f8.
 
-Unit `src/code_29f54.c`. A slot step (the `SlotStep` signature of the
+Unit `src/stage.c`. A slot step (the `SlotStep` signature of the
 table at `gEffectSteps`; x, y and z are unused): draws a semi-transparent flat
 quad around the slot's box, shrunk toward a point near its centre by a
 scale that grows with the frame (`p->unk0`), fading as it shrinks, then an

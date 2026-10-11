@@ -2,7 +2,7 @@
 
 > Renamed from `func_800365A0` on 2026-10-11 (tools/rename.py). Address 0x800365a0.
 
-Unit `src/code_24748.c`. Draws a vertical line marker at `pos`: a GsLINE
+Unit `src/hit_tool.c`. Draws a vertical line marker at `pos`: a GsLINE
 from the projected point to the point 200 units above it, red 0xFF with
 green and blue pulsing at 160 + 50·sin of the frame counter `gFrameCount`,
 sorted into the current ordering table at priority 50. Sibling of

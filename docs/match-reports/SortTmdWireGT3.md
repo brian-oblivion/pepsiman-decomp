@@ -2,7 +2,7 @@
 
 > Renamed from `func_80021F80` on 2026-10-10 (tools/rename.py). Address 0x80021f80.
 
-Unit `src/code_11dc4.c`. The lit wireframe handler of drawing mode 2
+Unit `src/draw_tmd.c`. The lit wireframe handler of drawing mode 2
 (InitTmdSortFuncs installs it at row 3, column 0 and SetTmdSortMode reinstalls
 it for mode 2): each lit gouraud-textured TMD triangle is drawn as a closed
 LINE_G4 outline (the fourth point and colour copies of the first), lit with

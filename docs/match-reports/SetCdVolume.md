@@ -2,7 +2,7 @@
 
 > Renamed from `func_80042968` on 2026-10-10 (tools/rename.py). Address 0x80042968.
 
-Unit `src/code_31cec.c`. Sets the CD audio mix to `vol`: both channels
+Unit `src/sound.c`. Sets the CD audio mix to `vol`: both channels
 straight through (`val0`, `val2`) and, unless the flag `gStereo` is
 set, both cross-feeds too (`val1`, `val3`); with the flag set the
 cross-feeds are 0.

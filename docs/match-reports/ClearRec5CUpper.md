@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033878` on 2026-10-11 (tools/rename.py). Address 0x80033878.
 
-Unit `src/code_1dc24.c`. Sets byte 0 of records 100..199 of a 200-entry
+Unit `src/editor.c`. Sets byte 0 of records 100..199 of a 200-entry
 table of 0x5C-byte records (`Rec5C`, declared in the unit) to -1: the second
 half of what `ClearRec5CAll` does to the whole table.
 

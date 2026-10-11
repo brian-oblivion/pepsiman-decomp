@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028008` on 2026-10-11 (tools/rename.py). Address 0x80028008.
 
-Unit `src/code_13068.c`. While the game runs: pad bits 0x2000/0x8000 call
+Unit `src/player.c`. While the game runs: pad bits 0x2000/0x8000 call
 `ApplySteer(3|2, 16, 8)` and nudge the lateral speed `D_800959B2` by
 -/+4; otherwise, with 0x34C at its cap, byte 5 becomes 0x5E and the speed
 decays by 2 towards 0. The speed is clamped to -7..7, a tenth of it pushes

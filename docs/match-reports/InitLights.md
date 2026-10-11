@@ -2,7 +2,7 @@
 
 > Renamed from `func_80018094` on 2026-10-10 (tools/rename.py). Address 0x80018094.
 
-Unit `src/code_7d74.c`. Lighting and fog set-up, called from main: three
+Unit `src/model.c`. Lighting and fog set-up, called from main: three
 flat lights in the table `gFlatLights` (directions (0, 100, 100), (86, 100,
 -50), (-86, 100, -50), all coloured 0xD0 grey), ambient 0x400 on each
 channel, light mode 0, and fog with `dqa` -0x3200, `dqb` 0x1400000 and

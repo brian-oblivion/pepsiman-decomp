@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002D140` on 2026-10-11 (tools/rename.py). Address 0x8002d140.
 
-Unit `src/code_1a098.c`. Clears the 128 bytes of `D_800A74D0` (declared in
+Unit `src/object.c`. Clears the 128 bytes of `D_800A74D0` (declared in
 the unit as `extern u8 D_800A74D0[]`: retail reaches it as a compiler-split
 `lui $v0` / `addiu $a0,$v0,%lo`, hoisted out of the loop).
 

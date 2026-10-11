@@ -1,9 +1,9 @@
-#ifndef CODE_1A098_H
-#define CODE_1A098_H
+#ifndef OBJECT_H
+#define OBJECT_H
 
 /**
- * @file code_1a098.h
- * @brief Record types code_1a098 shares with code_1dc24, the unit that
+ * @file object.h
+ * @brief Record types object shares with editor, the unit that
  *        follows it.
  */
 
@@ -56,7 +56,7 @@ typedef struct {
     s16 unk6; /**< an index into the 128 byte flags */
 } Ent8;
 
-extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems; code_13068 points records at [0], [1] and [16] */
+extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems; player points records at [0], [1] and [16] */
 
 /** @brief Points the current-block globals at the block `hdr` heads.
  *  @param hdr the header */
@@ -81,7 +81,7 @@ s32 PromoteMarks(void);
  *  @param recs the block */
 void ResetGameState(Rec48 *recs);
 
-/** @brief Defined in code_1a098.
+/** @brief Defined in object.
  *  @return not yet known */
 s32 TestBoxes(void);
 

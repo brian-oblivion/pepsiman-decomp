@@ -2,7 +2,7 @@
 
 > Renamed from `func_80042150` on 2026-10-10 (tools/rename.py). Address 0x80042150.
 
-Unit `src/code_31cec.c`. Plays a song: stops and closes the sequence in
+Unit `src/sound.c`. Plays a song: stops and closes the sequence in
 slot 0 of `gSeqIds`; unless `gVabError` is set (then returns -1),
 opens song `song` of the sequence bank at 0x80101000 (VAB `gBgmVab`),
 plays it once, sets its volume and `gBgmVolume` to 100 and clears

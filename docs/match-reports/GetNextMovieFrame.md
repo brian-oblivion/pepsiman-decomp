@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041A6C` on 2026-10-10 (tools/rename.py). Address 0x80041a6c.
 
-Unit `src/code_31cec.c`. Sony's sample `strNext` on the movie player's
+Unit `src/sound.c`. Sony's sample `strNext` on the movie player's
 globals: polls `StGetNext` for the next frame with a timeout counter
 (`gMovieTimeout`, volatile), returns NULL on timeout. Records the frame
 number (`gMovieFrameNo`), raises the end flag `gMovieEnded` once the frame

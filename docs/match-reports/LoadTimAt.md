@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017880` on 2026-10-10 (tools/rename.py). Address 0x80017880.
 
-Unit `src/code_7d74.c`. Uploads a TIM image to VRAM: `ReadTimHeader`
+Unit `src/model.c`. Uploads a TIM image to VRAM: `ReadTimHeader`
 unpacks the TIM's header into the record `gTimInfo` points at (returns
 -1 when the TIM is not one), then the pixels go to `(px, py)` unless `px`
 is -1, and the CLUT, if the TIM has one, to `(cx, cy)` unless `cx` is -1.
@@ -73,7 +73,7 @@ it. `TimInfo` is unit-local; its layout comes from ReadTimHeader's stores
 **New `-Wall` warnings** (deliberate, for the head to baseline in
 `config/typeviews-warnings.txt`): "`return' with no value, in function
 returning non-void" and "control reaches end of non-void function", both
-in code_7d74 from this function.
+in model from this function.
 
 ### Proposed learning
 

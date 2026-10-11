@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003C8D0` on 2026-10-10 (tools/rename.py). Address 0x8003c8d0.
 
-Unit `src/code_29f54.c`. The large-font twin of DrawHudTime: draws a time
+Unit `src/stage.c`. The large-font twin of DrawHudTime: draws a time
 from a frame count right to left (hundredths, separator, seconds,
 separator, minutes without leading zeros), with sprites 0x137 + d and
 0x141, a 16-pixel first step and 12 after, tinted by an `SColor` whose red

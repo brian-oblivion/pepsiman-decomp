@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002670C` on 2026-10-11 (tools/rename.py). Address 0x8002670c.
 
-Unit `src/code_13068.c`. A three-state machine on game-state byte 0x38E
+Unit `src/player.c`. A three-state machine on game-state byte 0x38E
 (read signed): state 0 resets the 0x38C timer and, in modes 2..4 with 0x34C
 at its cap and pad-edge bit 0x40, moves to state 1 on button 0x4000 or to
 state 2 (sound 0x71) on button 0x1000 when the count at 0x3A8 is 38..42;

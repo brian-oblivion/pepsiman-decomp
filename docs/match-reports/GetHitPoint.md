@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036A50` on 2026-10-11 (tools/rename.py). Address 0x80036a50.
 
-Unit `src/code_24748.c`. Returns a pointer to record `sub` of entry `idx` in
+Unit `src/hit_tool.c`. Returns a pointer to record `sub` of entry `idx` in
 the bank `gHitPoints` points at: 80 eight-byte entries (`BankEntry`, the
 first word the index of the entry's first record), then 0x2C-byte records
 from byte 0x280 (`Bank2C`, `Rec2C`, declared in the unit).

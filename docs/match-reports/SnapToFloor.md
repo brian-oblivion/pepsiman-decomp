@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C0EC` on 2026-10-11 (tools/rename.py). Address 0x8002c0ec.
 
-Unit `src/code_1a098.c`. RefreshZone with more work on success: calls
+Unit `src/object.c`. RefreshZone with more work on success: calls
 the lookup `FindFloorNear(p, D_80096738, p->unk28)`; unless it returns -1,
 stores the result in `unk28`, copies the first halfword the lookup wrote
 into both y words of the object (current `unk4`, stored `unk10`), and sets

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028888` on 2026-10-10 (tools/rename.py). Address 0x80028888.
 
-Unit `src/code_1902c.c`. Places a 0x4C-byte record's four corners in the
+Unit `src/collision.c`. Places a 0x4C-byte record's four corners in the
 world: `GsGetLws` on the record's coordinate system (offset 0x48), then
 `RotTrans` of each 6-byte corner (offsets 0x00..0x17) into a world corner of
 three words (offsets 0x18..0x47), adding `gWorldShift[0]` and `[2]` to x

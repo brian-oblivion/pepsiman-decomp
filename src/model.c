@@ -4,9 +4,9 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "libcd.h"
-#include "code_7d74.h"
-#include "code_a0bc.h"
-#include "code_1a098.h"
+#include "model.h"
+#include "draw.h"
+#include "object.h"
 #include "spad.h"
 
 /** @brief A 16-byte entry of a pack's directory; the first entry's count is
@@ -39,11 +39,11 @@ typedef struct {
 extern s8 gViewerReplay;  /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */
-/* MATCHING: a per-unit view; code_1a098 defines it on its own floor
+/* MATCHING: a per-unit view; object defines it on its own floor
  * types, and this unit passes gFloorData's word as the data. */
 s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit passes the coordinates unextended, so it saw s32
- * parameters (code_29f54 defines them as s16). */
+ * parameters (stage defines them as s16). */
 void UpdateSection(s32 *index, s32 x, s32 y);
 extern CdlLOC gCdTrackLoc;
 
@@ -537,7 +537,7 @@ typedef struct {
     CVECTOR c[4]; /**< top and bottom of the upper band, then of the lower */
 } SkyColors;
 
-/* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
+/* MATCHING: a per-unit view; stage stores it as an s32. */
 extern SkyColors *gSkyColors;
 
 void DrawSky(u32 arg) {
@@ -1097,4 +1097,4 @@ s32 *FindTmdById(s32 *table, s32 *keys, s32 key) {
     return table;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_7d74", gTargetTimes);
+INCLUDE_RODATA("asm/nonmatchings/model", gTargetTimes);

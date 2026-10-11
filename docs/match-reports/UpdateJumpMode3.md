@@ -2,7 +2,7 @@
 
 > Renamed from `func_80027E14` on 2026-10-11 (tools/rename.py). Address 0x80027e14.
 
-Unit `src/code_13068.c`. Starts the three-step sequence kept in `sGame`'s
+Unit `src/player.c`. Starts the three-step sequence kept in `sGame`'s
 0x390..0x3A0: with button bit 0x20 of `gGamePadTrig` held, once unk34C has
 reached its cap (or unk3B8 and unk3BC are both 1) and unk390 is idle, it
 sets unk390 to 1, calls func_80018CA4 and ScatterEffect4 and plays sound
@@ -83,7 +83,7 @@ struct is local to this unit.
   `n >= 9` arm's. A `switch` with the default last fixed both at once.
 - `(u16)(n - 4) < 3` on the `s16` step gives retail's `addiu a1, -3;
   andi 0xFFFF; sltiu 3`: cc1 folds the pre-increment value in.
-- func_80018CA4 is an empty `void(void)` in code_7d74, but this call
+- func_80018CA4 is an empty `void(void)` in model, but this call
   passes `&sGame` in `$a0`; the unit declares its view with an argument.
 
 ### Proposed learning

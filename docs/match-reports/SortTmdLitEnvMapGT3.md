@@ -2,7 +2,7 @@
 
 > Renamed from `func_800201BC` on 2026-10-10 (tools/rename.py). Address 0x800201bc.
 
-Unit `src/code_a0bc.c`. The TMD handler for lit gouraud-textured triangles
+Unit `src/draw.c`. The TMD handler for lit gouraud-textured triangles
 in SetTmdSortMode's modes 0 and 1. Per visible TmdGT3 it writes TWO packets:
 a POLY_FT3 (code 0x26, texture page 0x7B, CLUT 0x722D, coloured with light
 0's colour) whose UVs are an environment map from the rotated normals (`u =
@@ -11,7 +11,7 @@ over the same screen coordinates with the TMD's own UVs and colours from
 `gte_ncct` on the three normals, both linked at the triangle's depth.
 
 New in this round: the unit-local `FlatLights` view and `sLights` macro
-(code_7d74's spelling) for `gFlatLights`, and an additive
+(model's spelling) for `gFlatLights`, and an additive
 `gte_strgb3_gt3(r1)` in `include/gte.h` (Sony's one-pointer store of RGB0-2
 at +0x4, +0x10, +0x1C). The local prototype changed from `PACKET
 *SortTmdLitEnvMapGT3();` to the full one.

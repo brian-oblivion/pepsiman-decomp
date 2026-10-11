@@ -2,11 +2,11 @@
 
 > Renamed from `func_80020C14` on 2026-10-10 (tools/rename.py). Address 0x80020c14.
 
-Unit `src/code_a0bc.c`. Fills the primitive-handler table `gTmdSortFuncs`:
+Unit `src/draw.c`. Fills the primitive-handler table `gTmdSortFuncs`:
 columns 6 and 7 of each of the eight rows, plus row 3 and row 7 column 0
 (the slots SetTmdSortMode later switches). Every handler is a function of
 this unit, except SortTmdFastFT4, SortTmdFastGT3, SortTmdFastGT4 and
-SortTmdWireGT3 (code_11dc4).
+SortTmdWireGT3 (draw_tmd).
 
 ```c
 typedef void (*PrimFunc)();

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80034BCC` on 2026-10-11 (tools/rename.py). Address 0x80034bcc.
 
-Unit `src/code_24748.c`. Inserts a record into the second bank
+Unit `src/hit_tool.c`. Inserts a record into the second bank
 (`gHitQuads`) for the current entry `gToolSection`: shifts the bank's
 0x4C-byte records up by one from the end of that entry's range to record
 99, takes the new record (`GetHitQuad(entry, entry's count)`) into

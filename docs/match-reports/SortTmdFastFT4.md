@@ -2,9 +2,9 @@
 
 > Renamed from `func_800215C4` on 2026-10-10 (tools/rename.py). Address 0x800215c4.
 
-Unit `src/code_11dc4.c`. The flat-textured unlit quad handler (row 6,
+Unit `src/draw_tmd.c`. The flat-textured unlit quad handler (row 6,
 column 6 of the handler table InitTmdSortFuncs fills): the quad twin of
-code_a0bc's SortTmdFastFT3. Unlit textured TMD quads into POLY_FT4 packets,
+draw's SortTmdFastFT3. Unlit textured TMD quads into POLY_FT4 packets,
 the first three corners with `rtpt`, the fourth with `rtps`, both flag
 tests with the 0x7F85E000 mask (cc1 keeps it in a register across the
 two), the colour depth-cued with `dpcs`, the code the TMD mode with bit 0

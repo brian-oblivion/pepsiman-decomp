@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017774` on 2026-10-10 (tools/rename.py). Address 0x80017774.
 
-Unit `src/code_7d74.c`. Unpacks a TIM through `ReadTimHeader` into the
+Unit `src/model.c`. Unpacks a TIM through `ReadTimHeader` into the
 TimInfo at `gTimInfo`, uploads the pixels and, when present, the CLUT,
 and returns the address just past the pixel data (width x height x the
 mode's scale, added to the pixel pointer), or -1 when the TIM is bad.

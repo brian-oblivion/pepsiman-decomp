@@ -2,8 +2,8 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
-#include "code_a0bc.h"
-#include "code_1a098.h"
+#include "draw.h"
+#include "object.h"
 
 u16 func_800FAD08(s16 id, s32 a, s32 b);
 u16 func_800FAD04(s16 id, s32 a, s32 b);
@@ -88,7 +88,7 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sStage (*(StageState *)gPlayer)
 
-/** @brief code_1a098's Rec48 with the halfword this unit clears. */
+/** @brief object's Rec48 with the halfword this unit clears. */
 typedef struct {
     u8 unk0[0x26];  /**< not yet known */
     s16 unk26;      /**< cleared when a stage starts */
@@ -104,11 +104,11 @@ typedef struct {
     Pos3 pos;    /**< the position */
 } Placement;
 
-/* MATCHING: code_13068 reads this as an SVECTOR array; the position copy
+/* MATCHING: player reads this as an SVECTOR array; the position copy
  * needs the whole record here. */
 extern Placement D_800A7680;
 
-/* MATCHING: stored as u8 here; code_13068 tests it as s8 (lb). */
+/* MATCHING: stored as u8 here; player tests it as s8 (lb). */
 extern u8 D_80095900;
 
 extern s8 D_8007AD58[];
@@ -119,10 +119,10 @@ typedef struct {
     s16 unk6;   /**< the start heading, negated */
 } StartRec;
 
-/* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
+/* MATCHING: a per-unit view; stage stores it as an s32. */
 extern StartRec *D_80095840;
 
-/* MATCHING: code_1a098 hands it a Rec48; here it gets a position. */
+/* MATCHING: object hands it a Rec48; here it gets a position. */
 s32 FindFloor(Pos3 *pos);
 void RestoreStageObjects(void);
 void ResetStageObjects(void);
@@ -170,7 +170,7 @@ void DrawPausedFrame(void);
  * state's head. */
 u8 StepAnimation(StageState *obj, u16 index, u8 arg);
 /* MATCHING: main.c defines it on a RumbleStep; the table is a u16 array
- * here, as in code_13068. */
+ * here, as in player. */
 void StartRumble(u16 *table, s32 index);
 
 void InitEffects(void) {

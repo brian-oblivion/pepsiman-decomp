@@ -2,8 +2,8 @@
 
 > Renamed from `func_8002CAA4` on 2026-10-11 (tools/rename.py). Address 0x8002caa4.
 
-Unit `src/code_1a098.c`. Stores into `out[1]` the interpolation
-`Lerp(0, b, t, n)` (`code_7d74`: from `a` towards `b` by `t`/`n`,
+Unit `src/object.c`. Stores into `out[1]` the interpolation
+`Lerp(0, b, t, n)` (`model`: from `a` towards `b` by `t`/`n`,
 returning a sign-extended halfword).
 
 ```c

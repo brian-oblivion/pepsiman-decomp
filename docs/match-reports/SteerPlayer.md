@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023764` on 2026-10-11 (tools/rename.py). Address 0x80023764.
 
-Unit `src/code_13068.c`. While the game-state flag byte (`sGame.unk0`) is
+Unit `src/player.c`. While the game-state flag byte (`sGame.unk0`) is
 set, picks a per-frame update by the byte `gPadType`: for 0x73 and 0x41,
 pad bit 0x8000 of `gPad` calls `ApplySteer(3, 16, 15)`, bit 0x2000
 calls `ApplySteer(2, 16, 15)`, otherwise `RecentreSteer()`; any other

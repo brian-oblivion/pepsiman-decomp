@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002230C` on 2026-10-10 (tools/rename.py). Address 0x8002230c.
 
-Unit `src/code_11dc4.c`. The lit gouraud-textured quad handler of drawing
+Unit `src/draw_tmd.c`. The lit gouraud-textured quad handler of drawing
 mode 4 (SetTmdSortMode installs it at row 7, column 0): SortTmdLitSemiGT4 with
 the usual culling (GTE flag mask 0x7F85E000, winding `v <= 0`) and code
 0x3C instead of 0x3E; the quad twin of SortTmdLitGT3. The `TmdGT4` typedef

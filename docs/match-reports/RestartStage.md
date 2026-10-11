@@ -2,7 +2,7 @@
 
 > Renamed from `func_8004079C` on 2026-10-10 (tools/rename.py). Address 0x8004079c.
 
-Unit `src/code_308ec.c`. Stage start. Raises `D_80095900`; when the
+Unit `src/stage_flow.c`. Stage start. Raises `D_80095900`; when the
 argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
 resets the head of the game state (`gPlayer`), copies the start position
 from `D_800A7680`, looks up a per-stage value when the stage's flag in
@@ -11,11 +11,11 @@ heading (from `D_80095840`), runs the stage set-up calls and clears a
 halfword in each of the 200 Rec48 records.
 
 ```c
-/* Unit-local views (all in src/code_308ec.c):
+/* Unit-local views (all in src/stage_flow.c):
  *   Pos3       { s32 vx, vy, vz; }
  *   StageState  gPlayer's head: u8 unk0, unk2, unk6; Pos3 unk348 at
  *               0x348; s32 unk37C, unk380; s16 unk3C8, unk3CA
- *   Rec48Clear  code_1a098's Rec48 with s16 unk26
+ *   Rec48Clear  object's Rec48 with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (D_800A7680)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
@@ -97,7 +97,7 @@ void RestartStage(u8 arg0) {
 - The record loop clears `sRecs48[i].unk26` through a unit view with an
   `s16` member. A cast of the record address,
   `((s16 *)&sRecs48[i])[0x13]`, folds 0x26 into the loop pointer (`sh
-  zero, 0(a1)`); `*(s16 *)sRecs48[i].unk26` on code_1a098's `u8 unk26[2]`
+  zero, 0(a1)`); `*(s16 *)sRecs48[i].unk26` on object's `u8 unk26[2]`
   did the same.
 - `if (gInEditor != 1) RestoreStageObjects(); else RestoreToolBuffer();` gives
   retail's `beq` to the second call.
@@ -105,11 +105,11 @@ void RestartStage(u8 arg0) {
 ## Declarations
 
 - `gBonusLevel` (`s32`) and `D_800957BC` (`s16`) are now in
-  `include/common.h` (additive); their copies in `src/code_13068.c` were
+  `include/common.h` (additive); their copies in `src/player.c` were
   deleted (same types).
-- `D_800A7680` is an `SVECTOR[]` in code_13068 and a `Placement` here;
+- `D_800A7680` is an `SVECTOR[]` in player and a `Placement` here;
   both declarations carry a `MATCHING:` note.
-- `FindFloor` takes a `Rec48 *` in code_1a098's view and a `Pos3 *`
+- `FindFloor` takes a `Rec48 *` in object's view and a `Pos3 *`
   here (`&sStage.unk348`); this unit's prototype has a `MATCHING:` note.
 - The `unused` local is a deliberate `-Wall` warning, NEW in
   `tools/typeviews.py --warnings`, for the head to baseline.

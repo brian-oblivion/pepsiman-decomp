@@ -2,11 +2,11 @@
 
 > Renamed from `func_8002D2C0` on 2026-10-11 (tools/rename.py). Address 0x8002d2c0.
 
-Unit `src/code_1a098.c`. The full game-state reset: clears the
+Unit `src/object.c`. The full game-state reset: clears the
 0x30000-byte block at `recs` and marks its 200 Rec48 records free
 (`unk34`, `unk36` = -1), clears and rebuilds the block header at
 0x801FD000 (BuildEmptyBlock), clears and resets the Rec5C, Rec48 and Rec3C
-tables (code_1dc24's resets), and resets the progress block at
+tables (editor's resets), and resets the progress block at
 `D_80095B28` and three globals. Matched on the first build.
 
 ```c
@@ -72,15 +72,15 @@ off it: a struct lvalue). Stores are in retail's order; the copy of
 
 New in this unit: `extern Rec3C D_800A7898[]`, `extern u8
 D_80095B28[]`, `D_80095824` (s32), `D_800958D8` and `D_800959D8` (u8;
-the last reached `$gp`, already in config/gp/code_1a098.txt), and
-prototypes of code_1dc24's BuildEmptyBlock, ClearRec5CAll, ResetRec48All
+the last reached `$gp`, already in config/gp/object.txt), and
+prototypes of editor's BuildEmptyBlock, ClearRec5CAll, ResetRec48All
 and ClearRec3CAll, under one `MATCHING:` per-unit-view note (Rec3C is
 local to each unit).
 
-declcheck now reports LOCAL on code_1dc24.c's own declarations of
+declcheck now reports LOCAL on editor.c's own declarations of
 D_800A7898, D_80095B28, BuildEmptyBlock and ClearRec3CAll (plus
 DrawObjectSprite and StepSprite from StepSprite). The lasting fix is
 one shared header for the two units: Rec3C (the union of both views),
-those two externs and the prototypes in code_1a098.h, with the local
-copies deleted from both .c files. code_1dc24 was bravo's this round, so
+those two externs and the prototypes in object.h, with the local
+copies deleted from both .c files. editor was bravo's this round, so
 this is left to the merge.

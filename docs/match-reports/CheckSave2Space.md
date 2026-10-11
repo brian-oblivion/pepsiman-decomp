@@ -2,7 +2,7 @@
 
 > Renamed from `func_80039618` on 2026-10-10 (tools/rename.py). Address 0x80039618.
 
-Unit `src/code_27bc8.c`. Same sum as `CheckSave1Space`; returns -1 if it is 4 or more, 0 otherwise.
+Unit `src/card.c`. Same sum as `CheckSave1Space`; returns -1 if it is 4 or more, 0 otherwise.
 
 ```c
 s16 CheckSave2Space(void) {

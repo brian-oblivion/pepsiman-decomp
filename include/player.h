@@ -1,9 +1,9 @@
-#ifndef CODE_13068_H
-#define CODE_13068_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 /**
- * @file code_13068.h
- * @brief What other units call in code_13068 that needs libgte's types.
+ * @file player.h
+ * @brief What other units call in player that needs libgte's types.
  */
 
 #include "common.h"
@@ -14,11 +14,11 @@
  *  @param out the screen position */
 void ProjectToScreen(VECTOR *pos, SVECTOR *out);
 
-/** @brief Defined in code_13068; takes the game state block.
+/** @brief Defined in player; takes the game state block.
  *  @param state the state block */
 void ReactToHits(u8 *state);
 
-/** @brief Defined in code_13068.
+/** @brief Defined in player.
  *  @param n not yet known
  *  @return not yet known */
 s32 AddBonusLevel(s32 n);

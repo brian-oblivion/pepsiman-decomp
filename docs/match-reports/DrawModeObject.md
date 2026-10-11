@@ -2,7 +2,7 @@
 
 > Renamed from `func_800272D4` on 2026-10-11 (tools/rename.py). Address 0x800272d4.
 
-Unit `src/code_13068.c`. Places the stage objects of the current mode
+Unit `src/player.c`. Places the stage objects of the current mode
 (low nibble of unk3D0, then the stage `gStage`): for each it fills
 the SlotRec of the slot table at `D_800D3860` (position minus the view
 offset `gWorldShift`, a few angles), points the paired model slot in
@@ -23,7 +23,7 @@ typedef struct {
 extern SlotRec D_800D3860[];
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
 extern ObjRec D_800D8370[];
-/* MATCHING: code_1a098 types these Rec78 and Rec48; this unit's records are views of them. */
+/* MATCHING: object types these Rec78 and Rec48; this unit's records are views of them. */
 void DrawObjectModel(Rec78 *rec, Rec48 *r);
 
 void DrawModeObject(void) {

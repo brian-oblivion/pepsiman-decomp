@@ -2,7 +2,7 @@
 
 > Renamed from `func_80042208` on 2026-10-10 (tools/rename.py). Address 0x80042208.
 
-Unit `src/code_31cec.c`. Per-frame music fade driver, stepped on
+Unit `src/sound.c`. Per-frame music fade driver, stepped on
 `gSoundFade`: state 0 arms a 50-step fade (`gSoundFadeTimer`) and resets the
 volumes; state 1 fades the main sequence out (`gBgmVolume`, 100 down to
 0 over the steps, clamped to 0..127) and closes it at the end; state 3
@@ -13,7 +13,7 @@ the end, calls StopCdTrack. A step count gone negative clears the
 state.
 
 ```c
-/* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
+/* MATCHING: model defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 void SetCdVolume(s32 vol);
@@ -88,7 +88,7 @@ void UpdateSoundFade(void) {
 | --- | --- |
 | first write: each clamp as one nested-ternary assignment of the global (LEARNINGS, SelectToolSection), state 3 falling into state 4 with no `break`, `s16` loop counters | **204/204 on the first build** |
 
-- `Lerp` is defined in code_7d74 as `s16 (s16, s16, u16, u16)`.
+- `Lerp` is defined in model as `s16 (s16, s16, u16, u16)`.
   This unit passes the step count sign-extended (`sll`/`sra` 16, so not
   `u16`) and re-extends the stored result before testing it, so its view
   is `s32` throughout, declared in the `.c` with a `MATCHING:` note.

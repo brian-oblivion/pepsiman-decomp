@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002D230` on 2026-10-11 (tools/rename.py). Address 0x8002d230.
 
-Unit `src/code_1a098.c`. On even frames (bit 0 of the frame counter
+Unit `src/object.c`. On even frames (bit 0 of the frame counter
 `gFrameCount` clear) finds the first block entry whose mark in `D_800A7550`
 is 1, launches effect 4 at that entry's position (y raised by 50) through
 `SpawnEffect`, and marks the entry 2.
@@ -37,7 +37,7 @@ Third build.
   for UpdateSection/UpdateStageLights again.
 
 Declarations: `gFrameCount` is a scalar (`lui $v0` / `lw $v0, %lo` in one
-register); it was a local extern in code_24748.c, so it moved to
+register); it was a local extern in hit_tool.c, so it moved to
 `include/common.h` (additive) and the local copy was deleted.
 `SpawnEffect` gets this unit's `s32` view (the `lh` results and the
-`addiu -50` go out unextended), as code_13068 already does.
+`addiu -50` go out unextended), as player already does.

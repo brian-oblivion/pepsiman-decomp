@@ -2,7 +2,7 @@
 
 > Renamed from `func_80030DA0` on 2026-10-11 (tools/rename.py). Address 0x80030da0.
 
-Unit `src/code_1dc24.c`. A two-state placement step on `gSubStep`.
+Unit `src/editor.c`. A two-state placement step on `gSubStep`.
 State 0 clears two halfwords of the first waiting record `D_80096788[0]`,
 sets its position (the game position) and heading
 (`sTotals.unk20 * 4096 / 360`), fetches the waiting records through
@@ -35,10 +35,10 @@ Sixth build matched.
 - `Obj48` (unit-local) gains `unk18`, `unk1A`, `unk1C`, `unk20`,
   `unk2C`, `unk30`.
 - New in the `.c`: prototypes of `CallStageHook` (per-unit view, MATCHING
-  note) and `TransformByCoord` (as code_13068 defines it).
+  note) and `TransformByCoord` (as player defines it).
 - `D_800957E4` (`SVECTOR`) and `D_8009F268` (`VECTOR`) moved from
-  code_1a098.c into include/code_1a098.h, types unchanged (declcheck LOCAL
-  once a second unit uses them). Deletes two lines in code_1a098.c.
+  object.c into include/object.h, types unchanged (declcheck LOCAL
+  once a second unit uses them). Deletes two lines in object.c.
 
 ```c
 s32 EditorArrangeRecords(void) {

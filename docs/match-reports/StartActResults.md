@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E444` on 2026-10-10 (tools/rename.py). Address 0x8003e444.
 
-Unit `src/code_29f54.c`. Resets four state words (`gResultsStep`,
+Unit `src/stage.c`. Resets four state words (`gResultsStep`,
 `gResultsTimer`, `gTallyCans` to 0, `gResultsActive` to 1), then copies the
 8-byte pattern `D_800956B0` (`.sdata`, bytes `F0 .. F7 ...`) into `gResultsSlide`
 and clears `gResultsSliding`, byte by byte. StartActResults and StartWorldResults are

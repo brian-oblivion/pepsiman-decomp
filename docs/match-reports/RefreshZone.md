@@ -20,5 +20,5 @@ void RefreshZone(Obj2C *p) {
 `D_80096738` is reached `lui $a1` / `addiu $a1,$a1,%lo` straight into the
 argument register; `extern u8 D_80096738[];` (unknown size, cc1's split)
 gives exactly that here, because the address is wanted in `$a1` itself.
-`Obj2C` and the prototype of `FindFloorNear` (defined in `code_7d74`) are
+`Obj2C` and the prototype of `FindFloorNear` (defined in `model`) are
 declared in the unit.

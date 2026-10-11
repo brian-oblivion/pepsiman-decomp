@@ -13,7 +13,7 @@ moves the model with six button bits. Every frame ends with
 `FntPrint("\n\n\tMOTION %3d", gViewerMotion)`.
 
 ```c
-/* Player: code_7d74's view of the game state's head (gPlayer),
+/* Player: model's view of the game state's head (gPlayer),
  * extended this round with unk340..unk384; sPlayer is its lvalue. */
 void UpdateMotionViewer(void) {
     /* MATCHING: an unused local gives retail's 0x20-byte frame. */
@@ -88,16 +88,16 @@ void UpdateMotionViewer(void) {
 1. The body above without `unused`: 161/167, every instruction right but
    the frame 0x18 instead of 0x20.
 2. `s32 unused[2];` (LEARNINGS' unused-local frame lever): 167/167. It
-   adds a NEW `-Wall` warning (`unused variable 'unused'` in code_7d74)
+   adds a NEW `-Wall` warning (`unused variable 'unused'` in model)
    for the head to baseline.
 
 ## Declarations
 
 - `gModeStep` moved into `include/common.h` as `u16` (retail loads it
-  `lhu`); code_308ec.c's local `extern s16` (a store only) was deleted.
-- `D_800D86E0` (GsCOORDINATE2[]) moved from code_1a098.c into
-  `include/code_1a098.h`, which now includes libgte/libgpu/libgs (all
-  guarded); code_7d74 includes that header.
+  `lhu`); stage_flow.c's local `extern s16` (a store only) was deleted.
+- `D_800D86E0` (GsCOORDINATE2[]) moved from object.c into
+  `include/object.h`, which now includes libgte/libgpu/libgs (all
+  guarded); model includes that header.
 - `gViewerReplay` is now `s8` here (retail loads it `lb`; SelectViewerMotion
   only stores it), and it and `gViewerMotion` moved to the top of the unit.
 - The common.h views fit retail as they are: `D_8009EAB8` (`u16[]`, the

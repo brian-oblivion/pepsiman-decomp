@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E29C` on 2026-10-10 (tools/rename.py). Address 0x8003e29c.
 
-Unit `src/code_29f54.c`. Appends an entry to a 16-slot queue: if the count
+Unit `src/stage.c`. Appends an entry to a 16-slot queue: if the count
 `gCpuMarkCount` is below 16, stores `VSync(1)` (the horizontal-blank counter)
 in the `s32` table `gCpuMarkTimes` and the three arguments in the byte tables
 `D_800AC848`, `D_800A7888` and `D_800A76E8`, then bumps the count.

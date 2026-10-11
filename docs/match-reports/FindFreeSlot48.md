@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002882C` on 2026-10-10 (tools/rename.py). Address 0x8002882c.
 
-Unit `src/code_1902c.c`. Searches the table of 72-byte records that
+Unit `src/collision.c`. Searches the table of 72-byte records that
 `D_800959B8` points to (`D_800959B4` bytes long) for the first one whose
 halfword at 0x36 is -1, and returns its index, or -1.
 

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C4D8` on 2026-10-11 (tools/rename.py). Address 0x8002c4d8.
 
-Unit `src/code_1a098.c`. For each of the 200 `Rec48` records whose `unk36`
+Unit `src/object.c`. For each of the 200 `Rec48` records whose `unk36`
 is not -1, stores `FindFloor(&rec)` into `unk28`.
 
 Alpha matched it on the first build, then restored the `INCLUDE_ASM` to stay

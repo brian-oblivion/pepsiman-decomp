@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003CC94` on 2026-10-10 (tools/rename.py). Address 0x8003cc94.
 
-Unit `src/code_29f54.c`. The time-trial results screen, drawn each frame
+Unit `src/stage.c`. The time-trial results screen, drawn each frame
 while `gResultsActive` is set; the twin of UpdateWorldResults with a state machine
 on `gResultsStep` (a jump table over 0..50): the row timeline (state 0),
 counting the collected cans `gTallyCans` up to the lap total with a

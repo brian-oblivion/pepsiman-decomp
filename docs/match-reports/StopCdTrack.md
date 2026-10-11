@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017574` on 2026-10-10 (tools/rename.py). Address 0x80017574.
 
-Unit `src/code_7d74.c`. If the CD-busy flag `gCdTrackPlaying` is set, pauses the
+Unit `src/model.c`. If the CD-busy flag `gCdTrackPlaying` is set, pauses the
 drive with `CdControlF(CdlPause, 0)` and clears the flag.
 
 ```c

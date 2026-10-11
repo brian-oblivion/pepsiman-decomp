@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002BEC0` on 2026-10-11 (tools/rename.py). Address 0x8002bec0.
 
-Unit `src/code_1a098.c`. One drift step of a `Drifter` (a unit-local
+Unit `src/object.c`. One drift step of a `Drifter` (a unit-local
 view: position at 4..0xC, step count at 0x10, base y at 0x14, bob phase in
 degrees at 0x18), for the first 15 steps: moves it 20 units along the yaw
 `D_800A7680[0].vy` (through PolarToXZ into `D_800D39C8`), advances

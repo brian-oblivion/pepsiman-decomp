@@ -2,7 +2,7 @@
 
 > Renamed from `func_80032C28` on 2026-10-11 (tools/rename.py). Address 0x80032c28.
 
-Unit `src/code_1dc24.c`. Restores save slot `a` of the tool buffer
+Unit `src/editor.c`. Restores save slot `a` of the tool buffer
 `buf` (0xB774-byte slots): five block moves into the 0x5C-byte record
 table `D_800CF080`, the Obj48 table `D_800A9008`, the Rec3C table
 `D_800A7898`, the block header area at `0x801FD000` and the tool state
@@ -31,10 +31,10 @@ block `D_80095B28`. Fourth build matched.
 - New unit-local copy wrappers `TotalsCopy`, `Obj48sCopy`, `Rec5CsCopy`,
   `Rec3CsCopy`, `BlockAreaCopy`; `SaveSlot` gains `unk203[0x71]` and the
   three table members (size unchanged, 0xB774).
-- `extern s32 D_800CF080[];` in the `.c` (MATCHING note; code_1a098 has
+- `extern s32 D_800CF080[];` in the `.c` (MATCHING note; object has
   its Rec5C view).
 - CHANGED existing declaration (unit-local): `LoadEditorSlot`'s prototype
-  in code_1dc24.c, `s32 a` to `s16 a`.
+  in editor.c, `s32 a` to `s16 a`.
 
 ```c
 void LoadEditorSlot(s16 a, u8 *buf) {

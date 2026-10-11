@@ -2,7 +2,7 @@
 
 > Renamed from `func_80040CD0` on 2026-10-10 (tools/rename.py). Address 0x80040cd0.
 
-Unit `src/code_308ec.c`. Dispatches on a byte 0..14 to one of fourteen
+Unit `src/stage_flow.c`. Dispatches on a byte 0..14 to one of fourteen
 overlay routines (6 and 7 both call `func_800F1080`) and returns the result
 as `s16`. Out of range, the result is uninitialised.
 

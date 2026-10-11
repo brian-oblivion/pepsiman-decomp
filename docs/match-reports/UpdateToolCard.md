@@ -6,7 +6,7 @@ Round 12 (charlie): REOPENED line spent; MATCHED. The `s16 r` lever from
 UpdateEditorData does not apply here (retail tests the answer with no
 `sll`/`sra`); the case-4 residue was the ORDER of cases 3 and 4.
 
-Unit `src/code_24748.c`. The tool's save/load state machine: by
+Unit `src/hit_tool.c`. The tool's save/load state machine: by
 `gSubStep`, state 0 opens it (`OpenCardEvents`), state 2 closes it
 (`CloseCardEvents`); state 1 steps `gToolCardStep` through a 19-entry jump table
 (`jtbl_8001183C`): menus answered through `RunMenu`, the memory-card

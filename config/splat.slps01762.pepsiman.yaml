@@ -63,18 +63,18 @@ segments:
     align: 4
     subsegments:
       - [0x800, .rodata, main]
-      - [0xC14, .rodata, code_7d74]
-      - [0xC74, .rodata, code_a0bc]
-      - [0xC8C, .rodata, code_11dc4]
-      - [0xCE8, .rodata, code_13068]
-      - [0x1320, .rodata, code_1902c]
-      - [0x137C, .rodata, code_1dc24]
-      - [0x1CDC, .rodata, code_24748]
-      - [0x2198, .rodata, code_27bc8]
-      - [0x26C0, .rodata, code_29f54]
-      - [0x278C, .rodata, code_308ec]
-      - [0x285C, .rodata, code_31958]
-      - [0x2910, .rodata, code_31cec]
+      - [0xC14, .rodata, model]
+      - [0xC74, .rodata, draw]
+      - [0xC8C, .rodata, draw_tmd]
+      - [0xCE8, .rodata, player]
+      - [0x1320, .rodata, collision]
+      - [0x137C, .rodata, editor]
+      - [0x1CDC, .rodata, hit_tool]
+      - [0x2198, .rodata, card]
+      - [0x26C0, .rodata, stage]
+      - [0x278C, .rodata, stage_flow]
+      - [0x285C, .rodata, stage_overlay]
+      - [0x2910, .rodata, sound]
       - [0x293C, o, libspu/spu, .rdata]
       - [0x298C, o, libsnd/ssopenq, .rdata]
       - [0x29BC, o, libsnd/seqinit, .rdata]
@@ -106,19 +106,19 @@ segments:
       - [0x392C, o, libcard/format, .rdata]
       - [0x394C, o, libmcrd/userfunc, .rdata]
       - [0x396C, c, main]                     # 37 functions
-      - [0x7D74, c, code_7d74]                # 31 functions
-      - [0xA0BC, c, code_a0bc]                # 30 functions
-      - [0x11DC4, c, code_11dc4]              # 9 functions
-      - [0x13068, c, code_13068]              # 48 functions
-      - [0x1902C, c, code_1902c]              # 13 functions
-      - [0x1A098, c, code_1a098]              # 50 functions
-      - [0x1DC24, c, code_1dc24]              # 50 functions
-      - [0x24748, c, code_24748]              # 36 functions
-      - [0x27BC8, c, code_27bc8]              # 37 functions
-      - [0x29F54, c, code_29f54]              # 47 functions
-      - [0x308EC, c, code_308ec]              # 10 functions
-      - [0x31958, c, code_31958]              # 6 functions
-      - [0x31CEC, c, code_31cec]              # 26 functions
+      - [0x7D74, c, model]                # 31 functions
+      - [0xA0BC, c, draw]                # 30 functions
+      - [0x11DC4, c, draw_tmd]              # 9 functions
+      - [0x13068, c, player]              # 48 functions
+      - [0x1902C, c, collision]              # 13 functions
+      - [0x1A098, c, object]              # 50 functions
+      - [0x1DC24, c, editor]              # 50 functions
+      - [0x24748, c, hit_tool]              # 36 functions
+      - [0x27BC8, c, card]              # 37 functions
+      - [0x29F54, c, stage]              # 47 functions
+      - [0x308EC, c, stage_flow]              # 10 functions
+      - [0x31958, c, stage_overlay]              # 6 functions
+      - [0x31CEC, c, sound]              # 26 functions
       # Sony from here to the end of the code: SN's crt0 (libsn/snmain, the
       # entry point; psyq-obj-parser cannot convert it, so it stays asm) and
       # then the Psy-Q 4.4 Runtime Library, linked from Sony's own objects

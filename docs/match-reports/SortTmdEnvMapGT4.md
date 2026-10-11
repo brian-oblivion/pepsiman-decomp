@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001FE5C` on 2026-10-10 (tools/rename.py). Address 0x8001fe5c.
 
-Unit `src/code_a0bc.c`. The quad twin of SortTmdEnvMapGT3, installed by
+Unit `src/draw.c`. The quad twin of SortTmdEnvMapGT3, installed by
 SetTmdSortMode's mode 3 as the TMD handler for lit gouraud-textured quads:
 projects each TmdGT4, culls on the GTE flags and on back faces, and writes a
 POLY_FT4 (code 0x2D, texture page 0x161 plus the page flip of `D_800E474C`)
@@ -99,7 +99,7 @@ SortTmdEnvMapGT3's body with a fourth vertex and a fourth UV corner:
    was only visible once the saved register was gone (with the saved `$s0`
    it grew the frame). 216/216.
 
-`config/typeviews-warnings.txt` gains `code_a0bc: warning: unused variable
+`config/typeviews-warnings.txt` gains `draw: warning: unused variable
 `unused'`.
 
 ### Proposed learning

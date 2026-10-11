@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017614` on 2026-10-10 (tools/rename.py). Address 0x80017614.
 
-Unit `src/code_7d74.c`. When the byte argument is 4, issues CD command 3
+Unit `src/model.c`. When the byte argument is 4, issues CD command 3
 (`CdlPlay`) through `SendCdTrackCommand`.
 
 ```c

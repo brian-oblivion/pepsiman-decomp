@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001E558` on 2026-10-10 (tools/rename.py). Address 0x8001e558.
 
-Unit `src/code_a0bc.c`. The gouraud-textured twin of SortTmdDivFT3 and
+Unit `src/draw.c`. The gouraud-textured twin of SortTmdDivFT3 and
 SortTmdDivG3: the subdividing handler for gouraud-textured unlit
 triangles (handler table row 3, column 7). Depth-cued POLY_GT3 with the
 TMD's UV words one OT slot further in unless the transform overflowed;
@@ -13,11 +13,11 @@ words are built with a constant 0x34 code byte that the volatile code
 store then overwrites.
 
 New unit-local type `TmdGT3U` (header, three `TmdUV` words, three
-`CVECTOR`s, three vertex indices; 0x24 bytes). code_11dc4 has its own
+`CVECTOR`s, three vertex indices; 0x24 bytes). draw_tmd has its own
 `TmdGT3U` with `u32` UV words; this unit needs the bytes. The local
 prototype changed from `PACKET *SortTmdDivGT3();` to the full one.
 
-The source is in `src/code_a0bc.c`; it is SortTmdDivFT3's body with
+The source is in `src/draw.c`; it is SortTmdDivFT3's body with
 SortTmdDivG3's `gte_ldrgb3`/`dpct`/`strgb3` and a six-store switch.
 
 ## How it went

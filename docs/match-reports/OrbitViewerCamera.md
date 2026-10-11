@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017DD4` on 2026-10-10 (tools/rename.py). Address 0x80017dd4.
 
-Unit `src/code_7d74.c`. Sets the reference view `gRefView` (the
+Unit `src/model.c`. Sets the reference view `gRefView` (the
 GsRVIEW2 that InitView hands to GsSetRefView2) to orbit the origin
 at radius 400 and height -100, at the angle `gViewerAngle` degrees
 (converted to 4096ths of a turn), looking at (0, -100, 0); bits 4 and 8
@@ -35,9 +35,9 @@ void OrbitViewerCamera(void) {
 
 ## Declarations
 
-`gPad` was declared only locally in `src/code_13068.c` (line 59).
-It is now in `include/common.h` (an additive edit). code_13068 is a
+`gPad` was declared only locally in `src/player.c` (line 59).
+It is now in `include/common.h` (an additive edit). player is a
 round-7 unit, so its local line stays and declcheck reports MULTI/LOCAL
-for it until the head deletes `src/code_13068.c`'s `extern s32
+for it until the head deletes `src/player.c`'s `extern s32
 gPad;` at merge. Both units reach it the same way (`lui`/`lw`, a
 plain `s32`).

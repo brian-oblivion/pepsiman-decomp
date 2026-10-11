@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028F0C` on 2026-10-10 (tools/rename.py). Address 0x80028f0c.
 
-Unit `src/code_1902c.c`. Floor test of a 0x4C-byte quad record (the
+Unit `src/collision.c`. Floor test of a 0x4C-byte quad record (the
 `Rec4C` PlaceCollisionQuad fills). It clears `out` (a hit byte and a word at
 +4), gives up when corner 0 is more than 2000 from the origin in x or z,
 copies the four world corners to `s16` and adds the record's coordinate
@@ -14,7 +14,7 @@ outline with SortSemiQuad. It then tests the player's position
 from the edge start; any negative returns), and finally intersects the
 plane through corners 0, 1, 2 to get the height, stored in `out`.
 
-The signature is code_1a098's, `void GetQuadHeightUnderPlayer(void *rec, s8 *out)`.
+The signature is object's, `void GetQuadHeightUnderPlayer(void *rec, s8 *out)`.
 
 Levers, in order (367 -> 395 -> 456 -> 462 -> 464):
 
@@ -22,7 +22,7 @@ Levers, in order (367 -> 395 -> 456 -> 462 -> 464):
   PlacePlayerPoints: the 0x30-byte `Quad8` (`D_80010AE0`; alignment 2, so cc1
   emits the runtime alignment check and both copy loops) and the 12-byte
   origin (`D_80010B10`). Both lie in the rodata range the yaml gives
-  code_13068, like PlacePlayerPoints's `D_80010950`.
+  player, like PlacePlayerPoints's `D_80010950`.
 - The last four projections add `org.x + q.p[k].x` (org first); the first
   two add `q.p[k].x + org.x`. Operand order sets the load registers.
 - Retail stores the normal's z and then overwrites it with the plane
@@ -33,7 +33,7 @@ Levers, in order (367 -> 395 -> 456 -> 462 -> 464):
   score 40 with 0/0 ins/del, same 8 register diffs as the tree) found the
   last two levers: `num` declared right after `p`, and ProjectToScreen seen
   returning `int` (all six calls; done here through the `sProject` cast
-  macro, since code_13068 defines it `void`). Its chained `q.p[4].z =
+  macro, since player defines it `void`). Its chained `q.p[4].z =
   (w[2] = 0);` was not needed in-tree; the plain order `w[2] = 0;
   q.p[4].x = 0; q.p[4].z = 0;` matches once the cast is in.
 
@@ -73,7 +73,7 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the game state's base in a register. */
 #define sGamePos (*(GamePos *)gPlayer)
 
-/* MATCHING: code_13068 defines ProjectToScreen void; these calls saw an s32 one. */
+/* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
 #define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
 extern Quad8 D_80010AE0;

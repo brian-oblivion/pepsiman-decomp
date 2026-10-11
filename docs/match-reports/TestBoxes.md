@@ -2,19 +2,19 @@
 
 > Renamed from `func_8002AA58` on 2026-10-11 (tools/rename.py). Address 0x8002aa58.
 
-Unit `src/code_1a098.c`. Walks the 200 `Rec5C` boxes (`D_800CF080`) that
+Unit `src/object.c`. Walks the 200 `Rec5C` boxes (`D_800CF080`) that
 are not yet hit (byte 0 clear), unless `gMissState` is positive. With the
 mode byte `gInEditor` clear it tests the player's x/z (`sGameHead.unk348`
 / `unk350`, relative to the box) against the four edges of the box's
 corners, each halved, and marks the box 1 when the player is inside all
 four. With it set, it builds a coordinate system at the box position,
 transforms the four local corners into `w[][]` (adding `gWorldShift[0]` and
-`[2]`), and marks the box 1 when code_1902c's GetQuadHeightUnderPlayer reports a hit
+`[2]`), and marks the box 1 when collision's GetQuadHeightUnderPlayer reports a hit
 in `D_80095898`. The fourth edge test halves `(pz - z3)` where the other
 three halve the corner alone; retail does exactly that.
 
 ```c
-/* include/code_1a098.h */
+/* include/object.h */
 typedef struct {
     s8 unk0;              /**< -1 when free (a guess); 1 once the box is hit */
     u8 unk1[3];           /**< not yet known */
@@ -26,7 +26,7 @@ typedef struct {
     s32 z;                /**< z */
 } Rec5C;
 
-/* src/code_1a098.c */
+/* src/object.c */
 s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
 
 /** @brief Tests every box not yet hit. With the mode byte clear, a box is
@@ -152,16 +152,16 @@ About 30 builds and one permuter run.
 
 ## Shared changes
 
-- `include/code_1a098.h`: `Rec5C`'s `u8 unk1[0x5B]` is now `u8 unk1[3]`
-  and the fields above; size and `unk0` unchanged. code_13068 and
-  code_1dc24 use only `unk0`.
+- `include/object.h`: `Rec5C`'s `u8 unk1[0x5B]` is now `u8 unk1[3]`
+  and the fields above; size and `unk0` unchanged. player and
+  editor use only `unk0`.
 - This unit's prototype of GetQuadHeightUnderPlayer is `s32` (it was `void`).
-- `config/typeviews-warnings.txt`: three lines for code_1a098 (`return`
+- `config/typeviews-warnings.txt`: three lines for object (`return`
   with no value, control reaches end, unused `unused`).
-- declcheck: code_1dc24.c:341 declares `void TestBoxes(void);`,
+- declcheck: editor.c:341 declares `void TestBoxes(void);`,
   which now disagrees with the `s32` definition (LOCAL and TYPE). It needs
-  `s32 TestBoxes(void);` in `include/code_1a098.h` and the local line
-  removed; that is code_1dc24's file, left for the head.
+  `s32 TestBoxes(void);` in `include/object.h` and the local line
+  removed; that is editor's file, left for the head.
 
 ### Proposed learning
 

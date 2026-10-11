@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E07C` on 2026-10-10 (tools/rename.py). Address 0x8003e07c.
 
-Unit `src/code_29f54.c`. Sets up a TMD model: skips the TMD ID word, maps
+Unit `src/stage.c`. Sets up a TMD model: skips the TMD ID word, maps
 the data (`GsMapModelingData`), stores the object count in `gPropObjCount`,
 links every object into the `GsDOBJ2` table `gPropObjs`, then gives each
 object the coordinate system `gStageCoord` and attribute 0.

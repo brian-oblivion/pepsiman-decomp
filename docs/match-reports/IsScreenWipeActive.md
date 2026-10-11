@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E438` on 2026-10-10 (tools/rename.py). Address 0x8003e438.
 
-Unit `src/code_29f54.c`. Getter: returns the word `gWipeActive`.
+Unit `src/stage.c`. Getter: returns the word `gWipeActive`.
 
 ```c
 s32 IsScreenWipeActive(void) {

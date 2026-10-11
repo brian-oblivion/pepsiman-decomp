@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E13C` on 2026-10-10 (tools/rename.py). Address 0x8003e13c.
 
-Unit `src/code_29f54.c`. Uploads a run of TIM images to VRAM: while the
+Unit `src/stage.c`. Uploads a run of TIM images to VRAM: while the
 word at `p` is the TIM ID 0x10, reads the header (`GsGetTimInfo`), loads
 the CLUT rectangle and then the pixel rectangle with `LoadImage`, and
 skips the TIM by its two block lengths (each a byte count, added as

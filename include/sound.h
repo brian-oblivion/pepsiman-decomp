@@ -1,9 +1,9 @@
-#ifndef CODE_31CEC_H
-#define CODE_31CEC_H
+#ifndef SOUND_H
+#define SOUND_H
 
 /**
- * @file code_31cec.h
- * @brief What other units call in code_31cec, the movie player, that needs
+ * @file sound.h
+ * @brief What other units call in sound, the movie player, that needs
  *        libcd's types.
  */
 
@@ -22,7 +22,7 @@ void func_800414EC(s16 index);
  *  @param skippable 1 when START may end the movie early */
 void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable);
 
-/** @brief Defined in code_31cec. */
+/** @brief Defined in sound. */
 void UpdateSoundFade(void);
 
 #endif

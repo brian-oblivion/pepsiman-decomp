@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033680` on 2026-10-11 (tools/rename.py). Address 0x80033680.
 
-Unit `src/code_1dc24.c`. Slot `i` (`s16`) of a table of 0xB774-byte records
+Unit `src/editor.c`. Slot `i` (`s16`) of a table of 0xB774-byte records
 at 0x8016D000 (the tool buffer): returns 0 when byte 0x200 is 0x38 and byte
 0x202 equals `gStage`, else -1. A unit-local `SaveSlot` (size 0xB774,
 from the multiply chain) gives the record.

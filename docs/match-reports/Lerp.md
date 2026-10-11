@@ -2,7 +2,7 @@
 
 > Renamed from `func_80018D04` on 2026-10-10 (tools/rename.py). Address 0x80018d04.
 
-Unit `src/code_7d74.c`. Linear interpolation in 16.16 fixed point: step
+Unit `src/model.c`. Linear interpolation in 16.16 fixed point: step
 `step` of `steps` from `from` to `to`, exactly `to` on the last step.
 
 ```c
@@ -21,7 +21,7 @@ s16 Lerp(s16 from, s16 to, u16 step, u16 steps) {
 ```
 
 **Return type: the definition is `s16`** (retail ends both paths with
-`sll`/`sra 16`). code_1a098 keeps its deliberate `s32` view of the callee
+`sll`/`sra 16`). object keeps its deliberate `s32` view of the callee
 (its callers store the result unextended), which is untouched.
 
 ## Attempts (9 shapes through the oracle or cc1, one permuter search)

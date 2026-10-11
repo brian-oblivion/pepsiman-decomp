@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003FA88` on 2026-10-10 (tools/rename.py). Address 0x8003fa88.
 
-Unit `src/code_29f54.c`. A 32-frame growing sprite step on a `Slot`
+Unit `src/stage.c`. A 32-frame growing sprite step on a `Slot`
 record: while the delay (`unk2`) is non-zero, count it down and return 0.
 Otherwise set the local-screen matrix to (`x`, `y`, `z`) plus the record's
 offset, draw sprite 0x11F at size `0x14 + frame` in colour

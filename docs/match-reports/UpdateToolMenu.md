@@ -2,7 +2,7 @@
 
 > Renamed from `func_800345C8` on 2026-10-11 (tools/rename.py). Address 0x800345c8.
 
-Unit `src/code_24748.c`. A five-line menu step: sets the edit limit and
+Unit `src/hit_tool.c`. A five-line menu step: sets the edit limit and
 wrap count, runs the menu (`StepMenuCursor`), and on flag bit 5 acts on the
 highlighted line (`D_8009574A`): lines 0 and 1 arm an edit and record the
 line in `gToolKind`; lines 2 and 3 toggle `D_80095A58` / `D_80095A28` and,

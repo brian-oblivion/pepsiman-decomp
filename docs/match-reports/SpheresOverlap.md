@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002971C` on 2026-10-10 (tools/rename.py). Address 0x8002971c.
 
-Unit `src/code_1902c.c`. Sphere overlap test: 1 when the squared distance
+Unit `src/collision.c`. Sphere overlap test: 1 when the squared distance
 between two bodies is less than the square of their radii's sum.
 
 ```c

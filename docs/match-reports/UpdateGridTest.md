@@ -2,7 +2,7 @@
 
 > Renamed from `func_80022A74` on 2026-10-11 (tools/rename.py). Address 0x80022a74.
 
-Unit `src/code_13068.c`. The debug grid view: pad bits nudge
+Unit `src/player.c`. The debug grid view: pad bits nudge
 `D_800959A8` and the first two words of `gRefView`. The function
 projects the 21-by-16 grid `D_800DE5E0` (InitGridTest fills it) through
 a coordinate system per point, keeps each point's screen position in

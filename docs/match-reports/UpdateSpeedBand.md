@@ -2,7 +2,7 @@
 
 > Renamed from `func_800283A0` on 2026-10-11 (tools/rename.py). Address 0x800283a0.
 
-Unit `src/code_13068.c`. Grades the game-state halfword at 0x3A8 into
+Unit `src/player.c`. Grades the game-state halfword at 0x3A8 into
 three bands (below 13, below 26, the rest) and stores 0, 1 or 2 at 0x3AC.
 
 ```c
@@ -31,7 +31,7 @@ s32 UpdateSpeedBand(void) {
   exits, so the fill is blocked. Same lever as round 1's ClearFlags128, here
   on a plain if/else-if chain rather than a loop. GCC warns "control reaches
   end of non-void function", which `tools/typeviews.py --warnings` reports as
-  new for code_13068 (the baseline is outside this runner's scope).
+  new for player (the baseline is outside this runner's scope).
 
 ### Proposed learning
 

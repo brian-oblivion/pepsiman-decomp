@@ -2,7 +2,7 @@
 
 > Renamed from `func_80029930` on 2026-10-11 (tools/rename.py). Address 0x80029930.
 
-Unit `src/code_1a098.c`. Converts a local position (three words) to world
+Unit `src/object.c`. Converts a local position (three words) to world
 space in the coordinate system the byte after them indexes in the
 `GsCOORDINATE2` table `D_800D86E0` (stride 0x50 = sizeof(GsCOORDINATE2)),
 writing the result to `out`. Unlike UpdatePlacedPos it does not restore the

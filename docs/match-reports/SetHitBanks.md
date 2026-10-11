@@ -2,9 +2,9 @@
 
 > Renamed from `func_800373C8` on 2026-10-11 (tools/rename.py). Address 0x800373c8.
 
-Unit `src/code_27bc8.c`. Installs two loaded record banks: each argument
+Unit `src/card.c`. Installs two loaded record banks: each argument
 points at a count word followed by the bank. Stores the bank addresses in
-`gHitPoints` and `gHitQuads` (the banks `code_24748`'s `GetHitPoint` and
+`gHitPoints` and `gHitQuads` (the banks `hit_tool`'s `GetHitPoint` and
 `GetHitQuad` index), the counts in `gHitPointSections` and `gHitQuadSections`, resets
 the halfwords at 0x72 (-1) and 0x74 (0) of the 80 0x78-byte records of
 `D_800D8D20`, then calls `ApplyHitPoints` and `ApplyHitQuads`. Called from
@@ -61,7 +61,7 @@ Gate 3 (PARALLEL-RUNS.md §3.5), all three checks run:
 3. **Agreement with the real tree:** the same body in `src/` gave funcdiff
    12/30, insertions 6 / deletions 6. The signatures differ, but the
    scaffold is CLEANER, so neither decline row applies. objdump of the
-   scaffold's `base.o` and the in-tree `build/src/code_27bc8.c.o` gives
+   scaffold's `base.o` and the in-tree `build/src/card.c.o` gives
    IDENTICAL disassembly for the function, so the 3/3 against 6/6 gap is a
    diff-alignment artifact. Verdict AGREE; search run.
 
@@ -73,12 +73,12 @@ boundary after the `gHitPoints` store does most of the work), then 0 with
 the reused local. In tree the zero is 30/30 and `./build-and-verify.sh`
 is OK.
 
-## Declarations moved (code_24748 is not one of round 5's units)
+## Declarations moved (hit_tool is not one of round 5's units)
 
 `Rec78` (the typedef) and `extern Rec78 D_800D8D20[]`, `extern s32
-gHitPointSections`, `extern s32 gHitQuadSections` moved from `src/code_24748.c` into
+gHitPointSections`, `extern s32 gHitQuadSections` moved from `src/hit_tool.c` into
 `include/common.h`, and prototypes for `ApplyHitPoints` and `ApplyHitQuads`
-(defined in code_24748) were added there. Additive in common.h; the
+(defined in hit_tool) were added there. Additive in common.h; the
 moved declarations are unchanged except that the `unk72`/`unk74` docs
 mention this function's reset.
 

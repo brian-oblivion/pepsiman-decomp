@@ -2,7 +2,7 @@
 
 > Renamed from `func_80021958` on 2026-10-10 (tools/rename.py). Address 0x80021958.
 
-Unit `src/code_11dc4.c`. The gouraud-textured unlit quad handler (row 7,
+Unit `src/draw_tmd.c`. The gouraud-textured unlit quad handler (row 7,
 column 6 of the handler table InitTmdSortFuncs fills): the quad twin of
 SortTmdFastGT3. Unlit textured TMD quads with a colour per corner into
 POLY_GT4 packets, three colours depth-cued with `dpct` and the fourth with

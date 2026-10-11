@@ -34,12 +34,12 @@ void UpdateAct3LoadScreen(void) {
 }
 ```
 
-Matched on the first build, modelled on code_29f54's `DrawFrozenFrame`.
+Matched on the first build, modelled on stage's `DrawFrozenFrame`.
 cc1 keeps the repeated `-0x78` in `$s1` across the calls on its own.
 
 ## Declarations
 
-- `src/main.c` now includes `code_a0bc.h` (for `DrawSprite` and
+- `src/main.c` now includes `draw.h` (for `DrawSprite` and
   `gSubOt`).
 - `gModeStep` (s16) and `gGameMode` (u16) moved to `include/common.h`
-  (additive); their local externs in `src/code_308ec.c` were removed.
+  (additive); their local externs in `src/stage_flow.c` were removed.

@@ -59,7 +59,7 @@ The doubled `point` store is in retail (`sw $zero, 0xC($v1)` then `sw $t1,
 
 ## Declarations
 
-- `gOt` moved from `src/code_29f54.c` to `include/code_a0bc.h`, next
+- `gOt` moved from `src/stage.c` to `include/draw.h`, next
   to its twin `gSubOt` (additive to the header).
 - `func_80056774` sits in `asm/psyq_46F74.s` (Sony libgs, not yet named);
   its arguments are GsInitGraph's. A local prototype in `src/main.c`.

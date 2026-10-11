@@ -2,7 +2,7 @@
 
 > Renamed from `func_800327BC` on 2026-10-11 (tools/rename.py). Address 0x800327bc.
 
-Unit `src/code_1dc24.c`. Prints the three save slots of the tool buffer
+Unit `src/editor.c`. Prints the three save slots of the tool buffer
 (`0x8016D000`, 0xB774-byte `SaveSlot`s) as a menu: the highlight colour
 for the selected line, then "DATA:%d " and "STAGE %d-" with "1", "2" or
 "BOSS" for a valid slot (`unk200 == 0x38`), else "NO DATA". Third build

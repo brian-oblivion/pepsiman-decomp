@@ -2,7 +2,7 @@
 
 > Renamed from `func_80021B88` on 2026-10-10 (tools/rename.py). Address 0x80021b88.
 
-Unit `src/code_11dc4.c`. The lit gouraud-textured triangle handler of
+Unit `src/draw_tmd.c`. The lit gouraud-textured triangle handler of
 drawing mode 5 (SetTmdSortMode installs it at row 3, column 0): TMD triangles
 with a normal per corner into POLY_GT3 packets, lit with `ncct` from a
 fixed mid-grey (0x80) colour, the UV words copied whole, linked with length

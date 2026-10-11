@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C994` on 2026-10-11 (tools/rename.py). Address 0x8002c994.
 
-Unit `src/code_1a098.c`. Interpolates three angles by `t`/`n` with
+Unit `src/object.c`. Interpolates three angles by `t`/`n` with
 Lerp and converts each from degrees to 4096ths of a turn:
 out[1] = `r` times the sine of 0..180 degrees, out[0] = -60..60 degrees,
 out[2] = 0..20 degrees. Matched on the first build.

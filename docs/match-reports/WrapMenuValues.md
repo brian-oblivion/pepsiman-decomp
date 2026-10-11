@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033E98` on 2026-10-11 (tools/rename.py). Address 0x80033e98.
 
-Unit `src/code_1dc24.c`. Wraps two menu values into range and returns 0:
+Unit `src/editor.c`. Wraps two menu values into range and returns 0:
 the edited value `D_80095748` against its limit `D_800958B0`, then the
 highlighted line `D_8009574A` against the line count `D_800958B2`. A
 value below 0 becomes limit - 1; one at or past the limit becomes 0.

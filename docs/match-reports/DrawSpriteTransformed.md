@@ -2,7 +2,7 @@
 
 > Renamed from `func_800198BC` on 2026-10-10 (tools/rename.py). Address 0x800198bc.
 
-Unit `src/code_a0bc.c`. Draws sprite `id` of `gSpriteDefs` as a screen-space
+Unit `src/draw.c`. Draws sprite `id` of `gSpriteDefs` as a screen-space
 POLY_FT4 that is scaled and rotated about a pivot: the placement (new
 unit-local `Sprite2D`) gives the top-left corner (or the centre when its flag
 is set), the pivot, a 4.12 scale per axis and an angle. The corners are

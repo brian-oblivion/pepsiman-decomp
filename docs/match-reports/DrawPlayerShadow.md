@@ -2,7 +2,7 @@
 
 > Renamed from `func_80022868` on 2026-10-11 (tools/rename.py). Address 0x80022868.
 
-Unit `src/code_13068.c`. When game-state byte 0x3D3 is set, projects the
+Unit `src/player.c`. When game-state byte 0x3D3 is set, projects the
 player's position (0x348 + 0x354 + `gWorldShift[0]`, `gFloorY[0]`,
 0x350 + 0x35C + `gWorldShift[2]`) through a fresh coordinate and draws
 sprite 0x12D with `DrawBillboard`, sized and coloured by how far 0x34C is

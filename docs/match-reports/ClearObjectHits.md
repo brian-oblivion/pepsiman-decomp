@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C650` on 2026-10-11 (tools/rename.py). Address 0x8002c650.
 
-Unit `src/code_1a098.c`. For all 200 `Rec48` records of `D_800A9008`, clears
+Unit `src/object.c`. For all 200 `Rec48` records of `D_800A9008`, clears
 `unk40` and `unk24` and keeps only bit 0 of `unk41`.
 
 ```c

@@ -2,7 +2,7 @@
 
 > Renamed from `func_800429EC` on 2026-10-10 (tools/rename.py). Address 0x800429ec.
 
-Unit `src/code_31cec.c`. Walks sequence slots 2..9 of the access-number
+Unit `src/sound.c`. Walks sequence slots 2..9 of the access-number
 table `gSeqIds` with the global index `gSeSlot`, and stops every
 open sequence that has reached its end (`SsIsEos(seq, 0) == 1`).
 

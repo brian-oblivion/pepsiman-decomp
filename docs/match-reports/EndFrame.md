@@ -11,8 +11,8 @@ sprite table into the 3D one, runs ReadPad and RemapButtons, and
 counts the frame unless `gPauseState` is set.
 
 Declaration changes: `gLoading`, `gPauseState` and `ClipF` moved from
-`src/code_308ec.c` to `include/common.h` (declcheck MULTI); `gPauseState`
-is now `s8` (was `u8`; code_308ec only stores 0 to it, no byte change).
+`src/stage_flow.c` to `include/common.h` (declcheck MULTI); `gPauseState`
+is now `s8` (was `u8`; stage_flow only stores 0 to it, no byte change).
 The prototype of ReadPad moved up to this function.
 
 ```c

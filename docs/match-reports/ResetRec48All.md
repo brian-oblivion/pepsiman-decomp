@@ -2,7 +2,7 @@
 
 > Renamed from `func_800338A0` on 2026-10-11 (tools/rename.py). Address 0x800338a0.
 
-Unit `src/code_1dc24.c`. Resets all 200 records of a `Rec48` table: the
+Unit `src/editor.c`. Resets all 200 records of a `Rec48` table: the
 halfwords at 0x36, 0x38 and 0x34 to -1 and the byte at 0x41 to 1. First
 build matched.
 

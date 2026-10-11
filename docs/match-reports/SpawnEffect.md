@@ -2,11 +2,11 @@
 
 > Renamed from `func_8003F834` on 2026-10-10 (tools/rename.py). Address 0x8003f834.
 
-Unit `src/code_29f54.c`. Takes a record off the free list of the 128-entry
+Unit `src/stage.c`. Takes a record off the free list of the 128-entry
 0x14-byte table `gEffects` and fills it. `gEffectFree` is the free-list
 head (negative as `s8` when empty: return -1), `gEffectActive` the
 most recently taken record; byte 0x13 of a record is the link that
-`InitEffects` (unit `code_308ec`) initialises to `i + 1`. The taken record
+`InitEffects` (unit `stage_flow`) initialises to `i + 1`. The taken record
 is linked to the previous `gEffectActive`, gets `arg0` at 0x12, three halfwords
 at 0xC..0x10, 0 at 0x0 and the fifth argument at 0x2. Returns 0.
 
@@ -57,9 +57,9 @@ unit views the records through a local `Slot` and a cast macro (the
 EndJump pattern); no shared struct was edited.
 
 `gEffectActive` and `gEffectFree` were declared `extern u8` in
-`src/code_308ec.c`. Two units now reach them, both as `%gp_rel` byte
+`src/stage_flow.c`. Two units now reach them, both as `%gp_rel` byte
 scalars, so declcheck wanted them shared: they MOVED to `include/common.h`
-(an additive edit there) and the two lines left `src/code_308ec.c`. The
+(an additive edit there) and the two lines left `src/stage_flow.c`. The
 whole image stays OK.
 
 ## Levers

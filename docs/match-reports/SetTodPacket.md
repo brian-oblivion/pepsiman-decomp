@@ -2,7 +2,7 @@
 
 > Renamed from `func_80018DF0` on 2026-10-10 (tools/rename.py). Address 0x80018df0.
 
-Unit `src/code_7d74.c`, live C. Round 12 (bravo, 460/503), matched in
+Unit `src/model.c`, live C. Round 12 (bravo, 460/503), matched in
 round 13 (bravo).
 
 Interprets one animation key and returns the next. The key's first word
@@ -120,7 +120,7 @@ each closed with one change (whole build `OK` after the third):
 
 Lint needed `D_80095740` / `D_80095744` in one place once this body was
 live: both are now in `include/common.h`, and the two `extern` lines in
-`src/code_13068.c` (which used them only under `NON_MATCHING`) are gone.
+`src/player.c` (which used them only under `NON_MATCHING`) are gone.
 This commit also gives `SetTodFrame` a prototype in the unit (round
 13's StepAnimation called it undeclared); both functions still match.
 

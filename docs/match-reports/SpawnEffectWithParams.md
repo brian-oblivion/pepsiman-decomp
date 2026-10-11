@@ -2,7 +2,7 @@
 
 > Renamed from `func_80040130` on 2026-10-10 (tools/rename.py). Address 0x80040130.
 
-Unit `src/code_308ec.c`. Takes a record off the free list of the 128-entry
+Unit `src/stage_flow.c`. Takes a record off the free list of the 128-entry
 `gEffects` table (head `gEffectFree`, -1 when empty; `gEffectActive` the
 record last taken), links the previous one behind it and fills it from the
 nine arguments. Returns -1 when the list is empty, 0 otherwise.
@@ -52,6 +52,6 @@ s32 SpawnEffectWithParams(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 
 - Writing `unk12` last, after the halfwords, moves a reload and breaks the
   structure (worse).
 
-The unit-local `Slot` duplicates code_29f54's view of the same table;
+The unit-local `Slot` duplicates stage's view of the same table;
 the head may want one shared typedef in `common.h` in place of
 `NumberedSlot`.

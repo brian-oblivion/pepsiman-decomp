@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002D0F0` on 2026-10-11 (tools/rename.py). Address 0x8002d0f0.
 
-Unit `src/code_1a098.c`. Fills a 0x30-byte argument block on the stack
+Unit `src/object.c`. Fills a 0x30-byte argument block on the stack
 (`Query30`: a three-word position, a word at 0x14 and a byte at 0x18) and
 returns `CollidePlayer`'s result as a signed byte.
 

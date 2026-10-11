@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003796C` on 2026-10-10 (tools/rename.py). Address 0x8003796c.
 
-Unit `src/code_27bc8.c`. Rewrites the first save file `"bu10:BISLPS-12345PEPTOOL"`
+Unit `src/card.c`. Rewrites the first save file `"bu10:BISLPS-12345PEPTOOL"`
 (`D_80011998`) in place: `open(name, 2)`, `lseek(fd, 0, 0)`, then
 `write(fd, gSaveBuf, 0x1E000)`; after a short write it seeks back to 0 and
 retries. Each step up to ten tries. Failure codes in `gCardError`: 5 (open),

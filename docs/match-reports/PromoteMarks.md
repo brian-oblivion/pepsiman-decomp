@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002D16C` on 2026-10-11 (tools/rename.py). Address 0x8002d16c.
 
-Unit `src/code_1a098.c`. For each of the 200 eight-byte entries of the
+Unit `src/object.c`. For each of the 200 eight-byte entries of the
 current block (`D_800959C4`), if the byte flag `D_800A74D0[entry.unk6]` is
 1 (read signed), sets `D_800A7550[i]` to 2. First build matched.
 

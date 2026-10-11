@@ -27,7 +27,7 @@ bit 2 of `gPad`, wrapping at 0..359. Second build matched.
 - `Totals28.unk20[6]` split into `s16 unk20` (the angle) and
   `u8 unk22[4]`. Unit-local type; whole oracle green.
 - New `-Wall` warning "control reaches end of non-void function" in
-  code_1dc24, deliberate; not yet in `config/typeviews-warnings.txt`
+  editor, deliberate; not yet in `config/typeviews-warnings.txt`
   (left for the head, the file is shared).
 
 ```c

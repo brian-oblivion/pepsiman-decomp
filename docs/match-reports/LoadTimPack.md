@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001797C` on 2026-10-10 (tools/rename.py). Address 0x8001797c.
 
-Unit `src/code_7d74.c`. Walks a table of 16-byte entries at the start of a
+Unit `src/model.c`. Walks a table of 16-byte entries at the start of a
 data pack (entry 0's `+0xE` halfword is the count) and hands each entry's
 data, `pack + offset`, to `LoadTim`, waiting for the GPU after each.
 

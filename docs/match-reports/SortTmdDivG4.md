@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001C878` on 2026-10-10 (tools/rename.py). Address 0x8001c878.
 
-Unit `src/code_a0bc.c`. The gouraud quad member of the subdividing
+Unit `src/draw.c`. The gouraud quad member of the subdividing
 family (handler table row 5, column 7): SortTmdDivG3's G3 colour
 handling on SortTmdDivF4's quad skeleton. Depth-cued POLY_G4 (three
 colours through `gte_dpct`, the fourth through `gte_dpcs`) one OT slot
@@ -14,7 +14,7 @@ parent's depth.
 The local prototype changed from `PACKET *SortTmdDivG4();` to the full
 one, with the `PACKET *packet` parameter.
 
-The source is in `src/code_a0bc.c`.
+The source is in `src/draw.c`.
 
 ## How it went
 

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041D88` on 2026-10-10 (tools/rename.py). Address 0x80041d88.
 
-Unit `src/code_31cec.c`. Waits for the next movie frame's bitstream
+Unit `src/sound.c`. Waits for the next movie frame's bitstream
 (`GetNextMovieFrame`, Sony's sample `strNext`), flips the VLC buffer index,
 VLC-decodes the frame into it and frees the ring sector. Returns -1 when
 the volatile countdown `gMovieTimeout` (0x800000) runs out. This is the

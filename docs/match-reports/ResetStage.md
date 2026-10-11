@@ -2,7 +2,7 @@
 
 > Renamed from `func_80040998` on 2026-10-10 (tools/rename.py). Address 0x80040998.
 
-Unit `src/code_308ec.c`. Stage reset. Calls the set-up routines, copies the
+Unit `src/stage_flow.c`. Stage reset. Calls the set-up routines, copies the
 second display buffer's band down when `gGameMode` is not 0x29, resets
 the game state's head (`gPlayer`) and a run of globals, then either
 restores a saved start (`D_800D86B8`, when its first word is non-zero) or,
@@ -128,9 +128,9 @@ void ResetStage(void) {
 ## Declarations
 
 - `gVSyncMode` (from main.c), `D_800958AC`, `D_8009599C`, `gSpeedFixed`
-  (from code_13068.c) moved into `include/common.h` with the same types
-  (additive), and `StopCdTrack` (code_7d74) was added there.
+  (from player.c) moved into `include/common.h` with the same types
+  (additive), and `StopCdTrack` (model) was added there.
 - `StepAnimation` takes `Stepper *` in main.c's view and `StageState *`
   here; both prototypes carry a `MATCHING:` note (main.c gained the note).
 - `StartRumble` gets a unit-local `(u16 *, s32)` view with a
-  `MATCHING:` note, as code_13068 has.
+  `MATCHING:` note, as player has.

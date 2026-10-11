@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023F80` on 2026-10-11 (tools/rename.py). Address 0x80023f80.
 
-Unit `src/code_13068.c`. Collects a pickup. For the first live slot of
+Unit `src/player.c`. Collects a pickup. For the first live slot of
 the three in `gPlayerHits` it looks up the effect byte in the pickup's
 row of `gHitReactions`. Which byte depends on the player's state
 (`state->unk5`, `state->unk6`), the stage mode (low nibble of
@@ -13,7 +13,7 @@ and, through bytes 5..7, a few flags and a rank change
 were live in `D_8009575F`.
 
 The signature is the header's, `void ReactToHits(u8 *state)`
-(callers in code_1a098 and code_24748). The body reads it as
+(callers in object and hit_tool). The body reads it as
 `((GameState *)state)`.
 
 ```c

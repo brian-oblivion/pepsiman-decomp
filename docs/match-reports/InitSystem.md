@@ -36,7 +36,7 @@ First build. All Sony prototypes come from Sony's headers; main.c now also
 includes `libcd.h`, `libsnd.h`, `libmcrd.h` and `memory.h`. The four byte
 flags are plain `u8` externs (`lui $at` stores); three of them were already
 declared for `ResetClearColor` and moved up the file. `InitSound` is
-defined in code_31cec, so its prototype went into `include/common.h`
+defined in sound, so its prototype went into `include/common.h`
 (additive; declcheck rejects a local prototype of another unit's
 function). The game functions defined later in main.c get local
 prototypes.

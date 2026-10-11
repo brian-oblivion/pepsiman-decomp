@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036D50` on 2026-10-11 (tools/rename.py). Address 0x80036d50.
 
-Unit `src/code_24748.c`. Resets the editor's state: clears two words of
+Unit `src/hit_tool.c`. Resets the editor's state: clears two words of
 `gWorldShift`, sets the entry count to 80, clears the two record banks
 (64 KiB each at 0x8016D000 and 0x8017D000; the first word of each is the
 count 80, and `gHitPoints`/`gHitQuads` point just past it), resets the
@@ -54,7 +54,7 @@ void ResetTool(void) {
 - `gHitPointSections`, `gHitQuadSections`: `lui $at` stores, plain `s32` outside `$gp`.
 - `gPlayer` is `u8 []` in `common.h`; retail builds its address once and
   stores at 0x348/0x34C/0x350, so a struct lvalue through a unit-local view
-  (`GameStatePos`, `#define sGamePos`). `code_13068.c` has the full
+  (`GameStatePos`, `#define sGamePos`). `player.c` has the full
   `GameState` with the same three fields; the two views could become one
   shared type when another unit needs it.
 - The run of `$gp` globals: types from the store widths (`sb` `u8`, `sh`

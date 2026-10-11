@@ -2,7 +2,7 @@
 
 > Renamed from `func_80018D70` on 2026-10-10 (tools/rename.py). Address 0x80018d70.
 
-Unit `src/code_7d74.c`. Round 3 (runner charlie) skipped it at the
+Unit `src/model.c`. Round 3 (runner charlie) skipped it at the
 budget, 1 word short, 3/30; round 7 matched it. Copies a 3-word position
 to the stack, lets `UpdateSection` update `cur` through its address from
 the position's x and z, then asks `QueryFloor(arg, cur, &pos,
@@ -17,7 +17,7 @@ typedef struct {
 
 extern s32 gFloorData;
 s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
-/* MATCHING: this unit's view; code_29f54 defines the coordinates s16. */
+/* MATCHING: this unit's view; stage defines the coordinates s16. */
 void UpdateSection(s32 *index, s32 x, s32 y);
 
 s32 FindFloorNear(void *pos, void *arg, s32 cur) {
@@ -51,8 +51,8 @@ passed. Round 3 called `UpdateSection(&arg2)` with one argument.
 
 ## Declarations
 
-- `FindFloorNear`'s prototype moved from code_1a098.c into
-  `include/common.h` (additive); code_1a098.c's local copy is deleted.
+- `FindFloorNear`'s prototype moved from object.c into
+  `include/common.h` (additive); object.c's local copy is deleted.
 - `QueryFloor`'s first parameter is now `void *` in this unit (both
   callers here pass different buffers).
 

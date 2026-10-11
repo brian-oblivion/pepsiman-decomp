@@ -8,7 +8,7 @@
 #include "stdio.h"
 #include "libgte.h"
 #include "libgpu.h"
-#include "code_31cec.h"
+#include "sound.h"
 
 /** @brief Movie decode state: double VLC buffers, image buffer, VRAM targets. */
 typedef struct {
@@ -366,7 +366,7 @@ s32 PlayBgm(u16 song) {
     gSoundFade = 0;
 }
 
-/* MATCHING: code_7d74 defines it with s16 arguments and result; this unit
+/* MATCHING: model defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80020CF8` on 2026-10-10 (tools/rename.py). Address 0x80020cf8.
 
-Unit `src/code_a0bc.c`. Selects one of five pairs of handlers for row 3 and
+Unit `src/draw.c`. Selects one of five pairs of handlers for row 3 and
 row 7 column 0 of the handler table `gTmdSortFuncs` by `mode` (0 and 1 share
 the first pair); any other mode leaves them.
 

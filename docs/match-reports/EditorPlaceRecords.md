@@ -2,7 +2,7 @@
 
 > Renamed from `func_80030984` on 2026-10-11 (tools/rename.py). Address 0x80030984.
 
-Unit `src/code_1dc24.c`. Counts the live records (`unk36 != -1`) of the
+Unit `src/editor.c`. Counts the live records (`unk36 != -1`) of the
 200-entry 0x48-byte table at `D_800A9008` into `sTotals.unk1A`; on flag bit
 5, places each of the `D_8009596E` waiting records of `D_80096788` at slot
 `sTotals.unk18` (stamping position copy, entry, `gSection`, two bytes of
@@ -29,12 +29,12 @@ rest), with error 8 in `gToolMode` when the table is full; then clears
 
 - `Totals28` gained `unk18`, `unk1A`, `unk1C`, and `unk68` / `unk69` past
   its old end (the block is longer than 0x28; its name is now historical).
-- A unit-local `Obj48` view of the 0x48-byte record (code_1a098.h's `Rec48`
+- A unit-local `Obj48` view of the 0x48-byte record (object.h's `Rec48`
   is the same record; the head may union them).
-- `gSection` (declared in code_308ec.c) and `gSubStep` (declared in
+- `gSection` (declared in stage_flow.c) and `gSubStep` (declared in
   main.c) moved to `include/common.h` with their types unchanged, since a
   second unit now uses each (declcheck MULTI/LOCAL). This deletes one line in
-  each of code_308ec.c and main.c.
+  each of stage_flow.c and main.c.
 
 ```c
 void EditorPlaceRecords(void) {

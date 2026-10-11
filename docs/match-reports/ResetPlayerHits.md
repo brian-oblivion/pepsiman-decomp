@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002985C` on 2026-10-10 (tools/rename.py). Address 0x8002985c.
 
-Unit `src/code_1902c.c`. Clears bytes 0, 10 and 20 of `gPlayerHits`, then
+Unit `src/collision.c`. Clears bytes 0, 10 and 20 of `gPlayerHits`, then
 calls PlacePlayerPoints.
 
 ```c

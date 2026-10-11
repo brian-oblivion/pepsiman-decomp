@@ -1,15 +1,15 @@
-# TotalBlockEntries — MATCHED (20/20) after splitting code_1a098
+# TotalBlockEntries — MATCHED (20/20) after splitting object
 
 > Renamed from `func_80033AB8` on 2026-10-11 (tools/rename.py). Address 0x80033ab8.
 
 **Resolved by the head after round 5:** retail reaches `D_800959C0`/`C4`/`C8`
 through `$gp` only up to LaunchMarkedEffect and through `lui` from PrintEditorCaption on:
-two source files. code_1a098 is now split at UpdateEditor (where splat had
-already placed the unit's rodata), the second half is `src/code_1dc24.c`, and
+two source files. object is now split at UpdateEditor (where splat had
+already placed the unit's rodata), the second half is `src/editor.c`, and
 its own gp list leaves those symbols out. The body is live. Original title:
 TotalBlockEntries — STALL: 2 words short (18/20), 2/20 positional, first diff at +0x8 (`lw $a1, %gp_rel(D_800959C0)($gp)` for `lui $a1` / `lw $a1, %lo(D_800959C0)($a1)`) (round 4, alpha)
 
-Unit `src/code_1dc24.c`. Zeroes the halfword at 0x26 of `D_80095B28`, then
+Unit `src/editor.c`. Zeroes the halfword at 0x26 of `D_80095B28`, then
 adds into it the halfword at 4 of each of the `D_800959C8` eight-byte
 entries at `D_800959C0`.
 
@@ -33,7 +33,7 @@ Retail reads `D_800959C0` and `D_800959C8` as `lui $aN` / `lw $aN,
 
 The split is by address, not by function shape: everything up to
 `ResetGameState` uses gp, everything from `PrintEditorCaption` on does not. That
-is a translation-unit boundary inside splat's `code_1a098` (the rodata block
+is a translation-unit boundary inside splat's `object` (the rodata block
 `D_80010B7C..D_800112CC` before `UpdateEditor` is the likely seam): the
 later source file's assembler did not consider the symbols small data.
 

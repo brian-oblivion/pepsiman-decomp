@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001A69C` on 2026-10-10 (tools/rename.py). Address 0x8001a69c.
 
-Unit `src/code_a0bc.c`. Draws sprite `id` of the table `gSpriteDefs` as a
+Unit `src/draw.c`. Draws sprite `id` of the table `gSpriteDefs` as a
 billboard in 3D: a `size` (vx wide, vy tall) quad centred on x and standing
 on y = 0, transformed with the rotation matrix `GsIDMATRIX` (loaded with
 `gte_SetRotMatrix`) and the current translation, into a POLY_FT4 in the
@@ -12,9 +12,9 @@ at its average depth `>> shift`. Returns early if either projection
 overflows.
 
 `GsIDMATRIX` (`MATRIX`, no defining C unit) is now declared in
-`include/code_a0bc.h`; `src/code_7d74.c` still declares it locally, which
+`include/draw.h`; `src/model.c` still declares it locally, which
 declcheck reports (MULTI/LOCAL) until that copy is deleted at merge
-(code_7d74 is another runner's unit this round).
+(model is another runner's unit this round).
 
 ```c
 void DrawStandingBillboard(u16 id, SVECTOR *size, CVECTOR *color, s32 shift, GsOT *ot) {

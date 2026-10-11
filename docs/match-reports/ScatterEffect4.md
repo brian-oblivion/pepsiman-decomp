@@ -2,7 +2,7 @@
 
 > Renamed from `func_80022F68` on 2026-10-11 (tools/rename.py). Address 0x80022f68.
 
-Unit `src/code_13068.c`. Spawns something (`SpawnEffect(4, ...)`) at a
+Unit `src/player.c`. Spawns something (`SpawnEffect(4, ...)`) at a
 position jittered from `pos`: x and z each get a random offset in
 -80..79, y is kept, last argument 1. Callers pass `&sGame.unk348`, the
 game-state record's position `VECTOR` (0x348, 0x34C, 0x350).
@@ -28,7 +28,7 @@ with `s32` parameters (MATCHING note in the `.c`).
 - **`(s16)` of a `VECTOR` member is an `lh` at the member's offset** (0, 4,
   8), no `lw` and no shifts.
 - **The callee's `s16` parameters are not this unit's prototype.**
-  code_29f54 defines `SpawnEffect(s32, s16, s16, s16, s16)`; with that
+  stage defines `SpawnEffect(s32, s16, s16, s16, s16)`; with that
   prototype the caller sign-extends the two sums (20/46). Retail passes
   them unextended, so the local prototype takes `s32` (bravo found the
   mirror case for returns this round). `tools/declcheck.py` passes.

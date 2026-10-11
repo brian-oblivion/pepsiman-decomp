@@ -17,7 +17,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 
 - **`__main`.** cc1 emits `jal __main` as main's first call; retail's is
   a call of the empty function at 0x80042C50 (the 8 bytes right before
-  `__SN_ENTRY_POINT`, most likely libsn's `__main`, carved into code_31cec
+  `__SN_ENTRY_POINT`, most likely libsn's `__main`, carved into sound
   as C). The C does not call __main. Round 11's head named that address
   `__main` (tools/rename.py), which replaced the runner's interim
   `.set __main, func_80042C50` line.
@@ -43,8 +43,8 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 
 ## Declarations left for the head
 
-declcheck MULTI: `gViewerMotion` (code_7d74), `D_800958E2` (code_1a098),
-`gButtonConfig` and `gCpuMarkCount` (code_29f54) are now declared in main.c as
+declcheck MULTI: `gViewerMotion` (model), `D_800958E2` (object),
+`gButtonConfig` and `gCpuMarkCount` (stage) are now declared in main.c as
 well. LOCAL: prototypes for other units' functions (UpdateMotionViewer,
 InitTmdSortFuncs, InitGridTest, UpdateGridTest, UpdateTrapViewer,
 UpdateEditor, UpdateTool, InitStageOverlay, LoadStageOverlay,

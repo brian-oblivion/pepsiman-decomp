@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001B354` on 2026-10-10 (tools/rename.py). Address 0x8001b354.
 
-Unit `src/code_a0bc.c`. Draws sprite `id` of the table `gSpriteDefs` at
+Unit `src/draw.c`. Draws sprite `id` of the table `gSpriteDefs` at
 `pos`: builds a SPRT (0x64 with a colour, 0x65 raw-textured without one,
 semi-transparent when the colour's first byte is not -1) and a DR_TPAGE
 after it in the primitive buffer `GsOUT_PACKET_P`, links both into
@@ -41,7 +41,7 @@ void DrawSprite(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot) {
 }
 ```
 
-The signature is runner delta's caller-side prototype (include/code_a0bc.h
+The signature is runner delta's caller-side prototype (include/draw.h
 on runner/delta); this definition agrees with it.
 
 ## Attempts (about 25 builds)
@@ -61,7 +61,7 @@ on runner/delta); this definition agrees with it.
 
 `GsOUT_PACKET_P` (the primitive buffer cursor, reached by five units) was
 added to `include/common.h` as `extern u8 *GsOUT_PACKET_P;`, the type runner
-delta declared locally in code_308ec this round; that local becomes a
+delta declared locally in stage_flow this round; that local becomes a
 declcheck MULTI at merge and should be deleted then.
 
 ### Proposed learning

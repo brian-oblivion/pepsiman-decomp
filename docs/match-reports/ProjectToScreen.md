@@ -2,7 +2,7 @@
 
 > Renamed from `func_800230E0` on 2026-10-11 (tools/rename.py). Address 0x800230e0.
 
-Unit `src/code_13068.c`. Projects a world position to the screen: builds a
+Unit `src/player.c`. Projects a world position to the screen: builds a
 coordinate system under `WORLD` whose translation is `pos`, makes its
 local-screen matrix current, runs `RotTransPers` on the origin, and writes
 the screen x, y and the returned OTZ into the three halfwords of `out`.
@@ -45,7 +45,7 @@ void ProjectToScreen(VECTOR *pos, SVECTOR *out) {
   0x90/0x94 (33/45). `s32 unused[22];` there: 45/45. What the original
   held there is unknown (it is 0x50 + 8, a second `GsCOORDINATE2` plus an
   `SVECTOR` would fit). Adds another "unused variable `unused'" warning,
-  NEW for code_13068 in `tools/typeviews.py --warnings`.
+  NEW for player in `tools/typeviews.py --warnings`.
 - `sxy` is a `DVECTOR` passed as `(long *)`: retail reads it back as two
   `lhu` at 0x10 and 0x12.
 - `v` is cleared `vz`, `vy`, `vx` (retail's store order 0x1C, 0x1A, 0x18),

@@ -2,8 +2,8 @@
 
 > Renamed from `func_8003E40C` on 2026-10-10 (tools/rename.py). Address 0x8003e40c.
 
-Unit `src/code_29f54.c`. Clears `gWipeFrame`, sets `gWipeActive` to 1, then
-calls `PlaySe(0x19)` (unit `code_31cec`, still asm; prototyped in this
+Unit `src/stage.c`. Clears `gWipeFrame`, sets `gWipeActive` to 1, then
+calls `PlaySe(0x19)` (unit `sound`, still asm; prototyped in this
 unit).
 
 ```c

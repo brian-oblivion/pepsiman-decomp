@@ -2,7 +2,7 @@
 
 > Renamed from `func_80021D3C` on 2026-10-10 (tools/rename.py). Address 0x80021d3c.
 
-Unit `src/code_11dc4.c`. The lit gouraud-textured quad handler of drawing
+Unit `src/draw_tmd.c`. The lit gouraud-textured quad handler of drawing
 mode 5 (SetTmdSortMode installs it at row 7, column 0): the quad twin of
 SortTmdLitSemiGT3. Lit TMD quads into POLY_GT4 packets, three corners lit with
 `ncct` and the fourth with `nccs` from a mid-grey (0x80) colour, the UV

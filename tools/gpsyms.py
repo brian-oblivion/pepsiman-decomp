@@ -11,8 +11,8 @@ Makefile actually hands maspsx for that unit: the symbols retail reaches
 through $gp FROM THAT UNIT'S OWN CODE (loads, stores, and `addiu r, $gp`
 address-takes), plus the C-owned small-data symbols. One whole-game list
 cannot express a symbol that one unit reaches through $gp and another through
-`lui` (D_800956D0: $gp in main, `lui` in code_7d74; D_80095AF0: $gp in
-code_31cec, `lui` in main), and a unit never needs an entry for a symbol its
+`lui` (gViewerMotion: $gp in main, `lui` in model; gSoundFade: $gp in
+sound, `lui` in main), and a unit never needs an entry for a symbol its
 own code does not reach through $gp.
 
 Membership comes from retail, not from where a symbol lives. cc1 2.8.1 at -G8

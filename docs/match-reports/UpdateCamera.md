@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003B9B4` on 2026-10-10 (tools/rename.py). Address 0x8003b9b4.
 
-Unit `src/code_29f54.c`. The chase camera: steps the path index
+Unit `src/stage.c`. The chase camera: steps the path index
 `gSection` across the boundary edges either side of (x, y) (the body of
 UpdateSection, inlined, on `gSectionEdges`), turns the camera heading
 `gCameraYaw` toward the path segment's direction (`ratan2`) faster the

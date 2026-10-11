@@ -2,7 +2,7 @@
 
 > Renamed from `func_80037CF0` on 2026-10-10 (tools/rename.py). Address 0x80037cf0.
 
-Unit `src/code_27bc8.c`. Builds the first save file's icon: copies three
+Unit `src/card.c`. Builds the first save file's icon: copies three
 0xC0-byte 16x16 4-bit TIMs from rodata (`D_800119E4`, `D_80011AA4`,
 `D_80011B64`) to a stack array, then copies the first TIM's CLUT (0x20 bytes
 at TIM + 0x14) to the card header's CLUT at `D_800DF630` (header + 0x60) and

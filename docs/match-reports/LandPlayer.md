@@ -2,7 +2,7 @@
 
 > Renamed from `func_800281B8` on 2026-10-11 (tools/rename.py). Address 0x800281b8.
 
-Unit `src/code_13068.c`. Takes the game-state record: when `unk39C <=
+Unit `src/player.c`. Takes the game-state record: when `unk39C <=
 unk3CC` and `unk3B8` is 1 it caps `unk34C` at the global `D_8009EF44`
 (result 2), otherwise at `unk3C0` (result 1); a cap that bites plays
 `PlaySe(30)`, and any non-zero result also calls

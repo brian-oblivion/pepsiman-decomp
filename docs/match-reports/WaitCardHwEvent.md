@@ -2,7 +2,7 @@
 
 > Renamed from `func_80038890` on 2026-10-10 (tools/rename.py). Address 0x80038890.
 
-Unit `src/code_27bc8.c`. `WaitCardSwEvent` for the second four event descriptors (`gCardHwIoe`..`gCardHwNew`): waits for one and returns its index 0-3.
+Unit `src/card.c`. `WaitCardSwEvent` for the second four event descriptors (`gCardHwIoe`..`gCardHwNew`): waits for one and returns its index 0-3.
 
 ```c
 s16 WaitCardHwEvent(void) {

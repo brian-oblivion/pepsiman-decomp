@@ -2,7 +2,7 @@
 
 > Renamed from `func_80040F14` on 2026-10-10 (tools/rename.py). Address 0x80040f14.
 
-Unit `src/code_308ec.c`. Fog fade-in, one step a frame. While the step
+Unit `src/stage_flow.c`. Fog fade-in, one step a frame. While the step
 `gFogFade` is below 100: on step 0 it adds a full-screen white
 `POLY_F4` (from the primitive buffer `GsOUT_PACKET_P`) to the current ordering
 table; every step it sets the fog near/far planes and the far colour
@@ -11,7 +11,7 @@ SetStageFog does at full strength), then advances the step and parks it
 at 100 after 32.
 
 ```c
-/* libgte.h, libgpu.h, libgs.h; code_a0bc.h for gSubOt.
+/* libgte.h, libgpu.h, libgs.h; draw.h for gSubOt.
  * extern u8 *GsOUT_PACKET_P; common.h: gFogFade (u16), gFogColors (u8 *),
  * D_80095864, gActiveBuff. */
 void FadeInFog(void) {
@@ -67,7 +67,7 @@ void FadeInFog(void) {
 ## Declarations
 
 `gFogFade` (`u16`) and `gFogColors` (`u8 *`) move from
-`src/code_13068.c` into `include/common.h` (additive; same types).
+`src/player.c` into `include/common.h` (additive; same types).
 
 ### Proposed learning
 

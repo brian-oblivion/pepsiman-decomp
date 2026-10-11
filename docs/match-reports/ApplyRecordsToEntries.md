@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033BF8` on 2026-10-11 (tools/rename.py). Address 0x80033bf8.
 
-Unit `src/code_1dc24.c`. Walks the 200 Rec48 records at `D_800A9008`;
+Unit `src/editor.c`. Walks the 200 Rec48 records at `D_800A9008`;
 for each one whose `unk36` is not -1 and whose `unk34` equals the
 halfword at 0x1E of `D_80095B28` (`sTotals.unk1E`), calls
 `UpdateObjectEntry(&D_800D8D20[r->unk36], r)`.
@@ -34,10 +34,10 @@ void ApplyRecordsToEntries(void) {
 
 - `Totals28` (unit-local) gained `u16 unk1E` split out of its leading pad
   (offsets unchanged; whole image OK).
-- `UpdateObjectEntry` (defined in code_1a098, still asm) takes two arguments:
+- `UpdateObjectEntry` (defined in object, still asm) takes two arguments:
   its asm copies `$a1` into `$s2` at entry. The prototype `void
   UpdateObjectEntry(Rec78 *rec, Rec48 *r);` was appended to
-  `include/code_1a098.h` (additive). code_24748.c's local one-argument
+  `include/object.h` (additive). hit_tool.c's local one-argument
   declaration (its matched caller passes only the record) got a
   `MATCHING:` note so declcheck lists it as deliberate.
 

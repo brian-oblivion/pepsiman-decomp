@@ -2,7 +2,7 @@
 
 > Renamed from `func_80037280` on 2026-10-11 (tools/rename.py). Address 0x80037280.
 
-Unit `src/code_24748.c`. Prints a three-line debug menu with `FntPrint`: a
+Unit `src/hit_tool.c`. Prints a three-line debug menu with `FntPrint`: a
 title, then for each line a spacer (`PrintTabs(4)`), a marker string
 that depends on whether the line is the highlighted one (`D_8009574A`), and
 the line's number from the format at `D_8001175C`.

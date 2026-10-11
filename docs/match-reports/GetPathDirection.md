@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002AF6C` on 2026-10-11 (tools/rename.py). Address 0x8002af6c.
 
-Unit `src/code_1a098.c`. Finds the path segment a `PathUser` is on with
+Unit `src/object.c`. Finds the path segment a `PathUser` is on with
 UpdatePathSegment's two half-plane tests, but does not store it; returns the
 `ratan2` direction of that segment, from its point to the next.
 

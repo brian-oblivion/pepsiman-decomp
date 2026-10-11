@@ -2,7 +2,7 @@
 
 > Renamed from `func_80029898` on 2026-10-11 (tools/rename.py). Address 0x80029898.
 
-Unit `src/code_1a098.c`. Converts a record's local position (words at
+Unit `src/object.c`. Converts a record's local position (words at
 0x1C/0x20/0x24, in the coordinate system at 0x28) to world space with
 `GsGetLws` / `GsSetLsMatrix` / `RotTrans` and stores it in the record's
 first three words, then restores the light-source matrix. Its caller
@@ -31,7 +31,7 @@ void UpdatePlacedPos(Placed2C *p) {
 }
 ```
 
-First build. The body is code_13068's TransformByCoord with the record as
+First build. The body is player's TransformByCoord with the record as
 source and destination, including its `s32 unused[2]` (flag at sp+0x70,
 frame 0x88). The word fields copied into the SVECTOR come out as `lhu`
 loads, so s32 members are right. The unit now includes `libgpu.h` and

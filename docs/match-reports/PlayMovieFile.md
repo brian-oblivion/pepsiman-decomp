@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041534` on 2026-10-10 (tools/rename.py). Address 0x80041534.
 
-Unit `src/code_31cec.c`. The movie player's main loop, Sony's sample
+Unit `src/sound.c`. The movie player's main loop, Sony's sample
 `play` on the unit's globals. Looks the file up when a name is given
 (`CdSearchFile` into `gMovieFile`, position copied to `gMovieLoc`), sets
 up the decode environment (InitMovieDecoder), the stream (InitMovieStream,

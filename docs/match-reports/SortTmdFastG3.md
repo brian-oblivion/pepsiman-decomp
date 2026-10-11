@@ -2,7 +2,7 @@
 
 > Renamed from `func_800210B4` on 2026-10-10 (tools/rename.py). Address 0x800210b4.
 
-Unit `src/code_a0bc.c`. The gouraud sibling of SortTmdFastF3 (row 1, column 6 of the handler
+Unit `src/draw.c`. The gouraud sibling of SortTmdFastF3 (row 1, column 6 of the handler
 table): unlit gouraud TMD triangles into POLY_G3 packets, three colours
 depth-cued with `dpct`, the packet's code byte copied from the TMD header's
 mode byte, linked with length 6.

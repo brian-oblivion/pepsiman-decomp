@@ -2,7 +2,7 @@
 
 > Renamed from `func_80027714` on 2026-10-11 (tools/rename.py). Address 0x80027714.
 
-Unit `src/code_13068.c`. On the low nibble of game-state byte 0x3D0
+Unit `src/player.c`. On the low nibble of game-state byte 0x3D0
 (1..4), and outside modes 0x33.. (7 or 3 of them), sets mode 0x33 and
 points one per-stage 120-byte record (`D_800D83C8` + k*120) at a
 coordinate system `D_800D86E0[0]`, `[1]` or `[16]`, writing the
@@ -65,9 +65,9 @@ s32 AttachModeObject(void) {
   They are fields of two record tables (120-byte records from
   0x800D83C8, 72-byte from 0x800D3860); a typed table would be the
   readable form once the records are known.
-- `D_800D86E0` (`GsCOORDINATE2[]`) was declared in `src/code_1a098.c`
-  (not a round-7 unit). Moved to `include/code_1a098.h`, which now
-  includes libgte/libgpu/libgs itself; code_13068 includes that header.
+- `D_800D86E0` (`GsCOORDINATE2[]`) was declared in `src/object.c`
+  (not a round-7 unit). Moved to `include/object.h`, which now
+  includes libgte/libgpu/libgs itself; player includes that header.
   Indexing it (`&D_800D86E0[16]`, `[1]`) builds the same bytes as
   retail's separate symbols `D_800D8BE0`/`D_800D8730`; both forms were
   built and matched.

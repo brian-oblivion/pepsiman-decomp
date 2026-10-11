@@ -12,7 +12,7 @@ to coordinates `D_800CEF40[i]`; block 3 links the piece objects (the table
 StepEffect11 sorts, `[10 + i]` of a table 10 records before `D_800960A8`)
 to `D_800CDF20[i]`. Block 4 is a sequence directory: entry `i` goes to
 `gAnimations[51 + i]` and the game head's `unk20` / `unk1B0` (the same
-spelling as main.c's and code_1a098.c's loaders). Then four
+spelling as main.c's and object.c's loaders). Then four
 `DefineSprite` texture registrations.
 
 ## The blocker: a symbol, not the C

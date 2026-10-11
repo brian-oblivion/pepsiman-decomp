@@ -2,13 +2,13 @@
 
 > Renamed from `func_8001A3D4` on 2026-10-10 (tools/rename.py). Address 0x8001a3d4.
 
-Unit `src/code_a0bc.c`. The centred twin of DrawStandingBillboard: draws sprite `id`
+Unit `src/draw.c`. The centred twin of DrawStandingBillboard: draws sprite `id`
 of `gSpriteDefs` as a billboard quad centred on the current transformation's
 origin in both x and y (DrawStandingBillboard stands it on y = 0), rotated by
 `GsIDMATRIX`, into a POLY_FT4 in `GsOUT_PACKET_P`, linked at its average depth
-`>> shift`. Its prototype in `include/code_a0bc.h` was corrected: `u16 id`
+`>> shift`. Its prototype in `include/draw.h` was corrected: `u16 id`
 (retail masks it, `andi 0xFFFF`) and the fourth argument is the OT shift,
-not a mode; the callers in code_1902c, code_24748 and code_29f54 build
+not a mode; the callers in collision, hit_tool and stage build
 unchanged (whole image OK).
 
 ```c

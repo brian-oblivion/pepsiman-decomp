@@ -2,7 +2,7 @@
 
 > Renamed from `func_800335E8` on 2026-10-11 (tools/rename.py). Address 0x800335e8.
 
-Unit `src/code_1dc24.c`. Saves three pieces of game state into the tool
+Unit `src/editor.c`. Saves three pieces of game state into the tool
 state block `D_80095B28`: three words at 0x348 of `gPlayer` into 0x38,
 the halfword `D_800A7680[0].vy` into 0x44, and the first six words of
 `gRefView` into 0x48. Then it runs `SaveEditorSlot(a, 0x8016D000)`.
@@ -51,11 +51,11 @@ void SaveEditorState(s16 a) {
 ## Declarations
 
 The halfword is `D_800A7680[0].vy` (splat names the address `D_800A7682`;
-code_13068, code_1a098 and code_1dc24 reach it `lui` + `%lo`, `lh`/`lhu`).
+player, object and editor reach it `lui` + `%lo`, `lh`/`lhu`).
 At first it was declared `extern s16 D_800A7682[];` in `include/common.h`;
 with MoveGamePos, which reaches `D_800A7680` as a base with `vy` at +2,
 that line was dropped again and `extern SVECTOR D_800A7680[];` moved from
-code_13068.c into `include/code_13068.h` (both units now include it).
+player.c into `include/player.h` (both units now include it).
 Same bytes either way. `ToolSave` and `GameSave` are unit-local views of
 `D_80095B28` and `gPlayer`.
 

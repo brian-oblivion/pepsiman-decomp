@@ -2,7 +2,7 @@
 
 > Renamed from `func_80039580` on 2026-10-10 (tools/rename.py). Address 0x80039580.
 
-Unit `src/code_27bc8.c`. `FindSave1` with the other name: points
+Unit `src/card.c`. `FindSave1` with the other name: points
 `gCardFileName` at `"BISLPS-67890PEPTOOL"` (rodata `D_80011C40`, migrated into
 this function's `.s`, so now a literal) and looks for it among the first
 `gCardFileCount` records of `gCardFiles`. Returns 0 if found, -1 if not.

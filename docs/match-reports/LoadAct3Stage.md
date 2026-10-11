@@ -18,7 +18,7 @@ extern s32 D_80073D24[];
 /* ... one CdlLOC[] / s32[] pair per stage: D_80073DD8/D_80073DFC,
  * D_80073EB0/D_80073ED4, D_80073F88/D_80073FAC, D_80074060/D_80074084 */
 
-/* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
+/* MATCHING: sound defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
 s32 LoadVabBank(s32 bank);
 void LoadStageOverlay(u16 sel);

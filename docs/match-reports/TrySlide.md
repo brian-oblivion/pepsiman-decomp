@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028508` on 2026-10-11 (tools/rename.py). Address 0x80028508.
 
-Unit `src/code_13068.c`. When the game-state record is live (`unk0`), its
+Unit `src/player.c`. When the game-state record is live (`unk0`), its
 mode byte `unk6` is outside 5..7, the `unk38F`/`unk398` gate is open, bit
 0x1000 of `gPad` is clear and bit 0x40 of `gGamePadTrig` is set, it
 plays `PlaySe(22)` and sets `unk6` to 5.
@@ -24,7 +24,7 @@ s32 TrySlide(void) {
   the build was 40/42: reorg filled the `bnez` after the `sltiu` range test
   with `addiu $v0,$zero,1` from the target and put a `nop` after it; retail
   keeps the slot a `nop`. `s32` keeps `$v0` live and blocks the fill. Adds a
-  "control reaches end of non-void function" warning, NEW for code_13068 in
+  "control reaches end of non-void function" warning, NEW for player in
   `tools/typeviews.py --warnings`; the head baselines it.
 - The 5..7 range test (`addiu -5` / `sltiu 3`) comes from either an `&&`
   spelling or a sequence of early `return`s; both gave the same code. The

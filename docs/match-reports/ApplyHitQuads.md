@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036878` on 2026-10-11 (tools/rename.py). Address 0x80036878.
 
-Unit `src/code_24748.c`. Installs the second record bank (`gHitQuads`),
+Unit `src/hit_tool.c`. Installs the second record bank (`gHitQuads`),
 the twin of ApplyHitPoints: copies each of its `gHitQuadSections` entries' two
 words into `unk6E`/`unk70` of the matching `D_800D8D20` record; then, for
 each of the 80 records, points `unk48` of each of its bank records

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80021434` on 2026-10-10 (tools/rename.py). Address 0x80021434.
 
-Unit `src/code_a0bc.c`. The flat-textured handler (row 2, column 6 of the handler table): unlit
+Unit `src/draw.c`. The flat-textured handler (row 2, column 6 of the handler table): unlit
 textured TMD triangles into POLY_FT3 packets, the colour depth-cued with
 `dpcs`, the code byte the TMD mode with bit 0 cleared, the three UV words
 copied whole, linked with length 7.

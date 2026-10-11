@@ -2,7 +2,7 @@
 
 > Renamed from `func_800371A0` on 2026-10-11 (tools/rename.py). Address 0x800371a0.
 
-Unit `src/code_24748.c`. One frame of the two-line value editor whose menu
+Unit `src/hit_tool.c`. One frame of the two-line value editor whose menu
 `PrintToolSlots` prints: remembers the highlighted line, runs the editor
 (`StepMenuCursor`), then either loads the newly highlighted line's saved value
 and limit into the edit variables, or, if the line did not change, saves the
@@ -44,13 +44,13 @@ void EditToolValues(void) {
 ## Externs
 
 - `gToolRadius` (`u16`, `lhu`) and `gToolType` (`u8`, `lbu`): `%gp_rel`.
-- `D_80095748`: `u16`, the type `code_1a098` already gave it; the `u8`
+- `D_80095748`: `u16`, the type `object` already gave it; the `u8`
   store reads it with `lbu` (cc1 narrows the load). Now used by two units,
-  so it moved to `include/common.h` (additive). `code_1a098.c` still carries
+  so it moved to `include/common.h` (additive). `object.c` still carries
   its own identical `extern u16 D_80095748;` (line 89), which declcheck now
   reports as MULTI/LOCAL; that unit is alpha's this round, so the two-line
   deletion is left to the merge.
-- `StepMenuCursor` (an `INCLUDE_ASM` of `code_1a098`): prototype added to
+- `StepMenuCursor` (an `INCLUDE_ASM` of `object`): prototype added to
   `include/common.h` (additive).
 
 ## Levers
@@ -65,5 +65,5 @@ The two arms of the first `switch` share their stores by cross-jumping
 plain per-case assignments give that without help.
 
 The `unused` local triggers `-Wall`'s unused-variable warning, NEW in
-`tools/typeviews.py --warnings` (`code_24748: unused variable 'unused'`), to
+`tools/typeviews.py --warnings` (`hit_tool: unused variable 'unused'`), to
 be baselined.

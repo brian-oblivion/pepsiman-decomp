@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028AE4` on 2026-10-10 (tools/rename.py). Address 0x80028ae4.
 
-Unit `src/code_1902c.c`. Tests a 0x30-byte query body against the
+Unit `src/collision.c`. Tests a 0x30-byte query body against the
 player's three bodies (points 0..2 of the placed-point table `gPlayerPoints`).
 The radii come from a switch on the stage mode (`D_8009EF48[0] & 0xF`):
 mode 0 is {20, 35, 35} with one radius zeroed by the progress byte
@@ -14,7 +14,7 @@ skipped when either |x| or |z| exceeds 1000. A body's first hit fills its
 (FindNearestPlayerPoint from point `i*6 + 7`) and the query's bytes 0x18..0x19 and
 halfwords 0x0C..0x10.
 
-This unit's `Body` view is the same 0x30-byte block code_1a098 calls
+This unit's `Body` view is the same 0x30-byte block object calls
 `Query30` (unk14 is the radius). declcheck reports the TYPE mismatch
 `s32 (Query30 *)` vs `s32 (Body *)`; left for the head to unify.
 
@@ -34,7 +34,7 @@ Levers, in the order they moved the score:
   loads. Retail keeps it above them: the range test is an early
   `return hit;`, which gives the function a return label that splits the
   epilogue from the extension (171 -> 182). The return type (s8 or s32)
-  made no difference; it is `s32`, code_1a098's view.
+  made no difference; it is `s32`, object's view.
 
 ```c
 /** @brief A position with a radius further in, as the collision test

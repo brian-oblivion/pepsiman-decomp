@@ -157,7 +157,7 @@ void UpdatePlayer(void) {
 ```
 
 `GameState` gained `unk344`, `unk358` (s32) and `unk3AE`, `unk3B0`
-(s16). The unit now includes `code_7d74.h` for SetCoordRotation, and
+(s16). The unit now includes `model.h` for SetCoordRotation, and
 declares the prototypes of the unit's own later functions it calls.
 
 ## Levers

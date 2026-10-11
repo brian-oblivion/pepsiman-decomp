@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028448` on 2026-10-11 (tools/rename.py). Address 0x80028448.
 
-Unit `src/code_13068.c`. Every tenth tick of the halfword counter
+Unit `src/player.c`. Every tenth tick of the halfword counter
 `gCans` (non-zero and a multiple of 10) it bumps the counter
 `gBonusLevel` by one through `AddBonusLevel(1)`; before that it plays
 `PlaySe(34)` unless the counter already sits at its cap (2 when
@@ -34,7 +34,7 @@ void CheckCanBonus(void) {
 ## Shared header (additive)
 
 `extern u16 gCans;` moved into `include/common.h`'s small-object
-block (one line added) and removed from `src/code_1a098.c` (one line), as
+block (one line added) and removed from `src/object.c` (one line), as
 `tools/declcheck.py` requires once two units use it. Every retail access in
 all units is `lhu`/`sh` with a `lui` in the destination or `$at`: a `u16`
 scalar. Whole image OK.

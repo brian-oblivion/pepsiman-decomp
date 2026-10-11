@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033388` on 2026-10-11 (tools/rename.py). Address 0x80033388.
 
-Unit `src/code_1dc24.c`. A sibling of `DrawPole`: the same pulsing
+Unit `src/editor.c`. A sibling of `DrawPole`: the same pulsing
 red GsLINE from `pos`, but its far end lies 100 units from `pos` along the
 heading `deg` (an `s16` in degrees, `* 4096 / 360`), through `rsin` /
 `rcos`. First build matched.
@@ -13,7 +13,7 @@ heading `deg` (an `s16` in degrees, `* 4096 / 360`), through `rsin` /
   line at 0x40: an unused 8 bytes before `world` (as in its siblings) and an
   unused 16 bytes between `world` and `screen`. Both unused arrays raise
   `-Wall`'s unused-variable warning; config/typeviews-warnings.txt gained
-  the three code_1dc24 lines (this one's two and DrawPole's one).
+  the three editor lines (this one's two and DrawPole's one).
 - The angle is computed once into a local kept in `$s0` across `rsin` and
   passed again to `rcos`.
 

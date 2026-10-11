@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003634C` on 2026-10-11 (tools/rename.py). Address 0x8003634c.
 
-Unit `src/code_24748.c`. Saves the three hit-data files: for each of
+Unit `src/hit_tool.c`. Saves the three hit-data files: for each of
 `HITDATA0.T1D`, `HITDATA1.T1D` and `HITDATA2.T1D` under
 `sim:\PS\PEPSI\DATA\TOOL1\` (rodata `D_8001178C`, `D_800117B4`,
 `D_800117DC`), opens it for create/write and writes two blocks of 0x4744 and

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003F488` on 2026-10-10 (tools/rename.py). Address 0x8003f488.
 
-Unit `src/code_29f54.c`. A slot step like StepEffect4 (sprite 0x12D
+Unit `src/stage.c`. A slot step like StepEffect4 (sprite 0x12D
 growing 10 a frame, fading 4 a frame) that also moves: the slot drifts along
 the angle `unk4` at a speed `unk6` that slows by one a frame
 (`rsin`/`rcos` scaled by `/4096` into the x and z offsets) and rises by

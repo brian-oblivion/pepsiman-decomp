@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001FBBC` on 2026-10-10 (tools/rename.py). Address 0x8001fbbc.
 
-Unit `src/code_a0bc.c`. The environment-map handler (row 3, column 0 of the
+Unit `src/draw.c`. The environment-map handler (row 3, column 0 of the
 handler table in one of InitTmdSortFuncs's modes): each lit gouraud-textured
 TMD triangle becomes a raw-textured POLY_FT3 (code 0x25) whose UVs come from
 the rotated vertex normals (`rtv0`, MAC1/MAC2 >> 8) offset by the screen

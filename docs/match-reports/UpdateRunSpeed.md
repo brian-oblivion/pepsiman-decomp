@@ -2,7 +2,7 @@
 
 > Renamed from `func_80026548` on 2026-10-11 (tools/rename.py). Address 0x80026548.
 
-Unit `src/code_13068.c`. Outside modes 8..11: the 40-unit twin of
+Unit `src/player.c`. Outside modes 8..11: the 40-unit twin of
 UpdateSpeedMode2/UpdateSpeedMode3 (steers `gSpeedFixed` towards 40 whole units,
 snapping to 640, and stores the whole part at 0x3A8), then picks mode 4,
 3 or 2 from the band at 0x3AC when byte 0x340 is 2. When byte 5 is 0x3A

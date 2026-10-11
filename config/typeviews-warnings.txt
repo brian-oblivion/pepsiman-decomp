@@ -1,96 +1,96 @@
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: control reaches end of non-void function
-code_13068: warning: unused variable `unused'
-code_13068: warning: unused variable `unused'
-code_13068: warning: unused variable `unused'
-code_13068: warning: unused variable `unused'
-code_13068: warning: unused variable `unused'
-code_1902c: warning: unused variable `unused'
-code_1902c: warning: unused variable `unused'
-code_1902c: warning: unused variable `unused'
-code_1902c: warning: unused variable `unused0'
-code_1902c: warning: unused variable `unused0'
-code_1902c: warning: unused variable `unused1'
-code_1a098: warning: `best' might be used uninitialized in this function
-code_1a098: warning: `return' with no value, in function returning non-void
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: control reaches end of non-void function
-code_1a098: warning: unused variable `unused'
-code_1a098: warning: unused variable `unused'
-code_1a098: warning: unused variable `unused'
-code_1a098: warning: unused variable `unused'
-code_1a098: warning: unused variable `unused'
-code_1a098: warning: unused variable `unused'
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: `return' with no value, in function returning non-void
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: control reaches end of non-void function
-code_1dc24: warning: unused variable `unused'
-code_1dc24: warning: unused variable `unused'
-code_1dc24: warning: unused variable `unused'
-code_1dc24: warning: unused variable `unused'
-code_1dc24: warning: unused variable `unused'
-code_1dc24: warning: unused variable `unused'
-code_1dc24: warning: unused variable `unused2'
-code_24748: warning: control reaches end of non-void function
-code_24748: warning: control reaches end of non-void function
-code_24748: warning: unused variable `unused'
-code_24748: warning: unused variable `unused'
-code_24748: warning: unused variable `unused'
-code_27bc8: warning: unused variable `unused'
-code_27bc8: warning: unused variable `unused'
-code_29f54: warning: `rank' might be used uninitialized in this function
-code_29f54: warning: `rank' might be used uninitialized in this function
-code_29f54: warning: unused variable `unused'
-code_29f54: warning: unused variable `unused'
-code_29f54: warning: unused variable `unused'
-code_29f54: warning: unused variable `unused'
-code_308ec: warning: `ret' might be used uninitialized in this function
-code_308ec: warning: unused variable `unused'
-code_31cec: warning: `dst' might be used uninitialized in this function
-code_31cec: warning: control reaches end of non-void function
-code_31cec: warning: control reaches end of non-void function
-code_7d74: warning: `return' with no value, in function returning non-void
-code_7d74: warning: `return' with no value, in function returning non-void
-code_7d74: warning: control reaches end of non-void function
-code_7d74: warning: control reaches end of non-void function
-code_7d74: warning: unused variable `unused'
-code_7d74: warning: unused variable `unused'
-code_a0bc: warning: control reaches end of non-void function
-code_a0bc: warning: unused variable `unused'
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: control reaches end of non-void function
+player: warning: unused variable `unused'
+player: warning: unused variable `unused'
+player: warning: unused variable `unused'
+player: warning: unused variable `unused'
+player: warning: unused variable `unused'
+collision: warning: unused variable `unused'
+collision: warning: unused variable `unused'
+collision: warning: unused variable `unused'
+collision: warning: unused variable `unused0'
+collision: warning: unused variable `unused0'
+collision: warning: unused variable `unused1'
+object: warning: `best' might be used uninitialized in this function
+object: warning: `return' with no value, in function returning non-void
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: control reaches end of non-void function
+object: warning: unused variable `unused'
+object: warning: unused variable `unused'
+object: warning: unused variable `unused'
+object: warning: unused variable `unused'
+object: warning: unused variable `unused'
+object: warning: unused variable `unused'
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: `return' with no value, in function returning non-void
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: control reaches end of non-void function
+editor: warning: unused variable `unused'
+editor: warning: unused variable `unused'
+editor: warning: unused variable `unused'
+editor: warning: unused variable `unused'
+editor: warning: unused variable `unused'
+editor: warning: unused variable `unused'
+editor: warning: unused variable `unused2'
+hit_tool: warning: control reaches end of non-void function
+hit_tool: warning: control reaches end of non-void function
+hit_tool: warning: unused variable `unused'
+hit_tool: warning: unused variable `unused'
+hit_tool: warning: unused variable `unused'
+card: warning: unused variable `unused'
+card: warning: unused variable `unused'
+stage: warning: `rank' might be used uninitialized in this function
+stage: warning: `rank' might be used uninitialized in this function
+stage: warning: unused variable `unused'
+stage: warning: unused variable `unused'
+stage: warning: unused variable `unused'
+stage: warning: unused variable `unused'
+stage_flow: warning: `ret' might be used uninitialized in this function
+stage_flow: warning: unused variable `unused'
+sound: warning: `dst' might be used uninitialized in this function
+sound: warning: control reaches end of non-void function
+sound: warning: control reaches end of non-void function
+model: warning: `return' with no value, in function returning non-void
+model: warning: `return' with no value, in function returning non-void
+model: warning: control reaches end of non-void function
+model: warning: control reaches end of non-void function
+model: warning: unused variable `unused'
+model: warning: unused variable `unused'
+draw: warning: control reaches end of non-void function
+draw: warning: unused variable `unused'
 main: warning: `bank' might be used uninitialized in this function
 main: warning: `return' with no value, in function returning non-void
 main: warning: control reaches end of non-void function

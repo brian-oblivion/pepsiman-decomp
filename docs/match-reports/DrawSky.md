@@ -2,7 +2,7 @@
 
 > Renamed from `func_800184BC` on 2026-10-10 (tools/rename.py). Address 0x800184bc.
 
-Unit `src/code_7d74.c`. Draws the sky: two Gouraud quads (`POLY_G4`) from
+Unit `src/model.c`. Draws the sky: two Gouraud quads (`POLY_G4`) from
 the primitive buffer `GsOUT_PACKET_P`, both at the back of the ordering table
 (`gOt[gActiveBuff]`, entry 0xFFF). The horizon height is `8 - y`,
 where `y = rsin(ratan2(dy, horizontal distance)) * 240 >> 12` from the two
@@ -98,7 +98,7 @@ void DrawSky(u32 arg) {
   target (`((volatile POLY_G4 *)p)->r1`), 157/393 and 4 words short.
 - **The tag word written whole**, `*(u32 *)p = (*tag & 0xFFFFFF) |
   0x08000000; *tag = (u32)p & 0xFFFFFF;` after `setcode(p, 0x38)`, as
-  code_a0bc and code_11dc4 do. libgpu's `setPolyG4` / `addPrim` go through
+  draw and draw_tmd do. libgpu's `setPolyG4` / `addPrim` go through
   the `P_TAG` bitfields and load the old tag.
 - **The colour copy as `u32` words**, `*(u32 *)&p->r0 = *(u32 *)&p->r1 =
   *(u32 *)&tbl.c[0];`. A `CVECTOR` copy is `lwl`/`lwr` (alignment 1).
@@ -110,7 +110,7 @@ void DrawSky(u32 arg) {
 
 ## Externs and types
 
-- `DrawSky` takes a `u32` here (`srl` on `$a0`); code_1dc24, its
+- `DrawSky` takes a `u32` here (`srl` on `$a0`); editor, its
   caller, declares it `void (void)` and leaves whatever `$a0` holds. That
   declaration is unchanged.
 - `gSkyColors` is a pointer (`lw`) to 16-byte records; declared in this

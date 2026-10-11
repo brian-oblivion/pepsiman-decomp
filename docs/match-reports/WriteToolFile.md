@@ -2,7 +2,7 @@
 
 > Renamed from `func_80037318` on 2026-10-11 (tools/rename.py). Address 0x80037318.
 
-Unit `src/code_24748.c`. Debug tool save: opens
+Unit `src/hit_tool.c`. Debug tool save: opens
 `sim:\PS\PEPSI\DATA\TOOL1\TMP.TL1` (the `sim:` PC file server device) for
 create and write, writes 0x13868 bytes from the fixed RAM address
 0x8018D000, closes it, and returns `write`'s result. Game code calling

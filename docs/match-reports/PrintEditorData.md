@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003245C` on 2026-10-11 (tools/rename.py). Address 0x8003245c.
 
-Unit `src/code_1dc24.c`. The data (memory card) mode's screen: prints the
+Unit `src/editor.c`. The data (memory card) mode's screen: prints the
 title, then per state `gToolCardStep` (an 18-entry jump table, three states
 print nothing) a colour, a message and for some states the save-slot list
 (`PrintEditorSlots`), the mode menu (`PrintSaveLoad`) or a yes/no menu
@@ -21,7 +21,7 @@ First build matched.
 
 - New in the `.c`: the string externs, forward prototypes of this unit's
   `PrintEditorSlots`, `PrintYesNo` and `PrintSaveLoad`, and
-  `SortSemiQuad` (code_7d74, not in its header; MATCHING note).
+  `SortSemiQuad` (model, not in its header; MATCHING note).
 
 ```c
 void PrintEditorData(void) {

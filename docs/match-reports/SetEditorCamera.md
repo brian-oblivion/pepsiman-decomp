@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002F8FC` on 2026-10-11 (tools/rename.py). Address 0x8002f8fc.
 
-Unit `src/code_1dc24.c`. Fills the six camera words `gRefView[0..5]`:
+Unit `src/editor.c`. Fills the six camera words `gRefView[0..5]`:
 the sine and cosine of the first rotation's yaw times 500, the game
 height `sGameSave.unk348[1]` plus `sTotals.unkC` plus the sine of the
 view's orbit angle `gViewerAngle` (degrees, `* 4096 / 360`) times 500, and
@@ -18,9 +18,9 @@ Second build matched.
   a member of the `D_80095B28` block. `Totals28` gained `s32 unkC`
   (layout unchanged).
 - `gViewerAngle` is an `s16` scalar (`lui $a0` / `lh $a0`). It was declared
-  in `src/code_7d74.c`; with a second unit using it, the declaration moved
+  in `src/model.c`; with a second unit using it, the declaration moved
   to `include/common.h` (declcheck MULTI/LOCAL). This is an edit to
-  code_7d74.c outside the round's unit, a one-line deletion.
+  model.c outside the round's unit, a one-line deletion.
 
 ```c
 void SetEditorCamera(void) {

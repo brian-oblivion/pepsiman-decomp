@@ -4,7 +4,7 @@
 
 Stalled at 154/157 in rounds 9 (echo) and 12 (charlie).
 
-Unit `src/code_24748.c`. Steps the camera offset by `gToolViewStep`: state 0
+Unit `src/hit_tool.c`. Steps the camera offset by `gToolViewStep`: state 0
 saves the current offset (`gRefView[0..2]`) as the start
 (`D_800CEBA0`) and starts the step counter `D_80095A20`; state 1
 interpolates over 30 steps (`Lerp`) towards row `gToolViewPreset` of a
@@ -13,7 +13,7 @@ scaled by `gToolZoom`; state 2 restores the saved value of `gToolMode`
 and advances to state 3; state 3 jumps straight to the target and clears
 the next three words. Every call clears `D_800DB2B8`.
 
-The body is live in `src/code_24748.c`. The stalled body below is kept for
+The body is live in `src/hit_tool.c`. The stalled body below is kept for
 the record; the match differs from it in case 2 only (`gToolViewStep++;`).
 
 ```c
@@ -32,7 +32,7 @@ extern s16 D_80095A22;
 extern s16 gToolMode;    /* common.h */
 extern u8 gToolViewPreset;
 extern u8 gToolZoom;
-/* per-unit view; code_7d74 defines it (s16, s16, u16, u16) returning s16 */
+/* per-unit view; model defines it (s16, s16, u16, u16) returning s16 */
 s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 
 void UpdateToolView(void) {

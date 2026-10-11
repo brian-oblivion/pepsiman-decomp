@@ -2,7 +2,7 @@
 
 > Renamed from `func_800183B0` on 2026-10-10 (tools/rename.py). Address 0x800183b0.
 
-Unit `src/code_7d74.c`. Walks the `gStageObjCount` entries of the data blob
+Unit `src/model.c`. Walks the `gStageObjCount` entries of the data blob
 at `gFloorData`; for each, finds the entry's vertex (entry halfword +4
 indexes the blob's 8-byte vertex table), and when its squared XZ distance
 to `pos` is at most 100000000 asks `QueryFloor(out, i, &pos, blob)`.

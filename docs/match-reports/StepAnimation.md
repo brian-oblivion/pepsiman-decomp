@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017F0C` on 2026-10-10 (tools/rename.py). Address 0x80017f0c.
 
-Unit `src/code_7d74.c`, live C. Round 7, runner alpha; rounds 12 and 13, bravo.
+Unit `src/model.c`, live C. Round 7, runner alpha; rounds 12 and 13, bravo.
 
 Steps channel `index` of the animation player at the head of the game
 state: when the requested sequence `want[index]` differs from `cur`, it
@@ -62,7 +62,7 @@ u8 StepAnimation(Player *obj, u16 index, s8 arg) {
 ## Round 13 (bravo): matched
 
 Splice of the round-12 body re-measured first: 82/98, `insertions 0 /
-deletions 0`. The live C in `src/code_7d74.c` is that body plus three bare
+deletions 0`. The live C in `src/model.c` is that body plus three bare
 `__asm__("");` after `ret = 2;` in the sequence-26 arm only. Whole build
 `OK`.
 
@@ -96,7 +96,7 @@ layout (29/98).
 
 A bare `__asm__("");` before the first `return 0;` keeps jump optimisation
 from cross-jumping that return into the sequence-26 `else return 0;`
-block, so it stays inline as in retail (the lever main and code_31958
+block, so it stays inline as in retail (the lever main and stage_overlay
 used for identical arms). The body above has it; built in-tree this
 session: 82/98, `insertions 0 / deletions 0`. What is left is a pure
 register rotation of three temporaries: retail keeps `obj + index` in

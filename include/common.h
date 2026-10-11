@@ -248,19 +248,19 @@ extern s32 *gAnimations[]; /**< per-sequence data pointers; 2 units */
 
 /* --- Functions called from more than one unit, with the same prototype ---- */
 
-/** @brief Defined in code_31cec.
+/** @brief Defined in sound.
  *  @param id what to start, by number
  *  @return -1 when a sound bank failed to open; otherwise nothing is
  *          returned (callers ignore the result) */
 s32 PlaySe(s32 id);
 
-/** @brief Defined in code_31cec; called from main. */
+/** @brief Defined in sound; called from main. */
 void InitSound(void);
 
-/** @brief Defined in code_7d74; called from main. */
+/** @brief Defined in model; called from main. */
 void InitView(void);
 
-/** @brief Defined in code_7d74: updates an index from a position, then
+/** @brief Defined in model: updates an index from a position, then
  *         checks the position against the data blob.
  *  @param pos a position, three words
  *  @param arg a result buffer for the check
@@ -268,10 +268,10 @@ void InitView(void);
  *  @return the updated index, or -1 when the check fails */
 s32 FindFloorNear(void *pos, void *arg, s32 cur);
 
-/** @brief Defined in code_7d74; called when a stage is reset. */
+/** @brief Defined in model; called when a stage is reset. */
 void StopCdTrack(void);
 
-/** @brief Defined in code_7d74; called from main: sets up the three flat
+/** @brief Defined in model; called from main: sets up the three flat
  *         lights, the ambient light and the fog. */
 void InitLights(void);
 
@@ -279,33 +279,33 @@ void InitLights(void);
  *  @param count how many times it prints its fixed string */
 void PrintTabs(s16 count);
 
-/** @brief Defined in code_13068: on every tenth pickup, plays a cue
+/** @brief Defined in player: on every tenth pickup, plays a cue
  *         (unless the stage forbids it) and updates the pickup display. */
 void CheckCanBonus(void);
 
-/** @brief Defined in code_29f54; loads a run of TIM images (each starting
+/** @brief Defined in stage; loads a run of TIM images (each starting
  *         with the word 0x10) into VRAM.
  *  @param p the first TIM */
 void LoadTimList(unsigned long *p);
 
-/** @brief Defined in code_29f54 (still asm); called from main. */
+/** @brief Defined in stage (still asm); called from main. */
 void DefineHudSprites(void);
 
-/** @brief Defined in code_29f54: queues the draw-mode and clipped
+/** @brief Defined in stage: queues the draw-mode and clipped
  *         draw-environment packets that split the screen.
  *  @param clip nonzero to queue them; zero does nothing */
 void SetLetterbox(s32 clip);
 
-/** @brief Defined in code_7d74; issues one CD command.
+/** @brief Defined in model; issues one CD command.
  *  @param com the CdlXXX command
  *  @return always 0 */
 s32 SendCdTrackCommand(u8 com);
 
-/** @brief Defined in code_7d74; the CD ready callback main installs.
+/** @brief Defined in model; the CD ready callback main installs.
  *  @param mode the interrupt status */
 void OnCdTrackReady(u8 mode);
 
-/** @brief Defined in code_a0bc: fills one 8-byte record of a sprite table.
+/** @brief Defined in draw: fills one 8-byte record of a sprite table.
  *  @param id    which record
  *  @param mode  stored at bit 7 of the record's first halfword
  *  @param w     stored in byte 6
@@ -317,83 +317,83 @@ void OnCdTrackReady(u8 mode);
  *  @param clutY stored from bit 6 of the second halfword */
 void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
 
-/** @brief Defined in code_1dc24.
+/** @brief Defined in editor.
  *  @return 0. */
 s32 StepMenuCursor(void);
 
-/** @brief Defined in code_29f54: remaps three buttons of the two button
+/** @brief Defined in stage: remaps three buttons of the two button
  *         words by a row of a remap table. */
 void RemapButtons(void);
 
-/** @brief Defined in code_1902c. */
+/** @brief Defined in collision. */
 void ResetCollision(void);
 
-/** @brief Defined in code_1902c. */
+/** @brief Defined in collision. */
 void func_80029838(void);
 
-/** @brief Defined in code_24748; called from code_27bc8. */
+/** @brief Defined in hit_tool; called from card. */
 void ApplyHitPoints(void);
 
-/** @brief Defined in code_24748; called from code_27bc8. */
+/** @brief Defined in hit_tool; called from card. */
 void ApplyHitQuads(void);
 
-/** @brief Defined in code_13068; called from code_308ec. Resets the
+/** @brief Defined in player; called from stage_flow. Resets the
  *         stepped value two mode handlers steer, to 40 whole units. */
 void ResetSpeed(void);
 
-/** @brief Defined in code_1dc24. */
+/** @brief Defined in editor. */
 void PrintYesNo(void);
 
-/** @brief Defined in code_1dc24. */
+/** @brief Defined in editor. */
 void PrintSaveLoad(void);
 
-/** @brief Defined in code_1dc24: wraps the highlighted line at `n` lines
+/** @brief Defined in editor: wraps the highlighted line at `n` lines
  *         and runs an update.
  *  @param n the number of lines
  *  @return the highlighted line when flag bit 5 is set, else -1. */
 s32 RunMenu(s16 n);
 
-/** @brief Defined in code_27bc8. */
+/** @brief Defined in card. */
 void OpenCardEvents(void);
 
-/** @brief Defined in code_27bc8. */
+/** @brief Defined in card. */
 void CloseCardEvents(void);
 
-/** @brief Defined in code_27bc8: runs one memory card operation on the
+/** @brief Defined in card: runs one memory card operation on the
  *         second save file.
  *  @param mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks
  *  @return 0 or -1 */
 s32 RunCardOp2(s16 mode);
 
-/** @brief Defined in code_1902c: tests a 0x4C-byte record.
+/** @brief Defined in collision: tests a 0x4C-byte record.
  *  @param rec the record */
 void PlaceCollisionQuad(void *rec);
 
-/** @brief Defined in code_11dc4: selects one of 23 data sets by `id`
+/** @brief Defined in draw_tmd: selects one of 23 data sets by `id`
  *         and points three globals at it.
  *  @param id the set, 0 to 22 (read as a byte) */
 void LoadOverlay(s32 id);
 
-/** @brief Defined in code_308ec: one frame of the stage-start sequence.
+/** @brief Defined in stage_flow: one frame of the stage-start sequence.
  *  @param stage the stage whose overlay runs the frame */
 void UpdateStagePlay(u8 stage);
 
-/** @brief Defined in code_31958: reads a stage's halfword from a table.
+/** @brief Defined in stage_overlay: reads a stage's halfword from a table.
  *  @param stage the stage index
  *  @return the table entry */
 s32 GetStageVabBank(u16 stage);
 
-/** @brief Defined in code_31958. */
+/** @brief Defined in stage_overlay. */
 void ResetStageOverlay(void);
 
 /** @brief Defined in main.
  *  @param arg not yet known */
 void ReadPad(s32 arg);
 
-/** @brief Defined in code_29f54. */
+/** @brief Defined in stage. */
 void DrawFrozenFrame(void);
 
-/** @brief Defined in code_308ec. */
+/** @brief Defined in stage_flow. */
 void FadeInFog(void);
 
 /** @brief Starts a fade that UpdateSoundFade runs over 50 frames.
@@ -402,51 +402,51 @@ void FadeInFog(void);
  *              audio; 0 none */
 void SetSoundFade(u8 mode);
 
-/** @brief Defined in code_13068. */
+/** @brief Defined in player. */
 void EndJump(void);
 
-/** @brief Defined in code_7d74. */
+/** @brief Defined in model. */
 void UpdateMotionViewer(void);
 
-/** @brief Defined in code_a0bc. */
+/** @brief Defined in draw. */
 void InitTmdSortFuncs(void);
 
-/** @brief Defined in code_13068. */
+/** @brief Defined in player. */
 void InitGridTest(void);
 
-/** @brief Defined in code_13068. */
+/** @brief Defined in player. */
 void UpdateGridTest(void);
 
-/** @brief Defined in code_1a098. */
+/** @brief Defined in object. */
 void UpdateTrapViewer(void);
 
-/** @brief Defined in code_1a098. */
+/** @brief Defined in object. */
 void InitEntryModels(void);
 
-/** @brief Defined in code_24748. */
+/** @brief Defined in hit_tool. */
 void UpdateTool(void);
 
-/** @brief Defined in code_1dc24.
+/** @brief Defined in editor.
  *  @return not yet known */
 s32 UpdateEditor(void);
 
-/** @brief Defined in code_308ec: a stage's number.
+/** @brief Defined in stage_flow: a stage's number.
  *  @param stage the stage
  *  @return not yet known */
 s16 InitStageOverlay(u8 stage);
 
-/** @brief Defined in code_31958.
+/** @brief Defined in stage_overlay.
  *  @param sel not yet known */
 void LoadStageOverlay(u16 sel);
 
 
-/** @brief Defined in code_29f54. */
+/** @brief Defined in stage. */
 void DrawScreenWipe(void);
 
-/** @brief Defined in code_29f54. */
+/** @brief Defined in stage. */
 void UpdateActResults(void);
 
-/** @brief Defined in code_13068.
+/** @brief Defined in player.
  *  @return not yet known */
 s32 UpdatePlayState(void);
 
@@ -460,7 +460,7 @@ s32 UpdateRumble(void);
  *  @param b      not yet known */
 void SetPadVibration(s32 offset, u8 a, u8 b);
 
-/** @brief Defined in code_31cec: sets a volume.
+/** @brief Defined in sound: sets a volume.
  *  @param vol the volume */
 void SetCdVolume(s32 vol);
 

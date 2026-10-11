@@ -2,15 +2,15 @@
 
 > Renamed from `func_8003E550` on 2026-10-10 (tools/rename.py). Address 0x8003e550.
 
-Unit `src/code_29f54.c`. One step of a slot animation, a sibling of
+Unit `src/stage.c`. One step of a slot animation, a sibling of
 StepEffect0..StepEffect9: after the slot's start delay it sets the GS
 local-screen matrix to the slot's position, draws sprite 0x11F (through
-code_a0bc's DrawStandingBillboard) with a size that follows a cosine and a sine of the
+draw's DrawStandingBillboard) with a size that follows a cosine and a sine of the
 frame, and reports the end at frame 15.
 
 ```c
-/* DrawStandingBillboard: include/code_a0bc.h */
-/* setLs: the unit's static __inline__ helper (see src/code_29f54.c) */
+/* DrawStandingBillboard: include/draw.h */
+/* setLs: the unit's static __inline__ helper (see src/stage.c) */
 
 s32 StepEffect1(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
@@ -39,8 +39,8 @@ s32 StepEffect1(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
   prologue order from the first instruction).
 - **`srl` after the `*25` (`sll`/`addu` chain): an unsigned shift**,
   `(u32)(rcos(...) * 25) >> 9`. Signed gives `sra` (104/106).
-- DrawStandingBillboard is defined in code_a0bc.c and had no header prototype; one
-  was ADDED to `include/code_a0bc.h` (declcheck wants a defined function's
+- DrawStandingBillboard is defined in draw.c and had no header prototype; one
+  was ADDED to `include/draw.h` (declcheck wants a defined function's
   prototype in its unit's header). Same signature as the definition.
 
 ### Proposed learning

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80019CD8` on 2026-10-10 (tools/rename.py). Address 0x80019cd8.
 
-Unit `src/code_a0bc.c`. The POLY_FT4 sibling of DrawSprite: draws sprite
+Unit `src/draw.c`. The POLY_FT4 sibling of DrawSprite: draws sprite
 `id` of the table `gSpriteDefs` at `pos` as a textured quad (code 0x2C with a
 colour, 0x2D raw without one, semi-transparent when the colour's first byte
 is not -1), its UVs mirrored by bit 0 (horizontal) and bit 1 (vertical) of

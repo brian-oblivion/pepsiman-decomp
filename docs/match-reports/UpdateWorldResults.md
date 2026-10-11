@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003D960` on 2026-10-10 (tools/rename.py). Address 0x8003d960.
 
-Unit `src/code_29f54.c`. The results screen, drawn each frame while
+Unit `src/stage.c`. The results screen, drawn each frame while
 `gResultsActive` is set. It picks a rank sprite from the finishing place
 `gStage` (places 0-5 as is, 9-14 minus 3), runs a timeline on the frame
 counter `gResultsTimer` that switches on one row flag of `gResultsSliding` at frames

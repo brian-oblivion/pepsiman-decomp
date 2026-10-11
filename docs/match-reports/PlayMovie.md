@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041BAC` on 2026-10-10 (tools/rename.py). Address 0x80041bac.
 
-Unit `src/code_31cec.c`. Movie start-up: records the stream length
+Unit `src/sound.c`. Movie start-up: records the stream length
 (`gMovieLastFrame`) and slice height (`gMovieDisplayHeight`), copies the start position
 into the unit's `CdlLOC` (`gMovieLoc`, minute/second/sector), clears a
 480x480 VRAM area through the unit's `RECT` (`gMovieClearRect`), sets the CD

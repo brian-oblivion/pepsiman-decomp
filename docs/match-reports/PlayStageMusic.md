@@ -4,7 +4,7 @@
 
 **Resolved by the head after round 5:** maspsx now gets each unit's own gp
 list (`config/gp/<unit>.txt`, from tools/gpsyms.py): only the symbols retail
-reaches through `$gp` from that unit's code. `gSoundFade` is reached `$gp` from code_31cec, `lui` from main,
+reaches through `$gp` from that unit's code. `gSoundFade` is reached `$gp` from sound, `lui` from main,
 so it is no longer gp-relative here and the body is live. Original title:
 PlayStageMusic — STALL: 2 words short, 22/38, first diff at word 22 (`lui $v0` before `lh gSoundFade`, built as `lh %gp_rel`) — round 4, runner delta
 
@@ -13,7 +13,7 @@ clears the halfword flag `gSoundFade` if it is set, and calls
 `PlayCdTrack(table[idx], 1)`.
 
 **The C is right; the shared gp list blocks it.** `gSoundFade` is in
-`config/gp-symbols.txt` because code_31cec reaches it `%gp_rel` (retail
+`config/gp-symbols.txt` because sound reaches it `%gp_rel` (retail
 `PlayBgm`, `UpdateSoundFade`, and the matched C setter in that unit).
 This function reaches it absolutely: `lui $v0` / `lh $v0, %lo` and `lui
 $at` / `sh $zero, %lo`. maspsx's gp list is global, so a plain extern is
@@ -61,5 +61,5 @@ the `#ifdef` so declcheck does not see a second unit declaring
 - A 15-byte block copy (`lwl`/`lwr` x3 then `lb`/`sb` x3) is a struct copy
   of a `u8 b[15]` struct; the tail bytes come out as signed `lb`.
 - Retail reaches some `.sdata` symbols gp-relative from one unit and
-  absolutely from another (`gSoundFade`: code_31cec vs main). A global gp
+  absolutely from another (`gSoundFade`: sound vs main). A global gp
   list cannot express that; a per-unit override is needed.

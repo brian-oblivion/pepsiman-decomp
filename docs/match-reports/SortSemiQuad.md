@@ -2,15 +2,15 @@
 
 > Renamed from `func_800179F8` on 2026-10-10 (tools/rename.py). Address 0x800179f8.
 
-Unit `src/code_7d74.c`. Draws a semi-transparent flat quad: a stack
+Unit `src/model.c`. Draws a semi-transparent flat quad: a stack
 POLY_F4 set from a 15-bit colour and four corners, sorted into
-`gSubOt[gActiveBuff]`. It is code_13068's SortQuad15 plus one
+`gSubOt[gActiveBuff]`. It is player's SortQuad15 plus one
 `SetSemiTrans(p, 1)`, including that function's corner order (the
 arguments named x2/y2 land in x3/y3 and vice versa) and its red-channel
 lever.
 
 ```c
-/* code_a0bc.h: extern GsOT gSubOt[]; common.h: extern s32 gActiveBuff; */
+/* draw.h: extern GsOT gSubOt[]; common.h: extern s32 gActiveBuff; */
 
 void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
     POLY_F4 poly;
@@ -36,7 +36,7 @@ void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x
 }
 ```
 
-The unit now includes `code_a0bc.h` for `gSubOt`.
+The unit now includes `draw.h` for `gSubOt`.
 
 ## Attempts (2)
 

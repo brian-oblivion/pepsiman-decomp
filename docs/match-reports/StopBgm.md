@@ -2,7 +2,7 @@
 
 > Renamed from `func_800429B4` on 2026-10-10 (tools/rename.py). Address 0x800429b4.
 
-Unit `src/code_31cec.c`. Stops and closes the sequence whose access
+Unit `src/sound.c`. Stops and closes the sequence whose access
 number is the first halfword of `gSeqIds`.
 
 ```c

@@ -2,13 +2,13 @@
 
 > Renamed from `func_80040628` on 2026-10-10 (tools/rename.py). Address 0x80040628.
 
-Unit `src/code_308ec.c`. Draws sprite 0x15F at (-0x40, -0x10), fills sprite
+Unit `src/stage_flow.c`. Draws sprite 0x15F at (-0x40, -0x10), fills sprite
 records 0x1FE and 0x1FF through DefineSprite, then draws those two at
 (-0xA0, -0x78) and (0, -0x78) with half-intensity colour, all into the
 current ordering table.
 
 ```c
-#include "code_a0bc.h" /* gSubOt, DrawSprite */
+#include "draw.h" /* gSubOt, DrawSprite */
 /* common.h: DefineSprite, gActiveBuff */
 
 void DrawPausedFrame(void) {
@@ -39,15 +39,15 @@ void DrawPausedFrame(void) {
 
 ## Declarations
 
-- `DrawSprite` was declared in `src/code_24748.c` as `(u16, SVECTOR *,
-  s32, s32, GsOT *)`. It is defined in code_a0bc, and its third argument is
-  a colour pointer here (0 there), so it moved to `include/code_a0bc.h` as
+- `DrawSprite` was declared in `src/hit_tool.c` as `(u16, SVECTOR *,
+  s32, s32, GsOT *)`. It is defined in draw, and its third argument is
+  a colour pointer here (0 there), so it moved to `include/draw.h` as
   `(u16 id, SVECTOR *pos, CVECTOR *color, s32 mode, GsOT *ot)` and the
-  duplicate in code_24748.c was deleted; code_24748 already includes
-  code_a0bc.h and still matches.
-- `DefineSprite` (code_a0bc, needs no Sony types) was added to
+  duplicate in hit_tool.c was deleted; hit_tool already includes
+  draw.h and still matches.
+- `DefineSprite` (draw, needs no Sony types) was added to
   `include/common.h` (additive), with `page` as `s32` to agree with
-  charlie's definition in code_a0bc (its callee reads the byte with no `andi`).
+  charlie's definition in draw (its callee reads the byte with no `andi`).
   Parameter names are read off its asm: an
   8-byte record of `gSpriteDefs` with the page and mode packed into the
   first halfword, the CLUT into the second, and four bytes.

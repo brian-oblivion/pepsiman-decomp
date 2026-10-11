@@ -2,7 +2,7 @@
 
 > Renamed from `func_800197E4` on 2026-10-10 (tools/rename.py). Address 0x800197e4.
 
-Unit `src/code_7d74.c`. Finds the first free slot (key -1) among the
+Unit `src/model.c`. Finds the first free slot (key -1) among the
 SlotList's used slots; when there is one it marks it free again, and if it
 was the last used slot it pops the free slots off the end of the list
 (`count--` while the slot below is free). Returns the slot it stopped on,

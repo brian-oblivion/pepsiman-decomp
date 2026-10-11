@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001B9A4` on 2026-10-10 (tools/rename.py). Address 0x8001b9a4.
 
-Unit `src/code_a0bc.c`. The quad twin of SortTmdDivF3: the subdividing
+Unit `src/draw.c`. The quad twin of SortTmdDivF3: the subdividing
 handler for flat unlit quads (`TmdF4`, handler table row 4, column 7). Per
 front-facing quad: depth from the screen Zs over 4, a depth-cued POLY_F4
 one OT slot further in unless the transform overflowed, and under depth

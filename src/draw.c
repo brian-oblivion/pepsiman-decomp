@@ -1,5 +1,5 @@
 #include "common.h"
-#include "code_a0bc.h"
+#include "draw.h"
 #include "gte.h"
 
 /** @brief A flat, unlit TMD triangle: a header, its colour and three
@@ -187,7 +187,7 @@ typedef struct {
     u8 h;      /**< height */
 } SpriteDef;
 
-/* MATCHING: this unit's view of the table code_1a098 copies as halfwords. */
+/* MATCHING: this unit's view of the table object copies as halfwords. */
 extern SpriteDef gSpriteDefs[];
 
 /** @brief A 2D sprite placement: a position, the pivot it is scaled and
@@ -242,7 +242,7 @@ PACKET *SortTmdFastG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shif
 PACKET *SortTmdFastG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift, GsOT *ot);
 
-/* Handlers code_11dc4 defines; their parameter types are that unit's. */
+/* Handlers draw_tmd defines; their parameter types are that unit's. */
 /* MATCHING: a per-unit view; here they only fill the PrimFunc table. */
 PACKET *SortTmdFastFT4();
 PACKET *SortTmdFastGT3();

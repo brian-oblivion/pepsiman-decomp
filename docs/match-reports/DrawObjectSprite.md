@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002B8F8` on 2026-10-11 (tools/rename.py). Address 0x8002b8f8.
 
-Unit `src/code_1a098.c`. Draws the sprite of a Rec3C record `r` with id
+Unit `src/object.c`. Draws the sprite of a Rec3C record `r` with id
 `id`: a coordinate system at the record's position plus the world offset
 `gWorldShift`, the next id when the record is in state 1 within 600 units
 (and the mode is not 0x20), a size from the record's width and height by
@@ -10,7 +10,7 @@ the id's shape (`D_800A7618[id - 30]`: 0 to 3), mirrored by flag bit 6,
 then `DrawStandingBillboard` into `gSubOt` within 700 units or
 `DrawStandingBillboardFog` into `gOt` beyond.
 
-The matched body is live in `src/code_1a098.c`. Earlier title: "STALL: length exact, 193/213 raw, first real diff at 0x8002B9A4 (register choice in the range tests) (round 9, charlie)".
+The matched body is live in `src/object.c`. Earlier title: "STALL: length exact, 193/213 raw, first real diff at 0x8002B9A4 (register choice in the range tests) (round 9, charlie)".
 The round-9 residue and levers below are kept as history.
 
 ## Residue (round 9)

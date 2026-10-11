@@ -2,7 +2,7 @@
 
 > Renamed from `func_800350C8` on 2026-10-11 (tools/rename.py). Address 0x800350c8.
 
-Unit `src/code_24748.c`. Twin of EditHitQuads (same 162 words, other
+Unit `src/hit_tool.c`. Twin of EditHitQuads (same 162 words, other
 bank). Deletes a record from the first record bank: state 0 of
 `gSubStep` resets the record index; state 1 steps and clamps it within
 the current entry's records, shows the record (`DrawToolPin` /

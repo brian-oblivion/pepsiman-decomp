@@ -3,8 +3,8 @@
 #include "libgpu.h"
 #include "libetc.h"
 #include "libgs.h"
-#include "code_a0bc.h"
-#include "code_7d74.h"
+#include "draw.h"
+#include "model.h"
 #include "spad.h"
 
 /** @brief Eight bytes, copied together as one unaligned block. */
@@ -50,7 +50,7 @@ typedef struct {
     s16 count; /**< the number of entries */
 } Run;
 
-/* MATCHING: a per-unit view; code_1a098 types the same list as Zone4. */
+/* MATCHING: a per-unit view; object types the same list as Zone4. */
 extern Run *gStageRuns;
 extern Run *gPropRuns;
 extern s8 *gPropRunObjs;
@@ -452,7 +452,7 @@ typedef struct {
     u8 cd; /**< code byte */
 } SColor;
 
-/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
+/* MATCHING: draw takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);

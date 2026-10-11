@@ -12,7 +12,7 @@ into `gBgmVab[bank]`, then transfers the body (offset word 4) and
 waits for the transfer. Returns -1 (and sets `gVabError`) when the open
 fails, 0 otherwise.
 
-The body is live in `src/code_31cec.c`. Round 10's best body, 66/76, is
+The body is live in `src/sound.c`. Round 10's best body, 66/76, is
 kept below for the record; Round 13 has the two changes that closed it.
 
 ```c

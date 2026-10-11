@@ -2,7 +2,7 @@
 
 > Renamed from `func_80030278` on 2026-10-11 (tools/rename.py). Address 0x80030278.
 
-Unit `src/code_1dc24.c`. Copies three box sizes from rodata
+Unit `src/editor.c`. Copies three box sizes from rodata
 `D_800110EC` into a local, clears every used 0x5C-byte record of
 `D_800CF080` to 0 while counting them into `sTotals.unk16` (error 8 when
 all 200 are used), moves `sTotals.unk12` to a free record if the current
@@ -27,7 +27,7 @@ free record (error 8 when none). Second build matched.
 - New unit-local `Rec5Cv` view (`#define sRecs5C`), `Size2`/`Sizes3`,
   `extern Sizes3 D_800110EC` (the rodata stays `INCLUDE_RODATA`), and a
   per-unit view `void SetBoxCentred(Rec5Cv *b, s16 w, s16 d)` (MATCHING
-  note; code_1a098 defines it on its `Box4`).
+  note; object defines it on its `Box4`).
 
 ```c
 s32 EditorPlaceBox(void) {

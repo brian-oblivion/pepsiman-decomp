@@ -2,7 +2,7 @@
 
 > Renamed from `func_80027A00` on 2026-10-11 (tools/rename.py). Address 0x80027a00.
 
-Unit `src/code_13068.c`. The twin of SteerMode3 for another mode:
+Unit `src/player.c`. The twin of SteerMode3 for another mode:
 pad bits 0x8000/0x2000 call `ApplySteer(3|2, 16, 5)` and nudge the
 lateral speed `D_800959B2` by -/+4, otherwise byte 5 becomes 0x58 and the
 speed decays by 2; on stages 3 and 10 the value 0x34C is pinned below its

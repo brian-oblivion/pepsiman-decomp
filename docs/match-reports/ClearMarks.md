@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C5A4` on 2026-10-11 (tools/rename.py). Address 0x8002c5a4.
 
-Unit `src/code_1a098.c`. Clears byte 0 of the first `count` records of a
+Unit `src/object.c`. Clears byte 0 of the first `count` records of a
 table of 0x5C-byte records (`Rec5C`, the type `ClearRec5CAll` and
 `ClearRec5CUpper` walk). First build matched.
 

@@ -7,12 +7,12 @@
 #include "libapi.h"
 #include "libcd.h"
 #include "libsnd.h"
-#include "code_31cec.h"
+#include "sound.h"
 #include "libmcrd.h"
 #include "memory.h"
-#include "code_a0bc.h"
-#include "code_7d74.h"
-#include "code_1a098.h"
+#include "draw.h"
+#include "model.h"
+#include "object.h"
 #include "spad.h"
 
 INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
@@ -23,7 +23,7 @@ typedef struct {
     s32 b; /**< second word */
 } Pair8;
 
-/* MATCHING: per-unit views; code_29f54 reads the same pairs as words. */
+/* MATCHING: per-unit views; stage reads the same pairs as words. */
 extern Pair8 gBestCans[];
 extern Pair8 gBestTimes[];
 extern Pair8 gTargetTimes[];
@@ -416,7 +416,7 @@ extern s32 D_80072484[];
 extern s32 D_800724C4[];
 void func_80013CDC(void);
 
-/* MATCHING: code_7d74 types the pack as its own PackEntry. */
+/* MATCHING: model types the pack as its own PackEntry. */
 void LoadTimPack(void *pack);
 
 s8 LoadBootData(void) {
@@ -492,7 +492,7 @@ typedef struct {
 #define sStepper (*(Stepper *)gPlayer)
 
 /** @brief A model object with its own coordinate system (a unit-local
- *         copy of code_1a098's view). */
+ *         copy of object's view). */
 typedef struct {
     GsDOBJ2 obj;         /**< the object handler */
     GsCOORDINATE2 coord; /**< the object's coordinate system */
@@ -507,7 +507,7 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
-/* MATCHING: per-unit view; code_7d74.c reads it as a word array. */
+/* MATCHING: per-unit view; model.c reads it as a word array. */
 extern Model70 D_800963A0;
 
 /** @brief A 0x78-byte model slot: a Model70 and 8 bytes not yet known. */
@@ -516,16 +516,16 @@ typedef struct {
     u8 unk70[8]; /**< not yet known */
 } ModelSlot;
 
-/* MATCHING: code_13068 has its own view of these slots. */
+/* MATCHING: player has its own view of these slots. */
 extern ModelSlot D_800D8370[];
 extern u8 D_8009EF50[];
 extern u8 D_80096418[];
 
-/* MATCHING: code_1a098 defines it on its own Model70 view. */
+/* MATCHING: object defines it on its own Model70 view. */
 void InitModel(Model70 *m, unsigned long *tmd, u8 n);
-/* MATCHING: code_7d74 types the list, slots and data as its own records. */
+/* MATCHING: model types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
-/* MATCHING: code_308ec passes the game state's head in its own view. */
+/* MATCHING: stage_flow passes the game state's head in its own view. */
 u8 StepAnimation(Stepper *obj, u16 index, u8 arg);
 
 void func_80013CDC(void) {
@@ -960,7 +960,7 @@ extern u8 D_80072F44[];
 extern u8 gPadBuf[];
 extern s32 D_80095928;
 extern s32 D_80095920;
-/* MATCHING: code_1dc24 declares it too; both reach it the same way. */
+/* MATCHING: editor declares it too; both reach it the same way. */
 extern s32 D_80095950;
 
 extern s32 D_80095854;
@@ -1328,7 +1328,7 @@ extern s32 D_80073FAC[];
 extern CdlLOC D_80074060[];
 extern s32 D_80074084[];
 
-/* MATCHING: code_31cec defines it with a u16 bank; this caller passes it
+/* MATCHING: sound defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
 s32 LoadVabBank(s32 bank);
 void LoadAct3Data(unsigned long *p);
@@ -1491,11 +1491,11 @@ extern s32 D_80073FF0[];
 extern CdlLOC D_80074018[];
 extern s32 D_80074038[];
 
-/* MATCHING: code_29f54 defines it and has no header to declare it. */
+/* MATCHING: stage defines it and has no header to declare it. */
 void LoadStageData(unsigned long *p);
 /* MATCHING: a per-unit view; DirEnt16 is this unit's view of the directory. */
 void LoadSpritePack(DirEnt16 *dir, u16 id);
-/* MATCHING: code_1dc24 types both as its own BankFile. */
+/* MATCHING: editor types both as its own BankFile. */
 void SetHitBanks(void *a, void *b);
 void RestoreStageObjects(void);
 s32 LoadStageSprites(void);

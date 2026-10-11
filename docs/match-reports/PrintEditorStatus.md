@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002DC44` on 2026-10-11 (tools/rename.py). Address 0x8002dc44.
 
-Unit `src/code_1dc24.c`. The tool's status panel, printed every frame from
+Unit `src/editor.c`. The tool's status panel, printed every frame from
 UpdateEditor: the sync count (two colour codes past 400 and 450), the grid
 step, the block, the position (copied into `D_800ACED0`), the record counts
 and the current item, a frame around it, the INFO / DELETE line, then one

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003C17C` on 2026-10-10 (tools/rename.py). Address 0x8003c17c.
 
-Unit `src/code_29f54.c`. DrawFrozenFrame with a brightness parameter:
+Unit `src/stage.c`. DrawFrozenFrame with a brightness parameter:
 the same two sprite registrations and `MoveImage`, then both sprites drawn
 in colour (-1, level, level, level) with mode 0xFFF into the
 `gOt` ordering tables instead of `gSubOt`.

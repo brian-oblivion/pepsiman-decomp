@@ -2,7 +2,7 @@
 
 > Renamed from `func_80031064` on 2026-10-11 (tools/rename.py). Address 0x80031064.
 
-Unit `src/code_1dc24.c`. The Obj48 record picker: counts the live records
+Unit `src/editor.c`. The Obj48 record picker: counts the live records
 of the 200-entry table `D_800A9008` into `sTotals.unk1A`; in state 0
 (`gSubStep`) picks the record nearest the game position by
 `DistanceSquared` into `sTotals.unk18` (error 9 in `gToolMode` with no
@@ -33,9 +33,9 @@ Fourth build matched.
 
 ## Declarations
 
-- `DistanceSquared` (code_1902c, no header) prototyped in this `.c` as
-  `s32 (VECTOR *, VECTOR *)`, code_1902c's own definition.
-- `config/typeviews-warnings.txt`: one more code_1dc24 "control reaches
+- `DistanceSquared` (collision, no header) prototyped in this `.c` as
+  `s32 (VECTOR *, VECTOR *)`, collision's own definition.
+- `config/typeviews-warnings.txt`: one more editor "control reaches
   end of non-void function".
 
 ```c
@@ -84,7 +84,7 @@ s32 EditorPickRecord(void) {
 }
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)
 
 ### Proposed learning
 

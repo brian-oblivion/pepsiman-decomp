@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001A950` on 2026-10-10 (tools/rename.py). Address 0x8001a950.
 
-Unit `src/code_a0bc.c`. The rotating twin of DrawBillboard: copies the
+Unit `src/draw.c`. The rotating twin of DrawBillboard: copies the
 billboard matrix `GsIDMATRIX`, rotates the copy by `angle` about Z
 (`RotMatrixZ`), loads it, and draws sprite `id` of `gSpriteDefs` centred on
 the origin in x and y into a POLY_FT4 in `GsOUT_PACKET_P`, linked at its

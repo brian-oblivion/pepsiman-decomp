@@ -51,7 +51,7 @@ and the `&sGame` pair sank below them; sched2 then breaks its ties by
 LUID and gives the build's order.
 
 Retail's second goal path passes ONE argument. `func_80018CAC` (empty in
-code_7d74) is declared unprototyped in this unit, `void
+model) is declared unprototyped in this unit, `void
 func_80018CAC();`; the first path calls `func_80018CAC(&sGame, d)` (that
 call is still what gives `d` its `$a1` preference) and the second
 `func_80018CAC(&sGame)`. With no `$a1` copy the `$a0` copy is scheduled
@@ -92,7 +92,7 @@ Levers tried this round before it:
   sign-extended into `` at all four sites in retail. One local `d`
   (`state->unk398 -= 7; d = state->unk398; state->unk34C -= d;`) and
   case 8 passing it as `func_80018CAC(&sGame, d)` (an empty function in
-  code_7d74; retail's `` is set there) gives global-alloc a hard-reg
+  model; retail's `` is set there) gives global-alloc a hard-reg
   preference for `` for the whole pseudo. An `s16` local
   re-extends at the call; the `d = (s16)(x - 7); x = d;` order stores
   the extended register.

@@ -2,7 +2,7 @@
 
 > Renamed from `func_800428B0` on 2026-10-10 (tools/rename.py). Address 0x800428b0.
 
-Unit `src/code_31cec.c`. Initialises libsnd: `SsInit`, a sequence table
+Unit `src/sound.c`. Initialises libsnd: `SsInit`, a sequence table
 of 9 sequences by 1 slot at `D_800E0588`, and tick mode 1.
 
 ```c

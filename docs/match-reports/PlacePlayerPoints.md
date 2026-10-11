@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028984` on 2026-10-10 (tools/rename.py). Address 0x80028984.
 
-Unit `src/code_1902c.c`. Fills the 25-point table `gPlayerPoints`: copies a
+Unit `src/collision.c`. Fills the 25-point table `gPlayerPoints`: copies a
 25-entry table of local points (three words plus a coordinate-system index
 byte, 16 bytes each) to the stack, then for each point gets the local-world
 matrix of `D_800D86E0[coord]` (`GsGetLws`), sets it and `RotTrans`es the
@@ -12,12 +12,12 @@ read.
 Both copies are a local's initialisers in the original source: cc1 places
 an aggregate initialiser as an anonymous constant and block-copies it.
 splat named the 3-byte one `D_800954F0` (in `.sdata`) and the 400-byte one
-`D_80010950`, which sits in the rodata range the yaml gives code_13068
-(0x80010950 < 0x80010B20, code_1902c's rodata start). Writing the
+`D_80010950`, which sits in the rodata range the yaml gives player
+(0x80010950 < 0x80010B20, collision's rodata start). Writing the
 initialisers here would emit both again in this unit, so the body copies
 from externs instead. A scratch compile with real initialisers gives the
 same instruction order as retail; a reviewer may want to move the
-code_1902c rodata boundary down to 0x80010950 (yaml decision, not made
+collision rodata boundary down to 0x80010950 (yaml decision, not made
 here).
 
 Levers:
@@ -31,9 +31,9 @@ Levers:
 - Swapping the two copy statements is worse (59/88).
 - The frame has 24 unreferenced bytes at sp+0x10 and 8 between the
   `VECTOR` and the byte copy: `s32 unused0[6];` and `s32 unused[2];` (the
-  same 8-byte gap as LocalToWorld in code_1a098).
+  same 8-byte gap as LocalToWorld in object).
 
-`D_800D86E0` comes from `include/code_1a098.h`, which this unit now
+`D_800D86E0` comes from `include/object.h`, which this unit now
 includes.
 
 ```c

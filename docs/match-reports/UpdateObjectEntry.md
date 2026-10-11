@@ -2,11 +2,11 @@
 
 > Renamed from `func_8002A7D8` on 2026-10-11 (tools/rename.py). Address 0x8002a7d8.
 
-Unit `src/code_1a098.c`. Runs DrawObjectModel on the Rec78 entry, clears
+Unit `src/object.c`. Runs DrawObjectModel on the Rec78 entry, clears
 `r->unk40`, then places each of the entry's first-buffer records
 (`gLivePoints`, 0x2C bytes, `Placed2C`: UpdatePlacedPos) and ORs bit 0 of
 CollidePlayer's answer into `r->unk40`. When the game head's byte 2 is set
-it runs code_1902c's PlaceCollisionQuad / GetQuadHeightUnderPlayer over the entry's
+it runs collision's PlaceCollisionQuad / GetQuadHeightUnderPlayer over the entry's
 second-buffer records (`gLiveQuads`, 0x4C bytes) and copies a hit
 (`D_80095898 == 1`, with the word `D_8009589C`) to the head at 0x3B8 and
 0x3CC.
@@ -15,10 +15,10 @@ second-buffer records (`gLiveQuads`, 0x4C bytes) and copies a hit
 /* The result of a second-buffer record's test: a flag, then a word. */
 extern s8 D_80095898;  /**< 1 on a hit */
 extern s32 D_8009589C; /**< the word reported with a hit */
-/* MATCHING: per unit this round; code_24748 declares both the same way. */
+/* MATCHING: per unit this round; hit_tool declares both the same way. */
 extern u8 gLivePoints[]; /**< 0x2C-byte placed records (Placed2C) */
 extern u8 gLiveQuads[]; /**< 0x4C-byte records */
-/* code_1902c's tests of a 0x4C-byte record; types not yet known. */
+/* collision's tests of a 0x4C-byte record; types not yet known. */
 void PlaceCollisionQuad(void *rec);
 void GetQuadHeightUnderPlayer(void *rec, s8 *out);
 
@@ -74,11 +74,11 @@ the second loop's back branch, where the build filled them (the `move
 s2, a1` and the next pass's `sll`). `s32` with no `return` closed both
 (LEARNINGS, "a near-miss that differs only in delay slots").
 
-Shared changes: `include/code_1a098.h`'s prototype is now `s32` (it was
-`void`); the callers in code_1dc24 and code_24748 ignore the value and the
+Shared changes: `include/object.h`'s prototype is now `s32` (it was
+`void`); the callers in editor and hit_tool ignore the value and the
 image matches. One `control reaches end` line added to
 `config/typeviews-warnings.txt`. `gLivePoints` / `gLiveQuads` are declared
-in this unit as code_24748 declares them; declcheck flags code_24748's two
+in this unit as hit_tool declares them; declcheck flags hit_tool's two
 lines as LOCAL until the merge moves both declarations to `common.h`.
 
 ### Proposed learning

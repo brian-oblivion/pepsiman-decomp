@@ -4,11 +4,11 @@
 
 **Resolved by the head after round 5:** maspsx now gets each unit's own gp
 list (`config/gp/<unit>.txt`, from tools/gpsyms.py): only the symbols retail
-reaches through `$gp` from that unit's code. `gViewerMotion` is reached `$gp` from main, `lui` from code_7d74,
+reaches through `$gp` from that unit's code. `gViewerMotion` is reached `$gp` from main, `lui` from model,
 so it is no longer gp-relative here and the body is live. Original title:
 SelectViewerMotion — STALL (gp seam): 9 words short, 7/51, first diff at word 6 (+0x18, the first gViewerMotion access)
 
-Unit `src/code_7d74.c`, parked under `#ifdef NON_MATCHING` with the
+Unit `src/model.c`, parked under `#ifdef NON_MATCHING` with the
 `INCLUDE_ASM` in its `#else`. Round 5, runner charlie.
 
 Steps a signed level byte `gViewerMotion` up on flag 0x10 and down on flag

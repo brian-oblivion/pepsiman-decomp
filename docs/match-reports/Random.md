@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017B18` on 2026-10-10 (tools/rename.py). Address 0x80017b18.
 
-Unit `src/code_7d74.c`. A wrapper that returns Sony's `rand()`.
+Unit `src/model.c`. A wrapper that returns Sony's `rand()`.
 
 ```c
 s32 Random(void) {

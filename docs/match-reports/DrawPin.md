@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033F48` on 2026-10-11 (tools/rename.py). Address 0x80033f48.
 
-Unit `src/code_24748.c`. Draws a bobbing marker above a world position: the
+Unit `src/hit_tool.c`. Draws a bobbing marker above a world position: the
 position plus the offset in `gWorldShift[0]`/`[2]` and, in y, a sine bob of
 amplitude 10 around -200 (phase `gFrameCount * 10` degrees, converted to
 libgte's 4096-per-turn units), projected by `ProjectToScreen`, then sprite
@@ -33,7 +33,7 @@ void DrawPin(VECTOR *pos) {
   `/ 360` are unsigned (`srl 3` then `multu` by 0x16C16C17), so `u32`.
 - `gWorldShift`: `s32 []` in `common.h`, split `lui`/`%lo` as retail.
 - Stack: `size` 0x18, `world` 0x20, `screen` 0x30, in declaration order.
-- `ProjectToScreen` is defined in `code_13068.c` with `VECTOR *`/`SVECTOR *`
+- `ProjectToScreen` is defined in `player.c` with `VECTOR *`/`SVECTOR *`
   parameters. Its prototype cannot go into `include/common.h`, which is
   included before `libgte.h` (VECTOR undefined there: "parse error before
   `*'", tried); it sits in this unit's `.c`, which declcheck reports as

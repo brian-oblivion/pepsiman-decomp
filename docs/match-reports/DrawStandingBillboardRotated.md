@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001ACB4` on 2026-10-10 (tools/rename.py). Address 0x8001acb4.
 
-Unit `src/code_a0bc.c`. The rotating twin of DrawStandingBillboard: copies the
+Unit `src/draw.c`. The rotating twin of DrawStandingBillboard: copies the
 billboard matrix `GsIDMATRIX`, rotates the copy by `angle` about Z
 (`RotMatrixZ`), loads it, and draws sprite `id` of `gSpriteDefs` as a quad
 standing on y = 0 into a POLY_FT4 in `GsOUT_PACKET_P`. The angle is an `s16`

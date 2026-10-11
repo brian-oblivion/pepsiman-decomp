@@ -2,7 +2,7 @@
 
 > Renamed from `func_800196E4` on 2026-10-10 (tools/rename.py). Address 0x800196e4.
 
-Unit `src/code_7d74.c`. Linear search of a `SlotList` for the 16-byte slot
+Unit `src/model.c`. Linear search of a `SlotList` for the 16-byte slot
 whose `+0xC` word equals `key`; returns the slot or NULL.
 
 ```c

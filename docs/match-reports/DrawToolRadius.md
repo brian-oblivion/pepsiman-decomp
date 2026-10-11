@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036AB8` on 2026-10-11 (tools/rename.py). Address 0x80036ab8.
 
-Unit `src/code_24748.c`. Draws one sprite at a world position: a world-rooted
+Unit `src/hit_tool.c`. Draws one sprite at a world position: a world-rooted
 `GsCOORDINATE2` translated to `(-x, y, -z)`, its local-screen matrix set with
 `GsGetLs`/`GsSetLsMatrix`, then `DrawBillboard` (handwritten GTE code) with
 sprite 0x15D, a square size of `scale * 2`, a grey colour and the current

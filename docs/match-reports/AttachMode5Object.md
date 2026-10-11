@@ -2,7 +2,7 @@
 
 > Renamed from `func_800287F4` on 2026-10-11 (tools/rename.py). Address 0x800287f4.
 
-Unit `src/code_13068.c`. When the high nibble of `D_8009EF48[0]` is 5,
+Unit `src/player.c`. When the high nibble of `D_8009EF48[0]` is 5,
 stores the address of `D_800D8960` in `D_800D8440[0]` and sets
 `D_800D38DE[0]` to 1.
 

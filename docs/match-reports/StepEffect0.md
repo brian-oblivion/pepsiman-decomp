@@ -33,7 +33,7 @@ unknown" they end on is inlining.
 
 ## Round 5 (bravo)
 
-Unit `src/code_29f54.c`. A 9-frame sprite animation step on a `Slot`
+Unit `src/stage.c`. A 9-frame sprite animation step on a `Slot`
 record: while the record's delay (`unk2`) is non-zero, count it down and
 return 0. Otherwise set the local-screen matrix to (`x`, `y`, `z`) plus the
 record's offset (`unkC`, `unkE`, `unk10`), draw sprite `0x11A + frame`
@@ -43,7 +43,7 @@ through DrawBillboard at size 0x96, colour (1, 0x80, 0x80, 0x80), into
 The body is parked under `#ifdef NON_MATCHING` in the unit.
 
 ```c
-#include "code_a0bc.h" /* DrawBillboard */
+#include "draw.h" /* DrawBillboard */
 /* Slot: the unit's typedef (unk0 frame, unk2 delay, unkC/unkE/unk10 offset) */
 
 s32 StepEffect0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {

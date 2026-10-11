@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003A3F4` on 2026-10-10 (tools/rename.py). Address 0x8003a3f4.
 
-Unit `src/code_29f54.c`. Walks an index along a chain of 8-byte edge records
+Unit `src/stage.c`. Walks an index along a chain of 8-byte edge records
 (`gBoundaryEdges`, a pointer scalar reached `lui $v1` / `lw $v1` in one register:
 a plain `extern Edge *`). If the point (`x`, `y`) lies on the non-negative
 side of record `*index + 1` (dot product of its direction with the offset

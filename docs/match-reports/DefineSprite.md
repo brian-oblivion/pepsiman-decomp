@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001B2F4` on 2026-10-10 (tools/rename.py). Address 0x8001b2f4.
 
-Unit `src/code_a0bc.c`. Fills entry `idx` of the eight-byte table
+Unit `src/draw.c`. Fills entry `idx` of the eight-byte table
 `gSpriteDefs`: a halfword packing a byte with a bit-7 flag, a halfword packed
 like a CLUT id (`y << 6 | x >> 4`), then four bytes.
 
@@ -49,9 +49,9 @@ void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clu
 
 ## Declarations
 
-`code_1a098.c` declares `gSpriteDefs` locally as `Quad16[]` (four `s16`,
+`object.c` declares `gSpriteDefs` locally as `Quad16[]` (four `s16`,
 copied whole). This unit's stores need the halfword/byte view, kept local
-with a `MATCHING:` note. Referencing it from here makes code_1a098's
+with a `MATCHING:` note. Referencing it from here makes object's
 declaration a declcheck LOCAL; that unit is in this round, so it is left for
 the head (add a `MATCHING:` note there or share one declaration).
 

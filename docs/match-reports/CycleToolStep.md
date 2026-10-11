@@ -1,14 +1,14 @@
-# CycleToolStep — MATCHED (41/41) after moving code_24748's rodata start
+# CycleToolStep — MATCHED (41/41) after moving hit_tool's rodata start
 
 > Renamed from `func_80036FE8` on 2026-10-11 (tools/rename.py). Address 0x80036fe8.
 
-**Resolved by the head after round 7:** code_24748's `.rodata` yaml line now
+**Resolved by the head after round 7:** hit_tool's `.rodata` yaml line now
 starts at 0x1CDC, taking the five strings splat had left at the end of
-code_1dc24 (only PrintToolStatus references them). The unit's jump tables are
+editor (only PrintToolStatus references them). The unit's jump tables are
 then 8-aligned as cc1's `.align 3` expects, and the body is live. Original
 title: CycleToolStep — STALL (blocked by segmentation): length exact, 40/41, first diff 0x80037024 (round 7, echo)
 
-Unit `src/code_24748.c`. When flag bit 8 (0x100) of `gPadTrig` is set,
+Unit `src/hit_tool.c`. When flag bit 8 (0x100) of `gPadTrig` is set,
 steps `gToolStep` through the cycle 10 -> 20 -> 30 -> 40 -> 50 -> 10; any
 other value is left alone. The switch compiles to retail's 41-entry jump
 table `jtbl_800118F4`.
@@ -60,24 +60,24 @@ s32 CycleToolStep(void) {
 
 cc1 emits `.rdata` / `.align 3` before each jump table. `pepsiman.ld` links
 each unit's `.rodata` with `SUBALIGN(2)`, so a unit may start 4 mod 8, and
-the `.align 3` pads relative to the unit's start. Retail's code_24748 jump
+the `.align 3` pads relative to the unit's start. Retail's hit_tool jump
 tables (0x80011804, 0x80011824, 0x8001183C, 0x8001188C, 0x800118AC,
 0x800118F4) are all 4 mod 8 from splat's unit start 0x80011528, so cc1 pads
 each one by 4.
 
 The real start is 0x800114DC (file offset 0x1CDC): the five strings
 `D_800114DC`, `D_800114E8`, `D_800114F4`, `D_80011500` and `D_8001151C` that
-splat placed at the end of code_1dc24 (right after its last jump table,
+splat placed at the end of editor (right after its last jump table,
 `jtbl_80011494`, which ends at 0x800114DC) are referenced only by
-code_24748's `PrintToolStatus`. From 0x800114DC every code_24748 jump table is
+hit_tool's `PrintToolStatus`. From 0x800114DC every hit_tool jump table is
 0 mod 8. Every other unit checked has its jump tables 8-aligned from its own
-start (code_29f54, code_308ec, code_31958, code_31cec).
+start (stage, stage_flow, stage_overlay, sound).
 
 Experiment: those five `INCLUDE_RODATA` lines (folder unchanged) moved from
-the end of `src/code_1dc24.c` to the top of `src/code_24748.c`'s rodata, with
+the end of `src/editor.c` to the top of `src/hit_tool.c`'s rodata, with
 the `s32` body above live: `OK: build matches retail`, CycleToolStep 41/41.
 Reverted, since segmentation is the head's call: the clean fix is the yaml's
-code_24748 `.rodata` boundary 0x1D28 -> 0x1CDC (or the source move above).
+hit_tool `.rodata` boundary 0x1D28 -> 0x1CDC (or the source move above).
 It unblocks every switch-table function in this unit.
 
 ### Proposed learning

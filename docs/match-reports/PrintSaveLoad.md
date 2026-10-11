@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033D3C` on 2026-10-11 (tools/rename.py). Address 0x80033d3c.
 
-Unit `src/code_1dc24.c`. The SAVE/LOAD twin of PrintYesNo: the same
+Unit `src/editor.c`. The SAVE/LOAD twin of PrintYesNo: the same
 two-line menu with the labels `D_80095638` ("  SAVE\n") and `D_80095640`
 ("  LOAD\n").
 

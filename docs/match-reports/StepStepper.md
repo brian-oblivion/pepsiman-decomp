@@ -3,7 +3,7 @@
 > Renamed from `func_800173E8` on 2026-10-10 (tools/rename.py). Address 0x800173e8.
 
 Steps channel 0 of a `Stepper` object through `StepAnimation` (unit
-`code_7d74`), keeps the byte result at `+0x340`, and for kind `0x61` marks
+`model`), keeps the byte result at `+0x340`, and for kind `0x61` marks
 `+0x8` with `0xFF` when the result is zero.
 
 ```c

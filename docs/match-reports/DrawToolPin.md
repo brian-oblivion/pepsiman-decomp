@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036478` on 2026-10-11 (tools/rename.py). Address 0x80036478.
 
-Unit `src/code_24748.c`. The mirrored twin of `DrawPin`: the same
+Unit `src/hit_tool.c`. The mirrored twin of `DrawPin`: the same
 bobbing marker (sprite 0x15E, offset (-7, -32)), but x and z are the offset
 in `gWorldShift` MINUS the position.
 

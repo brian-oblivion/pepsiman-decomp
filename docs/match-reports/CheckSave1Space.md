@@ -2,7 +2,7 @@
 
 > Renamed from `func_80038574` on 2026-10-10 (tools/rename.py). Address 0x80038574.
 
-Unit `src/code_27bc8.c`. Sums the halfword at 0x14 of the first `gCardFileCount` 0x18-byte records of `gCardFiles` into an `s16`, and returns -1 if the sum is positive, 0 otherwise.
+Unit `src/card.c`. Sums the halfword at 0x14 of the first `gCardFileCount` 0x18-byte records of `gCardFiles` into an `s16`, and returns -1 if the sum is positive, 0 otherwise.
 
 ```c
 s16 CheckSave1Space(void) {

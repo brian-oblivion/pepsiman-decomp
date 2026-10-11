@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041E20` on 2026-10-10 (tools/rename.py). Address 0x80041e20.
 
-Unit `src/code_31cec.c`. Waits for the current movie frame to finish
+Unit `src/sound.c`. Waits for the current movie frame to finish
 decoding (`dec->isdone`), with the volatile countdown `gMovieTimeout`
 (0x800000). On a time-out it prints "time out in decoding !", forces
 `isdone`, flips the frame area index and points the decode slice at the

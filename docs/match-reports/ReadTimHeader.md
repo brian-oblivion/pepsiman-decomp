@@ -2,7 +2,7 @@
 
 > Renamed from `func_80017640` on 2026-10-10 (tools/rename.py). Address 0x80017640.
 
-Unit `src/code_7d74.c`. Parses a TIM header into the TimInfo at
+Unit `src/model.c`. Parses a TIM header into the TimInfo at
 `gTimInfo`: checks the 0x10 id, unpacks the pixel mode and the CLUT
 flag, records the CLUT's rect and data when present, then the image's
 rect and pixels, and the width scaled by mode (x4 at 4 bpp, x2 at 8 bpp,

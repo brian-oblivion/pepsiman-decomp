@@ -2,7 +2,7 @@
 
 > Renamed from `func_80020520` on 2026-10-10 (tools/rename.py). Address 0x80020520.
 
-Unit `src/code_a0bc.c`. The quad twin of SortTmdLitEnvMapGT3: the TMD handler for
+Unit `src/draw.c`. The quad twin of SortTmdLitEnvMapGT3: the TMD handler for
 lit gouraud-textured quads (`TmdGT4`) in SetTmdSortMode's modes 0 and 1. Per
 visible quad it writes a POLY_FT4 (code 0x2E, texture page 0x7B, CLUT
 0x722D, light 0's colour, UVs environment-mapped from the four rotated

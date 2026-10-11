@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003FFAC` on 2026-10-10 (tools/rename.py). Address 0x8003ffac.
 
-Unit `src/code_29f54.c`. A rising sprite step on a `Slot` record: count
+Unit `src/stage.c`. A rising sprite step on a `Slot` record: count
 the delay (`unk2`) down, else set the local-screen matrix to the position
 plus the record's offset, with `unk4 * frame` added to y, draw sprite 0x134
 at size 100 in colour (0, 0x80, 0x80, 0x80), advance the frame and return 1
@@ -31,6 +31,6 @@ First build. `setLs` is the inlined matrix set-up (StepEffect2's report).
 The unit's `Slot` typedef changed: `u8 unk4[8]` became `s16 unk4`,
 `s16 unk6`, `u8 unk8[4]` (retail reads 0x4 and 0x6 as halfwords here;
 nothing else in the unit used the old array). The typedef is local to
-`src/code_29f54.c`; the whole image stayed OK. The member comments for
+`src/stage.c`; the whole image stayed OK. The member comments for
 `unk0` (frame), `unk2` (delay) and `unkC`/`unkE`/`unk10` (offset) now
 say what these functions show them to be.

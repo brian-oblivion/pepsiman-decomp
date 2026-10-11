@@ -2,7 +2,7 @@
 
 > Renamed from `func_800278B0` on 2026-10-11 (tools/rename.py). Address 0x800278b0.
 
-Unit `src/code_13068.c`. When request byte `D_8009EF49[0]` is 1, takes
+Unit `src/player.c`. When request byte `D_8009EF49[0]` is 1, takes
 the first free 72-byte record of the slot table (`D_800959B8`, size in
 bytes `D_800959B4`), clears a per-stage counter and sets the record's
 kind from the stage number `gStage` (jump table `jtbl_80010918`),
@@ -68,7 +68,7 @@ void SpawnModeObject(void) {
 }
 ```
 
-`SlotRec` is a unit-local view of the record code_1902c calls
+`SlotRec` is a unit-local view of the record collision calls
 `Slot48` (only its free marker known there); the head may want to merge
 them into one shared type.
 
@@ -77,7 +77,7 @@ them into one shared type.
 - Loop written in the body (`goto found`): 64/84, length exact; the
   search's result went through a different register and the final `sll`
   sat inside the loop.
-- The search is code_1902c's `FindFreeSlot48` inlined: retail's `move
+- The search is collision's `FindFreeSlot48` inlined: retail's `move
   $v0, $v1` in the hit's delay slot and the `sll`/`sra` at the join
   are a return value truncated to `s16` after the merge. A `static
   __inline__` copy of it that loads the table itself: worse (the base
@@ -98,4 +98,4 @@ them into one shared type.
 A loop result moved to `$v0` in the hit's delay slot and sign-extended
 at the join (`sll`/`sra 16`): a `static __inline__ s16` helper
 returning the index; pass it the base the caller already loaded.
-(SpawnModeObject, inlining code_1902c's FindFreeSlot48)
+(SpawnModeObject, inlining collision's FindFreeSlot48)

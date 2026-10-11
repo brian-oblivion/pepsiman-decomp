@@ -2,7 +2,7 @@
 
 > Renamed from `func_80030548` on 2026-10-11 (tools/rename.py). Address 0x80030548.
 
-Unit `src/code_1dc24.c`. The box picker, the third of the unit's picker
+Unit `src/editor.c`. The box picker, the third of the unit's picker
 family (EditorPickRecord on Obj48, EditorPickSprite on Rec3C), here on the
 200-entry 0x5C-byte table `D_800CF080` (`sRecs5C`): counts the used records
 into `sTotals.unk16`, clearing each one's `unk0` to 0; in state 0 picks the
@@ -30,7 +30,7 @@ on flag bits 0 and 1. Second build matched.
 ## Declarations
 
 - None new (`DistanceSquared` came with EditorPickRecord).
-- `config/typeviews-warnings.txt`: one more code_1dc24 "control reaches
+- `config/typeviews-warnings.txt`: one more editor "control reaches
   end of non-void function".
 
 ```c
@@ -48,7 +48,7 @@ on flag bits 0 and 1. Second build matched.
             /* steps on bits 0 and 1 as EditorPickRecord */
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)
 
 ### Proposed learning
 

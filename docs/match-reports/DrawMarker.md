@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002964C` on 2026-10-10 (tools/rename.py). Address 0x8002964c.
 
-Unit `src/code_1902c.c`. Sets the local-screen matrix to a world
+Unit `src/collision.c`. Sets the local-screen matrix to a world
 coordinate at `pos`, then draws sprite 0x15D through DrawBillboard at
 twice `scale`, in grey (0, 0x80, 0x80, 0x80), into the current OT
 `&gSubOt[gActiveBuff]`.
@@ -32,7 +32,7 @@ void DrawMarker(VECTOR *pos, u16 scale) {
 ```
 
 First try. Notes for the next unit that calls DrawBillboard (many in
-code_29f54 do, with the same frame):
+stage do, with the same frame):
 
 - The frame is `SVECTOR` at 0x18, `CVECTOR` at 0x20, `GsCOORDINATE2` at
   0x28, `MATRIX` at 0x78, in declaration order above the 5th-argument slot.
@@ -41,5 +41,5 @@ code_29f54 do, with the same frame):
   `0x23, 0x22, 0x21`, as retail.
 - `gActiveBuff` is a scalar (`lui $v1` / `lw $v1, %lo($v1)`, same register,
   adjacent); `gSubOt` is the `GsOT` array (20-byte stride). Both are
-  declared in this unit only; `DrawBillboard`'s prototype (code_a0bc,
+  declared in this unit only; `DrawBillboard`'s prototype (draw,
   still asm) is this unit's view: `void`, five arguments.

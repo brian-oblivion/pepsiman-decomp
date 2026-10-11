@@ -37,7 +37,7 @@ declcheck LOCAL: the new prototypes for other units' functions
 (GetStageVabBank, LoadStageData, LoadSpritePack, InitEntryModels,
 SetHitBanks, RestoreStageObjects, LoadStageSprites, ResetStageObjects,
 StartStageOverlay). SetHitBanks is declared with `void *` parameters
-(code_1dc24 types them as its own `BankFile *`).
+(editor types them as its own `BankFile *`).
 
 ### Proposed learning
 

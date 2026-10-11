@@ -2,7 +2,7 @@
 
 > Renamed from `func_80042C14` on 2026-10-10 (tools/rename.py). Address 0x80042c14.
 
-Unit `src/code_31cec.c`. Mutes CD audio mixing (all four `CdlATV`
+Unit `src/sound.c`. Mutes CD audio mixing (all four `CdlATV`
 volumes 0) and sends `CdlPause` without waiting.
 
 ```c

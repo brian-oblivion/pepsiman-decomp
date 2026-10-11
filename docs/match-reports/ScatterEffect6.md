@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023020` on 2026-10-11 (tools/rename.py). Address 0x80023020.
 
-Unit `src/code_13068.c`. The twin of ScatterEffect4 with spawn id 6 instead
+Unit `src/player.c`. The twin of ScatterEffect4 with spawn id 6 instead
 of 4: `SpawnEffect(6, ...)` at `pos` with x and z jittered by a random
 offset in -80..79, y kept, last argument 1.
 

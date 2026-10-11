@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003A84C` on 2026-10-10 (tools/rename.py). Address 0x8003a84c.
 
-Unit `src/code_29f54.c`. Registers the race HUD's sprites with
+Unit `src/stage.c`. Registers the race HUD's sprites with
 DefineSprite (id, mode, w, h, texture page, u, v, CLUT x, CLUT y): the
 sprite sheet laid out as runs of equal cells in loops and single sprites
 in between.

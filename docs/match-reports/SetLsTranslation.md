@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003F8D4` on 2026-10-10 (tools/rename.py). Address 0x8003f8d4.
 
-Unit `src/code_29f54.c`. Sets the GS local-screen matrix to a pure
+Unit `src/stage.c`. Sets the GS local-screen matrix to a pure
 translation: a fresh `GsCOORDINATE2` under `WORLD` with `coord.t` = (x, y, z),
 then `GsGetLs` and `GsSetLsMatrix`.
 

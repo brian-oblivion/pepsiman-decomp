@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002BC4C` on 2026-10-11 (tools/rename.py). Address 0x8002bc4c.
 
-Unit `src/code_1a098.c`. For each of the 200 Rec48 records that is live
+Unit `src/object.c`. For each of the 200 Rec48 records that is live
 (`unk36 != -1`) and whose Rec5C record (`D_800CF080[unk34]`) is marked 1,
 calls `UpdateObjectEntry(&D_800D8D20[unk36], record)`.
 
@@ -24,8 +24,8 @@ First build. Indexing `sRecs48[i]` strength-reduces to the walking
 
 **Prototype fix.** `UpdateObjectEntry` (this unit, still asm) takes two
 arguments: its asm keeps `$a1` in `$s2` and clears byte 0x40 through it.
-code_24748.c declared it locally with one (`Rec78 *`). The prototype now
-lives in `include/code_1a098.h` (additive), code_24748.c includes that
+hit_tool.c declared it locally with one (`Rec78 *`). The prototype now
+lives in `include/object.h` (additive), hit_tool.c includes that
 header, its local prototype is gone, and its one call
 (RefreshToolPreview) passes the second argument it was already leaving in `$a1`:
 `UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);`. The whole

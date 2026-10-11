@@ -2,7 +2,7 @@
 
 > Renamed from `func_800387A8` on 2026-10-10 (tools/rename.py). Address 0x800387a8.
 
-Unit `src/code_27bc8.c`. The inverse of `EnableCardEvents`: the same eight event descriptors, in the same order, through libapi's `DisableEvent`.
+Unit `src/card.c`. The inverse of `EnableCardEvents`: the same eight event descriptors, in the same order, through libapi's `DisableEvent`.
 
 ```c
 void DisableCardEvents(void);

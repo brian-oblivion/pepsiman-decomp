@@ -27,7 +27,7 @@ words). The residue is the order and register use of the offset block:
 ```c
 #if 0
 /* MATCHING: this unit's views of the stage pointers; other units declare
- * their own (code_308ec, code_7d74, code_1a098, code_13068). */
+ * their own (stage_flow, model, object, player). */
 extern s32 D_800957F4;
 extern s32 gFloorData;
 extern s32 gSectionEdges;
@@ -96,7 +96,7 @@ void LoadStageData(s32 *hdr) {
 
 Needs the unit's `Run` and `Edge` typedefs and their `extern`s
 (`gStageRuns`, `gPropRuns`, `gStageRunObjs`, `gPropRunObjs`, `gBoundaryEdges`),
-all already above it in `src/code_29f54.c`; place it where the
+all already above it in `src/stage.c`; place it where the
 `INCLUDE_ASM` stands.
 
 ## Levers tried (about 25 builds, one search)
@@ -160,8 +160,8 @@ hdr[5]` (all as the table-first form).
 
 The definition takes `unsigned long *hdr`, main.c's prototype (identical
 code). Declcheck then needed `MATCHING:` notes on the other units' views of
-`D_80095790` (code_13068), `D_80095840` (code_308ec), `gSkyColors`
-(code_7d74) and on main.c's prototype; comments only.
+`D_80095790` (player), `D_80095840` (stage_flow), `gSkyColors`
+(model) and on main.c's prototype; comments only.
 
 ### Proposed learning
 

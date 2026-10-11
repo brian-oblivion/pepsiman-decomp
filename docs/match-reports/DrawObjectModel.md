@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002A5B0` on 2026-10-11 (tools/rename.py). Address 0x8002a5b0.
 
-Unit `src/code_1a098.c`. Places and sorts the model of a Rec78 entry
+Unit `src/object.c`. Places and sorts the model of a Rec78 entry
 (seen as `Model70`) for a Rec48 record (seen as `Obj34`): position
 plus the world offset `gWorldShift`, rotation from the record's angles,
 lights and scale, then `GsSortObject4` into `gOt` in mode
@@ -10,7 +10,7 @@ lights and scale, then `GsSortObject4` into `gOt` in mode
 otherwise `GsSortObject4` into `gSubOt`; the offset is taken off
 again at the end.
 
-The matched body is live in `src/code_1a098.c`. Earlier rounds'
+The matched body is live in `src/object.c`. Earlier rounds'
 title: "STALL: length exact, 120/138 raw, first real diff at 0x8002A70C
 (a range test's branch and delay slot) (round 9, charlie)". The
 round-9 residue and levers below are kept as history.

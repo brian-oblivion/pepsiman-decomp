@@ -2,7 +2,7 @@
 
 > Renamed from `func_800299D8` on 2026-10-11 (tools/rename.py). Address 0x800299d8.
 
-Unit `src/code_1a098.c`. The floor query: walks the faces of one zone of
+Unit `src/object.c`. The floor query: walks the faces of one zone of
 the floor data (`gFloorData` in its callers), skips faces with a zero
 flag, tests `pos` (x and z) against each edge of a triangle (`v[3] ==
 0xFFFF`) or a quad, and on the first face that contains it takes the
@@ -145,10 +145,10 @@ vertex address in the register that held its index. Dropping the
 `p0`..`p3` pointer locals and spelling every vertex read out through
 `VTX()` closed it.
 
-Declarations: code_7d74 declares this function locally as `s32 (void *,
+Declarations: model declares this function locally as `s32 (void *,
 s32, Vec3i *, s32)`; declcheck now reports that line as TYPE against this
 definition (`FloorHit *`, `VECTOR *`, `FloorHdr *`). The bytes do not
-care; the merge should give code_7d74's line a `MATCHING:` view note or
+care; the merge should give model's line a `MATCHING:` view note or
 share the types.
 
 ### Proposed learning

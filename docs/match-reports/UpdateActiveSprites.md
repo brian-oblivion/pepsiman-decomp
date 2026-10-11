@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002BD00` on 2026-10-11 (tools/rename.py). Address 0x8002bd00.
 
-Unit `src/code_1a098.c`. Walks the 100 Rec3C records (`D_800A7898`). For
+Unit `src/object.c`. Walks the 100 Rec3C records (`D_800A7898`). For
 each live one (`unk0 != -1`) whose Rec5C record (`D_800CF080[unk2C]`) has
 byte 0 equal to 1: a record with flag bit 7 runs StepSprite's body
 inlined (update, query, state 2 -> 3); a state-3 record runs the drift

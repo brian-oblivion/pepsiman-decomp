@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002B220` on 2026-10-11 (tools/rename.py). Address 0x8002b220.
 
-Unit `src/code_1a098.c`. The trap viewer's step, UpdateTrapViewer's
+Unit `src/object.c`. The trap viewer's step, UpdateTrapViewer's
 sibling with a state `gModeStep`: state 0 sets the fixed view, clears
 the fog and moves to 1; state 1 zeroes the start record `D_80096788`,
 turns it with the frame counter and has CallStageHook fill the Rec48
@@ -12,7 +12,7 @@ changes), places record 0 on its Rec78 entry and every further record
 relative to it (TransformByCoord into `D_8009F268`), draws the axes; every
 state prints the entry number.
 
-The matched body is live in `src/code_1a098.c`. Earlier title: "STALL: length exact, 219/247 raw, first real diff at 0x8002B438 (register choice from there on) (round 9, charlie)".
+The matched body is live in `src/object.c`. Earlier title: "STALL: length exact, 219/247 raw, first real diff at 0x8002B438 (register choice from there on) (round 9, charlie)".
 The round-9 residue and levers below are kept as history.
 
 ## Residue (round 9)

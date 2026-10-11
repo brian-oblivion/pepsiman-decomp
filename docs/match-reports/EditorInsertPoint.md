@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002FDB4` on 2026-10-11 (tools/rename.py). Address 0x8002fdb4.
 
-Unit `src/code_1dc24.c`. On flag bit 5: error 8 in `gToolMode` when
+Unit `src/editor.c`. On flag bit 5: error 8 in `gToolMode` when
 `sTotals.unk26` is 200, error 7 when there is no current entry
 (`D_80095824 == -1`); otherwise shifts the block's 8-byte points
 (`D_800959C4`) up by one from the end of the current entry, writes the
@@ -51,12 +51,12 @@ object identical apart from addresses, so AGREE (check 3).
 ## Declarations
 
 - `Span8` (an entry as `start`, `count` words) and `Pt8` (an 8-byte point,
-  three `s16` and a `u16`): unit-local views. code_1a098.h's `Ent8` is the
+  three `s16` and a `u16`): unit-local views. object.h's `Ent8` is the
   same entry seen as halfwords.
 - `BlockCur` / `sCur`: the unit's member view of `D_800959C0` and
   `D_800959C4` (see 1), with a `MATCHING:` note.
 - `D_80095824` (`s32`) declared in the unit. `gToolMode` moved from
-  code_24748.c to `include/common.h`, type unchanged (declcheck).
+  hit_tool.c to `include/common.h`, type unchanged (declcheck).
 
 ```c
 void EditorInsertPoint(void) {

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80019730` on 2026-10-10 (tools/rename.py). Address 0x80019730.
 
-Unit `src/code_7d74.c`. Takes a slot for `key` from a SlotList: the first
+Unit `src/model.c`. Takes a slot for `key` from a SlotList: the first
 free slot (key -1) among the used ones, else the next unused slot if the
 list has capacity left (growing `count`), else NULL. The slot gets the key,
 its flag word and `unk8` cleared, and its coordinate system (`unk4`)

@@ -41,7 +41,7 @@ matched.
   `u8 unk24[2]`.
 - New unit-local `Bytes8` (`u8 b[8]`).
 - `GetQuad16` declared in this `.c` as `(s32 i, Bytes8 *out)` with a
-  `MATCHING:` note (code_1a098 defines `(u16, Quad16 *)`; retail passes the
+  `MATCHING:` note (object defines `(u16, Quad16 *)`; retail passes the
   index unextended). `DrawHeadingLine` (defined later in this unit)
   prototyped at the top.
 - All unit-local; whole oracle green.
@@ -84,7 +84,7 @@ void EditorEditSpriteValues(void) {
 }
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)
 
 ### Proposed learning
 

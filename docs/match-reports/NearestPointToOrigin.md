@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E1FC` on 2026-10-10 (tools/rename.py). Address 0x8003e1fc.
 
-Unit `src/code_29f54.c`. Leaf. Writes to `out` the foot of the perpendicular
+Unit `src/stage.c`. Leaf. Writes to `out` the foot of the perpendicular
 from the origin to the line through (x0, y0) and (x1, y1), relative to
 (x0, y0): `t * d / |d|^2` with `d = p1 - p0` and `t = -(p0 . d)`.
 

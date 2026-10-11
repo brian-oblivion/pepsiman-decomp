@@ -2,7 +2,7 @@
 
 > Renamed from `func_800384DC` on 2026-10-10 (tools/rename.py). Address 0x800384dc.
 
-Unit `src/code_27bc8.c`. Points `gCardFileName` at the name
+Unit `src/card.c`. Points `gCardFileName` at the name
 `"BISLPS-12345PEPTOOL"` (rodata `D_800119B4`) and looks for it among the
 first `gCardFileCount` 0x18-byte records of `gCardFiles`, comparing 0x14 bytes
 with `CompareBytes`. Returns 0 if found, -1 if not. `FindSave2` is the

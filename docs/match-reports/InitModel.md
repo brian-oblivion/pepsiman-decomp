@@ -37,7 +37,7 @@ Fourth build.
   (`$s0`/`$s1`).
 - Build 4, a second in-place step `tmd += 2;` before the link call: 42/42.
 
-`gSectionCount` was a local extern in code_24748.c; it moved to
+`gSectionCount` was a local extern in hit_tool.c; it moved to
 `include/common.h` (additive, `s16` as before) and the local copy was
 deleted.
 

@@ -35,7 +35,7 @@ it is clamped to the entry. About 20 builds.
 ## Declarations
 
 - `Totals28` (unit-local) gains `u16 unk22`.
-- `DrawPin(VECTOR *pos)` (code_24748) declared in the `.c` with
+- `DrawPin(VECTOR *pos)` (hit_tool) declared in the `.c` with
   `TransformByCoord` under one MATCHING note: their units have no header.
 
 ```c

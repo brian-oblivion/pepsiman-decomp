@@ -2,7 +2,7 @@
 
 > Renamed from `func_80018CB4` on 2026-10-10 (tools/rename.py). Address 0x80018cb4.
 
-Unit `src/code_7d74.c`. Sets the projection distance to 250 and a
+Unit `src/model.c`. Sets the projection distance to 250 and a
 reference view at (0, 0, 4000) looking at the origin, then applies it with
 `GsSetRefView2`.
 

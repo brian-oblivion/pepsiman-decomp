@@ -1,9 +1,9 @@
-#ifndef CODE_A0BC_H
-#define CODE_A0BC_H
+#ifndef DRAW_H
+#define DRAW_H
 
 /**
- * @file code_a0bc.h
- * @brief What other units call in code_a0bc: the sprite drawer and the
+ * @file draw.h
+ * @brief What other units call in draw: the sprite drawer and the
  *        ordering tables it draws into.
  */
 

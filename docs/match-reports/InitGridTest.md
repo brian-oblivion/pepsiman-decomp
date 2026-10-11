@@ -2,11 +2,11 @@
 
 > Renamed from `func_800229A8` on 2026-10-11 (tools/rename.py). Address 0x800229a8.
 
-Unit `src/code_13068.c`. Lays out a 21-by-16 grid of points 16 pixels
+Unit `src/player.c`. Lays out a 21-by-16 grid of points 16 pixels
 apart centred on a 320x240 screen (x from -160, y from -120, z 0) into
 `D_800DE5E0`, row by row, using two globals as the loop counters
 (`D_800958D0` rows, `D_800958CC` columns). Then resets the first six words
-of `gRefView` (the view record code_7d74 hands to `GsSetRefView2`) with
+of `gRefView` (the view record model hands to `GsSetRefView2`) with
 1000 in the third, and clears `D_800959A8`.
 
 ```c

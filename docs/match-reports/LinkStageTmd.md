@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003DFB8` on 2026-10-10 (tools/rename.py). Address 0x8003dfb8.
 
-Unit `src/code_29f54.c`. The twin of LinkPropsTmd (same report's notes
+Unit `src/stage.c`. The twin of LinkPropsTmd (same report's notes
 apply) for a second model table: count in `gStageObjCount`, objects in the
 `GsDOBJ2` table `gStageObjs`, same coordinate system `gStageCoord`, and
 attribute 0x200 instead of 0.

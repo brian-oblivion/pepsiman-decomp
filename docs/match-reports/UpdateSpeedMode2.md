@@ -2,7 +2,7 @@
 
 > Renamed from `func_80027BEC` on 2026-10-11 (tools/rename.py). Address 0x80027bec.
 
-Unit `src/code_13068.c`. The twin of UpdateSpeedMode3 for game-state modes
+Unit `src/player.c`. The twin of UpdateSpeedMode3 for game-state modes
 0x33..0x35 with 35 in place of 30: steers `gSpeedFixed` (1/16 units)
 towards 35 from the count at 0x3A8 and pad bits 0x1000/0x4000 of
 `gPad`, snapping to 560 (35 whole), and stores the whole part in

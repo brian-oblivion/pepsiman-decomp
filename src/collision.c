@@ -2,11 +2,11 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
-#include "code_a0bc.h"
-#include "code_1a098.h"
-#include "code_13068.h"
-#include "code_7d74.h"
-#include "code_1902c.h"
+#include "draw.h"
+#include "object.h"
+#include "player.h"
+#include "model.h"
+#include "collision.h"
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
@@ -133,7 +133,7 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the game state's base in a register. */
 #define sGamePos (*(GamePos *)gPlayer)
 
-/* MATCHING: code_13068 defines ProjectToScreen void; these calls saw an s32 one. */
+/* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
 #define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
 extern Quad8 D_80010AE0;
@@ -545,10 +545,10 @@ void func_8002988C(void) {
     D_8009EF30[0] = 0;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_1902c", D_80010B34);
+INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B34);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1902c", D_80010B4C);
+INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B4C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1902c", D_80010B58);
+INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B58);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1902c", D_80010B64);
+INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B64);

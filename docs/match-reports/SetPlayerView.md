@@ -2,7 +2,7 @@
 
 > Renamed from `func_80026A60` on 2026-10-11 (tools/rename.py). Address 0x80026a60.
 
-Unit `src/code_13068.c`. Fills the camera offsets in `gRefView`: the
+Unit `src/player.c`. Fills the camera offsets in `gRefView`: the
 orbit angle `gViewerAngle` (degrees) gives slots 1 and 2 at radii 500 and
 600, slot 4 takes unk34C, and the yaw `D_800A7680->vy` gives slots 0/2 at
 radius 400 and 3/5 at 900 from the opposite heading. It then steps
@@ -36,7 +36,7 @@ s32 SetPlayerView(void) {
   slot. `s32` with no return (LEARNINGS, "A near-miss that differs only
   in delay slots") closed it. Warning baselined in
   config/typeviews-warnings.txt.
-- `(gViewerAngle << 12) / 360` and `* K / 4096` are code_7d74's spelling of
-  the same orbit (func at code_7d74.c:344); they match unchanged.
+- `(gViewerAngle << 12) / 360` and `* K / 4096` are model's spelling of
+  the same orbit (func at model.c:344); they match unchanged.
 - `D_8009587E` is reached `lui $at` for its stores: a plain extern, not in
   the unit's gp list.

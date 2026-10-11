@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003390C` on 2026-10-11 (tools/rename.py). Address 0x8003390c.
 
-Unit `src/code_1dc24.c`. Sets the signed halfword at 0 of all 100 records of
+Unit `src/editor.c`. Sets the signed halfword at 0 of all 100 records of
 a table of 0x3C-byte records (`Rec3C`, declared in the unit) to -1. The
 halfword sibling of `ClearRec5CAll`; first build matched.
 

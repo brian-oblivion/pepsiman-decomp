@@ -2,7 +2,7 @@
 
 > Renamed from `func_80020DD8` on 2026-10-10 (tools/rename.py). Address 0x80020dd8.
 
-Unit `src/code_a0bc.c`. A primitive handler (row 0, column 6 of the
+Unit `src/draw.c`. A primitive handler (row 0, column 6 of the
 handler table): for each of `n` flat unlit TMD triangles it transforms the
 three vertices (`rtpt`), drops the triangle on any GTE flag in
 0x7F85E000 or when `nclip` says it faces away, writes the screen XYs into

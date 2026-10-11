@@ -2,7 +2,7 @@
 
 > Renamed from `func_800283E4` on 2026-10-11 (tools/rename.py). Address 0x800283e4.
 
-Unit `src/code_13068.c`. Resets a handful of game-state bytes; when the
+Unit `src/player.c`. Resets a handful of game-state bytes; when the
 byte flag `D_8009599C` is 1, also clears one more byte, sets the halfword at
 0x3C8 to 60 and clears the flag; finally sets byte 6 to 0x33 if the low
 nibble of byte 0x3D0 is 3.

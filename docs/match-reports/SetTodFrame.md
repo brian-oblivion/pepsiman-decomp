@@ -2,7 +2,7 @@
 
 > Renamed from `func_800195CC` on 2026-10-10 (tools/rename.py). Address 0x800195cc.
 
-Unit `src/code_7d74.c`. A block header of 8 bytes: a halfword count at +2
+Unit `src/model.c`. A block header of 8 bytes: a halfword count at +2
 and a start time at +4. Before the start time the block is returned
 unchanged; otherwise each of its `count` records is handed to
 `SetTodPacket`, which returns the address after the record, and the

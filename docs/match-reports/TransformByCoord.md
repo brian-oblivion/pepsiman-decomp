@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023194` on 2026-10-11 (tools/rename.py). Address 0x80023194.
 
-Unit `src/code_13068.c`. Transforms a point by a coordinate system: gets
+Unit `src/player.c`. Transforms a point by a coordinate system: gets
 its local-screen and world-screen matrices (`GsGetLws`), makes the first
 current, runs `RotTrans` on a copy of the `SVECTOR`, copies the three
 results out, and restores the world matrix as the current one.
@@ -42,7 +42,7 @@ The unit now includes `libgpu.h` and `libgs.h` (after `libgte.h`) for
   the build was 28/37: same code, every frame offset 8 short (frame 0x80,
   `flag` at 0x68). An unused `s32 unused[2];` between them fills the hole.
   This is round 1's unused-local lever (ResetClearColor) on a non-leaf frame.
-  It adds `-Wall`'s "unused variable `unused'", NEW for code_13068 in
+  It adds `-Wall`'s "unused variable `unused'", NEW for player in
   `tools/typeviews.py --warnings`; the head baselines it.
 
 ### Proposed learning

@@ -5,11 +5,11 @@
 #include "sys/file.h"
 #include "libgpu.h"
 #include "libgs.h"
-#include "code_1a098.h"
-#include "code_7d74.h"
-#include "code_13068.h"
-#include "code_a0bc.h"
-#include "code_31cec.h"
+#include "object.h"
+#include "model.h"
+#include "player.h"
+#include "draw.h"
+#include "sound.h"
 
 /** @brief An object whose current position and halfword triple are reset
  *         from a stored copy. */
@@ -135,7 +135,7 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
-/** @brief A 0x3C-byte record of a 100-entry table (code_1dc24 has the same
+/** @brief A 0x3C-byte record of a 100-entry table (editor has the same
  *         record, with fewer fields known). */
 typedef struct {
     u16 unk0;      /**< a counter; bumped on a state change */
@@ -217,11 +217,11 @@ typedef struct {
 } Progress6E;
 
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
-/* MATCHING: copied whole as Quad16 here; code_a0bc reads its fields. */
+/* MATCHING: copied whole as Quad16 here; draw reads its fields. */
 extern Quad16 gSpriteDefs[]; /**< a table of eight-byte entries */
 extern Rec5C D_800CF080[];   /**< 200 Rec5C records */
 extern u8 D_800A7550[];      /**< 200 byte marks, one per block entry */
-/* MATCHING: a per-unit view; code_29f54 reads the same path as Edge. */
+/* MATCHING: a per-unit view; stage reads the same path as Edge. */
 extern PathPt *gSectionEdges; /**< the current path */
 extern Rec3C D_800A7898[];    /**< 100 Rec3C records */
 extern s32 D_80095824;        /**< zeroed by the full reset */
@@ -234,11 +234,11 @@ extern u8 D_800959D8;         /**< zeroed by the full reset */
 #define sGameHead (*(GameHead *)gPlayer)
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
-/* The progress block; code_1dc24 views the same bytes as other records. */
+/* The progress block; editor views the same bytes as other records. */
 extern u8 D_80095B28[];
 #define sProgress (*(Progress6E *)D_80095B28)
 
-/* MATCHING: a per-unit view; code_1902c calls the same 0x30-byte block Body. */
+/* MATCHING: a per-unit view; collision calls the same 0x30-byte block Body. */
 s32 CollidePlayer(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
  * the result nor extends the a and b it passes. */
@@ -249,7 +249,7 @@ s32 ClearObjectHits(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
 s32 DistanceSquared(void *a, void *b);
-/* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
+/* MATCHING: stage defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
@@ -257,7 +257,7 @@ void DrawObjectModel(Rec78 *rec, Rec48 *r);
 void DrawObjectSprite(u16 id, Rec3C *r);
 s32 StepDrift(Drifter *d);
 void PolarToXZ(s32 r, s32 deg, Vec3 *out);
-/* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
+/* MATCHING: editor's resets, declared per unit: Rec3C is local to each
  * unit until a shared header holds it. */
 void BuildEmptyBlock(u8 *buf);
 void ClearRec5CAll(Rec5C *recs);
@@ -490,7 +490,7 @@ s32 QueryWall(s32 zone, VECTOR *pos, FloorHdr *hdr) {
 
 #undef VTX
 
-/* MATCHING: code_29f54 defines x and y as s16; this unit passes them
+/* MATCHING: stage defines x and y as s16; this unit passes them
  * unextended. */
 void UpdateSection(s32 *index, s32 x, s32 y);
 
@@ -590,7 +590,7 @@ void DrawObjectModel(Rec78 *rec, Rec48 *r) {
 /* The result of a second-buffer record's test: a flag, then a word. */
 extern s8 D_80095898;  /**< 1 on a hit */
 extern s32 D_8009589C; /**< the word reported with a hit */
-/* code_1902c's tests of a 0x4C-byte record; types not yet known. */
+/* collision's tests of a 0x4C-byte record; types not yet known. */
 /* MATCHING: s32 (its body leaves a value); void moves a register. */
 s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
 
@@ -851,7 +851,7 @@ typedef struct {
     u8 unk38[0x10]; /**< not yet known */
 } Rec48v;
 
-/* MATCHING: per-unit views of code_1dc24's placement record, count and filler. */
+/* MATCHING: per-unit views of editor's placement record, count and filler. */
 extern Obj34 D_80096788; /**< the record the placement starts from */
 extern u16 D_8009596E;   /**< how many records the placement filled */
 u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2);
@@ -1486,7 +1486,7 @@ typedef struct {
     u32 count; /**< how many */
 } Group8;
 
-/* MATCHING: a per-unit view; code_29f54 types the same list as Run. */
+/* MATCHING: a per-unit view; stage types the same list as Run. */
 extern Zone4 *gStageRuns; /**< the zones */
 
 s8 ProbePosition(Vec3 *pos);

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C044` on 2026-10-11 (tools/rename.py). Address 0x8002c044.
 
-Unit `src/code_1a098.c`. Walks the 16-byte directory loaded at the fixed
+Unit `src/object.c`. Walks the 16-byte directory loaded at the fixed
 address 0x8017D708 (entry count in the first entry's halfword at 0xE) and,
 for slots 0x33 to 0x33 + count - 1, kept in the global counter
 `D_800958CC`, stores a pointer to each entry's data (directory + offset +
@@ -31,7 +31,7 @@ s32 LoadStageSprites(void) {
 ```
 
 Views: `GameHead` (unit-local) grew two `s32[100]` tables at 0x20 and
-0x1B0; `DirEnt16` is new. `D_800958D0` was a local extern in code_13068.c;
+0x1B0; `DirEnt16` is new. `D_800958D0` was a local extern in player.c;
 it moved to `include/common.h` (additive) and the local copy was deleted.
 
 About 20 builds plus one permuter search.

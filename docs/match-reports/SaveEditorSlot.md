@@ -2,7 +2,7 @@
 
 > Renamed from `func_80032964` on 2026-10-11 (tools/rename.py). Address 0x80032964.
 
-Unit `src/code_1dc24.c`. Saves the five areas LoadEditorSlot restores into
+Unit `src/editor.c`. Saves the five areas LoadEditorSlot restores into
 save slot `a` of the tool buffer `buf`: the 0x5C-byte record table, the
 Obj48 table, the Rec3C table, the block header area at `0x801FD000` and the
 tool state block. First build matched, written as LoadEditorSlot's mirror.
@@ -16,7 +16,7 @@ tool state block. First build matched, written as LoadEditorSlot's mirror.
 ## Declarations
 
 - CHANGED existing declaration (unit-local): `SaveEditorSlot`'s prototype
-  in code_1dc24.c, `s32 a` to `s16 a`; its callers are unchanged.
+  in editor.c, `s32 a` to `s16 a`; its callers are unchanged.
 
 ```c
 void SaveEditorSlot(s16 a, u8 *buf) {

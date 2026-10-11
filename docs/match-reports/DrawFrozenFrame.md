@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003C014` on 2026-10-10 (tools/rename.py). Address 0x8003c014.
 
-Unit `src/code_29f54.c`. Copies the displayed frame into VRAM at x 640
+Unit `src/stage.c`. Copies the displayed frame into VRAM at x 640
 and draws it back as two full-screen sprites: registers sprites 0x1FE and
 0x1FF (DefineSprite: 160x240 from texture pages 10 and 12, the second at
 u 0x20), moves the 320x240 rectangle at y `PSDIDX * 240` to (640, 0) with
@@ -41,11 +41,11 @@ Declarations added to the unit: `extern s16 D_800E474C;` (libgs's
 `PSDIDX`, the double-buffer index: `GsInitGraph` clears it, and every
 retail read is `lui`/`lh` into one register, a scalar);
 `extern GsOT gOt[];` (DrawFrozenFrameFaded's table); and prototypes of
-DefineSprite and DrawSprite, which code_a0bc defines. Those two are
+DefineSprite and DrawSprite, which draw defines. Those two are
 stopgaps: this round, delta's branch puts DrawSprite in
-`include/code_a0bc.h` (the same type) and DefineSprite in `common.h`,
-and removes code_24748.c's local DrawSprite. Until that merges,
-declcheck reports DrawSprite as MULTI/LOCAL (code_24748.c:103 and this
+`include/draw.h` (the same type) and DefineSprite in `common.h`,
+and removes hit_tool.c's local DrawSprite. Until that merges,
+declcheck reports DrawSprite as MULTI/LOCAL (hit_tool.c:103 and this
 unit). Once it has merged, delete the block. Every argument here is a
 constant, so the type of DefineSprite's `page` (u8 or s32, which charlie
 and delta disagree on) does not affect these functions.

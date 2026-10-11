@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003AFAC` on 2026-10-10 (tools/rename.py). Address 0x8003afac.
 
-Unit `src/code_29f54.c`. The race HUD, drawn each frame: the lap count
+Unit `src/stage.c`. The race HUD, drawn each frame: the lap count
 `gCans` left-aligned at the top left (a lone `0` when it is zero),
 the speed dial (DrawSpriteTransformed quads; its needle sprite chosen from the
 distance counter `D_80095A84` advanced by `D_8009EF20[0]`, scaled by the
@@ -24,7 +24,7 @@ typedef struct {
     u8 cd; /**< code byte */
 } SColor;
 
-/* MATCHING: code_a0bc takes a Sprite2D *, a type local to that unit; this
+/* MATCHING: draw takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 s32 SpawnEffect(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
@@ -185,7 +185,7 @@ void DrawHud(void) {
   `beqz` straight to the join; the three needle calls share one tail.
 - `gSectionEdges` is read here as `Edge *` (unit-local type), `((s32
   *)gSectionEdges)[-1]` being the record count stored before the table.
-  declcheck flags the local extern (code_1a098 uses the symbol too, as
+  declcheck flags the local extern (object uses the symbol too, as
   `PathPt *`), left for the head.
 
 ### Proposed learning

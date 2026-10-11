@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033854` on 2026-10-11 (tools/rename.py). Address 0x80033854.
 
-Unit `src/code_1dc24.c`. Fills byte 0 of 200 consecutive 0x5C-byte records
+Unit `src/editor.c`. Fills byte 0 of 200 consecutive 0x5C-byte records
 with -1.
 
 ```c

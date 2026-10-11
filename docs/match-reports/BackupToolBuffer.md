@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033930` on 2026-10-11 (tools/rename.py). Address 0x80033930.
 
-Unit `src/code_1dc24.c`. Calls `SaveEditorSlot(0, 0x8016D000)`, then copies
+Unit `src/editor.c`. Calls `SaveEditorSlot(0, 0x8016D000)`, then copies
 the 64 KiB at 0x8016D000 to 0x8017D000.
 
 Matched on the first build. The four-`lw`/four-`sw` loop with an end

@@ -29,14 +29,14 @@ function's match report, not here.
   it over two registers. (StartActResults, SendCdTrackCommand) This holds even for
   a loop base the loop writes past: `extern s32 D[2];` (InitPads).
 - **A global every access reloads right after storing it: `volatile`**, in
-  the unit, with a `MATCHING:` note. (gMovieTimeout, code_31cec)
+  the unit, with a `MATCHING:` note. (gMovieTimeout, sound)
 - **A global reached `$gp` in one stretch of a unit and `lui` in another
   marks a source-file seam**: maspsx applies one gp list to the whole build,
   so no C spelling closes it. Report it with the addresses; it is a
   segmentation or toolchain decision. (TotalBlockEntries, PlayStageMusic)
   Between units this is solved: each unit gets its own gp list,
   `config/gp/<unit>.txt` (PlayStageMusic, SelectViewerMotion). Inside one unit it
-  needs the unit split: code_1a098 split at UpdateEditor into code_1dc24,
+  needs the unit split: object split at UpdateEditor into editor,
   which matched both. (TotalBlockEntries, BuildEmptyBlock)
 - **A word store through a pointer that keeps a later global reload below it:
   a plain `*(s32 *)p` store, not `p->member`.** A member store is assumed not
@@ -46,7 +46,7 @@ function's match report, not here.
   unit's view**; a definition that returns only constants can simply be
   `s32`. (FindSave1, FindSave2)
 - **A word written with `sw` and summed elsewhere with `lhu`: a union**
-  (`{ s32 w; u16 lo; }`). (CompareBytes's table, code_27bc8)
+  (`{ s32 w; u16 lo; }`). (CompareBytes's table, card)
 - **A result kept in `$a3` that skips `$a1`/`$a2`, which the function never
   touches: extra arguments passed straight through to callees.**
   (CallStageHook)
@@ -65,7 +65,7 @@ function's match report, not here.
 - **A chained store that reads its first target back (`sh X; lhu X; sh Y`):
   a volatile target.** (SortTmdEnvMapGT3)
 - **Two sign tests, one `bltz` and one `and`/`bnez` sharing a `lui 0x8000`:
-  both written `v & 0x80000000`.** (code_a0bc, round 7)
+  both written `v & 0x80000000`.** (draw, round 7)
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
@@ -166,7 +166,7 @@ function's match report, not here.
 - **`s16 % 64` gives `sll/sra 16` around a halfword remainder on 2.8.1;
   retail's code is `x - x / 64 * 64`.** (LoadSpritePack)
 - **`srl` on a product stored to an `s16`: `(u32)(x * 25) >> 9`.**
-  (code_29f54, round 8)
+  (stage, round 8)
 - **A block move with a dead `lwl`/`lwr` path jumped over: the source pointer
   is a local whose alignment cc1 cannot see**; plain `lw`/`sw` is an
   `s32 w[N/4]` wrapper. (RestoreStageObjects)
@@ -207,9 +207,9 @@ function's match report, not here.
   that leaves `$v0` set, declared `s32`, closed 8 register diffs in two
   functions (permuter finds). (TestBoxes, GetQuadHeightUnderPlayer)
 - **`bltz` on an `lbu`-loaded `u8`: copied into an `s32` local and tested
-  `>= 0`.** (code_29f54, round 11)
+  `>= 0`.** (stage, round 11)
 - **An `andi 0xFF` on an argument the prototype types `s32`: a `(u8)` cast
-  at the call.** (code_29f54, round 11)
+  at the call.** (stage, round 11)
 - **Byte averages that need `srl` with no mask: `u8` locals assigned
   `(u32)(a + b) >> 1`**; tell: the value is the first operand of its OR.
   (SortTmdDivGT3)
@@ -279,7 +279,7 @@ function's match report, not here.
   (s32)D)`. Pointer arithmetic always puts the pointer first.
   (UpdateSection, UpdateStageLights)
 - **A count-down `bgez` loop: write it counting down.** 2.8.1 did not
-  reverse a short `s32` count-up here. (code_29f54, round 5)
+  reverse a short `s32` count-up here. (stage, round 5)
 - **A loop compared on a pointer with signed `slt`: an `s32` counter cc1
   replaced with the pointer.** Write the counter; bump the pointer in the
   `for` step after `k++`. (UpdatePadActuators)
@@ -287,7 +287,7 @@ function's match report, not here.
   counter compared `(s32)i < g` in the second.** (EditorPlaceRecords)
 - **A loop bottom testing `next` with `i = next` in the delay slot:
   `if ((s8)next < 0) break; i = next;` inside `do { } while (1)`.**
-  (code_29f54, round 8)
+  (stage, round 8)
 
 - **A parameter re-extended at every use inside a poll loop: the loop was a
   `goto` label.** A C loop hoists the extension. (RunCardOp1)
@@ -402,7 +402,7 @@ function's match report, not here.
   constant where `void` fills it with `lui`. (UpdateEditor)
 
 - **`beqz` to one block and `beq K` to another on one variable, then a `j`
-  over both: `switch (s) { case 0: ...; case K: ...; }`.** (code_29f54,
+  over both: `switch (s) { case 0: ...; case K: ...; }`.** (stage,
   round 11)
 - **A result's `sll`/`sra` above the epilogue's register loads: an early
   `return x;`**; the return label splits the block. (CollidePlayer)
@@ -472,10 +472,10 @@ function's match report, not here.
   compiled C using `gte_stflg` / `gte_lddp`** (include/gte.h).
   (SortTmdFastF3, SortTmdFastF4)
 - **A near-miss that differs only in delay slots: try `s32` with no return
-  first.** It closed four of round 7's code_13068 functions; the permuter
+  first.** It closed four of round 7's player functions; the permuter
   finds it as `volatile int`. (UpdateSlideDash, AttachModeObject)
 - **A clamp bound computed into a scratch register in a delay slot, then
-  copied: `if (x <= hi) v = x; else v = hi;`.** (code_13068, round 7)
+  copied: `if (x <= hi) v = x; else v = hi;`.** (player, round 7)
 - **An inlined search whose hit path moves the counter to `$v0` and whose
   join sign-extends it: an inlined `s16` helper.** (SpawnModeObject)
 - **A load that must stay below a store to another global, with no C
@@ -502,7 +502,7 @@ function's match report, not here.
   (DrawSpriteTransformed)
 - **`-fschedule-insns` is byte-inert on this cc1**: only the pass after
   register allocation schedules, so register reuse decides load and store
-  order. (code_1dc24, round 8)
+  order. (editor, round 8)
 - **A value computed into `$a1` and moved to `$a0` in a call's delay slot:
   one local reused**, `h = b*b; h -= c; f(h); h = a >> 1;`. (LineCircleIntersect)
 - **A quotient in the wrong saved register: `d = n; d /= 10;`** rather than
@@ -549,7 +549,7 @@ function's match report, not here.
 - **Two counters in one loop: `for (...; i++, k++)` with `a[k] = f()`**;
   `a[k++]` swaps their registers. (GetQuadHeightUnderPlayer)
 - **Two strength-reduced loop registers swapped: reverse the ternary that
-  selects between them.** (code_29f54, round 11)
+  selects between them.** (stage, round 11)
 - **Two pointers stepping by one stride where one is only copied on a hit:
   one pointer plus `best = f;`**; cc1 makes the second. (QueryWall)
 - **Two saved registers swapped between a long-lived, much-used variable

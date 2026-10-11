@@ -2,7 +2,7 @@
 
 > Renamed from `func_800330D4` on 2026-10-11 (tools/rename.py). Address 0x800330d4.
 
-Unit `src/code_1dc24.c`. The menu update: steps the edited value
+Unit `src/editor.c`. The menu update: steps the edited value
 `D_80095748` (pad bits 0x2000 up, 0x8000 down) or the highlighted line
 `D_8009574A` (0x4000 up, 0x1000 down) from the pad word `gPadTrig`, else
 from `D_80095950` (value) and `D_80095958` (line), then wraps both with
@@ -21,7 +21,7 @@ from `D_80095950` (value) and `D_80095958` (line), then wraps both with
   `beqz ..., epilogue` with `v0 = 0` in its slot; without it the two
   returns share one `move v0, zero` after the epilogue's `lw ra`.
 - `D_80095950` / `D_80095958` are `s32` scalars (`lui $v1` / `lw $v1`),
-  declared in the unit (code_24748 and main also read them).
+  declared in the unit (hit_tool and main also read them).
 - Returns 0 explicitly on both paths, so the function is `s32`;
   `include/common.h`'s prototype changed from `void` to `s32` (its callers
   discard the result; the whole image still matches).

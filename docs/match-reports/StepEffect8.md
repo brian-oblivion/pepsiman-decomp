@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003EC04` on 2026-10-10 (tools/rename.py). Address 0x8003ec04.
 
-Unit `src/code_29f54.c`. A slot step, the five-sprite sibling of
+Unit `src/stage.c`. A slot step, the five-sprite sibling of
 StepEffect7 right above it: after the wait, it projects the slot's point
 once (first frame), then each frame draws sprite 0xFA five times, spaced 72
 degrees apart on a circle whose radius shrinks as the group moves toward
@@ -53,5 +53,5 @@ s32 StepEffect8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 - Written straight from StepEffect7's shape (the inlined `setLs`, the
   same frame layout with `s32 unused[2]`); the loop's `i * 72` became the
   strength-reduced `$s1`, and `/ 360` the multiply-high by 0xB60B60B7.
-- `-Wall`'s unused-variable warning is baselined as a third code_29f54
+- `-Wall`'s unused-variable warning is baselined as a third stage
   line in `config/typeviews-warnings.txt`.

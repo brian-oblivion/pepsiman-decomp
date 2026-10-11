@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036EA0` on 2026-10-11 (tools/rename.py). Address 0x80036ea0.
 
-Unit `src/code_24748.c`. Clears the 0x1DB0-byte buffer `gLiveQuads` with
+Unit `src/hit_tool.c`. Clears the 0x1DB0-byte buffer `gLiveQuads` with
 `bzero` and resets two halfwords (0x6E to 0, 0x70 to -1) in each of the 80
 0x78-byte records of `D_800D8D20` (`Rec78`, declared in the unit).
 
@@ -23,7 +23,7 @@ void ClearHitQuads(void) {
 `bzero` comes from Sony's `memory.h`, included by the unit.
 `gLiveQuads` and `D_800D8D20` are reached `lui`/`addiu`, so they are arrays
 of unknown size, declared in the unit (the other unit that reaches them,
-`code_1a098`, still has them only in asm).
+`object`, still has them only in asm).
 
 ## Levers
 

@@ -2,7 +2,7 @@
 
 > Renamed from `func_800426A4` on 2026-10-10 (tools/rename.py). Address 0x800426a4.
 
-Unit `src/code_31cec.c`. Sound start-up state machine stepped on
+Unit `src/sound.c`. Sound start-up state machine stepped on
 `gSubStep`, returning 1 once finished. State 0 queues two CD loads for
 the loader (positions from the location table `D_8007B69C`, entries 0 and
 2, to 0x80101000 and 0x8016D000, sizes from `D_8007B6CC`); state 1 waits

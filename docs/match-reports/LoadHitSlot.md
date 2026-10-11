@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036B90` on 2026-10-11 (tools/rename.py). Address 0x80036b90.
 
-Unit `src/code_24748.c`. Loads hit-data slot `n` from the tool buffer at
+Unit `src/hit_tool.c`. Loads hit-data slot `n` from the tool buffer at
 0x8018D000 (a 0x200-byte header, then three 0x6778-byte slots, the layout
 WriteHitDataFiles writes out as `HITDATA0..2.T1D`) into the two working
 buffers: the slot's first 0x4744-byte block to 0x8016D000, its second

@@ -2,7 +2,7 @@
 
 > Renamed from `func_800317D0` on 2026-10-11 (tools/rename.py). Address 0x800317d0.
 
-Unit `src/code_1dc24.c`. Copies the game position into the Rec3C template
+Unit `src/editor.c`. Copies the game position into the Rec3C template
 `D_800DF818`, runs one of two handlers on it (`DrawObjectSprite` or
 `StepSprite`, picked by `sTotals.unk32`, id `sTotals.unk2C + 30`),
 counts the used records of the 100-entry Rec3C table into
@@ -49,7 +49,7 @@ permuter search (stopped early on its lead).
   `unk2A`, `unk30`, `unk34`; `Totals28` (unit-local) gains `unk28`,
   `unk2C`, `unk30`, `unk32`, `unk6A`, `unk6C`, `unk6D`.
 - New externs in the `.c`: `Rec3C D_800DF818`, `u8 D_800959E2`.
-- CHANGED existing declarations (unit-local, in code_1dc24.c only):
+- CHANGED existing declarations (unit-local, in editor.c only):
   `DrawObjectSprite` and `StepSprite` now take `s32 id`.
 
 ```c

@@ -2,7 +2,7 @@
 
 > Renamed from `func_800285C8` on 2026-10-11 (tools/rename.py). Address 0x800285c8.
 
-Unit `src/code_13068.c`. Converts an angle in degrees to a PlayStation
+Unit `src/player.c`. Converts an angle in degrees to a PlayStation
 angle and writes the X and Z of a point at `radius` on that bearing:
 `out->vx = rsin * radius >> 12`, `out->vz = rcos * radius >> 12`.
 

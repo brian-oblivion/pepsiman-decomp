@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003FD0C` on 2026-10-10 (tools/rename.py). Address 0x8003fd0c.
 
-Unit `src/code_29f54.c`. An 8-frame expanding, fading sprite step on a
+Unit `src/stage.c`. An 8-frame expanding, fading sprite step on a
 `Slot` record, the same template as StepEffect0: count the delay
 (`unk2`) down, else set the local-screen matrix to (`x`, `y`, `z`) plus the
 record's offset, draw sprite 0x12D at size `frame * 10 + 100` in colour

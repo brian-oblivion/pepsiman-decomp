@@ -2,11 +2,11 @@
 
 > Renamed from `func_80022554` on 2026-10-10 (tools/rename.py). Address 0x80022554.
 
-Unit `src/code_11dc4.c`. A selector code_31958's LoadStageOverlay calls with
+Unit `src/draw_tmd.c`. A selector stage_overlay's LoadStageOverlay calls with
 an id from 3 to 17: a 23-way switch on the id's low byte (no case 1) that
 stores one of 22 data addresses in gCdLoadLoc[0] and copies one of 22 words
 into gCdLoadSectors[0], then sets gCdLoadDest[0] to 0x800F0000 and gCdLoadCount
-and gCdLoadState to 1. code_31cec's LoadVabBank writes the same five
+and gCdLoadState to 1. sound's LoadVabBank writes the same five
 globals in the same order with SsVab calls nearby, so these are likely
 sound-bank parameters. splat's instruction count (220) included the
 jump table's 23 words.
@@ -19,7 +19,7 @@ extern s32 D_800761AC[];
 /* ... one `extern s32 D_800xxxxx[];` per symbol below ... */
 
 void LoadOverlay(s32 id) {
-    /* MATCHING: s32 in code_31958's view; the switch narrows it. */
+    /* MATCHING: s32 in stage_overlay's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
             gCdLoadLoc[0] = (s32)D_800761AC;
@@ -32,7 +32,7 @@ void LoadOverlay(s32 id) {
         /* cases 3 to 17: address D_8007624C + 0x48 * (k - 3), word
          * D_80076270 + 0x48 * (k - 3); cases 18 to 22: address D_800761D4
          * + 8 * (k - 18), word D_80076224 + 8 * (k - 18) (the full list
-         * is in src/code_11dc4.c) */
+         * is in src/draw_tmd.c) */
     }
     gCdLoadDest[0] = 0x800F0000;
     gCdLoadCount = 1;

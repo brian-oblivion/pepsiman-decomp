@@ -2,7 +2,7 @@
 
 > Renamed from `func_80026848` on 2026-10-11 (tools/rename.py). Address 0x80026848.
 
-Unit `src/code_13068.c`. The twin of UpdateJumpMode3 for another mode set:
+Unit `src/player.c`. The twin of UpdateJumpMode3 for another mode set:
 on starting the unk390 sequence it also clears `D_800956E0`, records
 unk34C in `D_800956E4` and copies the position words unk348..unk350 into
 `D_800DF5A0`; the sequence ends in mode 9, 0xB or 0xA instead of 8/9.

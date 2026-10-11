@@ -1,9 +1,9 @@
-#ifndef CODE_7D74_H
-#define CODE_7D74_H
+#ifndef MODEL_H
+#define MODEL_H
 
 /**
- * @file code_7d74.h
- * @brief What other units call in code_7d74 that needs Sony's types.
+ * @file model.h
+ * @brief What other units call in model that needs Sony's types.
  */
 
 #include "common.h"
@@ -34,7 +34,7 @@ void SetCoordRotation(SVECTOR *rot, GsCOORDINATE2 *coord);
  *  @return not yet known */
 s32 LoadTim(void *data);
 
-/** @brief Defined in code_7d74: sorts a semi-transparent flat quad in a
+/** @brief Defined in model: sorts a semi-transparent flat quad in a
  *         15-bit colour into the current ordering table.
  *  @param col a 15-bit colour, red in the low bits
  *  @param x0 the first corner's x

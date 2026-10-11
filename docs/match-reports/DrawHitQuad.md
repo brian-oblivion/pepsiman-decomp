@@ -2,7 +2,7 @@
 
 > Renamed from `func_80034D5C` on 2026-10-11 (tools/rename.py). Address 0x80034d5c.
 
-Unit `src/code_24748.c`. Draws the dispatch object's box (called by
+Unit `src/hit_tool.c`. Draws the dispatch object's box (called by
 UpdateTool with `&gToolNewQuad`): `PlaceCollisionQuad(obj)`, then the owner's
 position (through `obj->unk48`) plus the world offset, four corner offsets
 from `obj->unk18[]` projected with `ProjectToScreen`, and one
@@ -11,7 +11,7 @@ from `obj->unk18[]` projected with `ProjectToScreen`, and one
 
 ```c
 void PlaceCollisionQuad(Obj48 *obj);
-/* Defined by code_7d74, whose header does not declare it yet. */
+/* Defined by model, whose header does not declare it yet. */
 void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
 
 void DrawHitQuad(Obj48 *obj) {
@@ -59,9 +59,9 @@ void DrawHitQuad(Obj48 *obj) {
   with `lhu` into an `s16`, which is cc1 narrowing the `s32` load.
 - `ObjOwner` (unit-local) is what `unk48` points at: a `VECTOR` at 0x18.
   `unk48` is `&D_800D8D20[i].unk10`, so that is `Rec78`'s 0x28.
-- `PlaceCollisionQuad` (code_1902c, still asm) and `SortSemiQuad` (code_7d74,
-  undeclared in `code_7d74.h`) are prototyped in this `.c`. declcheck lists
-  `SortSemiQuad` as LOCAL; it belongs in `code_7d74.h` at merge.
+- `PlaceCollisionQuad` (collision, still asm) and `SortSemiQuad` (model,
+  undeclared in `model.h`) are prototyped in this `.c`. declcheck lists
+  `SortSemiQuad` as LOCAL; it belongs in `model.h` at merge.
 
 ## Levers
 

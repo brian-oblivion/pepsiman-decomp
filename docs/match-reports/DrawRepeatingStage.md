@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003A20C` on 2026-10-10 (tools/rename.py). Address 0x8003a20c.
 
-Unit `src/code_29f54.c`. Draws a scrolling strip of 5000-unit model
+Unit `src/stage.c`. Draws a scrolling strip of 5000-unit model
 segments around a position: for the three segments i = -1, 0, 1 it picks a
 model (`k`: 1 or 2 alternating by segment parity, 0 for the segment holding
 the position, 3 for one just past `range`; segments outside are skipped),
@@ -12,8 +12,8 @@ object sets (`gStageObjs[k]`, `gPropObjs[k]`) into `gCurOt`. The second
 parameter is never read.
 
 ```c
-#include "code_7d74.h" /* SetCoordRotation */
-/* gCurOt: include/code_a0bc.h */
+#include "model.h" /* SetCoordRotation */
+/* gCurOt: include/draw.h */
 
 void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
     s32 i;
@@ -66,7 +66,7 @@ void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
   induction register at -10000 and adds it directly; `i * 5000 - 5000`
   starts at -5000 and adds an `addiu -0x1388`.
 - **Declarations moved:** `gCurOt` (`GsOT *`) was a local extern in
-  main.c; with a second user it moved to `include/code_a0bc.h`, beside the
+  main.c; with a second user it moved to `include/draw.h`, beside the
   ordering tables it points into (additive there; the one-line extern in
   main.c removed). common.h cannot hold it: it does not see libgs.
-  This unit now includes `code_7d74.h` for SetCoordRotation.
+  This unit now includes `model.h` for SetCoordRotation.

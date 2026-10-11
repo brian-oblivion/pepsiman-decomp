@@ -2,7 +2,7 @@
 
 > Renamed from `func_80019684` on 2026-10-10 (tools/rename.py). Address 0x80019684.
 
-Unit `src/code_7d74.c`. Initialises a `SlotList` over `n` 16-byte slots:
+Unit `src/model.c`. Initialises a `SlotList` over `n` 16-byte slots:
 each slot gets `0x80000000`, a pointer to its 0x50-byte object, 0 and -1,
 and each object's `+0x44` word gets a pointer into a 0x28-byte-stride
 array.

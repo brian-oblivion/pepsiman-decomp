@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003C494` on 2026-10-10 (tools/rename.py). Address 0x8003c494.
 
-Unit `src/code_29f54.c`. Draws a count in the large font with a drop
+Unit `src/stage.c`. Draws a count in the large font with a drop
 shadow, right to left from the pen: `0`, `0`, `1`, a separator (sprites
 0x137, 0x137, 0x138, 0x142), then the units, tens if nonzero and hundreds
 if nonzero of `n`; every glyph twice, once tinted `color` (r = 1) and once
@@ -77,7 +77,7 @@ void DrawResultNumber(SVECTOR *pos, s32 n) {
 ```
 
 Place it where the `INCLUDE_ASM` stands (between DrawScreenWipe and
-DrawResultTime). `DrawSprite` comes from `code_a0bc.h`. Spliced back and
+DrawResultTime). `DrawSprite` comes from `draw.h`. Spliced back and
 built once before restoring the `INCLUDE_ASM`: 269 words, 4 insertions /
 4 deletions, all in the prologue, the hundreds test and the epilogue.
 

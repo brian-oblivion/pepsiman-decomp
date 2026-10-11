@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002B7C8` on 2026-10-10 (tools/rename.py). Address 0x8002b7c8.
 
-Unit `src/code_1a098.c`. Loads every TIM of a packed directory
+Unit `src/object.c`. Loads every TIM of a packed directory
 (LoadTim), waits for the upload, and registers each as a texture
 through DefineSprite, numbered from `id` on: the texture page from the
 image's VRAM position, u from x within the page scaled by the pixel mode,
@@ -52,11 +52,11 @@ void LoadSpritePack(DirEnt16 *dir, u16 id) {
 ## Declarations moved (stated for the head)
 
 - `TimInfo` (the unpacked TIM header that `gTimInfo` points at) moved
-  from `src/code_7d74.c` to `include/code_7d74.h`, unchanged; this unit
-  includes the header and has its own `sTim` macro like code_7d74.
+  from `src/model.c` to `include/model.h`, unchanged; this unit
+  includes the header and has its own `sTim` macro like model.
 - `s32 LoadTim(void *data);` moved from a forward declaration in
-  `src/code_7d74.c` to `include/code_7d74.h` (declcheck LOCAL once a
-  second unit uses it). code_7d74 had no runner this round.
+  `src/model.c` to `include/model.h` (declcheck LOCAL once a
+  second unit uses it). model had no runner this round.
 
 ### Proposed learning
 

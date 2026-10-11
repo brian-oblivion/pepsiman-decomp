@@ -2,7 +2,7 @@
 
 > Renamed from `func_80034070` on 2026-10-11 (tools/rename.py). Address 0x80034070.
 
-Unit `src/code_24748.c`. The tool's top-level step, by `gModeStep`:
+Unit `src/hit_tool.c`. The tool's top-level step, by `gModeStep`:
 state 0 resets the two record banks and the tool's globals (ResetTool's
 body, plus the menu and error state) and advances; state 1 dispatches on the
 error code `gToolMode` (jump table `jtbl_80011804`, cases 0..7), then runs

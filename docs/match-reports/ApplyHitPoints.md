@@ -4,7 +4,7 @@
 
 Stalled in round 7 (echo) at 45/93 with the copy 25 words long.
 
-Unit `src/code_24748.c`. Installs the first record bank (`gHitPoints`):
+Unit `src/hit_tool.c`. Installs the first record bank (`gHitPoints`):
 for each of its `gHitPointSections` entries copies the entry's two words into
 `unk72`/`unk74` of the matching `D_800D8D20` record, then for 400 records
 copies the first 0x2A bytes of bank record i (`GetHitPoint(0, i)`) into
@@ -12,7 +12,7 @@ the live buffer `gLivePoints` (0x2C-byte records) and points the live
 record's word at 0x28 at `D_800D8D20[rec->unk28].unk10` (retail's symbol
 `D_800D8D30`).
 
-The body is live in `src/code_24748.c`. The stalled body below is kept for
+The body is live in `src/hit_tool.c`. The stalled body below is kept for
 the record; the match replaces its struct copy (see Round 13).
 
 **Every instruction matches except the block move's alignment.** Retail

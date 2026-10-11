@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003C2E8` on 2026-10-10 (tools/rename.py). Address 0x8003c2e8.
 
-Unit `src/code_29f54.c`. While `gWipeActive` is set, adds one full-screen
+Unit `src/stage.c`. While `gWipeActive` is set, adds one full-screen
 `POLY_FT4` (320x240, centred) to the current ordering table each frame,
 stepping through eight 128x96 texture cells (frame counter `gWipeFrame / 3`:
 column `n % 2`, row `n / 2 % 2`, texture page `n / 4`, CLUT row `448 + n`).

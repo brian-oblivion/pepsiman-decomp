@@ -2,7 +2,7 @@
 
 > Renamed from `func_80037AE4` on 2026-10-10 (tools/rename.py). Address 0x80037ae4.
 
-Unit `src/code_27bc8.c`. Creates the first save file `"bu10:BISLPS-12345PEPTOOL"`
+Unit `src/card.c`. Creates the first save file `"bu10:BISLPS-12345PEPTOOL"`
 (`D_80011998`) with `open(name, 0xF0200)` (O_CREAT, 15 blocks), closes it,
 reopens it for writing (`open(name, 2)`), and writes 0x1E000 bytes from
 `gSaveBuf`; each step is tried up to ten times. A failed step stores 8, 9

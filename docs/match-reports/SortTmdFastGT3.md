@@ -2,7 +2,7 @@
 
 > Renamed from `func_800217A8` on 2026-10-10 (tools/rename.py). Address 0x800217a8.
 
-Unit `src/code_11dc4.c`. The gouraud-textured unlit handler (row 3,
+Unit `src/draw_tmd.c`. The gouraud-textured unlit handler (row 3,
 column 6 of the handler table InitTmdSortFuncs fills): unlit textured TMD
 triangles with a colour per corner into POLY_GT3 packets, the colours
 depth-cued with `dpct`, the code byte the TMD mode with bit 0 cleared, the

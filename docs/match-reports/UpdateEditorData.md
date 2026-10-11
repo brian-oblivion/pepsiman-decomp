@@ -2,8 +2,8 @@
 
 > Renamed from `func_80031EF4` on 2026-10-11 (tools/rename.py). Address 0x80031ef4.
 
-Unit `src/code_1dc24.c`. The tool's data-mode state machine, the sibling of
-code_24748's UpdateToolCard (round 9 stall): by `gSubStep`, state 0 opens
+Unit `src/editor.c`. The tool's data-mode state machine, the sibling of
+hit_tool's UpdateToolCard (round 9 stall): by `gSubStep`, state 0 opens
 the card (`OpenCardEvents`), state 2 closes it (`CloseCardEvents`); state 1
 steps the screen `gToolCardStep` through a 19-entry jump table (yes/no menus
 through `RunMenu`, the card calls `RunCardOp1(mode)` and
@@ -34,12 +34,12 @@ second jump table) to a message screen 11..15. Second build matched.
 
 ## Declarations
 
-- Prototypes in this `.c`: `RunCardOp1(s16)` (code_27bc8, no header),
-  `CheckCard` as `s32 (void)` (code_27bc8 returns `s16`; the result is
-  compared unextended, as in code_24748's view), and the unit's own
+- Prototypes in this `.c`: `RunCardOp1(s16)` (card, no header),
+  `CheckCard` as `s32 (void)` (card returns `s16`; the result is
+  compared unextended, as in hit_tool's view), and the unit's own
   `WriteEditorSlotFiles`, `CheckEditorSlot`, `SaveEditorState`, `RestoreEditorState`,
   `WriteEditorFile`, `ReadEditorFile`, defined later in the file.
-- `config/typeviews-warnings.txt`: one more code_1dc24 "control reaches
+- `config/typeviews-warnings.txt`: one more editor "control reaches
   end of non-void function".
 
 ```c
@@ -68,7 +68,7 @@ second jump table) to a message screen 11..15. Second build matched.
                     break;
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)
 
 ### Proposed learning
 

@@ -5,10 +5,10 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
-#include "code_a0bc.h"
-#include "code_7d74.h"
-#include "code_13068.h"
-#include "code_1a098.h"
+#include "draw.h"
+#include "model.h"
+#include "player.h"
+#include "object.h"
 
 /** @brief One of the 80 entries heading a record bank: where the entry's
  *         records start. */
@@ -95,7 +95,7 @@ extern s16 gToolQuadW;       /**< set to 100 on entering state 1 */
 extern s16 gToolQuadH;       /**< set to 100 on entering state 1 */
 
 void InsertHitQuad(void);
-/* MATCHING: a per-unit view; code_1a098 defines it as (s16 (*)[3], VECTOR *,
+/* MATCHING: a per-unit view; object defines it as (s16 (*)[3], VECTOR *,
  * s16, s16), a box's corners around a position. */
 void SetBoxAround(Obj48 *obj, u8 *p, s32 a, s32 b);
 
@@ -183,89 +183,89 @@ void DrawPin(VECTOR *pos) {
     DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114DC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800114DC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114E8);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800114E8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800114F4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800114F4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011500);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011500);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001151C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001151C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011528);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011528);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011534);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011534);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011540);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011540);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001154C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001154C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011564);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011564);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011570);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011570);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011588);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011588);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011594);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011594);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115A0);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115A0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115AC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115AC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115BC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115BC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115D0);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115D0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800115DC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115DC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011618);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011618);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011624);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011624);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011634);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011634);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011644);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011644);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011654);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011654);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011664);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011664);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011678);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011678);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011688);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011688);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011698);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011698);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116AC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116AC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116BC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116BC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116D4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116D4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116E0);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116E0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800116F4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116F4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001170C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001170C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001171C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001171C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011728);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011728);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001173C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001173C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001174C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001174C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001175C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001175C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_80011768);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011768);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_8001178C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001178C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117B4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800117B4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_24748", D_800117DC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800117DC);
 
 void UpdateTool(void) {
     switch (gModeStep) {
@@ -919,7 +919,7 @@ extern s32 D_800CEBA0[]; /**< start of the interpolation */
 extern u8 D_80095A20;    /**< interpolation step, 0..30 */
 extern s32 D_800DB2B8[]; /**< cleared on every step */
 
-/* MATCHING: a per-unit view; code_7d74 defines it as (s16, s16, u16, u16)
+/* MATCHING: a per-unit view; model defines it as (s16, s16, u16, u16)
  * returning s16. */
 s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 
@@ -962,7 +962,7 @@ void UpdateToolView(void) {
     D_800DB2B8[0] = 0;
 }
 
-/* MATCHING: a per-unit view; code_27bc8 defines it returning s16, and
+/* MATCHING: a per-unit view; card defines it returning s16, and
  * UpdateToolCard compares the result with -1 unextended. */
 s32 CheckCard(void);
 

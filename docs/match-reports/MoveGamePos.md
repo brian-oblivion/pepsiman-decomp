@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033A08` on 2026-10-11 (tools/rename.py). Address 0x80033a08.
 
-Unit `src/code_1dc24.c`. Converts `deg` (degrees) to a 4096-unit angle
+Unit `src/editor.c`. Converts `deg` (degrees) to a 4096-unit angle
 (`(deg << 12) / 360`, the `0xB60B60B7` magic divide), adds the yaw
 `D_800A7680[0].vy`, and moves the position words at 0x348 and 0x350 of
 `gPlayer` back by `rsin(...) * dist >> 12` and `rcos(...) * dist >> 12`.
@@ -33,8 +33,8 @@ void MoveGamePos(s32 deg, s32 dist) {
 
 ## Declarations
 
-`extern SVECTOR D_800A7680[];` moved from code_13068.c (not a round unit)
-into `include/code_13068.h`, which code_1dc24.c now includes; declcheck
-needs one site once two units use it. code_1dc24 also uses it in
+`extern SVECTOR D_800A7680[];` moved from player.c (not a round unit)
+into `include/player.h`, which editor.c now includes; declcheck
+needs one site once two units use it. editor also uses it in
 SaveEditorState/RestoreEditorState (`D_800A7680[0].vy`, which replaced the
 `D_800A7682` line those commits had added to `include/common.h`).

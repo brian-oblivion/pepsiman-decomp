@@ -2,10 +2,10 @@
 
 > Renamed from `func_8003EF40` on 2026-10-10 (tools/rename.py). Address 0x8003ef40.
 
-Unit `src/code_29f54.c`. A slot step with three phases over 48 frames:
+Unit `src/stage.c`. A slot step with three phases over 48 frames:
 sprite 0x136 slides in from the left (frames 0..15, 15 pixels a frame),
 holds at x = -72 while its blue/alpha byte blinks down in an 8-frame cycle
-(16..31), then slides out to the right (32..47). Drawn with code_a0bc's
+(16..31), then slides out to the right (32..47). Drawn with draw's
 DrawSprite into the current ordering table; returns 1 at frame 48.
 
 ```c

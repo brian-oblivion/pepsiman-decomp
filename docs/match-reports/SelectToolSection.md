@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003708C` on 2026-10-11 (tools/rename.py). Address 0x8003708c.
 
-Unit `src/code_24748.c`. Steps the index `gToolSection` up when bit 3 of the
+Unit `src/hit_tool.c`. Steps the index `gToolSection` up when bit 3 of the
 flag word `gPadTrig` is set and down when bit 2 is, then clamps it to
 `0 .. gSectionCount - 1`.
 

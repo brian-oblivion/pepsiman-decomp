@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001B004` on 2026-10-10 (tools/rename.py). Address 0x8001b004.
 
-Unit `src/code_a0bc.c`. The depth-cued twin of DrawStandingBillboard: draws sprite
+Unit `src/draw.c`. The depth-cued twin of DrawStandingBillboard: draws sprite
 `id` of `gSpriteDefs` as a billboard quad standing on y = 0, rotated by
 `GsIDMATRIX`, into a POLY_FT4 in `GsOUT_PACKET_P`, but its colour (`color`'s
 r/g/b, or 0x808080 with no colour) goes through the GTE's depth cue

@@ -575,7 +575,7 @@ s32 EraseSave1(void) {
     return -1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011998);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011998);
 
 s32 FindSave1(void) {
     s16 i;
@@ -975,15 +975,15 @@ s32 EraseSave2(void) {
     return -1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_800119C8);
+INCLUDE_RODATA("asm/nonmatchings/card", D_800119C8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_800119E4);
+INCLUDE_RODATA("asm/nonmatchings/card", D_800119E4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011AA4);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011AA4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011B64);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011B64);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C24);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011C24);
 
 s32 FindSave2(void) {
     s16 i;
@@ -1020,12 +1020,12 @@ void BuildSave2Header(void) {
     CopySave2Icon();
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C54);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011C54);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011C70);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011C70);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011D30);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011D30);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011DF0);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011DF0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_27bc8", D_80011EB0);
+INCLUDE_RODATA("asm/nonmatchings/card", D_80011EB0);

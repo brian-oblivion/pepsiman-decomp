@@ -2,7 +2,7 @@
 
 > Renamed from `func_80035E24` on 2026-10-11 (tools/rename.py). Address 0x80035e24.
 
-Unit `src/code_24748.c`. Prints the tool's help panel: a title, then by
+Unit `src/hit_tool.c`. Prints the tool's help panel: a title, then by
 `gToolCardStep` (jump table `jtbl_800118AC`, 18 entries; 3, 5, 9 and anything
 past 17 print nothing) one or two prompt lines, some with the 1-based
 `gToolSlot`, some followed by a sub-menu (`PrintSaveLoad`,
@@ -32,7 +32,7 @@ extern char D_80011728[];
 extern char D_8001173C[];
 extern char D_8001174C[];
 
-/* Defined by code_1dc24, which has no header. */
+/* Defined by editor, which has no header. */
 void PrintYesNo(void);
 void PrintSaveLoad(void);
 
@@ -144,6 +144,6 @@ merges the shared `FntPrint(...); PrintYesNo();` tails and the
 
 ## Declarations
 
-`PrintYesNo` and `PrintSaveLoad` (code_1dc24, which has no header) and
+`PrintYesNo` and `PrintSaveLoad` (editor, which has no header) and
 the rodata format strings are declared in this `.c`; declcheck lists the
 two functions LOCAL.

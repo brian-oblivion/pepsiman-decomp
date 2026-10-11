@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041C7C` on 2026-10-10 (tools/rename.py). Address 0x80041c7c.
 
-Unit `src/code_31cec.c`. Initialises the movie decode state (Sony movie
+Unit `src/sound.c`. Initialises the movie decode state (Sony movie
 sample's `strInit` part): the two VLC buffers at 0x8015D000 and
 0x80171000, the image buffer at 0x80195000, indices and done flag 0, two
 480x240 VRAM frame areas, and the first 24-pixel-wide decode slice,

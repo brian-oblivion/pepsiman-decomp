@@ -2,13 +2,13 @@
 
 > Renamed from `func_80033224` on 2026-10-11 (tools/rename.py). Address 0x80033224.
 
-Unit `src/code_1dc24.c`. Sorts a GsLINE from `pos` (offset by
+Unit `src/editor.c`. Sorts a GsLINE from `pos` (offset by
 `gWorldShift`) to 200 units above it, red 0xFF with green and blue pulsing
-with the frame counter `gFrameCount`. It is the twin of code_24748's
+with the frame counter `gFrameCount`. It is the twin of hit_tool's
 `DrawToolPole` without that function's negated x and z; that body, with
 `+ pos->vx` / `+ pos->vz`, matched on the first build.
 
-The unit now includes `code_a0bc.h` for `gSubOt` (the ordering
+The unit now includes `draw.h` for `gSubOt` (the ordering
 tables); no header was changed.
 
 ```c

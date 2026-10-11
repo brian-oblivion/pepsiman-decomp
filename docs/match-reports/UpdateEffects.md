@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003F664` on 2026-10-10 (tools/rename.py). Address 0x8003f664.
 
-Unit `src/code_29f54.c`. Runs every active slot once a frame: walks the
+Unit `src/stage.c`. Runs every active slot once a frame: walks the
 active list from `gEffectActive` through each record's `next` byte (a negative
 link ends it), calls the record's step function from the table `gEffectSteps`
 (StepEffect0, StepEffect1, ... indexed by `unk12`) with the drawing

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001D39C` on 2026-10-10 (tools/rename.py). Address 0x8001d39c.
 
-Unit `src/code_a0bc.c`. The flat-textured twin of SortTmdDivF3: the
+Unit `src/draw.c`. The flat-textured twin of SortTmdDivF3: the
 subdividing handler for flat-textured unlit triangles (`TmdFT3`, handler
 table row 2, column 7). Depth-cued POLY_FT3 with the TMD's UV words one
 OT slot further in unless the transform overflowed; under depth 250 a

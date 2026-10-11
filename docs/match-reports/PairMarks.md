@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C5D0` on 2026-10-11 (tools/rename.py). Address 0x8002c5d0.
 
-Unit `src/code_1a098.c`. For every odd index of the 200-entry Rec5C table
+Unit `src/object.c`. For every odd index of the 200-entry Rec5C table
 `D_800CF080` whose byte 0 is 1, sets byte 0 of that record and of the one
 before it to 2.
 
@@ -12,5 +12,5 @@ loop's back-branch delay slot a `nop` (ClearFlags128). As `void` it scores
 30/32 (the slot gets filled). The second record is indexed `(s16)i - 1`, as
 retail rebuilds its address from the sign-extended index minus one.
 
-`-Wall`: "control reaches end of non-void function" in code_1a098 (new,
+`-Wall`: "control reaches end of non-void function" in object (new,
 deliberate; for the head to baseline).

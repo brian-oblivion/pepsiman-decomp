@@ -2,7 +2,7 @@
 
 > Renamed from `func_80042058` on 2026-10-10 (tools/rename.py). Address 0x80042058.
 
-Unit `src/code_31cec.c`. Sound start-up: mixes serial input A (CD) on at
+Unit `src/sound.c`. Sound start-up: mixes serial input A (CD) on at
 full volume, clears `D_80095AEA` and `gSeSlot`, opens the first song
 of the sequence bank loaded at 0x80101000 into slots 2..9 of
 `gSeqIds` (VAB `gSeVab`), then sets every slot's volume to 0.

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003B780` on 2026-10-10 (tools/rename.py). Address 0x8003b780.
 
-Unit `src/code_29f54.c`. Intersects the line through (x0, y0) and (x1, y1)
+Unit `src/stage.c`. Intersects the line through (x0, y0) and (x1, y1)
 with the circle of radius 500 about the origin, and writes to `out` the
 intersection nearer the first point. When the line is steeper than 45
 degrees it works in a frame rotated by 90 degrees (swapping and negating the

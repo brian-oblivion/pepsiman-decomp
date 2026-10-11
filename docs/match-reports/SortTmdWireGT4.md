@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002097C` on 2026-10-10 (tools/rename.py). Address 0x8002097c.
 
-Unit `src/code_a0bc.c`. The wireframe handler (row 7, column 0 of the handler
+Unit `src/draw.c`. The wireframe handler (row 7, column 0 of the handler
 table, installed by InitTmdSortFuncs's mode switch): each lit gouraud-textured
 TMD quad becomes two 3-point gouraud polylines (LINE_G3, code 0x58, the
 0x55555555 terminator in `pad`, length 7), (v0, v1, v3) and (v0, v2, v3),

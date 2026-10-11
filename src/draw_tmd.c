@@ -558,7 +558,7 @@ PACKET *SortTmdLitGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packet, 
 }
 
 void LoadOverlay(s32 id) {
-    /* MATCHING: s32 in code_31958's view; the switch narrows it. */
+    /* MATCHING: s32 in stage_overlay's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
             gCdLoadLoc[0] = (s32)D_800761AC;

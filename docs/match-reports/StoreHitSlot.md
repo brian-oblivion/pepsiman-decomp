@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036184` on 2026-10-11 (tools/rename.py). Address 0x80036184.
 
-Unit `src/code_24748.c`. The inverse of LoadHitSlot: stores the two
+Unit `src/hit_tool.c`. The inverse of LoadHitSlot: stores the two
 working buffers (0x4744 bytes at 0x8016D000, 0x2034 bytes at 0x8017D000)
 back into hit-data slot `n` of the tool buffer at 0x8018D000. The
 `HitBlockA`/`HitBlockB`/`HitSlot`/`ToolBuf` typedefs moved up the unit,

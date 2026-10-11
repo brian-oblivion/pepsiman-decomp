@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003E544` on 2026-10-10 (tools/rename.py). Address 0x8003e544.
 
-Unit `src/code_29f54.c`. Getter: returns the word `gResultsActive`.
+Unit `src/stage.c`. Getter: returns the word `gResultsActive`.
 
 ```c
 s32 IsResultsActive(void) {

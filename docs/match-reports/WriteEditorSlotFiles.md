@@ -2,7 +2,7 @@
 
 > Renamed from `func_80032EE4` on 2026-10-11 (tools/rename.py). Address 0x80032ee4.
 
-Unit `src/code_1dc24.c`. Writes the four data blocks of each of the three
+Unit `src/editor.c`. Writes the four data blocks of each of the three
 save slots of the tool buffer (`0x8016D000`, the `SaveSlot` view) to
 `DATA0.TLD` .. `DATA2.TLD` on the host (`open(path, O_CREAT | O_WRONLY)`,
 four `write`s, `close`); a failed write closes the file and returns -1, and

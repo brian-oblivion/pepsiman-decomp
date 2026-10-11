@@ -1,15 +1,15 @@
-# BuildEmptyBlock — MATCHED (28/28) after splitting code_1a098
+# BuildEmptyBlock — MATCHED (28/28) after splitting object
 
 > Renamed from `func_800337E4` on 2026-10-11 (tools/rename.py). Address 0x800337e4.
 
 **Resolved by the head after round 5:** retail reaches `D_800959C0`/`C4`/`C8`
 through `$gp` only up to LaunchMarkedEffect and through `lui` from PrintEditorCaption on:
-two source files. code_1a098 is now split at UpdateEditor (where splat had
-already placed the unit's rodata), the second half is `src/code_1dc24.c`, and
+two source files. object is now split at UpdateEditor (where splat had
+already placed the unit's rodata), the second half is `src/editor.c`, and
 its own gp list leaves those symbols out. The body is live. Original title:
 BuildEmptyBlock — STALL: 4 words short (24/28), first diff at +0x20 (`sw $v0, %gp_rel(D_800959C0)($gp)` for `lui $at` / `sw $v0, %lo(D_800959C0)($at)`) (round 5, alpha)
 
-Unit `src/code_1dc24.c`. Calls `SetCurrentBlock(buf)`, then builds an empty
+Unit `src/editor.c`. Calls `SetCurrentBlock(buf)`, then builds an empty
 block header in `buf` for the entry count `gStageObjCount`: points
 `D_800959C0` at `buf + 8`, stores the count in `D_800959C8`, points
 `D_800959C4` at `buf + count * 8 + 8`, and writes the count and that offset
@@ -70,7 +70,7 @@ void BuildEmptyBlock(u8 *buf) {
 ```
 
 Declarations: `gStageObjCount` (`s32`) was added to `include/common.h`
-(additive); code_7d74 and code_29f54 also reach it, in asm.
+(additive); model and stage also reach it, in asm.
 
 ### Proposed learning
 

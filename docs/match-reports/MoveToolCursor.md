@@ -2,7 +2,7 @@
 
 > Renamed from `func_80034388` on 2026-10-11 (tools/rename.py). Address 0x80034388.
 
-Unit `src/code_24748.c`. Steps by `gToolStep` either the dispatch object's
+Unit `src/hit_tool.c`. Steps by `gToolStep` either the dispatch object's
 two sizes (`gToolQuadW`/`gToolQuadH`, state 1 of `gToolQuadStage`, each clamped
 to 0..1000) or the game state's x and z (otherwise), then y on
 `D_80095958`'s bits, and on flag bit 4 leaves state 1 with error code 1.
@@ -65,5 +65,5 @@ ternary.
 
 ## Declarations
 
-`D_80095958` is declared in this `.c` (code_1dc24 declares it in its own);
+`D_80095958` is declared in this `.c` (editor declares it in its own);
 declcheck lists it LOCAL. It belongs in `common.h` at merge.

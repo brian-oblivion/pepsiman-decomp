@@ -4,11 +4,11 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "sys/file.h"
-#include "code_1a098.h"
-#include "code_13068.h"
-#include "code_a0bc.h"
-#include "code_7d74.h"
-#include "code_1902c.h"
+#include "object.h"
+#include "player.h"
+#include "draw.h"
+#include "model.h"
+#include "collision.h"
 
 /** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
  *         known. */
@@ -115,7 +115,7 @@ typedef struct {
     u8 unk9A04[0x1D70]; /**< not yet known; the block area starts at 0xB174 */
 } SaveSlot;
 
-/* MATCHING: D_800A7898 and D_80095B28 are also declared in code_1a098, each
+/* MATCHING: D_800A7898 and D_80095B28 are also declared in object, each
  * unit through its own view (Rec3C, Totals28 here; Rec3C, Progress6E there). */
 extern u16 D_80095B4C[];   /**< first of a run of halfwords */
 extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
@@ -187,7 +187,7 @@ typedef struct {
 
 #define sGameSave (*(GameSave *)gPlayer)
 
-/* MATCHING: also declared in code_1a098, which only zeroes it. */
+/* MATCHING: also declared in object, which only zeroes it. */
 extern s32 D_80095824; /**< the current entry of the block, -1 for none */
 extern s32 D_80095950; /**< a pad word; bits step the edited value */
 
@@ -218,7 +218,7 @@ typedef struct {
 #define sCur (*(BlockCur *)&D_800959C0)
 
 /** @brief A 0x48-byte record of the 200-entry record table, as
- *         this unit places it (code_1a098.h's Rec48 is the same record). */
+ *         this unit places it (object.h's Rec48 is the same record). */
 typedef struct {
     s32 unk0[3]; /**< a position */
     s32 unkC[3]; /**< a copy of unk0 */
@@ -245,14 +245,14 @@ typedef struct {
     u8 unk44[4]; /**< not yet known */
 } Obj48;
 
-/* MATCHING: code_1a098 declares D_800959D8 as u8 (it only zeroes it); this
+/* MATCHING: object declares D_800959D8 as u8 (it only zeroes it); this
  * unit tests it as s8. */
 extern Obj48 D_80096788[]; /**< records waiting to be placed */
 extern u16 D_8009596E;     /**< number of records waiting */
 extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
 
 /* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
- * take an s32 id here (passed unextended), u16 and s16 in code_1a098. */
+ * take an s32 id here (passed unextended), u16 and s16 in object. */
 void SaveEditorSlot(s16 a, u8 *buf);
 void LoadEditorSlot(s16 a, u8 *buf);
 void BuildEmptyBlock(u8 *buf);
@@ -260,7 +260,7 @@ void ClearRec3CAll(Rec3C *recs);
 void StepSprite(s32 id, Rec3C *r);
 void DrawObjectSprite(s32 id, Rec3C *r);
 
-/** @brief A rotation followed by a position (code_13068.h declares the
+/** @brief A rotation followed by a position (player.h declares the
  *         record as an SVECTOR array). */
 typedef struct {
     SVECTOR rot; /**< the rotation */
@@ -269,12 +269,12 @@ typedef struct {
 
 #define sRotPos (*(RotPos *)D_800A7680)
 
-/* MATCHING: declared per unit (code_1a098 and code_308ec give their own
+/* MATCHING: declared per unit (object and stage_flow give their own
  * views); here the start position is passed as words. */
 s32 FindFloor(s32 *pos);
 extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 
-/* MATCHING: code_1a098 declares it as its Rec5C records. */
+/* MATCHING: object declares it as its Rec5C records. */
 extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
 
 /** @brief A 0x5C-byte record of the 200-entry record table, as this unit
@@ -300,14 +300,14 @@ typedef struct {
 
 extern Sizes3 D_800110EC; /**< the three box sizes, 2000, 1000 and 4000 */
 
-/* MATCHING: code_1a098 defines it on its Box4. */
+/* MATCHING: object defines it on its Box4. */
 void SetBoxCentred(Rec5Cv *b, s16 w, s16 d);
 
-/* MATCHING: code_308ec defines it with an s16 first parameter; this unit
+/* MATCHING: stage_flow defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
 u16 CallStageHook(s32 id, Obj48 *a, Obj48 *b);
 
-/* MATCHING: defined in code_13068 and code_24748, which have no header. */
+/* MATCHING: defined in player and hit_tool, which have no header. */
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void DrawPin(VECTOR *pos);
 
@@ -337,7 +337,7 @@ extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
 extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 
 /* Defined in other units, without a header. */
-/* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
+/* MATCHING: object defines it with no parameter; called with an OT. */
 void UpdatePickups(GsOT *ot);
 void ResetStageObjects(void);
 void DrawSky(void);
@@ -367,7 +367,7 @@ void func_80033B08(void);
 void RunValueMenu(void);
 void ApplyRecordsToEntries(void);
 s32 PrintEditorStatus(void);
-/* MATCHING: code_13068 tests it as s8. */
+/* MATCHING: player tests it as s8. */
 extern u8 D_80095962; /**< set on leaving the tool */
 
 extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
@@ -378,16 +378,16 @@ typedef struct {
     u8 b[8]; /**< the bytes */
 } Bytes8;
 
-/* MATCHING: code_1a098 defines it as (u16, Quad16 *); this unit passes the
+/* MATCHING: object defines it as (u16, Quad16 *); this unit passes the
  * index unextended. */
 void GetQuad16(s32 i, Bytes8 *out);
 void DrawHeadingLine(VECTOR *pos, s16 deg);
 
-/* MATCHING: defined in code_1902c, which has no header. */
+/* MATCHING: defined in collision, which has no header. */
 
-/* MATCHING: defined in code_27bc8, which has no header. */
+/* MATCHING: defined in card, which has no header. */
 s32 RunCardOp1(s16 mode);
-/* MATCHING: s16 in code_27bc8; its result is compared here unextended. */
+/* MATCHING: s16 in card; its result is compared here unextended. */
 s32 CheckCard(void);
 s32 WriteEditorSlotFiles(void);
 s32 CheckEditorSlot(s16 i);
@@ -396,235 +396,235 @@ void RestoreEditorState(s16 a);
 s32 WriteEditorFile(void);
 s32 ReadEditorFile(void);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B7C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010B7C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010B8C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010B8C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BA4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BA4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BB8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BB8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BCC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BCC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BD8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BD8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BE4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BE4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BF0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BF0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010BFC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BFC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C08);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C08);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C14);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C14);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C20);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C20);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C2C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C2C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C38);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C38);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C48);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C48);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C54);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C54);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C68);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C68);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C78);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C78);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C88);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C88);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010C94);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C94);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010CA4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CA4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010CB0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CB0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010CC4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CC4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010CD4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CD4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010CE4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CE4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010CF0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CF0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D04);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D04);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D18);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D18);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D24);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D24);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D30);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D30);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D3C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D3C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D54);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D54);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D64);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D64);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D74);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D74);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D84);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D84);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010D9C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D9C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010DAC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DAC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010DC4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DC4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010DD0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DD0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010DDC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DDC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010DE8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DE8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010DF4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DF4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E00);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E00);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E0C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E0C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E18);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E18);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E28);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E28);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E3C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E3C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E50);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E50);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E60);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E60);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E74);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E74);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010E8C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E8C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010EA4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EA4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010EBC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EBC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010EC8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EC8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010EE0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EE0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010EEC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EEC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F00);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F00);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F0C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F0C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F24);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F24);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F38);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F38);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F50);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F50);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F60);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F60);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F6C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F6C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F80);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F80);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010F98);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F98);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010FAC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FAC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010FBC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FBC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010FCC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FCC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010FDC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FDC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010FEC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FEC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80010FFC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FFC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011010);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011010);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011020);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011020);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001102C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001102C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001103C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001103C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011048);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011048);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011054);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011054);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011064);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011064);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011074);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011074);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011080);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011080);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001108C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001108C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011098);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011098);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110A4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110A4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110B0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110B0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110BC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110BC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110C8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110C8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110D4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110D4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110E0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110E0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110EC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110EC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800110F8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800110F8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011104);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011104);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011114);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011114);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011124);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011124);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011134);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011134);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011144);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011144);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011158);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011158);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011168);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011168);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011178);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011178);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001118C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001118C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001119C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001119C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800111B4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800111B4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800111C0);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800111C0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800111D4);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800111D4);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800111EC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800111EC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800111FC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800111FC);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011208);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011208);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001121C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001121C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001122C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001122C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_8001123C);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_8001123C);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011248);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011248);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011254);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011254);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011260);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011260);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_80011284);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_80011284);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112A8);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800112A8);
 
-INCLUDE_RODATA("asm/nonmatchings/code_1dc24", D_800112CC);
+INCLUDE_RODATA("asm/nonmatchings/editor", D_800112CC);
 
 /** @brief The tool's main step: sets the tool up on the first pass;
  *         then runs the current tool mode's editor, the camera and the
@@ -3103,7 +3103,7 @@ s32 StepMenuCursor(void) {
 
 /** @brief Sorts a pulsing red line from `pos` to 200 units above it into
  *         the current ordering table. */
-/* MATCHING: the twin of code_24748's DrawToolPole (an s16 colour local, an
+/* MATCHING: the twin of hit_tool's DrawToolPole (an s16 colour local, an
  * unused 8 bytes for the frame), without its mirrored x and z. */
 void DrawPole(VECTOR *pos) {
     s32 unused[2];

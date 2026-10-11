@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002A98C` on 2026-10-11 (tools/rename.py). Address 0x8002a98c.
 
-Unit `src/code_1a098.c`. Sets the four corners of a box `w` wide and `d`
+Unit `src/object.c`. Sets the four corners of a box `w` wide and `d`
 deep around the position `c`, relative to it, at `c`'s height. The sibling
 of SetBoxCentred (the same corner order, centred on the origin), with the
 corner array at offset 0 and the position subtracted. Matched on the
@@ -32,13 +32,13 @@ void SetBoxAround(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
 
 Retail reads `c` with `lhu` at 0, 4 and 8: words whose low halves only
 are used, so cc1 narrows the loads of a `VECTOR`'s `s32` members. The
-one caller (code_24748) passes `D_8009EEC0`, which this unit already hands
+one caller (hit_tool) passes `D_8009EEC0`, which this unit already hands
 to the squared-distance helper as a VECTOR.
 
 ## Declaration note
 
-code_24748.c declares the function as `void (Obj48 *, u8 *, s32, s32)`;
+hit_tool.c declares the function as `void (Obj48 *, u8 *, s32, s32)`;
 declcheck failed TYPE/LOCAL on it once the definition existed. A
 comment-only `MATCHING:` note above that prototype marks it as a per-unit
 view (no byte change). Unifying the two is left to the head: the proper
-prototype would go in code_1a098.h and code_24748's call would need casts.
+prototype would go in object.h and hit_tool's call would need casts.

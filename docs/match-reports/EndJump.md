@@ -2,7 +2,7 @@
 
 > Renamed from `func_800285B0` on 2026-10-11 (tools/rename.py). Address 0x800285b0.
 
-Unit `src/code_13068.c`. Clears one halfword of the game-state record
+Unit `src/player.c`. Clears one halfword of the game-state record
 `gPlayer` and sets another to 2.
 
 ```c

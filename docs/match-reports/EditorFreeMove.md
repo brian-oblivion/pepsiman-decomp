@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002FA78` on 2026-10-11 (tools/rename.py). Address 0x8002fa78.
 
-Unit `src/code_1dc24.c`. Free movement in the tool: four pad bits and
+Unit `src/editor.c`. Free movement in the tool: four pad bits and
 the two analogue axes `D_800957C8`/`D_800957C0` (below 0x60 or above
 0xA0) each move the game position with `MoveGamePos` by
 `sTotals.unk4`; sets the camera offset `gWorldShift` to the negated

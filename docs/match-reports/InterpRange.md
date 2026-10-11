@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002CAE4` on 2026-10-11 (tools/rename.py). Address 0x8002cae4.
 
-Unit `src/code_1a098.c`. The two-endpoint sibling of `InterpFromZero`:
+Unit `src/object.c`. The two-endpoint sibling of `InterpFromZero`:
 `out[1] = Lerp(a, b, t, n)`, `out` the fifth (stack) argument.
 
 ```c

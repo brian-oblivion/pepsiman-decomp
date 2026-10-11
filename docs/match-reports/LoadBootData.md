@@ -16,7 +16,7 @@ extern s32 D_80072484[];
 extern s32 D_800724C4[];
 s32 func_80013CDC(void);
 
-/* MATCHING: code_7d74 types the pack as its own PackEntry. */
+/* MATCHING: model types the pack as its own PackEntry. */
 void LoadTimPack(void *pack);
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
@@ -85,12 +85,12 @@ The five-word copy into `gCdLoadSectors` is five separate assignments
 
 ## Declarations
 
-- `gCdLoadCount` (s16) and `gCdLoadState` (s8) moved from `src/code_31cec.c` to
+- `gCdLoadCount` (s16) and `gCdLoadState` (s8) moved from `src/sound.c` to
   `include/common.h` (additive).
-- `LoadTimList` and `DefineHudSprites` (code_29f54) added to
+- `LoadTimList` and `DefineHudSprites` (stage) added to
   `include/common.h` (additive).
 - Per-unit views in `src/main.c` with `MATCHING:` notes:
-  `LoadTimPack(void *)` (code_7d74 types it with its local `PackEntry`)
+  `LoadTimPack(void *)` (model types it with its local `PackEntry`)
   and `func_80018DE8(s32)` (an empty definition retail calls with one
   argument).
 

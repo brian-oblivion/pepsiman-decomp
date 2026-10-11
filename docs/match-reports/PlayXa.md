@@ -2,7 +2,7 @@
 
 > Renamed from `func_80042B80` on 2026-10-10 (tools/rename.py). Address 0x80042b80.
 
-Unit `src/code_31cec.c`. Starts XA audio on a channel: sets the CD mix
+Unit `src/sound.c`. Starts XA audio on a channel: sets the CD mix
 volume to 80 (right channel muted when the mono flag `gStereo` is
 set), filters to file 1 / the given channel, sets double speed + ADPCM
 + channel filter + CD-DA mode, and issues `CdlReadS`.

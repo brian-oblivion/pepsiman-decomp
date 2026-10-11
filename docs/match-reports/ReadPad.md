@@ -8,7 +8,7 @@ axes when the pad type is 0x41, copies pad `arg`'s held and pressed words
 (`gPadHeld[arg]` to `gPad`, `gPadPressed[arg]` to `gPadTrig`),
 then runs an auto-repeat on the four d-pad bits and, when
 `D_800956F7 == 1`, on 0x80, 0x40 and 0x20. Called from EndFrame,
-AdjustScreenPosition and code_31cec.
+AdjustScreenPosition and sound.
 
 The signature is common.h's, `void ReadPad(s32 arg)`; the body
 indexes with `(u16)arg`, which gives retail's `andi 0xFFFF` at the use.
@@ -35,8 +35,8 @@ Four builds: 362 -> 369 -> 363 (do/while macro) -> 369.
 ## Declarations left for the head
 
 declcheck flags three globals this unit now shares with another unit's
-local declaration: `gPadType` (`u8`, code_13068.c), `D_800957C8` and
-`D_800957C0` (`u32`, code_1dc24.c). They belong in common.h.
+local declaration: `gPadType` (`u8`, player.c), `D_800957C8` and
+`D_800957C0` (`u32`, editor.c). They belong in common.h.
 
 ### Proposed learning
 

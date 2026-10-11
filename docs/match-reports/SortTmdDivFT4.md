@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001DAD4` on 2026-10-10 (tools/rename.py). Address 0x8001dad4.
 
-Unit `src/code_a0bc.c`. The flat-textured quad member of the subdividing
+Unit `src/draw.c`. The flat-textured quad member of the subdividing
 family (handler table row 6, column 7): SortTmdDivFT3's FT3 body on
 SortTmdDivF4's quad skeleton. Depth-cued POLY_FT4 with the TMD's four
 UV words one OT slot further in unless the transform overflowed; under
@@ -11,11 +11,11 @@ with the midpoint and centre UVs averaged, each sub-quad depth-cued again
 and linked at the parent's depth.
 
 New unit-local type `TmdFT4` (header, four `TmdUV` words, a `CVECTOR`,
-four vertex indices; 0x20 bytes). code_11dc4 has its own `TmdFT4` with
+four vertex indices; 0x20 bytes). draw_tmd has its own `TmdFT4` with
 `u32`/`u16` UV members; this unit needs the bytes. The local prototype
 changed from `PACKET *SortTmdDivFT4();` to the full one.
 
-The source is in `src/code_a0bc.c`.
+The source is in `src/draw.c`.
 
 ## How it went
 

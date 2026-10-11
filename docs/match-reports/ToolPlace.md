@@ -2,7 +2,7 @@
 
 > Renamed from `func_80036EF0` on 2026-10-11 (tools/rename.py). Address 0x80036ef0.
 
-Unit `src/code_24748.c`. When bit 5 of the flag word `gPadTrig` is set,
+Unit `src/hit_tool.c`. When bit 5 of the flag word `gPadTrig` is set,
 dispatches on the state byte `gToolKind`: 0 calls `InsertHitPoint`, 1 calls
 `PlaceHitQuad`.
 

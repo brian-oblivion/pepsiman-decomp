@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001C13C` on 2026-10-10 (tools/rename.py). Address 0x8001c13c.
 
-Unit `src/code_a0bc.c`. The gouraud twin of SortTmdDivF3: the subdividing
+Unit `src/draw.c`. The gouraud twin of SortTmdDivF3: the subdividing
 handler for gouraud unlit triangles (`TmdG3`, handler table row 1,
 column 7). Depth-cued POLY_G3 one OT slot further in unless the transform
 overflowed; under depth 250 a split into four sub-triangles at the edge
@@ -30,7 +30,7 @@ third parameter (unit-local; the only use is the handler table).
    First build: 463/463, `OK: build matches retail`. The `s16` lever was
    never needed.
 
-The source in `src/code_a0bc.c` is the round-10 body plus that change.
+The source in `src/draw.c` is the round-10 body plus that change.
 
 ### Proposed learning
 

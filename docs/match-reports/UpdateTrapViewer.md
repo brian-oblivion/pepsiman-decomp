@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002B04C` on 2026-10-11 (tools/rename.py). Address 0x8002b04c.
 
-Unit `src/code_1a098.c`. A trap-viewer frame: fixed reference view
+Unit `src/object.c`. A trap-viewer frame: fixed reference view
 (`gRefView` = 100, -200, 1000, 0, 0, 0), fog colour cleared, pad bits 2
 and 1 step the selected Rec78 entry `D_800958E2`, clamped to `0 ..
 gSectionCount - 1` with one nested-ternary store; then ResetCollision, a
@@ -57,11 +57,11 @@ void UpdateTrapViewer(void) {
 First build. The clamp is SelectToolSection's (LEARNINGS, "a clamp whose one
 store of the global sits at a join").
 
-Declarations: `ReactToHits` (code_13068, still asm) is prototyped in this
-unit as code_24748 prototypes it; declcheck lists both as MULTI/LOCAL
-until a merge moves one copy to `include/code_13068.h`.
+Declarations: `ReactToHits` (player, still asm) is prototyped in this
+unit as hit_tool prototypes it; declcheck lists both as MULTI/LOCAL
+until a merge moves one copy to `include/player.h`.
 
-code_24748's RefreshToolPreview (NON_MATCHING) is this function's twin
+hit_tool's RefreshToolPreview (NON_MATCHING) is this function's twin
 without the pad and the drawing; the `D_800A9008` block above, three word
 stores and three halfword stores through `(s16 *)`, is the form that
 matched here.

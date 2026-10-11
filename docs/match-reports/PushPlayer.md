@@ -2,7 +2,7 @@
 
 > Renamed from `func_800282F0` on 2026-10-11 (tools/rename.py). Address 0x800282f0.
 
-Unit `src/code_13068.c`. Turns `deg` degrees into a PlayStation angle,
+Unit `src/player.c`. Turns `deg` degrees into a PlayStation angle,
 adds the `vy` of the rotation `D_800A7680` points at, and pushes the
 game-state pair `unk348`/`unk350` back by `dist` along that heading (sine
 on 0x348, cosine on 0x350, 20.12 fixed point).

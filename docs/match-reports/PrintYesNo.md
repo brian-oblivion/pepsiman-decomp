@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033C90` on 2026-10-11 (tools/rename.py). Address 0x80033c90.
 
-Unit `src/code_1dc24.c`. Prints a two-line YES/NO menu with `FntPrint`:
+Unit `src/editor.c`. Prints a two-line YES/NO menu with `FntPrint`:
 a blank-line header (`D_800955DC`), then for each line an indent
 (`PrintTabs(4)`), the highlight colour code `D_800954F4` when the
 cursor `D_8009574A` is on that line or the plain one `D_8009550C`

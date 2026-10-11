@@ -2,7 +2,7 @@
 
 > Renamed from `func_80031AEC` on 2026-10-11 (tools/rename.py). Address 0x80031aec.
 
-Unit `src/code_1dc24.c`. The Rec3C picker, EditorPickRecord's twin on the
+Unit `src/editor.c`. The Rec3C picker, EditorPickRecord's twin on the
 100-entry Rec3C table `D_800A7898`: counts the used records (`unk0 != -1`)
 into `sTotals.unk30`; in state 0 picks the one nearest the game position
 (its `unk4` position) into `sTotals.unk28` (errors 9 and 11 as the twin);
@@ -23,7 +23,7 @@ flag bits 0 and 1. First build matched.
 ## Declarations
 
 - None new beyond EditorPickRecord's (the `DistanceSquared` prototype).
-- `config/typeviews-warnings.txt`: one more code_1dc24 "control reaches
+- `config/typeviews-warnings.txt`: one more editor "control reaches
   end of non-void function".
 
 ```c
@@ -34,4 +34,4 @@ s32 EditorPickSprite(void) {
 }
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)

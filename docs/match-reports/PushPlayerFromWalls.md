@@ -2,14 +2,14 @@
 
 > Renamed from `func_8002A328` on 2026-10-11 (tools/rename.py). Address 0x8002a328.
 
-Unit `src/code_1a098.c`. Two wall probes: a point 50 units from the
+Unit `src/object.c`. Two wall probes: a point 50 units from the
 player (`sGameHead` 0x348/0x34C/0x350) at the heading `D_800A7680[0].vy`
 plus and minus 0x200 (45 degrees); UpdateSection finds the path segment
 from `D_800957F4`, and when QueryWall reports a hit the player moves
 25 units back along heading ±0x400. Then func_8002A558.
 
 ```c
-/* MATCHING: code_29f54 defines x and y as s16; this unit passes them
+/* MATCHING: stage defines x and y as s16; this unit passes them
  * unextended. */
 void UpdateSection(s32 *index, s32 x, s32 y);
 
@@ -53,6 +53,6 @@ UpdateSection's x and y arrive unextended (`lw` straight into `$a1`), so
 this unit's view takes `s32` (LEARNINGS, "a callee's prototype is a
 per-unit view"). QueryWall is still asm; its prototype here is a
 guess from this call (index, position, data base). `D_800957F4` and
-`gFloorData` are declared here as code_308ec and code_7d74 declare them
+`gFloorData` are declared here as stage_flow and model declare them
 (`s32`); declcheck lists them MULTI until a merge moves them to
 `common.h`.

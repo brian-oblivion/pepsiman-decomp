@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041964` on 2026-10-10 (tools/rename.py). Address 0x80041964.
 
-Unit `src/code_31cec.c`. The `DecDCToutCallback` handler of the movie
+Unit `src/sound.c`. The `DecDCToutCallback` handler of the movie
 player (PlayMovieFile installs it through InitMovieStream): Sony's sample
 `out_callback` on the unit's decode environment `gMovieDec` (a
 `DECENV`). It services a pending stream interrupt (`D_800E1F1C`, libcd's

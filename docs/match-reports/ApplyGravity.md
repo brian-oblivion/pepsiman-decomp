@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023D68` on 2026-10-11 (tools/rename.py). Address 0x80023d68.
 
-Unit `src/code_13068.c`. The forward step: tracks the lowest unk34C in
+Unit `src/player.c`. The forward step: tracks the lowest unk34C in
 `D_800956E4` and unk39C, skips modes 8..11 (and 0x38/0x39 unless the stage
 mode is 3), snaps unk34C to the cap unk3C0 within 50 or advances it by
 5 x unk3A6, then handles the two goal caps: unk3CC under the unk3B8/unk3BC
@@ -179,8 +179,8 @@ Builds this round: 13. Tried on the way (each from the 129 body):
 | same with `d = sGame.unk39C;` first | 134 |
 | without the dead `y = 0;` | 129 |
 
-Also adds a `MATCHING:` note to code_308ec's `extern u8 D_80095900;`:
-the function is now live C, so declcheck sees code_13068 reach the global
+Also adds a `MATCHING:` note to stage_flow's `extern u8 D_80095900;`:
+the function is now live C, so declcheck sees player reach the global
 (as `s8`) and needs both views marked deliberate.
 
 ### Proposed learning

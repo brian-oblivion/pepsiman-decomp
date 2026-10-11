@@ -2,7 +2,7 @@
 
 > Renamed from `func_80023BFC` on 2026-10-11 (tools/rename.py). Address 0x80023bfc.
 
-Unit `src/code_13068.c`. On flag 0x40 of `D_800AC860` (outside mode
+Unit `src/player.c`. On flag 0x40 of `D_800AC860` (outside mode
 0xE): ends a pending low-nibble state of 0x3D0, sets the cap 0x3C0 to
 30000, and once 0x34C reaches `gFloorY[0] + 100` (a goal line) runs
 the goal: `gMissState` to 2 if clear, `D_800958EC = 1`, 0x3A6 += 2, and
@@ -54,8 +54,8 @@ GameState gained `unk374`, `unk3A6`, `unk3CA` (all s16).
 - `D_800AC860`: `lui $v0` / `lw $v0` in one register, a scalar;
   `extern s32` in the `.c` (only this unit names it).
 - `gMissState` and `ResetSpeed` were declared locally in
-  `src/code_308ec.c` (not a round-7 unit). Both moved to
-  `include/common.h` (ADDITIVE there) and deleted from code_308ec, so
+  `src/stage_flow.c` (not a round-7 unit). Both moved to
+  `include/common.h` (ADDITIVE there) and deleted from stage_flow, so
   declcheck sees one declaration.
 
 ## Path

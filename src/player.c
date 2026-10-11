@@ -2,10 +2,10 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
-#include "code_a0bc.h"
-#include "code_13068.h"
-#include "code_1a098.h"
-#include "code_7d74.h"
+#include "draw.h"
+#include "player.h"
+#include "object.h"
+#include "model.h"
 #include "rand.h"
 
 /** @brief The game-wide state record, as far as this unit reads it. The
@@ -114,7 +114,7 @@ extern s32 D_80095800;
 extern s32 D_80095804;
 extern s32 D_8009580C;
 
-/* MATCHING: a per-unit view; code_29f54 stores it as an s32. */
+/* MATCHING: a per-unit view; stage stores it as an s32. */
 extern u8 *D_80095790;
 
 /** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */
@@ -127,7 +127,7 @@ typedef struct {
 extern s32 D_8009EEF8[];
 
 /** @brief A 72-byte record of the shared slot table, as the item
- *         spawner fills it; code_1902c's Slot48 is the same record. */
+ *         spawner fills it; collision's Slot48 is the same record. */
 typedef struct {
     s32 unk0; /**< set to minus the view offset's x when a stage object is placed */
     s32 unk4; /**< cleared, or 0x3C or 0x32, when a stage object is placed */
@@ -159,7 +159,7 @@ typedef struct {
 extern SlotRec D_800D3860[];
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
 extern ObjRec D_800D8370[];
-/* MATCHING: code_1a098 types these Rec78 and Rec48; this unit's records are views of them. */
+/* MATCHING: object types these Rec78 and Rec48; this unit's records are views of them. */
 void DrawObjectModel(Rec78 *rec, Rec48 *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
@@ -195,7 +195,7 @@ s32 UpdateSpeedBand(void);
 void PolarOffset(s32 deg, s32 radius, VECTOR *out);
 void AttachMode5Object(void);
 s32 TrySlide(void);
-/* MATCHING: code_1dc24 stores it as u8; this unit's tests load it lb. */
+/* MATCHING: editor stores it as u8; this unit's tests load it lb. */
 extern s8 D_80095962;
 
 /** @brief One of gPlayerHits' three records; a live one is reacted to. */
@@ -227,7 +227,7 @@ void RecentreSteer(void);
 void SetStageFog(void);
 void func_80028500(void);
 
-/* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
+/* MATCHING: stage defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void StartRumble(u16 *table, s32 index);
@@ -245,19 +245,19 @@ typedef struct {
 } Words3;
 
 extern s32 D_800DF5C0[];
-/* MATCHING: a per-unit view; code_1a098 declares it the same way, code_1dc24
+/* MATCHING: a per-unit view; object declares it the same way, editor
  * as words. */
 extern Rec5C D_800CF080[];
 extern u8 D_800959B0;
 extern s16 gMissTimer;
 void DrawHud(void);
-/* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
+/* MATCHING: stage_flow defines this with a u8 parameter; this unit's call passes none. */
 void RestartStage();
 void func_8003E360(s32 level);
-/* MATCHING: code_308ec stores this as u8; this unit's test loads it lb. */
+/* MATCHING: stage_flow stores this as u8; this unit's test loads it lb. */
 extern s8 D_80095900;
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
-/* MATCHING: code_7d74 defines this as an empty void(void); this unit's call
+/* MATCHING: model defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
 void func_80018CA4(GameState *g);
 
@@ -981,12 +981,12 @@ void ReactToHits(u8 *state) {
     D_8009575F = 0;
 }
 
-/* MATCHING: code_7d74 types the object as its own view; this unit passes the state block. */
+/* MATCHING: model types the object as its own view; this unit passes the state block. */
 u8 StepAnimation(GameState *obj, u16 index, u8 arg);
-/* MATCHING: code_7d74 defines this with s16/u16 parameters and an s16 result; this unit's
+/* MATCHING: model defines this with s16/u16 parameters and an s16 result; this unit's
  * calls pass halfwords unextended and store the result as a word. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
-/* MATCHING: empty void(void) in code_7d74; unprototyped here, called with two args and one. */
+/* MATCHING: empty void(void) in model; unprototyped here, called with two args and one. */
 void func_80018CAC();
 
 s32 LandPlayer(GameState *g);
@@ -2979,8 +2979,8 @@ void AttachMode5Object(void) {
     }
 }
 
-INCLUDE_RODATA("asm/nonmatchings/code_13068", D_80010950);
+INCLUDE_RODATA("asm/nonmatchings/player", D_80010950);
 
-INCLUDE_RODATA("asm/nonmatchings/code_13068", D_80010AE0);
+INCLUDE_RODATA("asm/nonmatchings/player", D_80010AE0);
 
-INCLUDE_RODATA("asm/nonmatchings/code_13068", D_80010B10);
+INCLUDE_RODATA("asm/nonmatchings/player", D_80010B10);

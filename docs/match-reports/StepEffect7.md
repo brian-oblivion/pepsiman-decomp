@@ -2,16 +2,16 @@
 
 > Renamed from `func_8003EA04` on 2026-10-10 (tools/rename.py). Address 0x8003ea04.
 
-Unit `src/code_29f54.c`. A pickup flying to the HUD: on its first frame the
+Unit `src/stage.c`. A pickup flying to the HUD: on its first frame the
 slot's world position (`unkC`, `unkE`, `unk10` read as an `SVECTOR`) is
 projected to the screen with `RotTransPers` and written back as screen x/y;
 over eight frames it then moves an eighth of the way a frame toward
 (-136, -88), shrinking (`0x1000 - frame*256`) and fading, drawn as sprite 0xFA
-through code_a0bc's DrawSpriteTransformed (still asm). On the eighth frame it counts
+through draw's DrawSpriteTransformed (still asm). On the eighth frame it counts
 the pickup (`gCans++`), calls CheckCanBonus and returns 1.
 
 ```c
-/* setLs: the unit's static __inline__ helper (see src/code_29f54.c) */
+/* setLs: the unit's static __inline__ helper (see src/stage.c) */
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, s32 mode, GsOT *ot);
 
 s32 StepEffect7(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
@@ -54,8 +54,8 @@ s32 StepEffect7(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
   `config/typeviews-warnings.txt` (one line added).
 - `~(p->unk0 << 4)` gives retail's `nor` for the fading byte.
 - `q[0] = q[2] = ...` stores `q[2]` first, matching retail's order.
-- **Declarations:** DrawSpriteTransformed (code_a0bc, still `INCLUDE_ASM`) is
+- **Declarations:** DrawSpriteTransformed (draw, still `INCLUDE_ASM`) is
   declared in this `.c` with the view this caller needs (`s16 *` quad
-  parameters). CheckCanBonus (code_13068, plain `void (void)`) got a
+  parameters). CheckCanBonus (player, plain `void (void)`) got a
   prototype ADDED to `include/common.h`, beside the other cross-unit
   `void (void)` prototypes there.

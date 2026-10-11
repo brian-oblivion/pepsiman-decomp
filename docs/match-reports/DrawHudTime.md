@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003A4B4` on 2026-10-10 (tools/rename.py). Address 0x8003a4b4.
 
-Unit `src/code_29f54.c`. Draws a race time right to left from a frame
+Unit `src/stage.c`. Draws a race time right to left from a frame
 count (30 frames a second): hundredths as two digits, a separator, seconds
 as two digits, a separator, then the minutes with leading zeros suppressed
 (at least one digit). Each glyph steps the pen 6 pixels left. Digit sprites

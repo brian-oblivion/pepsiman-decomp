@@ -2,7 +2,7 @@
 
 > Renamed from `func_80029E74` on 2026-10-11 (tools/rename.py). Address 0x80029e74.
 
-Unit `src/code_1a098.c`. The wall test behind PushPlayerFromWalls's probes. It
+Unit `src/object.c`. The wall test behind PushPlayerFromWalls's probes. It
 walks zone `zone` of the floor-format data `hdr` (`FloorHdr`, the same
 layout QueryFloor reads), skips faces whose flag is set, and finds the
 face whose centre (three vertices averaged with `/ 3`, four with `>> 2`)

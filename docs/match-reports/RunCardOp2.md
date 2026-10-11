@@ -2,7 +2,7 @@
 
 > Renamed from `func_800389B4` on 2026-10-10 (tools/rename.py). Address 0x800389b4.
 
-Unit `src/code_27bc8.c`. Twin of RunCardOp1 for the second save file:
+Unit `src/card.c`. Twin of RunCardOp1 for the second save file:
 buffers at `0x80195000`/`0x8018D000`, checksum at buffer + 0x17FFE, and the
 second file's helpers (FindSave2, CheckSave2Space, ReadSave2,
 RewriteSave2, EraseSave2, BuildSave2Header, CreateSave2). The asm of the

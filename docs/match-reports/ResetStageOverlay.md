@@ -2,10 +2,10 @@
 
 > Renamed from `func_800413BC` on 2026-10-10 (tools/rename.py). Address 0x800413bc.
 
-Unit `src/code_31958.c`. The second per-stage dispatcher, the twin of
+Unit `src/stage_overlay.c`. The second per-stage dispatcher, the twin of
 StartStageOverlay: switches on `gStage` (0..14) and calls each stage's
 overlay function; stages 6 and 7 share func_800F1908. Called from
-code_308ec and code_1dc24.
+stage_flow and editor.
 
 The function is 76 words (0x130); the brief's 91 counted the jump table.
 
@@ -36,4 +36,4 @@ void ResetStageOverlay(void) {
 }
 ```
 
-The full body is in `src/code_31958.c`.
+The full body is in `src/stage_overlay.c`.

@@ -2,7 +2,7 @@
 
 > Renamed from `func_800401F0` on 2026-10-10 (tools/rename.py). Address 0x800401f0.
 
-Unit `src/code_308ec.c`. One frame of a stage, driven by the state in
+Unit `src/stage_flow.c`. One frame of a stage, driven by the state in
 `gModeStep`: 0 clears `gSubStep` and steps; 1 waits for the stage's
 overlay (InitStageOverlay returns 1) and steps; 2 and 3 save the start position
 and two words into `sSaved`, set `gRetries` to 50, reset the stage
@@ -191,7 +191,7 @@ with `sb zero, 0x3D0` off the `gPlayer` base.
 
 ## Declarations
 
-- New prototypes in code_308ec.c for other units' functions
+- New prototypes in stage_flow.c for other units' functions
   (UpdateActResults, DrawScreenWipe, UpdatePlayState, UpdateRumble,
   SetPadVibration, SetCdVolume) and `extern s32 D_80095758;` (main.c's);
   declcheck reports them LOCAL (SetPadVibration also MULTI with main.c's

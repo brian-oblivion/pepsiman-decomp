@@ -4,7 +4,7 @@
 
 **Round 13 (head):** `D_800CDC00` is now defined by the tracked linker file `config/undefined_syms.slps01762.pepsiman.txt` (linked by the Makefile ahead of splat's auto file). The body below went live with the array declared at its true start in place of the `D_800CDF20 - 10` define; build `OK`. The rest of this report is the round-it-stalled record.
 
-Unit `src/code_29f54.c`. A slot step (the `SlotStep` signature): places a
+Unit `src/stage.c`. A slot step (the `SlotStep` signature): places a
 spinning, bobbing 3D piece. After the wait it sets up the piece's
 coordinate record (`[unk4 + 10]` of a GsCOORDINATE2 table) at the slot's
 position plus a sine bob, its rotation record (`D_800CEBE0[unk4 + 10]`,

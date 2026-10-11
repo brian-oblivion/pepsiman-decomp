@@ -2,7 +2,7 @@
 
 > Renamed from `func_800355D8` on 2026-10-11 (tools/rename.py). Address 0x800355d8.
 
-Unit `src/code_24748.c`. Input handling for two byte settings: flag bits 0
+Unit `src/hit_tool.c`. Input handling for two byte settings: flag bits 0
 and 1 step `gToolViewPreset` up and down, bits 7 and 6 step `gToolZoom`; each
 step also saves `gToolMode` into `D_80095A22`, sets it to 6 and clears
 `gToolViewStep`. Then `gToolZoom` is clamped to 1..20 and `gToolViewPreset` wraps

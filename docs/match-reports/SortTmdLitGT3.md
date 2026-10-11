@@ -2,7 +2,7 @@
 
 > Renamed from `func_80022150` on 2026-10-10 (tools/rename.py). Address 0x80022150.
 
-Unit `src/code_11dc4.c`. The lit gouraud-textured triangle handler of
+Unit `src/draw_tmd.c`. The lit gouraud-textured triangle handler of
 drawing mode 4 (SetTmdSortMode installs it at row 3, column 0): SortTmdLitSemiGT3
 with the usual culling (GTE flag mask 0x7F85E000, winding `v <= 0`) and
 code 0x34 instead of 0x36 (opaque instead of semi-transparent). The

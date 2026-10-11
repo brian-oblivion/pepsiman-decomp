@@ -2,7 +2,7 @@
 
 > Renamed from `func_800175AC` on 2026-10-10 (tools/rename.py). Address 0x800175ac.
 
-Unit `src/code_7d74.c`. Converts the sector `gCdTrackStart` into the `CdlLOC`
+Unit `src/model.c`. Converts the sector `gCdTrackStart` into the `CdlLOC`
 at `gCdTrackLoc`, retries `CdControl(com, &loc, 0)` until it succeeds, then
 records the sector in `gCdTrackPos` and bumps the counter `gCdTrackPlays`.
 

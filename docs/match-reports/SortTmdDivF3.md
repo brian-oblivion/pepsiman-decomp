@@ -2,7 +2,7 @@
 
 > Renamed from `func_8001B4BC` on 2026-10-10 (tools/rename.py). Address 0x8001b4bc.
 
-Unit `src/code_a0bc.c`. The TMD handler for flat unlit triangles in
+Unit `src/draw.c`. The TMD handler for flat unlit triangles in
 column 7 of the handler table (InitTmdSortFuncs, row 0): the near-depth twin
 of SortTmdFastF3. Per front-facing triangle it takes the deepest of the
 three screen Zs over 4 as the depth; unless the transform overflowed it

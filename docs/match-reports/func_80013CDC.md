@@ -5,16 +5,16 @@ Unit `src/main.c`. Loads the stage's model data: maps the TMD pack at
 model `D_800963A0` and seven model slots from it (`InitModel`), builds
 the slot list (`InitTodObjTable`), registers the entries of the directory at
 0x80123000 into `gAnimations` and the stepper's two word tables (the same
-loop as code_1a098's LoadStageSprites, from slot 0), then resets the stepper
+loop as object's LoadStageSprites, from slot 0), then resets the stepper
 (bytes 5..9) and runs its first step.
 
 Declaration changes: the `Stepper` typedef moved up to here and its
 `unk6[2]`/`unk9[0x337]` split into `unk6`, `unk7`, `unk9`, `unkA[0x16]`,
 `unk20[100]`, `unk1B0[100]` (same size, no byte change elsewhere);
 `StepAnimation`'s prototype moved up with it; `func_80013CDC` is now
-`void` (was an `s32` prototype); `D_80095904` moved from `src/code_7d74.c`
+`void` (was an `s32` prototype); `D_80095904` moved from `src/model.c`
 to `include/common.h` (same type; declcheck's MULTI). main.c now includes
-`code_1a098.h` (for `D_800D86E0`) and carries unit-local copies of
+`object.h` (for `D_800D86E0`) and carries unit-local copies of
 `Model70` and `DirEnt16`.
 
 ```c
@@ -22,7 +22,7 @@ to `include/common.h` (same type; declcheck's MULTI). main.c now includes
 #define sStepper (*(Stepper *)gPlayer)
 
 /** @brief A model object with its own coordinate system (a unit-local
- *         copy of code_1a098's view). */
+ *         copy of object's view). */
 typedef struct {
     GsDOBJ2 obj;         /**< the object handler */
     GsCOORDINATE2 coord; /**< the object's coordinate system */
@@ -49,11 +49,11 @@ extern ModelSlot D_800D8370[];
 extern u8 D_8009EF50[];
 extern u8 D_80096418[];
 
-/* MATCHING: code_1a098 defines it on its own Model70 view. */
+/* MATCHING: object defines it on its own Model70 view. */
 void InitModel(Model70 *m, unsigned long *tmd, u8 n);
-/* MATCHING: code_7d74 types the list, slots and data as its own records. */
+/* MATCHING: model types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
-/* MATCHING: code_308ec passes the game state's head in its own view. */
+/* MATCHING: stage_flow passes the game state's head in its own view. */
 u8 StepAnimation(Stepper *obj, u16 index, u8 arg);
 
 void func_80013CDC(void) {

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80019F24` on 2026-10-10 (tools/rename.py). Address 0x80019f24.
 
-Unit `src/code_a0bc.c`. The rotated-and-scaled sprite drawer
+Unit `src/draw.c`. The rotated-and-scaled sprite drawer
 (DrawSpriteTransformed) with DrawSpriteFlip's flip modes: it places a Sprite8 as a
 POLY_FT4 through a `Sprite2D` (pivot, 4.12 scale, angle, centring flag),
 then builds the UVs and mirrors them across u (`mode & 1`) and v

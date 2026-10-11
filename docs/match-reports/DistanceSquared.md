@@ -2,7 +2,7 @@
 
 > Renamed from `func_800297A4` on 2026-10-10 (tools/rename.py). Address 0x800297a4.
 
-Unit `src/code_1902c.c`. Squared distance between two `VECTOR`s.
+Unit `src/collision.c`. Squared distance between two `VECTOR`s.
 
 ```c
 s32 DistanceSquared(VECTOR *a, VECTOR *b) {

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C540` on 2026-10-11 (tools/rename.py). Address 0x8002c540.
 
-Unit `src/code_1a098.c`. Fills four halfword triples starting at offset 4 of
+Unit `src/object.c`. Fills four halfword triples starting at offset 4 of
 its first argument with the corners `(±w/2, 0, ±d/2)` of a box. First build
 that was not displaced by a neighbour's drift matched.
 

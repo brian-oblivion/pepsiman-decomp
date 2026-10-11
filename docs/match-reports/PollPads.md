@@ -156,7 +156,7 @@ above PollPads's prototype) and `gPadType`, `D_80095958`,
 `D_800957C0`, `D_800957C8` (common.h) already exist. Splicing it in also
 means deleting main.c's later `extern u8 gPadBuf[];` (above
 InitPads) and giving `D_80095950` a `MATCHING:` note in one of its
-two units for declcheck (code_1dc24 declares it too). Splice-tested in
+two units for declcheck (editor declares it too). Splice-tested in
 this session (101/118).
 
 ```c

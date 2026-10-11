@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002AEB8` on 2026-10-11 (tools/rename.py). Address 0x8002aeb8.
 
-Unit `src/code_1a098.c`. Path following: `gSectionEdges` points at a table of
+Unit `src/object.c`. Path following: `gSectionEdges` points at a table of
 8-byte path points (x, z, then a direction dx, dz). The caller's current
 segment `u->seg` moves forward when `u` is on the far side of the next
 point (dot product of the next point's direction with `u - next` is

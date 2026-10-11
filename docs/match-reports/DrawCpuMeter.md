@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003BDF4` on 2026-10-10 (tools/rename.py). Address 0x8003bdf4.
 
-Unit `src/code_29f54.c`. Draws the frame-time meter: one flat quad per
+Unit `src/stage.c`. Draws the frame-time meter: one flat quad per
 recorded sample (`gCpuMarkTimes[i]`, the `VSync(1)` counts that the recorder
 above stores, coloured from the three byte tables beside it), each running
 from this sample's height down to the previous one's, then a white tick mark,

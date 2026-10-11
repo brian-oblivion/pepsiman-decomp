@@ -2,7 +2,7 @@
 
 > Renamed from `func_800287DC` on 2026-10-11 (tools/rename.py). Address 0x800287dc.
 
-Unit `src/code_13068.c`. Clears `D_8009EF20[0]` and `gSpeedFixed`.
+Unit `src/player.c`. Clears `D_8009EF20[0]` and `gSpeedFixed`.
 
 ```c
 void StopSpeed(void) {

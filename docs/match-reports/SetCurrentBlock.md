@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002D0C4` on 2026-10-11 (tools/rename.py). Address 0x8002d0c4.
 
-Unit `src/code_1a098.c`. Points three `$gp` globals at a block whose
+Unit `src/object.c`. Points three `$gp` globals at a block whose
 8-byte header (`BlockHeader`, declared in the unit) gives a word and the byte
 offset of a second part, and zeroes a halfword global.
 

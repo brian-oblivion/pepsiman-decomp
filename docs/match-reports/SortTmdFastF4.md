@@ -2,7 +2,7 @@
 
 > Renamed from `func_80020F24` on 2026-10-10 (tools/rename.py). Address 0x80020f24.
 
-Unit `src/code_a0bc.c`. The quad sibling of SortTmdFastF3 (row 4, column
+Unit `src/draw.c`. The quad sibling of SortTmdFastF3 (row 4, column
 6 of the handler table): flat unlit TMD quads into POLY_F4 packets. The
 first three vertices go through `rtpt`, the flag and `nclip` tests; the
 fourth through `rtps` and a second flag test before its XY is stored;

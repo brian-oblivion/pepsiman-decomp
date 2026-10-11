@@ -2,7 +2,7 @@
 
 > Renamed from `func_80035350` on 2026-10-11 (tools/rename.py). Address 0x80035350.
 
-Unit `src/code_24748.c`. Twin of EditHitPoints on the second record bank
+Unit `src/hit_tool.c`. Twin of EditHitPoints on the second record bank
 (`gHitQuads`, 0x4C-byte `Rec4C` records, 100 of them, index
 `gToolQuadIndex`, position from the record's first point, reinstalled by
 `ApplyHitQuads`). The same body, the same levers; see EditHitPoints's

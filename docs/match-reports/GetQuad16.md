@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C85C` on 2026-10-11 (tools/rename.py). Address 0x8002c85c.
 
-Unit `src/code_1a098.c`. Copies entry `i` of a table of eight-byte,
+Unit `src/object.c`. Copies entry `i` of a table of eight-byte,
 halfword-aligned entries (`gSpriteDefs`, `Quad16` in the unit) to `out`:
 retail's `lwl`/`lwr`/`swl`/`swr` pairs are a struct copy of a type aligned
 below 4.

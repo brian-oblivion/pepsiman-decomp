@@ -2,7 +2,7 @@
 
 > Renamed from `func_800286B0` on 2026-10-11 (tools/rename.py). Address 0x800286b0.
 
-Unit `src/code_13068.c`. Draws a flat-shaded quad: fills a local
+Unit `src/player.c`. Draws a flat-shaded quad: fills a local
 `POLY_F4` with a 15-bit colour split into 8-bit channels and four corners
 given in winding order (the third and fourth corners go to the
 primitive's x3/y3 and x2/y2, as `POLY_F4`'s strip order wants), then
@@ -10,7 +10,7 @@ primitive's x3/y3 and x2/y2, as `POLY_F4`'s strip order wants), then
 priority `pri`.
 
 ```c
-#include "code_a0bc.h"   /* gSubOt */
+#include "draw.h"   /* gSubOt */
 
 void SortQuad15(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
     POLY_F4 poly;

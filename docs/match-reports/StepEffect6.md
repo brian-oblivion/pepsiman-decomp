@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003FE5C` on 2026-10-10 (tools/rename.py). Address 0x8003fe5c.
 
-Unit `src/code_29f54.c`. StepEffect4 with colour mode 2 in `color.r`
+Unit `src/stage.c`. StepEffect4 with colour mode 2 in `color.r`
 (the same sprite 0x12D, size `frame * 10 + 100`, fade
 `0x80 - frame * 16`, 8 frames).
 

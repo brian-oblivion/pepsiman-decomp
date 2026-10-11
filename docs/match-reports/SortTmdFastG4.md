@@ -2,7 +2,7 @@
 
 > Renamed from `func_80021240` on 2026-10-10 (tools/rename.py). Address 0x80021240.
 
-Unit `src/code_a0bc.c`. The gouraud quad handler (row 5, column 6 of the handler table): unlit
+Unit `src/draw.c`. The gouraud quad handler (row 5, column 6 of the handler table): unlit
 gouraud TMD quads into POLY_G4 packets, the first three colours depth-cued
 with `dpct`, the fourth with a second `dpcs`, the code byte copied from the
 TMD mode byte, linked with length 8.

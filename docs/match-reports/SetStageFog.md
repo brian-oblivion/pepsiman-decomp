@@ -7,7 +7,7 @@ in `include/common.h` (all 6 retail loads are the scalar `lui $X` / `lw $X` form
 body below, reading `D_80095864` instead of `D_80095864[0]`, is live and matches 24/24.
 The text below is the stall analysis as filed.
 
-Unit `src/code_13068.c`. Sets the GTE fog range (`SetFogNearFar(3000,
+Unit `src/player.c`. Sets the GTE fog range (`SetFogNearFar(3000,
 8000, 250)`) and the far colour from a 4-byte RGB entry of the table
 `gFogColors` points to, picked by bits 8..9 of `D_80095864`.
 

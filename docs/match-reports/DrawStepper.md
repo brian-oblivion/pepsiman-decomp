@@ -80,16 +80,16 @@ C value to a register (CLAUDE.md rule 7 is about that). The `li $t1` /
 `move $t0, $t1` pair is copied as retail has it; the original macro
 probably took the address as an `"r"` input, which would be an operand
 constraint and is not used here. The same sequence appears in
-UpdateLoadScreenModel (main), DrawTodObjects (code_7d74) and DrawStage
-(code_29f54), so the macro is a candidate for a shared header; it is kept
+UpdateLoadScreenModel (main), DrawTodObjects (model) and DrawStage
+(stage), so the macro is a candidate for a shared header; it is kept
 in `src/main.c` until the head decides.
 
 ## Declarations
 
-- `include/code_7d74.h` is new (Doxygen-documented) and declares
-  `SetCoordRotation`; `src/code_7d74.c` and `src/main.c` include it (one added
-  `#include` line in code_7d74.c).
-- `SetTmdSortMode` added to `include/code_a0bc.h` (additive).
+- `include/model.h` is new (Doxygen-documented) and declares
+  `SetCoordRotation`; `src/model.c` and `src/main.c` include it (one added
+  `#include` line in model.c).
+- `SetTmdSortMode` added to `include/draw.h` (additive).
 - `gTodObjTable` keeps its shared `s32 []` declaration; a unit-local
   `ModelSet` view through a `#define` reaches it.
 

@@ -28,7 +28,7 @@ s32 StepEffect3(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 ## Round 5 (bravo)
 
-Unit `src/code_29f54.c`. The fading twin of StepEffect0: same countdown
+Unit `src/stage.c`. The fading twin of StepEffect0: same countdown
 and matrix set-up, then sprite 0x11A at size 0x32 in colour
 (1, c, c, c) with `c = 0x80 - frame * 16`, frame advanced, 1 returned at
 frame 8. Parked under `#ifdef NON_MATCHING` in the unit.

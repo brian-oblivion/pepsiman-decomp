@@ -2,7 +2,7 @@
 
 > Renamed from `func_80037114` on 2026-10-11 (tools/rename.py). Address 0x80037114.
 
-Unit `src/code_24748.c`. Resets part of the play state around the current
+Unit `src/hit_tool.c`. Resets part of the play state around the current
 entry: raises `D_80095774` for the duration, calls `ResetCollision`, clears
 words 0, 1, 2, 11, 12 and halfwords 12-14 of `D_800A9008`, then
 `UpdateObjectEntry` on the current `D_800D8D20` record, `ReactToHits` on the
@@ -13,7 +13,7 @@ game state and `func_80029838`.
 - Round 4 (charlie): STALL, length exact, 25/35, first diff 0x80037130.
   Register only: retail kept `D_800A9008`'s base in `$a1`, the build in
   `$v0`; one permuter search (110646 iterations, rc 124) found nothing.
-- Round 6: matching UpdateActiveEntries (code_1a098) gave `UpdateObjectEntry` its
+- Round 6: matching UpdateActiveEntries (object) gave `UpdateObjectEntry` its
   real prototype, `s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r)`, and the
   `#ifdef NON_MATCHING` body in this unit was updated to pass
   `(Rec48 *)D_800A9008` as the second argument. Nobody rebuilt it live.

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028DBC` on 2026-10-10 (tools/rename.py). Address 0x80028dbc.
 
-Unit `src/code_1902c.c`. Returns which of six consecutive points of the
+Unit `src/collision.c`. Returns which of six consecutive points of the
 12-byte table `gPlayerPoints`, starting at `start`, is nearest `pos`: it copies
 each point and `pos` into local `VECTOR`s, stores DistanceSquared's squared
 distance in `dist[6]`, then picks the smallest (first one wins ties).

@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002B5FC` on 2026-10-11 (tools/rename.py). Address 0x8002b5fc.
 
-Unit `src/code_1a098.c`. Debug axes: projects (0, ±200, 0), (±200, 0, 0)
+Unit `src/object.c`. Debug axes: projects (0, ±200, 0), (±200, 0, 0)
 and (0, 0, ±200) through ProjectToScreen and sorts a white `GsLINE` between
 each pair into `gSubOt[gActiveBuff]`, at priority 50, 50 and `world.vz
 >> 2` (the third reads `vz` back from the stack after the call).
@@ -60,5 +60,5 @@ void DrawAxes(void) {
     GsSortLine(&line, &gSubOt[gActiveBuff], world.vz >> 2);
 }```
 
-First build; the shape is code_1dc24's line drawers (DrawHeadingLine and
-its neighbour). The unit now includes `code_a0bc.h` for `gSubOt`.
+First build; the shape is editor's line drawers (DrawHeadingLine and
+its neighbour). The unit now includes `draw.h` for `gSubOt`.

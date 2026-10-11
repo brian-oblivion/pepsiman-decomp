@@ -2,7 +2,7 @@
 
 > Renamed from `func_80027D04` on 2026-10-11 (tools/rename.py). Address 0x80027d04.
 
-Unit `src/code_13068.c`. In game-state mode 0x33 (flag byte set), steers
+Unit `src/player.c`. In game-state mode 0x33 (flag byte set), steers
 `gSpeedFixed`, a value in 1/16 units whose whole part goes to
 `D_8009EF20[0]`: below 30 in the count at 0x3A8 it rises by 16; otherwise
 pad bit 0x1000 adds 32 and bit 0x4000 subtracts 32, each snapping to 480

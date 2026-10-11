@@ -2,7 +2,7 @@
 
 > Renamed from `func_80026C70` on 2026-10-11 (tools/rename.py). Address 0x80026c70.
 
-Unit `src/code_13068.c`. Sets up the scene's three flat lights in the
+Unit `src/player.c`. Sets up the scene's three flat lights in the
 table at `gFlatLights`: all three take the colour picked from the 4-byte
 palette entries at `D_80095790` by bits 12-13 of `D_80095864`; light 0
 points (0, 100, 100), lights 1 and 2 (±86, 100, -50); each is handed to

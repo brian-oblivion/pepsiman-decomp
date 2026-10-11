@@ -2,7 +2,7 @@
 
 > Renamed from `func_80028260` on 2026-10-11 (tools/rename.py). Address 0x80028260.
 
-Unit `src/code_13068.c`. Adds `n` to the counter `gBonusLevel`, caps it at 2
+Unit `src/player.c`. Adds `n` to the counter `gBonusLevel`, caps it at 2
 when `D_800958AC` is 1 and at 3 otherwise, floors it at 0, zeroes it when
 the byte `D_8009EF4D` is 1, and returns it.
 

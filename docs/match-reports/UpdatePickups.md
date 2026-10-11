@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002CCEC` on 2026-10-11 (tools/rename.py). Address 0x8002ccec.
 
-Unit `src/code_1a098.c`. Draws the markers of the current zone: for
+Unit `src/object.c`. Draws the markers of the current zone: for
 each group of the zone (`gStageRuns[gSection]`, group list
 `gStageRunObjs`) below `D_800959C8`, each block entry of the group marked
 2 in `D_800A7550` whose flag index (`unk6`) is set in `D_800A74D0`,
@@ -36,9 +36,9 @@ unused `Group8 *g` local of the preserved body was dropped (no code
 change).
 
 Declarations left in the unit for the head (declcheck LOCAL/MULTI):
-`gStageRuns` and `gStageRunObjs` (code_29f54.c declares both too, with its
-own `Run` type for the first), `DrawStandingBillboardFog` (defined in code_a0bc,
-not in `code_a0bc.h`) and `func_800414EC` (defined in code_31cec).
+`gStageRuns` and `gStageRunObjs` (stage.c declares both too, with its
+own `Run` type for the first), `DrawStandingBillboardFog` (defined in draw,
+not in `draw.h`) and `func_800414EC` (defined in sound).
 
 The round 9 body follows as it was preserved.
 

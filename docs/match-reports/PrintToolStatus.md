@@ -2,7 +2,7 @@
 
 > Renamed from `func_80034788` on 2026-10-11 (tools/rename.py). Address 0x80034788.
 
-Unit `src/code_24748.c`. Prints the tool's status panel (counter, current
+Unit `src/hit_tool.c`. Prints the tool's status panel (counter, current
 entry, step, the game state's position, the dispatch states, the record
 inserted last), then by error code `gToolMode` either a five-line menu
 (1), a two-line value editor (2) with its frame drawn by `SortSemiQuad`,

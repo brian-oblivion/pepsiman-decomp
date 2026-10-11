@@ -11,13 +11,13 @@ when a near-miss looks like the toolchain rather than the C.
 
     python3 tools/cctest.py --fetch 2.6.3 2.7.2 2.8.0   # into tools/cc-candidates/
     python3 tools/cctest.py                             # pinned + every candidate
-    python3 tools/cctest.py --cc pinned 2.8.0 -G -G4 --aspsx 2.79 code_7d74:func_80018D04
+    python3 tools/cctest.py --cc pinned 2.8.0 -G -G4 --aspsx 2.79 model:Lerp
 
 `pinned` is the Makefile's cc1. A score is `same/retail words`; `*` marks a
 compiled length that differs from retail, which usually means the C, not the
 compiler, is the wrong shape. Scores only mean something for C that was
 written as a match attempt: a body tuned on one compiler can lose a word or
-two on another (func_800382DC needed `u16 sum` on 2.8.1).
+two on another (SumSaveBuffer needed `u16 sum` on 2.8.1).
 """
 import argparse, os, re, struct, subprocess, sys, tarfile, tempfile, urllib.request
 from pathlib import Path
@@ -31,9 +31,9 @@ OLD_GCC = 'https://github.com/decompals/old-gcc/releases/download/0.17/gcc-{}-ps
 # The probes the switch was decided on: three plain functions, then a branchy
 # zero-return, a compiler-split %hi/%lo loop, a jump table and a div.
 DEFAULT_TARGETS = [
-    'code_27bc8:func_800382DC', 'main:func_80015328', 'code_31cec:func_80042958',
-    'code_7d74:func_80019874', 'code_308ec:func_800400EC',
-    'code_31958:func_8004121C', 'code_7d74:func_80018D04',
+    'card:SumSaveBuffer', 'main:SetPadVibration', 'sound:SetSoundFade',
+    'model:FindTmdById', 'stage_flow:InitEffects',
+    'stage_overlay:LoadStageOverlay', 'model:Lerp',
 ]
 
 
@@ -73,7 +73,10 @@ def retail_words(mk, fn):
         sys.exit('no build/pepsiman.elf -- run ./build-and-verify.sh first')
     nm = subprocess.run([ROOT / mk['NM'], '-n', elf], capture_output=True, text=True).stdout
     text = [int(a, 16) for a, t in re.findall(r'^([0-9a-f]{8}) ([Tt]) ', nm, re.M)]
-    start = int(fn[5:], 16)
+    m = re.search(rf'^([0-9a-f]{{8}}) [Tt] {re.escape(fn)}$', nm, re.M)
+    if not m:
+        sys.exit(f'{fn}: not a text symbol of build/pepsiman.elf')
+    start = int(m.group(1), 16)
     end = min(a for a in text if a > start)
     off = start - 0x80010000 + 0x800
     return struct.unpack_from(f'<{(end - start) // 4}I', EXE.read_bytes(), off)

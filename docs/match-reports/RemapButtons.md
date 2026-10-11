@@ -2,11 +2,11 @@
 
 > Renamed from `func_8003DE34` on 2026-10-10 (tools/rename.py). Address 0x8003de34.
 
-Unit `src/code_29f54.c`. Copies the two button words `gPadTrig` and
+Unit `src/stage.c`. Copies the two button words `gPadTrig` and
 `gPad` into `gGamePadTrig` and `gGamePad`, clears bits 5..7 of each,
 and moves those three bits to positions `5 + row[0..2]`, where `row` is one
 4-byte row of a 16-byte rodata table (`D_80011EB0`, which splat places in
-code_27bc8's rodata) chosen by the `s8` `gButtonConfig`. A button remap.
+card's rodata) chosen by the `s8` `gButtonConfig`. A button remap.
 
 ```c
 typedef struct {
@@ -44,7 +44,7 @@ void RemapButtons(void) {
 
 - **The 16-byte local** is a struct copy from an extern struct (three
   `lwl`/`lwr` words, then the fourth): `tbl = D_80011EB0;`. The table stays
-  `INCLUDE_RODATA` in code_27bc8 and is only referenced here.
+  `INCLUDE_RODATA` in card and is only referenced here.
 - **`srl`, not `sra`, after the masks: the copies are `u32`** (88/97 with
   `s32`, which gives `sra`).
 - **The row index in its own local, indexed at every use.** A `s8 *row =
@@ -53,9 +53,9 @@ void RemapButtons(void) {
   `row[0]` and the `lbu`+`sll`/`sra` of `row[1]`/`row[2]` came out the same
   in both spellings.
 
-- `gGamePadTrig` is now used by two units (code_13068 and this one), so its
-  declaration moved from code_13068.c into `include/common.h` (additive in
-  the header; the one-line local extern in code_13068.c removed).
+- `gGamePadTrig` is now used by two units (player and this one), so its
+  declaration moved from player.c into `include/common.h` (additive in
+  the header; the one-line local extern in player.c removed).
 
 ### Proposed learning
 

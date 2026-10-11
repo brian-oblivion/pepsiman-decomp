@@ -2,10 +2,10 @@
 
 > Renamed from `func_800412DC` on 2026-10-10 (tools/rename.py). Address 0x800412dc.
 
-Unit `src/code_31958.c`. Dispatches on the current stage `gStage`
+Unit `src/stage_overlay.c`. Dispatches on the current stage `gStage`
 (0..13) to a per-stage overlay function; stages 2, 5, 8 and 11 have none.
 Stages 6 and 7 call the same function, func_800F1BA4. Called from main.c
-and code_308ec.
+and stage_flow.
 
 The function is 56 words (0xE0); the brief's 70 counted the jump table.
 

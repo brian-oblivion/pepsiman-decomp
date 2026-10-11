@@ -2,7 +2,7 @@
 
 > Renamed from `func_80041D18` on 2026-10-10 (tools/rename.py). Address 0x80041d18.
 
-Unit `src/code_31cec.c`. Starts a movie stream: resets the MDEC,
+Unit `src/sound.c`. Starts a movie stream: resets the MDEC,
 clears `gMovieEnded`, installs the decode-out callback, sets a 32-sector
 ring buffer at 0x80185000, sets streaming for all frames and seeks
 (`StartMovieRead`).

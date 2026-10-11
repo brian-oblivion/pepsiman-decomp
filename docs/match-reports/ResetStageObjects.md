@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C47C` on 2026-10-11 (tools/rename.py). Address 0x8002c47c.
 
-Unit `src/code_1a098.c`. Sets byte 0 of every one of the 200 `Rec5C`
+Unit `src/object.c`. Sets byte 0 of every one of the 200 `Rec5C`
 records of `D_800CF080` that is not -1 to 0, then calls `RefreshAllZones` and
 `ClearObjectHits`. First build matched.
 

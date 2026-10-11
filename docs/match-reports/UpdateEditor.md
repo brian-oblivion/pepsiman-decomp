@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002D424` on 2026-10-11 (tools/rename.py). Address 0x8002d424.
 
-Unit `src/code_1dc24.c`, its first function. The tool's main step, by
+Unit `src/editor.c`, its first function. The tool's main step, by
 `gModeStep`: state 0 resets the tool buffer (`ResetGameState`), clears the
 error code `gToolMode` and sets the tool up; state 1 marks the 127 entry
 flags `D_800A74D0[1..127]`, then by `gToolMode` runs the current mode's
@@ -56,17 +56,17 @@ other to 50). About 20 builds.
   in) a header: `ResetGameState(Rec48 *)`, `PromoteMarks`, `TestBoxes`,
   `ResetStageObjects`, `ResetStageOverlay`, `DrawSky`,
   `DrawStage(s16, s16, s16)`, `UpdateCamera(s16, s16, s16, s16)`, and
-  `UpdatePickups(GsOT *)` with a `MATCHING:` note (code_1a098's stall body
+  `UpdatePickups(GsOT *)` with a `MATCHING:` note (object's stall body
   takes no parameter; the call passes `&gSubOt[gActiveBuff]`). Forward
   prototypes for the unit's own later functions.
-- `extern u8 D_800A74D0[];` (also declared in code_1a098.c), `extern s32
+- `extern u8 D_800A74D0[];` (also declared in object.c), `extern s32
   gRetries;`, `extern u8 D_80095962;`.
-- **declcheck hits left for the head:** MULTI `D_800A74D0` (code_1a098.c
+- **declcheck hits left for the head:** MULTI `D_800A74D0` (object.c
   and this unit; belongs in a shared header); LOCAL `PromoteMarks`,
-  `ResetGameState` (belong in code_1a098.h), `ResetStageOverlay` (code_308ec.c's
+  `ResetGameState` (belong in object.h), `ResetStageOverlay` (stage_flow.c's
   local prototype, now also used here; belongs in a header for
-  code_31958).
-- `config/typeviews-warnings.txt`: one more code_1dc24 "control reaches
+  stage_overlay).
+- `config/typeviews-warnings.txt`: one more editor "control reaches
   end of non-void function" and one more "unused variable `unused'".
 
 ```c
@@ -76,7 +76,7 @@ other to 50). About 20 builds.
                                     }
 ```
 
-(The full body is in `src/code_1dc24.c`.)
+(The full body is in `src/editor.c`.)
 
 ### Proposed learning
 

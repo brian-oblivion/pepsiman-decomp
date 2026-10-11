@@ -2,7 +2,7 @@
 
 > Renamed from `func_80033B34` on 2026-10-11 (tools/rename.py). Address 0x80033b34.
 
-Unit `src/code_1dc24.c`. Runs `StepMenuCursor` (the menu update); if the
+Unit `src/editor.c`. Runs `StepMenuCursor` (the menu update); if the
 highlighted line `D_8009574A` changed, loads the edited value `D_80095748`
 and its limit `D_800958B0` for the new line (line 0: limit 200, value from
 `sTotals.unk12`; line 1: limit 3, value from `sTotals.unk14`), otherwise

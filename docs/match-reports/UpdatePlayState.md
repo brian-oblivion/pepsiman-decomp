@@ -2,7 +2,7 @@
 
 > Renamed from `func_80026D9C` on 2026-10-11 (tools/rename.py). Address 0x80026d9c.
 
-Unit `src/code_13068.c`. The stage-flow step, skipped on every third
+Unit `src/player.c`. The stage-flow step, skipped on every third
 stage. It switches on the flow state `gMissState`: -1 runs DrawHud;
 0 is the race (rank clamp, the timers `gElapsed`/`gTimeLeft`, the end
 of the stage when the timer runs out, then the switch to state 1 that
@@ -24,7 +24,7 @@ void DrawHud(void);
 void FadeInFog(void);
 void SetSoundFade(u8 value);
 void DrawFrozenFrame(void);
-void RestartStage(); /* code_308ec defines it with a u8 parameter */
+void RestartStage(); /* stage_flow defines it with a u8 parameter */
 void func_8003E360(s32 level);
 
 typedef struct {

@@ -2,7 +2,7 @@
 
 > Renamed from `func_80040E04` on 2026-10-10 (tools/rename.py). Address 0x80040e04.
 
-Unit `src/code_308ec.c`. Dispatches on the mode byte `gStage` (0..13)
+Unit `src/stage_flow.c`. Dispatches on the mode byte `gStage` (0..13)
 to one of nine overlay routines, passing its arguments through, and returns
 the result as `u16`; modes 2, 5, 8, 11 and out-of-range ones return 1.
 

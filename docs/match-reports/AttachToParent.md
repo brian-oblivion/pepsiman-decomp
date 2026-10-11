@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C724` on 2026-10-11 (tools/rename.py). Address 0x8002c724.
 
-Unit `src/code_1a098.c`. Attaches Rec48 `b` to Rec48 `a`: transforms
+Unit `src/object.c`. Attaches Rec48 `b` to Rec48 `a`: transforms
 `b`'s stored position (its words at 0xC..0x14, as an SVECTOR) by the
 coordinate system of `a`'s Rec78 entry into `b`'s current position, copies
 `a`'s two angles, adds `a`'s heading halfword to `b`'s stored one, and
@@ -36,7 +36,7 @@ void AttachToParent(Rec48 *a, Rec48 *b) {
   halfwords through `lui $at`. splat names the halfwords D_800957E6 and
   D_800957E8; `%lo(D_800957E4+2)` assembles to the same bytes.
 - `extern VECTOR D_8009F268;`: read `lui` + `%lo` and then off the base.
-- Prototypes for TransformByCoord (code_13068) and DrawObjectModel (this unit,
+- Prototypes for TransformByCoord (player) and DrawObjectModel (this unit,
   still asm; `(Rec78 *, Rec48 *)` like UpdateObjectEntry).
 
 ## Observation

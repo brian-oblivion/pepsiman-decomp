@@ -57,10 +57,10 @@ Matched on the first build. The `CdlATV` stores follow source order
 ## Declarations
 
 - `gCdTrackPlaying` (u8), `gStereo` (u8), `SendCdTrackCommand` and `OnCdTrackReady`
-  moved to `include/common.h` (additive), since code_7d74 and code_31cec
-  reach them too. The local `extern u8 gStereo;` in `src/code_31cec.c`
-  was removed. `src/code_7d74.c` still declares `gCdTrackPlaying` (line 43) and
-  `SendCdTrackCommand` (line 58) locally; code_7d74 is a unit of this round, so
+  moved to `include/common.h` (additive), since model and sound
+  reach them too. The local `extern u8 gStereo;` in `src/sound.c`
+  was removed. `src/model.c` still declares `gCdTrackPlaying` (line 43) and
+  `SendCdTrackCommand` (line 58) locally; model is a unit of this round, so
   those two duplicates (declcheck MULTI/LOCAL) are left for the head.
 - `D_80095AC0` is reached both `$gp` (`sb`) and as an address
   (`lui`/`addiu`): a known size at most 8.

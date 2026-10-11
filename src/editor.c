@@ -1631,7 +1631,7 @@ s32 UpdateEditorMenu(void) {
                 gCourse.rot.vy = gCourse.rot.vz;
                 D_800957F4 = FindFloor(&gPlayer.x);
                 gSection = 0;
-                D_8009676C[0] = (s16)(gCourse.y - 500);
+                gView[1] = (s16)(gCourse.y - 500);
                 break;
             case 7:
                 gToolMode = 6;
@@ -2676,7 +2676,7 @@ s32 UpdateEditorData(void) {
                         gCourse.rot.vy = gCourse.rot.vz;
                         D_800957F4 = FindFloor(&gPlayer.x);
                         gSection = 0;
-                        D_8009676C[0] = (s16)(gCourse.y - 500);
+                        gView[1] = (s16)(gCourse.y - 500);
                         SetCurrentBlock((BlockHeader *)0x801FD000);
                         gToolCardStep = 1;
                     }

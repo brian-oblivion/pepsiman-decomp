@@ -12,7 +12,6 @@
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
-extern u8 D_800D8960[];
 
 extern s32 D_800AC860;
 extern s16 sSteerDrift; /**< SteerMode2's drift: +-4 a step while steering, back by 2, within +-10 */
@@ -2880,7 +2879,7 @@ void StopSpeed(void) {
 
 void AttachMode5Object(void) {
     if ((gPlayer.rideMode >> 4) == 5) {
-        gModeObjectModels[1].unk58 = (s32)D_800D8960;
+        gModeObjectModels[1].unk58 = (s32)&gTodCoords[8];
         gModeObjects[1].unk36 = 1;
     }
 }

@@ -908,7 +908,6 @@ typedef struct {
 extern Rows5 D_800115DC; /**< the rows the step below scales */
 extern s32 D_800CEBA0[]; /**< start of the interpolation */
 extern u8 D_80095A20;    /**< interpolation step, 0..30 */
-extern s32 D_800DB2B8[]; /**< cleared on every step */
 
 /* MATCHING: a per-unit view; model defines it as (s16, s16, u16, u16)
  * returning s16. */
@@ -950,7 +949,7 @@ void UpdateToolView(void) {
             gRefView[5] = 0;
             break;
     }
-    D_800DB2B8[0] = 0;
+    gRefView[6] = 0;
 }
 
 /* MATCHING: a per-unit view; card defines it returning s16, and

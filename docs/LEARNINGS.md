@@ -182,7 +182,7 @@ function's match report, not here.
   0x1DFFE; *(u16 *)(p + off) = v;`. A member access or a constant index is
   split into `%hi` plus the remainder. (EditorPlaceBox, CopySave1Icon)
 - **Block-move batches of three words through a base in its own register:
-  the destination is an unknown-size array**, `*(T *)D_800DF630 = x;`. A
+  the destination is an unknown-size array**, `*(T *)sHeaderIcon0 = x;`. A
   struct member at a fixed offset moves four words per batch. (CopySave1Icon)
 - **A table base built by `addiu` from another symbol's address: the array
   starts before the symbol splat named.** This needs a symbol (and a linker

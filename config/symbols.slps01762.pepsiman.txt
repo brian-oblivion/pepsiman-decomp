@@ -1750,3 +1750,6 @@ sLastHitMask = 0x8009575F;
 sSteerDrift = 0x800959B2;
 sViewSpeed = 0x8009587E;
 gOffsetVec = 0x800D39C8;
+sHeaderIcon0 = 0x800DF630;
+sHeaderIcon1 = 0x800DF6D0;
+sHeaderIcon2 = 0x800DF750;

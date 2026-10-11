@@ -363,7 +363,6 @@ extern s32 gTimeLimitsAlt[][3]; /**< the second set; 2 units */
 extern u16 gRumblePatterns[]; /**< 3 units, 6 functions */
 extern s32 gCdLoadLoc[];      /**< each file's CdlLOC in the current CD load */
 extern s32 gView[];           /**< 4 units, 4 functions */
-extern s32 D_8009676C[];      /**< 2 units, 3 functions */
 extern u16 gBodyRot[]; /**< the player model's rotation (an SVECTOR: 0, yaw, lean) for gTodCoords[0] */
 extern s16 gBodyYaw[];       /**< gBodyRot[1], read signed */
 extern s32 gCdLoadDest[];    /**< each file's load address in the current CD load */

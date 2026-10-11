@@ -5,9 +5,9 @@
 Unit `src/card.c`. Builds the first save file's icon: copies three
 0xC0-byte 16x16 4-bit TIMs from rodata (`sToolCardIcon0`, `sToolCardIcon1`,
 `sToolCardIcon2`) to a stack array, then copies the first TIM's CLUT (0x20 bytes
-at TIM + 0x14) to the card header's CLUT at `D_800DF630` (header + 0x60) and
+at TIM + 0x14) to the card header's CLUT at `sHeaderIcon0` (header + 0x60) and
 each TIM's pixels (0x80 bytes at TIM + 0x40) to the header's three icon
-frames (`D_800DF630 + 0x20`, `D_800DF6D0`, `D_800DF750`). Called by
+frames (`sHeaderIcon0 + 0x20`, `sHeaderIcon1`, `sHeaderIcon2`). Called by
 BuildSave1Header after it fills the header's magic and title. Twin of
 CopySave2Icon.
 
@@ -33,9 +33,9 @@ typedef struct {
 extern u8 sToolCardIcon0[];
 extern u8 sToolCardIcon1[];
 extern u8 sToolCardIcon2[];
-extern u8 D_800DF630[];
-extern u8 D_800DF6D0[];
-extern u8 D_800DF750[];
+extern u8 sHeaderIcon0[];
+extern u8 sHeaderIcon1[];
+extern u8 sHeaderIcon2[];
 
 /** @brief Copies the first save file's three icon TIMs into the card header's CLUT and frames. */
 void CopySave1Icon(void) {
@@ -44,10 +44,10 @@ void CopySave1Icon(void) {
     tim[0] = *(IconTim *)sToolCardIcon0;
     tim[1] = *(IconTim *)sToolCardIcon1;
     tim[2] = *(IconTim *)sToolCardIcon2;
-    *(IconClut *)D_800DF630 = tim[0].clut;
-    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
-    *(IconBits *)D_800DF6D0 = tim[1].bits;
-    *(IconBits *)D_800DF750 = tim[2].bits;
+    *(IconClut *)sHeaderIcon0 = tim[0].clut;
+    *(IconBits *)(sHeaderIcon0 + 0x20) = tim[0].bits;
+    *(IconBits *)sHeaderIcon1 = tim[1].bits;
+    *(IconBits *)sHeaderIcon2 = tim[2].bits;
 }
 ```
 
@@ -57,10 +57,10 @@ void CopySave1Icon(void) {
    `clut` and `icon[3]`): 161/269, equal length. The CLUT copy addressed
    `0x60(v0)` with four registers per batch; retail holds the CLUT address
    in `$t0` and copies three words per batch, and builds the first frame's
-   address as `(D_800DF630) + 0x20` while the other two frames load their
+   address as `(sHeaderIcon0) + 0x20` while the other two frames load their
    own `%hi/%lo`.
-2. Destinations as unknown-size arrays `D_800DF630[]`, `D_800DF6D0[]`,
-   `D_800DF750[]`, the first frame `D_800DF630 + 0x20`: 269/269. The
+2. Destinations as unknown-size arrays `sHeaderIcon0[]`, `sHeaderIcon1[]`,
+   `sHeaderIcon2[]`, the first frame `sHeaderIcon0 + 0x20`: 269/269. The
    header struct was put back as it was.
 
 ## Reading the asm

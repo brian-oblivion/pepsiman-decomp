@@ -80,9 +80,11 @@ extern u8 sToolCardIcon2[];
 extern u8 sHitCardIcon0[]; /**< second save file's icon frames, three TIMs */
 extern u8 sHitCardIcon1[];
 extern u8 sHitCardIcon2[];
-extern u8 D_800DF630[]; /**< the card header's icon CLUT and first frame */
-extern u8 D_800DF6D0[]; /**< the card header's second icon frame */
-extern u8 D_800DF750[]; /**< the card header's third icon frame */
+/* MATCHING: the icon CLUT and frames inside gCardHeader (+0x60, +0x100,
+ * +0x180); as fields of a full CardHeader the block copies change. */
+extern u8 sHeaderIcon0[]; /**< the card header's icon CLUT and first frame */
+extern u8 sHeaderIcon1[]; /**< the card header's second icon frame */
+extern u8 sHeaderIcon2[]; /**< the card header's third icon frame */
 
 /** @brief The 0x200-byte header block copied to the save buffer. */
 typedef struct {
@@ -448,10 +450,10 @@ void CopySave1Icon(void) {
     tim[0] = *(IconTim *)sToolCardIcon0;
     tim[1] = *(IconTim *)sToolCardIcon1;
     tim[2] = *(IconTim *)sToolCardIcon2;
-    *(IconClut *)D_800DF630 = tim[0].clut;
-    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
-    *(IconBits *)D_800DF6D0 = tim[1].bits;
-    *(IconBits *)D_800DF750 = tim[2].bits;
+    *(IconClut *)sHeaderIcon0 = tim[0].clut;
+    *(IconBits *)(sHeaderIcon0 + 0x20) = tim[0].bits;
+    *(IconBits *)sHeaderIcon1 = tim[1].bits;
+    *(IconBits *)sHeaderIcon2 = tim[2].bits;
 }
 
 /** @brief Opens the eight memory card events (four software, four hardware) and leaves them disabled. */
@@ -949,10 +951,10 @@ void CopySave2Icon(void) {
     tim[0] = *(IconTim *)sHitCardIcon0;
     tim[1] = *(IconTim *)sHitCardIcon1;
     tim[2] = *(IconTim *)sHitCardIcon2;
-    *(IconClut *)D_800DF630 = tim[0].clut;
-    *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
-    *(IconBits *)D_800DF6D0 = tim[1].bits;
-    *(IconBits *)D_800DF750 = tim[2].bits;
+    *(IconClut *)sHeaderIcon0 = tim[0].clut;
+    *(IconBits *)(sHeaderIcon0 + 0x20) = tim[0].bits;
+    *(IconBits *)sHeaderIcon1 = tim[1].bits;
+    *(IconBits *)sHeaderIcon2 = tim[2].bits;
 }
 
 void SetSave2Buffers(void) {

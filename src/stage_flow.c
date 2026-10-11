@@ -322,7 +322,7 @@ void RestartStage(u8 stage) {
     }
     gSection = 0;
     yaw = -D_80095840->unk6;
-    D_8009676C[0] = (s16)(gCourse.y - 500);
+    gView[1] = (s16)(gCourse.y - 500);
     gCourse.rot.vy = yaw;
     gPlayer.unk37C = gPlayer.yaw = yaw;
     D_800957BC = yaw;

@@ -9,12 +9,12 @@ mode is 3), snaps unk34C to the cap unk3C0 within 50 or advances it by
 flags, or unk3C0. Reaching unk3C0 sets the position to the goal line
 `gFloorY[0]`, records the distance from `sJumpStart` once
 (`sJumpDistance`, SquareRoot0 of DistanceSquared) and plays a sound unless
-`D_80095900` is set.
+`gSkipLandRumble` is set.
 
 Round 10's best body: 129/134, `insertions 0 / deletions 0`. It is in src/ under
 `#ifdef NON_MATCHING` and was rebuilt there. Its declarations are in the
 unit already (`sJumpPeakY`, `sJumpDistance`, `sJumpStart[]`, `sJumpLanding[]`,
-`s8 D_80095900`, `DistanceSquared`):
+`s8 gSkipLandRumble`, `DistanceSquared`):
 
 ```c
 #if 0
@@ -70,7 +70,7 @@ s32 ApplyGravity(void) {
             sJumpLanding[1] = y;
             sJumpLanding[2] = sGame.unk350;
             sJumpDistance = SquareRoot0(DistanceSquared((VECTOR *)sJumpStart, (VECTOR *)sJumpLanding));
-            if (D_80095900 == 0) {
+            if (gSkipLandRumble == 0) {
                 StartRumble(gRumblePatterns, 13);
             }
         }
@@ -179,7 +179,7 @@ Builds this round: 13. Tried on the way (each from the 129 body):
 | same with `d = sGame.unk39C;` first | 134 |
 | without the dead `y = 0;` | 129 |
 
-Also adds a `MATCHING:` note to stage_flow's `extern u8 D_80095900;`:
+Also adds a `MATCHING:` note to stage_flow's `extern u8 gSkipLandRumble;`:
 the function is now live C, so declcheck sees player reach the global
 (as `s8`) and needs both views marked deliberate.
 

@@ -17,7 +17,7 @@ restores 80 and, with bit 0x100 also held, leaves to state 6 of
 Third build byte-exact.
 
 ```c
-extern u16 D_800958EA;
+extern u16 sPauseFrames;
 extern s32 gTmdSortMode;
 
 void func_800F00A0(void);
@@ -68,7 +68,7 @@ void UpdateStagePlay(u8 stage) {
             sSaved.pos.vz = gCourse.pos.vz;
             sSaved.unk14 = gFloorIndex;
             ResetStage();
-            D_80095900 = 1;
+            gSkipLandRumble = 1;
             gModeStep = 4;
             break;
         case 4:
@@ -134,17 +134,17 @@ void UpdateStagePlay(u8 stage) {
                         r.w = 320;
                         r.h = 240;
                         MoveImage(&r, 0x280, 0);
-                        D_800958EA = 0;
+                        sPauseFrames = 0;
                         gPauseState++;
                     case 2:
-                        D_800958EA++;
+                        sPauseFrames++;
                         DrawPausedFrame();
                         break;
                 }
             }
             break;
     }
-    D_80095900 = 0;
+    gSkipLandRumble = 0;
     if (gPadTrig & 0x800) {
         if ((u16)(gMissState + 1) < 2) {
             if (gPauseState == 0) {

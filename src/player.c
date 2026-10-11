@@ -154,7 +154,7 @@ void DrawHud(void);
 void RestartStage();
 void func_8003E360(s32 level);
 /* MATCHING: stage_flow stores this as u8; this unit's test loads it lb. */
-extern s8 D_80095900;
+extern s8 gSkipLandRumble; /**< 1 after a start or restart: the next landing does not rumble */
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
 /* MATCHING: model defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
@@ -738,7 +738,7 @@ s32 ApplyGravity(void) {
             sJumpLanding[1] = z;
             sJumpLanding[2] = gPlayer.z;
             sJumpDistance = SquareRoot0(DistanceSquared((VECTOR *)sJumpStart, (VECTOR *)sJumpLanding));
-            if (D_80095900 == 0) {
+            if (gSkipLandRumble == 0) {
                 StartRumble(gRumblePatterns, 13);
             }
         }
@@ -767,7 +767,7 @@ void ReactToHits(PlayerState *state) {
         if (p->hit == 0) {
             continue;
         }
-        D_8009599C = 0;
+        gHitRecover = 0;
         if ((u32)(*(volatile u8 *)&p->kind - 15) >= 4) {
             m = state->motion[0];
             switch (state->action) {
@@ -840,7 +840,7 @@ void ReactToHits(PlayerState *state) {
                 gBonusLevel = 0;
                 gPlayer.rideMode &= 0xF0;
                 state->hittable = 0;
-                D_8009599C = 1;
+                gHitRecover = 1;
                 state->invulnTimer = 750;
                 state->action = v;
                 if (gPlayerHits[i].kind != 0) {
@@ -856,7 +856,7 @@ void ReactToHits(PlayerState *state) {
                 if (gHitReactions[gPlayerHits[i].kind].b[5] == 1) {
                     state->hittable = 0;
                     state->invulnTimer = 150;
-                    D_8009599C = 1;
+                    gHitRecover = 1;
                 } else {
                     state->hittable = 0;
                     state->invulnTimer = 18;
@@ -2199,7 +2199,7 @@ top:
             break;
         case 0:
             x = gBonusLevel;
-            if (D_800958AC == 1) {
+            if (gStageTableSet == 1) {
                 if (x >= 2) {
                     gBonusLevel = 2;
                 }
@@ -2734,7 +2734,7 @@ s32 LandPlayer(PlayerState *g) {
 
 s32 AddBonusLevel(s32 n) {
     gBonusLevel += n;
-    if (D_800958AC == 1) {
+    if (gStageTableSet == 1) {
         if (gBonusLevel >= 2) {
             gBonusLevel = 2;
         }
@@ -2780,10 +2780,10 @@ void ResetPlayerAction(void) {
     gPlayer.action = 0;
     gPlayer.control = 1;
     gPlayer.slideState = 0;
-    if (D_8009599C == 1) {
+    if (gHitRecover == 1) {
         gPlayer.hittable = 0;
         gPlayer.invulnTimer = 60;
-        D_8009599C = 0;
+        gHitRecover = 0;
     }
     if ((gPlayer.rideMode & 0xF) == 3) {
         gPlayer.motion[0] = 0x33;
@@ -2796,7 +2796,7 @@ void CheckCanBonus(void) {
 
     if (gCans != 0 && gCans % 10 == 0) {
         one = 1;
-        if (D_800958AC == one) {
+        if (gStageTableSet == one) {
             if (gBonusLevel == 2) {
                 goto skip;
             }
@@ -2885,8 +2885,8 @@ void AttachMode5Object(void) {
     }
 }
 
-INCLUDE_RODATA("asm/nonmatchings/player", D_80010950);
+INCLUDE_RODATA("asm/nonmatchings/player", sPlayerPointSpecs);
 
-INCLUDE_RODATA("asm/nonmatchings/player", D_80010AE0);
+INCLUDE_RODATA("asm/nonmatchings/player", sQuadTemplate);
 
-INCLUDE_RODATA("asm/nonmatchings/player", D_80010B10);
+INCLUDE_RODATA("asm/nonmatchings/player", sQuadOrigin);

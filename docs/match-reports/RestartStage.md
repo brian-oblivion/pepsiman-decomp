@@ -2,7 +2,7 @@
 
 > Renamed from `func_8004079C` on 2026-10-10 (tools/rename.py). Address 0x8004079c.
 
-Unit `src/stage_flow.c`. Stage start. Raises `D_80095900`; when the
+Unit `src/stage_flow.c`. Stage start. Raises `gSkipLandRumble`; when the
 argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
 resets the head of the game state (`gPlayer`), copies the start position
 from `gCourse`, looks up a per-stage value when the stage's flag in
@@ -18,7 +18,7 @@ halfword in each of the 200 Trap records.
  *   TrapClear  object's Trap with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*gStageStart)
- * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
+ * extern u8 gSkipLandRumble, gInEditor; extern s16 gModeStep, gMissState,
  * D_800957B0; extern s8 sStageFindsFloor[]; extern s32 gFloorIndex, gSection;
  * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
  * D_800957D6, gStage.
@@ -29,7 +29,7 @@ void RestartStage(u8 arg0) {
     s16 yaw;
     u32 i;
 
-    D_80095900 = 1;
+    gSkipLandRumble = 1;
     if (arg0 % 3 == 2) {
         gModeStep = 2;
         return;

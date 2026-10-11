@@ -3,7 +3,7 @@
 > Renamed from `func_800283E4` on 2026-10-11 (tools/rename.py). Address 0x800283e4.
 
 Unit `src/player.c`. Resets a handful of game-state bytes; when the
-byte flag `D_8009599C` is 1, also clears one more byte, sets the halfword at
+byte flag `gHitRecover` is 1, also clears one more byte, sets the halfword at
 0x3C8 to 60 and clears the flag; finally sets byte 6 to 0x33 if the low
 nibble of byte 0x3D0 is 3.
 
@@ -13,10 +13,10 @@ void ResetPlayerAction(void) {
     sGame.unk5 = 0;
     sGame.unk0 = 1;
     sGame.unk38E = 0;
-    if (D_8009599C == 1) {
+    if (gHitRecover == 1) {
         sGame.unk2 = 0;
         sGame.unk3C8 = 60;
-        D_8009599C = 0;
+        gHitRecover = 0;
     }
     if ((sGame.unk3D0 & 0xF) == 3) {
         sGame.unk6 = 0x33;
@@ -26,5 +26,5 @@ void ResetPlayerAction(void) {
 
 First try, with the struct view from EndJump. The offset-0 store comes
 out as `sb %lo(gPlayer)($v1)` off the `lui` register, as in retail.
-`D_8009599C` is `extern s8` (retail `lb`, `lui $at` store: a plain extern
+`gHitRecover` is `extern s8` (retail `lb`, `lui $at` store: a plain extern
 not in the gp list).

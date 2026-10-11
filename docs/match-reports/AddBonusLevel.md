@@ -3,13 +3,13 @@
 > Renamed from `func_80028260` on 2026-10-11 (tools/rename.py). Address 0x80028260.
 
 Unit `src/player.c`. Adds `n` to the counter `gBonusLevel`, caps it at 2
-when `D_800958AC` is 1 and at 3 otherwise, floors it at 0, zeroes it when
+when `gStageTableSet` is 1 and at 3 otherwise, floors it at 0, zeroes it when
 the byte `D_8009EF4D` is 1, and returns it.
 
 ```c
 s32 AddBonusLevel(s32 n) {
     gBonusLevel += n;
-    if (D_800958AC == 1) {
+    if (gStageTableSet == 1) {
         if (gBonusLevel >= 2) {
             gBonusLevel = 2;
         }
@@ -30,7 +30,7 @@ Matched on the first build.
 
 ## Declarations
 
-- `gBonusLevel`, `D_800958AC`: every load is `lui $X` / `lw $X` (the `%hi` in
+- `gBonusLevel`, `gStageTableSet`: every load is `lui $X` / `lw $X` (the `%hi` in
   the destination) and every store `lui $at`, so plain `s32` scalars,
   declared in the unit (no other unit in `src/` uses them yet; not in
   `config/gp-symbols.txt`).

@@ -333,16 +333,16 @@ extern s16 gEditMax;       /**< limit of the value being edited */
 extern s16 gMenuLineCount; /**< the count a menu line wraps at */
 extern s32 gPadTrig;       /**< port 1's newly pressed buttons this frame, auto-repeat included */
 extern u8 *gCanSpans; /**< each stage block's cans: first point and count (after the BlockHeader) */
-extern u8 *gCanPoints;    /**< the cans: x, y, z and group, eight bytes each */
-extern s32 gCanSpanCount; /**< how many blocks have a span (the BlockHeader's first word) */
-extern s16 gSoundFade;    /**< 2 units, 2 functions */
-extern s32 gBonusLevel;   /**< 2 units; 3 when a stage starts */
-extern s16 D_800957BC;    /**< 2 units; a heading */
-extern u8 *gFogColors;    /**< 2 units; far (fog) colours, four bytes each */
-extern u16 gFogFade;      /**< 2 units; fog fade-in step: 0..31, then 100 */
-extern s32 gVSyncMode;    /**< EndFrame's VSync argument: the frames to wait */
-extern s32 D_800958AC;    /**< 2 units; 1 picks the second set of stage tables */
-extern s8 D_8009599C;     /**< 2 units */
+extern u8 *gCanPoints;     /**< the cans: x, y, z and group, eight bytes each */
+extern s32 gCanSpanCount;  /**< how many blocks have a span (the BlockHeader's first word) */
+extern s16 gSoundFade;     /**< 2 units, 2 functions */
+extern s32 gBonusLevel;    /**< 2 units; 3 when a stage starts */
+extern s16 D_800957BC;     /**< 2 units; a heading */
+extern u8 *gFogColors;     /**< 2 units; far (fog) colours, four bytes each */
+extern u16 gFogFade;       /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern s32 gVSyncMode;     /**< EndFrame's VSync argument: the frames to wait */
+extern s32 gStageTableSet; /**< 1 picks the second set of stage tables; -1 at boot */
+extern s8 gHitRecover; /**< set by a hit reaction; the next ResetPlayerAction gives 60 frames of invulnerability */
 extern u16 gSpeedFixed;   /**< 2 units */
 extern u32 gFrameCount;   /**< frames drawn while not paused */
 extern s32 gLoopJ;        /**< a second loop counter, or a count, kept in a global */

@@ -11,8 +11,8 @@ read.
 
 Both copies are a local's initialisers in the original source: cc1 places
 an aggregate initialiser as an anonymous constant and block-copies it.
-splat named the 3-byte one `D_800954F0` (in `.sdata`) and the 400-byte one
-`D_80010950`, which sits in the rodata range the yaml gives player
+splat named the 3-byte one `sPointGroupStarts` (in `.sdata`) and the 400-byte one
+`sPlayerPointSpecs`, which sits in the rodata range the yaml gives player
 (0x80010950 < 0x80010B20, collision's rodata start). Writing the
 initialisers here would emit both again in this unit, so the body copies
 from externs instead. A scratch compile with real initialisers gives the
@@ -23,7 +23,7 @@ here).
 Levers:
 
 - The byte copy's source must be an array of unknown size,
-  `extern Bytes3 D_800954F0[]; b = *D_800954F0;`. Declared as a complete
+  `extern Bytes3 sPointGroupStarts[]; b = *sPointGroupStarts;`. Declared as a complete
   3-byte object, cc1 builds its address with one `la` and the scheduler
   hoists the big copy's address setup above it (70/88). An anonymous
   constant's address is a split `lui`/`addiu`, which the unknown-size array
@@ -64,8 +64,8 @@ typedef struct {
     s8 b[3]; /**< 7, 13, 19 */
 } Bytes3;
 
-extern PointSpec25 D_80010950;
-extern Bytes3 D_800954F0[];
+extern PointSpec25 sPlayerPointSpecs;
+extern Bytes3 sPointGroupStarts[];
 
 void PlacePlayerPoints(void);
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
@@ -96,8 +96,8 @@ void PlacePlayerPoints(void) {
     long flag;
     s16 i;
 
-    b = *D_800954F0;
-    spec = D_80010950;
+    b = *sPointGroupStarts;
+    spec = sPlayerPointSpecs;
     for (i = 0; i < 25; i++) {
         v.vx = spec.p[i].x;
         v.vy = spec.p[i].y;

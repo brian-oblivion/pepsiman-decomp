@@ -37,7 +37,7 @@ s32 GetStageVabBank(u16 stage) {
 }
 
 s32 GetStageTimeLimit(u8 mode, s32 k) {
-    if (D_800958AC != 1) {
+    if (gStageTableSet != 1) {
         return gTimeLimits[mode][k] * 30;
     }
     return gTimeLimitsAlt[mode][k] * 30;

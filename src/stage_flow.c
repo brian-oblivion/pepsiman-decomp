@@ -53,7 +53,7 @@ typedef struct {
 #define sTraps ((TrapClear *)gTraps)
 
 /* MATCHING: stored as u8 here; player tests it as s8 (lb). */
-extern u8 D_80095900;
+extern u8 gSkipLandRumble; /**< 1 after a start or restart: the next landing does not rumble */
 
 extern s8 sStageFindsFloor[]; /**< 1 for a stage whose start looks up the floor */
 
@@ -92,7 +92,7 @@ typedef struct {
 #define sSaved (*(SavedStart *)gSavedStart)
 
 extern s32 D_800957A4;
-extern u16 D_800958EA;
+extern u16 sPauseFrames; /**< frames shown paused */
 
 void func_800F00A0(void);
 void func_800F1654(void);
@@ -177,7 +177,7 @@ void UpdateStagePlay(u8 stage) {
             sSaved.pos.vz = gCourse.z;
             sSaved.unk14 = gFloorIndex;
             ResetStage();
-            D_80095900 = 1;
+            gSkipLandRumble = 1;
             gModeStep = 4;
             break;
         case 4:
@@ -243,17 +243,17 @@ void UpdateStagePlay(u8 stage) {
                         r.w = 320;
                         r.h = 240;
                         MoveImage(&r, 0x280, 0);
-                        D_800958EA = 0;
+                        sPauseFrames = 0;
                         gPauseState++;
                     case 2:
-                        D_800958EA++;
+                        sPauseFrames++;
                         DrawPausedFrame();
                         break;
                 }
             }
             break;
     }
-    D_80095900 = 0;
+    gSkipLandRumble = 0;
     if (gPadTrig & PADstart) {
         if ((u16)(gMissState + 1) < 2) {
             if (gPauseState == 0) {
@@ -302,7 +302,7 @@ void RestartStage(u8 stage) {
     s16 yaw;
     u32 i;
 
-    D_80095900 = 1;
+    gSkipLandRumble = 1;
     if (stage % 3 == 2) {
         gModeStep = 2;
         return;
@@ -353,7 +353,7 @@ void ResetStage(void) {
     s32 mode;
     s32 saved;
 
-    D_80095900 = 1;
+    gSkipLandRumble = 1;
     StopCdTrack();
     if (gGameMode != GM_LOAD_SCREEN_MODEL) {
         r.x = 0;
@@ -366,7 +366,7 @@ void ResetStage(void) {
     gLoading = 0;
     gVSyncMode = 2;
     ResetStageOverlay();
-    if (D_800958AC == 1) {
+    if (gStageTableSet == 1) {
         gBonusLevel = 2;
     } else {
         gBonusLevel = 3;
@@ -391,7 +391,7 @@ void ResetStage(void) {
     gPlayer.showShadow = 1;
     gPlayer.invulnTimer = 0;
     gPlayer.hittable = 1;
-    D_8009599C = 0;
+    gHitRecover = 0;
     gPlayer.unk3D4 = gPlayer.unk3D5 = 0;
     gPlayer.fallSpeed = 0;
     gView[6] = 0;
@@ -425,7 +425,7 @@ void ResetStage(void) {
     }
     mode = gStage;
     saved = sSaved.valid;
-    if (D_800958AC == 1) {
+    if (gStageTableSet == 1) {
         gTimeLeft = gTimeLimitsAlt[mode][saved] * 30;
     } else {
         gTimeLeft = gTimeLimits[mode][saved] * 30;

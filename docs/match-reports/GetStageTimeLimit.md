@@ -3,13 +3,13 @@
 > Renamed from `func_80041198` on 2026-10-10 (tools/rename.py). Address 0x80041198.
 
 Unit `src/stage_overlay.c`. Looks up word `k` of entry `mode` in one of two
-per-stage tables of three words (`gTimeLimitsAlt` when `D_800958AC` is 1,
+per-stage tables of three words (`gTimeLimitsAlt` when `gStageTableSet` is 1,
 `gTimeLimits` otherwise) and returns it times 30. stage_flow has the same
 lookup written inline (UpdateStagePlay's neighbourhood).
 
 ```c
 s32 GetStageTimeLimit(u8 mode, s32 k) {
-    if (D_800958AC != 1) {
+    if (gStageTableSet != 1) {
         return gTimeLimits[mode][k] * 30;
     }
     return gTimeLimitsAlt[mode][k] * 30;

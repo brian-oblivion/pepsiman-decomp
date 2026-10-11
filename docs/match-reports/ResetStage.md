@@ -7,7 +7,7 @@ second display buffer's band down when `gGameMode` is not 0x29, resets
 the game state's head (`gPlayer`) and a run of globals, then either
 restores a saved start (`gSavedStart`, when its first word is non-zero) or,
 in mode 4, applies that mode's start; finally picks a per-mode value from
-one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
+one of two `[][3]` tables (`gStageTableSet == 1` picks the second set) times
 30, and calls EndJump and StartRumble.
 
 ```c
@@ -22,7 +22,7 @@ void ResetStage(void) {
     s32 mode;
     s32 saved;
 
-    D_80095900 = 1;
+    gSkipLandRumble = 1;
     StopCdTrack();
     if (gGameMode != 0x29) {
         r.x = 0;
@@ -35,7 +35,7 @@ void ResetStage(void) {
     gLoading = 0;
     gVSyncMode = 2;
     ResetStageOverlay();
-    if (D_800958AC == 1) {
+    if (gStageTableSet == 1) {
         gBonusLevel = 2;
     } else {
         gBonusLevel = 3;
@@ -60,7 +60,7 @@ void ResetStage(void) {
     sStage.unk3D3 = 1;
     sStage.unk3C8 = 0;
     sStage.unk2 = 1;
-    D_8009599C = 0;
+    gHitRecover = 0;
     sStage.unk3D4 = sStage.unk3D5 = 0;
     sStage.unk3A6 = 0;
     gView[6] = 0;
@@ -94,7 +94,7 @@ void ResetStage(void) {
     }
     mode = gStage;
     saved = sSaved.valid;
-    if (D_800958AC == 1) {
+    if (gStageTableSet == 1) {
         gTimeLeft = gTimeLimitsAlt[mode][saved] * 30;
     } else {
         gTimeLeft = gTimeLimits[mode][saved] * 30;
@@ -108,7 +108,7 @@ void ResetStage(void) {
 ## Levers
 
 - **The two table indices in locals before the last `if`.** Retail loads
-  `gStage` and the saved flag once, ahead of the `D_800958AC` test,
+  `gStage` and the saved flag once, ahead of the `gStageTableSet` test,
   and keeps the compare's 1 in `$a0`; in the taken arm the shifts by one
   then use `sllv` with that register. Indexing the globals in each arm
   gave a per-arm load and immediate shifts (25 differing lines); hoisting
@@ -127,7 +127,7 @@ void ResetStage(void) {
 
 ## Declarations
 
-- `gVSyncMode` (from main.c), `D_800958AC`, `D_8009599C`, `gSpeedFixed`
+- `gVSyncMode` (from main.c), `gStageTableSet`, `gHitRecover`, `gSpeedFixed`
   (from player.c) moved into `include/common.h` with the same types
   (additive), and `StopCdTrack` (model) was added there.
 - `StepAnimation` takes `Stepper *` in main.c's view and `StageState *`

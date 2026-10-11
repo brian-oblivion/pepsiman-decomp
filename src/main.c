@@ -82,7 +82,7 @@ int main(void) {
     gButtonConfig = 0;
     D_800957D5 = 0;
     D_800958A5 = 0;
-    D_800958AC = -1;
+    gStageTableSet = -1;
     D_80095984 = 0;
     D_80095998 = 0;
     for (gLoopI = 0; gLoopI < 4; gLoopI++) {
@@ -392,10 +392,10 @@ int main(void) {
                         break;
                     case 5:
                         PlayMovie("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
-                        if (D_800958AC == 0) {
+                        if (gStageTableSet == 0) {
                             D_800958A5 = 1;
                             gUnlocks |= 2;
-                        } else if (D_800958AC == 1) {
+                        } else if (gStageTableSet == 1) {
                             gUnlocks |= 8;
                         }
                         D_800957A0 = -1;

@@ -51,7 +51,7 @@ top:
             break;
         case 0:
             x = gBonusLevel;
-            if (D_800958AC == 1) {
+            if (gStageTableSet == 1) {
                 if (x >= 2) {
                     gBonusLevel = 2;
                 }
@@ -183,7 +183,7 @@ Six builds: 17 -> 19 -> 53 -> 108 -> 334.
   is why retail has a `bltz` to the exit and no `beq -2`. A `default:` in
   place of `case 2:` moved the split to 1 too, but broke the left side.
 - The rank clamp at the top of state 0 reads `gBonusLevel` once into a
-  local before testing `D_800958AC` (retail's delay slot holds the `x <
+  local before testing `gStageTableSet` (retail's delay slot holds the `x <
   3` test of the else arm). Spelt as in AddBonusLevel, with a reload in
   each arm, the blocks differ.
 - States 1 and 3 share retail's tail through an `s16 t`: `t =

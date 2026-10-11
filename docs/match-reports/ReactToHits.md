@@ -57,7 +57,7 @@ void ReactToHits(u8 *state) {
         if (p->unk0 == 0) {
             continue;
         }
-        D_8009599C = 0;
+        gHitRecover = 0;
         if ((u32)(*(volatile u8 *)&p->unk2 - 15) >= 4) {
             m = ((GameState *)state)->unk6;
             switch (((GameState *)state)->unk5) {
@@ -130,7 +130,7 @@ void ReactToHits(u8 *state) {
                 gBonusLevel = 0;
                 sGame.unk3D0 &= 0xF0;
                 ((GameState *)state)->unk2 = 0;
-                D_8009599C = 1;
+                gHitRecover = 1;
                 ((GameState *)state)->unk3C8 = 750;
                 ((GameState *)state)->unk5 = v;
                 if (sPickups[i].unk2 != 0) {
@@ -146,7 +146,7 @@ void ReactToHits(u8 *state) {
                 if (gHitReactions[sPickups[i].unk2].b[5] == 1) {
                     ((GameState *)state)->unk2 = 0;
                     ((GameState *)state)->unk3C8 = 150;
-                    D_8009599C = 1;
+                    gHitRecover = 1;
                 } else {
                     ((GameState *)state)->unk2 = 0;
                     ((GameState *)state)->unk3C8 = 18;
@@ -183,7 +183,7 @@ Eight builds: 8 -> 27 -> 26 -> 30 -> 30 -> 25 -> 129 -> 170 -> 280 -> 308.
   (280/308, every other word right).
 - **Retail reloads `unk2` at every later use: the range test reads it
   through `*(volatile u8 *)&p->unk2`.** A plain test lets cse keep the
-  value in a register. With `k = p->unk2;` before the `D_8009599C`
+  value in a register. With `k = p->unk2;` before the `gHitRecover`
   store the reloads come back, but the load moves above the store.
 - `if ((u32)(unk2 - 15) >= 4) { ... } else { ... }` puts the kinds
   15..18 arm last, as retail. A `switch` with `case 15..18` tests two

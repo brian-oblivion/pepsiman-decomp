@@ -19,10 +19,10 @@ The signature is object's, `void GetQuadHeightUnderPlayer(void *rec, s8 *out)`.
 Levers, in order (367 -> 395 -> 456 -> 462 -> 464):
 
 - Two locals are aggregate initialisers, copied from externs as in
-  PlacePlayerPoints: the 0x30-byte `Quad8` (`D_80010AE0`; alignment 2, so cc1
+  PlacePlayerPoints: the 0x30-byte `Quad8` (`sQuadTemplate`; alignment 2, so cc1
   emits the runtime alignment check and both copy loops) and the 12-byte
-  origin (`D_80010B10`). Both lie in the rodata range the yaml gives
-  player, like PlacePlayerPoints's `D_80010950`.
+  origin (`sQuadOrigin`). Both lie in the rodata range the yaml gives
+  player, like PlacePlayerPoints's `sPlayerPointSpecs`.
 - The last four projections add `org.x + q.p[k].x` (org first); the first
   two add `q.p[k].x + org.x`. Operand order sets the load registers.
 - Retail stores the normal's z and then overwrites it with the plane
@@ -76,8 +76,8 @@ typedef struct {
 /* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
 #define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
-extern Quad8 D_80010AE0;
-extern Point12 D_80010B10;
+extern Quad8 sQuadTemplate;
+extern Point12 sQuadOrigin;
 
 /** @brief Tests whether the player stands over the quad `rec` and finds
  *         the height of its plane there.
@@ -100,8 +100,8 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     DebugLine dbg;
     u16 k;
 
-    q = D_80010AE0;
-    org = D_80010B10;
+    q = sQuadTemplate;
+    org = sQuadOrigin;
     out[0] = 0;
     *(s32 *)(out + 4) = 0;
     if ((((Rec4C *)rec)->world[0].vx >= 0 ? ((Rec4C *)rec)->world[0].vx

@@ -6,7 +6,7 @@ Unit `src/player.c`. Every tenth tick of the halfword counter
 `gCans` (non-zero and a multiple of 10) it bumps the counter
 `gBonusLevel` by one through `AddBonusLevel(1)`; before that it plays
 `PlaySe(34)` unless the counter already sits at its cap (2 when
-`D_800958AC` is 1, else 3) or the byte `D_8009EF4D` is 1.
+`gStageTableSet` is 1, else 3) or the byte `D_8009EF4D` is 1.
 
 ```c
 /* MATCHING: `one` is the 1 retail keeps in $a0 for both compares. */
@@ -15,7 +15,7 @@ void CheckCanBonus(void) {
 
     if (gCans != 0 && gCans % 10 == 0) {
         one = 1;
-        if (D_800958AC == one) {
+        if (gStageTableSet == one) {
             if (gBonusLevel == 2) {
                 goto skip;
             }
@@ -42,12 +42,12 @@ scalar. Whole image OK.
 ## Levers
 
 - **Retail's per-arm reload of `gBonusLevel` with one shared `beq`** comes
-  from two compares, one per arm of the `D_800958AC` test, that jump to the
+  from two compares, one per arm of the `gStageTableSet` test, that jump to the
   same place: cross-jumping merges the `beq`s. A ternary (`gBonusLevel !=
-  (D_800958AC == 1 ? 2 : 3)`, 17/44) and an if/else `max` temp (19/44)
+  (gStageTableSet == 1 ? 2 : 3)`, 17/44) and an if/else `max` temp (19/44)
   both load `gBonusLevel` once. The `goto` form gave 36/44.
 - **One register for the constant 1 across a join.** Retail loads `li
-  a0,1` once and compares both `D_800958AC` and the `D_8009EF4D` byte
+  a0,1` once and compares both `gStageTableSet` and the `D_8009EF4D` byte
   with `$a0`, though the second compare's block has two predecessors.
   With literal `1`s the build rematerialises it (`li v0,1` twice; 36/44,
   37/44 as `s32`). A local `s32 one = 1;` used in both compares: 44/44,

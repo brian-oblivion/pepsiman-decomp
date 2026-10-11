@@ -82,8 +82,8 @@ typedef struct {
     s8 b[3]; /**< 7, 13, 19 */
 } Bytes3;
 
-extern PointSpec25 D_80010950;
-extern Bytes3 D_800954F0[];
+extern PointSpec25 sPlayerPointSpecs; /**< the 25 collision points, each on a TOD coordinate system */
+extern Bytes3 sPointGroupStarts[];    /**< 7, 13 and 19: where the three point groups start */
 
 /** @brief Three halfwords, a corner or an edge of a quad. */
 typedef struct {
@@ -112,8 +112,8 @@ typedef struct {
 /* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
 #define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
-extern Quad8 D_80010AE0;
-extern Point12 D_80010B10;
+extern Quad8 sQuadTemplate; /**< the quad GetQuadHeightUnderPlayer starts from */
+extern Point12 sQuadOrigin; /**< its origin */
 
 void PlacePlayerPoints(void);
 s32 SpheresOverlap(Sphere *a, Sphere *b);
@@ -176,8 +176,8 @@ void PlacePlayerPoints(void) {
     long flag;
     s16 i;
 
-    b = *D_800954F0;
-    spec = D_80010950;
+    b = *sPointGroupStarts;
+    spec = sPlayerPointSpecs;
     for (i = 0; i < 25; i++) {
         v.vx = spec.p[i].x;
         v.vy = spec.p[i].y;
@@ -326,8 +326,8 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     DebugLine dbg;
     u16 k;
 
-    q = D_80010AE0;
-    org = D_80010B10;
+    q = sQuadTemplate;
+    org = sQuadOrigin;
     out[0] = 0;
     *(s32 *)(out + 4) = 0;
     if ((((CollisionQuad *)rec)->world[0].vx >= 0 ? ((CollisionQuad *)rec)->world[0].vx

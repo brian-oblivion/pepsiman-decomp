@@ -19,11 +19,11 @@ One build: 779/779.
 
 - **LoadAct3Stage's lever carried over: one pair of extern arrays per
   stage, never a record table.** The stage directories are 0x48 bytes
-  apart (`D_80073C70 + 0x48 * stage`).
+  apart (`sStage00FileLoc + 0x48 * stage`).
 - **The size array's base is 0x20 past the positions, and sizes are
-  indexed one higher than their file** (`D_80073C90[k + 1]` for file
+  indexed one higher than their file** (`sStage00FileSectors[k + 1]` for file
   `k`). Retail's arm that reads two sizes builds the base
-  `D_80073C90` itself and loads at 0xC and 0x10; with a base at +0x24
+  `sStage00FileSectors` itself and loads at 0xC and 0x10; with a base at +0x24
   it would load at 8 and 0xC from another address. (LoadAct3Stage's
   stages 2, 5, 8, 11, 14 use the +0x24 names splat made, which give the
   same bytes for single loads.)

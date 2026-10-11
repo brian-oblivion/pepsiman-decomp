@@ -15,7 +15,7 @@
 #include "object.h"
 #include "spad.h"
 
-INCLUDE_RODATA("asm/nonmatchings/main", D_80010000);
+INCLUDE_RODATA("asm/nonmatchings/main", sStageMusicTracks);
 
 /** @brief Two words, cleared or copied as a pair (a unit-local view). */
 typedef struct {
@@ -78,7 +78,7 @@ int main(void) {
     gUnlocks = 1;
     D_800957A0 = -1;
     ClipF = 0;
-    D_80095758 = 0;
+    gTmdSortMode = 0;
     gButtonConfig = 0;
     D_800957D5 = 0;
     D_800958A5 = 0;
@@ -412,8 +412,8 @@ int main(void) {
     }
 }
 
-extern s32 D_80072484[];
-extern s32 D_800724C4[];
+extern s32 sBootFileLoc[];
+extern s32 sBootFileSectors[];
 void func_80013CDC(void);
 
 /* MATCHING: model types the pack as its own PackEntry. */
@@ -426,22 +426,22 @@ s8 LoadBootData(void) {
     ret = 0;
     switch (gSubStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&D_80072484[0];
+            gCdLoadLoc[0] = (s32)&sBootFileLoc[0];
             gCdLoadDest[0] = 0x8014D000;
-            gCdLoadLoc[1] = (s32)&D_80072484[1];
+            gCdLoadLoc[1] = (s32)&sBootFileLoc[1];
             gCdLoadDest[1] = 0x8018D000;
-            gCdLoadLoc[2] = (s32)&D_80072484[2];
+            gCdLoadLoc[2] = (s32)&sBootFileLoc[2];
             gCdLoadDest[2] = 0x80123000;
-            gCdLoadLoc[3] = (s32)&D_80072484[3];
+            gCdLoadLoc[3] = (s32)&sBootFileLoc[3];
             gCdLoadDest[3] = 0x8016D000;
-            gCdLoadLoc[4] = (s32)&D_80072484[4];
+            gCdLoadLoc[4] = (s32)&sBootFileLoc[4];
             gCdLoadDest[4] = 0x80101000;
             gCdLoadCount = 5;
-            gCdLoadSectors[0] = D_800724C4[0];
-            gCdLoadSectors[1] = D_800724C4[1];
-            gCdLoadSectors[2] = D_800724C4[2];
-            gCdLoadSectors[3] = D_800724C4[3];
-            gCdLoadSectors[4] = D_800724C4[4];
+            gCdLoadSectors[0] = sBootFileSectors[0];
+            gCdLoadSectors[1] = sBootFileSectors[1];
+            gCdLoadSectors[2] = sBootFileSectors[2];
+            gCdLoadSectors[3] = sBootFileSectors[3];
+            gCdLoadSectors[4] = sBootFileSectors[4];
             gCdLoadState = 1;
             gSubStep = 1;
             break;
@@ -571,8 +571,8 @@ void InitGraphics(void) {
 /* Sony's (libgs, carved as asm): GsSortClear by its arguments. */
 void func_80056B8C(u8 r, u8 g, u8 b, GsOT *ot);
 
-extern DR_STP D_800CEBD0;
-extern DR_STP D_800CEBC0;
+extern DR_STP sDrawStpOn;
+extern DR_STP sDrawStpOff;
 
 void EndFrame(void) {
     GsRVIEW2 view;
@@ -598,8 +598,8 @@ void EndFrame(void) {
     DrawSync(0);
     GsSwapDispBuff();
     func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
-    SetDrawStp(&D_800CEBD0, 1);
-    AddPrim(&gOt[gActiveBuff].org[0xFFF], &D_800CEBD0);
+    SetDrawStp(&sDrawStpOn, 1);
+    AddPrim(&gOt[gActiveBuff].org[0xFFF], &sDrawStpOn);
     SetLetterbox(ClipF);
     GsDrawOt(&gOt[gActiveBuff]);
     gActiveBuff = GsGetActiveBuff();
@@ -608,8 +608,8 @@ void EndFrame(void) {
     GsClearOt(0, 0, &gSubOt[gActiveBuff]);
     GsSortOt(&gSubOt[gActiveBuff], &gOt[gActiveBuff]);
     gCurOt = &gOt[gActiveBuff];
-    SetDrawStp(&D_800CEBC0, 0);
-    AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
+    SetDrawStp(&sDrawStpOff, 0);
+    AddPrim(gSubOt[gActiveBuff].org, &sDrawStpOff);
     ReadPad(0);
     RemapButtons();
     if (gPauseState == 0) {
@@ -717,7 +717,7 @@ extern char sTab[];           /**< "\t" */
 extern char sWhiteLineText[]; /**< "~c888\n" */
 extern char sHexAddrFmt[];    /**< "%x\n" */
 extern char sHexByteFmt[];    /**< " %2x" */
-extern s32 D_80095788;
+extern s32 sDumpOffset;
 
 void DumpMemory(u8 *base) {
     u8 *p;
@@ -726,9 +726,9 @@ void DumpMemory(u8 *base) {
     s16 i;
     s16 j;
 
-    D_80095788 = 0;
+    sDumpOffset = 0;
     FntPrint(sWhiteLineText);
-    p = base + D_80095788;
+    p = base + sDumpOffset;
     FntPrint(sHexAddrFmt, p);
     for (i = 0; i < 1; i++) {
         FntPrint(sTab);
@@ -796,14 +796,14 @@ typedef struct {
     u8 b[15]; /**< the bytes */
 } Bytes15;
 
-extern u8 D_80010000[];
+extern u8 sStageMusicTracks[];
 
 void PlayCdTrack(s32 track, s32 loop);
 
 void PlayStageMusic(u8 idx) {
     Bytes15 tbl;
 
-    tbl = *(Bytes15 *)D_80010000;
+    tbl = *(Bytes15 *)sStageMusicTracks;
     if (gSoundFade != 0) {
         gSoundFade = 0;
     }
@@ -926,16 +926,16 @@ s32 UpdateRumble(void) {
     }
 }
 
-extern u8 D_80072F44[];
+extern u8 sPadBufOffsets[];
 extern u8 gPadBuf[];
 extern s32 gStickY;
 extern s32 gStickX;
 /* MATCHING: editor declares it too; both reach it the same way. */
 extern s32 gStickTrigX;
 
-extern s32 D_80095854;
-extern s32 D_8009584C;
-extern s32 D_80095874;
+extern s32 sPad2Prev;
+extern s32 sPad2Held;
+extern s32 sPad2Pressed;
 
 u32 UpdatePadActuators(void);
 
@@ -956,25 +956,25 @@ void PollPads(void) {
     gPadType = id;
     /* MATCHING: built up in one local over three statements; as one
      * expression, combine drops port 1's `andi 0xFFFF`. */
-    btn = gPadBuf[D_80072F44[0] + 2] << 8;
-    btn |= gPadBuf[D_80072F44[0] + 3];
+    btn = gPadBuf[sPadBufOffsets[0] + 2] << 8;
+    btn |= gPadBuf[sPadBufOffsets[0] + 3];
     btn ^= 0xFFFF;
     if (id == 0) {
         btn = 0;
     }
     m = gPadPrev[0] ^ 0xFFFF;
     /* MATCHING: a new local, not `btn = (u16)btn;`: it takes $v1 in
-     * local-alloc, so the D_80095854 load lands in $a0 and is hoisted. */
+     * local-alloc, so the sPad2Prev load lands in $a0 and is hoisted. */
     b = (u16)btn;
     gPadHeld[0] = gPadPrev[0] = b;
     gPadPressed[0] = b & m;
-    m = D_80095854 ^ 0xFFFF;
-    btn = gPadBuf[D_80072F44[1] + 0x24] << 8;
-    btn |= gPadBuf[D_80072F44[1] + 0x25];
+    m = sPad2Prev ^ 0xFFFF;
+    btn = gPadBuf[sPadBufOffsets[1] + 0x24] << 8;
+    btn |= gPadBuf[sPadBufOffsets[1] + 0x25];
     btn ^= 0xFFFF;
-    D_8009584C = D_80095854 = (u16)btn;
+    sPad2Held = sPad2Prev = (u16)btn;
     btn = (u16)btn & m;
-    D_80095874 = btn;
+    sPad2Pressed = btn;
     if (id == 0x73) {
         m = gStickY ^ 0xFFFF;
         if (gPadBuf[7] < 10) {
@@ -999,10 +999,10 @@ void PollPads(void) {
     }
 }
 
-extern u8 *D_80095700;
-extern u8 *D_80095704;
+extern u8 *sPadBufPtr;
+extern u8 *sPadActPtr;
 /* MATCHING: a known small size, so its address is one `la` register. */
-extern u8 D_800954E4[6];
+extern u8 sPadActAlign[6];
 
 u32 UpdatePadActuators(void) {
     u8 *buf;
@@ -1011,8 +1011,8 @@ u32 UpdatePadActuators(void) {
     s32 state;
     s32 i;
 
-    buf = D_80095700;
-    act = D_80095704;
+    buf = sPadBufPtr;
+    act = sPadActPtr;
     for (k = 0; k < 2; k++, act += 0x10) {
         state = PadGetState(k * 16);
         if (state == 1) {
@@ -1020,7 +1020,7 @@ u32 UpdatePadActuators(void) {
         }
         if (act[0] == 0) {
             PadSetAct(k * 16, act + 2, 2);
-            if (state == 2 || (state == 6 && PadSetActAlign(k * 16, D_800954E4))) {
+            if (state == 2 || (state == 6 && PadSetActAlign(k * 16, sPadActAlign))) {
                 act[0] = 1;
             }
         }
@@ -1040,18 +1040,18 @@ u32 UpdatePadActuators(void) {
 }
 
 void SetPadVibration(s32 offset, u8 a, u8 b) {
-    D_80095704[offset + 2] = a;
-    D_80095704[offset + 3] = b;
+    sPadActPtr[offset + 2] = a;
+    sPadActPtr[offset + 3] = b;
 }
 
 void StartPads(u8 *a, u8 *b);
 
-extern u8 D_80095BE8[];
+extern u8 sPadActBuf[];
 
 void InitPads(void) {
     s16 i;
 
-    StartPads(gPadBuf, D_80095BE8);
+    StartPads(gPadBuf, sPadActBuf);
     for (i = 0; i < 6; i++) {
         gPadPrev[i] = 0;
         gPadPressed[i] = 0;
@@ -1105,12 +1105,12 @@ void ResetRumble(void) {
 void StartPads(u8 *a, u8 *b) {
     s32 i;
 
-    D_80095700 = a;
-    D_80095704 = b;
+    sPadBufPtr = a;
+    sPadActPtr = b;
     for (i = 0; i < 32; i++) {
-        D_80095704[i] = 0;
+        sPadActPtr[i] = 0;
     }
-    PadInitDirect(D_80095700, D_80095700 + 0x22);
+    PadInitDirect(sPadBufPtr, sPadBufPtr + 0x22);
     PadStartCom();
 }
 
@@ -1265,18 +1265,18 @@ void BeginAct3LoadScreen(void) {
     gGameMode = GM_LOAD_SCREEN_ACT3;
 }
 
-/* Each stage's disc directory (the names are guesses): file positions,
- * then their sizes in sectors, one pair of arrays per stage. */
-extern CdlLOC D_80073D00[];
-extern s32 D_80073D24[];
-extern CdlLOC D_80073DD8[];
-extern s32 D_80073DFC[];
-extern CdlLOC D_80073EB0[];
-extern s32 D_80073ED4[];
-extern CdlLOC D_80073F88[];
-extern s32 D_80073FAC[];
-extern CdlLOC D_80074060[];
-extern s32 D_80074084[];
+/* The act-3 stages' files (2, 5, 8, 11, 14), for LoadAct3Stage: each
+ * file's disc position, then its size in sectors, one pair per stage. */
+extern CdlLOC sStage02FileLoc[];
+extern s32 sStage02FileSectors[];
+extern CdlLOC sStage05FileLoc[];
+extern s32 sStage05FileSectors[];
+extern CdlLOC sStage08FileLoc[];
+extern s32 sStage08FileSectors[];
+extern CdlLOC sStage11FileLoc[];
+extern s32 sStage11FileSectors[];
+extern CdlLOC sStage14FileLoc[];
+extern s32 sStage14FileSectors[];
 
 /* MATCHING: sound defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
@@ -1332,24 +1332,24 @@ void LoadAct3Stage(void) {
             func_80018DE8(0);
             switch (gStage) {
                 case 2:
-                    gCdLoadLoc[0] = (s32)&D_80073D00[0];
-                    gCdLoadSectors[0] = D_80073D24[0];
+                    gCdLoadLoc[0] = (s32)&sStage02FileLoc[0];
+                    gCdLoadSectors[0] = sStage02FileSectors[0];
                     break;
                 case 5:
-                    gCdLoadLoc[0] = (s32)&D_80073DD8[0];
-                    gCdLoadSectors[0] = D_80073DFC[0];
+                    gCdLoadLoc[0] = (s32)&sStage05FileLoc[0];
+                    gCdLoadSectors[0] = sStage05FileSectors[0];
                     break;
                 case 8:
-                    gCdLoadLoc[0] = (s32)&D_80073EB0[0];
-                    gCdLoadSectors[0] = D_80073ED4[0];
+                    gCdLoadLoc[0] = (s32)&sStage08FileLoc[0];
+                    gCdLoadSectors[0] = sStage08FileSectors[0];
                     break;
                 case 11:
-                    gCdLoadLoc[0] = (s32)&D_80073F88[0];
-                    gCdLoadSectors[0] = D_80073FAC[0];
+                    gCdLoadLoc[0] = (s32)&sStage11FileLoc[0];
+                    gCdLoadSectors[0] = sStage11FileSectors[0];
                     break;
                 case 14:
-                    gCdLoadLoc[0] = (s32)&D_80074060[0];
-                    gCdLoadSectors[0] = D_80074084[0];
+                    gCdLoadLoc[0] = (s32)&sStage14FileLoc[0];
+                    gCdLoadSectors[0] = sStage14FileSectors[0];
                     break;
             }
             gCdLoadDest[0] = 0x8019D000;
@@ -1366,24 +1366,24 @@ void LoadAct3Stage(void) {
         case 6:
             switch (gStage) {
                 case 2:
-                    gCdLoadLoc[0] = (s32)&D_80073D00[1];
-                    gCdLoadSectors[0] = D_80073D24[1];
+                    gCdLoadLoc[0] = (s32)&sStage02FileLoc[1];
+                    gCdLoadSectors[0] = sStage02FileSectors[1];
                     break;
                 case 5:
-                    gCdLoadLoc[0] = (s32)&D_80073DD8[1];
-                    gCdLoadSectors[0] = D_80073DFC[1];
+                    gCdLoadLoc[0] = (s32)&sStage05FileLoc[1];
+                    gCdLoadSectors[0] = sStage05FileSectors[1];
                     break;
                 case 8:
-                    gCdLoadLoc[0] = (s32)&D_80073EB0[1];
-                    gCdLoadSectors[0] = D_80073ED4[1];
+                    gCdLoadLoc[0] = (s32)&sStage08FileLoc[1];
+                    gCdLoadSectors[0] = sStage08FileSectors[1];
                     break;
                 case 11:
-                    gCdLoadLoc[0] = (s32)&D_80073F88[1];
-                    gCdLoadSectors[0] = D_80073FAC[1];
+                    gCdLoadLoc[0] = (s32)&sStage11FileLoc[1];
+                    gCdLoadSectors[0] = sStage11FileSectors[1];
                     break;
                 case 14:
-                    gCdLoadLoc[0] = (s32)&D_80074060[1];
-                    gCdLoadSectors[0] = D_80074084[1];
+                    gCdLoadLoc[0] = (s32)&sStage14FileLoc[1];
+                    gCdLoadSectors[0] = sStage14FileSectors[1];
                     break;
             }
             gCdLoadDest[0] = 0x8019D000;
@@ -1418,28 +1418,28 @@ void LoadAct3Stage(void) {
     }
 }
 
-/* The other stages' directories (see the stage loader above): file positions, and
- * sizes in sectors counted from an extra leading word, one pair per stage. */
-extern CdlLOC D_80073C70[];
-extern s32 D_80073C90[];
-extern CdlLOC D_80073CB8[];
-extern s32 D_80073CD8[];
-extern CdlLOC D_80073D48[];
-extern s32 D_80073D68[];
-extern CdlLOC D_80073D90[];
-extern s32 D_80073DB0[];
-extern CdlLOC D_80073E20[];
-extern s32 D_80073E40[];
-extern CdlLOC D_80073E68[];
-extern s32 D_80073E88[];
-extern CdlLOC D_80073EF8[];
-extern s32 D_80073F18[];
-extern CdlLOC D_80073F40[];
-extern s32 D_80073F60[];
-extern CdlLOC D_80073FD0[];
-extern s32 D_80073FF0[];
-extern CdlLOC D_80074018[];
-extern s32 D_80074038[];
+/* The other stages' files, for LoadStage: disc positions, and sizes in
+ * sectors counted from an extra leading word, one pair per stage. */
+extern CdlLOC sStage00FileLoc[];
+extern s32 sStage00FileSectors[];
+extern CdlLOC sStage01FileLoc[];
+extern s32 sStage01FileSectors[];
+extern CdlLOC sStage03FileLoc[];
+extern s32 sStage03FileSectors[];
+extern CdlLOC sStage04FileLoc[];
+extern s32 sStage04FileSectors[];
+extern CdlLOC sStage06FileLoc[];
+extern s32 sStage06FileSectors[];
+extern CdlLOC sStage07FileLoc[];
+extern s32 sStage07FileSectors[];
+extern CdlLOC sStage09FileLoc[];
+extern s32 sStage09FileSectors[];
+extern CdlLOC sStage10FileLoc[];
+extern s32 sStage10FileSectors[];
+extern CdlLOC sStage12FileLoc[];
+extern s32 sStage12FileSectors[];
+extern CdlLOC sStage13FileLoc[];
+extern s32 sStage13FileSectors[];
 
 /* MATCHING: stage defines it and has no header to declare it. */
 void LoadStageData(unsigned long *p);
@@ -1475,44 +1475,44 @@ void LoadStage(void) {
             func_80018DE8(0);
             switch (gStage) {
                 case 0:
-                    gCdLoadLoc[0] = (s32)&D_80073C70[0];
-                    gCdLoadSectors[0] = D_80073C90[1];
+                    gCdLoadLoc[0] = (s32)&sStage00FileLoc[0];
+                    gCdLoadSectors[0] = sStage00FileSectors[1];
                     break;
                 case 1:
-                    gCdLoadLoc[0] = (s32)&D_80073CB8[0];
-                    gCdLoadSectors[0] = D_80073CD8[1];
+                    gCdLoadLoc[0] = (s32)&sStage01FileLoc[0];
+                    gCdLoadSectors[0] = sStage01FileSectors[1];
                     break;
                 case 3:
-                    gCdLoadLoc[0] = (s32)&D_80073D48[0];
-                    gCdLoadSectors[0] = D_80073D68[1];
+                    gCdLoadLoc[0] = (s32)&sStage03FileLoc[0];
+                    gCdLoadSectors[0] = sStage03FileSectors[1];
                     break;
                 case 4:
-                    gCdLoadLoc[0] = (s32)&D_80073D90[0];
-                    gCdLoadSectors[0] = D_80073DB0[1];
+                    gCdLoadLoc[0] = (s32)&sStage04FileLoc[0];
+                    gCdLoadSectors[0] = sStage04FileSectors[1];
                     break;
                 case 6:
-                    gCdLoadLoc[0] = (s32)&D_80073E20[0];
-                    gCdLoadSectors[0] = D_80073E40[1];
+                    gCdLoadLoc[0] = (s32)&sStage06FileLoc[0];
+                    gCdLoadSectors[0] = sStage06FileSectors[1];
                     break;
                 case 7:
-                    gCdLoadLoc[0] = (s32)&D_80073E68[0];
-                    gCdLoadSectors[0] = D_80073E88[1];
+                    gCdLoadLoc[0] = (s32)&sStage07FileLoc[0];
+                    gCdLoadSectors[0] = sStage07FileSectors[1];
                     break;
                 case 9:
-                    gCdLoadLoc[0] = (s32)&D_80073EF8[0];
-                    gCdLoadSectors[0] = D_80073F18[1];
+                    gCdLoadLoc[0] = (s32)&sStage09FileLoc[0];
+                    gCdLoadSectors[0] = sStage09FileSectors[1];
                     break;
                 case 10:
-                    gCdLoadLoc[0] = (s32)&D_80073F40[0];
-                    gCdLoadSectors[0] = D_80073F60[1];
+                    gCdLoadLoc[0] = (s32)&sStage10FileLoc[0];
+                    gCdLoadSectors[0] = sStage10FileSectors[1];
                     break;
                 case 12:
-                    gCdLoadLoc[0] = (s32)&D_80073FD0[0];
-                    gCdLoadSectors[0] = D_80073FF0[1];
+                    gCdLoadLoc[0] = (s32)&sStage12FileLoc[0];
+                    gCdLoadSectors[0] = sStage12FileSectors[1];
                     break;
                 case 13:
-                    gCdLoadLoc[0] = (s32)&D_80074018[0];
-                    gCdLoadSectors[0] = D_80074038[1];
+                    gCdLoadLoc[0] = (s32)&sStage13FileLoc[0];
+                    gCdLoadSectors[0] = sStage13FileSectors[1];
                     break;
             }
             gCdLoadDest[0] = 0x8019D000;
@@ -1529,44 +1529,44 @@ void LoadStage(void) {
         case 6:
             switch (gStage) {
                 case 0:
-                    gCdLoadLoc[0] = (s32)&D_80073C70[1];
-                    gCdLoadSectors[0] = D_80073C90[2];
+                    gCdLoadLoc[0] = (s32)&sStage00FileLoc[1];
+                    gCdLoadSectors[0] = sStage00FileSectors[2];
                     break;
                 case 1:
-                    gCdLoadLoc[0] = (s32)&D_80073CB8[1];
-                    gCdLoadSectors[0] = D_80073CD8[2];
+                    gCdLoadLoc[0] = (s32)&sStage01FileLoc[1];
+                    gCdLoadSectors[0] = sStage01FileSectors[2];
                     break;
                 case 3:
-                    gCdLoadLoc[0] = (s32)&D_80073D48[1];
-                    gCdLoadSectors[0] = D_80073D68[2];
+                    gCdLoadLoc[0] = (s32)&sStage03FileLoc[1];
+                    gCdLoadSectors[0] = sStage03FileSectors[2];
                     break;
                 case 4:
-                    gCdLoadLoc[0] = (s32)&D_80073D90[1];
-                    gCdLoadSectors[0] = D_80073DB0[2];
+                    gCdLoadLoc[0] = (s32)&sStage04FileLoc[1];
+                    gCdLoadSectors[0] = sStage04FileSectors[2];
                     break;
                 case 6:
-                    gCdLoadLoc[0] = (s32)&D_80073E20[1];
-                    gCdLoadSectors[0] = D_80073E40[2];
+                    gCdLoadLoc[0] = (s32)&sStage06FileLoc[1];
+                    gCdLoadSectors[0] = sStage06FileSectors[2];
                     break;
                 case 7:
-                    gCdLoadLoc[0] = (s32)&D_80073E68[1];
-                    gCdLoadSectors[0] = D_80073E88[2];
+                    gCdLoadLoc[0] = (s32)&sStage07FileLoc[1];
+                    gCdLoadSectors[0] = sStage07FileSectors[2];
                     break;
                 case 9:
-                    gCdLoadLoc[0] = (s32)&D_80073EF8[1];
-                    gCdLoadSectors[0] = D_80073F18[2];
+                    gCdLoadLoc[0] = (s32)&sStage09FileLoc[1];
+                    gCdLoadSectors[0] = sStage09FileSectors[2];
                     break;
                 case 10:
-                    gCdLoadLoc[0] = (s32)&D_80073F40[1];
-                    gCdLoadSectors[0] = D_80073F60[2];
+                    gCdLoadLoc[0] = (s32)&sStage10FileLoc[1];
+                    gCdLoadSectors[0] = sStage10FileSectors[2];
                     break;
                 case 12:
-                    gCdLoadLoc[0] = (s32)&D_80073FD0[1];
-                    gCdLoadSectors[0] = D_80073FF0[2];
+                    gCdLoadLoc[0] = (s32)&sStage12FileLoc[1];
+                    gCdLoadSectors[0] = sStage12FileSectors[2];
                     break;
                 case 13:
-                    gCdLoadLoc[0] = (s32)&D_80074018[1];
-                    gCdLoadSectors[0] = D_80074038[2];
+                    gCdLoadLoc[0] = (s32)&sStage13FileLoc[1];
+                    gCdLoadSectors[0] = sStage13FileSectors[2];
                     break;
             }
             gCdLoadDest[0] = 0x8019D000;
@@ -1583,64 +1583,64 @@ void LoadStage(void) {
         case 8:
             switch (gStage) {
                 case 0:
-                    gCdLoadLoc[0] = (s32)&D_80073C70[2];
-                    gCdLoadLoc[1] = (s32)&D_80073C70[3];
-                    gCdLoadSectors[0] = D_80073C90[3];
-                    gCdLoadSectors[1] = D_80073C90[4];
+                    gCdLoadLoc[0] = (s32)&sStage00FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage00FileLoc[3];
+                    gCdLoadSectors[0] = sStage00FileSectors[3];
+                    gCdLoadSectors[1] = sStage00FileSectors[4];
                     break;
                 case 1:
-                    gCdLoadLoc[0] = (s32)&D_80073CB8[2];
-                    gCdLoadLoc[1] = (s32)&D_80073CB8[3];
-                    gCdLoadSectors[0] = D_80073CD8[3];
-                    gCdLoadSectors[1] = D_80073CD8[4];
+                    gCdLoadLoc[0] = (s32)&sStage01FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage01FileLoc[3];
+                    gCdLoadSectors[0] = sStage01FileSectors[3];
+                    gCdLoadSectors[1] = sStage01FileSectors[4];
                     break;
                 case 3:
-                    gCdLoadLoc[0] = (s32)&D_80073D48[2];
-                    gCdLoadLoc[1] = (s32)&D_80073D48[3];
-                    gCdLoadSectors[0] = D_80073D68[3];
-                    gCdLoadSectors[1] = D_80073D68[4];
+                    gCdLoadLoc[0] = (s32)&sStage03FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage03FileLoc[3];
+                    gCdLoadSectors[0] = sStage03FileSectors[3];
+                    gCdLoadSectors[1] = sStage03FileSectors[4];
                     break;
                 case 4:
-                    gCdLoadLoc[0] = (s32)&D_80073D90[2];
-                    gCdLoadLoc[1] = (s32)&D_80073D90[3];
-                    gCdLoadSectors[0] = D_80073DB0[3];
-                    gCdLoadSectors[1] = D_80073DB0[4];
+                    gCdLoadLoc[0] = (s32)&sStage04FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage04FileLoc[3];
+                    gCdLoadSectors[0] = sStage04FileSectors[3];
+                    gCdLoadSectors[1] = sStage04FileSectors[4];
                     break;
                 case 6:
-                    gCdLoadLoc[0] = (s32)&D_80073E20[2];
-                    gCdLoadLoc[1] = (s32)&D_80073E20[3];
-                    gCdLoadSectors[0] = D_80073E40[3];
-                    gCdLoadSectors[1] = D_80073E40[4];
+                    gCdLoadLoc[0] = (s32)&sStage06FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage06FileLoc[3];
+                    gCdLoadSectors[0] = sStage06FileSectors[3];
+                    gCdLoadSectors[1] = sStage06FileSectors[4];
                     break;
                 case 7:
-                    gCdLoadLoc[0] = (s32)&D_80073E68[2];
-                    gCdLoadLoc[1] = (s32)&D_80073E68[3];
-                    gCdLoadSectors[0] = D_80073E88[3];
-                    gCdLoadSectors[1] = D_80073E88[4];
+                    gCdLoadLoc[0] = (s32)&sStage07FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage07FileLoc[3];
+                    gCdLoadSectors[0] = sStage07FileSectors[3];
+                    gCdLoadSectors[1] = sStage07FileSectors[4];
                     break;
                 case 9:
-                    gCdLoadLoc[0] = (s32)&D_80073EF8[2];
-                    gCdLoadLoc[1] = (s32)&D_80073EF8[3];
-                    gCdLoadSectors[0] = D_80073F18[3];
-                    gCdLoadSectors[1] = D_80073F18[4];
+                    gCdLoadLoc[0] = (s32)&sStage09FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage09FileLoc[3];
+                    gCdLoadSectors[0] = sStage09FileSectors[3];
+                    gCdLoadSectors[1] = sStage09FileSectors[4];
                     break;
                 case 10:
-                    gCdLoadLoc[0] = (s32)&D_80073F40[2];
-                    gCdLoadLoc[1] = (s32)&D_80073F40[3];
-                    gCdLoadSectors[0] = D_80073F60[3];
-                    gCdLoadSectors[1] = D_80073F60[4];
+                    gCdLoadLoc[0] = (s32)&sStage10FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage10FileLoc[3];
+                    gCdLoadSectors[0] = sStage10FileSectors[3];
+                    gCdLoadSectors[1] = sStage10FileSectors[4];
                     break;
                 case 12:
-                    gCdLoadLoc[0] = (s32)&D_80073FD0[2];
-                    gCdLoadLoc[1] = (s32)&D_80073FD0[3];
-                    gCdLoadSectors[0] = D_80073FF0[3];
-                    gCdLoadSectors[1] = D_80073FF0[4];
+                    gCdLoadLoc[0] = (s32)&sStage12FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage12FileLoc[3];
+                    gCdLoadSectors[0] = sStage12FileSectors[3];
+                    gCdLoadSectors[1] = sStage12FileSectors[4];
                     break;
                 case 13:
-                    gCdLoadLoc[0] = (s32)&D_80074018[2];
-                    gCdLoadLoc[1] = (s32)&D_80074018[3];
-                    gCdLoadSectors[0] = D_80074038[3];
-                    gCdLoadSectors[1] = D_80074038[4];
+                    gCdLoadLoc[0] = (s32)&sStage13FileLoc[2];
+                    gCdLoadLoc[1] = (s32)&sStage13FileLoc[3];
+                    gCdLoadSectors[0] = sStage13FileSectors[3];
+                    gCdLoadSectors[1] = sStage13FileSectors[4];
                     break;
             }
             gCdLoadDest[0] = 0x8019D000;
@@ -1658,44 +1658,44 @@ void LoadStage(void) {
         case 10:
             switch (gStage) {
                 case 0:
-                    gCdLoadLoc[0] = (s32)&D_80073C70[4];
-                    gCdLoadSectors[0] = D_80073C90[5];
+                    gCdLoadLoc[0] = (s32)&sStage00FileLoc[4];
+                    gCdLoadSectors[0] = sStage00FileSectors[5];
                     break;
                 case 1:
-                    gCdLoadLoc[0] = (s32)&D_80073CB8[4];
-                    gCdLoadSectors[0] = D_80073CD8[5];
+                    gCdLoadLoc[0] = (s32)&sStage01FileLoc[4];
+                    gCdLoadSectors[0] = sStage01FileSectors[5];
                     break;
                 case 3:
-                    gCdLoadLoc[0] = (s32)&D_80073D48[4];
-                    gCdLoadSectors[0] = D_80073D68[5];
+                    gCdLoadLoc[0] = (s32)&sStage03FileLoc[4];
+                    gCdLoadSectors[0] = sStage03FileSectors[5];
                     break;
                 case 4:
-                    gCdLoadLoc[0] = (s32)&D_80073D90[4];
-                    gCdLoadSectors[0] = D_80073DB0[5];
+                    gCdLoadLoc[0] = (s32)&sStage04FileLoc[4];
+                    gCdLoadSectors[0] = sStage04FileSectors[5];
                     break;
                 case 6:
-                    gCdLoadLoc[0] = (s32)&D_80073E20[4];
-                    gCdLoadSectors[0] = D_80073E40[5];
+                    gCdLoadLoc[0] = (s32)&sStage06FileLoc[4];
+                    gCdLoadSectors[0] = sStage06FileSectors[5];
                     break;
                 case 7:
-                    gCdLoadLoc[0] = (s32)&D_80073E68[4];
-                    gCdLoadSectors[0] = D_80073E88[5];
+                    gCdLoadLoc[0] = (s32)&sStage07FileLoc[4];
+                    gCdLoadSectors[0] = sStage07FileSectors[5];
                     break;
                 case 9:
-                    gCdLoadLoc[0] = (s32)&D_80073EF8[4];
-                    gCdLoadSectors[0] = D_80073F18[5];
+                    gCdLoadLoc[0] = (s32)&sStage09FileLoc[4];
+                    gCdLoadSectors[0] = sStage09FileSectors[5];
                     break;
                 case 10:
-                    gCdLoadLoc[0] = (s32)&D_80073F40[4];
-                    gCdLoadSectors[0] = D_80073F60[5];
+                    gCdLoadLoc[0] = (s32)&sStage10FileLoc[4];
+                    gCdLoadSectors[0] = sStage10FileSectors[5];
                     break;
                 case 12:
-                    gCdLoadLoc[0] = (s32)&D_80073FD0[4];
-                    gCdLoadSectors[0] = D_80073FF0[5];
+                    gCdLoadLoc[0] = (s32)&sStage12FileLoc[4];
+                    gCdLoadSectors[0] = sStage12FileSectors[5];
                     break;
                 case 13:
-                    gCdLoadLoc[0] = (s32)&D_80074018[4];
-                    gCdLoadSectors[0] = D_80074038[5];
+                    gCdLoadLoc[0] = (s32)&sStage13FileLoc[4];
+                    gCdLoadSectors[0] = sStage13FileSectors[5];
                     break;
             }
             gCdLoadDest[0] = 0x8016D000;
@@ -1716,44 +1716,44 @@ void LoadStage(void) {
         case 13:
             switch (gStage) {
                 case 0:
-                    gCdLoadLoc[0] = (s32)&D_80073C70[5];
-                    gCdLoadSectors[0] = D_80073C90[6];
+                    gCdLoadLoc[0] = (s32)&sStage00FileLoc[5];
+                    gCdLoadSectors[0] = sStage00FileSectors[6];
                     break;
                 case 1:
-                    gCdLoadLoc[0] = (s32)&D_80073CB8[5];
-                    gCdLoadSectors[0] = D_80073CD8[6];
+                    gCdLoadLoc[0] = (s32)&sStage01FileLoc[5];
+                    gCdLoadSectors[0] = sStage01FileSectors[6];
                     break;
                 case 3:
-                    gCdLoadLoc[0] = (s32)&D_80073D48[5];
-                    gCdLoadSectors[0] = D_80073D68[6];
+                    gCdLoadLoc[0] = (s32)&sStage03FileLoc[5];
+                    gCdLoadSectors[0] = sStage03FileSectors[6];
                     break;
                 case 4:
-                    gCdLoadLoc[0] = (s32)&D_80073D90[5];
-                    gCdLoadSectors[0] = D_80073DB0[6];
+                    gCdLoadLoc[0] = (s32)&sStage04FileLoc[5];
+                    gCdLoadSectors[0] = sStage04FileSectors[6];
                     break;
                 case 6:
-                    gCdLoadLoc[0] = (s32)&D_80073E20[5];
-                    gCdLoadSectors[0] = D_80073E40[6];
+                    gCdLoadLoc[0] = (s32)&sStage06FileLoc[5];
+                    gCdLoadSectors[0] = sStage06FileSectors[6];
                     break;
                 case 7:
-                    gCdLoadLoc[0] = (s32)&D_80073E68[5];
-                    gCdLoadSectors[0] = D_80073E88[6];
+                    gCdLoadLoc[0] = (s32)&sStage07FileLoc[5];
+                    gCdLoadSectors[0] = sStage07FileSectors[6];
                     break;
                 case 9:
-                    gCdLoadLoc[0] = (s32)&D_80073EF8[5];
-                    gCdLoadSectors[0] = D_80073F18[6];
+                    gCdLoadLoc[0] = (s32)&sStage09FileLoc[5];
+                    gCdLoadSectors[0] = sStage09FileSectors[6];
                     break;
                 case 10:
-                    gCdLoadLoc[0] = (s32)&D_80073F40[5];
-                    gCdLoadSectors[0] = D_80073F60[6];
+                    gCdLoadLoc[0] = (s32)&sStage10FileLoc[5];
+                    gCdLoadSectors[0] = sStage10FileSectors[6];
                     break;
                 case 12:
-                    gCdLoadLoc[0] = (s32)&D_80073FD0[5];
-                    gCdLoadSectors[0] = D_80073FF0[6];
+                    gCdLoadLoc[0] = (s32)&sStage12FileLoc[5];
+                    gCdLoadSectors[0] = sStage12FileSectors[6];
                     break;
                 case 13:
-                    gCdLoadLoc[0] = (s32)&D_80074018[5];
-                    gCdLoadSectors[0] = D_80074038[6];
+                    gCdLoadLoc[0] = (s32)&sStage13FileLoc[5];
+                    gCdLoadSectors[0] = sStage13FileSectors[6];
                     break;
             }
             gCdLoadDest[0] = 0x8016D000;
@@ -1773,24 +1773,24 @@ void LoadStage(void) {
             if ((u8)(gStage % 3) == 1) {
                 switch (gStage) {
                     case 1:
-                        gCdLoadLoc[0] = (s32)&D_80073CB8[6];
-                        gCdLoadSectors[0] = D_80073CD8[7];
+                        gCdLoadLoc[0] = (s32)&sStage01FileLoc[6];
+                        gCdLoadSectors[0] = sStage01FileSectors[7];
                         break;
                     case 4:
-                        gCdLoadLoc[0] = (s32)&D_80073D90[6];
-                        gCdLoadSectors[0] = D_80073DB0[7];
+                        gCdLoadLoc[0] = (s32)&sStage04FileLoc[6];
+                        gCdLoadSectors[0] = sStage04FileSectors[7];
                         break;
                     case 7:
-                        gCdLoadLoc[0] = (s32)&D_80073E68[6];
-                        gCdLoadSectors[0] = D_80073E88[7];
+                        gCdLoadLoc[0] = (s32)&sStage07FileLoc[6];
+                        gCdLoadSectors[0] = sStage07FileSectors[7];
                         break;
                     case 10:
-                        gCdLoadLoc[0] = (s32)&D_80073F40[6];
-                        gCdLoadSectors[0] = D_80073F60[7];
+                        gCdLoadLoc[0] = (s32)&sStage10FileLoc[6];
+                        gCdLoadSectors[0] = sStage10FileSectors[7];
                         break;
                     case 13:
-                        gCdLoadLoc[0] = (s32)&D_80074018[6];
-                        gCdLoadSectors[0] = D_80074038[7];
+                        gCdLoadLoc[0] = (s32)&sStage13FileLoc[6];
+                        gCdLoadSectors[0] = sStage13FileSectors[7];
                         break;
                 }
                 gCdLoadDest[0] = 0x8018D000;
@@ -1804,7 +1804,7 @@ void LoadStage(void) {
                 ResetStageObjects();
                 StartStageOverlay();
                 func_80018DE8(1);
-                D_800D86B8[0] = 0;
+                gSavedStart[0] = 0;
                 ResetStage();
                 gSubStep = 100;
             }
@@ -1851,7 +1851,7 @@ static __inline__ void drawObj(PlayerState *obj) {
     GsDOBJ2 *o;
     s32 i;
 
-    SetTmdSortMode(D_80095758);
+    SetTmdSortMode(gTmdSortMode);
     o = sModels.objs;
     o->coord2->coord.t[0] = obj->x;
     o->coord2->coord.t[1] = obj->y;
@@ -1956,7 +1956,7 @@ extern CdlLOC gCdToc[];
 extern s32 gCdTrackEnd;
 extern s32 gCdTrackLoop;
 /* MATCHING: a known small size, so the byte store is `$gp`-relative. */
-extern u8 D_80095AC0[4];
+extern u8 sCdModeParam[4];
 
 void PlayCdTrack(s32 track, s32 loop) {
     CdlATV atv;
@@ -1984,8 +1984,8 @@ void PlayCdTrack(s32 track, s32 loop) {
     gCdTrackPos = gCdTrackStart;
     SsSetSerialAttr(0, 0, 1);
     SsSetSerialVol(0, 0x72, 0x72);
-    D_80095AC0[0] = 3;
-    CdControlB(CdlSetmode, D_80095AC0, 0);
+    sCdModeParam[0] = 3;
+    CdControlB(CdlSetmode, sCdModeParam, 0);
     VSync(3);
     CdReadyCallback((CdlCB)OnCdTrackReady);
     SendCdTrackCommand(CdlPlay);

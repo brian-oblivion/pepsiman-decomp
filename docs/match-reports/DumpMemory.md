@@ -4,7 +4,7 @@
 
 Unit `src/main.c`. A debug hex dump on the font layer: prints a header,
 the start address, then 16 rows of 8 bytes, each byte with its own format
-and each row ended by a newline and a tab. `D_80095788` (an offset, cleared
+and each row ended by a newline and a tab. `sDumpOffset` (an offset, cleared
 on entry) is added to the base.
 
 ```c
@@ -13,7 +13,7 @@ extern char sTab[];
 extern char sWhiteLineText[];
 extern char sHexAddrFmt[];
 extern char sHexByteFmt[];
-extern s32 D_80095788;
+extern s32 sDumpOffset;
 
 void DumpMemory(u8 *base) {
     u8 *p;
@@ -22,9 +22,9 @@ void DumpMemory(u8 *base) {
     s16 i;
     s16 j;
 
-    D_80095788 = 0;
+    sDumpOffset = 0;
     FntPrint(sWhiteLineText);
-    p = base + D_80095788;
+    p = base + sDumpOffset;
     FntPrint(sHexAddrFmt, p);
     for (i = 0; i < 1; i++) {
         FntPrint(sTab);

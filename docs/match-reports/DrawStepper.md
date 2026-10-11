@@ -3,7 +3,7 @@
 > Renamed from `func_80017270` on 2026-10-10 (tools/rename.py). Address 0x80017270.
 
 Draws the model set at `gTodObjTable` for an object: installs the TMD
-handlers for mode `D_80095758`, moves the first model to the object's
+handlers for mode `gTmdSortMode`, moves the first model to the object's
 position (`+0x348..+0x350`) and turns it about y (`+0x380`) through
 `SetCoordRotation`, then for every model marks its coordinate changed and, if
 it has an id and a TMD, sets the GTE matrices and sorts it into the active
@@ -20,7 +20,7 @@ typedef struct {
 /* MATCHING: a struct lvalue over the shared array declaration. */
 #define sModels (*(ModelSet *)gTodObjTable)
 
-extern s32 D_80095758;
+extern s32 gTmdSortMode;
 
 /* MATCHING: switches the stack to the scratchpad and back; moving $sp has
    no C spelling. */
@@ -35,7 +35,7 @@ void DrawStepper(Stepper *obj) {
     GsDOBJ2 *o;
     s32 i;
 
-    SetTmdSortMode(D_80095758);
+    SetTmdSortMode(gTmdSortMode);
     o = sModels.objs;
     o->coord2->coord.t[0] = obj->unk348;
     o->coord2->coord.t[1] = obj->unk34C;

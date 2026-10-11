@@ -8,7 +8,7 @@ reaches through `$gp` from that unit's code. `gSoundFade` is reached `$gp` from 
 so it is no longer gp-relative here and the body is live. Original title:
 PlayStageMusic — STALL: 2 words short, 22/38, first diff at word 22 (`lui $v0` before `lh gSoundFade`, built as `lh %gp_rel`) — round 4, runner delta
 
-Unit `src/main.c`. Copies a 15-byte table (`D_80010000`) to the stack,
+Unit `src/main.c`. Copies a 15-byte table (`sStageMusicTracks`) to the stack,
 clears the halfword flag `gSoundFade` if it is set, and calls
 `PlayCdTrack(table[idx], 1)`.
 
@@ -30,7 +30,7 @@ typedef struct {
     u8 b[15];
 } Bytes15;
 
-extern u8 D_80010000[];
+extern u8 sStageMusicTracks[];
 extern s16 gSoundFade;
 
 void PlayCdTrack(s32 a, s32 b);
@@ -38,7 +38,7 @@ void PlayCdTrack(s32 a, s32 b);
 void PlayStageMusic(u8 idx) {
     Bytes15 tbl;
 
-    tbl = *(Bytes15 *)D_80010000;
+    tbl = *(Bytes15 *)sStageMusicTracks;
     if (gSoundFade != 0) {
         gSoundFade = 0;
     }

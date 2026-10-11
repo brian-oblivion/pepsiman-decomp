@@ -98,7 +98,7 @@ typedef struct {
 } SavedStart;
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
-#define sSaved (*(SavedStart *)D_800D86B8)
+#define sSaved (*(SavedStart *)gSavedStart)
 
 extern s32 D_800957A4;
 extern u16 D_800958EA;
@@ -191,7 +191,7 @@ void UpdateStagePlay(u8 stage) {
             break;
         case 4:
             if (gPauseState == 0) {
-                SetTmdSortMode(D_80095758);
+                SetTmdSortMode(gTmdSortMode);
                 UpdatePlayState();
                 UpdateRumble();
                 switch (stage) {

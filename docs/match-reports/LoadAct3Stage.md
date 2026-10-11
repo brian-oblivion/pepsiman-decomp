@@ -13,10 +13,10 @@ stage's overlay entry (func_800F6C60 .. func_800F377C) and finishes with
 The body is in `src/main.c`. The new declarations it needs:
 
 ```c
-extern CdlLOC D_80073D00[];
-extern s32 D_80073D24[];
-/* ... one CdlLOC[] / s32[] pair per stage: D_80073DD8/D_80073DFC,
- * D_80073EB0/D_80073ED4, D_80073F88/D_80073FAC, D_80074060/D_80074084 */
+extern CdlLOC sStage02FileLoc[];
+extern s32 sStage02FileSectors[];
+/* ... one CdlLOC[] / s32[] pair per stage: sStage05FileLoc/sStage05FileSectors,
+ * sStage08FileLoc/sStage08FileSectors, sStage11FileLoc/sStage11FileSectors, sStage14FileLoc/sStage14FileSectors */
 
 /* MATCHING: sound defines it with a u16 bank; this caller passes it
  * unextended, so its view is s32. */
@@ -30,12 +30,12 @@ Three builds: 81 -> 263 -> 264.
 
 - **One pair of extern arrays per stage, not one table of 0xD8-byte
   records.** The five stages' directories sit 0xD8 apart, so a record
-  array `StageDir D_80073D00[]` looked right, but cc1 then CSEs the record
+  array `StageDir sStage02FileLoc[]` looked right, but cc1 then CSEs the record
   base between the `&rec.loc[k]` address and the `rec.size[k]` load and
   drops a `lui` per arm (52 insertions / 52 deletions). Retail rebuilds
   `lui` for each symbol: separate `CdlLOC[]` and `s32[]` objects.
-  Case 6 reads index 1 of the same arrays (`&D_80073D00[1]`,
-  `D_80073D24[1]`), which splat named D_80073D04 / D_80073D28.
+  Case 6 reads index 1 of the same arrays (`&sStage02FileLoc[1]`,
+  `sStage02FileSectors[1]`), which splat named D_80073D04 / D_80073D28.
 - **The bank is passed with no `andi 0xFFFF`: the caller's view of
   LoadVabBank takes `s32`** (LEARNINGS "an argument passed unextended
   though the callee narrows it"). The local holding it is `s32` and is

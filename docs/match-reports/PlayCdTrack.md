@@ -13,7 +13,7 @@ extern CdlLOC gCdToc[];
 extern s32 gCdTrackEnd;
 extern s32 gCdTrackLoop;
 /* MATCHING: a known small size, so the byte store is `$gp`-relative. */
-extern u8 D_80095AC0[4];
+extern u8 sCdModeParam[4];
 
 void PlayCdTrack(s32 track, s32 arg) {
     CdlATV atv;
@@ -41,8 +41,8 @@ void PlayCdTrack(s32 track, s32 arg) {
     gCdTrackPos = gCdTrackStart;
     SsSetSerialAttr(0, 0, 1);
     SsSetSerialVol(0, 0x72, 0x72);
-    D_80095AC0[0] = 3;
-    CdControlB(CdlSetmode, D_80095AC0, 0);
+    sCdModeParam[0] = 3;
+    CdControlB(CdlSetmode, sCdModeParam, 0);
     VSync(3);
     CdReadyCallback((CdlCB)OnCdTrackReady);
     SendCdTrackCommand(CdlPlay);
@@ -62,5 +62,5 @@ Matched on the first build. The `CdlATV` stores follow source order
   was removed. `src/model.c` still declares `gCdTrackPlaying` (line 43) and
   `SendCdTrackCommand` (line 58) locally; model is a unit of this round, so
   those two duplicates (declcheck MULTI/LOCAL) are left for the head.
-- `D_80095AC0` is reached both `$gp` (`sb`) and as an address
+- `sCdModeParam` is reached both `$gp` (`sb`) and as an address
   (`lui`/`addiu`): a known size at most 8.

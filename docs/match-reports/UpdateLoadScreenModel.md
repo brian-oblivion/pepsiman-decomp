@@ -11,7 +11,7 @@ inlined, runs LoadStage, and at state 100 clears the fog, sets state
 The step and draw bodies now live once, as `static __inline__ stepObj` and
 `drawObj` ahead of this function; StepStepper and DrawStepper are
 one-line wrappers that still match (22/22, 94/94). The `ModelSet` view,
-`sModels`, `D_80095758`, `gElapsed` and LoadStage's prototype moved
+`sModels`, `gTmdSortMode`, `gElapsed` and LoadStage's prototype moved
 up to here (no byte change).
 
 ```c
@@ -24,7 +24,7 @@ typedef struct {
 /* MATCHING: a struct lvalue over the shared array declaration. */
 #define sModels (*(ModelSet *)gTodObjTable)
 
-extern s32 D_80095758;
+extern s32 gTmdSortMode;
 
 void LoadStage(void);
 
@@ -57,7 +57,7 @@ static __inline__ void drawObj(Stepper *obj) {
     GsDOBJ2 *o;
     s32 i;
 
-    SetTmdSortMode(D_80095758);
+    SetTmdSortMode(gTmdSortMode);
     o = sModels.objs;
     o->coord2->coord.t[0] = obj->unk348;
     o->coord2->coord.t[1] = obj->unk34C;

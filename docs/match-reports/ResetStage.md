@@ -5,14 +5,14 @@
 Unit `src/stage_flow.c`. Stage reset. Calls the set-up routines, copies the
 second display buffer's band down when `gGameMode` is not 0x29, resets
 the game state's head (`gPlayer`) and a run of globals, then either
-restores a saved start (`D_800D86B8`, when its first word is non-zero) or,
+restores a saved start (`gSavedStart`, when its first word is non-zero) or,
 in mode 4, applies that mode's start; finally picks a per-mode value from
 one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
 30, and calls EndJump and StartRumble.
 
 ```c
 /* Unit-local views: StageState (gPlayer's head, widened for this
- * function), SavedStart (D_800D86B8: s32 valid; Pos3 pos; s32 unk10,
+ * function), SavedStart (gSavedStart: s32 valid; Pos3 pos; s32 unk10,
  * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (D_800A7680).
  * Locals: extern s16 D_800E474C; u16 gGameMode, gCameraYaw; u8
  * gLoading, gPauseState; s32 D_800957A4, gTimeLeft, ClipF;
@@ -116,7 +116,7 @@ void ResetStage(void) {
 - **Chained assignment for each run of zeroed neighbours**
   (`a = b = c = 0` stores `c` first): 0x354..0x35C, 0x360..0x364,
   0x374..0x37A, 0x3D4/0x3D5.
-- `sSaved` as a struct lvalue over common.h's `s32 D_800D86B8[]` gives the
+- `sSaved` as a struct lvalue over common.h's `s32 gSavedStart[]` gives the
   `addiu t1` base for the eight field loads; the restore is field by field
   (as RestartStage's position copy).
 - The constant 2 that `$s0` carries across `ResetStageOverlay` into the

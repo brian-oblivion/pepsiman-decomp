@@ -6,7 +6,7 @@ Previously: STALL, length exact, 101/118 raw, first real diff at 0x800157E4 (rou
 
 ## Earlier title
 
-PollPads — STALL: length exact, 101/118 raw, first real diff at 0x800157E4 (port 0's two pad-byte loads in swapped $v0/$v1; then the D_80095854 load sinks below port 0's stores) (round 8, echo; round 13, echo)
+PollPads — STALL: length exact, 101/118 raw, first real diff at 0x800157E4 (port 0's two pad-byte loads in swapped $v0/$v1; then the sPad2Prev load sinks below port 0's stores) (round 8, echo; round 13, echo)
 
 Unit `src/main.c`. Per-frame pad read: polls the pads (`UpdatePadActuators`),
 stores port 0's id byte in `gPadType`, builds each port's buttons
@@ -27,7 +27,7 @@ extern s32 gPadPrev[2];
 extern s32 gPadPressed[2];
 extern s32 gPadHeld[2];
 
-extern u8 D_80072F44[];
+extern u8 sPadBufOffsets[];
 extern u8 gPadType;
 extern u8 gPadBuf[];
 extern s32 gStickY;
@@ -37,9 +37,9 @@ extern s32 gStickTrigX;
 extern s32 gStickRawX;
 extern s32 gStickRawY;
 
-extern s32 D_80095854;
-extern s32 D_8009584C;
-extern s32 D_80095874;
+extern s32 sPad2Prev;
+extern s32 sPad2Held;
+extern s32 sPad2Pressed;
 
 u32 UpdatePadActuators(void);
 
@@ -53,18 +53,18 @@ void PollPads(void) {
     UpdatePadActuators();
     id = gPadBuf[1];
     gPadType = id;
-    btn = ((gPadBuf[D_80072F44[0] + 2] << 8) | gPadBuf[D_80072F44[0] + 3]) ^ 0xFFFF;
+    btn = ((gPadBuf[sPadBufOffsets[0] + 2] << 8) | gPadBuf[sPadBufOffsets[0] + 3]) ^ 0xFFFF;
     if (id == 0) {
         btn = 0;
     }
     m0 = gPadPrev[0] ^ 0xFFFF;
-    m1 = D_80095854 ^ 0xFFFF;
+    m1 = sPad2Prev ^ 0xFFFF;
     gPadHeld[0] = gPadPrev[0] = (u16)btn;
     gPadPressed[0] = (u16)btn & m0;
-    btn = ((gPadBuf[D_80072F44[1] + 0x24] << 8) | gPadBuf[D_80072F44[1] + 0x25]) ^ 0xFFFF;
-    D_8009584C = D_80095854 = (u16)btn;
+    btn = ((gPadBuf[sPadBufOffsets[1] + 0x24] << 8) | gPadBuf[sPadBufOffsets[1] + 0x25]) ^ 0xFFFF;
+    sPad2Held = sPad2Prev = (u16)btn;
     btn = (u16)btn & m1;
-    D_80095874 = btn;
+    sPad2Pressed = btn;
     if (id == 0x73) {
         m = gStickY ^ 0xFFFF;
         if (gPadBuf[7] < 10) {
@@ -112,10 +112,10 @@ moves the `gPadPressed[0]` store up two slots. 117 vs 118 words.
   `andi`; the two-port one also scrambles the load order. (The
   narrow-inline-parameter lever that matched UpdateRumble in this round
   does not apply here.)
-- Separate scalars for `D_80095854`/`D_8009584C`/`D_80095874` against
+- Separate scalars for `sPad2Prev`/`sPad2Held`/`sPad2Pressed` against
   `[1]` of the paired arrays: no byte difference.
 - Loading both old states before the stores (`m0`, `m1`) is what puts the
-  `D_80095854` load early as retail has it; `m = (u16)btn & m1` before the
+  `sPad2Prev` load early as retail has it; `m = (u16)btn & m1` before the
   port-1 stores came from the permuter.
 
 Permuter: one run, `--stack-diffs`, 900 s bound (rc 124), 92019
@@ -161,15 +161,15 @@ this session (101/118).
 
 ```c
 #if 0
-extern u8 D_80072F44[];
+extern u8 sPadBufOffsets[];
 extern u8 gPadBuf[];
 extern s32 gStickY;
 extern s32 gStickX;
 extern s32 gStickTrigX;
 
-extern s32 D_80095854;
-extern s32 D_8009584C;
-extern s32 D_80095874;
+extern s32 sPad2Prev;
+extern s32 sPad2Held;
+extern s32 sPad2Pressed;
 
 u32 UpdatePadActuators(void);
 
@@ -181,7 +181,7 @@ void PollPads(void) {
     UpdatePadActuators();
     id = gPadBuf[1];
     gPadType = id;
-    btn = (gPadBuf[D_80072F44[0] + 3] | (gPadBuf[D_80072F44[0] + 2] << 8)) ^ 0xFFFF;
+    btn = (gPadBuf[sPadBufOffsets[0] + 3] | (gPadBuf[sPadBufOffsets[0] + 2] << 8)) ^ 0xFFFF;
     if (id == 0) {
         btn = 0;
     }
@@ -189,12 +189,12 @@ void PollPads(void) {
     btn = (u16)btn;
     gPadHeld[0] = gPadPrev[0] = btn;
     gPadPressed[0] = btn & m;
-    m = D_80095854 ^ 0xFFFF;
-    btn = (gPadBuf[D_80072F44[1] + 0x25] | (gPadBuf[D_80072F44[1] + 0x24] << 8)) ^ 0xFFFF;
+    m = sPad2Prev ^ 0xFFFF;
+    btn = (gPadBuf[sPadBufOffsets[1] + 0x25] | (gPadBuf[sPadBufOffsets[1] + 0x24] << 8)) ^ 0xFFFF;
     __asm__ __volatile__("" : : );
-    D_8009584C = D_80095854 = (u16)btn;
+    sPad2Held = sPad2Prev = (u16)btn;
     btn = (u16)btn & m;
-    D_80095874 = btn;
+    sPad2Pressed = btn;
     if (id == 0x73) {
         m = gStickY ^ 0xFFFF;
         if (gPadBuf[7] < 10) {
@@ -253,25 +253,25 @@ allows it** (posted on the broadcast). It is also a sched barrier.
 - `m0`/`m1` both before the stores (round 8's shape) with the asm: 86.
 - `+` or `* 256` in place of the `|`/`<<`: 91-95.
 - `hi = D[k + 2];` as its own statement: 98 (registers flip back).
-- `m1 = D_80095854 ^ 0xFFFF;` early with `m = m1;` later: 101, no change
+- `m1 = sPad2Prev ^ 0xFFFF;` early with `m = m1;` later: 101, no change
   (cse propagates).
 - loads in `do { } while (0)` (sched barrier, bravo's/alpha's lever): 81
   (loop refs reshuffle global alloc).
-- `m1 = D_80095854;` early, `m = m1 ^ 0xFFFF;` later, and `m1` reused for
+- `m1 = sPad2Prev;` early, `m = m1 ^ 0xFFFF;` later, and `m1` reused for
   the analog `gStickX` load: 90/118 but EVERY INSTRUCTION in retail's
   place (only registers differ: m1 `$a2` for `$a0`, m `$a3` for `$a2`, the
   two bases one register up). This is the next round's starting point: the
   reuse makes `m1` multi-set, so sched1 no longer boosts its load (a
   "birthing" single-set load sinks to its use), and the load stays early
   like retail. Its residue is global-alloc: `m1` avoids `$a0` because the
-  D_80072F44 base (pseudo 89) prefers `$a0` and conflicts with it
+  sPadBufOffsets base (pseudo 89) prefers `$a0` and conflicts with it
   (global.c's "someone prefers" rule). Reusing `m1` for `gStickRawX`'s
   byte instead: 93.
 
 Permuter: one run on the 96 body (Gate 3: scaffold builds, base 835;
 scaffold 3/4 vs in-tree 4/4, objdump of both objects identical apart from
 branch relocations, so AGREE). `timeout 900`, rc 124, 127953 iterations,
-best 170 (the 96 body's residue with the `D_80095854` load moved, through
+best 170 (the 96 body's residue with the `sPad2Prev` load moved, through
 a dead store to `gPadPressed`); nothing better than the hand-found 101.
 About 30 builds this round.
 
@@ -309,10 +309,10 @@ Why each works:
   jump2 deletes the dead arm, which leaves no code. It is the first lever
   that kept the `andi` without asm; the final source doesn't need it.
 - `b = (u16)btn;`: `b` is a block-local pseudo, so local-alloc gives it
-  `$v1` ahead of the D_80095854 load, which goes to `$a0`. With `$a0`
+  `$v1` ahead of the sPad2Prev load, which goes to `$a0`. With `$a0`
   free over port 0's stores, sched2 hoists the load to where retail has it.
   No multi-set `m1` is needed, so the global-alloc fight between `m1` and
-  the D_80072F44 base (round 13's 90 variant) never happens.
+  the sPadBufOffsets base (round 13's 90 variant) never happens.
 - The three-statement buttons: the hi byte's address is the first add and
   the lo byte's is the copy, with idx/copy in `$v0` and the hi chain in
   `$v1` as retail has them. Of the one-expression spellings, lo-first gets
@@ -322,9 +322,9 @@ Why each works:
 
 ### Negatives this round
 
-- `t = D_80095854;` early as a single-set local, `m = t ^ 0xFFFF;` later:
+- `t = sPad2Prev;` early as a single-set local, `m = t ^ 0xFFFF;` later:
   101, no change (sched1 sinks the load to its use).
-- `t` reused for the port-1 index (`t = D_80072F44[1];`), making it
+- `t` reused for the port-1 index (`t = sPadBufOffsets[1];`), making it
   multi-set: 86 (the load stays early, but the allocation shifts).
 - `if (btn < 0)`, `if (btn > 0xFFFF)`, `if ((u32)btn >= 0x10000)` in place
   of `>> 16`: combine does not fold them, so the branch stays.

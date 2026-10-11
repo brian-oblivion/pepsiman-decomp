@@ -10,10 +10,10 @@ analog pad (`(id & 0xF0) == 0x70`), and returns port 0's buttons inverted
 (port 1's in the top half).
 
 ```c
-extern u8 *D_80095700;
-extern u8 *D_80095704;
+extern u8 *sPadBufPtr;
+extern u8 *sPadActPtr;
 /* MATCHING: a known small size, so its address is one `la` register. */
-extern u8 D_800954E4[6];
+extern u8 sPadActAlign[6];
 
 u32 UpdatePadActuators(void) {
     u8 *buf;
@@ -22,8 +22,8 @@ u32 UpdatePadActuators(void) {
     s32 state;
     s32 i;
 
-    buf = D_80095700;
-    act = D_80095704;
+    buf = sPadBufPtr;
+    act = sPadActPtr;
     for (k = 0; k < 2; k++, act += 0x10) {
         state = PadGetState(k * 16);
         if (state == 1) {
@@ -31,7 +31,7 @@ u32 UpdatePadActuators(void) {
         }
         if (act[0] == 0) {
             PadSetAct(k * 16, act + 2, 2);
-            if (state == 2 || (state == 6 && PadSetActAlign(k * 16, D_800954E4))) {
+            if (state == 2 || (state == 6 && PadSetActAlign(k * 16, sPadActAlign))) {
                 act[0] = 1;
             }
         }

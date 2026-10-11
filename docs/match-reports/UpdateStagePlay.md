@@ -18,7 +18,7 @@ Third build byte-exact.
 
 ```c
 extern u16 D_800958EA;
-extern s32 D_80095758;
+extern s32 gTmdSortMode;
 
 void func_800F00A0(void);
 void func_800F1654(void);
@@ -73,7 +73,7 @@ void UpdateStagePlay(u8 stage) {
             break;
         case 4:
             if (gPauseState == 0) {
-                SetTmdSortMode(D_80095758);
+                SetTmdSortMode(gTmdSortMode);
                 UpdatePlayState();
                 UpdateRumble();
                 switch (stage) {
@@ -193,7 +193,7 @@ with `sb zero, 0x3D0` off the `gPlayer` base.
 
 - New prototypes in stage_flow.c for other units' functions
   (UpdateActResults, DrawScreenWipe, UpdatePlayState, UpdateRumble,
-  SetPadVibration, SetCdVolume) and `extern s32 D_80095758;` (main.c's);
+  SetPadVibration, SetCdVolume) and `extern s32 gTmdSortMode;` (main.c's);
   declcheck reports them LOCAL (SetPadVibration also MULTI with main.c's
   forward declaration). They stay in the `.c` this round, by the round's
   rule against shared-header prototypes for other units' functions.

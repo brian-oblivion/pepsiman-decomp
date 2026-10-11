@@ -7,23 +7,23 @@ hands the first to `PadInitDirect` as the two controller-port buffers
 (`a` and `a + 0x22`), then `PadStartCom()`.
 
 ```c
-extern u8 *D_80095700;
+extern u8 *sPadBufPtr;
 
 void StartPads(u8 *a, u8 *b) {
     s32 i;
 
-    D_80095700 = a;
-    D_80095704 = b;
+    sPadBufPtr = a;
+    sPadActPtr = b;
     for (i = 0; i < 32; i++) {
-        D_80095704[i] = 0;
+        sPadActPtr[i] = 0;
     }
-    PadInitDirect(D_80095700, D_80095700 + 0x22);
+    PadInitDirect(sPadBufPtr, sPadBufPtr + 0x22);
     PadStartCom();
 }
 ```
 
 First attempt. Both pointers are in `config/gp-symbols.txt`, so a plain
-`extern u8 *` gives the `%gp_rel` accesses. The loop re-reads `D_80095704`
+`extern u8 *` gives the `%gp_rel` accesses. The loop re-reads `sPadActPtr`
 every iteration (a `u8` store may alias the pointer), which retail does too,
 so the source indexes the global rather than a cached local. Prototypes come
 from Sony's `libpad.h`, now included by the unit.

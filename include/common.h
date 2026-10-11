@@ -352,7 +352,7 @@ extern s32 gSection;       /**< stamped on placed records; 2 units */
 extern u16 gSubStep;       /**< a state switched on in main; cleared after placing; 2 units */
 extern s16 gToolMode;      /**< an error code; cleared when flag bit 6 is set; 2 units */
 extern s32 D_800957F4;     /**< the result of the start-position lookup; 2 units */
-extern s32 D_80095758;     /**< 2 units */
+extern s32 gTmdSortMode;   /**< SetTmdSortMode's argument for the models */
 
 /* Per-stage tables, three words per stage; a global flag picks the set. */
 extern s32 gTimeLimits[][3];    /**< 2 units */
@@ -378,9 +378,9 @@ extern s32 D_800A9008[];      /**< 3 units, 17 functions */
 extern s16 gFloorY[];         /**< 2 units, 6 functions */
 extern s32 D_800D39C8[];      /**< 2 units, 2 functions */
 extern s32 gTodObjTable[];    /**< 2 units, 5 functions */
-extern s32 D_800D86B8[];      /**< 2 units, 3 functions */
-extern s32 gRefView[];        /**< the game's GsRVIEW2, as words */
-extern s32 gFlatLights[];     /**< 3 units, 4 functions */
+extern s32 gSavedStart[]; /**< the state a stage can resume from (stage_flow's SavedStart); [0] is its valid flag */
+extern s32 gRefView[];    /**< the game's GsRVIEW2, as words */
+extern s32 gFlatLights[]; /**< 3 units, 4 functions */
 
 extern s32 *gAnimations[]; /**< per-sequence data pointers; 2 units */
 

@@ -23,8 +23,8 @@ void RemapButtons(void);
 void ReadPad(s32 arg);
 
 extern s32 gVSyncTime;
-extern DR_STP D_800CEBD0;
-extern DR_STP D_800CEBC0;
+extern DR_STP sDrawStpOn;
+extern DR_STP sDrawStpOff;
 
 void EndFrame(void) {
     GsRVIEW2 view;
@@ -50,8 +50,8 @@ void EndFrame(void) {
     DrawSync(0);
     GsSwapDispBuff();
     func_80056B8C(gClearR, gClearG, gClearB, &gOt[gActiveBuff]);
-    SetDrawStp(&D_800CEBD0, 1);
-    AddPrim(&gOt[gActiveBuff].org[0xFFF], &D_800CEBD0);
+    SetDrawStp(&sDrawStpOn, 1);
+    AddPrim(&gOt[gActiveBuff].org[0xFFF], &sDrawStpOn);
     SetLetterbox(ClipF);
     GsDrawOt(&gOt[gActiveBuff]);
     gActiveBuff = GsGetActiveBuff();
@@ -60,8 +60,8 @@ void EndFrame(void) {
     GsClearOt(0, 0, &gSubOt[gActiveBuff]);
     GsSortOt(&gSubOt[gActiveBuff], &gOt[gActiveBuff]);
     gCurOt = &gOt[gActiveBuff];
-    SetDrawStp(&D_800CEBC0, 0);
-    AddPrim(gSubOt[gActiveBuff].org, &D_800CEBC0);
+    SetDrawStp(&sDrawStpOff, 0);
+    AddPrim(gSubOt[gActiveBuff].org, &sDrawStpOff);
     ReadPad(0);
     RemapButtons();
     if (gPauseState == 0) {

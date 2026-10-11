@@ -290,9 +290,9 @@ extern s32 gSwitches[]; /**< the 200 switches */
 /** @brief A switch (gSwitches), as this unit
  *         places it. */
 typedef struct {
-    s8 unk0;       /**< -1 when the record is free */
+    s8 state;      /**< a SwitchState */
     u8 unk1[0x4F]; /**< not yet known */
-    s32 unk50[3];  /**< a position */
+    s32 pos[3];    /**< its position */
 } EditorSwitch;
 
 #define sSwitches ((EditorSwitch *)gSwitches)
@@ -1115,7 +1115,7 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdSwitchNoRangeText);
             recs = sSwitches;
-            if (recs[sTotals.switchNo].unk0 == -1) {
+            if (recs[sTotals.switchNo].state == SWITCH_FREE) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -1183,7 +1183,7 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdTrapSwitchRangeText);
             recs = sSwitches;
-            if (recs[sTotals.trapSwitch].unk0 != -1) {
+            if (recs[sTotals.trapSwitch].state != SWITCH_FREE) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -1258,7 +1258,7 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdSpriteSwitchRangeText);
             recs = sSwitches;
-            if (recs[sTotals.spriteSwitch].unk0 != -1) {
+            if (recs[sTotals.spriteSwitch].state != SWITCH_FREE) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -1908,8 +1908,8 @@ s32 EditorPlaceBox(void) {
     sizes = sBoxSizes;
     sTotals.switchCount = 0;
     for (i = 0; i < 200; i++) {
-        if (sSwitches[i].unk0 != -1) {
-            sSwitches[i].unk0 = 0;
+        if (sSwitches[i].state != SWITCH_FREE) {
+            sSwitches[i].state = SWITCH_ARMED;
             sTotals.switchCount++;
         }
     }
@@ -1917,9 +1917,9 @@ s32 EditorPlaceBox(void) {
         gToolMode = ED_FULL;
         return;
     }
-    if (sSwitches[sTotals.switchNo].unk0 != -1) {
+    if (sSwitches[sTotals.switchNo].state != SWITCH_FREE) {
         for (i = 0; i < 200; i++) {
-            if (sSwitches[i].unk0 == -1) {
+            if (sSwitches[i].state == SWITCH_FREE) {
                 break;
             }
         }
@@ -1931,18 +1931,18 @@ s32 EditorPlaceBox(void) {
     }
     SetBoxCentred(&sSwitches[sTotals.switchNo], sizes.s[sTotals.switchType].w,
                   sizes.s[sTotals.switchType].d);
-    sSwitches[sTotals.switchNo].unk50[0] = gPlayer.x;
-    sSwitches[sTotals.switchNo].unk50[1] = gPlayer.y;
-    sSwitches[sTotals.switchNo].unk50[2] = gPlayer.z;
-    sSwitches[sTotals.switchNo].unk0 = -1;
+    sSwitches[sTotals.switchNo].pos[0] = gPlayer.x;
+    sSwitches[sTotals.switchNo].pos[1] = gPlayer.y;
+    sSwitches[sTotals.switchNo].pos[2] = gPlayer.z;
+    sSwitches[sTotals.switchNo].state = SWITCH_FREE;
     if (gPadTrig & PADRright) {
         if (gCurBlock == -1) {
             gToolMode = ED_NO_GROUND;
             return;
         }
-        sSwitches[sTotals.switchNo].unk0 = 0;
+        sSwitches[sTotals.switchNo].state = SWITCH_ARMED;
         for (i = 0; i < 200; i++) {
-            if (sSwitches[i].unk0 == -1) {
+            if (sSwitches[i].state == SWITCH_FREE) {
                 break;
             }
         }
@@ -1974,8 +1974,8 @@ s32 EditorPickBox(void) {
     i = 0;
     sTotals.switchCount = 0;
     for (; i < 200; i++) {
-        if (sSwitches[i].unk0 != -1) {
-            sSwitches[i].unk0 = 0;
+        if (sSwitches[i].state != SWITCH_FREE) {
+            sSwitches[i].state = SWITCH_ARMED;
             sTotals.switchCount++;
         }
     }
@@ -1993,10 +1993,10 @@ s32 EditorPickBox(void) {
              * rebuilt every pass. */
             for (i = 0; i < 200; i++) {
                 r = &sSwitches[i];
-                if (r->unk0 != -1) {
-                    at.vx = r->unk50[0];
-                    at.vy = r->unk50[1];
-                    at.vz = r->unk50[2];
+                if (r->state != SWITCH_FREE) {
+                    at.vx = r->pos[0];
+                    at.vy = r->pos[1];
+                    at.vz = r->pos[2];
                     d = DistanceSquared(&pos, &at);
                     if (d < best) {
                         sTotals.switchNo = i;
@@ -2014,12 +2014,12 @@ s32 EditorPickBox(void) {
             /* MATCHING: the table base in the record pointer first; indexing
              * sSwitches directly builds the totals' address first. */
             r = sSwitches;
-            sel.vx = r[sTotals.switchNo].unk50[0];
-            sel.vy = r[sTotals.switchNo].unk50[1];
-            sel.vz = r[sTotals.switchNo].unk50[2];
+            sel.vx = r[sTotals.switchNo].pos[0];
+            sel.vy = r[sTotals.switchNo].pos[1];
+            sel.vz = r[sTotals.switchNo].pos[2];
             DrawPin(&sel);
             if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
-                sSwitches[sTotals.switchNo].unk0 = -1;
+                sSwitches[sTotals.switchNo].state = SWITCH_FREE;
                 gSubStep = 0;
                 break;
             }
@@ -2027,7 +2027,7 @@ s32 EditorPickBox(void) {
                 if (--sTotals.switchNo >= 200) {
                     sTotals.switchNo = 199;
                 }
-                while (sSwitches[sTotals.switchNo].unk0 == -1) {
+                while (sSwitches[sTotals.switchNo].state == SWITCH_FREE) {
                     if (--sTotals.switchNo >= 200) {
                         sTotals.switchNo = 199;
                     }
@@ -2038,7 +2038,7 @@ s32 EditorPickBox(void) {
                 if (++sTotals.switchNo >= 200) {
                     sTotals.switchNo = 199;
                 }
-                while (sSwitches[sTotals.switchNo].unk0 == -1) {
+                while (sSwitches[sTotals.switchNo].state == SWITCH_FREE) {
                     if (++sTotals.switchNo >= 200) {
                         sTotals.switchNo = 0;
                     }
@@ -3270,7 +3270,7 @@ void ClearSwitches(SwitchBox *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        recs->unk0 = -1;
+        recs->state = SWITCH_FREE;
         recs++;
     }
 }
@@ -3281,7 +3281,7 @@ void ClearSwitchBoxUpper(SwitchBox *recs) {
 
     recs += 100;
     for (i = 100; i < 200; i++) {
-        recs->unk0 = -1;
+        recs->state = SWITCH_FREE;
         recs++;
     }
 }

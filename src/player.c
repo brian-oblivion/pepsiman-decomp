@@ -2248,10 +2248,10 @@ top:
                 gPlayer.jumpPower = 0;
                 gPlayer.jumpState = JUMP_NONE;
             }
-            if (gSwitches[196].unk0 == 1) {
+            if (gSwitches[196].state == SWITCH_ON) {
                 break;
             }
-            if (gSwitches[198].unk0 == 1) {
+            if (gSwitches[198].state == SWITCH_ON) {
                 break;
             }
             if (gPlayer.action == ACT_RUN || gPlayer.action == ACT_DASH || gPlayer.action == ACT_BRAKE) {
@@ -2272,7 +2272,7 @@ top:
             DrawFrozenFrame();
             if (gMissTimer == 10) {
                 for (i = 0; i < 200; i++) {
-                    gSwitches[i].unk0 = 2;
+                    gSwitches[i].state = SWITCH_OFF;
                 }
                 gFellOff = 0;
                 D_800957D6 = 0;

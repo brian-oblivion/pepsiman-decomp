@@ -669,7 +669,7 @@ s32 TestBoxes(void) {
         for (; i < 200; i++) {
             b = &gSwitches[(s16)i];
             v = gSwitches[(s16)i].v;
-            if (b->unk0 != 0) {
+            if (b->state != SWITCH_ARMED) {
                 continue;
             }
             px = gPlayer.x - b->x;
@@ -694,11 +694,11 @@ s32 TestBoxes(void) {
                 0) {
                 continue;
             }
-            b->unk0 = 1;
+            b->state = SWITCH_ON;
         }
     } else {
         for (; i < 200; i++) {
-            if (gSwitches[(s16)i].unk0 != 0) {
+            if (gSwitches[(s16)i].state != SWITCH_ARMED) {
                 continue;
             }
             GsInitCoordinate2(WORLD, &coord);
@@ -720,7 +720,7 @@ s32 TestBoxes(void) {
             GsSetLsMatrix(&world);
             GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &sQuadHit);
             if (sQuadHit == 1) {
-                gSwitches[(s16)i].unk0 = 1;
+                gSwitches[(s16)i].state = SWITCH_ON;
             }
         }
     }
@@ -1050,12 +1050,12 @@ void DrawObjectSprite(u16 id, StageSprite *r) {
 }
 
 /** @brief Updates the ObjectModel entry of every live Trap record whose SwitchBox
- *         record is marked 1. */
+ *         is SWITCH_ON. */
 void UpdateActiveEntries(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if (sTraps[i].model != -1 && gSwitches[sTraps[i].switchNo].unk0 == 1) {
+        if (sTraps[i].model != -1 && gSwitches[sTraps[i].switchNo].state == SWITCH_ON) {
             UpdateObjectEntry(&gObjectModels[sTraps[i].model], &sTraps[i]);
         }
     }
@@ -1090,7 +1090,7 @@ static __inline__ void queryRec(s16 id, StageSprite *r) {
     }
 }
 
-/** @brief Steps every live StageSprite record whose SwitchBox record is marked 1:
+/** @brief Steps every live StageSprite record whose switch is SWITCH_ON:
  *         a flagged one is updated and queried, a state-3 one drifts and is
  *         updated on a drift step, any other one is updated. */
 /* MATCHING: the record pointer is taken inside the body. */
@@ -1102,8 +1102,8 @@ void UpdateActiveSprites(void) {
     for (i = 0; i < 100; i++) {
         r = &gStageSprites[i];
         if ((s16)r->id != -1) {
-            k = gSwitches[r->switchNo].unk0;
-            if (k == 1) {
+            k = gSwitches[r->switchNo].state;
+            if (k == SWITCH_ON) {
                 if (r->flags & SPRITE_HITTABLE) {
                     queryRec(r->id, r);
                 } else if ((r->flags & SPRITE_ACT_MASK) != SPRITE_ACT_DRIFT ||
@@ -1244,8 +1244,8 @@ void ResetStageObjects(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if (gSwitches[i].unk0 != -1) {
-            gSwitches[i].unk0 = 0;
+        if (gSwitches[i].state != SWITCH_FREE) {
+            gSwitches[i].state = SWITCH_ARMED;
         }
     }
     RefreshAllZones();
@@ -1291,22 +1291,22 @@ void ClearMarks(SwitchBox *recs, u16 count) {
     u16 i;
 
     for (i = 0; i < count; i++) {
-        recs->unk0 = 0;
+        recs->state = SWITCH_ARMED;
         recs++;
     }
 }
 
-/** @brief For each odd-numbered SwitchBox record whose byte 0 is 1, sets byte 0
- *         of it and of the record before it to 2.
+/** @brief For each odd-numbered switch that is SWITCH_ON, turns it and
+ *         the switch before it SWITCH_OFF.
  *  @return nothing; the value is undefined. */
 s32 PairMarks(void) {
     u16 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     for (i = 1; i < 200; i += 2) {
-        if (gSwitches[(s16)i].unk0 == 1) {
-            gSwitches[(s16)i].unk0 = 2;
-            gSwitches[(s16)i - 1].unk0 = 2;
+        if (gSwitches[(s16)i].state == SWITCH_ON) {
+            gSwitches[(s16)i].state = SWITCH_OFF;
+            gSwitches[(s16)i - 1].state = SWITCH_OFF;
         }
     }
 }

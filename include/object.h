@@ -27,10 +27,19 @@ enum SpriteAct {
     SPRITE_ACT_DRIFT = 3 /**< drifting away after a hit */
 };
 
+/** @brief A switch's state, SwitchBox.state: the traps and sprites a
+ *         switch owns run while it is SWITCH_ON. */
+enum SwitchState {
+    SWITCH_FREE = -1, /**< no switch in this slot */
+    SWITCH_ARMED = 0, /**< waiting for the player */
+    SWITCH_ON = 1,    /**< the player has passed through it */
+    SWITCH_OFF = 2    /**< spent: after its pair fires, or when a miss starts */
+};
+
 /** @brief A switch (gSwitches, 200 of them): a box whose corners
  *         are tested against the player or placed in the world. */
 typedef struct {
-    s8 unk0;              /**< -1 when free (a guess); 1 once the box is hit */
+    s8 state;             /**< a SwitchState */
     u8 unk1[3];           /**< not yet known */
     s16 v[4][3];          /**< local corners, around the box centre */
     s32 w[4][3];          /**< world corners */

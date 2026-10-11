@@ -6,4 +6,5 @@ D_80095A14
 gMenuChoice
 gToolCardStep
 gToolSlot
+sSaveData
 sSpriteFlags

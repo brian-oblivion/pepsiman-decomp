@@ -6,11 +6,11 @@
 
 ```c
 void SetSave1Buffers(void) {
-    D_800959D4 = (u8 *)0x8018D000;
+    sSaveData = (u8 *)0x8018D000;
     gSaveBuf = (u8 *)0x8016D000;
 }
 ```
 
-`D_800959D4` is declared locally as `extern u8 *` (in `config/gp-symbols.txt`,
+`sSaveData` is declared locally as `extern u8 *` (in `config/gp-symbols.txt`,
 stored whole, so a small complete object). No lever needed: 2.8.1 emits both
 `lui/ori` pairs before the stores, as retail does.

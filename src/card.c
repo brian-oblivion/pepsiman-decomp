@@ -3,7 +3,7 @@
 #include "string.h"
 
 extern u8 *gSaveBuf;
-extern u8 *D_800959D4;
+extern u8 *sSaveData; /**< the save image being built or checked */
 extern s32 gCardSwIoe;
 extern s32 gCardSwError;
 extern s32 gCardSwTimeout;
@@ -150,7 +150,7 @@ s32 RunCardOp1(s16 mode) {
     retry = 0;
     gCardStatus = 0;
     gCardError = 0;
-    D_800959D4 = (u8 *)0x8018D000;
+    sSaveData = (u8 *)0x8018D000;
     gSaveBuf = (u8 *)0x8016D000;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
@@ -212,7 +212,7 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             sum = SumSaveBuffer();
             gSaveSum = sum;
             off = 0x1DFFE;
-            *(u16 *)(D_800959D4 + off) = sum;
+            *(u16 *)(sSaveData + off) = sum;
             ret = CreateSave1();
         }
     } else if (mode == 3) {
@@ -530,7 +530,7 @@ s16 CheckSaveSum(u16 expected) {
 }
 
 void SetSave1Buffers(void) {
-    D_800959D4 = (u8 *)0x8018D000;
+    sSaveData = (u8 *)0x8018D000;
     gSaveBuf = (u8 *)0x8016D000;
 }
 
@@ -717,7 +717,7 @@ s32 RunCardOp2(s16 mode) {
     retry = 0;
     gCardStatus = 0;
     gCardError = 0;
-    D_800959D4 = (u8 *)0x80195000;
+    sSaveData = (u8 *)0x80195000;
     gSaveBuf = (u8 *)0x8018D000;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
@@ -779,7 +779,7 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             sum = SumSaveBuffer();
             gSaveSum = sum;
             off = 0x17FFE;
-            *(u16 *)(D_800959D4 + off) = sum;
+            *(u16 *)(sSaveData + off) = sum;
             ret = CreateSave2();
         }
     } else if (mode == 3) {
@@ -958,7 +958,7 @@ void CopySave2Icon(void) {
 }
 
 void SetSave2Buffers(void) {
-    D_800959D4 = (u8 *)0x80195000;
+    sSaveData = (u8 *)0x80195000;
     gSaveBuf = (u8 *)0x8018D000;
 }
 

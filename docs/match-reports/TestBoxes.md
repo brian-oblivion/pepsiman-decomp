@@ -10,7 +10,7 @@ corners, each halved, and marks the box 1 when the player is inside all
 four. With it set, it builds a coordinate system at the box position,
 transforms the four local corners into `w[][]` (adding `gWorldShift[0]` and
 `[2]`), and marks the box 1 when collision's GetQuadHeightUnderPlayer reports a hit
-in `D_80095898`. The fourth edge test halves `(pz - z3)` where the other
+in `sQuadHit`. The fourth edge test halves `(pz - z3)` where the other
 three halve the corner alone; retail does exactly that.
 
 ```c
@@ -107,8 +107,8 @@ s32 TestBoxes(void) {
                 gSwitches[(s16)i].w[j][2] = t.vz + gWorldShift[2];
             }
             GsSetLsMatrix(&world);
-            GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &D_80095898);
-            if (D_80095898 == 1) {
+            GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &sQuadHit);
+            if (sQuadHit == 1) {
                 gSwitches[(s16)i].unk0 = 1;
             }
         }
@@ -135,8 +135,8 @@ About 30 builds and one permuter run.
   pointer the base is `D + i*0x5C`, which CSE shares with the record
   pointer. So `SwitchBox`, which was `s8 unk0; u8 unk1[0x5B];`, got its
   fields in the shared header (layout unchanged, `unk0` kept).
-- `D_80095898 == 1` then the store: retail stores the loaded register;
-  `= 1` gives it, `= D_80095898` reloads with `lbu`, and an `s8` local
+- `sQuadHit == 1` then the store: retail stores the loaded register;
+  `= 1` gives it, `= sQuadHit` reloads with `lbu`, and an `s8` local
   `hit` reloaded too.
 - Residue at 272: the second product of every edge test in `$v0` and the
   sum tied to it; retail has the product in `$v1`. Products as locals

@@ -68,7 +68,7 @@ typedef struct {
     u8 unk6D;       /**< copied into a placed StageSprite's unk28 */
     u8 unk6E[2];    /**< not yet known */
     s32 unk70;      /**< the global stamp, saved on leaving the tool */
-} Totals28;
+} EditorState;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
 typedef struct {
@@ -78,7 +78,7 @@ typedef struct {
 /** @brief The tool state block, copied whole. */
 typedef struct {
     s32 w[0x74 / 4]; /**< the block */
-} TotalsCopy;
+} EditorStateCopy;
 
 /** @brief The 200 traps, copied whole. */
 typedef struct {
@@ -116,12 +116,12 @@ typedef struct {
     u8 unk9A04[0x1D70];  /**< not yet known; the block area starts at 0xB174 */
 } SaveSlot;
 
-/* MATCHING: gStageSprites and D_80095B28 are also declared in object, each
- * unit through its own view (StageSprite, Totals28 here; StageSprite, Progress6E there). */
+/* MATCHING: gStageSprites and gEditorState are also declared in object, each
+ * unit through its own view (StageSprite, EditorState here; StageSprite, Progress6E there). */
 extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
-extern u8 D_80095B28[];             /**< a Totals28 */
+extern u8 gEditorState[];           /**< the editor's state, an EditorState */
 extern char sEdTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
-#define sTotals (*(Totals28 *)D_80095B28)
+#define sTotals (*(EditorState *)gEditorState)
 extern char sEdNewlines2[];           /**< "\n\n" */
 extern char sEdColorWhite[];          /**< colour code of a highlighted menu line, "~c888" */
 extern char sEdColorBlue[];           /**< colour code of a plain menu line, "~c008" */
@@ -174,7 +174,7 @@ typedef struct {
     s32 unk48[6];  /**< six saved words of game state */
 } ToolSave;
 
-#define sToolSave (*(ToolSave *)D_80095B28)
+#define sToolSave (*(ToolSave *)gEditorState)
 
 
 /* MATCHING: also declared in object, which only zeroes it. */
@@ -2961,7 +2961,7 @@ void SaveEditorSlot(s16 a, u8 *buf) {
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(SpriteTable *)gStageSprites;
     *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
-    *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200 = *(TotalsCopy *)D_80095B28;
+    *(EditorStateCopy *)&((SaveSlot *)buf)[a].unk200 = *(EditorStateCopy *)gEditorState;
 }
 
 /** @brief Restores the record tables, the block header area and the tool
@@ -2972,7 +2972,7 @@ void LoadEditorSlot(s16 a, u8 *buf) {
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)gStageSprites = *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
     *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
-    *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
+    *(EditorStateCopy *)gEditorState = *(EditorStateCopy *)&((SaveSlot *)buf)[a].unk200;
 }
 
 extern char sEdDataFilePath0[]; /**< path of slot 0's file on the host */

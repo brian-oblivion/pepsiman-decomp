@@ -46,7 +46,7 @@ permuter search (stopped early on its lead).
 ## Declarations
 
 - `StageSprite` (unit-local) gains `unk4[3]`, `unk10[3]`, `unk27`, `unk28`,
-  `unk2A`, `unk30`, `unk34`; `Totals28` (unit-local) gains `unk28`,
+  `unk2A`, `unk30`, `unk34`; `EditorState` (unit-local) gains `unk28`,
   `unk2C`, `unk30`, `unk32`, `unk6A`, `unk6C`, `unk6D`.
 - New externs in the `.c`: `StageSprite sSpriteTemplate`, `u8 sSpriteFlags`.
 - CHANGED existing declarations (unit-local, in editor.c only):

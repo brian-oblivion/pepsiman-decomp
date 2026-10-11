@@ -34,7 +34,7 @@ matched.
 
 ## Declarations
 
-- `Totals28`: `u8 unk2E[2]` became `u16 unk2E`; `u8 unk34[0x34]` became
+- `EditorState`: `u8 unk2E[2]` became `u16 unk2E`; `u8 unk34[0x34]` became
   `u16 unk34` + `u8 unk36[0x32]`; `unk6A` became `s16` (was `u16`; the
   only other user, EditorPlaceSprite, still matches).
 - `StageSprite`: `u8 unk1C[0xA]` became `s16 unk1C`, `s16 unk1E`, `s32 unk20`,

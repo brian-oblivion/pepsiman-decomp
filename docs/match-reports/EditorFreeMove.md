@@ -21,7 +21,7 @@ offset, and on flag bit 5 with no entry sets error 7. Second build matched.
 
 ## Declarations
 
-- `Totals28` (unit-local) splits `unk4[8]` into `s32 unk4` and
+- `EditorState` (unit-local) splits `unk4[8]` into `s32 unk4` and
   `s32 unk8`; `GameSave` (unit-local) gains `s32 unk3C4`.
 - New in the `.c`: a forward prototype of this unit's `MoveGamePos`,
   `extern u32 gStickRawY` and `extern u32 gStickRawX`.

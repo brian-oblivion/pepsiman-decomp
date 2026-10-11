@@ -27,7 +27,7 @@ rest), with error 8 in `gToolMode` when the table is full; then clears
 
 ## Declarations
 
-- `Totals28` gained `unk18`, `unk1A`, `unk1C`, and `unk68` / `unk69` past
+- `EditorState` gained `unk18`, `unk1A`, `unk1C`, and `unk68` / `unk69` past
   its old end (the block is longer than 0x28; its name is now historical).
 - A unit-local `EditorTrap` view of the 0x48-byte record (object.h's `Trap`
   is the same record; the head may union them).

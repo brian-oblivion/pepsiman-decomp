@@ -3,7 +3,7 @@
 > Renamed from `func_80037440` on 2026-10-10 (tools/rename.py). Address 0x80037440.
 
 Unit `src/code_27bc8.c`. The first save file's memory card dispatcher. It
-resets the card state, points `D_800959D4`/`gSaveBuf` at the save buffers,
+resets the card state, points `sSaveData`/`gSaveBuf` at the save buffers,
 enables the card events and polls the card (ProbeCard) until it answers,
 retrying a busy card up to 16 times (-2). No card gives 2; a new card gives 4,
 or formats it when `mode` is 3. Then, unless `mode` is -1, it scans the
@@ -27,7 +27,7 @@ s32 RunCardOp1(s16 mode) {
     retry = 0;
     gCardStatus = 0;
     gCardError = 0;
-    D_800959D4 = (u8 *)0x8018D000;
+    sSaveData = (u8 *)0x8018D000;
     gSaveBuf = (u8 *)0x8016D000;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
@@ -89,7 +89,7 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             sum = SumSaveBuffer();
             gSaveSum = sum;
             off = 0x1DFFE;
-            *(u16 *)(D_800959D4 + off) = sum;
+            *(u16 *)(sSaveData + off) = sum;
             ret = CreateSave1();
         }
     } else if (mode == 3) {
@@ -123,7 +123,7 @@ and prototypes for the later functions of the unit (all at the top of the
 8. `if (retry++ < 16)` copies the old value (`move v0, s0`); `if (retry <
    16) { retry++; goto again; }` lets the increment fill the delay slot:
    174/176.
-9. The checksum store `*(u16 *)(D_800959D4 + 0x1DFFE)`: cc1 splits the
+9. The checksum store `*(u16 *)(sSaveData + 0x1DFFE)`: cc1 splits the
    offset into `0x18000` + `0x5FFE(reg)`. Retail builds the whole constant
    and stores at `0(reg)`: the offset is a local, `off = 0x1DFFE;`. 176/176.
 

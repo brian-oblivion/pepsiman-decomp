@@ -28,7 +28,7 @@ start); 7 sets mode 6. Fourth build matched.
 
 ## Declarations
 
-- `Totals28` (unit-local) gains `u8 unk3` and `u16 unk24`.
+- `EditorState` (unit-local) gains `u8 unk3` and `u16 unk24`.
 - New in the `.c`: `RotPos`/`sRotPos`, a per-unit view
   `s32 FindFloor(s32 *pos)` (MATCHING note), `extern u8 D_800958D8`.
 - `gFloorIndex` (`s32`, type unchanged) moved from stage_flow.c to

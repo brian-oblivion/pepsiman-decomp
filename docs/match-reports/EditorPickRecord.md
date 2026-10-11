@@ -27,7 +27,7 @@ Fourth build matched.
 - `nop` in the delay slot of the `& 2` test's `beqz`: `s32` with no return
   (LEARNINGS, "Control flow and frames"); new baselined warning.
 - **The prologue's `move $s1, $zero` before the `lui`/`addiu` of
-  `D_80095B28`: the counter cleared first**, `i = 0; sTotals.unk1A = 0;
+  `gEditorState`: the counter cleared first**, `i = 0; sTotals.unk1A = 0;
   for (; i < 200; i++)`, as EditorPlaceSprite does. `for (i = 0; ...)` after
   the store put the address first (254/258).
 

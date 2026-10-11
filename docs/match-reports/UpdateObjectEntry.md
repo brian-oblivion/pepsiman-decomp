@@ -8,13 +8,13 @@ Unit `src/object.c`. Runs DrawObjectModel on the ObjectModel entry, clears
 CollidePlayer's answer into `r->unk40`. When the game head's byte 2 is set
 it runs collision's PlaceCollisionQuad / GetQuadHeightUnderPlayer over the entry's
 second-buffer records (`gLiveQuads`, 0x4C bytes) and copies a hit
-(`D_80095898 == 1`, with the word `D_8009589C`) to the head at 0x3B8 and
+(`sQuadHit == 1`, with the word `sQuadHitWord`) to the head at 0x3B8 and
 0x3CC.
 
 ```c
 /* The result of a second-buffer record's test: a flag, then a word. */
-extern s8 D_80095898;  /**< 1 on a hit */
-extern s32 D_8009589C; /**< the word reported with a hit */
+extern s8 sQuadHit;  /**< 1 on a hit */
+extern s32 sQuadHitWord; /**< the word reported with a hit */
 /* MATCHING: per unit this round; hit_tool declares both the same way. */
 extern u8 gLivePoints[]; /**< 0x2C-byte placed records (Placed2C) */
 extern u8 gLiveQuads[]; /**< 0x4C-byte records */
@@ -53,10 +53,10 @@ s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
             for (i = start; i < start + n; i++) {
                 q = gLiveQuads + i * 0x4C;
                 PlaceCollisionQuad(q);
-                GetQuadHeightUnderPlayer(q, &D_80095898);
-                if (D_80095898 == 1) {
-                    sGameHead.unk3B8 = D_80095898;
-                    sGameHead.unk3CC = D_8009589C;
+                GetQuadHeightUnderPlayer(q, &sQuadHit);
+                if (sQuadHit == 1) {
+                    sGameHead.unk3B8 = sQuadHit;
+                    sGameHead.unk3CC = sQuadHitWord;
                 }
             }
         }

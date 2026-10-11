@@ -9,7 +9,7 @@ already placed the unit's rodata), the second half is `src/editor.c`, and
 its own gp list leaves those symbols out. The body is live. Original title:
 TotalBlockEntries — STALL: 2 words short (18/20), 2/20 positional, first diff at +0x8 (`lw $a1, %gp_rel(gCanSpans)($gp)` for `lui $a1` / `lw $a1, %lo(gCanSpans)($a1)`) (round 4, alpha)
 
-Unit `src/editor.c`. Zeroes the halfword at 0x26 of `D_80095B28`, then
+Unit `src/editor.c`. Zeroes the halfword at 0x26 of `gEditorState`, then
 adds into it the halfword at 4 of each of the `gCanSpanCount` eight-byte
 entries at `gCanSpans`.
 
@@ -59,11 +59,11 @@ typedef struct {
 typedef struct {
     u8 unk0[0x26];
     u16 unk26; /* the total */
-} Totals28;
+} EditorState;
 extern u8 *gCanSpans;
 extern s32 gCanSpanCount;
-extern u8 D_80095B28[];
-#define sTotals (*(Totals28 *)D_80095B28)
+extern u8 gEditorState[];
+#define sTotals (*(EditorState *)gEditorState)
 
 void TotalBlockEntries(void) {
     s32 i;
@@ -79,9 +79,9 @@ void TotalBlockEntries(void) {
 #endif
 ```
 
-`D_80095B28` as a struct lvalue gives retail's `lui $v0` early and
-`addiu $v0, %lo` after the loads; as `*(u16 *)(D_80095B28 + 0x26)` the
-offset folds into `%lo(D_80095B28+38)` and the `addiu` disappears.
+`gEditorState` as a struct lvalue gives retail's `lui $v0` early and
+`addiu $v0, %lo` after the loads; as `*(u16 *)(gEditorState + 0x26)` the
+offset folds into `%lo(gEditorState+38)` and the `addiu` disappears.
 
 ### Proposed learning
 

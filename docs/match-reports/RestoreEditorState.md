@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. The inverse of SaveEditorState: runs
 `LoadEditorSlot(a, 0x8016D000)`, then copies the three words at 0x38 of the
-tool state block `D_80095B28` back to 0x348 of `gPlayer`, the halfword
+tool state block `gEditorState` back to 0x348 of `gPlayer`, the halfword
 at 0x44 to `gCourse[0].vy`, and the six words at 0x48 to `gRefView[0..5]`.
 
 ```c

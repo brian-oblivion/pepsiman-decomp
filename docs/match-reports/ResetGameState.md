@@ -7,7 +7,7 @@ Unit `src/object.c`. The full game-state reset: clears the
 (`unk34`, `unk36` = -1), clears and rebuilds the block header at
 0x801FD000 (BuildEmptyBlock), clears and resets the SwitchBox, Trap and StageSprite
 tables (editor's resets), and resets the progress block at
-`D_80095B28` and three globals. Matched on the first build.
+`gEditorState` and three globals. Matched on the first build.
 
 ```c
 void ResetGameState(Trap *recs) {
@@ -63,22 +63,22 @@ void ResetGameState(Trap *recs) {
 ```
 
 The progress block is a unit-local `Progress6E` view through
-`#define sProgress (*(Progress6E *)D_80095B28)` (retail stores the first
-byte through `%lo(D_80095B28)`, then builds the base and stores the rest
+`#define sProgress (*(Progress6E *)gEditorState)` (retail stores the first
+byte through `%lo(gEditorState)`, then builds the base and stores the rest
 off it: a struct lvalue). Stores are in retail's order; the copy of
 `gStage` comes last, its load hoisted by the scheduler.
 
 ## Declarations (need the head)
 
 New in this unit: `extern StageSprite gStageSprites[]`, `extern u8
-D_80095B28[]`, `gCurBlock` (s32), `D_800958D8` and `D_800959D8` (u8;
+gEditorState[]`, `gCurBlock` (s32), `D_800958D8` and `D_800959D8` (u8;
 the last reached `$gp`, already in config/gp/object.txt), and
 prototypes of editor's BuildEmptyBlock, ClearSwitches, ResetTraps
 and ClearStageSprites, under one `MATCHING:` per-unit-view note (StageSprite is
 local to each unit).
 
 declcheck now reports LOCAL on editor.c's own declarations of
-gStageSprites, D_80095B28, BuildEmptyBlock and ClearStageSprites (plus
+gStageSprites, gEditorState, BuildEmptyBlock and ClearStageSprites (plus
 DrawObjectSprite and StepSprite from StepSprite). The lasting fix is
 one shared header for the two units: StageSprite (the union of both views),
 those two externs and the prototypes in object.h, with the local

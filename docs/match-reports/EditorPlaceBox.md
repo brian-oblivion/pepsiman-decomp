@@ -23,7 +23,7 @@ free record (error 8 when none). Second build matched.
 
 ## Declarations
 
-- `Totals28` (unit-local) gains `u16 unk16`.
+- `EditorState` (unit-local) gains `u16 unk16`.
 - New unit-local `EditorSwitch` view (`#define sRecs5C`), `Size2`/`Sizes3`,
   `extern Sizes3 sBoxSizes` (the rodata stays `INCLUDE_RODATA`), and a
   per-unit view `void SetBoxCentred(EditorSwitch *b, s16 w, s16 d)` (MATCHING

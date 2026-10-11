@@ -13,7 +13,7 @@ matched.
 
 - `D_80095B3A` / `D_80095B3C` are reached `lui $v0` / `lhu $v1,
   %lo(..)($v0)`, a cc1 split, so they are members of the `u8 []`-declared
-  `D_80095B28` block: `Totals28` gained `unk12` and `unk14` (offsets 0x12
+  `gEditorState` block: `EditorState` gained `unk12` and `unk14` (offsets 0x12
   and 0x14, carved out of its leading padding; layout unchanged).
 - The old line is read before the call into a saved register as `s16`
   (`sll`/`sra` after the call): an `s16` local.

@@ -15,7 +15,7 @@ Second build matched.
   before adding the sine term, and computes the sine term first. Written
   `a + b + sin...`, cc1 loads the globals before the multiply (77/95).
 - `D_80095B34` is reached `lui $v0` / `lw $a1, %lo(..)($v0)`, a cc1 split:
-  a member of the `D_80095B28` block. `Totals28` gained `s32 unkC`
+  a member of the `gEditorState` block. `EditorState` gained `s32 unkC`
   (layout unchanged).
 - `gViewerAngle` is an `s16` scalar (`lui $a0` / `lh $a0`). It was declared
   in `src/model.c`; with a second unit using it, the declaration moved

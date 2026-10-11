@@ -25,6 +25,6 @@ void SaveEditorSlot(s16 a, u8 *buf) {
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(SpriteTable *)gStageSprites;
     *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
-    *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200 = *(TotalsCopy *)D_80095B28;
+    *(EditorStateCopy *)&((SaveSlot *)buf)[a].unk200 = *(EditorStateCopy *)gEditorState;
 }
 ```

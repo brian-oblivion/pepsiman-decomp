@@ -6,3 +6,4 @@ gCanPoints
 gCanSpanCount
 gCanSpans
 gTimInfo
+sSaveData

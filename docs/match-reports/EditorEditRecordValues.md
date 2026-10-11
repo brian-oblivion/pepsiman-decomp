@@ -15,7 +15,7 @@ bit 2 of `gPad`, wrapping at 0..359. Second build matched.
 - Two jump tables of five cases: `switch (gMenuLine)` after a change,
   `switch (line)` (the saved `s16`) otherwise. Cases 3 and 4 move bytes
   (`lbu` of the low byte of `gEditValue`, `sb`).
-- `sTotals.unk20` reached through `lui`/`addiu` of `D_80095B28` and
+- `sTotals.unk20` reached through `lui`/`addiu` of `gEditorState` and
   `0x20($v1)`: the struct lvalue through the unit's `sTotals` macro, as
   the learning predicts.
 - **The first build differed only in the last two `if`s: retail keeps
@@ -24,7 +24,7 @@ bit 2 of `gPad`, wrapping at 0..359. Second build matched.
 
 ## Declarations
 
-- `Totals28.unk20[6]` split into `s16 unk20` (the angle) and
+- `EditorState.unk20[6]` split into `s16 unk20` (the angle) and
   `u8 unk22[4]`. Unit-local type; whole oracle green.
 - New `-Wall` warning "control reaches end of non-void function" in
   editor, deliberate; not yet in `config/typeviews-warnings.txt`

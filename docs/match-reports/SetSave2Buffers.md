@@ -7,7 +7,7 @@
 
 ```c
 void SetSave2Buffers(void) {
-    D_800959D4 = (u8 *)0x80195000;
+    sSaveData = (u8 *)0x80195000;
     gSaveBuf = (u8 *)0x8018D000;
 }
 ```

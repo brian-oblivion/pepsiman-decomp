@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. Walks the 200 Trap records at `gTraps`;
 for each one whose `unk36` is not -1 and whose `unk34` equals the
-halfword at 0x1E of `D_80095B28` (`sTotals.unk1E`), calls
+halfword at 0x1E of `gEditorState` (`sTotals.unk1E`), calls
 `UpdateObjectEntry(&gObjectModels[r->unk36], r)`.
 
 ```c
@@ -32,7 +32,7 @@ void ApplyRecordsToEntries(void) {
 
 ## Declarations
 
-- `Totals28` (unit-local) gained `u16 unk1E` split out of its leading pad
+- `EditorState` (unit-local) gained `u16 unk1E` split out of its leading pad
   (offsets unchanged; whole image OK).
 - `UpdateObjectEntry` (defined in object, still asm) takes two arguments:
   its asm copies `$a1` into `$s2` at entry. The prototype `void

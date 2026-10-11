@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. Walks the 100 StageSprite records at `gStageSprites`;
 for each used one (`unk0 != -1`) whose `unk2C` equals the halfword at 0x2A
-of `D_80095B28` (`sTotals.unk2A`), calls `StepSprite(r->unk0, r)` when
+of `gEditorState` (`sTotals.unk2A`), calls `StepSprite(r->unk0, r)` when
 bit 7 of byte `unk26` is set, else `DrawObjectSprite(r->unk0, r)`.
 
 ```c
@@ -32,7 +32,7 @@ the `j`'s delay slot is cc1's own.
 ## Declarations
 
 - Unit-local `StageSprite` gained `u8 unk26` and `s16 unk2C` split out of its
-  pad; unit-local `Totals28` gained `u16 unk2A` past its old end (now 0x2C
+  pad; unit-local `EditorState` gained `u16 unk2A` past its old end (now 0x2C
   bytes; only reached through the `sTotals` macro). Whole image OK.
 - `StepSprite` and `DrawObjectSprite` (defined in object, still asm;
   no other C declares them) are prototyped in editor.c as

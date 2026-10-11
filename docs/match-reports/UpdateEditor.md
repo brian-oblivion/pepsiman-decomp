@@ -48,8 +48,8 @@ other to 50). About 20 builds.
 
 ## Declarations
 
-- `Totals28`: `u8 unk6E[2]` and `s32 unk70` appended (the stamp saved on
-  leaving the tool; was `*(s32 *)(D_80095B28 + 0x70)` in the first build).
+- `EditorState`: `u8 unk6E[2]` and `s32 unk70` appended (the stamp saved on
+  leaving the tool; was `*(s32 *)(gEditorState + 0x70)` in the first build).
   `GameSave`: `unk354[0x70]` split into `unk354[0x6C]` + `s32 unk3C0`.
   Unit-local; whole oracle green.
 - Prototypes in this `.c` for functions of other units without (or not

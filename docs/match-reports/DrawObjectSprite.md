@@ -6,7 +6,7 @@ Unit `src/object.c`. Draws the sprite of a StageSprite record `r` with id
 `id`: a coordinate system at the record's position plus the world offset
 `gWorldShift`, the next id when the record is in state 1 within 600 units
 (and the mode is not 0x20), a size from the record's width and height by
-the id's shape (`D_800A7618[id - 30]`: 0 to 3), mirrored by flag bit 6,
+the id's shape (`sSpriteShapes[id - 30]`: 0 to 3), mirrored by flag bit 6,
 then `DrawStandingBillboard` into `gSubOt` within 700 units or
 `DrawStandingBillboardFog` into `gOt` beyond.
 

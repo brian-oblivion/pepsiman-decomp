@@ -216,8 +216,8 @@ extern u8 D_800959D8;               /**< zeroed by the full reset */
 #define sTraps ((Trap *)gTraps)
 /* MATCHING: the progress block, declared per unit; editor views the same
  * bytes as other records. */
-extern u8 D_80095B28[];
-#define sProgress (*(Progress6E *)D_80095B28)
+extern u8 gEditorState[]; /**< the editor's state; this unit reads its Progress6E view */
+#define sProgress (*(Progress6E *)gEditorState)
 
 /* MATCHING: a per-unit view; collision calls the same 0x30-byte block Body. */
 s32 CollidePlayer(Query30 *q);
@@ -569,8 +569,8 @@ void DrawObjectModel(ObjectModel *rec, Trap *r) {
 }
 
 /* The result of a second-buffer record's test: a flag, then a word. */
-extern s8 D_80095898;  /**< 1 on a hit */
-extern s32 D_8009589C; /**< the word reported with a hit */
+extern s8 sQuadHit;      /**< 1 on a hit */
+extern s32 sQuadHitWord; /**< the word reported with a hit */
 /* collision's tests of a 0x4C-byte record; types not yet known. */
 /* MATCHING: s32 (its body leaves a value); void moves a register. */
 s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
@@ -606,10 +606,10 @@ s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
             for (i = start; i < start + n; i++) {
                 q = gLiveQuads + i * 0x4C;
                 PlaceCollisionQuad(q);
-                GetQuadHeightUnderPlayer(q, &D_80095898);
-                if (D_80095898 == 1) {
-                    gPlayer.unk3B8 = D_80095898;
-                    gPlayer.unk3CC = D_8009589C;
+                GetQuadHeightUnderPlayer(q, &sQuadHit);
+                if (sQuadHit == 1) {
+                    gPlayer.unk3B8 = sQuadHit;
+                    gPlayer.unk3CC = sQuadHitWord;
                 }
             }
         }
@@ -716,8 +716,8 @@ s32 TestBoxes(void) {
                 gSwitches[(s16)i].w[j][2] = t.vz + gWorldShift[2];
             }
             GsSetLsMatrix(&world);
-            GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &D_80095898);
-            if (D_80095898 == 1) {
+            GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &sQuadHit);
+            if (sQuadHit == 1) {
                 gSwitches[(s16)i].unk0 = 1;
             }
         }
@@ -994,7 +994,7 @@ void LoadSpritePack(DirEnt16 *dir, u16 id) {
     }
 }
 
-extern u8 D_800A7618[]; /**< a sprite shape per id, from id 30 on */
+extern u8 sSpriteShapes[]; /**< a sprite shape per id, from id 30 on */
 
 /** @brief Draws the sprite of record `r` with id `id` at the record's
  *         position plus the world offset: the next id when the record is
@@ -1019,7 +1019,7 @@ void DrawObjectSprite(u16 id, StageSprite *r) {
         absInt(r->unk4 + gWorldShift[0]) < 600 && absInt(r->unkC + gWorldShift[2]) < 600) {
         k = id + 1;
     }
-    switch (D_800A7618[k - 30]) {
+    switch (sSpriteShapes[k - 30]) {
         case 0:
             size.vx = (s16)r->unk1C / 2 + (s16)r->unk1C / 3;
             size.vy = (s16)r->unk1E / 2 + (s16)r->unk1E / 4;

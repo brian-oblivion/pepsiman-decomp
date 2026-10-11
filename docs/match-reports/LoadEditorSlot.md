@@ -6,7 +6,7 @@ Unit `src/editor.c`. Restores save slot `a` of the tool buffer
 `buf` (0xB774-byte slots): five block moves into the 0x5C-byte record
 table `gSwitches`, the EditorTrap table `gTraps`, the StageSprite table
 `gStageSprites`, the block header area at `0x801FD000` and the tool state
-block `D_80095B28`. Fourth build matched.
+block `gEditorState`. Fourth build matched.
 
 ## Shapes read from retail
 
@@ -28,7 +28,7 @@ block `D_80095B28`. Fourth build matched.
 
 ## Declarations
 
-- New unit-local copy wrappers `TotalsCopy`, `TrapTable`, `SwitchTable`,
+- New unit-local copy wrappers `EditorStateCopy`, `TrapTable`, `SwitchTable`,
   `SpriteTable`, `BlockAreaCopy`; `SaveSlot` gains `unk203[0x71]` and the
   three table members (size unchanged, 0xB774).
 - `extern s32 gSwitches[];` in the `.c` (MATCHING note; object has
@@ -43,7 +43,7 @@ void LoadEditorSlot(s16 a, u8 *buf) {
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)gStageSprites = *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
     *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
-    *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
+    *(EditorStateCopy *)gEditorState = *(EditorStateCopy *)&((SaveSlot *)buf)[a].unk200;
 }
 ```
 

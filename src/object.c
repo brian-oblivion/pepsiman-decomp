@@ -120,23 +120,23 @@ typedef struct {
 /** @brief A stage sprite (gStageSprites, 100 of them) (editor has the same
  *         record, with fewer fields known). */
 typedef struct {
-    u16 unk0;      /**< a counter; bumped on a state change */
-    u8 unk2[2];    /**< not yet known */
-    s32 unk4;      /**< x */
-    s32 unk8;      /**< y */
-    s32 unkC;      /**< z */
-    s32 unk10;     /**< zeroed on a state change */
-    s32 unk14;     /**< set from a fixed object's y on a state change */
-    s32 unk18;     /**< zeroed on a state change */
-    u16 unk1C;     /**< a width */
-    u16 unk1E;     /**< a height; the query is centred half of it lower */
-    s32 unk20;     /**< a third of its magnitude is the query's range */
-    u8 unk24;      /**< set to 1 before the query */
-    u8 unk25;      /**< bit 0 of the query's result */
-    u8 unk26;      /**< flags: bit 7, bit 6, and a state in bits 0..5 */
-    u8 unk27[5];   /**< not yet known */
-    s16 unk2C;     /**< index of the SwitchBox record it belongs to */
-    u8 unk2E[0xE]; /**< not yet known */
+    u16 id;         /**< its sprite; -1 when free; one on when a HIT ACT sprite is hit */
+    u8 unk2[2];     /**< not yet known */
+    s32 x;          /**< x */
+    s32 y;          /**< y */
+    s32 z;          /**< z */
+    s32 driftCount; /**< zeroed when hit: StepDrift's count */
+    s32 driftBaseY; /**< the player's y when hit: StepDrift's base */
+    s32 driftPhase; /**< zeroed when hit: StepDrift's phase */
+    u16 width;      /**< its drawn width */
+    u16 height;     /**< its drawn height; the query is centred half of it lower */
+    s32 radius;     /**< a third of its magnitude is the query's range */
+    u8 queried;     /**< set to 1 before the query */
+    u8 hit;         /**< bit 0 of the query's result */
+    u8 flags;       /**< SpriteFlag bits and a SpriteAct */
+    u8 unk27[5];    /**< not yet known */
+    s16 switchNo;   /**< the switch that shows it */
+    u8 unk2E[0xE];  /**< not yet known */
 } StageSprite;
 
 /** @brief Something that bobs up and down while it drifts. */
@@ -1011,38 +1011,38 @@ void DrawObjectSprite(u16 id, StageSprite *r) {
 
     GsInitCoordinate2(WORLD, &coord);
     k = id;
-    coord.coord.t[0] = r->unk4 + gWorldShift[0];
-    coord.coord.t[1] = r->unk8;
-    coord.coord.t[2] = r->unkC + gWorldShift[2];
+    coord.coord.t[0] = r->x + gWorldShift[0];
+    coord.coord.t[1] = r->y;
+    coord.coord.t[2] = r->z + gWorldShift[2];
     coord.flg = 0;
     GsGetLs(&coord, &mat);
     GsSetLsMatrix(&mat);
-    if (gGameMode != GM_EDITOR && (r->unk26 & 0x3F) == 1 &&
-        absInt(r->unk4 + gWorldShift[0]) < 600 && absInt(r->unkC + gWorldShift[2]) < 600) {
+    if (gGameMode != GM_EDITOR && (r->flags & SPRITE_ACT_MASK) == SPRITE_ACT_NEAR &&
+        absInt(r->x + gWorldShift[0]) < 600 && absInt(r->z + gWorldShift[2]) < 600) {
         k = id + 1;
     }
     switch (sSpriteShapes[k - 30]) {
         case 0:
-            size.vx = (s16)r->unk1C / 2 + (s16)r->unk1C / 3;
-            size.vy = (s16)r->unk1E / 2 + (s16)r->unk1E / 4;
+            size.vx = (s16)r->width / 2 + (s16)r->width / 3;
+            size.vy = (s16)r->height / 2 + (s16)r->height / 4;
             break;
         case 1:
-            size.vx = (s16)r->unk1C / 2 + (s16)r->unk1C / 4;
-            size.vy = r->unk1E;
+            size.vx = (s16)r->width / 2 + (s16)r->width / 4;
+            size.vy = r->height;
             break;
         case 2:
-            size.vx = r->unk1C + (s16)r->unk1C / 3;
-            size.vy = (s16)r->unk1E / 8 * 4;
+            size.vx = r->width + (s16)r->width / 3;
+            size.vy = (s16)r->height / 8 * 4;
             break;
         case 3:
-            size.vx = r->unk1C;
-            size.vy = r->unk1E;
+            size.vx = r->width;
+            size.vy = r->height;
             break;
     }
-    if (r->unk26 & 0x40) {
+    if (r->flags & SPRITE_MIRROR) {
         size.vx *= -1;
     }
-    if (absInt(r->unk4 + gWorldShift[0]) > 700 || absInt(r->unkC + gWorldShift[2]) > 700) {
+    if (absInt(r->x + gWorldShift[0]) > 700 || absInt(r->z + gWorldShift[2]) > 700) {
         DrawStandingBillboardFog(k, &size, NULL, 2, &gOt[gActiveBuff]);
     } else {
         DrawStandingBillboard(k, &size, NULL, 2, &gSubOt[gActiveBuff]);
@@ -1069,22 +1069,22 @@ static __inline__ void queryRec(s16 id, StageSprite *r) {
     s32 v;
 
     DrawObjectSprite(id, r);
-    q.pos.x = r->unk4;
-    q.pos.y = r->unk8 - (s16)r->unk1E / 2;
-    q.pos.z = r->unkC;
-    r->unk24 = 1;
+    q.pos.x = r->x;
+    q.pos.y = r->y - (s16)r->height / 2;
+    q.pos.z = r->z;
+    r->queried = 1;
     q.unk18 = 1;
-    q.unk14 = (r->unk20 < 0 ? -r->unk20 : r->unk20) / 3;
+    q.unk14 = (r->radius < 0 ? -r->radius : r->radius) / 3;
     v = CollidePlayer(&q) & 1;
-    r->unk25 = v;
+    r->hit = v;
     if (v) {
-        if (r->unk26 & 0x80) {
-            if ((r->unk26 & 0x3F) == 2) {
-                r->unk10 = 0;
-                r->unk0++;
-                r->unk26 = (r->unk26 & 0x40) | 3;
-                r->unk14 = gPlayer.y;
-                r->unk18 = 0;
+        if (r->flags & SPRITE_HITTABLE) {
+            if ((r->flags & SPRITE_ACT_MASK) == SPRITE_ACT_HIT) {
+                r->driftCount = 0;
+                r->id++;
+                r->flags = (r->flags & SPRITE_MIRROR) | SPRITE_ACT_DRIFT;
+                r->driftBaseY = gPlayer.y;
+                r->driftPhase = 0;
             }
         }
     }
@@ -1101,13 +1101,14 @@ void UpdateActiveSprites(void) {
 
     for (i = 0; i < 100; i++) {
         r = &gStageSprites[i];
-        if ((s16)r->unk0 != -1) {
-            k = gSwitches[r->unk2C].unk0;
+        if ((s16)r->id != -1) {
+            k = gSwitches[r->switchNo].unk0;
             if (k == 1) {
-                if (r->unk26 & 0x80) {
-                    queryRec(r->unk0, r);
-                } else if ((r->unk26 & 0x3F) != 3 || (s8)StepDrift((Drifter *)r) == 1) {
-                    DrawObjectSprite(r->unk0, r);
+                if (r->flags & SPRITE_HITTABLE) {
+                    queryRec(r->id, r);
+                } else if ((r->flags & SPRITE_ACT_MASK) != SPRITE_ACT_DRIFT ||
+                           (s8)StepDrift((Drifter *)r) == 1) {
+                    DrawObjectSprite(r->id, r);
                 }
             }
         }

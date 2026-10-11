@@ -479,7 +479,7 @@ s32 PrintEditorStatus(void) {
             }
             PrintTabs(2);
             FntPrint(sEdActLabel);
-            switch (sSpriteFlags) {
+            switch (sSpriteAct) {
                 case 0:
                     FntPrint(sEdNoActLine);
                     break;

@@ -124,7 +124,7 @@ sJumpPeakY
 sPadActPtr
 sPadBufPtr
 sSaveData
-sSpriteFlags
+sSpriteAct
 sSteerDrift
 sToolInfoMode
 sToolModeSaved

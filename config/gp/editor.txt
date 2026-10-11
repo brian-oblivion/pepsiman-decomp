@@ -6,4 +6,4 @@ gEditorInfo
 gMenuChoice
 gToolCardStep
 gToolSlot
-sSpriteFlags
+sSpriteAct

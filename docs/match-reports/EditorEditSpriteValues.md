@@ -17,7 +17,7 @@ matched.
 
 - Two nine-case jump tables, `switch (gMenuLine)` after a change and
   `switch (line)` otherwise; EditorEditRecordValues's layout unchanged. Case 6 moves
-  the low byte of `gEditValue` to `sSpriteFlags` (`$gp`).
+  the low byte of `gEditValue` to `sSpriteAct` (`$gp`).
 - The angle is read `lh` for the call and compared after `sll`/`sra`: an
   `s16` field.
 - `lbu 0x16($sp)` / `lbu 0x17($sp)` after `GetQuad16(.., $sp+0x10)`:

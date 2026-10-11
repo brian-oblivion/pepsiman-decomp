@@ -14,23 +14,23 @@
 /** @brief A stage sprite (gStageSprites); only the halfword at 0 is
  *         known. */
 typedef struct {
-    s16 unk0;     /**< -1 when the record is free (a guess) */
+    s16 id;       /**< its sprite (MODEL. plus 30); -1 when free */
     u8 unk2[2];   /**< not yet known */
-    s32 unk4[3];  /**< a position */
-    s32 unk10[3]; /**< a copy of unk4 */
-    s16 unk1C;    /**< a height from the template's entry */
-    s16 unk1E;    /**< a second height from the template's entry */
-    s32 unk20;    /**< a copy of unk1C */
+    s32 pos[3];   /**< a position */
+    s32 drift[3]; /**< the position again when placed; object drifts it */
+    s16 width;    /**< a width from the template's entry and SIZE. */
+    s16 height;   /**< a height from the template's entry and SIZE. */
+    s32 radius;   /**< the width again */
     u8 unk24[2];  /**< not yet known */
-    u8 unk26;     /**< bit 7 picks one of two handlers */
-    u8 unk27;     /**< sTotals.spriteWalk when placed */
-    u8 unk28;     /**< sTotals.spriteSe when placed */
+    u8 flags;     /**< SpriteFlag bits and a SpriteAct */
+    u8 walk;      /**< sTotals.spriteWalk when placed */
+    u8 se;        /**< sTotals.spriteSe when placed */
     u8 unk29;     /**< not yet known */
-    u16 unk2A;    /**< sTotals.spriteAngle when placed */
-    s16 unk2C;    /**< matched against sTotals.spriteSwitch */
+    u16 angle;    /**< sTotals.spriteAngle when placed */
+    s16 switchNo; /**< sTotals.spriteSwitch when placed */
     u8 unk2E[2];  /**< not yet known */
-    s32 unk30;    /**< a global stamp when placed */
-    s32 unk34;    /**< the current entry when placed */
+    s32 section;  /**< gSection when placed */
+    s32 block;    /**< the current block when placed */
     u8 unk38[4];  /**< not yet known */
 } StageSprite;
 
@@ -87,7 +87,7 @@ typedef struct {
     u16 spriteSize;   /**< "SPRITE SEL" SIZE., shown less 500 */
     u16 spriteCount;  /**< StageSprites in use */
     u16 spriteHit;    /**< "SPRITE SEL" HIT.: off or on; picks one of two StageSprite handlers */
-    u16 spriteFlip;   /**< "SPRITE SEL" FLIP.: off or on; negates the template's height */
+    u16 spriteFlip;   /**< "SPRITE SEL" FLIP.: off or on; negates the template's width */
     u8 unk36[0x32];   /**< not yet known */
     u8 trapType;      /**< "TRAP SEL" TYPENO. */
     u8 trapAct;       /**< "TRAP SEL" ACT NO. */
@@ -381,7 +381,7 @@ s32 PrintEditorStatus(void);
 extern u8 gToolExited; /**< set on leaving the tool */
 
 extern StageSprite sSpriteTemplate; /**< the StageSprite template that gets placed */
-extern u8 sSpriteFlags;             /**< or-ed into a placed StageSprite's unk26 */
+extern u8 sSpriteAct; /**< "SPRITE SEL" ACT., a SpriteAct; or-ed into a placed sprite's flags */
 
 /** @brief Eight bytes, copied whole. */
 typedef struct {
@@ -724,21 +724,21 @@ s32 UpdateEditor(void) {
                             case EK_SPRITE:
                                 EditorPickSprite();
                                 if (gEditorInfo == 1 && (gPadTrig & PADRright)) {
-                                    gPlayer.x = gStageSprites[sTotals.spriteNo].unk4[0];
-                                    gPlayer.y = gStageSprites[sTotals.spriteNo].unk4[1];
-                                    gPlayer.z = gStageSprites[sTotals.spriteNo].unk4[2];
-                                    sTotals.spriteModel = gStageSprites[sTotals.spriteNo].unk0 - 30;
+                                    gPlayer.x = gStageSprites[sTotals.spriteNo].pos[0];
+                                    gPlayer.y = gStageSprites[sTotals.spriteNo].pos[1];
+                                    gPlayer.z = gStageSprites[sTotals.spriteNo].pos[2];
+                                    sTotals.spriteModel = gStageSprites[sTotals.spriteNo].id - 30;
                                     gToolMode = ED_SPRITE_SEL;
-                                    sTotals.spriteSwitch = gStageSprites[sTotals.spriteNo].unk2C;
-                                    sTotals.spriteSe = gStageSprites[sTotals.spriteNo].unk28;
-                                    sTotals.spriteWalk = gStageSprites[sTotals.spriteNo].unk27;
+                                    sTotals.spriteSwitch = gStageSprites[sTotals.spriteNo].switchNo;
+                                    sTotals.spriteSe = gStageSprites[sTotals.spriteNo].se;
+                                    sTotals.spriteWalk = gStageSprites[sTotals.spriteNo].walk;
                                     gEditMax = 100;
                                     gEditorPicking = 0;
                                     gMenuLineCount = 9;
                                     gEditValue = sTotals.spriteNo;
                                     gMenuLine = 0;
                                     gSubStep = 0;
-                                    sTotals.spriteAngle = gStageSprites[sTotals.spriteNo].unk2A;
+                                    sTotals.spriteAngle = gStageSprites[sTotals.spriteNo].angle;
                                 }
                                 break;
                         }
@@ -1231,7 +1231,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteNoRangeText);
-            if (gStageSprites[sTotals.spriteNo].unk0 == -1) {
+            if (gStageSprites[sTotals.spriteNo].id == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -1308,14 +1308,14 @@ s32 PrintEditorStatus(void) {
             }
             PrintTabs(2);
             FntPrint(sEdActLabel);
-            switch (sSpriteFlags) {
-                case 0:
+            switch (sSpriteAct) {
+                case SPRITE_ACT_NONE:
                     FntPrint(sEdNoActLine);
                     break;
-                case 1:
+                case SPRITE_ACT_NEAR:
                     FntPrint(sEdNearActText);
                     break;
-                case 2:
+                case SPRITE_ACT_HIT:
                     FntPrint(sEdHitActText);
                     break;
             }
@@ -1537,35 +1537,35 @@ void PrintEditorCaption(void) {
             break;
         case EK_SPRITE:
             FntPrint(sEdInfoSpriteFmt, sTotals.spriteNo);
-            FntPrint(sEdInfoSpriteModelFmt, gStageSprites[sTotals.spriteNo].unk0 - 30);
-            FntPrint(sEdInfoSpriteSwitchFmt, gStageSprites[sTotals.spriteNo].unk2C);
+            FntPrint(sEdInfoSpriteModelFmt, gStageSprites[sTotals.spriteNo].id - 30);
+            FntPrint(sEdInfoSpriteSwitchFmt, gStageSprites[sTotals.spriteNo].switchNo);
             FntPrint(sEdInfoHitLabel);
             /* MATCHING: the clear-bit arm first, as retail's bnez. */
-            if (!(gStageSprites[sTotals.spriteNo].unk26 & 0x80)) {
+            if (!(gStageSprites[sTotals.spriteNo].flags & SPRITE_HITTABLE)) {
                 FntPrint(sEdInfoOffText);
             } else {
                 FntPrint(sEdInfoOnText);
             }
             FntPrint(sEdInfoActLabel);
-            switch (gStageSprites[sTotals.spriteNo].unk26 & 0x3F) {
-                case 0:
+            switch (gStageSprites[sTotals.spriteNo].flags & SPRITE_ACT_MASK) {
+                case SPRITE_ACT_NONE:
                     FntPrint(sEdNoActText);
                     break;
-                case 1:
+                case SPRITE_ACT_NEAR:
                     FntPrint(sEdInfoNearActText);
                     break;
-                case 2:
+                case SPRITE_ACT_HIT:
                     FntPrint(sEdInfoHitActText);
                     break;
             }
             FntPrint(sEdInfoWalkLabel);
-            if (gStageSprites[sTotals.spriteNo].unk27 == 0) {
+            if (gStageSprites[sTotals.spriteNo].walk == 0) {
                 FntPrint(sEdInfoOffLine);
             } else {
-                FntPrint(sEdInfoWalkTypeFmt, gStageSprites[sTotals.spriteNo].unk27);
+                FntPrint(sEdInfoWalkTypeFmt, gStageSprites[sTotals.spriteNo].walk);
             }
             FntPrint(sEdInfoSeLabel);
-            switch (gStageSprites[sTotals.spriteNo].unk28) {
+            switch (gStageSprites[sTotals.spriteNo].se) {
                 case 0:
                     FntPrint(sEdNoSeText);
                     break;
@@ -2358,7 +2358,7 @@ void EditorEditSpriteValues(void) {
                 break;
             case 6:
                 gEditMax = 3;
-                gEditValue = sSpriteFlags;
+                gEditValue = sSpriteAct;
                 break;
             case 7:
                 gEditMax = 2;
@@ -2390,7 +2390,7 @@ void EditorEditSpriteValues(void) {
                 sTotals.spriteFlip = gEditValue;
                 break;
             case 6:
-                sSpriteFlags = gEditValue;
+                sSpriteAct = gEditValue;
                 break;
             case 7:
                 sTotals.spriteWalk = gEditValue;
@@ -2413,22 +2413,22 @@ void EditorEditSpriteValues(void) {
     if (sTotals.spriteWalk != 0) {
         DrawHeadingLine((VECTOR *)&gPlayer.x, sTotals.spriteAngle);
     }
-    sSpriteTemplate.unk4[0] = gPlayer.x;
-    sSpriteTemplate.unk4[1] = gPlayer.y;
-    sSpriteTemplate.unk4[2] = gPlayer.z;
+    sSpriteTemplate.pos[0] = gPlayer.x;
+    sSpriteTemplate.pos[1] = gPlayer.y;
+    sSpriteTemplate.pos[2] = gPlayer.z;
     GetQuad16(sTotals.spriteModel + 30, &e);
     /* MATCHING: each offset in its own s32 local; inline, the sum is
      * narrowed to a halfword add, and one shared local merges the arms. */
     if (sTotals.spriteFlip == 0) {
         h0 = e.b[6] - 500;
-        sSpriteTemplate.unk1C = sTotals.spriteSize + h0;
+        sSpriteTemplate.width = sTotals.spriteSize + h0;
     } else {
         h1 = e.b[6] - 500;
-        sSpriteTemplate.unk1C = -(sTotals.spriteSize + h1);
+        sSpriteTemplate.width = -(sTotals.spriteSize + h1);
     }
     h2 = e.b[7] - 500;
-    sSpriteTemplate.unk1E = sTotals.spriteSize + h2;
-    sSpriteTemplate.unk20 = sSpriteTemplate.unk1C;
+    sSpriteTemplate.height = sTotals.spriteSize + h2;
+    sSpriteTemplate.radius = sSpriteTemplate.width;
     if (sTotals.spriteHit == 0) {
         DrawObjectSprite(sTotals.spriteModel + 30, &sSpriteTemplate);
     } else {
@@ -2447,9 +2447,9 @@ s32 EditorPlaceSprite(void) {
 
     /* MATCHING: non-void with no return value; void moves the block order
      * and the delay slots. */
-    sSpriteTemplate.unk4[0] = gPlayer.x;
-    sSpriteTemplate.unk4[1] = gPlayer.y;
-    sSpriteTemplate.unk4[2] = gPlayer.z;
+    sSpriteTemplate.pos[0] = gPlayer.x;
+    sSpriteTemplate.pos[1] = gPlayer.y;
+    sSpriteTemplate.pos[2] = gPlayer.z;
     if (sTotals.spriteHit == 0) {
         DrawObjectSprite(sTotals.spriteModel + 30, &sSpriteTemplate);
     } else {
@@ -2460,7 +2460,7 @@ s32 EditorPlaceSprite(void) {
     i = 0;
     sTotals.spriteCount = 0;
     for (; i < 100; i++) {
-        if (gStageSprites[i].unk0 != -1) {
+        if (gStageSprites[i].id != -1) {
             sTotals.spriteCount++;
         }
     }
@@ -2468,27 +2468,27 @@ s32 EditorPlaceSprite(void) {
         if (sTotals.spriteCount == 100) {
             gToolMode = ED_FULL;
         } else {
-            sSpriteTemplate.unk2C = sTotals.spriteSwitch;
-            sSpriteTemplate.unk0 = sTotals.spriteModel + 30;
-            sSpriteTemplate.unk10[0] = sSpriteTemplate.unk4[0];
-            sSpriteTemplate.unk10[1] = sSpriteTemplate.unk4[1];
-            sSpriteTemplate.unk10[2] = sSpriteTemplate.unk4[2];
+            sSpriteTemplate.switchNo = sTotals.spriteSwitch;
+            sSpriteTemplate.id = sTotals.spriteModel + 30;
+            sSpriteTemplate.drift[0] = sSpriteTemplate.pos[0];
+            sSpriteTemplate.drift[1] = sSpriteTemplate.pos[1];
+            sSpriteTemplate.drift[2] = sSpriteTemplate.pos[2];
             /* MATCHING: an s32 local assigned after the copy, and the flag
              * byte or-ed in by a second store. */
-            f = sTotals.spriteHit << 7;
-            sSpriteTemplate.unk26 = f;
-            sSpriteTemplate.unk26 |= sSpriteFlags;
-            sSpriteTemplate.unk27 = sTotals.spriteWalk;
-            sSpriteTemplate.unk28 = sTotals.spriteSe;
-            sSpriteTemplate.unk2A = sTotals.spriteAngle;
-            sSpriteTemplate.unk30 = gSection;
-            sSpriteTemplate.unk34 = gCurBlock;
+            f = sTotals.spriteHit << 7; /* SPRITE_HITTABLE */
+            sSpriteTemplate.flags = f;
+            sSpriteTemplate.flags |= sSpriteAct;
+            sSpriteTemplate.walk = sTotals.spriteWalk;
+            sSpriteTemplate.se = sTotals.spriteSe;
+            sSpriteTemplate.angle = sTotals.spriteAngle;
+            sSpriteTemplate.section = gSection;
+            sSpriteTemplate.block = gCurBlock;
             gStageSprites[sTotals.spriteNo] = sSpriteTemplate;
             /* MATCHING: the full-table store inside the loop, so its 8 is
              * hoisted and the block is not merged with the one above. */
             i = 0;
             while (1) {
-                if (gStageSprites[sTotals.spriteNo].unk0 == -1) {
+                if (gStageSprites[sTotals.spriteNo].id == -1) {
                     goto found;
                 }
                 sTotals.spriteNo++;
@@ -2516,11 +2516,11 @@ void EditorRunSprites(void) {
 
     for (i = 0; i < 100; i++) {
         r = &gStageSprites[i];
-        if (r->unk0 != -1 && sTotals.spriteSwitch == r->unk2C) {
-            if (r->unk26 & 0x80) {
-                StepSprite(r->unk0, r);
+        if (r->id != -1 && sTotals.spriteSwitch == r->switchNo) {
+            if (r->flags & SPRITE_HITTABLE) {
+                StepSprite(r->id, r);
             } else {
-                DrawObjectSprite(r->unk0, r);
+                DrawObjectSprite(r->id, r);
             }
         }
     }
@@ -2547,7 +2547,7 @@ s32 EditorPickSprite(void) {
     i = 0;
     sTotals.spriteCount = 0;
     for (; i < 100; i++) {
-        if (gStageSprites[i].unk0 != -1) {
+        if (gStageSprites[i].id != -1) {
             sTotals.spriteCount++;
         }
     }
@@ -2565,10 +2565,10 @@ s32 EditorPickSprite(void) {
              * rebuilt every pass. */
             for (i = 0; i < 100; i++) {
                 r = &gStageSprites[i];
-                if (r->unk0 != -1) {
-                    at.vx = r->unk4[0];
-                    at.vy = r->unk4[1];
-                    at.vz = r->unk4[2];
+                if (r->id != -1) {
+                    at.vx = r->pos[0];
+                    at.vy = r->pos[1];
+                    at.vz = r->pos[2];
                     d = DistanceSquared(&pos, &at);
                     if (d < best) {
                         sTotals.spriteNo = i;
@@ -2583,20 +2583,20 @@ s32 EditorPickSprite(void) {
             }
             break;
         case 1:
-            sTotals.spriteSwitch = gStageSprites[sTotals.spriteNo].unk2C;
-            sel.vx = gStageSprites[sTotals.spriteNo].unk4[0];
-            sel.vy = gStageSprites[sTotals.spriteNo].unk4[1];
-            sel.vz = gStageSprites[sTotals.spriteNo].unk4[2];
+            sTotals.spriteSwitch = gStageSprites[sTotals.spriteNo].switchNo;
+            sel.vx = gStageSprites[sTotals.spriteNo].pos[0];
+            sel.vy = gStageSprites[sTotals.spriteNo].pos[1];
+            sel.vz = gStageSprites[sTotals.spriteNo].pos[2];
             DrawPin(&sel);
             if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
-                gStageSprites[sTotals.spriteNo].unk0 = -1;
+                gStageSprites[sTotals.spriteNo].id = -1;
             }
             if (gPadTrig & PADL2) {
                 if (--sTotals.spriteNo >= 100) {
                     sTotals.spriteNo = 99;
                 }
-                while (gStageSprites[sTotals.spriteNo].unk0 == -1) {
+                while (gStageSprites[sTotals.spriteNo].id == -1) {
                     if (--sTotals.spriteNo >= 100) {
                         sTotals.spriteNo = 99;
                     }
@@ -2607,7 +2607,7 @@ s32 EditorPickSprite(void) {
                 if (++sTotals.spriteNo >= 100) {
                     sTotals.spriteNo = 99;
                 }
-                while (gStageSprites[sTotals.spriteNo].unk0 == -1) {
+                while (gStageSprites[sTotals.spriteNo].id == -1) {
                     if (++sTotals.spriteNo >= 100) {
                         sTotals.spriteNo = 0;
                     }
@@ -3318,7 +3318,7 @@ void ClearStageSprites(StageSprite *recs) {
     u32 i;
 
     for (i = 0; i < 100; i++) {
-        recs->unk0 = -1;
+        recs->id = -1;
         recs++;
     }
 }

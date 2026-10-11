@@ -12,6 +12,21 @@
 #include "libgpu.h"
 #include "libgs.h"
 
+/** @brief A StageSprite's flags byte. */
+enum SpriteFlag {
+    SPRITE_ACT_MASK = 0x3F, /**< the act, a SpriteAct */
+    SPRITE_MIRROR = 0x40,   /**< drawn mirrored */
+    SPRITE_HITTABLE = 0x80  /**< the player can hit it ("HIT." ON) */
+};
+
+/** @brief A StageSprite's act ("ACT."), the low bits of its flags. */
+enum SpriteAct {
+    SPRITE_ACT_NONE = 0, /**< "NO ACT" */
+    SPRITE_ACT_NEAR = 1, /**< "NEAR ACT": the next sprite while the player is near */
+    SPRITE_ACT_HIT = 2,  /**< "HIT ACT": the next sprite once hit, then it drifts */
+    SPRITE_ACT_DRIFT = 3 /**< drifting away after a hit */
+};
+
 /** @brief A switch (gSwitches, 200 of them): a box whose corners
  *         are tested against the player or placed in the world. */
 typedef struct {

@@ -30,14 +30,14 @@ permuter search (stopped early on its lead).
 - **Non-void with no return value**: `void` reorders the whole function
   (50/158). The early `return;` draws a "return with no value" warning.
 - **The flag byte**: retail loads `unk32` with `lhu`, stores
-  `unk32 << 7`, then stores it or-ed with `sSpriteFlags`. A plain
+  `unk32 << 7`, then stores it or-ed with `sSpriteAct`. A plain
   `unk26 = unk32 << 7` narrows the load to `lbu`; a `u16` local
   allocates it to a long-lived register (139/158). The permuter's lead
   (score 80 from 1345, about 4000 iterations): an `s32` local, the first
   store after the `unk10` copy. Moving the assignment of `f` after the
   copy as well closed the last load-order pair. Retail's `or` keeps the
-  shifted value's register as destination: `unk26 |= sSpriteFlags;`, not
-  `unk26 = f | sSpriteFlags;` (154/158).
+  shifted value's register as destination: `unk26 |= sSpriteAct;`, not
+  `unk26 = f | sSpriteAct;` (154/158).
 - The 0x3C-byte copy is a struct assignment
   `gStageSprites[sTotals.unk28] = sSpriteTemplate;` (four-word loop plus three).
   A `Words12` struct copy of the position emits a block move in `t4`..
@@ -48,7 +48,7 @@ permuter search (stopped early on its lead).
 - `StageSprite` (unit-local) gains `unk4[3]`, `unk10[3]`, `unk27`, `unk28`,
   `unk2A`, `unk30`, `unk34`; `EditorState` (unit-local) gains `unk28`,
   `unk2C`, `unk30`, `unk32`, `unk6A`, `unk6C`, `unk6D`.
-- New externs in the `.c`: `StageSprite sSpriteTemplate`, `u8 sSpriteFlags`.
+- New externs in the `.c`: `StageSprite sSpriteTemplate`, `u8 sSpriteAct`.
 - CHANGED existing declarations (unit-local, in editor.c only):
   `DrawObjectSprite` and `StepSprite` now take `s32 id`.
 
@@ -89,7 +89,7 @@ s32 EditorPlaceSprite(void) {
              * byte or-ed in by a second store. */
             f = sTotals.unk32 << 7;
             sSpriteTemplate.unk26 = f;
-            sSpriteTemplate.unk26 |= sSpriteFlags;
+            sSpriteTemplate.unk26 |= sSpriteAct;
             sSpriteTemplate.unk27 = sTotals.unk6C;
             sSpriteTemplate.unk28 = sTotals.unk6D;
             sSpriteTemplate.unk2A = sTotals.unk6A;

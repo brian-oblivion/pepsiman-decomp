@@ -2,16 +2,16 @@
 
 > Renamed from `func_8002C2B4` on 2026-10-11 (tools/rename.py). Address 0x8002c2b4.
 
-Unit `src/object.c`. Restores the Rec48 (`D_800A9008`), Rec5C
-(`D_800CF080`) and Rec3C (`D_800A7898`) tables and the 0x800-byte block
+Unit `src/object.c`. Restores the Trap (`gTraps`), SwitchBox
+(`gSwitches`) and StageSprite (`gStageSprites`) tables and the 0x800-byte block
 header area at 0x801FD000 from a saved copy at 0x80173778, then points the
 current-block globals at the restored header (SetCurrentBlock). stage_flow
 calls it on a restart unless a flag picks RestoreToolBuffer.
 
 ```c
 typedef struct {
-    s32 w[sizeof(Rec48) * 200 / 4];
-} Recs48Copy;   /* likewise Recs5CCopy (200 Rec5C), Recs3CCopy (100 Rec3C) */
+    s32 w[sizeof(Trap) * 200 / 4];
+} Recs48Copy;   /* likewise Recs5CCopy (200 SwitchBox), Recs3CCopy (100 StageSprite) */
 
 typedef struct {
     u8 b[0x800];
@@ -29,8 +29,8 @@ void RestoreStageObjects(void) {
 
     s = (SavedTables *)0x80173778;
     *(Recs48Copy *)sRecs48 = s->recs48;
-    *(Recs5CCopy *)D_800CF080 = s->recs5C;
-    *(Recs3CCopy *)D_800A7898 = s->recs3C;
+    *(Recs5CCopy *)gSwitches = s->recs5C;
+    *(Recs3CCopy *)gStageSprites = s->recs3C;
     *(BlockCopy *)0x801FD000 = s->block;
     SetCurrentBlock((BlockHeader *)0x801FD000);
 }

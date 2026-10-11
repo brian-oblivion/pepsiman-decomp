@@ -42,15 +42,15 @@ typedef struct {
     s32 vz; /**< z */
 } Pos3;
 
-/** @brief object's Rec48 with the halfword this unit clears. */
+/** @brief object's Trap with the halfword this unit clears. */
 typedef struct {
     u8 unk0[0x26];  /**< not yet known */
     s16 unk26;      /**< cleared when a stage starts */
     u8 unk28[0x20]; /**< not yet known */
-} Rec48Clear;
+} TrapClear;
 
-/* The Rec48 table; common.h declares it as words. */
-#define sRecs48 ((Rec48Clear *)D_800A9008)
+/* The Trap table; common.h declares it as words. */
+#define sTraps ((TrapClear *)gTraps)
 
 /* MATCHING: stored as u8 here; player tests it as s8 (lb). */
 extern u8 D_80095900;
@@ -66,7 +66,7 @@ typedef struct {
 /* MATCHING: a per-unit view; stage stores it as an s32. */
 extern StartRec *gStageStart;
 
-/* MATCHING: object hands it a Rec48; here it gets a position. */
+/* MATCHING: object hands it a Trap; here it gets a position. */
 s32 FindFloor(Pos3 *pos);
 void RestoreStageObjects(void);
 void ResetStageObjects(void);
@@ -339,7 +339,7 @@ void RestartStage(u8 stage) {
     gFellOff = 0;
     D_800957D6 = 1;
     for (i = 0; i < 200; i++) {
-        sRecs48[i].unk26 = 0;
+        sTraps[i].unk26 = 0;
     }
     ResetStage();
     StartStageOverlay();

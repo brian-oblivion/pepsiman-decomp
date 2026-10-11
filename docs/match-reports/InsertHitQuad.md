@@ -62,7 +62,7 @@ void InsertHitQuad(void) {
 }
 ```
 
-Unit-local types: `Pt6` (three `s16`); `Rec4C` and `Obj48` now start with
+Unit-local types: `Pt6` (three `s16`); `Rec4C` and `EditorTrap` now start with
 `Pt6 pts[4]` (sizes unchanged). `gToolQuad` (only this unit reaches it) is
 declared in the unit as `Rec4C *`. The records start right after the
 `gSectionCount` entries, so `recs = &bank->entries[gSectionCount]`.

@@ -10,11 +10,11 @@ from `obj->unk18[]` projected with `ProjectToScreen`, and one
 0, 1, 3, 2.
 
 ```c
-void PlaceCollisionQuad(Obj48 *obj);
+void PlaceCollisionQuad(EditorTrap *obj);
 /* Defined by model, whose header does not declare it yet. */
 void SortSemiQuad(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri);
 
-void DrawHitQuad(Obj48 *obj) {
+void DrawHitQuad(EditorTrap *obj) {
     VECTOR tmp;
     Pt6 scr[4];
     VECTOR world;
@@ -54,11 +54,11 @@ void DrawHitQuad(Obj48 *obj) {
 
 ## Declarations
 
-- `Obj48`'s `u8 unk18[0x30]` became `Vec3W unk18[4]` (three `s32`, same
+- `EditorTrap`'s `u8 unk18[0x30]` became `Vec3W unk18[4]` (three `s32`, same
   size); the whole oracle stayed green. Retail reads each word's low half
   with `lhu` into an `s16`, which is cc1 narrowing the `s32` load.
 - `ObjOwner` (unit-local) is what `unk48` points at: a `VECTOR` at 0x18.
-  `unk48` is `&D_800D8D20[i].unk10`, so that is `Rec78`'s 0x28.
+  `unk48` is `&gObjectModels[i].unk10`, so that is `ObjectModel`'s 0x28.
 - `PlaceCollisionQuad` (collision, still asm) and `SortSemiQuad` (model,
   undeclared in `model.h`) are prototyped in this `.c`. declcheck lists
   `SortSemiQuad` as LOCAL; it belongs in `model.h` at merge.

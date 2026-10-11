@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C894` on 2026-10-11 (tools/rename.py). Address 0x8002c894.
 
-Unit `src/object.c`. Runs a Rec3C record's step (DrawObjectSprite), then
+Unit `src/object.c`. Runs a StageSprite record's step (DrawObjectSprite), then
 asks the position query (CollidePlayer) about a point half the record's
 height below it with a third of `|unk20|` as range; keeps bit 0 of the
 answer in `unk25`, and on a hit while flagged (bit 7 of `unk26`) in state 2
@@ -10,7 +10,7 @@ moves to state 3 (keeping bit 6, clearing bit 7), bumps the counter at 0
 and resets the words at 0x10..0x18, `unk14` from the fixed object's y.
 
 ```c
-void StepSprite(s16 id, Rec3C *r) {
+void StepSprite(s16 id, StageSprite *r) {
     Query30 q;
     s32 v;
 
@@ -37,7 +37,7 @@ void StepSprite(s16 id, Rec3C *r) {
 }
 ```
 
-`Rec3C` is declared in this unit with the fields above (editor has its
+`StageSprite` is declared in this unit with the fields above (editor has its
 own, smaller view of the same 0x3C-byte record). Retail passes `id` to
 DrawObjectSprite through `andi 0xFFFF`: that callee takes a `u16` in this
 unit's view.
@@ -61,9 +61,9 @@ against the record's member stores differently from a plain word read.
 
 declcheck reports LOCAL for editor.c:82-83, that unit's own
 prototypes of StepSprite (now defined here) and DrawObjectSprite (used
-here). The definition keeps editor's `(s16, Rec3C *)` type, so there is
-no TYPE hit. editor has DrawObjectSprite as `(s16, Rec3C *)`; this unit
-has it as `(u16, Rec3C *)` (retail's `andi 0xFFFF`). editor was live
+here). The definition keeps editor's `(s16, StageSprite *)` type, so there is
+no TYPE hit. editor has DrawObjectSprite as `(s16, StageSprite *)`; this unit
+has it as `(u16, StageSprite *)` (retail's `andi 0xFFFF`). editor was live
 under bravo this round, so I left its file alone and asked on the
 broadcast for a `MATCHING:` per-unit-view note there.
 
@@ -78,5 +78,5 @@ fix in the opposite direction)
 ## Round 9 (charlie): now a wrapper
 
 UpdateActiveSprites inlines this body, so it moved into `static __inline__
-queryRec(s16 id, Rec3C *r)` ahead of UpdateActiveSprites, and StepSprite is
+queryRec(s16 id, StageSprite *r)` ahead of UpdateActiveSprites, and StepSprite is
 `queryRec(id, r);`. Still 64/64.

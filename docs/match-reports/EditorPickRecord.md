@@ -2,15 +2,15 @@
 
 > Renamed from `func_80031064` on 2026-10-11 (tools/rename.py). Address 0x80031064.
 
-Unit `src/editor.c`. The Obj48 record picker: counts the live records
-of the 200-entry table `D_800A9008` into `sTotals.unk1A`; in state 0
+Unit `src/editor.c`. The EditorTrap record picker: counts the live records
+of the 200-entry table `gTraps` into `sTotals.unk1A`; in state 0
 (`gSubStep`) picks the record nearest the game position by
 `DistanceSquared` into `sTotals.unk18` (error 9 in `gToolMode` with no
 record, 11 when none is nearer than 25000000) and moves to state 1; in
 state 1 copies the record's `unk34` to `sTotals.unk1E`, moves the game
 position to it (`DrawPin`), frees it on flag bit 5 (unless
 `D_800959D8` is 1) and steps the selection down or up on flag bits 0 and 1,
-skipping free records. EditorPickSprite is its twin on the Rec3C table.
+skipping free records. EditorPickSprite is its twin on the StageSprite table.
 Fourth build matched.
 
 ## Shapes read from retail
@@ -43,7 +43,7 @@ s32 EditorPickRecord(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
-    Obj48 *r;
+    EditorTrap *r;
     u32 i;
     s32 best;
     s32 d;
@@ -51,7 +51,7 @@ s32 EditorPickRecord(void) {
     i = 0;
     sTotals.unk1A = 0;
     for (; i < 200; i++) {
-        if (((Obj48 *)D_800A9008)[i].unk36 != -1) {
+        if (((EditorTrap *)gTraps)[i].unk36 != -1) {
             sTotals.unk1A++;
         }
     }
@@ -59,7 +59,7 @@ s32 EditorPickRecord(void) {
         case 0:
             /* ... */
             for (i = 0; i < 200; i++) {
-                r = &((Obj48 *)D_800A9008)[i];
+                r = &((EditorTrap *)gTraps)[i];
                 if (r->unk36 != -1) {
                     /* copy r->unk0 to `at`, d = DistanceSquared(&pos, &at),
                      * keep the smallest in best / sTotals.unk18 */
@@ -73,7 +73,7 @@ s32 EditorPickRecord(void) {
                 if (++sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
                 }
-                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                while (((EditorTrap *)gTraps)[sTotals.unk18].unk36 == -1) {
                     if (++sTotals.unk18 >= 200) {
                         sTotals.unk18 = 0;
                     }

@@ -1,15 +1,17 @@
-# ResetRec48Upper — MATCHED 13/13 (round 1, alpha)
+# ResetTrapUpper — MATCHED 13/13 (round 1, alpha)
+
+> Renamed from `ResetRec48Upper` on 2026-10-11 (tools/rename.py). Address 0x800338d8.
 
 > Renamed from `func_800338D8` on 2026-10-11 (tools/rename.py). Address 0x800338d8.
 
 Unit `src/editor.c`. Resets records 150..199 of a 200-entry table of
-0x48-byte records (`Rec48`, declared in the unit): two signed halfwords at
+0x48-byte records (`Trap`, declared in the unit): two signed halfwords at
 0x34 and 0x36 to -1 and a byte at 0x41 to 1.
 
 ```c
-void ResetRec48Upper(Rec48 *recs) {
+void ResetTrapUpper(Trap *recs) {
     u32 i;
-    Rec48 *r;
+    Trap *r;
 
     r = &recs[150];
     for (i = 150; i < 200; i++) {
@@ -29,7 +31,7 @@ indexed form reduces to a register at the record start (`addiu
 $a0,$a0,0x2A30`, offsets 0x36/0x34/0x41) and scores 9/13:
 
 - `recs[i].f` in any store order (unk41 first is 7/13);
-- `Rec48 *r = &recs[i]` inside the loop;
+- `Trap *r = &recs[i]` inside the loop;
 - an explicit `*(s16 *)((u8 *)recs + i * 0x48 + 0x36)` spelling;
 - `(&recs->unk36)[i * 36]` (field base plus index);
 - the halfwords as a chained assignment;
@@ -41,9 +43,9 @@ first try. `tools/cctest.py` scored the indexed form 9/13 on 2.6.3, 2.7.2,
 2.8.0 and 2.95.2 too (2.91.66 0/13), so it was a source shape, not the
 toolchain.
 
-Note the contrast with `ClearRec5CUpper`: there retail's pointer advance comes
+Note the contrast with `ClearSwitchBoxUpper`: there retail's pointer advance comes
 FIRST (`recs += 100;` on the parameter), here it comes after the constants
-(`r = &recs[150];` into a fresh local). The neighbour `ResetRec48All`
+(`r = &recs[150];` into a fresh local). The neighbour `ResetTraps`
 (records 0..199, a third halfword at 0x38) shows the same +0x41 base and
 should take the same shape.
 

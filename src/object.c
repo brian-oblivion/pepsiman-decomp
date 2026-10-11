@@ -117,7 +117,7 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
-/** @brief A 0x3C-byte record of a 100-entry table (editor has the same
+/** @brief A stage sprite (gStageSprites, 100 of them) (editor has the same
  *         record, with fewer fields known). */
 typedef struct {
     u16 unk0;      /**< a counter; bumped on a state change */
@@ -135,9 +135,9 @@ typedef struct {
     u8 unk25;      /**< bit 0 of the query's result */
     u8 unk26;      /**< flags: bit 7, bit 6, and a state in bits 0..5 */
     u8 unk27[5];   /**< not yet known */
-    s16 unk2C;     /**< index of the Rec5C record it belongs to */
+    s16 unk2C;     /**< index of the SwitchBox record it belongs to */
     u8 unk2E[0xE]; /**< not yet known */
-} Rec3C;
+} StageSprite;
 
 /** @brief Something that bobs up and down while it drifts. */
 typedef struct {
@@ -150,19 +150,19 @@ typedef struct {
     s32 phase;  /**< bob phase in degrees */
 } Drifter;
 
-/** @brief The Rec48 table, copied whole. */
+/** @brief The Trap table, copied whole. */
 typedef struct {
-    s32 w[sizeof(Rec48) * 200 / 4]; /**< the records */
+    s32 w[sizeof(Trap) * 200 / 4]; /**< the records */
 } Recs48Copy;
 
-/** @brief The Rec5C table, copied whole. */
+/** @brief The SwitchBox table, copied whole. */
 typedef struct {
-    s32 w[sizeof(Rec5C) * 200 / 4]; /**< the records */
+    s32 w[sizeof(SwitchBox) * 200 / 4]; /**< the records */
 } Recs5CCopy;
 
-/** @brief The Rec3C table, copied whole. */
+/** @brief The StageSprite table, copied whole. */
 typedef struct {
-    s32 w[sizeof(Rec3C) * 100 / 4]; /**< the records */
+    s32 w[sizeof(StageSprite) * 100 / 4]; /**< the records */
 } Recs3CCopy;
 
 /** @brief The block header area, copied whole; bytes, so a copy of it
@@ -173,9 +173,9 @@ typedef struct {
 
 /** @brief A saved copy of the record tables and the block header. */
 typedef struct {
-    Recs48Copy recs48; /**< the Rec48 table */
-    Recs5CCopy recs5C; /**< the Rec5C table */
-    Recs3CCopy recs3C; /**< the Rec3C table */
+    Recs48Copy recs48; /**< the Trap table */
+    Recs5CCopy recs5C; /**< the SwitchBox table */
+    Recs3CCopy recs3C; /**< the StageSprite table */
     BlockCopy block;   /**< the block header area */
 } SavedTables;
 
@@ -200,20 +200,20 @@ typedef struct {
 
 extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
 /* MATCHING: copied whole as Quad16 here; draw reads its fields. */
-extern Quad16 gSpriteDefs[]; /**< a table of eight-byte entries */
-extern Rec5C D_800CF080[];   /**< 200 Rec5C records */
-extern u8 D_800A7550[];      /**< 200 byte marks, one per block entry */
+extern Quad16 gSpriteDefs[];  /**< a table of eight-byte entries */
+extern SwitchBox gSwitches[]; /**< 200 SwitchBox records */
+extern u8 D_800A7550[];       /**< 200 byte marks, one per block entry */
 /* MATCHING: a per-unit view; stage reads the same path as Edge. */
-extern PathPt *gSectionEdges; /**< the current path */
-extern Rec3C D_800A7898[];    /**< 100 Rec3C records */
-extern s32 D_80095824;        /**< zeroed by the full reset */
-extern u8 D_800958D8;         /**< zeroed by the full reset */
-extern u8 D_800959D8;         /**< zeroed by the full reset */
+extern PathPt *gSectionEdges;       /**< the current path */
+extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
+extern s32 D_80095824;              /**< zeroed by the full reset */
+extern u8 D_800958D8;               /**< zeroed by the full reset */
+extern u8 D_800959D8;               /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)gTimInfo)
-/* The Rec48 table; common.h declares it as words. */
-#define sRecs48 ((Rec48 *)D_800A9008)
+/* The Trap table; common.h declares it as words. */
+#define sTraps ((Trap *)gTraps)
 /* MATCHING: the progress block, declared per unit; editor views the same
  * bytes as other records. */
 extern u8 D_80095B28[];
@@ -225,7 +225,7 @@ s32 CollidePlayer(Query30 *q);
  * the result nor extends the a and b it passes. */
 s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 void RefreshAllZones(void);
-s32 FindFloor(Rec48 *r);
+s32 FindFloor(Trap *r);
 s32 ClearObjectHits(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
@@ -234,16 +234,16 @@ s32 DistanceSquared(void *a, void *b);
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
-void DrawObjectModel(Rec78 *rec, Rec48 *r);
-void DrawObjectSprite(u16 id, Rec3C *r);
+void DrawObjectModel(ObjectModel *rec, Trap *r);
+void DrawObjectSprite(u16 id, StageSprite *r);
 s32 StepDrift(Drifter *d);
 void PolarToXZ(s32 r, s32 deg, Vec3 *out);
-/* MATCHING: editor's resets, declared per unit: Rec3C is local to each
+/* MATCHING: editor's resets, declared per unit: StageSprite is local to each
  * unit until a shared header holds it. */
 void BuildEmptyBlock(u8 *buf);
-void ClearRec5CAll(Rec5C *recs);
-void ResetRec48All(Rec48 *recs);
-void ClearRec3CAll(Rec3C *recs);
+void ClearSwitches(SwitchBox *recs);
+void ResetTraps(Trap *recs);
+void ClearStageSprites(StageSprite *recs);
 
 /** @brief Sets `p->pos` to the world position of its local position. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
@@ -527,7 +527,7 @@ static __inline__ s32 absInt(s32 x) {
  *         plus the world offset, rotation from the record's angles, light
  *         and scale; sorted far (GsSortObject4J) when x or z is beyond 700,
  *         and the offset taken off again afterwards. */
-void DrawObjectModel(Rec78 *rec, Rec48 *r) {
+void DrawObjectModel(ObjectModel *rec, Trap *r) {
     GsCOORD2PARAM param;
     MATRIX mat;
     Model70 *m;
@@ -581,7 +581,7 @@ s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
  *  @return nothing; the value is undefined. */
 /* MATCHING: non-void with no return keeps two delay slots nops (the
  * unk2 test and the second loop's back branch). */
-s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r) {
+s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
     s16 i;
     s16 start;
     s16 n;
@@ -654,7 +654,7 @@ s32 TestBoxes(void) {
     long flag;
     u16 i;
     s16 j;
-    Rec5C *b;
+    SwitchBox *b;
     s16(*v)[3];
     s16 px;
     s16 pz;
@@ -665,8 +665,8 @@ s32 TestBoxes(void) {
     i = 0;
     if (gInEditor == 0) {
         for (; i < 200; i++) {
-            b = &D_800CF080[(s16)i];
-            v = D_800CF080[(s16)i].v;
+            b = &gSwitches[(s16)i];
+            v = gSwitches[(s16)i].v;
             if (b->unk0 != 0) {
                 continue;
             }
@@ -696,29 +696,29 @@ s32 TestBoxes(void) {
         }
     } else {
         for (; i < 200; i++) {
-            if (D_800CF080[(s16)i].unk0 != 0) {
+            if (gSwitches[(s16)i].unk0 != 0) {
                 continue;
             }
             GsInitCoordinate2(WORLD, &coord);
-            coord.coord.t[0] = D_800CF080[(s16)i].x;
-            coord.coord.t[1] = D_800CF080[(s16)i].y;
-            coord.coord.t[2] = D_800CF080[(s16)i].z;
-            D_800CF080[(s16)i].coord = &coord;
-            GsGetLws(D_800CF080[(s16)i].coord, &local, &world);
+            coord.coord.t[0] = gSwitches[(s16)i].x;
+            coord.coord.t[1] = gSwitches[(s16)i].y;
+            coord.coord.t[2] = gSwitches[(s16)i].z;
+            gSwitches[(s16)i].coord = &coord;
+            GsGetLws(gSwitches[(s16)i].coord, &local, &world);
             GsSetLsMatrix(&local);
             for (j = 0; j < 4; j++) {
-                sv.vx = D_800CF080[(s16)i].v[j][0];
-                sv.vy = D_800CF080[(s16)i].v[j][1];
-                sv.vz = D_800CF080[(s16)i].v[j][2];
+                sv.vx = gSwitches[(s16)i].v[j][0];
+                sv.vy = gSwitches[(s16)i].v[j][1];
+                sv.vz = gSwitches[(s16)i].v[j][2];
                 RotTrans(&sv, &t, &flag);
-                D_800CF080[(s16)i].w[j][0] = t.vx + gWorldShift[0];
-                D_800CF080[(s16)i].w[j][1] = t.vy;
-                D_800CF080[(s16)i].w[j][2] = t.vz + gWorldShift[2];
+                gSwitches[(s16)i].w[j][0] = t.vx + gWorldShift[0];
+                gSwitches[(s16)i].w[j][1] = t.vy;
+                gSwitches[(s16)i].w[j][2] = t.vz + gWorldShift[2];
             }
             GsSetLsMatrix(&world);
-            GetQuadHeightUnderPlayer(D_800CF080[(s16)i].v, &D_80095898);
+            GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &D_80095898);
             if (D_80095898 == 1) {
-                D_800CF080[(s16)i].unk0 = 1;
+                gSwitches[(s16)i].unk0 = 1;
             }
         }
     }
@@ -784,7 +784,7 @@ extern char gTrapNoFmt[]; /**< "TRAP NO  (%2d / %2d)" */
 void DrawAxes(void);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected
- *         Rec78 entry with the pad, places and draws it on a turning
+ *         ObjectModel entry with the pad, places and draws it on a turning
  *         record, draws the axes and prints the entry number. */
 void UpdateTrapViewer(void) {
     s32 flags;
@@ -811,26 +811,26 @@ void UpdateTrapViewer(void) {
                        : gSelectedSection > gSectionCount - 1 ? gSectionCount - 1
                                                               : gSelectedSection;
     ResetCollision();
-    D_800A9008[0] = 0;
-    D_800A9008[1] = 0;
-    D_800A9008[2] = 0;
-    ((s16 *)D_800A9008)[12] = 0;
-    ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
-    ((s16 *)D_800A9008)[14] = 0;
-    UpdateObjectEntry(&D_800D8D20[gSelectedSection], (Rec48 *)D_800A9008);
+    gTraps[0] = 0;
+    gTraps[1] = 0;
+    gTraps[2] = 0;
+    ((s16 *)gTraps)[12] = 0;
+    ((s16 *)gTraps)[13] = gFrameCount % 360 * 4096 / 360;
+    ((s16 *)gTraps)[14] = 0;
+    UpdateObjectEntry(&gObjectModels[gSelectedSection], (Trap *)gTraps);
     ReactToHits(&gPlayer);
     func_80029838();
     DrawAxes();
     FntPrint(gTrapNoFmt, gSelectedSection, gSectionCount);
 }
 
-/** @brief A Rec48 record seen as an Obj34 followed by its indices. */
+/** @brief A Trap record seen as an Obj34 followed by its indices. */
 typedef struct {
     Obj34 o;        /**< position, stored copy and angles */
-    s16 unk34;      /**< as Rec48's */
-    s16 unk36;      /**< the Rec78 entry it belongs to */
+    s16 unk34;      /**< as Trap's */
+    s16 unk36;      /**< the ObjectModel entry it belongs to */
     u8 unk38[0x10]; /**< not yet known */
-} Rec48v;
+} TrapPlaced;
 
 /* MATCHING: per-unit views of editor's placement record, count and filler. */
 extern Obj34 D_80096788; /**< the record the placement starts from */
@@ -838,7 +838,7 @@ extern u16 D_8009596E;   /**< how many records the placement filled */
 u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2);
 
 /** @brief The trap viewer's step: state 0 sets the fixed view, state 1
- *         fills the Rec48 table from a turning start record, state 2 steps
+ *         fills the Trap table from a turning start record, state 2 steps
  *         the selected entry with the pad and places every record
  *         relative to record 0; every state prints the entry number. */
 void UpdateTrapLayoutViewer(void) {
@@ -846,9 +846,9 @@ void UpdateTrapLayoutViewer(void) {
     s32 flags;
     s16 old;
     u16 i;
-    Rec48v *recs;
-    Rec48v *r;
-    Rec78 *tbl;
+    TrapPlaced *recs;
+    TrapPlaced *r;
+    ObjectModel *tbl;
 
     switch (gModeStep) {
         case 0:
@@ -872,7 +872,7 @@ void UpdateTrapLayoutViewer(void) {
             D_80096788.unk18 = 0;
             D_80096788.unk1A = gFrameCount % 360 * 4096 / 360;
             D_80096788.unk1C = 0;
-            D_8009596E = CallStageHook(gSelectedSection, (s32)&D_80096788, (s32)D_800A9008);
+            D_8009596E = CallStageHook(gSelectedSection, (s32)&D_80096788, (s32)gTraps);
             gModeStep++;
             break;
         case 2:
@@ -891,22 +891,23 @@ void UpdateTrapLayoutViewer(void) {
                 gModeStep = 1;
             }
             ResetCollision();
-            ((Rec48v *)D_800A9008)->o.unk1A = gFrameCount % 360 * 4096 / 360;
-            UpdateObjectEntry(&D_800D8D20[((Rec48v *)D_800A9008)->unk36], (Rec48 *)D_800A9008);
+            ((TrapPlaced *)gTraps)->o.unk1A = gFrameCount % 360 * 4096 / 360;
+            UpdateObjectEntry(&gObjectModels[((TrapPlaced *)gTraps)->unk36], (Trap *)gTraps);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
-                recs = (Rec48v *)D_800A9008;
-                r = (Rec48v *)(i * 72 + (u32)recs);
+                recs = (TrapPlaced *)gTraps;
+                r = (TrapPlaced *)(i * 72 + (u32)recs);
                 D_800957E4.vx = r->o.unkC;
                 D_800957E4.vy = r->o.unk10;
                 D_800957E4.vz = r->o.unk14;
-                TransformByCoord((GsCOORDINATE2 *)D_800D8D20[recs->unk36].unk10, &D_800957E4, &D_8009F268);
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->unk36].unk10, &D_800957E4,
+                                 &D_8009F268);
                 r->o.unk0 = D_8009F268.vx;
                 r->o.unk4 = D_8009F268.vy;
                 r->o.unk8 = D_8009F268.vz;
                 r->o.unk1A = recs->o.unk1A + r->o.unk20;
-                tbl = D_800D8D20;
-                UpdateObjectEntry((Rec78 *)(r->unk36 * 120 + (u32)tbl), (Rec48 *)r);
+                tbl = gObjectModels;
+                UpdateObjectEntry((ObjectModel *)(r->unk36 * 120 + (u32)tbl), (Trap *)r);
             }
             ReactToHits(&gPlayer);
             func_80029838();
@@ -1000,7 +1001,7 @@ extern u8 D_800A7618[]; /**< a sprite shape per id, from id 30 on */
  *         in state 1 within 600 units (and the mode is not 0x20), a size
  *         from its width and height by the id's shape, mirrored by flag
  *         bit 6, sorted near within 700 units and far beyond. */
-void DrawObjectSprite(u16 id, Rec3C *r) {
+void DrawObjectSprite(u16 id, StageSprite *r) {
     GsCOORDINATE2 coord;
     MATRIX mat;
     SVECTOR size;
@@ -1046,14 +1047,14 @@ void DrawObjectSprite(u16 id, Rec3C *r) {
     }
 }
 
-/** @brief Updates the Rec78 entry of every live Rec48 record whose Rec5C
+/** @brief Updates the ObjectModel entry of every live Trap record whose SwitchBox
  *         record is marked 1. */
 void UpdateActiveEntries(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if (sRecs48[i].unk36 != -1 && D_800CF080[sRecs48[i].unk34].unk0 == 1) {
-            UpdateObjectEntry(&D_800D8D20[sRecs48[i].unk36], &sRecs48[i]);
+        if (sTraps[i].unk36 != -1 && gSwitches[sTraps[i].unk34].unk0 == 1) {
+            UpdateObjectEntry(&gObjectModels[sTraps[i].unk36], &sTraps[i]);
         }
     }
 }
@@ -1061,7 +1062,7 @@ void UpdateActiveEntries(void) {
 /** @brief Updates `r` (id `id`) and queries around it; a hit in state 2
  *         of a flagged record moves it to state 3. Inlined here and by the
  *         out-of-line copy below. */
-static __inline__ void queryRec(s16 id, Rec3C *r) {
+static __inline__ void queryRec(s16 id, StageSprite *r) {
     Query30 q;
     s32 v;
 
@@ -1087,19 +1088,19 @@ static __inline__ void queryRec(s16 id, Rec3C *r) {
     }
 }
 
-/** @brief Steps every live Rec3C record whose Rec5C record is marked 1:
+/** @brief Steps every live StageSprite record whose SwitchBox record is marked 1:
  *         a flagged one is updated and queried, a state-3 one drifts and is
  *         updated on a drift step, any other one is updated. */
 /* MATCHING: the record pointer is taken inside the body. */
 void UpdateActiveSprites(void) {
     u32 i;
-    Rec3C *r;
+    StageSprite *r;
     s8 k;
 
     for (i = 0; i < 100; i++) {
-        r = &D_800A7898[i];
+        r = &gStageSprites[i];
         if ((s16)r->unk0 != -1) {
-            k = D_800CF080[r->unk2C].unk0;
+            k = gSwitches[r->unk2C].unk0;
             if (k == 1) {
                 if (r->unk26 & 0x80) {
                     queryRec(r->unk0, r);
@@ -1208,7 +1209,7 @@ void InitModel(Model70 *m, unsigned long *tmd, u8 n) {
     gSectionCount++;
 }
 
-/** @brief Restores the Rec48, Rec5C and Rec3C tables and the block header
+/** @brief Restores the Trap, SwitchBox and StageSprite tables and the block header
  *         from their saved copy, and points the current-block globals at
  *         the restored header. */
 /* MATCHING: word-typed table copies; the byte-typed header copy keeps the
@@ -1217,9 +1218,9 @@ void RestoreStageObjects(void) {
     SavedTables *s;
 
     s = (SavedTables *)0x80173778;
-    *(Recs48Copy *)sRecs48 = s->recs48;
-    *(Recs5CCopy *)D_800CF080 = s->recs5C;
-    *(Recs3CCopy *)D_800A7898 = s->recs3C;
+    *(Recs48Copy *)sTraps = s->recs48;
+    *(Recs5CCopy *)gSwitches = s->recs5C;
+    *(Recs3CCopy *)gStageSprites = s->recs3C;
     *(BlockCopy *)0x801FD000 = s->block;
     SetCurrentBlock((BlockHeader *)0x801FD000);
 }
@@ -1234,28 +1235,28 @@ void RefreshZone(Obj2C *p) {
     }
 }
 
-/** @brief Clears every used Rec5C record, then refreshes the Rec48 table
+/** @brief Clears every used SwitchBox record, then refreshes the Trap table
  *         and clears its records. */
 void ResetStageObjects(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if (D_800CF080[i].unk0 != -1) {
-            D_800CF080[i].unk0 = 0;
+        if (gSwitches[i].unk0 != -1) {
+            gSwitches[i].unk0 = 0;
         }
     }
     RefreshAllZones();
     ClearObjectHits();
 }
 
-/** @brief Refreshes unk28 of every live record of the 200-entry table. */
+/** @brief Refreshes unk28 of every live trap. */
 void RefreshAllZones(void) {
     u32 i;
 
-    /* MATCHING: indexed; a walking Rec48 pointer is biased to unk28. */
+    /* MATCHING: indexed; a walking Trap pointer is biased to unk28. */
     for (i = 0; i < 200; i++) {
-        if (sRecs48[i].unk36 != -1) {
-            sRecs48[i].unk28 = FindFloor(&sRecs48[i]);
+        if (sTraps[i].unk36 != -1) {
+            sTraps[i].unk28 = FindFloor(&sTraps[i]);
         }
     }
 }
@@ -1282,8 +1283,8 @@ void SetBoxCentred(Box4 *b, s16 w, s16 d) {
     b->v[3][1] = 0;
 }
 
-/** @brief Clears byte 0 of the first `count` records of a Rec5C table. */
-void ClearMarks(Rec5C *recs, u16 count) {
+/** @brief Clears byte 0 of the first `count` records of a SwitchBox table. */
+void ClearMarks(SwitchBox *recs, u16 count) {
     u16 i;
 
     for (i = 0; i < count; i++) {
@@ -1292,7 +1293,7 @@ void ClearMarks(Rec5C *recs, u16 count) {
     }
 }
 
-/** @brief For each odd-numbered Rec5C record whose byte 0 is 1, sets byte 0
+/** @brief For each odd-numbered SwitchBox record whose byte 0 is 1, sets byte 0
  *         of it and of the record before it to 2.
  *  @return nothing; the value is undefined. */
 s32 PairMarks(void) {
@@ -1300,23 +1301,23 @@ s32 PairMarks(void) {
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     for (i = 1; i < 200; i += 2) {
-        if (D_800CF080[(s16)i].unk0 == 1) {
-            D_800CF080[(s16)i].unk0 = 2;
-            D_800CF080[(s16)i - 1].unk0 = 2;
+        if (gSwitches[(s16)i].unk0 == 1) {
+            gSwitches[(s16)i].unk0 = 2;
+            gSwitches[(s16)i - 1].unk0 = 2;
         }
     }
 }
 
-/** @brief Clears unk40 and unk24 of all 200 Rec48 records and all but bit 0
+/** @brief Clears unk40 and unk24 of all 200 Trap records and all but bit 0
  *         of unk41.
  *  @return nothing; the value is undefined. */
 s32 ClearObjectHits(void) {
     u16 i;
-    Rec48 *r;
+    Trap *r;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     for (i = 0; i < 200; i++) {
-        r = &sRecs48[(s16)i];
+        r = &sTraps[(s16)i];
         r->unk40 = 0;
         r->unk24 = 0;
         r->unk41 &= 1;
@@ -1326,7 +1327,7 @@ s32 ClearObjectHits(void) {
 /** @brief Latches bit 1 of `r->unk41` once the record comes within `range`
  *         of a fixed object.
  *  @return 1 when the bit was set by this call, else 0. */
-s32 LatchProximity(Rec48 *r, s32 range) {
+s32 LatchProximity(Trap *r, s32 range) {
     s32 ret;
     s32 sq;
 
@@ -1342,10 +1343,10 @@ s32 LatchProximity(Rec48 *r, s32 range) {
 }
 
 /** @brief Places `b` at its stored position in the coordinate system of
- *         `a`'s Rec78 entry, takes `a`'s angles, adds `a`'s heading to its
- *         own, and updates `b`'s Rec78 entry from it. */
-/* MATCHING: the Rec48s' first 0x34 bytes read through the Obj34 view. */
-void AttachToParent(Rec48 *a, Rec48 *b) {
+ *         `a`'s ObjectModel entry, takes `a`'s angles, adds `a`'s heading to its
+ *         own, and updates `b`'s ObjectModel entry from it. */
+/* MATCHING: the Traps' first 0x34 bytes read through the Obj34 view. */
+void AttachToParent(Trap *a, Trap *b) {
     Obj34 *pa;
     Obj34 *pb;
 
@@ -1354,14 +1355,14 @@ void AttachToParent(Rec48 *a, Rec48 *b) {
     D_800957E4.vx = pb->unkC;
     D_800957E4.vy = pb->unk10;
     D_800957E4.vz = pb->unk14;
-    TransformByCoord((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
+    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->unk36].unk10, &D_800957E4, &D_8009F268);
     pb->unk0 = D_8009F268.vx;
     pb->unk4 = D_8009F268.vy;
     pb->unk8 = D_8009F268.vz;
     pb->unk2C = pa->unk2C;
     pb->unk30 = pa->unk30;
     pb->unk1A = pa->unk1A + pb->unk20;
-    DrawObjectModel(&D_800D8D20[b->unk36], b);
+    DrawObjectModel(&gObjectModels[b->unk36], b);
 }
 
 /** @brief Resets an object's current values from its stored copy. */
@@ -1391,7 +1392,7 @@ void GetQuad16(u16 i, Quad16 *out) {
  *  while flagged in state 2, moves it to state 3 and resets its motion. */
 /* MATCHING: the fixed object's y read as a VECTOR member; a plain word
  * read lets the scheduler hoist the r->unk18 store above it. */
-void StepSprite(s16 id, Rec3C *r) {
+void StepSprite(s16 id, StageSprite *r) {
     queryRec(id, r);
 }
 
@@ -1444,14 +1445,14 @@ static __inline__ void setupModel(Model70 *m, unsigned long *tmd, u8 n) {
     gSectionCount++;
 }
 
-/** @brief Sets up all 80 Rec78 records as objects of the TMD file at a
+/** @brief Sets up all 80 ObjectModel records as objects of the TMD file at a
  *         fixed address, record i drawing object i, and counts them. */
 void InitEntryModels(void) {
     u32 i;
 
     gSectionCount = 0;
     for (i = 0; i < 80; i++) {
-        setupModel((Model70 *)&D_800D8D20[i], (unsigned long *)0x80155000, i);
+        setupModel((Model70 *)&gObjectModels[i], (unsigned long *)0x80155000, i);
     }
 }
 
@@ -1628,10 +1629,10 @@ void LaunchMarkedEffect(void) {
 }
 
 /** @brief Resets the game state: clears the 0x30000-byte block at `recs`
- *         and frees its 200 Rec48 records, clears and resets the block
- *         header, the Rec5C, Rec48 and Rec3C tables, and the progress
+ *         and frees its 200 Trap records, clears and resets the block
+ *         header, the SwitchBox, Trap and StageSprite tables, and the progress
  *         block. */
-void ResetGameState(Rec48 *recs) {
+void ResetGameState(Trap *recs) {
     u32 i;
 
     bzero((u8 *)recs, 0x30000);
@@ -1642,12 +1643,12 @@ void ResetGameState(Rec48 *recs) {
     }
     bzero((u8 *)0x801FD000, 0x800);
     BuildEmptyBlock((u8 *)0x801FD000);
-    bzero((u8 *)D_800CF080, sizeof(Rec5C) * 200);
-    ClearRec5CAll(D_800CF080);
-    bzero((u8 *)sRecs48, sizeof(Rec48) * 200);
-    ResetRec48All(sRecs48);
-    bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
-    ClearRec3CAll(D_800A7898);
+    bzero((u8 *)gSwitches, sizeof(SwitchBox) * 200);
+    ClearSwitches(gSwitches);
+    bzero((u8 *)sTraps, sizeof(Trap) * 200);
+    ResetTraps(sTraps);
+    bzero((u8 *)gStageSprites, sizeof(StageSprite) * 100);
+    ClearStageSprites(gStageSprites);
     sProgress.unk0 = 0x38;
     sProgress.unk1 = 1;
     sProgress.unk68 = 0;

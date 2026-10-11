@@ -5,10 +5,10 @@
 Unit `src/object.c`. The trap viewer's step, UpdateTrapViewer's
 sibling with a state `gModeStep`: state 0 sets the fixed view, clears
 the fog and moves to 1; state 1 zeroes the start record `D_80096788`,
-turns it with the frame counter and has CallStageHook fill the Rec48
+turns it with the frame counter and has CallStageHook fill the Trap
 table from it (`D_8009596E` records), then moves to 2; state 2 steps the
 selected entry `gSelectedSection` with the pad (back to state 1 when it
-changes), places record 0 on its Rec78 entry and every further record
+changes), places record 0 on its ObjectModel entry and every further record
 relative to it (TransformByCoord into `D_8009F268`), draws the axes; every
 state prints the entry number.
 
@@ -19,33 +19,33 @@ The round-9 residue and levers below are kept as history.
 
 From `i = 1` on, retail and the build agree on every instruction but
 swap registers: retail keeps `i` in `s1` and the table base
-`D_800A9008` in `s2` (which later holds `&D_8009F268`); the build has
-them the other way round. Retail also builds the `D_800D8D20` base after
+`gTraps` in `s2` (which later holds `&D_8009F268`); the build has
+them the other way round. Retail also builds the `gObjectModels` base after
 the first call's index load, and its copies into `s3`/`s5` (`recs`,
 `tbl`) sit after the loop guard.
 
 ```
 retail                          build
-8002B438 li   s1, 1  (jal slot)  lui  s1, %hi(D_800A9008)
+8002B438 li   s1, 1  (jal slot)  lui  s1, %hi(gTraps)
 8002B480 lui  v0, %hi(..A9008)   addiu s1, s1, %lo(..)
 8002B484 addiu s2, v0, %lo(..)   li   s2, 1
 ```
 
 ## What was tried (about 14 builds and one permuter run)
 
-- The record base as a `Rec48v` view (Obj34 then the two indices):
+- The record base as a `TrapPlaced` view (Obj34 then the two indices):
   157/247, one word short (`move s3, s2` missing). The first record
   through the global itself and `recs` assigned after the first call
-  restores the copy (149); a `tbl = D_800D8D20` local for the loop's call
+  restores the copy (149); a `tbl = gObjectModels` local for the loop's call
   restores the second copy (217); integer sums, index first, for the
   record and the entry (219).
 - `i = 1` before the call, after it, and as the `for` init; `i` declared
   first; a `head` pointer for record 0 copied to `recs`; the struct-lvalue
-  spelling `(*(Rec48v *)D_800A9008)`; `tbl`/`recs` assigned in either
+  spelling `(*(TrapPlaced *)gTraps)`; `tbl`/`recs` assigned in either
   order: all 219.
 - `tbl` assigned before the switch (a permuter lead whose literal form
   read `tbl` uninitialised in state 2): 5/247. The loop call through
-  `D_800D8D20` directly with no `tbl` (another lead): 150, one word short.
+  `gObjectModels` directly with no `tbl` (another lead): 150, one word short.
 
 Permuter: one run, `--stack-diffs`, 900 s bound (rc 124), 89654
 iterations, base 715, best 185 (`tbl` assigned only in state 0: reads it
@@ -74,12 +74,12 @@ register.
 
 | Spelling | Result |
 |---|---|
-| `recs` and `tbl` both the loop body's first statements | head shape right, but cse ties the call's `D_800D8D20[..].unk10` to `tbl` and the `+16` is not hoisted; frame one register short |
-| `tbl` before the loop, `recs` first in the body | 233/247, 3/3: `recs`/`i`/A9008 right, D_800D8D20's base still local (`lui s0; addiu s0, s0`) |
-| `recs` first in the body, `tbl = D_800D8D20;` after the TransformByCoord call (or just before the second call) | movables in retail's order (recs, base+16, &D_8009F268, tbl), but global alloc gives the D_800A9008 base (5 refs / 34 insns, priority 0.294) `s0` ahead of the D_800D8D20 base (4 / 28, 0.286); `tbl` then takes the latter's register and its copy vanishes: one word short (151 raw, 1/1) |
+| `recs` and `tbl` both the loop body's first statements | head shape right, but cse ties the call's `gObjectModels[..].unk10` to `tbl` and the `+16` is not hoisted; frame one register short |
+| `tbl` before the loop, `recs` first in the body | 233/247, 3/3: `recs`/`i`/A9008 right, gObjectModels's base still local (`lui s0; addiu s0, s0`) |
+| `recs` first in the body, `tbl = gObjectModels;` after the TransformByCoord call (or just before the second call) | movables in retail's order (recs, base+16, &D_8009F268, tbl), but global alloc gives the gTraps base (5 refs / 34 insns, priority 0.294) `s0` ahead of the gObjectModels base (4 / 28, 0.286); `tbl` then takes the latter's register and its copy vanishes: one word short (151 raw, 1/1) |
 | the head call as an integer sum | no change |
 | `i = 1` after `ResetCollision()` | no change in priority |
-| **`i = 1` as the `for` init** (plus the row above) | sched1's order lengthens the D_800A9008 base to 36 insns (0.278), the D_800D8D20 base goes first into `s0` (shared with the loop's `r`), `tbl` gets `s5` with its copy: **247/247, byte-exact** |
+| **`i = 1` as the `for` init** (plus the row above) | sched1's order lengthens the gTraps base to 36 insns (0.278), the gObjectModels base goes first into `s0` (shared with the loop's `r`), `tbl` gets `s5` with its copy: **247/247, byte-exact** |
 
 ### Proposed learning
 

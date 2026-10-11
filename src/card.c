@@ -131,8 +131,8 @@ void SetHitBanks(BankFile *a, BankFile *b) {
     gHitPointSections = a->count;
     gHitQuadSections = b->count;
     for (i = 0; i < 80; i++) {
-        D_800D8D20[i].unk72 = -1;
-        D_800D8D20[i].unk74 = 0;
+        gObjectModels[i].unk72 = -1;
+        gObjectModels[i].unk74 = 0;
     }
     ApplyHitPoints();
     ApplyHitQuads();

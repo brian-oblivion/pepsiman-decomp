@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002B8F8` on 2026-10-11 (tools/rename.py). Address 0x8002b8f8.
 
-Unit `src/object.c`. Draws the sprite of a Rec3C record `r` with id
+Unit `src/object.c`. Draws the sprite of a StageSprite record `r` with id
 `id`: a coordinate system at the record's position plus the world offset
 `gWorldShift`, the next id when the record is in state 1 within 600 units
 (and the mode is not 0x20), a size from the record's width and height by
@@ -33,7 +33,7 @@ and with it the `lui` that retail puts in the flag test's delay slot.
 ## What was tried (about 16 builds and one permuter run)
 
 - `k = id` at the top (retail copies `id` before the calls; 8 -> 192),
-  `u16 unk1C` in `Rec3C`, `size.vx *= -1` for retail's `lh` (`-size.vx`,
+  `u16 unk1C` in `StageSprite`, `size.vx *= -1` for retail's `lh` (`-size.vx`,
   `-(s32)size.vx` and `0 - size.vx` give `lhu`): 193.
 - The range tests as `ax`/`az` locals, a `static __inline__ absInt`, an
   `absSum(a, b)` helper (`a += b`: ties the sum to `r->unk4` but the

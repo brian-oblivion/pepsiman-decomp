@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002A7D8` on 2026-10-11 (tools/rename.py). Address 0x8002a7d8.
 
-Unit `src/object.c`. Runs DrawObjectModel on the Rec78 entry, clears
+Unit `src/object.c`. Runs DrawObjectModel on the ObjectModel entry, clears
 `r->unk40`, then places each of the entry's first-buffer records
 (`gLivePoints`, 0x2C bytes, `Placed2C`: UpdatePlacedPos) and ORs bit 0 of
 CollidePlayer's answer into `r->unk40`. When the game head's byte 2 is set
@@ -28,7 +28,7 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out);
  *  @return nothing; the value is undefined. */
 /* MATCHING: non-void with no return keeps two delay slots nops (the
  * unk2 test and the second loop's back branch). */
-s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r) {
+s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
     s16 i;
     s16 start;
     s16 n;

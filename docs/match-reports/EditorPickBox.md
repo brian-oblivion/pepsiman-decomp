@@ -3,8 +3,8 @@
 > Renamed from `func_80030548` on 2026-10-11 (tools/rename.py). Address 0x80030548.
 
 Unit `src/editor.c`. The box picker, the third of the unit's picker
-family (EditorPickRecord on Obj48, EditorPickSprite on Rec3C), here on the
-200-entry 0x5C-byte table `D_800CF080` (`sRecs5C`): counts the used records
+family (EditorPickRecord on EditorTrap, EditorPickSprite on StageSprite), here on the
+200-entry 0x5C-byte table `gSwitches` (`sRecs5C`): counts the used records
 into `sTotals.unk16`, clearing each one's `unk0` to 0; in state 0 picks the
 one nearest the game position (its `unk50` position) into `sTotals.unk12`
 (errors 9 and 11); in state 1 moves the game position to it, frees it on
@@ -20,11 +20,11 @@ on flag bits 0 and 1. Second build matched.
   clearing `gSubStep` and then jumps to the exit: `break;` out of the
   case.
 - **The first build differed in three words at the top of case 1: retail
-  builds `%hi(D_800CF080)` in `$a0` before the totals' base, the build in
+  builds `%hi(gSwitches)` in `$a0` before the totals' base, the build in
   `$v0` after it.** Reading the record through `r = sRecs5C; sel.vx =
   r[sTotals.unk12].unk50[0]; ...` puts the table base first and matched.
-  Indexing `sRecs5C[...]` directly (the macro is `((Rec5Cv *)D_800CF080)`)
-  builds the totals' address first. The Obj48 twin indexes its cast table
+  Indexing `sRecs5C[...]` directly (the macro is `((EditorSwitch *)gSwitches)`)
+  builds the totals' address first. The EditorTrap twin indexes its cast table
   directly and matches the other way round.
 
 ## Declarations

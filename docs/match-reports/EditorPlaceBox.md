@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. Copies three box sizes from rodata
 `D_800110EC` into a local, clears every used 0x5C-byte record of
-`D_800CF080` to 0 while counting them into `sTotals.unk16` (error 8 when
+`gSwitches` to 0 while counting them into `sTotals.unk16` (error 8 when
 all 200 are used), moves `sTotals.unk12` to a free record if the current
 one is taken, sizes the box there with `SetBoxCentred` (size picked by
 `sTotals.unk14`), stores the game position and marks it -1; on flag bit 5
@@ -24,9 +24,9 @@ free record (error 8 when none). Second build matched.
 ## Declarations
 
 - `Totals28` (unit-local) gains `u16 unk16`.
-- New unit-local `Rec5Cv` view (`#define sRecs5C`), `Size2`/`Sizes3`,
+- New unit-local `EditorSwitch` view (`#define sRecs5C`), `Size2`/`Sizes3`,
   `extern Sizes3 D_800110EC` (the rodata stays `INCLUDE_RODATA`), and a
-  per-unit view `void SetBoxCentred(Rec5Cv *b, s16 w, s16 d)` (MATCHING
+  per-unit view `void SetBoxCentred(EditorSwitch *b, s16 w, s16 d)` (MATCHING
   note; object defines it on its `Box4`).
 
 ```c

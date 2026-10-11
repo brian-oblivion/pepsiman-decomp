@@ -80,8 +80,8 @@ typedef struct {
 extern SlotRec gModeObjects[]; /**< the mode objects' records, one per gModeObjectModels slot */
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
 extern ObjRec gModeObjectModels[];
-/* MATCHING: object types these Rec78 and Rec48; this unit's records are views of them. */
-void DrawObjectModel(Rec78 *rec, Rec48 *r);
+/* MATCHING: object types these ObjectModel and Trap; this unit's records are views of them. */
+void DrawObjectModel(ObjectModel *rec, Trap *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
 extern u8 D_800D3358[];
@@ -146,7 +146,7 @@ typedef struct {
 extern s32 sSavedPos[]; /**< the player's position, saved and held through the miss sequence */
 /* MATCHING: a per-unit view; object declares it the same way, editor
  * as words. */
-extern Rec5C D_800CF080[];
+extern SwitchBox gSwitches[];
 extern u8 D_800959B0;
 extern s16 gMissTimer;
 void DrawHud(void);
@@ -2240,10 +2240,10 @@ top:
                 gPlayer.jumpPower = 0;
                 gPlayer.jumpState = 0;
             }
-            if (D_800CF080[196].unk0 == 1) {
+            if (gSwitches[196].unk0 == 1) {
                 break;
             }
-            if (D_800CF080[198].unk0 == 1) {
+            if (gSwitches[198].unk0 == 1) {
                 break;
             }
             if (gPlayer.action == 0 || gPlayer.action == 0x3A || gPlayer.action == 0x3C) {
@@ -2264,7 +2264,7 @@ top:
             DrawFrozenFrame();
             if (gMissTimer == 10) {
                 for (i = 0; i < 200; i++) {
-                    D_800CF080[i].unk0 = 2;
+                    gSwitches[i].unk0 = 2;
                 }
                 gFellOff = 0;
                 D_800957D6 = 0;
@@ -2325,8 +2325,8 @@ void DrawModeObject(void) {
             gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
             gModeObjects[0].unk0 = -gWorldShift[0];
             gModeObjects[0].unk8 = -gWorldShift[2];
-            DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[0].unk36],
-                            (Rec48 *)&gModeObjects[0]);
+            DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[0].unk36],
+                            (Trap *)&gModeObjects[0]);
             break;
         case 4:
             gModeObjects[5].unk18 = -0x88;
@@ -2336,8 +2336,8 @@ void DrawModeObject(void) {
             gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
             gModeObjects[5].unk0 = -gWorldShift[0];
             gModeObjects[5].unk8 = -gWorldShift[2];
-            DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[5].unk36],
-                            (Rec48 *)&gModeObjects[5]);
+            DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[5].unk36],
+                            (Trap *)&gModeObjects[5]);
             break;
         case 2:
             switch (gStage) {
@@ -2347,8 +2347,8 @@ void DrawModeObject(void) {
                     gModeObjects[3].unk0 = -gWorldShift[0];
                     gModeObjects[3].unk8 = -gWorldShift[2];
                     gModeObjects[3].unk18 += ANGLE_DEG(gPlayer.speed / 2);
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[3].unk36],
-                                    (Rec48 *)&gModeObjects[3]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[3].unk36],
+                                    (Trap *)&gModeObjects[3]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -2359,8 +2359,8 @@ void DrawModeObject(void) {
                     gModeObjects[6].unk0 = -gWorldShift[0];
                     gModeObjects[6].unk8 = -gWorldShift[2];
                     gModeObjects[6].unk18 += ANGLE_DEG(gPlayer.speed / 2);
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[6].unk36],
-                                    (Rec48 *)&gModeObjects[6]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[6].unk36],
+                                    (Trap *)&gModeObjects[6]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -2374,16 +2374,16 @@ void DrawModeObject(void) {
                     gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[4].unk0 = -gWorldShift[0];
                     gModeObjects[4].unk8 = -gWorldShift[2];
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[4].unk36],
-                                    (Rec48 *)&gModeObjects[4]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[4].unk36],
+                                    (Trap *)&gModeObjects[4]);
                     break;
                 case 12:
                     gModeObjects[2].unk4 = 0;
                     gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[2].unk0 = -gWorldShift[0];
                     gModeObjects[2].unk8 = -gWorldShift[2];
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[2].unk36],
-                                    (Rec48 *)&gModeObjects[2]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[2].unk36],
+                                    (Trap *)&gModeObjects[2]);
                     break;
             }
             break;
@@ -2392,7 +2392,8 @@ void DrawModeObject(void) {
         gModeObjects[1].unk4 = 0;
         gModeObjects[1].unk0 = -gWorldShift[0];
         gModeObjects[1].unk8 = -gWorldShift[2];
-        DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[1].unk36], (Rec48 *)&gModeObjects[1]);
+        DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[1].unk36],
+                        (Trap *)&gModeObjects[1]);
     }
 }
 

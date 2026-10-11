@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002C6A4` on 2026-10-11 (tools/rename.py). Address 0x8002c6a4.
 
-Unit `src/object.c`. If bit 1 of a Rec48's `unk41` is clear and the
+Unit `src/object.c`. If bit 1 of a Trap's `unk41` is clear and the
 squared distance `DistanceSquared(D_8009EEC0, r)` is below `range * range`,
 sets the bit and returns 1; otherwise returns 0.
 

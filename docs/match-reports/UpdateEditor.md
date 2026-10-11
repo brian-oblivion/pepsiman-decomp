@@ -8,7 +8,7 @@ error code `gToolMode` and sets the tool up; state 1 marks the 127 entry
 flags `D_800A74D0[1..127]`, then by `gToolMode` runs the current mode's
 editors (mode 0 picks by `sTotals.unk3` between the four placers, or with
 `D_800958D8` set the four pickers, and on flag bit 5 loads the picked
-Obj48 or Rec3C record into the menu editor's state), the menus of modes
+EditorTrap or StageSprite record into the menu editor's state), the menus of modes
 1..5, the data mode (`UpdateEditorData`) or the message screens; then moves
 the camera and the view (`DrawPin`, `UpdatePickups`,
 `DrawStage`, `UpdateCamera`, ...) and draws the caption
@@ -27,7 +27,7 @@ other to 50). About 20 builds.
 - In the two record loaders the stores of the error code and the menu
   globals sit between the record reads; the source order that matched is
   retail's store order (`gToolMode = 4;` before `sTotals.unk1E = ...`;
-  for the Rec3C one: unk2C, `gToolMode = 5`, unk2A, unk6D, unk6C,
+  for the StageSprite one: unk2C, `gToolMode = 5`, unk2A, unk6D, unk6C,
   `gEditMax`, `D_800958D8`, `gMenuLineCount`, `gEditValue`, `gMenuLine`,
   `gSubStep`, unk6A).
 - **`li a1, 100` in the delay slot of the `& 0x100` test, a `nop` left in
@@ -38,12 +38,12 @@ other to 50). About 20 builds.
 - **The flag loop `tbl[sTotals.unk18 + i].unk36 = -1` with its two loop
   copies in swapped registers (`move t0, s1; move a3, s0` in retail):**
   - indexing the cast table directly: copies swapped (516/520);
-  - `r = (Obj48 *)D_800A9008;` before the loop: registers right but
+  - `r = (EditorTrap *)gTraps;` before the loop: registers right but
     `li a0, 1` hoisted above the count store (514/520); before the call:
     427; in the `for` init either way round: 514; `i = 1; r = ...; for
     (;...)`: 514; a second counter: 507; `i + unk18`: 515; `(u16)` index:
     192; `&tbl[unk18])[i]`: 186;
-  - **`r = (Obj48 *)D_800A9008;` as the first statement of the loop body:
+  - **`r = (EditorTrap *)gTraps;` as the first statement of the loop body:
     520/520.**
 
 ## Declarations
@@ -53,7 +53,7 @@ other to 50). About 20 builds.
   `GameSave`: `unk354[0x70]` split into `unk354[0x6C]` + `s32 unk3C0`.
   Unit-local; whole oracle green.
 - Prototypes in this `.c` for functions of other units without (or not
-  in) a header: `ResetGameState(Rec48 *)`, `PromoteMarks`, `TestBoxes`,
+  in) a header: `ResetGameState(Trap *)`, `PromoteMarks`, `TestBoxes`,
   `ResetStageObjects`, `ResetStageOverlay`, `DrawSky`,
   `DrawStage(s16, s16, s16)`, `UpdateCamera(s16, s16, s16, s16)`, and
   `UpdatePickups(GsOT *)` with a `MATCHING:` note (object's stall body
@@ -71,7 +71,7 @@ other to 50). About 20 builds.
 
 ```c
                                     for (i = 1; i < D_8009596E; i++) {
-                                        r = (Obj48 *)D_800A9008;
+                                        r = (EditorTrap *)gTraps;
                                         r[sTotals.unk18 + i].unk36 = -1;
                                     }
 ```

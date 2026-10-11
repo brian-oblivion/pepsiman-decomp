@@ -37,7 +37,7 @@ to the squared-distance helper as a VECTOR.
 
 ## Declaration note
 
-hit_tool.c declares the function as `void (Obj48 *, u8 *, s32, s32)`;
+hit_tool.c declares the function as `void (EditorTrap *, u8 *, s32, s32)`;
 declcheck failed TYPE/LOCAL on it once the definition existed. A
 comment-only `MATCHING:` note above that prototype marks it as a per-unit
 view (no byte change). Unifying the two is left to the head: the proper

@@ -42,7 +42,7 @@ typedef struct {
 typedef struct {
     Pt6 pts[4];     /**< copied from the dispatch's object */
     u8 unk18[0x30]; /**< not yet known */
-    void *unk48;    /**< the owning 0x78-byte record's unk10 */
+    void *unk48;    /**< the owning ObjectModel's unk10 */
 } HitQuad;
 
 /** @brief The point bank: one entry per section, then the points. */
@@ -80,25 +80,25 @@ typedef struct {
     Pt6 pts[4];     /**< copied into a new second-bank record */
     Vec3W unk18[4]; /**< corner offsets drawn around the owner */
     void *unk48;    /**< points into the current entry's record */
-} Obj48;
+} EditorTrap;
 
-/** @brief What an Obj48's unk48 points at, as the drawing reads it. */
+/** @brief What an EditorTrap's unk48 points at, as the drawing reads it. */
 typedef struct {
     u8 pad0[0x18]; /**< not reached here */
     VECTOR pos;    /**< the owner's position */
 } ObjOwner;
 
-extern Obj48 gToolNewQuad;   /**< reset by the dispatch's state 0 */
-extern HitQuad *gToolQuad;   /**< the second-bank record inserted last */
-extern HitPoint *gToolPoint; /**< the first-bank record inserted last */
-extern u8 gToolQuadStage;    /**< state of the second dispatch: 0 or 1 */
-extern s16 gToolQuadW;       /**< set to 100 on entering state 1 */
-extern s16 gToolQuadH;       /**< set to 100 on entering state 1 */
+extern EditorTrap gToolNewQuad; /**< reset by the dispatch's state 0 */
+extern HitQuad *gToolQuad;      /**< the second-bank record inserted last */
+extern HitPoint *gToolPoint;    /**< the first-bank record inserted last */
+extern u8 gToolQuadStage;       /**< state of the second dispatch: 0 or 1 */
+extern s16 gToolQuadW;          /**< set to 100 on entering state 1 */
+extern s16 gToolQuadH;          /**< set to 100 on entering state 1 */
 
 void InsertHitQuad(void);
 /* MATCHING: a per-unit view; object defines it as (s16 (*)[3], VECTOR *,
  * s16, s16), a box's corners around a position. */
-void SetBoxAround(Obj48 *obj, u8 *p, s32 a, s32 b);
+void SetBoxAround(EditorTrap *obj, u8 *p, s32 a, s32 b);
 
 extern char sHitNewlines2[];  /**< the menu's title, "\n\n" */
 extern char sHitColorWhite[]; /**< marker of the highlighted line, "~c888" */
@@ -135,7 +135,7 @@ extern char sHitDataFilePath2[]; /**< path of the third hit-data file, HITDATA2.
 void MoveToolCursor(void);
 void UpdateToolMenu(void);
 void PrintToolStatus(void);
-void DrawHitQuad(Obj48 *obj);
+void DrawHitQuad(EditorTrap *obj);
 void EditHitPoints(void);
 void EditHitQuads(void);
 void SelectToolView(void);
@@ -622,7 +622,7 @@ void InsertHitQuad(void) {
     ApplyHitQuads();
 }
 
-void DrawHitQuad(Obj48 *obj) {
+void DrawHitQuad(EditorTrap *obj) {
     VECTOR tmp;
     Pt6 scr[4];
     VECTOR world;
@@ -1396,14 +1396,14 @@ void ApplyHitPoints(void) {
     HitPoint *rec;
 
     for (i = 0; i < (u32)gHitPointSections; i++) {
-        D_800D8D20[i].unk72 = e->first;
-        D_800D8D20[i].unk74 = e->count;
+        gObjectModels[i].unk72 = e->first;
+        gObjectModels[i].unk74 = e->count;
         e++;
     }
     for (i = 0; i < 400; i++) {
         rec = GetHitPoint(0, i);
         __builtin_memcpy(&((Live2C *)gLivePoints)[i], rec, 0x2A);
-        ((Live2C *)gLivePoints)[i].unk28 = D_800D8D20[rec->section].unk10;
+        ((Live2C *)gLivePoints)[i].unk28 = gObjectModels[rec->section].unk10;
     }
 }
 
@@ -1413,13 +1413,13 @@ void ApplyHitQuads(void) {
     BankEntry *e = ((HitQuadBank *)gHitQuads)->entries;
 
     for (i = 0; i < (u32)gHitQuadSections; i++) {
-        D_800D8D20[i].unk6E = e->first;
-        D_800D8D20[i].unk70 = e->count;
+        gObjectModels[i].unk6E = e->first;
+        gObjectModels[i].unk70 = e->count;
         e++;
     }
     for (i = 0; i < 80; i++) {
-        for (j = D_800D8D20[i].unk6E; j < D_800D8D20[i].unk70 + D_800D8D20[i].unk6E; j++) {
-            GetHitQuad(0, j)->unk48 = D_800D8D20[i].unk10;
+        for (j = gObjectModels[i].unk6E; j < gObjectModels[i].unk70 + gObjectModels[i].unk6E; j++) {
+            GetHitQuad(0, j)->unk48 = gObjectModels[i].unk10;
         }
     }
     for (i = 0; i < 100; i++) {
@@ -1506,8 +1506,8 @@ void ClearHitPoints(void) {
 
     bzero(gLivePoints, 0x44C0);
     for (i = 0; i < 80; i++) {
-        D_800D8D20[i].unk72 = 0;
-        D_800D8D20[i].unk74 = -1;
+        gObjectModels[i].unk72 = 0;
+        gObjectModels[i].unk74 = -1;
     }
 }
 
@@ -1516,8 +1516,8 @@ void ClearHitQuads(void) {
 
     bzero(gLiveQuads, 0x1DB0);
     for (i = 0; i < 80; i++) {
-        D_800D8D20[i].unk6E = 0;
-        D_800D8D20[i].unk70 = -1;
+        gObjectModels[i].unk6E = 0;
+        gObjectModels[i].unk70 = -1;
     }
 }
 
@@ -1539,7 +1539,7 @@ void PlaceHitQuad(void) {
         case 0:
             gToolQuadW = 100;
             gToolQuadH = 100;
-            gToolNewQuad.unk48 = D_800D8D20[gToolSection].unk10;
+            gToolNewQuad.unk48 = gObjectModels[gToolSection].unk10;
             SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, 100, 100);
             gToolQuadStage = 1;
             break;
@@ -1590,15 +1590,15 @@ void SelectToolSection(void) {
 void RefreshToolPreview(void) {
     D_80095774 = 1;
     ResetCollision();
-    D_800A9008[0] = 0;
-    D_800A9008[1] = 0;
-    D_800A9008[2] = 0;
-    ((s16 *)D_800A9008)[12] = 0;
-    ((s16 *)D_800A9008)[13] = 0;
-    ((s16 *)D_800A9008)[14] = 0;
-    D_800A9008[11] = 0;
-    D_800A9008[12] = 0;
-    UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
+    gTraps[0] = 0;
+    gTraps[1] = 0;
+    gTraps[2] = 0;
+    ((s16 *)gTraps)[12] = 0;
+    ((s16 *)gTraps)[13] = 0;
+    ((s16 *)gTraps)[14] = 0;
+    gTraps[11] = 0;
+    gTraps[12] = 0;
+    UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);
     ReactToHits(&gPlayer);
     func_80029838();
     D_80095774 = 0;

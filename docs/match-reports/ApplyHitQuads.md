@@ -4,7 +4,7 @@
 
 Unit `src/hit_tool.c`. Installs the second record bank (`gHitQuads`),
 the twin of ApplyHitPoints: copies each of its `gHitQuadSections` entries' two
-words into `unk6E`/`unk70` of the matching `D_800D8D20` record; then, for
+words into `unk6E`/`unk70` of the matching `gObjectModels` record; then, for
 each of the 80 records, points `unk48` of each of its bank records
 (`unk6E` .. `unk6E + unk70 - 1`, through `GetHitQuad`) at the record's
 `unk10`; then copies the first 100 bank records (whole 0x4C-byte `Rec4C`s)
@@ -17,13 +17,13 @@ void ApplyHitQuads(void) {
     BankEntry *e = ((Bank4C *)gHitQuads)->entries;
 
     for (i = 0; i < (u32)gHitQuadSections; i++) {
-        D_800D8D20[i].unk6E = e->first;
-        D_800D8D20[i].unk70 = e->unk4;
+        gObjectModels[i].unk6E = e->first;
+        gObjectModels[i].unk70 = e->unk4;
         e++;
     }
     for (i = 0; i < 80; i++) {
-        for (j = D_800D8D20[i].unk6E; j < D_800D8D20[i].unk70 + D_800D8D20[i].unk6E; j++) {
-            GetHitQuad(0, j)->unk48 = D_800D8D20[i].unk10;
+        for (j = gObjectModels[i].unk6E; j < gObjectModels[i].unk70 + gObjectModels[i].unk6E; j++) {
+            GetHitQuad(0, j)->unk48 = gObjectModels[i].unk10;
         }
     }
     for (i = 0; i < 100; i++) {
@@ -40,10 +40,10 @@ void ApplyHitQuads(void) {
 
 | C | words |
 | --- | --- |
-| record pointer local `r = &D_800D8D20[i]` for the inner loop's bounds | 42/118: cc1 hoists `base + 0x10` into a sixth saved register |
+| record pointer local `r = &gObjectModels[i]` for the inner loop's bounds | 42/118: cc1 hoists `base + 0x10` into a sixth saved register |
 | `r->unk10` as the stored value | 35/118 |
 | `Rec4C *rec` local for the callee's result | 42/118 |
-| **every access spelled `D_800D8D20[i].field`, no pointer local** | **118/118** |
+| **every access spelled `gObjectModels[i].field`, no pointer local** | **118/118** |
 
 The first loop is ApplyHitPoints's, matched there as-is: a walking
 `BankEntry *e`, an `s16` counter and an `(u32)` cast on the `s32` count for

@@ -2,17 +2,17 @@
 
 > Renamed from `func_8002BC4C` on 2026-10-11 (tools/rename.py). Address 0x8002bc4c.
 
-Unit `src/object.c`. For each of the 200 Rec48 records that is live
-(`unk36 != -1`) and whose Rec5C record (`D_800CF080[unk34]`) is marked 1,
-calls `UpdateObjectEntry(&D_800D8D20[unk36], record)`.
+Unit `src/object.c`. For each of the 200 Trap records that is live
+(`unk36 != -1`) and whose SwitchBox record (`gSwitches[unk34]`) is marked 1,
+calls `UpdateObjectEntry(&gObjectModels[unk36], record)`.
 
 ```c
 void UpdateActiveEntries(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if (sRecs48[i].unk36 != -1 && D_800CF080[sRecs48[i].unk34].unk0 == 1) {
-            UpdateObjectEntry(&D_800D8D20[sRecs48[i].unk36], &sRecs48[i]);
+        if (sRecs48[i].unk36 != -1 && gSwitches[sRecs48[i].unk34].unk0 == 1) {
+            UpdateObjectEntry(&gObjectModels[sRecs48[i].unk36], &sRecs48[i]);
         }
     }
 }
@@ -24,10 +24,10 @@ First build. Indexing `sRecs48[i]` strength-reduces to the walking
 
 **Prototype fix.** `UpdateObjectEntry` (this unit, still asm) takes two
 arguments: its asm keeps `$a1` in `$s2` and clears byte 0x40 through it.
-hit_tool.c declared it locally with one (`Rec78 *`). The prototype now
+hit_tool.c declared it locally with one (`ObjectModel *`). The prototype now
 lives in `include/object.h` (additive), hit_tool.c includes that
 header, its local prototype is gone, and its one call
 (RefreshToolPreview) passes the second argument it was already leaving in `$a1`:
-`UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);`. The whole
-image stays `OK` (cc1 reuses the `D_800A9008` address it had built for the
+`UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);`. The whole
+image stays `OK` (cc1 reuses the `gTraps` address it had built for the
 stores just before), and declcheck's LOCAL finding for it is gone.

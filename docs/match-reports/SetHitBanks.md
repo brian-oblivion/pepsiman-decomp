@@ -7,7 +7,7 @@ points at a count word followed by the bank. Stores the bank addresses in
 `gHitPoints` and `gHitQuads` (the banks `hit_tool`'s `GetHitPoint` and
 `GetHitQuad` index), the counts in `gHitPointSections` and `gHitQuadSections`, resets
 the halfwords at 0x72 (-1) and 0x74 (0) of the 80 0x78-byte records of
-`D_800D8D20`, then calls `ApplyHitPoints` and `ApplyHitQuads`. Called from
+`gObjectModels`, then calls `ApplyHitPoints` and `ApplyHitQuads`. Called from
 `LoadStage` (unit `main`).
 
 ```c
@@ -16,7 +16,7 @@ typedef struct {
     u8 data[4]; /* the bank; real size unknown */
 } BankFile;
 
-/* include/common.h: Rec78, D_800D8D20[], gHitPointSections, gHitQuadSections,
+/* include/common.h: ObjectModel, gObjectModels[], gHitPointSections, gHitQuadSections,
  * gHitQuads, gHitPoints, ApplyHitPoints, ApplyHitQuads */
 
 void SetHitBanks(BankFile *a, BankFile *b) {
@@ -30,8 +30,8 @@ void SetHitBanks(BankFile *a, BankFile *b) {
     gHitPointSections = a->count;
     gHitQuadSections = b->count;
     for (i = 0; i < 80; i++) {
-        D_800D8D20[i].unk72 = -1;
-        D_800D8D20[i].unk74 = 0;
+        gObjectModels[i].unk72 = -1;
+        gObjectModels[i].unk74 = 0;
     }
     ApplyHitPoints();
     ApplyHitQuads();
@@ -75,7 +75,7 @@ is OK.
 
 ## Declarations moved (hit_tool is not one of round 5's units)
 
-`Rec78` (the typedef) and `extern Rec78 D_800D8D20[]`, `extern s32
+`ObjectModel` (the typedef) and `extern ObjectModel gObjectModels[]`, `extern s32
 gHitPointSections`, `extern s32 gHitQuadSections` moved from `src/hit_tool.c` into
 `include/common.h`, and prototypes for `ApplyHitPoints` and `ApplyHitQuads`
 (defined in hit_tool) were added there. Additive in common.h; the
@@ -101,14 +101,14 @@ typedef struct {
     s16 unk72; /* -1 on reset */
     s16 unk74; /* zeroed on reset */
     u8 unk76[2];
-} Rec78;
+} ObjectModel;
 
 typedef struct {
     s32 count;  /* copied to gHitPointSections or gHitQuadSections */
     u8 data[4]; /* the bank; real size unknown */
 } BankFile;
 
-extern Rec78 D_800D8D20[];
+extern ObjectModel gObjectModels[];
 extern s32 gHitPointSections; /* lui $at: plain extern, not in gp-symbols */
 extern s32 gHitQuadSections;
 extern s32 gHitQuads; /* include/common.h */
@@ -125,8 +125,8 @@ void SetHitBanks(BankFile *a, BankFile *b) {
     gHitPointSections = a->count;
     gHitQuadSections = b->count;
     for (i = 0; i < 80; i++) {
-        D_800D8D20[i].unk72 = -1;
-        D_800D8D20[i].unk74 = 0;
+        gObjectModels[i].unk72 = -1;
+        gObjectModels[i].unk74 = 0;
     }
     ApplyHitPoints();
     ApplyHitQuads();

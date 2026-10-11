@@ -7,7 +7,7 @@ stage. It switches on the flow state `gMissState`: -1 runs DrawHud;
 0 is the race (rank clamp, the timers `gElapsed`/`gTimeLeft`, the end
 of the stage when the timer runs out, then the switch to state 1 that
 restarts the switch at once); 1 counts `gMissTimer` through the result
-(resets the 200 Rec5C records at 10, puts the player back at the saved
+(resets the 200 SwitchBox records at 10, puts the player back at the saved
 position from 10 on, moves to 100 after 160 frames); 2 and 3 are a short
 pause into 100; 100 runs the fade-out `gRetries`; 110 the ending.
 
@@ -16,7 +16,7 @@ extern s32 sSavedPos[];
 extern s32 gElapsed;
 extern s32 gTimeLeft;
 extern u8 gInEditor;
-extern Rec5C D_800CF080[];
+extern SwitchBox gSwitches[];
 extern u8 D_800959B0;
 extern s16 gMissTimer;
 extern s32 gRetries;
@@ -92,10 +92,10 @@ top:
                 sGame.unk398 = 0;
                 sGame.unk390 = 0;
             }
-            if (D_800CF080[196].unk0 == 1) {
+            if (gSwitches[196].unk0 == 1) {
                 break;
             }
-            if (D_800CF080[198].unk0 == 1) {
+            if (gSwitches[198].unk0 == 1) {
                 break;
             }
             if (sGame.unk5 == 0 || sGame.unk5 == 0x3A || sGame.unk5 == 0x3C) {
@@ -116,7 +116,7 @@ top:
             DrawFrozenFrame();
             if (gMissTimer == 10) {
                 for (i = 0; i < 200; i++) {
-                    D_800CF080[i].unk0 = 2;
+                    gSwitches[i].unk0 = 2;
                 }
                 gFellOff = 0;
                 D_800957D6 = 0;

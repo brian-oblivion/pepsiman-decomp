@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002AA58` on 2026-10-11 (tools/rename.py). Address 0x8002aa58.
 
-Unit `src/object.c`. Walks the 200 `Rec5C` boxes (`D_800CF080`) that
+Unit `src/object.c`. Walks the 200 `SwitchBox` boxes (`gSwitches`) that
 are not yet hit (byte 0 clear), unless `gMissState` is positive. With the
 mode byte `gInEditor` clear it tests the player's x/z (`sGameHead.unk348`
 / `unk350`, relative to the box) against the four edges of the box's
@@ -24,7 +24,7 @@ typedef struct {
     s32 x;                /**< x of the box */
     s32 y;                /**< y */
     s32 z;                /**< z */
-} Rec5C;
+} SwitchBox;
 
 /* src/object.c */
 s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
@@ -45,7 +45,7 @@ s32 TestBoxes(void) {
     long flag;
     u16 i;
     s16 j;
-    Rec5C *b;
+    SwitchBox *b;
     s16(*v)[3];
     s16 px;
     s16 pz;
@@ -56,8 +56,8 @@ s32 TestBoxes(void) {
     i = 0;
     if (gInEditor == 0) {
         for (; i < 200; i++) {
-            b = &D_800CF080[(s16)i];
-            v = D_800CF080[(s16)i].v;
+            b = &gSwitches[(s16)i];
+            v = gSwitches[(s16)i].v;
             if (b->unk0 != 0) {
                 continue;
             }
@@ -87,29 +87,29 @@ s32 TestBoxes(void) {
         }
     } else {
         for (; i < 200; i++) {
-            if (D_800CF080[(s16)i].unk0 != 0) {
+            if (gSwitches[(s16)i].unk0 != 0) {
                 continue;
             }
             GsInitCoordinate2(WORLD, &coord);
-            coord.coord.t[0] = D_800CF080[(s16)i].x;
-            coord.coord.t[1] = D_800CF080[(s16)i].y;
-            coord.coord.t[2] = D_800CF080[(s16)i].z;
-            D_800CF080[(s16)i].coord = &coord;
-            GsGetLws(D_800CF080[(s16)i].coord, &local, &world);
+            coord.coord.t[0] = gSwitches[(s16)i].x;
+            coord.coord.t[1] = gSwitches[(s16)i].y;
+            coord.coord.t[2] = gSwitches[(s16)i].z;
+            gSwitches[(s16)i].coord = &coord;
+            GsGetLws(gSwitches[(s16)i].coord, &local, &world);
             GsSetLsMatrix(&local);
             for (j = 0; j < 4; j++) {
-                sv.vx = D_800CF080[(s16)i].v[j][0];
-                sv.vy = D_800CF080[(s16)i].v[j][1];
-                sv.vz = D_800CF080[(s16)i].v[j][2];
+                sv.vx = gSwitches[(s16)i].v[j][0];
+                sv.vy = gSwitches[(s16)i].v[j][1];
+                sv.vz = gSwitches[(s16)i].v[j][2];
                 RotTrans(&sv, &t, &flag);
-                D_800CF080[(s16)i].w[j][0] = t.vx + gWorldShift[0];
-                D_800CF080[(s16)i].w[j][1] = t.vy;
-                D_800CF080[(s16)i].w[j][2] = t.vz + gWorldShift[2];
+                gSwitches[(s16)i].w[j][0] = t.vx + gWorldShift[0];
+                gSwitches[(s16)i].w[j][1] = t.vy;
+                gSwitches[(s16)i].w[j][2] = t.vz + gWorldShift[2];
             }
             GsSetLsMatrix(&world);
-            GetQuadHeightUnderPlayer(D_800CF080[(s16)i].v, &D_80095898);
+            GetQuadHeightUnderPlayer(gSwitches[(s16)i].v, &D_80095898);
             if (D_80095898 == 1) {
-                D_800CF080[(s16)i].unk0 = 1;
+                gSwitches[(s16)i].unk0 = 1;
             }
         }
     }
@@ -121,19 +121,19 @@ s32 TestBoxes(void) {
 About 30 builds and one permuter run.
 
 - First body, with a unit-local `Box5C` view cast over the table
-  (`((Box5C *)D_800CF080)[i]`): 150/280, one word long (the second loop
+  (`((Box5C *)gSwitches)[i]`): 150/280, one word long (the second loop
   filled two delay slots).
 - `s32` with no return (LEARNINGS, round 10's forward-branch entry and
   the back-branch one): the second loop's `bnez` and back branch keep
   their `nop`s, length exact.
 - The inner loop: retail builds each corner's address as `(j*6 + i*0x5C)
-  + D_800CF080`, with `i*0x5C` in a saved register and no use of the
+  + gSwitches`, with `i*0x5C` in a saved register and no use of the
   record pointer; the cast view gave `r + j*6`. Indexing the REAL array,
-  `D_800CF080[(s16)i].v[j]` with the table declared as the full struct,
+  `gSwitches[(s16)i].v[j]` with the table declared as the full struct,
   closed it: 272/280. `get_inner_reference` folds every variable offset of
   a declared array into one sum before adding the symbol; through a cast
   pointer the base is `D + i*0x5C`, which CSE shares with the record
-  pointer. So `Rec5C`, which was `s8 unk0; u8 unk1[0x5B];`, got its
+  pointer. So `SwitchBox`, which was `s8 unk0; u8 unk1[0x5B];`, got its
   fields in the shared header (layout unchanged, `unk0` kept).
 - `D_80095898 == 1` then the store: retail stores the loaded register;
   `= 1` gives it, `= D_80095898` reloads with `lbu`, and an `s8` local
@@ -152,7 +152,7 @@ About 30 builds and one permuter run.
 
 ## Shared changes
 
-- `include/object.h`: `Rec5C`'s `u8 unk1[0x5B]` is now `u8 unk1[3]`
+- `include/object.h`: `SwitchBox`'s `u8 unk1[0x5B]` is now `u8 unk1[3]`
   and the fields above; size and `unk0` unchanged. player and
   editor use only `unk0`.
 - This unit's prototype of GetQuadHeightUnderPlayer is `s32` (it was `void`).

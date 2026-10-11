@@ -2,13 +2,13 @@
 
 > Renamed from `func_8002C4D8` on 2026-10-11 (tools/rename.py). Address 0x8002c4d8.
 
-Unit `src/object.c`. For each of the 200 `Rec48` records whose `unk36`
+Unit `src/object.c`. For each of the 200 `Trap` records whose `unk36`
 is not -1, stores `FindFloor(&rec)` into `unk28`.
 
 Alpha matched it on the first build, then restored the `INCLUDE_ASM` to stay
 within the round's 8-function budget; the head landed the body after the
-merges. Needs `Rec48`'s `unk26[0xE]` split into `unk26[2]`, `s32 unk28`,
+merges. Needs `Trap`'s `unk26[0xE]` split into `unk26[2]`, `s32 unk28`,
 `unk2C[8]` (size unchanged).
 
-Negative: a walking `Rec48 *r` biases the pointer to `unk28` and scores 1/26;
+Negative: a walking `Trap *r` biases the pointer to `unk28` and scores 1/26;
 the indexed `sRecs48[i]` form is the match.

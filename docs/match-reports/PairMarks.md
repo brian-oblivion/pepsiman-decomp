@@ -2,8 +2,8 @@
 
 > Renamed from `func_8002C5D0` on 2026-10-11 (tools/rename.py). Address 0x8002c5d0.
 
-Unit `src/object.c`. For every odd index of the 200-entry Rec5C table
-`D_800CF080` whose byte 0 is 1, sets byte 0 of that record and of the one
+Unit `src/object.c`. For every odd index of the 200-entry SwitchBox table
+`gSwitches` whose byte 0 is 1, sets byte 0 of that record and of the one
 before it to 2.
 
 Matched on the first build with two known levers: a `u16` counter indexed

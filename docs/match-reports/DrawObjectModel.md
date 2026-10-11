@@ -2,8 +2,8 @@
 
 > Renamed from `func_8002A5B0` on 2026-10-11 (tools/rename.py). Address 0x8002a5b0.
 
-Unit `src/object.c`. Places and sorts the model of a Rec78 entry
-(seen as `Model70`) for a Rec48 record (seen as `Obj34`): position
+Unit `src/object.c`. Places and sorts the model of a ObjectModel entry
+(seen as `Model70`) for a Trap record (seen as `Obj34`): position
 plus the world offset `gWorldShift`, rotation from the record's angles,
 lights and scale, then `GsSortObject4` into `gOt` in mode
 0x25, `GsSortObject4J` into `gOt` when x or z is beyond 700,

@@ -9,21 +9,21 @@ sets its position (the game position) and heading
 `CallStageHook` into `D_8009596E`, and falls into state 1. State 1 sets
 the first record's position and heading again, defaults the light vector
 `gFloorY[1..3]` when no entry is current, stores two `ratan2` angles,
-updates its Rec78 via `UpdateObjectEntry`, then places every later record:
+updates its ObjectModel via `UpdateObjectEntry`, then places every later record:
 its offset (`unkC`) transformed through the first record's coordinate
 (`TransformByCoord`) becomes its position, its heading is the first one's
-plus its own `unk20`, it copies the two angles, and its Rec78 is updated.
+plus its own `unk20`, it copies the two angles, and its ObjectModel is updated.
 Sixth build matched.
 
 ## Shapes read from retail
 
 - **Frame 0x78 with 0x48 bytes of locals nobody touches: an unused
-  record-sized local** (`Obj48 unused;`), a variant of the LEARNINGS
+  record-sized local** (`EditorTrap unused;`), a variant of the LEARNINGS
   "unused local" entries.
 - State 0 stores through `D_80096788[0]` directly (`a1`, not saved);
   a pointer local kept across the call takes a saved register (5/177).
 - **The later record's address `addu s0, s0(index), s2(base)`: an integer
-  sum**, `(Obj48 *)(i * sizeof(Obj48) + (u32)w)` (LEARNINGS,
+  sum**, `(EditorTrap *)(i * sizeof(EditorTrap) + (u32)w)` (LEARNINGS,
   UpdateSection). `&w[i]`, `i + w` and `r = w; r += i;` all put the base
   first (176/177); `&D_80096788[i]` takes a seventh saved register.
 - `bnez` with a `nop` slot at the loop bottom: non-void with no return.
@@ -32,7 +32,7 @@ Sixth build matched.
 
 ## Declarations
 
-- `Obj48` (unit-local) gains `unk18`, `unk1A`, `unk1C`, `unk20`,
+- `EditorTrap` (unit-local) gains `unk18`, `unk1A`, `unk1C`, `unk20`,
   `unk2C`, `unk30`.
 - New in the `.c`: prototypes of `CallStageHook` (per-unit view, MATCHING
   note) and `TransformByCoord` (as player defines it).
@@ -43,9 +43,9 @@ Sixth build matched.
 ```c
 s32 EditorArrangeRecords(void) {
     /* MATCHING: an unused record-sized local gives retail's 0x78 frame. */
-    Obj48 unused;
-    Obj48 *w;
-    Obj48 *r;
+    EditorTrap unused;
+    EditorTrap *w;
+    EditorTrap *r;
     u16 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
@@ -73,21 +73,21 @@ s32 EditorArrangeRecords(void) {
             }
             w->unk2C = ratan2(-gFloorY[3], gFloorY[2]);
             w->unk30 = ratan2(-gFloorY[1], gFloorY[2]);
-            UpdateObjectEntry(&D_800D8D20[w->unk36], (Rec48 *)w);
+            UpdateObjectEntry(&gObjectModels[w->unk36], (Trap *)w);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: an integer sum puts the index first in the addu. */
-                r = (Obj48 *)(i * sizeof(Obj48) + (u32)w);
+                r = (EditorTrap *)(i * sizeof(EditorTrap) + (u32)w);
                 D_800957E4.vx = r->unkC[0];
                 D_800957E4.vy = r->unkC[1];
                 D_800957E4.vz = r->unkC[2];
-                TransformByCoord((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[w->unk36].unk10, &D_800957E4, &D_8009F268);
                 r->unk0[0] = D_8009F268.vx;
                 r->unk0[1] = D_8009F268.vy;
                 r->unk0[2] = D_8009F268.vz;
                 r->unk1A = w->unk1A + r->unk20;
                 r->unk2C = w->unk2C;
                 r->unk30 = w->unk30;
-                UpdateObjectEntry(&D_800D8D20[r->unk36], (Rec48 *)r);
+                UpdateObjectEntry(&gObjectModels[r->unk36], (Trap *)r);
             }
             break;
     }

@@ -3,7 +3,7 @@
 > Renamed from `func_80030984` on 2026-10-11 (tools/rename.py). Address 0x80030984.
 
 Unit `src/editor.c`. Counts the live records (`unk36 != -1`) of the
-200-entry 0x48-byte table at `D_800A9008` into `sTotals.unk1A`; on flag bit
+200-entry 0x48-byte table at `gTraps` into `sTotals.unk1A`; on flag bit
 5, places each of the `D_8009596E` waiting records of `D_80096788` at slot
 `sTotals.unk18` (stamping position copy, entry, `gSection`, two bytes of
 the tool block, and `unk38` = `sTotals.unk1C` for the first, -1 for the
@@ -29,7 +29,7 @@ rest), with error 8 in `gToolMode` when the table is full; then clears
 
 - `Totals28` gained `unk18`, `unk1A`, `unk1C`, and `unk68` / `unk69` past
   its old end (the block is longer than 0x28; its name is now historical).
-- A unit-local `Obj48` view of the 0x48-byte record (object.h's `Rec48`
+- A unit-local `EditorTrap` view of the 0x48-byte record (object.h's `Trap`
   is the same record; the head may union them).
 - `gSection` (declared in stage_flow.c) and `gSubStep` (declared in
   main.c) moved to `include/common.h` with their types unchanged, since a
@@ -40,10 +40,10 @@ rest), with error 8 in `gToolMode` when the table is full; then clears
 void EditorPlaceRecords(void) {
     u32 i;
     u16 n;
-    Obj48 *recs;
-    Obj48 *w;
+    EditorTrap *recs;
+    EditorTrap *w;
 
-    recs = (Obj48 *)D_800A9008;
+    recs = (EditorTrap *)gTraps;
     n = sTotals.unk18;
     sTotals.unk1A = 0;
     for (i = 0; i < 200; i++) {
@@ -76,8 +76,8 @@ void EditorPlaceRecords(void) {
             } else {
                 w->unk38 = -1;
             }
-            ((Obj48 *)D_800A9008)[(s16)n] = *w;
-            ((Obj48 *)D_800A9008)[(s16)n].unk34 = sTotals.unk1E;
+            ((EditorTrap *)gTraps)[(s16)n] = *w;
+            ((EditorTrap *)gTraps)[(s16)n].unk34 = sTotals.unk1E;
             n++;
             sTotals.unk18 = n;
         }

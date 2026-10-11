@@ -23,8 +23,8 @@ typedef struct {
 extern SlotRec gModeObjects[];
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
 extern ObjRec gModeObjectModels[];
-/* MATCHING: object types these Rec78 and Rec48; this unit's records are views of them. */
-void DrawObjectModel(Rec78 *rec, Rec48 *r);
+/* MATCHING: object types these ObjectModel and Trap; this unit's records are views of them. */
+void DrawObjectModel(ObjectModel *rec, Trap *r);
 
 void DrawModeObject(void) {
     switch (sGame.unk3D0 & 0xF) {
@@ -35,7 +35,7 @@ void DrawModeObject(void) {
             gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
             gModeObjects[0].unk0 = -gWorldShift[0];
             gModeObjects[0].unk8 = -gWorldShift[2];
-            DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[0].unk36], (Rec48 *)&gModeObjects[0]);
+            DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[0].unk36], (Trap *)&gModeObjects[0]);
             break;
         case 4:
             gModeObjects[5].unk18 = -0x88;
@@ -45,7 +45,7 @@ void DrawModeObject(void) {
             gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
             gModeObjects[5].unk0 = -gWorldShift[0];
             gModeObjects[5].unk8 = -gWorldShift[2];
-            DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[5].unk36], (Rec48 *)&gModeObjects[5]);
+            DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[5].unk36], (Trap *)&gModeObjects[5]);
             break;
         case 2:
             switch (gStage) {
@@ -55,7 +55,7 @@ void DrawModeObject(void) {
                     gModeObjects[3].unk0 = -gWorldShift[0];
                     gModeObjects[3].unk8 = -gWorldShift[2];
                     gModeObjects[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[3].unk36], (Rec48 *)&gModeObjects[3]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[3].unk36], (Trap *)&gModeObjects[3]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -66,7 +66,7 @@ void DrawModeObject(void) {
                     gModeObjects[6].unk0 = -gWorldShift[0];
                     gModeObjects[6].unk8 = -gWorldShift[2];
                     gModeObjects[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[6].unk36], (Rec48 *)&gModeObjects[6]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[6].unk36], (Trap *)&gModeObjects[6]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -80,14 +80,14 @@ void DrawModeObject(void) {
                     gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[4].unk0 = -gWorldShift[0];
                     gModeObjects[4].unk8 = -gWorldShift[2];
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[4].unk36], (Rec48 *)&gModeObjects[4]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[4].unk36], (Trap *)&gModeObjects[4]);
                     break;
                 case 12:
                     gModeObjects[2].unk4 = 0;
                     gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[2].unk0 = -gWorldShift[0];
                     gModeObjects[2].unk8 = -gWorldShift[2];
-                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[2].unk36], (Rec48 *)&gModeObjects[2]);
+                    DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[2].unk36], (Trap *)&gModeObjects[2]);
                     break;
             }
             break;
@@ -96,7 +96,7 @@ void DrawModeObject(void) {
         gModeObjects[1].unk4 = 0;
         gModeObjects[1].unk0 = -gWorldShift[0];
         gModeObjects[1].unk8 = -gWorldShift[2];
-        DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[1].unk36], (Rec48 *)&gModeObjects[1]);
+        DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[1].unk36], (Trap *)&gModeObjects[1]);
     }
 }
 ```

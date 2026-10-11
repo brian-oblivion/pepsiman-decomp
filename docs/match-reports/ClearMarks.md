@@ -3,11 +3,11 @@
 > Renamed from `func_8002C5A4` on 2026-10-11 (tools/rename.py). Address 0x8002c5a4.
 
 Unit `src/object.c`. Clears byte 0 of the first `count` records of a
-table of 0x5C-byte records (`Rec5C`, the type `ClearRec5CAll` and
-`ClearRec5CUpper` walk). First build matched.
+table of 0x5C-byte records (`SwitchBox`, the type `ClearSwitches` and
+`ClearSwitchBoxUpper` walk). First build matched.
 
 ```c
-void ClearMarks(Rec5C *recs, u16 count) {
+void ClearMarks(SwitchBox *recs, u16 count) {
     u16 i;
 
     for (i = 0; i < count; i++) {

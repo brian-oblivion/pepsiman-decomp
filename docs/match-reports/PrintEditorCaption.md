@@ -5,8 +5,8 @@
 Unit `src/editor.c`. The tool mode's caption printer: while
 `D_800959D8` is 1, prints with `FntPrint` the state of the current tool
 mode (`sTotals.unk3`): mode 0 the selected point and the entry's point
-count, mode 1 the selected switch, mode 2 the selected Obj48 record (model
-or "OPTIONS", switch, type, act), mode 3 the selected Rec3C sprite (model,
+count, mode 1 the selected switch, mode 2 the selected EditorTrap record (model
+or "OPTIONS", switch, type, act), mode 3 the selected StageSprite sprite (model,
 switch, hit on/off from bit 7 of `unk26`, the act kind from its low six
 bits, the type in `unk27`, the sound-effect voice in `unk28` through a
 five-way jump table); then draws the frame with `SortSemiQuad(0x7C21,
@@ -25,7 +25,7 @@ referenced by symbol).
   merged at the join by cross-jumping, as are the act-kind arms.
 - **After the mode-2 join retail puts the table base in `$s1` and the
   totals' base in `$s0`; indexing the cast table directly swapped them.**
-  `r = (Obj48 *)D_800A9008;` before the three reads fixed it, the same
+  `r = (EditorTrap *)gTraps;` before the three reads fixed it, the same
   lever as EditorPickBox's.
 - Frame 0x40 with no stack local: `s32 unused[2];` (LEARNINGS); new
   baselined "unused variable" warning.
@@ -40,12 +40,12 @@ referenced by symbol).
 ```c
         case 2:
             FntPrint(sEdInfoTrapNoFmt, sTotals.unk18);
-            if (((Obj48 *)D_800A9008)[sTotals.unk18].unk38 != -1) {
-                FntPrint(sEdInfoTrapModelFmt, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
+            if (((EditorTrap *)gTraps)[sTotals.unk18].unk38 != -1) {
+                FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.unk18].unk38);
             } else {
                 FntPrint(sEdOptionsText);
             }
-            r = (Obj48 *)D_800A9008;
+            r = (EditorTrap *)gTraps;
             FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.unk18].unk34);
             FntPrint(sEdInfoTypeFmt, r[sTotals.unk18].unk42);
             FntPrint(sEdInfoActFmt, r[sTotals.unk18].unk43);

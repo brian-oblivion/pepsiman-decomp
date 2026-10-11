@@ -2,7 +2,7 @@
 
 > Renamed from `func_8002CC24` on 2026-10-11 (tools/rename.py). Address 0x8002cc24.
 
-Unit `src/object.c`. Sets up all 80 `Rec78` records (`D_800D8D20`) as
+Unit `src/object.c`. Sets up all 80 `ObjectModel` records (`gObjectModels`) as
 objects of the TMD file at the fixed address 0x80155000, record i drawing
 object i, after zeroing the count `gSectionCount`. The loop body is
 InitModel's body with `tmd` constant.
@@ -28,7 +28,7 @@ void InitEntryModels(void) {
 
     gSectionCount = 0;
     for (i = 0; i < 80; i++) {
-        setupModel((Model70 *)&D_800D8D20[i], (unsigned long *)0x80155000, i);
+        setupModel((Model70 *)&gObjectModels[i], (unsigned long *)0x80155000, i);
     }
 }
 ```

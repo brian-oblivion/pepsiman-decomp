@@ -8,14 +8,14 @@ resets the head of the game state (`gPlayer`), copies the start position
 from `gCourse`, looks up a per-stage value when the stage's flag in
 `D_8007AD58` is 1, derives the camera height (`D_8009676C`) and the start
 heading (from `gStageStart`), runs the stage set-up calls and clears a
-halfword in each of the 200 Rec48 records.
+halfword in each of the 200 Trap records.
 
 ```c
 /* Unit-local views (all in src/stage_flow.c):
  *   Pos3       { s32 vx, vy, vz; }
  *   StageState  gPlayer's head: u8 unk0, unk2, unk6; Pos3 unk348 at
  *               0x348; s32 unk37C, unk380; s16 unk3C8, unk3CA
- *   Rec48Clear  object's Rec48 with s16 unk26
+ *   TrapClear  object's Trap with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*gStageStart)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
@@ -109,7 +109,7 @@ void RestartStage(u8 arg0) {
   deleted (same types).
 - `gCourse` is an `SVECTOR[]` in player and a `Placement` here;
   both declarations carry a `MATCHING:` note.
-- `FindFloor` takes a `Rec48 *` in object's view and a `Pos3 *`
+- `FindFloor` takes a `Trap *` in object's view and a `Pos3 *`
   here (`&sStage.unk348`); this unit's prototype has a `MATCHING:` note.
 - The `unused` local is a deliberate `-Wall` warning, NEW in
   `tools/typeviews.py --warnings`, for the head to baseline.

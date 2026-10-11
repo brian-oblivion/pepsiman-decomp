@@ -4,19 +4,19 @@
 
 Unit `src/hit_tool.c`. Resets part of the play state around the current
 entry: raises `D_80095774` for the duration, calls `ResetCollision`, clears
-words 0, 1, 2, 11, 12 and halfwords 12-14 of `D_800A9008`, then
-`UpdateObjectEntry` on the current `D_800D8D20` record, `ReactToHits` on the
+words 0, 1, 2, 11, 12 and halfwords 12-14 of `gTraps`, then
+`UpdateObjectEntry` on the current `gObjectModels` record, `ReactToHits` on the
 game state and `func_80029838`.
 
 ## Rounds
 
 - Round 4 (charlie): STALL, length exact, 25/35, first diff 0x80037130.
-  Register only: retail kept `D_800A9008`'s base in `$a1`, the build in
+  Register only: retail kept `gTraps`'s base in `$a1`, the build in
   `$v0`; one permuter search (110646 iterations, rc 124) found nothing.
 - Round 6: matching UpdateActiveEntries (object) gave `UpdateObjectEntry` its
-  real prototype, `s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r)`, and the
+  real prototype, `s32 UpdateObjectEntry(ObjectModel *rec, Trap *r)`, and the
   `#ifdef NON_MATCHING` body in this unit was updated to pass
-  `(Rec48 *)D_800A9008` as the second argument. Nobody rebuilt it live.
+  `(Trap *)gTraps` as the second argument. Nobody rebuilt it live.
 - Round 12 (charlie): the body as it stood under `#ifdef NON_MATCHING`,
   built live, is **35/35, `insertions 0 / deletions 0`, `OK: build matches
   retail`** with no edit to its statements. The `$a1` was the call's second
@@ -27,15 +27,15 @@ game state and `func_80029838`.
 void RefreshToolPreview(void) {
     D_80095774 = 1;
     ResetCollision();
-    D_800A9008[0] = 0;
-    D_800A9008[1] = 0;
-    D_800A9008[2] = 0;
-    ((s16 *)D_800A9008)[12] = 0;
-    ((s16 *)D_800A9008)[13] = 0;
-    ((s16 *)D_800A9008)[14] = 0;
-    D_800A9008[11] = 0;
-    D_800A9008[12] = 0;
-    UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
+    gTraps[0] = 0;
+    gTraps[1] = 0;
+    gTraps[2] = 0;
+    ((s16 *)gTraps)[12] = 0;
+    ((s16 *)gTraps)[13] = 0;
+    ((s16 *)gTraps)[14] = 0;
+    gTraps[11] = 0;
+    gTraps[12] = 0;
+    UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);
     ReactToHits(gPlayer);
     func_80029838();
     D_80095774 = 0;

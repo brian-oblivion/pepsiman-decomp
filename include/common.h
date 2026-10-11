@@ -148,7 +148,8 @@ typedef struct {
 
 extern Effect gEffects[]; /**< the 128-record pool */
 
-/** @brief A 0x78-byte record of an 80-entry table; two pairs of halfwords
+/** @brief An object's model slot (gObjectModels, 80 of them): its
+ *         GsDOBJ2 and coordinate system, and its hit-data ranges; two pairs of halfwords
  *         are reset together. */
 typedef struct {
     u8 unk0[0x10];  /**< not yet known */
@@ -158,9 +159,9 @@ typedef struct {
     s16 unk72;      /**< zeroed when the first buffer is cleared, -1 when banks are installed */
     s16 unk74;      /**< -1 when the first buffer is cleared, zeroed when banks are installed */
     u8 unk76[2];    /**< not yet known */
-} Rec78;
+} ObjectModel;
 
-extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
+extern ObjectModel gObjectModels[]; /**< the 80 object model slots */
 
 /** @brief The player's state (gPlayer), 0x3D8 bytes. Its head is the
  *         animation state StepAnimation runs: two channels, each asking
@@ -296,7 +297,7 @@ extern s8 gViewerMotion; /**< a level, kept within 0..120; 2 units */
 extern u8 gPadType;      /**< port 1's controller type byte (0x41 digital, 0x73 analog) */
 extern u32 gStickRawY;   /**< pad byte 7, an analogue stick axis, 0x80 at rest */
 extern u32 gStickRawX;   /**< pad byte 6, the axis gStickX is read from, 0x80 at rest */
-extern s16 gSelectedSection; /**< the selected Rec78 entry; 2 units */
+extern s16 gSelectedSection; /**< the selected ObjectModel entry; 2 units */
 extern u16 gCameraYaw;       /**< 2 units */
 extern s8 gButtonConfig;     /**< 2 units */
 extern s8 *gStageRunObjs;    /**< the group list the zones index; 2 units */
@@ -367,7 +368,7 @@ extern s16 gBodyYaw[];       /**< gBodyRot[1], read signed */
 extern s32 gCdLoadDest[];    /**< each file's load address in the current CD load */
 extern s32 gCdLoadSectors[]; /**< each file's length in sectors, less one */
 extern s32 gWorldShift[];    /**< 5 units, 22 functions */
-extern s32 D_800A9008[];     /**< 3 units, 17 functions */
+extern s32 gTraps[];         /**< the 200 traps (Trap records; units view them their own way) */
 extern s16 gFloorY[];        /**< 2 units, 6 functions */
 extern s32 gOffsetVec[];     /**< PolarOffset's result, x y z */
 extern s32 gTodObjTable[];   /**< 2 units, 5 functions */

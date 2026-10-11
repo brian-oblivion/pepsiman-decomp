@@ -35,7 +35,7 @@ extern char sHitMenuDataText[];
 extern char sHitNewlines5[];
 
 void PrintToolStatus(void);
-void DrawHitQuad(Obj48 *obj);
+void DrawHitQuad(EditorTrap *obj);
 void EditHitPoints(void);
 void EditHitQuads(void);
 void SelectToolView(void);

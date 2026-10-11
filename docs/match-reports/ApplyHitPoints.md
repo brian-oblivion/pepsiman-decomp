@@ -6,10 +6,10 @@ Stalled in round 7 (echo) at 45/93 with the copy 25 words long.
 
 Unit `src/hit_tool.c`. Installs the first record bank (`gHitPoints`):
 for each of its `gHitPointSections` entries copies the entry's two words into
-`unk72`/`unk74` of the matching `D_800D8D20` record, then for 400 records
+`unk72`/`unk74` of the matching `gObjectModels` record, then for 400 records
 copies the first 0x2A bytes of bank record i (`GetHitPoint(0, i)`) into
 the live buffer `gLivePoints` (0x2C-byte records) and points the live
-record's word at 0x28 at `D_800D8D20[rec->unk28].unk10` (retail's symbol
+record's word at 0x28 at `gObjectModels[rec->unk28].unk10` (retail's symbol
 `D_800D8D30`).
 
 The body is live in `src/hit_tool.c`. The stalled body below is kept for
@@ -34,7 +34,7 @@ typedef struct { u8 unk0[0x28]; void *unk28; } Live2C;
 
 extern s32 gHitPoints;    /* common.h, %gp_rel */
 extern s32 gHitPointSections;    /* common.h */
-extern Rec78 D_800D8D20[]; /* common.h */
+extern ObjectModel gObjectModels[]; /* common.h */
 extern u8 gLivePoints[];
 
 void ApplyHitPoints(void) {
@@ -43,14 +43,14 @@ void ApplyHitPoints(void) {
     Bank2CRec *rec;
 
     for (i = 0; i < (u32)gHitPointSections; i++) {
-        D_800D8D20[i].unk72 = e->first;
-        D_800D8D20[i].unk74 = e->unk4;
+        gObjectModels[i].unk72 = e->first;
+        gObjectModels[i].unk74 = e->unk4;
         e++;
     }
     for (i = 0; i < 400; i++) {
         rec = (Bank2CRec *)GetHitPoint(0, i);
         *(Copy2A *)&((Live2C *)gLivePoints)[i] = *(Copy2A *)rec;
-        ((Live2C *)gLivePoints)[i].unk28 = D_800D8D20[rec->unk28].unk10;
+        ((Live2C *)gLivePoints)[i].unk28 = gObjectModels[rec->unk28].unk10;
     }
 }
 #endif

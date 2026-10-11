@@ -4,7 +4,7 @@
 
 Unit `src/hit_tool.c`. Clears the 0x1DB0-byte buffer `gLiveQuads` with
 `bzero` and resets two halfwords (0x6E to 0, 0x70 to -1) in each of the 80
-0x78-byte records of `D_800D8D20` (`Rec78`, declared in the unit).
+0x78-byte records of `gObjectModels` (`ObjectModel`, declared in the unit).
 
 ```c
 void ClearHitQuads(void) {
@@ -12,8 +12,8 @@ void ClearHitQuads(void) {
 
     bzero(gLiveQuads, 0x1DB0);
     for (i = 0; i < 80; i++) {
-        D_800D8D20[i].unk6E = 0;
-        D_800D8D20[i].unk70 = -1;
+        gObjectModels[i].unk6E = 0;
+        gObjectModels[i].unk70 = -1;
     }
 }
 ```
@@ -21,12 +21,12 @@ void ClearHitQuads(void) {
 ## Externs
 
 `bzero` comes from Sony's `memory.h`, included by the unit.
-`gLiveQuads` and `D_800D8D20` are reached `lui`/`addiu`, so they are arrays
+`gLiveQuads` and `gObjectModels` are reached `lui`/`addiu`, so they are arrays
 of unknown size, declared in the unit (the other unit that reaches them,
 `object`, still has them only in asm).
 
 ## Levers
 
 None needed: first try, as the twin of `ClearHitPoints`. The `u32` counter (`sltiu`) and indexed
-`D_800D8D20[i]` (strength-reduced to a record pointer) are the shapes
+`gObjectModels[i]` (strength-reduced to a record pointer) are the shapes
 `docs/LEARNINGS.md` already lists.

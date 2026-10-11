@@ -2,8 +2,8 @@
 
 > Renamed from `func_80031AEC` on 2026-10-11 (tools/rename.py). Address 0x80031aec.
 
-Unit `src/editor.c`. The Rec3C picker, EditorPickRecord's twin on the
-100-entry Rec3C table `D_800A7898`: counts the used records (`unk0 != -1`)
+Unit `src/editor.c`. The StageSprite picker, EditorPickRecord's twin on the
+100-entry StageSprite table `gStageSprites`: counts the used records (`unk0 != -1`)
 into `sTotals.unk30`; in state 0 picks the one nearest the game position
 (its `unk4` position) into `sTotals.unk28` (errors 9 and 11 as the twin);
 in state 1 copies its `unk2C` to `sTotals.unk2A`, moves the game position
@@ -28,7 +28,7 @@ flag bits 0 and 1. First build matched.
 
 ```c
 s32 EditorPickSprite(void) {
-    /* EditorPickRecord with D_800A7898 for ((Obj48 *)D_800A9008), unk0 for
+    /* EditorPickRecord with gStageSprites for ((EditorTrap *)gTraps), unk0 for
      * unk36, unk4[] for unk0[], unk2C for unk34, sTotals.unk30 / unk28 /
      * unk2A for unk1A / unk18 / unk1E, and 100 / 99 for 200 / 199 */
 }

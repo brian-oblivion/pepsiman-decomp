@@ -11,7 +11,7 @@
 #include "model.h"
 #include "collision.h"
 
-/** @brief A 0x3C-byte record of a 100-entry table; only the halfword at 0 is
+/** @brief A stage sprite (gStageSprites); only the halfword at 0 is
  *         known. */
 typedef struct {
     s16 unk0;     /**< -1 when the record is free (a guess) */
@@ -32,7 +32,7 @@ typedef struct {
     s32 unk30;    /**< a global stamp when placed */
     s32 unk34;    /**< the current entry when placed */
     u8 unk38[4];  /**< not yet known */
-} Rec3C;
+} StageSprite;
 
 /** @brief The tool state block: counts, totals and saved menu values. */
 typedef struct {
@@ -44,28 +44,28 @@ typedef struct {
     u8 unk10[2];    /**< not yet known */
     u16 unk12;      /**< the edited value saved for menu line 0 */
     u16 unk14;      /**< the edited value saved for menu line 1 */
-    u16 unk16;      /**< number of 0x5C-byte records in use */
-    u16 unk18;      /**< number of Obj48 records in use */
-    u16 unk1A;      /**< number of Obj48 records counted live */
+    u16 unk16;      /**< number of switches in use */
+    u16 unk18;      /**< number of EditorTrap records in use */
+    u16 unk1A;      /**< number of EditorTrap records counted live */
     u16 unk1C;      /**< unk38 of the first record placed */
-    u16 unk1E;      /**< matched against a Rec48's unk34 */
+    u16 unk1E;      /**< matched against a Trap's unk34 */
     s16 unk20;      /**< an angle in degrees, wrapped to 0..359 */
     u16 unk22;      /**< the selected point of the current entry */
     u16 unk24;      /**< the edited value saved for tool mode 2 */
     u16 unk26;      /**< a sum over the current block's entries */
-    u16 unk28;      /**< the Rec3C slot the next record goes to */
-    u16 unk2A;      /**< matched against a Rec3C's unk2C */
-    u16 unk2C;      /**< a Rec3C kind, less 30 */
-    u16 unk2E;      /**< a height base for the Rec3C template */
-    u16 unk30;      /**< number of Rec3C records in use */
-    u16 unk32;      /**< picks one of two Rec3C handlers */
-    u16 unk34;      /**< negates the Rec3C template's height when set */
+    u16 unk28;      /**< the StageSprite slot the next record goes to */
+    u16 unk2A;      /**< matched against a StageSprite's unk2C */
+    u16 unk2C;      /**< a StageSprite kind, less 30 */
+    u16 unk2E;      /**< a height base for the StageSprite template */
+    u16 unk30;      /**< number of StageSprite records in use */
+    u16 unk32;      /**< picks one of two StageSprite handlers */
+    u16 unk34;      /**< negates the StageSprite template's height when set */
     u8 unk36[0x32]; /**< not yet known */
     u8 unk68;       /**< copied into a placed record's unk42 */
     u8 unk69;       /**< copied into a placed record's unk43 */
-    s16 unk6A;      /**< an angle in degrees; copied into a placed Rec3C's unk2A */
-    u8 unk6C;       /**< copied into a placed Rec3C's unk27 */
-    u8 unk6D;       /**< copied into a placed Rec3C's unk28 */
+    s16 unk6A;      /**< an angle in degrees; copied into a placed StageSprite's unk2A */
+    u8 unk6C;       /**< copied into a placed StageSprite's unk27 */
+    u8 unk6D;       /**< copied into a placed StageSprite's unk28 */
     u8 unk6E[2];    /**< not yet known */
     s32 unk70;      /**< the global stamp, saved on leaving the tool */
 } Totals28;
@@ -80,20 +80,20 @@ typedef struct {
     s32 w[0x74 / 4]; /**< the block */
 } TotalsCopy;
 
-/** @brief The 200-entry Obj48 table, copied whole. */
+/** @brief The 200 traps, copied whole. */
 typedef struct {
     s32 w[0x3840 / 4]; /**< the records */
-} Obj48sCopy;
+} TrapTable;
 
-/** @brief The 200-entry 0x5C-byte record table, copied whole. */
+/** @brief The 200 switches, copied whole. */
 typedef struct {
     s32 w[0x47E0 / 4]; /**< the records */
-} Rec5CsCopy;
+} SwitchTable;
 
-/** @brief The 100-entry Rec3C table, copied whole. */
+/** @brief The 100 stage sprites, copied whole. */
 typedef struct {
     s32 w[0x1770 / 4]; /**< the records */
-} Rec3CsCopy;
+} SpriteTable;
 
 /** @brief The block header area, copied whole; bytes, so a copy of it
  *         tests the alignment at run time. */
@@ -105,22 +105,22 @@ typedef struct {
  *         the slot's data starts at unk200 and its block header area runs
  *         0x200 bytes past this view's end. */
 typedef struct {
-    u8 unk0[0x200];     /**< not yet known */
-    u8 unk200;          /**< 0x38 when the slot is valid */
-    u8 unk201;          /**< not yet known */
-    u8 unk202;          /**< the owner; compared with a global */
-    u8 unk203[0x71];    /**< the rest of the tool state block */
-    Obj48sCopy unk274;  /**< the Obj48 table */
-    Rec5CsCopy unk3AB4; /**< the 0x5C-byte record table */
-    Rec3CsCopy unk8294; /**< the Rec3C table */
-    u8 unk9A04[0x1D70]; /**< not yet known; the block area starts at 0xB174 */
+    u8 unk0[0x200];      /**< not yet known */
+    u8 unk200;           /**< 0x38 when the slot is valid */
+    u8 unk201;           /**< not yet known */
+    u8 unk202;           /**< the owner; compared with a global */
+    u8 unk203[0x71];     /**< the rest of the tool state block */
+    TrapTable unk274;    /**< the EditorTrap table */
+    SwitchTable unk3AB4; /**< the switches */
+    SpriteTable unk8294; /**< the StageSprite table */
+    u8 unk9A04[0x1D70];  /**< not yet known; the block area starts at 0xB174 */
 } SaveSlot;
 
-/* MATCHING: D_800A7898 and D_80095B28 are also declared in object, each
- * unit through its own view (Rec3C, Totals28 here; Rec3C, Progress6E there). */
-extern u16 D_80095B4C[];      /**< first of a run of halfwords */
-extern Rec3C D_800A7898[];    /**< 100 Rec3C records */
-extern u8 D_80095B28[];       /**< a Totals28 */
+/* MATCHING: gStageSprites and D_80095B28 are also declared in object, each
+ * unit through its own view (StageSprite, Totals28 here; StageSprite, Progress6E there). */
+extern u16 D_80095B4C[];            /**< first of a run of halfwords */
+extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
+extern u8 D_80095B28[];             /**< a Totals28 */
 extern char sEdTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
 #define sTotals (*(Totals28 *)D_80095B28)
 extern char sEdNewlines2[];           /**< "\n\n" */
@@ -208,8 +208,8 @@ typedef struct {
  * alias them (common.h declares them as scalars). */
 #define sCur (*(BlockCur *)&D_800959C0)
 
-/** @brief A 0x48-byte record of the 200-entry record table, as
- *         this unit places it (object.h's Rec48 is the same record). */
+/** @brief A trap (gTraps), as
+ *         this unit places it (object.h's Trap is the same record). */
 typedef struct {
     s32 unk0[3]; /**< a position */
     s32 unkC[3]; /**< a copy of unk0 */
@@ -234,22 +234,22 @@ typedef struct {
     u8 unk42;    /**< sTotals.unk68 when placed */
     u8 unk43;    /**< sTotals.unk69 when placed */
     u8 unk44[4]; /**< not yet known */
-} Obj48;
+} EditorTrap;
 
 /* MATCHING: object declares D_800959D8 as u8 (it only zeroes it); this
  * unit tests it as s8. */
-extern Obj48 D_80096788[]; /**< records waiting to be placed */
-extern u16 D_8009596E;     /**< number of records waiting */
-extern s8 D_800959D8;      /**< a flag; cleared after placing when 1 */
+extern EditorTrap D_80096788[]; /**< records waiting to be placed */
+extern u16 D_8009596E;          /**< number of records waiting */
+extern s8 D_800959D8;           /**< a flag; cleared after placing when 1 */
 
-/* MATCHING: per-unit views while Rec3C is unit-local; the two handlers
+/* MATCHING: per-unit views while StageSprite is unit-local; the two handlers
  * take an s32 id here (passed unextended), u16 and s16 in object. */
 void SaveEditorSlot(s16 a, u8 *buf);
 void LoadEditorSlot(s16 a, u8 *buf);
 void BuildEmptyBlock(u8 *buf);
-void ClearRec3CAll(Rec3C *recs);
-void StepSprite(s32 id, Rec3C *r);
-void DrawObjectSprite(s32 id, Rec3C *r);
+void ClearStageSprites(StageSprite *recs);
+void StepSprite(s32 id, StageSprite *r);
+void DrawObjectSprite(s32 id, StageSprite *r);
 
 
 /* MATCHING: declared per unit (object and stage_flow give their own
@@ -257,18 +257,18 @@ void DrawObjectSprite(s32 id, Rec3C *r);
 s32 FindFloor(s32 *pos);
 extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
 
-/* MATCHING: object declares it as its Rec5C records. */
-extern s32 D_800CF080[]; /**< 200 0x5C-byte records */
+/* MATCHING: object declares it as its SwitchBox records. */
+extern s32 gSwitches[]; /**< the 200 switches */
 
-/** @brief A 0x5C-byte record of the 200-entry record table, as this unit
+/** @brief A switch (gSwitches), as this unit
  *         places it. */
 typedef struct {
     s8 unk0;       /**< -1 when the record is free */
     u8 unk1[0x4F]; /**< not yet known */
     s32 unk50[3];  /**< a position */
-} Rec5Cv;
+} EditorSwitch;
 
-#define sRecs5C ((Rec5Cv *)D_800CF080)
+#define sSwitches ((EditorSwitch *)gSwitches)
 
 /** @brief A width and a depth. */
 typedef struct {
@@ -284,11 +284,11 @@ typedef struct {
 extern Sizes3 D_800110EC; /**< the three box sizes, 2000, 1000 and 4000 */
 
 /* MATCHING: object defines it on its Box4. */
-void SetBoxCentred(Rec5Cv *b, s16 w, s16 d);
+void SetBoxCentred(EditorSwitch *b, s16 w, s16 d);
 
 /* MATCHING: stage_flow defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
-u16 CallStageHook(s32 id, Obj48 *a, Obj48 *b);
+u16 CallStageHook(s32 id, EditorTrap *a, EditorTrap *b);
 
 /* MATCHING: defined in player and hit_tool, which have no header. */
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
@@ -353,8 +353,8 @@ s32 PrintEditorStatus(void);
 /* MATCHING: player tests it as s8. */
 extern u8 D_80095962; /**< set on leaving the tool */
 
-extern Rec3C D_800DF818; /**< the Rec3C template that gets placed */
-extern u8 D_800959E2;    /**< or-ed into a placed Rec3C's unk26 */
+extern StageSprite D_800DF818; /**< the StageSprite template that gets placed */
+extern u8 D_800959E2;          /**< or-ed into a placed StageSprite's unk26 */
 
 /** @brief Eight bytes, copied whole. */
 typedef struct {
@@ -617,14 +617,14 @@ INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath2);
 s32 UpdateEditor(void) {
     /* MATCHING: an unused 16-byte local gives retail's 0x30 frame. */
     s32 unused[4];
-    Obj48 *r;
+    EditorTrap *r;
     s32 i;
 
     /* MATCHING: non-void with no return keeps the move-distance test's
      * delay slot for the constant 100. */
     switch (gModeStep) {
         case 0:
-            ResetGameState((Rec48 *)0x8016D000);
+            ResetGameState((Trap *)0x8016D000);
             gToolMode = 0;
             ResetStageOverlay();
             gRepeatButtonsOn = 1;
@@ -669,20 +669,20 @@ s32 UpdateEditor(void) {
                             case 2:
                                 EditorPickRecord();
                                 if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
-                                    gPlayer.x = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
-                                    gPlayer.y = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
-                                    gPlayer.z = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
-                                    sTotals.unk1C = ((Obj48 *)D_800A9008)[sTotals.unk18].unk38;
+                                    gPlayer.x = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[0];
+                                    gPlayer.y = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[1];
+                                    gPlayer.z = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[2];
+                                    sTotals.unk1C = ((EditorTrap *)gTraps)[sTotals.unk18].unk38;
                                     gToolMode = 4;
-                                    sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
-                                    sTotals.unk68 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk42;
-                                    sTotals.unk69 = ((Obj48 *)D_800A9008)[sTotals.unk18].unk43;
+                                    sTotals.unk1E = ((EditorTrap *)gTraps)[sTotals.unk18].unk34;
+                                    sTotals.unk68 = ((EditorTrap *)gTraps)[sTotals.unk18].unk42;
+                                    sTotals.unk69 = ((EditorTrap *)gTraps)[sTotals.unk18].unk43;
                                     sTotals.unk20 =
-                                        ((Obj48 *)D_800A9008)[sTotals.unk18].unk1A * 360 / 4096;
+                                        ((EditorTrap *)gTraps)[sTotals.unk18].unk1A * 360 / 4096;
                                     D_8009596E = CallStageHook(sTotals.unk1C, D_80096788, D_80096788);
                                     for (i = 1; i < D_8009596E; i++) {
                                         /* MATCHING: base taken in the body */
-                                        r = (Obj48 *)D_800A9008;
+                                        r = (EditorTrap *)gTraps;
                                         r[sTotals.unk18 + i].unk36 = -1;
                                     }
                                     gEditMax = 200;
@@ -696,21 +696,21 @@ s32 UpdateEditor(void) {
                             case 3:
                                 EditorPickSprite();
                                 if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
-                                    gPlayer.x = D_800A7898[sTotals.unk28].unk4[0];
-                                    gPlayer.y = D_800A7898[sTotals.unk28].unk4[1];
-                                    gPlayer.z = D_800A7898[sTotals.unk28].unk4[2];
-                                    sTotals.unk2C = D_800A7898[sTotals.unk28].unk0 - 30;
+                                    gPlayer.x = gStageSprites[sTotals.unk28].unk4[0];
+                                    gPlayer.y = gStageSprites[sTotals.unk28].unk4[1];
+                                    gPlayer.z = gStageSprites[sTotals.unk28].unk4[2];
+                                    sTotals.unk2C = gStageSprites[sTotals.unk28].unk0 - 30;
                                     gToolMode = 5;
-                                    sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
-                                    sTotals.unk6D = D_800A7898[sTotals.unk28].unk28;
-                                    sTotals.unk6C = D_800A7898[sTotals.unk28].unk27;
+                                    sTotals.unk2A = gStageSprites[sTotals.unk28].unk2C;
+                                    sTotals.unk6D = gStageSprites[sTotals.unk28].unk28;
+                                    sTotals.unk6C = gStageSprites[sTotals.unk28].unk27;
                                     gEditMax = 100;
                                     D_800958D8 = 0;
                                     gMenuLineCount = 9;
                                     gEditValue = sTotals.unk28;
                                     gMenuLine = 0;
                                     gSubStep = 0;
-                                    sTotals.unk6A = D_800A7898[sTotals.unk28].unk2A;
+                                    sTotals.unk6A = gStageSprites[sTotals.unk28].unk2A;
                                 }
                                 break;
                         }
@@ -926,8 +926,8 @@ s32 PrintEditorStatus(void) {
     /* MATCHING: s32 with no return; the unused local gives the 0x40 frame. */
     s32 unused[2];
     /* MATCHING: table bases through locals load before the index. */
-    Rec5Cv *recs;
-    Obj48 *objs;
+    EditorSwitch *recs;
+    EditorTrap *objs;
 
     FntPrint(sEdColorWhite);
     if (gVSyncTime > 400) {
@@ -1086,7 +1086,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSwitchNoRangeText);
-            recs = sRecs5C;
+            recs = sSwitches;
             if (recs[sTotals.unk12].unk0 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1125,7 +1125,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdTrapNoRangeText);
-            objs = (Obj48 *)D_800A9008;
+            objs = (EditorTrap *)gTraps;
             if (objs[sTotals.unk18].unk36 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1154,7 +1154,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdTrapSwitchRangeText);
-            recs = sRecs5C;
+            recs = sSwitches;
             if (recs[sTotals.unk1E].unk0 != -1) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1203,7 +1203,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteNoRangeText);
-            if (D_800A7898[sTotals.unk28].unk0 == -1) {
+            if (gStageSprites[sTotals.unk28].unk0 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -1229,7 +1229,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteSwitchRangeText);
-            recs = sRecs5C;
+            recs = sSwitches;
             if (recs[sTotals.unk2A].unk0 != -1) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1478,7 +1478,7 @@ void PrintEditorCaption(void) {
     /* MATCHING: an unused eight-byte local gives retail's 0x40 frame. */
     s32 unused[2];
     Span8 *e;
-    Obj48 *r;
+    EditorTrap *r;
 
     if (D_800959D8 != 1) {
         return;
@@ -1495,31 +1495,31 @@ void PrintEditorCaption(void) {
             break;
         case 2:
             FntPrint(sEdInfoTrapNoFmt, sTotals.unk18);
-            if (((Obj48 *)D_800A9008)[sTotals.unk18].unk38 != -1) {
-                FntPrint(sEdInfoTrapModelFmt, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
+            if (((EditorTrap *)gTraps)[sTotals.unk18].unk38 != -1) {
+                FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.unk18].unk38);
             } else {
                 FntPrint(sEdOptionsText);
             }
             /* MATCHING: the table base in a pointer local after the join
              * takes $s1, the totals' base $s0. */
-            r = (Obj48 *)D_800A9008;
+            r = (EditorTrap *)gTraps;
             FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.unk18].unk34);
             FntPrint(sEdInfoTypeFmt, r[sTotals.unk18].unk42);
             FntPrint(sEdInfoActFmt, r[sTotals.unk18].unk43);
             break;
         case 3:
             FntPrint(sEdInfoSpriteFmt, sTotals.unk28);
-            FntPrint(sEdInfoSpriteModelFmt, D_800A7898[sTotals.unk28].unk0 - 30);
-            FntPrint(sEdInfoSpriteSwitchFmt, D_800A7898[sTotals.unk28].unk2C);
+            FntPrint(sEdInfoSpriteModelFmt, gStageSprites[sTotals.unk28].unk0 - 30);
+            FntPrint(sEdInfoSpriteSwitchFmt, gStageSprites[sTotals.unk28].unk2C);
             FntPrint(sEdInfoHitLabel);
             /* MATCHING: the clear-bit arm first, as retail's bnez. */
-            if (!(D_800A7898[sTotals.unk28].unk26 & 0x80)) {
+            if (!(gStageSprites[sTotals.unk28].unk26 & 0x80)) {
                 FntPrint(sEdInfoOffText);
             } else {
                 FntPrint(sEdInfoOnText);
             }
             FntPrint(sEdInfoActLabel);
-            switch (D_800A7898[sTotals.unk28].unk26 & 0x3F) {
+            switch (gStageSprites[sTotals.unk28].unk26 & 0x3F) {
                 case 0:
                     FntPrint(sEdNoActText);
                     break;
@@ -1531,13 +1531,13 @@ void PrintEditorCaption(void) {
                     break;
             }
             FntPrint(sEdInfoWalkLabel);
-            if (D_800A7898[sTotals.unk28].unk27 == 0) {
+            if (gStageSprites[sTotals.unk28].unk27 == 0) {
                 FntPrint(sEdInfoOffLine);
             } else {
-                FntPrint(sEdInfoWalkTypeFmt, D_800A7898[sTotals.unk28].unk27);
+                FntPrint(sEdInfoWalkTypeFmt, gStageSprites[sTotals.unk28].unk27);
             }
             FntPrint(sEdInfoSeLabel);
-            switch (D_800A7898[sTotals.unk28].unk28) {
+            switch (gStageSprites[sTotals.unk28].unk28) {
                 case 0:
                     FntPrint(sEdNoSeText);
                     break;
@@ -1866,7 +1866,7 @@ s32 EditorEditPoints(void) {
     }
 }
 
-/** @brief Counts the used 0x5C-byte records (clearing them to 0), picks a
+/** @brief Counts the used switches (clearing them to 0), picks a
  *         free slot if the current one is taken, sizes a box there at the
  *         game position, and on flag bit 5 places it and moves the slot on
  *         to the next free one (error 7 with no entry, 8 when full).
@@ -1880,8 +1880,8 @@ s32 EditorPlaceBox(void) {
     sizes = D_800110EC;
     sTotals.unk16 = 0;
     for (i = 0; i < 200; i++) {
-        if (sRecs5C[i].unk0 != -1) {
-            sRecs5C[i].unk0 = 0;
+        if (sSwitches[i].unk0 != -1) {
+            sSwitches[i].unk0 = 0;
             sTotals.unk16++;
         }
     }
@@ -1889,9 +1889,9 @@ s32 EditorPlaceBox(void) {
         gToolMode = 8;
         return;
     }
-    if (sRecs5C[sTotals.unk12].unk0 != -1) {
+    if (sSwitches[sTotals.unk12].unk0 != -1) {
         for (i = 0; i < 200; i++) {
-            if (sRecs5C[i].unk0 == -1) {
+            if (sSwitches[i].unk0 == -1) {
                 break;
             }
         }
@@ -1901,19 +1901,19 @@ s32 EditorPlaceBox(void) {
         }
         sTotals.unk12 = i;
     }
-    SetBoxCentred(&sRecs5C[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
-    sRecs5C[sTotals.unk12].unk50[0] = gPlayer.x;
-    sRecs5C[sTotals.unk12].unk50[1] = gPlayer.y;
-    sRecs5C[sTotals.unk12].unk50[2] = gPlayer.z;
-    sRecs5C[sTotals.unk12].unk0 = -1;
+    SetBoxCentred(&sSwitches[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
+    sSwitches[sTotals.unk12].unk50[0] = gPlayer.x;
+    sSwitches[sTotals.unk12].unk50[1] = gPlayer.y;
+    sSwitches[sTotals.unk12].unk50[2] = gPlayer.z;
+    sSwitches[sTotals.unk12].unk0 = -1;
     if (gPadTrig & PADRright) {
         if (D_80095824 == -1) {
             gToolMode = 7;
             return;
         }
-        sRecs5C[sTotals.unk12].unk0 = 0;
+        sSwitches[sTotals.unk12].unk0 = 0;
         for (i = 0; i < 200; i++) {
-            if (sRecs5C[i].unk0 == -1) {
+            if (sSwitches[i].unk0 == -1) {
                 break;
             }
         }
@@ -1925,7 +1925,7 @@ s32 EditorPlaceBox(void) {
     }
 }
 
-/** @brief Box picker: counts the used 0x5C-byte records (clearing them to
+/** @brief Box picker: counts the used switches (clearing them to
  *         0); on the first pass selects the one nearest the game position
  *         (error 9 with none, 11 when none is in range); then moves the
  *         game position to the selection, frees it on flag bit 5, or else
@@ -1935,7 +1935,7 @@ s32 EditorPickBox(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
-    Rec5Cv *r;
+    EditorSwitch *r;
     u32 i;
     s32 best;
     s32 d;
@@ -1945,8 +1945,8 @@ s32 EditorPickBox(void) {
     i = 0;
     sTotals.unk16 = 0;
     for (; i < 200; i++) {
-        if (sRecs5C[i].unk0 != -1) {
-            sRecs5C[i].unk0 = 0;
+        if (sSwitches[i].unk0 != -1) {
+            sSwitches[i].unk0 = 0;
             sTotals.unk16++;
         }
     }
@@ -1963,7 +1963,7 @@ s32 EditorPickBox(void) {
             /* MATCHING: the record pointer taken inside the body keeps -1
              * rebuilt every pass. */
             for (i = 0; i < 200; i++) {
-                r = &sRecs5C[i];
+                r = &sSwitches[i];
                 if (r->unk0 != -1) {
                     at.vx = r->unk50[0];
                     at.vy = r->unk50[1];
@@ -1983,14 +1983,14 @@ s32 EditorPickBox(void) {
             break;
         case 1:
             /* MATCHING: the table base in the record pointer first; indexing
-             * sRecs5C directly builds the totals' address first. */
-            r = sRecs5C;
+             * sSwitches directly builds the totals' address first. */
+            r = sSwitches;
             sel.vx = r[sTotals.unk12].unk50[0];
             sel.vy = r[sTotals.unk12].unk50[1];
             sel.vz = r[sTotals.unk12].unk50[2];
             DrawPin(&sel);
             if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
-                sRecs5C[sTotals.unk12].unk0 = -1;
+                sSwitches[sTotals.unk12].unk0 = -1;
                 gSubStep = 0;
                 break;
             }
@@ -1998,7 +1998,7 @@ s32 EditorPickBox(void) {
                 if (--sTotals.unk12 >= 200) {
                     sTotals.unk12 = 199;
                 }
-                while (sRecs5C[sTotals.unk12].unk0 == -1) {
+                while (sSwitches[sTotals.unk12].unk0 == -1) {
                     if (--sTotals.unk12 >= 200) {
                         sTotals.unk12 = 199;
                     }
@@ -2009,7 +2009,7 @@ s32 EditorPickBox(void) {
                 if (++sTotals.unk12 >= 200) {
                     sTotals.unk12 = 199;
                 }
-                while (sRecs5C[sTotals.unk12].unk0 == -1) {
+                while (sSwitches[sTotals.unk12].unk0 == -1) {
                     if (++sTotals.unk12 >= 200) {
                         sTotals.unk12 = 0;
                     }
@@ -2019,15 +2019,15 @@ s32 EditorPickBox(void) {
     }
 }
 
-/** @brief Counts the live Obj48 records; on flag bit 5, places every
+/** @brief Counts the live EditorTrap records; on flag bit 5, places every
  *         waiting record into the table (error 8 when it is full). */
 void EditorPlaceRecords(void) {
     u32 i;
     u16 n;
-    Obj48 *recs;
-    Obj48 *w;
+    EditorTrap *recs;
+    EditorTrap *w;
 
-    recs = (Obj48 *)D_800A9008;
+    recs = (EditorTrap *)gTraps;
     n = sTotals.unk18;
     sTotals.unk1A = 0;
     for (i = 0; i < 200; i++) {
@@ -2060,8 +2060,8 @@ void EditorPlaceRecords(void) {
             } else {
                 w->unk38 = -1;
             }
-            ((Obj48 *)D_800A9008)[(s16)n] = *w;
-            ((Obj48 *)D_800A9008)[(s16)n].unk34 = sTotals.unk1E;
+            ((EditorTrap *)gTraps)[(s16)n] = *w;
+            ((EditorTrap *)gTraps)[(s16)n].unk34 = sTotals.unk1E;
             n++;
             sTotals.unk18 = n;
         }
@@ -2148,9 +2148,9 @@ s32 EditorEditRecordValues(void) {
  *  @return nothing; the value is undefined. */
 s32 EditorArrangeRecords(void) {
     /* MATCHING: an unused record-sized local gives retail's 0x78 frame. */
-    Obj48 unused;
-    Obj48 *w;
-    Obj48 *r;
+    EditorTrap unused;
+    EditorTrap *w;
+    EditorTrap *r;
     u16 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
@@ -2178,27 +2178,27 @@ s32 EditorArrangeRecords(void) {
             }
             w->unk2C = ratan2(-gFloorY[3], gFloorY[2]);
             w->unk30 = ratan2(-gFloorY[1], gFloorY[2]);
-            UpdateObjectEntry(&D_800D8D20[w->unk36], (Rec48 *)w);
+            UpdateObjectEntry(&gObjectModels[w->unk36], (Trap *)w);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: an integer sum puts the index first in the addu. */
-                r = (Obj48 *)(i * sizeof(Obj48) + (u32)w);
+                r = (EditorTrap *)(i * sizeof(EditorTrap) + (u32)w);
                 D_800957E4.vx = r->unkC[0];
                 D_800957E4.vy = r->unkC[1];
                 D_800957E4.vz = r->unkC[2];
-                TransformByCoord((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[w->unk36].unk10, &D_800957E4, &D_8009F268);
                 r->unk0[0] = D_8009F268.vx;
                 r->unk0[1] = D_8009F268.vy;
                 r->unk0[2] = D_8009F268.vz;
                 r->unk1A = w->unk1A + r->unk20;
                 r->unk2C = w->unk2C;
                 r->unk30 = w->unk30;
-                UpdateObjectEntry(&D_800D8D20[r->unk36], (Rec48 *)r);
+                UpdateObjectEntry(&gObjectModels[r->unk36], (Trap *)r);
             }
             break;
     }
 }
 
-/** @brief Record picker: counts the live Obj48 records; on the first pass
+/** @brief Record picker: counts the live EditorTrap records; on the first pass
  *         selects the one nearest the game position (error 9 with none,
  *         11 when none is in range); then moves the game position to the
  *         selection, frees it on flag bit 5 and steps the selection over
@@ -2208,7 +2208,7 @@ s32 EditorPickRecord(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
-    Obj48 *r;
+    EditorTrap *r;
     u32 i;
     s32 best;
     s32 d;
@@ -2218,7 +2218,7 @@ s32 EditorPickRecord(void) {
     i = 0;
     sTotals.unk1A = 0;
     for (; i < 200; i++) {
-        if (((Obj48 *)D_800A9008)[i].unk36 != -1) {
+        if (((EditorTrap *)gTraps)[i].unk36 != -1) {
             sTotals.unk1A++;
         }
     }
@@ -2235,7 +2235,7 @@ s32 EditorPickRecord(void) {
             /* MATCHING: the record pointer taken inside the body keeps -1
              * rebuilt every pass. */
             for (i = 0; i < 200; i++) {
-                r = &((Obj48 *)D_800A9008)[i];
+                r = &((EditorTrap *)gTraps)[i];
                 if (r->unk36 != -1) {
                     at.vx = r->unk0[0];
                     at.vy = r->unk0[1];
@@ -2254,20 +2254,20 @@ s32 EditorPickRecord(void) {
             }
             break;
         case 1:
-            sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
-            sel.vx = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
-            sel.vy = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
-            sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
+            sTotals.unk1E = ((EditorTrap *)gTraps)[sTotals.unk18].unk34;
+            sel.vx = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[0];
+            sel.vy = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[1];
+            sel.vz = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[2];
             DrawPin(&sel);
             if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
-                ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
+                ((EditorTrap *)gTraps)[sTotals.unk18].unk36 = -1;
             }
             if (gPadTrig & PADL2) {
                 if (--sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
                 }
-                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                while (((EditorTrap *)gTraps)[sTotals.unk18].unk36 == -1) {
                     if (--sTotals.unk18 >= 200) {
                         sTotals.unk18 = 199;
                     }
@@ -2278,7 +2278,7 @@ s32 EditorPickRecord(void) {
                 if (++sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
                 }
-                while (((Obj48 *)D_800A9008)[sTotals.unk18].unk36 == -1) {
+                while (((EditorTrap *)gTraps)[sTotals.unk18].unk36 == -1) {
                     if (++sTotals.unk18 >= 200) {
                         sTotals.unk18 = 0;
                     }
@@ -2288,7 +2288,7 @@ s32 EditorPickRecord(void) {
     }
 }
 
-/** @brief Runs the Rec3C template's menu editor: on a line change loads
+/** @brief Runs the StageSprite template's menu editor: on a line change loads
  *         the new line's value and limit, else stores the edited value
  *         back; steps the template's angle on flag bits 3 and 2, then
  *         rebuilds the template at the game position and runs its handler. */
@@ -2407,8 +2407,8 @@ void EditorEditSpriteValues(void) {
     }
 }
 
-/** @brief Fills the Rec3C template at the game position and runs its
- *         handler, counts the used Rec3C records, and on flag bit 5 places
+/** @brief Fills the StageSprite template at the game position and runs its
+ *         handler, counts the used StageSprite records, and on flag bit 5 places
  *         the template at the next slot and moves the slot on to a free
  *         one (error 8 when the table is full).
  *  @return nothing; the value is undefined. */
@@ -2431,7 +2431,7 @@ s32 EditorPlaceSprite(void) {
     i = 0;
     sTotals.unk30 = 0;
     for (; i < 100; i++) {
-        if (D_800A7898[i].unk0 != -1) {
+        if (gStageSprites[i].unk0 != -1) {
             sTotals.unk30++;
         }
     }
@@ -2454,12 +2454,12 @@ s32 EditorPlaceSprite(void) {
             D_800DF818.unk2A = sTotals.unk6A;
             D_800DF818.unk30 = gSection;
             D_800DF818.unk34 = D_80095824;
-            D_800A7898[sTotals.unk28] = D_800DF818;
+            gStageSprites[sTotals.unk28] = D_800DF818;
             /* MATCHING: the full-table store inside the loop, so its 8 is
              * hoisted and the block is not merged with the one above. */
             i = 0;
             while (1) {
-                if (D_800A7898[sTotals.unk28].unk0 == -1) {
+                if (gStageSprites[sTotals.unk28].unk0 == -1) {
                     goto found;
                 }
                 sTotals.unk28++;
@@ -2479,14 +2479,14 @@ s32 EditorPlaceSprite(void) {
     }
 }
 
-/** @brief Runs one of two handlers on every used Rec3C whose unk2C equals
+/** @brief Runs one of two handlers on every used StageSprite whose unk2C equals
  *         sTotals.unk2A, picked by bit 7 of its unk26. */
 void EditorRunSprites(void) {
     u32 i;
-    Rec3C *r;
+    StageSprite *r;
 
     for (i = 0; i < 100; i++) {
-        r = &D_800A7898[i];
+        r = &gStageSprites[i];
         if (r->unk0 != -1 && sTotals.unk2A == r->unk2C) {
             if (r->unk26 & 0x80) {
                 StepSprite(r->unk0, r);
@@ -2497,7 +2497,7 @@ void EditorRunSprites(void) {
     }
 }
 
-/** @brief Rec3C picker, the Obj48 picker's twin: counts the used Rec3C
+/** @brief StageSprite picker, the EditorTrap picker's twin: counts the used StageSprite
  *         records; on the first pass selects the one nearest the game
  *         position (error 9 with none, 11 when none is in range); then
  *         moves the game position to the selection, frees it on flag
@@ -2508,7 +2508,7 @@ s32 EditorPickSprite(void) {
     VECTOR pos;
     VECTOR at;
     VECTOR sel;
-    Rec3C *r;
+    StageSprite *r;
     u32 i;
     s32 best;
     s32 d;
@@ -2518,7 +2518,7 @@ s32 EditorPickSprite(void) {
     i = 0;
     sTotals.unk30 = 0;
     for (; i < 100; i++) {
-        if (D_800A7898[i].unk0 != -1) {
+        if (gStageSprites[i].unk0 != -1) {
             sTotals.unk30++;
         }
     }
@@ -2535,7 +2535,7 @@ s32 EditorPickSprite(void) {
             /* MATCHING: the record pointer taken inside the body keeps -1
              * rebuilt every pass. */
             for (i = 0; i < 100; i++) {
-                r = &D_800A7898[i];
+                r = &gStageSprites[i];
                 if (r->unk0 != -1) {
                     at.vx = r->unk4[0];
                     at.vy = r->unk4[1];
@@ -2554,20 +2554,20 @@ s32 EditorPickSprite(void) {
             }
             break;
         case 1:
-            sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
-            sel.vx = D_800A7898[sTotals.unk28].unk4[0];
-            sel.vy = D_800A7898[sTotals.unk28].unk4[1];
-            sel.vz = D_800A7898[sTotals.unk28].unk4[2];
+            sTotals.unk2A = gStageSprites[sTotals.unk28].unk2C;
+            sel.vx = gStageSprites[sTotals.unk28].unk4[0];
+            sel.vy = gStageSprites[sTotals.unk28].unk4[1];
+            sel.vz = gStageSprites[sTotals.unk28].unk4[2];
             DrawPin(&sel);
             if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
-                D_800A7898[sTotals.unk28].unk0 = -1;
+                gStageSprites[sTotals.unk28].unk0 = -1;
             }
             if (gPadTrig & PADL2) {
                 if (--sTotals.unk28 >= 100) {
                     sTotals.unk28 = 99;
                 }
-                while (D_800A7898[sTotals.unk28].unk0 == -1) {
+                while (gStageSprites[sTotals.unk28].unk0 == -1) {
                     if (--sTotals.unk28 >= 100) {
                         sTotals.unk28 = 99;
                     }
@@ -2578,7 +2578,7 @@ s32 EditorPickSprite(void) {
                 if (++sTotals.unk28 >= 100) {
                     sTotals.unk28 = 99;
                 }
-                while (D_800A7898[sTotals.unk28].unk0 == -1) {
+                while (gStageSprites[sTotals.unk28].unk0 == -1) {
                     if (++sTotals.unk28 >= 100) {
                         sTotals.unk28 = 0;
                     }
@@ -2957,10 +2957,10 @@ void PrintEditorSlots(void) {
 /** @brief Saves the record tables, the block header area and the tool
  *         state block into save slot `a` of `buf`. */
 void SaveEditorSlot(s16 a, u8 *buf) {
-    ((SaveSlot *)buf)[a].unk3AB4 = *(Rec5CsCopy *)D_800CF080;
-    ((SaveSlot *)buf)[a].unk274 = *(Obj48sCopy *)D_800A9008;
+    ((SaveSlot *)buf)[a].unk3AB4 = *(SwitchTable *)gSwitches;
+    ((SaveSlot *)buf)[a].unk274 = *(TrapTable *)gTraps;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
-    *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(Rec3CsCopy *)D_800A7898;
+    *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(SpriteTable *)gStageSprites;
     *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
     *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200 = *(TotalsCopy *)D_80095B28;
 }
@@ -2968,10 +2968,10 @@ void SaveEditorSlot(s16 a, u8 *buf) {
 /** @brief Restores the record tables, the block header area and the tool
  *         state block from save slot `a` of `buf`. */
 void LoadEditorSlot(s16 a, u8 *buf) {
-    *(Rec5CsCopy *)D_800CF080 = ((SaveSlot *)buf)[a].unk3AB4;
-    *(Obj48sCopy *)D_800A9008 = ((SaveSlot *)buf)[a].unk274;
+    *(SwitchTable *)gSwitches = ((SaveSlot *)buf)[a].unk3AB4;
+    *(TrapTable *)gTraps = ((SaveSlot *)buf)[a].unk274;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
-    *(Rec3CsCopy *)D_800A7898 = *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
+    *(SpriteTable *)gStageSprites = *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
     *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
     *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
 }
@@ -3212,12 +3212,12 @@ void RestoreEditorState(s16 a) {
 }
 
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
- *         then clears and resets the Rec3C table. */
+ *         then clears and resets the StageSprite table. */
 void ResetEditorBlock(void) {
     bzero((u8 *)0x801FD000, 0x800);
     BuildEmptyBlock((u8 *)0x801FD000);
-    bzero((u8 *)D_800A7898, sizeof(Rec3C) * 100);
-    ClearRec3CAll(D_800A7898);
+    bzero((u8 *)gStageSprites, sizeof(StageSprite) * 100);
+    ClearStageSprites(gStageSprites);
 }
 
 /** @brief Builds an empty block header in `buf` for the current entry
@@ -3236,8 +3236,8 @@ void BuildEmptyBlock(u8 *buf) {
     *(s32 *)(buf + 4) = D_800959C8 * 8 + 8;
 }
 
-/** @brief Sets byte 0 of all 200 records of a Rec5C table to -1. */
-void ClearRec5CAll(Rec5C *recs) {
+/** @brief Sets byte 0 of all 200 records of a SwitchBox table to -1. */
+void ClearSwitches(SwitchBox *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
@@ -3246,8 +3246,8 @@ void ClearRec5CAll(Rec5C *recs) {
     }
 }
 
-/** @brief Sets byte 0 of records 100 to 199 of a 200-entry table to -1. */
-void ClearRec5CUpper(Rec5C *recs) {
+/** @brief Frees switches 100 to 199 (byte 0 to -1). */
+void ClearSwitchBoxUpper(SwitchBox *recs) {
     u32 i;
 
     recs += 100;
@@ -3257,8 +3257,8 @@ void ClearRec5CUpper(Rec5C *recs) {
     }
 }
 
-/** @brief Resets all 200 records of a Rec48 table. */
-void ResetRec48All(Rec48 *recs) {
+/** @brief Resets all 200 records of a Trap table. */
+void ResetTraps(Trap *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
@@ -3270,10 +3270,10 @@ void ResetRec48All(Rec48 *recs) {
     }
 }
 
-/** @brief Resets records 150 to 199 of a 200-entry Rec48 table. */
-void ResetRec48Upper(Rec48 *recs) {
+/** @brief Resets traps 150 to 199. */
+void ResetTrapUpper(Trap *recs) {
     u32 i;
-    Rec48 *r;
+    Trap *r;
 
     r = &recs[150];
     for (i = 150; i < 200; i++) {
@@ -3284,8 +3284,8 @@ void ResetRec48Upper(Rec48 *recs) {
     }
 }
 
-/** @brief Sets the halfword at 0 of all 100 records of a Rec3C table to -1. */
-void ClearRec3CAll(Rec3C *recs) {
+/** @brief Sets the halfword at 0 of all 100 records of a StageSprite table to -1. */
+void ClearStageSprites(StageSprite *recs) {
     u32 i;
 
     for (i = 0; i < 100; i++) {
@@ -3371,16 +3371,16 @@ void RunValueMenu(void) {
     }
 }
 
-/** @brief Applies every used Rec48 whose unk34 equals sTotals.unk1E to the
- *         Rec78 its unk36 names. */
+/** @brief Applies every used Trap whose unk34 equals sTotals.unk1E to the
+ *         ObjectModel its unk36 names. */
 void ApplyRecordsToEntries(void) {
     u32 i;
-    Rec48 *r;
+    Trap *r;
 
     for (i = 0; i < 200; i++) {
-        r = &((Rec48 *)D_800A9008)[i];
+        r = &((Trap *)gTraps)[i];
         if (r->unk36 != -1 && sTotals.unk1E == r->unk34) {
-            UpdateObjectEntry(&D_800D8D20[r->unk36], r);
+            UpdateObjectEntry(&gObjectModels[r->unk36], r);
         }
     }
 }

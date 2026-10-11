@@ -14,7 +14,7 @@ function's match report, not here.
   plain extern; `lui <reg>` + `%lo(sym)(<reg>)` is an array of unknown size,
   including a `.sdata` string reached `lui`/`addiu` (`extern char
   sTab[];`, PrintTabs) and a halfword table head stored through
-  `lui $v0` (`extern u16 D_80095B4C[];`, ResetRec48Upper).
+  `lui $v0` (`extern u16 D_80095B4C[];`, ResetTrapUpper).
 - **A LOAD whose `lui` and destination are the same register is a scalar**,
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
   load. cc1's split of an array puts the address and the value in different
@@ -144,7 +144,7 @@ function's match report, not here.
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
   `andi 0xFF`. (StepStepper)
 - **A byte store of `addiu $x, $zero, -1`: the value is `s8` -1.** A `u8` 0xFF
-  gives `addiu ..., 0xFF`. (ClearRec5CAll)
+  gives `addiu ..., 0xFF`. (ClearSwitches)
 - **A byte loaded twice, `lb` then `lbu`: read once through an `(s8)` cast
   for the test, once plainly for the value.** (SpawnEffect)
 - **An 8-byte local filled with `lwl`/`lwr` from a global: a struct copy**,
@@ -229,15 +229,15 @@ function's match report, not here.
 ## Loops
 
 - **A loop counting up from 0 and tested with `sltiu`: a `u32` counter.** With
-  `s32`, 2.8.1 reverses the loop into a count-down `bgez`. (ClearRec5CAll)
+  `s32`, 2.8.1 reverses the loop into a count-down `bgez`. (ClearSwitches)
 - **A pointer bumped before the loop's constants: the source advanced the
   parameter** as its own statement (`recs += 100;`). Indexing `recs[i]` from
   100 strength-reduces to the same loop with the `addiu` after the constants.
-  (ClearRec5CUpper)
+  (ClearSwitchBoxUpper)
 - **A loop pointer biased to a field other than the first one written (stores
   at negative offsets): the source walked a separate struct pointer**, `r =
   &tbl[k]; ... r->f = ...; r++;`. Every `tbl[i].f` form reduces to the record
-  start. (ResetRec48Upper)
+  start. (ResetTrapUpper)
 - **A compare loop that loads both bytes before either increment: the
   increments are separate statements after the test**, `if (*a != *b) return
   -1; a++; b++;`. In `*a++ != *b++`, 2.8.1 schedules `b++` before the load of

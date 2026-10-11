@@ -2,10 +2,10 @@
 
 > Renamed from `func_800317D0` on 2026-10-11 (tools/rename.py). Address 0x800317d0.
 
-Unit `src/editor.c`. Copies the game position into the Rec3C template
+Unit `src/editor.c`. Copies the game position into the StageSprite template
 `D_800DF818`, runs one of two handlers on it (`DrawObjectSprite` or
 `StepSprite`, picked by `sTotals.unk32`, id `sTotals.unk2C + 30`),
-counts the used records of the 100-entry Rec3C table into
+counts the used records of the 100-entry StageSprite table into
 `sTotals.unk30`; on flag bit 5 of `gPadTrig` stamps the template
 (kind, id, position copy, flag byte, three tool-block bytes, two global
 words), copies it to slot `sTotals.unk28`, and advances that slot
@@ -39,16 +39,16 @@ permuter search (stopped early on its lead).
   shifted value's register as destination: `unk26 |= D_800959E2;`, not
   `unk26 = f | D_800959E2;` (154/158).
 - The 0x3C-byte copy is a struct assignment
-  `D_800A7898[sTotals.unk28] = D_800DF818;` (four-word loop plus three).
+  `gStageSprites[sTotals.unk28] = D_800DF818;` (four-word loop plus three).
   A `Words12` struct copy of the position emits a block move in `t4`..
   instead of retail's `a0`..`a2`: three separate word assignments.
 
 ## Declarations
 
-- `Rec3C` (unit-local) gains `unk4[3]`, `unk10[3]`, `unk27`, `unk28`,
+- `StageSprite` (unit-local) gains `unk4[3]`, `unk10[3]`, `unk27`, `unk28`,
   `unk2A`, `unk30`, `unk34`; `Totals28` (unit-local) gains `unk28`,
   `unk2C`, `unk30`, `unk32`, `unk6A`, `unk6C`, `unk6D`.
-- New externs in the `.c`: `Rec3C D_800DF818`, `u8 D_800959E2`.
+- New externs in the `.c`: `StageSprite D_800DF818`, `u8 D_800959E2`.
 - CHANGED existing declarations (unit-local, in editor.c only):
   `DrawObjectSprite` and `StepSprite` now take `s32 id`.
 
@@ -72,7 +72,7 @@ s32 EditorPlaceSprite(void) {
     i = 0;
     sTotals.unk30 = 0;
     for (; i < 100; i++) {
-        if (D_800A7898[i].unk0 != -1) {
+        if (gStageSprites[i].unk0 != -1) {
             sTotals.unk30++;
         }
     }
@@ -95,12 +95,12 @@ s32 EditorPlaceSprite(void) {
             D_800DF818.unk2A = sTotals.unk6A;
             D_800DF818.unk30 = gSection;
             D_800DF818.unk34 = D_80095824;
-            D_800A7898[sTotals.unk28] = D_800DF818;
+            gStageSprites[sTotals.unk28] = D_800DF818;
             /* MATCHING: the full-table store inside the loop, so its 8 is
              * hoisted and the block is not merged with the one above. */
             i = 0;
             while (1) {
-                if (D_800A7898[sTotals.unk28].unk0 == -1) {
+                if (gStageSprites[sTotals.unk28].unk0 == -1) {
                     goto found;
                 }
                 sTotals.unk28++;

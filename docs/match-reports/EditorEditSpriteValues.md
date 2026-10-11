@@ -2,7 +2,7 @@
 
 > Renamed from `func_8003146C` on 2026-10-11 (tools/rename.py). Address 0x8003146c.
 
-Unit `src/code_1dc24.c`. The Rec3C template's menu editor, the nine-line
+Unit `src/code_1dc24.c`. The StageSprite template's menu editor, the nine-line
 sibling of EditorEditRecordValues: saves the highlighted line, runs
 `StepMenuCursor`, then after a line change loads the new line's value
 (`gEditValue`) and limit (`gEditMax`) from the tool block, otherwise
@@ -10,7 +10,7 @@ stores the edited value back. Steps the angle `sTotals.unk6A` on flag bits
 3 and 2 of `gPad` (wrapping 0..359), turns `D_8009EEC0` to it when
 `sTotals.unk6C` is set, then rebuilds the template `D_800DF818` at the game
 position, takes two heights from the kind's eight-byte table entry
-(`GetQuad16`), and runs one of the two Rec3C handlers. Fifth build
+(`GetQuad16`), and runs one of the two StageSprite handlers. Fifth build
 matched.
 
 ## Shapes read from retail
@@ -37,7 +37,7 @@ matched.
 - `Totals28`: `u8 unk2E[2]` became `u16 unk2E`; `u8 unk34[0x34]` became
   `u16 unk34` + `u8 unk36[0x32]`; `unk6A` became `s16` (was `u16`; the
   only other user, EditorPlaceSprite, still matches).
-- `Rec3C`: `u8 unk1C[0xA]` became `s16 unk1C`, `s16 unk1E`, `s32 unk20`,
+- `StageSprite`: `u8 unk1C[0xA]` became `s16 unk1C`, `s16 unk1E`, `s32 unk20`,
   `u8 unk24[2]`.
 - New unit-local `Bytes8` (`u8 b[8]`).
 - `GetQuad16` declared in this `.c` as `(s32 i, Bytes8 *out)` with a

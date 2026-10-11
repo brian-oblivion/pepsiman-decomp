@@ -125,8 +125,8 @@ s32 PrintEditorStatus(void) {
     /* MATCHING: s32 with no return; the unused local gives the 0x40 frame. */
     s32 unused[2];
     /* MATCHING: table bases through locals load before the index. */
-    Rec5Cv *recs;
-    Obj48 *objs;
+    EditorSwitch *recs;
+    EditorTrap *objs;
 
     FntPrint(sEdColorWhite);
     if (gVSyncTime > 400) {
@@ -324,7 +324,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdTrapNoRangeText);
-            objs = (Obj48 *)D_800A9008;
+            objs = (EditorTrap *)gTraps;
             if (objs[sTotals.unk18].unk36 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -402,7 +402,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteNoRangeText);
-            if (D_800A7898[sTotals.unk28].unk0 == -1) {
+            if (gStageSprites[sTotals.unk28].unk0 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
@@ -670,7 +670,7 @@ s32 PrintEditorStatus(void) {
 }
 ```
 
-`sTotals`, `sGameSave`, `sRecs5C`, `Rec5Cv` and `Obj48` are the unit's
+`sTotals`, `sGameSave`, `sRecs5C`, `EditorSwitch` and `EditorTrap` are the unit's
 existing views (declared above UpdateEditor). `D_800ACED0` (a VECTOR two
 GsOTs past `gSubOt`) and the strings are new externs in the unit; the
 prototype `void PrintEditorStatus(void);` above UpdateEditor became `s32`.
@@ -693,7 +693,7 @@ prototype `void PrintEditorStatus(void);` above UpdateEditor became `s32`.
 - **Table-first `lui`**: `((T *)D)[i]` and the pointer-to-array cast both
   load the index's `lui` first (fold puts the address constant second);
   a real array, or a pointer local assigned just before the test, loads
-  the table first. `D_800A7898` is a real `Rec3C` array and needed
+  the table first. `gStageSprites` is a real `StageSprite` array and needed
   nothing.
 - **Address CSE** across calls (`sEdColorWhite` in `$s1`/`$s0`,
   `sEdNewlines3`/`sEdNewline`/`sEdNewlines2` in the warning panels) came out

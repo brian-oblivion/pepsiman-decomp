@@ -12,7 +12,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 
-/** @brief A 0x5C-byte record of a 200-entry table: a box whose corners
+/** @brief A switch (gSwitches, 200 of them): a box whose corners
  *         are tested against the player or placed in the world. */
 typedef struct {
     s8 unk0;              /**< -1 when free (a guess); 1 once the box is hit */
@@ -23,9 +23,10 @@ typedef struct {
     s32 x;                /**< x of the box */
     s32 y;                /**< y */
     s32 z;                /**< z */
-} Rec5C;
+} SwitchBox;
 
-/** @brief A 0x48-byte record of a 200-entry table; a few fields known. */
+/** @brief A trap, as the editor calls it (gTraps, 200 of them): a stage
+ *         object with a model, a switch, a type and an act. */
 typedef struct {
     u8 unk0[0x24]; /**< not yet known */
     s16 unk24;     /**< zeroed with unk40 */
@@ -39,7 +40,7 @@ typedef struct {
     u8 unk40;      /**< cleared with unk24 */
     u8 unk41;      /**< 1 when reset; only bit 0 survives a clear */
     u8 unk42[6];   /**< not yet known */
-} Rec48;
+} Trap;
 
 /** @brief The header of a block whose second part starts at a byte offset
  *         the header gives. */
@@ -62,11 +63,11 @@ extern GsCOORDINATE2 gTodCoords[]; /**< the 20 TOD objects' coordinate systems; 
  *  @param hdr the header */
 void SetCurrentBlock(BlockHeader *hdr);
 
-/** @brief Updates a Rec78 entry and the Rec48 record it belongs to.
- *  @param rec the Rec78 entry
- *  @param r the Rec48 record; its byte at 0x40 collects a result bit
+/** @brief Updates a ObjectModel entry and the Trap record it belongs to.
+ *  @param rec the ObjectModel entry
+ *  @param r the Trap record; its byte at 0x40 collects a result bit
  *  @return nothing; the value is undefined (non-void for the match) */
-s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r);
+s32 UpdateObjectEntry(ObjectModel *rec, Trap *r);
 
 extern SVECTOR D_800957E4; /**< a local position to transform to world */
 extern VECTOR D_8009F268;  /**< the world position of that local one */
@@ -77,9 +78,9 @@ extern u8 D_800A74D0[];    /**< 128 byte flags; cleared together */
 s32 PromoteMarks(void);
 
 /** @brief Resets the game state: clears the 0x30000-byte block at `recs`
- *         and frees its 200 Rec48 records, and resets the tables.
+ *         and frees its 200 Trap records, and resets the tables.
  *  @param recs the block */
-void ResetGameState(Rec48 *recs);
+void ResetGameState(Trap *recs);
 
 /** @brief Defined in object.
  *  @return not yet known */

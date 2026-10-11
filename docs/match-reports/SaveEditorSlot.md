@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. Saves the five areas LoadEditorSlot restores into
 save slot `a` of the tool buffer `buf`: the 0x5C-byte record table, the
-Obj48 table, the Rec3C table, the block header area at `0x801FD000` and the
+EditorTrap table, the StageSprite table, the block header area at `0x801FD000` and the
 tool state block. First build matched, written as LoadEditorSlot's mirror.
 
 ## Shapes read from retail
@@ -20,10 +20,10 @@ tool state block. First build matched, written as LoadEditorSlot's mirror.
 
 ```c
 void SaveEditorSlot(s16 a, u8 *buf) {
-    ((SaveSlot *)buf)[a].unk3AB4 = *(Rec5CsCopy *)D_800CF080;
-    ((SaveSlot *)buf)[a].unk274 = *(Obj48sCopy *)D_800A9008;
+    ((SaveSlot *)buf)[a].unk3AB4 = *(SwitchTable *)gSwitches;
+    ((SaveSlot *)buf)[a].unk274 = *(TrapTable *)gTraps;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
-    *(Rec3CsCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(Rec3CsCopy *)D_800A7898;
+    *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(SpriteTable *)gStageSprites;
     *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
     *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200 = *(TotalsCopy *)D_80095B28;
 }

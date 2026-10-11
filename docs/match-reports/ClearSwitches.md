@@ -1,4 +1,8 @@
-# ClearRec5CAll — MATCHED 9/9 (round 1, alpha)
+# ClearSwitches — MATCHED 9/9 (round 1, alpha)
+
+> Renamed from `ClearSwitchBoxAll` on 2026-10-11 (tools/rename.py). Address 0x80033854.
+
+> Renamed from `ClearRec5CAll` on 2026-10-11 (tools/rename.py). Address 0x80033854.
 
 > Renamed from `func_80033854` on 2026-10-11 (tools/rename.py). Address 0x80033854.
 
@@ -6,7 +10,7 @@ Unit `src/editor.c`. Fills byte 0 of 200 consecutive 0x5C-byte records
 with -1.
 
 ```c
-void ClearRec5CAll(Rec5C *recs) {
+void ClearSwitches(SwitchBox *recs) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
@@ -24,5 +28,5 @@ void ClearRec5CAll(Rec5C *recs) {
 - **The stored byte is `s8` -1**: retail materialises `addiu $a1,$zero,-1`;
   a `u8` 0xFF gives `addiu ...,0xFF`.
 
-First matched as `s8 *p` stepping 0x5C; retyped to the unit's `Rec5C`
-(0x5C bytes, a signed byte at 0) with `ClearRec5CUpper`, still 9/9.
+First matched as `s8 *p` stepping 0x5C; retyped to the unit's `SwitchBox`
+(0x5C bytes, a signed byte at 0) with `ClearSwitchBoxUpper`, still 9/9.

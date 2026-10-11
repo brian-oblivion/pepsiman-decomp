@@ -1,15 +1,17 @@
-# StepEffect3 — MATCHED (75/75), round 6, runner echo (stalled in round 5, bravo: 4 words long)
+# StepFlash — MATCHED (75/75), round 6, runner echo (stalled in round 5, bravo: 4 words long)
+
+> Renamed from `StepEffect3` on 2026-10-11 (tools/rename.py). Address 0x8003fbe0.
 
 > Renamed from `func_8003FBE0` on 2026-10-10 (tools/rename.py). Address 0x8003fbe0.
 
 ## Round 6: matched (echo)
 
-Same lever as StepEffect2 and StepEffect0: the matrix set-up is the
+Same lever as StepSmoke and StepBurst: the matrix set-up is the
 inlined `setLs` helper (SetLsTranslation's body), which rebuilds `&coord`
 and `&ls` at every call. First build:
 
 ```c
-s32 StepEffect3(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFlash(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -28,13 +30,13 @@ s32 StepEffect3(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 ## Round 5 (bravo)
 
-Unit `src/stage.c`. The fading twin of StepEffect0: same countdown
+Unit `src/stage.c`. The fading twin of StepBurst: same countdown
 and matrix set-up, then sprite 0x11A at size 0x32 in colour
 (1, c, c, c) with `c = 0x80 - frame * 16`, frame advanced, 1 returned at
 frame 8. Parked under `#ifdef NON_MATCHING` in the unit.
 
 ```c
-s32 StepEffect3(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFlash(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
     GsCOORDINATE2 coord;
@@ -65,10 +67,10 @@ s32 StepEffect3(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 }
 ```
 
-One build, from StepEffect0's body. Everything matches (including
+One build, from StepBurst's body. Everything matches (including
 `lbu` of the frame for the colour and `li v0, -0x80` / `subu`) except
-the residue described in docs/match-reports/StepEffect0.md: retail
+the residue described in docs/match-reports/StepBurst.md: retail
 rematerialises `&coord` (sp+0x28) and `&ls` (sp+0x78) at each call, the
 build keeps each in `s3`, which costs `s5` (save/restore), two `move`s
 and an 0xB8 frame. No separate permuter search: it is the same body and
-the same residue as StepEffect0, whose search found nothing.
+the same residue as StepBurst, whose search found nothing.

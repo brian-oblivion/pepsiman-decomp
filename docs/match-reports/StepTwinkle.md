@@ -1,9 +1,11 @@
-# StepEffect1 — MATCHED (106/106), round 8, runner charlie
+# StepTwinkle — MATCHED (106/106), round 8, runner charlie
+
+> Renamed from `StepEffect1` on 2026-10-11 (tools/rename.py). Address 0x8003e550.
 
 > Renamed from `func_8003E550` on 2026-10-10 (tools/rename.py). Address 0x8003e550.
 
 Unit `src/stage.c`. One step of a slot animation, a sibling of
-StepEffect0..StepEffect9: after the slot's start delay it sets the GS
+StepBurst..StepFloat: after the slot's start delay it sets the GS
 local-screen matrix to the slot's position, draws sprite 0x11F (through
 draw's DrawStandingBillboard) with a size that follows a cosine and a sine of the
 frame, and reports the end at frame 15.
@@ -12,7 +14,7 @@ frame, and reports the end at frame 15.
 /* DrawStandingBillboard: include/draw.h */
 /* setLs: the unit's static __inline__ helper (see src/stage.c) */
 
-s32 StepEffect1(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepTwinkle(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -32,7 +34,7 @@ s32 StepEffect1(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 ## Levers
 
-- **The inlined `setLs` helper** carries over unchanged from StepEffect0;
+- **The inlined `setLs` helper** carries over unchanged from StepBurst;
   its definition moved up the file to sit before this function (an unused
   `static __inline__` emits nothing, so the move changes no bytes). Spelled
   out in the body, the build was far off (different register allocation and
@@ -47,4 +49,4 @@ s32 StepEffect1(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 - **`srl` on a value stored into an `s16`: a `(u32)` cast before the shift.**
   cc1 keeps `sra` for a signed product even when only 16 bits survive.
-  (StepEffect1)
+  (StepTwinkle)

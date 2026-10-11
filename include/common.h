@@ -142,9 +142,27 @@ typedef struct {
     s16 x;      /**< offset added to the drawing position */
     s16 y;      /**< offset added to the drawing position */
     s16 z;      /**< offset added to the drawing position */
-    u8 kind;    /**< index into the step-function table */
+    u8 kind;    /**< an EffectKind: its index into the step-function table */
     u8 next;    /**< the next record on the active or free list */
 } Effect;
+
+/** @brief Effect.kind, the step function gEffectSteps runs for it. The game
+ *         names none; these say what each step draws. */
+enum EffectKind {
+    EFFECT_BURST = 0,         /**< StepBurst: the 8 SPR_BURST frames */
+    EFFECT_TWINKLE = 1,       /**< StepTwinkle: a puff that swells and shrinks */
+    EFFECT_SMOKE = 2,         /**< StepSmoke: a puff rising and fading */
+    EFFECT_FLASH = 3,         /**< StepFlash: SPR_BURST's first frame fading */
+    EFFECT_DUST = 4,          /**< StepDust: an additive blob, spreading */
+    EFFECT_GLINT = 5,         /**< StepGlint: a flat screen-space bar, spreading */
+    EFFECT_DARK_DUST = 6,     /**< StepDarkDust: a subtractive blob, spreading */
+    EFFECT_CAN_COLLECT = 7,   /**< StepCanCollect: a can flies to the HUD, one can */
+    EFFECT_FIVE_CANS = 8,     /**< StepFiveCans: five cans circle to the HUD, five cans */
+    EFFECT_FLOAT = 9,         /**< StepFloat: SPR_FLOAT moving straight up or down */
+    EFFECT_HURRY = 10,        /**< StepHurry: SPR_HURRY slides across */
+    EFFECT_FLYING_PIECE = 11, /**< StepFlyingPiece: a model piece thrown in an arc, trailing dust */
+    EFFECT_SKID_DUST = 12     /**< StepSkidDust: a blob that slides and slows */
+};
 
 extern Effect gEffects[]; /**< the 128-record pool */
 
@@ -716,7 +734,7 @@ enum SpriteId {
     SPR_PROGRESS_BAR = 0x12E,    /**< the course progress bar */
     SPR_PROGRESS_MARK = 0x12F,   /**< 4 frames of the marker on it */
     SPR_UNDRAWN = 0x133,         /**< 88x40, defined but not drawn by this executable */
-    SPR_DRIFT = 0x134,           /**< StepEffect9's billboard, drifting up or down */
+    SPR_FLOAT = 0x134,           /**< StepFloat's billboard, drifting up or down */
     SPR_LIVES = 0x135,           /**< the icon beside the retries count */
     SPR_HURRY = 0x136,           /**< the banner that slides across with 11 seconds left */
     SPR_RESULT_DIGIT = 0x137,    /**< 10 results-screen digits */

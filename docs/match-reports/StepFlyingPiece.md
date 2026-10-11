@@ -1,4 +1,6 @@
-# StepEffect11 — MATCHED (round 13, head): the linker-side symbol at 0x800CDC00 landed in `config/undefined_syms.slps01762.pepsiman.txt`
+# StepFlyingPiece — MATCHED (round 13, head): the linker-side symbol at 0x800CDC00 landed in `config/undefined_syms.slps01762.pepsiman.txt`
+
+> Renamed from `StepEffect11` on 2026-10-11 (tools/rename.py). Address 0x8003f100.
 
 > Renamed from `func_8003F100` on 2026-10-10 (tools/rename.py). Address 0x8003f100.
 
@@ -48,7 +50,7 @@ extern GsDOBJ2 D_800960A8[];
 
 s32 SpawnEffect(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 
-s32 StepEffect11(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFlyingPiece(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     MATRIX m;
 
     if (p->unk2 == 0) {
@@ -78,8 +80,8 @@ s32 StepEffect11(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 #endif
 ```
 
-Place it where the `INCLUDE_ASM` stands (between StepEffect10 and
-StepEffect12); `SpawnEffect` is defined later in the unit, so its
+Place it where the `INCLUDE_ASM` stands (between StepHurry and
+StepSkidDust); `SpawnEffect` is defined later in the unit, so its
 prototype stays above.
 
 ### Proposed learning
@@ -88,4 +90,4 @@ prototype stays above.
   address, then indexed `(i + K/size) * size`: the source array starts K
   bytes before the symbol splat named.** Spelled `(SYM - n)[i + n]` cc1
   folds the offsets away; it needs a real symbol at the start address.
-  (StepEffect11)
+  (StepFlyingPiece)

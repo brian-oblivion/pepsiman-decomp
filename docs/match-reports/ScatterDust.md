@@ -1,4 +1,6 @@
-# ScatterEffect4 — MATCHED 46/46 (round 3, delta)
+# ScatterDust — MATCHED 46/46 (round 3, delta)
+
+> Renamed from `ScatterEffect4` on 2026-10-11 (tools/rename.py). Address 0x80022f68.
 
 > Renamed from `func_80022F68` on 2026-10-11 (tools/rename.py). Address 0x80022f68.
 
@@ -8,7 +10,7 @@ position jittered from `pos`: x and z each get a random offset in
 game-state record's position `VECTOR` (0x348, 0x34C, 0x350).
 
 ```c
-void ScatterEffect4(VECTOR *pos) {
+void ScatterDust(VECTOR *pos) {
     SpawnEffect(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                   (s16)pos->vz + (rand() % 160 - 80), 1);
 }

@@ -53,7 +53,7 @@ function's match report, not here.
 - **`lbu` of a stack parameter with no `andi 0xFF`: an `s32` parameter read
   as `(u8)p`.** A `u8` parameter adds the `andi`. (DefineSprite)
 - **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain
-  assignment gives `li 0xFF`. (StepEffect9)
+  assignment gives `li 0xFF`. (StepFloat)
 - **An `(s16)` cast on a `u16` global folds into `lh`**, no shifts.
   (WrapMenuValues)
 - **A constant rebuilt (`li $a0, 1`) where the build copies it from a saved
@@ -98,7 +98,7 @@ function's match report, not here.
   `lb` needs the global declared `s8`.** (code main, round 8)
 - **An `s8` -1 byte store retail keeps above a later load: a local struct
   whose first member really is `s8`**, passed as `(CVECTOR *)&c`; the
-  `*(s8 *)&c.r` cast lets the store sink. (StepEffect10)
+  `*(s8 *)&c.r` cast lets the store sink. (StepHurry)
 
 - **A global reached `lui` in one function of a unit and `$gp` in the rest:
   read it by literal address there**, `*(u8 *)0x80095AEE`, with a
@@ -121,7 +121,7 @@ function's match report, not here.
   indexed through `&`. (UpdateWorldResults)
 - **A table base built 10 records before a symbol (`addiu -0x320`): the
   array starts earlier and needs a symbol plus a linker definition.**
-  (StepEffect11, LoadAct3Data, both still open)
+  (StepFlyingPiece, LoadAct3Data, both still open)
 
 - **A table's `lui` before the index's `lui`: the base went into a pointer
   local just before use** (`recs = (T *)D; recs[i].f`), or the symbol is a
@@ -135,7 +135,7 @@ function's match report, not here.
   address no instruction names.** No C spelling keeps the base (cc1 folds
   `(sym - n)[i + n]`). Define the true start in
   `config/undefined_syms.slps01762.pepsiman.txt` and index from it.
-  (LoadAct3Data, StepEffect11)
+  (LoadAct3Data, StepFlyingPiece)
 - **A call whose argument moves lose to a boosted load: the callee is
   unprototyped and one call site passes fewer arguments.** (UpdatePlayerAction)
 
@@ -187,7 +187,7 @@ function's match report, not here.
 - **A table base built by `addiu` from another symbol's address: the array
   starts before the symbol splat named.** This needs a symbol (and a linker
   definition if no instruction references it), not a C spelling.
-  (StepEffect11, still open)
+  (StepFlyingPiece, still open)
 
 - **A `u8` field average compiled to `srl`: `(u32)(a + b) >> 1`.** `s32`
   locals give `sra`. (SortTmdDivF3)
@@ -442,7 +442,7 @@ function's match report, not here.
   (ProbePosition)
 - **A constant folded onto the wrong operand: parenthesise where retail adds
   it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
-  the `rand()` result. (ScatterEffect4) If cc1 still moves it, give it its own
+  the `rand()` result. (ScatterDust) If cc1 still moves it, give it its own
   statement: `bob = (...) - 200; y = pos->vy + bob;`. (DrawPin)
 - **Operand order sets load order.** `a <= b` and `a - b` load `a` first; a
   `subu` whose subtrahend loads first was `-b + a`. (LandPlayer,
@@ -463,8 +463,8 @@ function's match report, not here.
   own local**, `base = i*3 + 0x40; v = base - level;`. (StepQuitEffect)
 - **Retail rebuilding local addresses before every call, with those locals
   after the caller's own in the frame: an inlined helper**, `static
-  __inline__ setLs(x, y, z)` holding the shared body. (StepEffect0,
-  StepEffect2, StepEffect3, StepEffect4, StepEffect6, StepEffect9)
+  __inline__ setLs(x, y, z)` holding the shared body. (StepBurst,
+  StepSmoke, StepFlash, StepDust, StepDarkDust, StepFloat)
 - **A jump table whose bound check's delay slot holds the index `sll`, not
   the table's `lui`: non-void with no return.** (SetTmdSortMode)
 - **`A[g] = (p = expr) + 1;` loads `g` before `expr`.** (LoadStageSprites)

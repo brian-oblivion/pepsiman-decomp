@@ -1532,13 +1532,13 @@ void UpdatePickups(void) {
                         case 1:
                         default:
                             PlaySe(SE_CAN);
-                            SpawnEffect(7, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
+                            SpawnEffect(EFFECT_CAN_COLLECT, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
                                         ((CanPoint *)(k * 8 + (u32)gCanPoints))->y - 50,
                                         (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->z, 0);
                             break;
                         case 2:
                             PlaySe(SE_CAN);
-                            SpawnEffect(8, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
+                            SpawnEffect(EFFECT_FIVE_CANS, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
                                         ((CanPoint *)(k * 8 + (u32)gCanPoints))->y - 50,
                                         (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->z, 0);
                             break;
@@ -1625,7 +1625,7 @@ void PopInNextCan(void) {
         if ((s8)gCanState[i] == 1) {
             /* MATCHING: an integer sum puts the scaled index first. */
             e = (CanPoint *)(i * 8 + (u32)gCanPoints);
-            SpawnEffect(4, e->x, e->y - 50, (s16)e->z, 0);
+            SpawnEffect(EFFECT_DUST, e->x, e->y - 50, (s16)e->z, 0);
             gCanState[i] = 2;
             return;
         }

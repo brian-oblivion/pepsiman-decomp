@@ -5,7 +5,7 @@
 Unit `src/stage.c`. Runs every active slot once a frame: walks the
 active list from `gEffectActive` through each record's `next` byte (a negative
 link ends it), calls the record's step function from the table `gEffectSteps`
-(StepEffect0, StepEffect1, ... indexed by `unk12`) with the drawing
+(StepBurst, StepTwinkle, ... indexed by `unk12`) with the drawing
 position, and picks the ordering table by distance (`2*d*d > 0x77A0F`, `d`
 the x offset: far records go to `gOt`). A step that returns nonzero
 is unlinked and pushed onto the free list `gEffectFree`, the reverse of

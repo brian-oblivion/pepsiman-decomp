@@ -1,4 +1,6 @@
-# StepEffect9 — MATCHED (80/80), round 6, runner echo
+# StepFloat — MATCHED (80/80), round 6, runner echo
+
+> Renamed from `StepEffect9` on 2026-10-11 (tools/rename.py). Address 0x8003ffac.
 
 > Renamed from `func_8003FFAC` on 2026-10-10 (tools/rename.py). Address 0x8003ffac.
 
@@ -9,7 +11,7 @@ at size 100 in colour (0, 0x80, 0x80, 0x80), advance the frame and return 1
 once `frame * unk4` reaches `unk6`.
 
 ```c
-s32 StepEffect9(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFloat(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -26,7 +28,7 @@ s32 StepEffect9(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 }
 ```
 
-First build. `setLs` is the inlined matrix set-up (StepEffect2's report).
+First build. `setLs` is the inlined matrix set-up (StepSmoke's report).
 
 The unit's `Slot` typedef changed: `u8 unk4[8]` became `s16 unk4`,
 `s16 unk6`, `u8 unk8[4]` (retail reads 0x4 and 0x6 as halfwords here;

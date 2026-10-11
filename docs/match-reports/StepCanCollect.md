@@ -1,4 +1,6 @@
-# StepEffect7 — MATCHED (128/128), round 8, runner charlie
+# StepCanCollect — MATCHED (128/128), round 8, runner charlie
+
+> Renamed from `StepEffect7` on 2026-10-11 (tools/rename.py). Address 0x8003ea04.
 
 > Renamed from `func_8003EA04` on 2026-10-10 (tools/rename.py). Address 0x8003ea04.
 
@@ -14,7 +16,7 @@ the pickup (`gCans++`), calls CheckCanBonus and returns 1.
 /* setLs: the unit's static __inline__ helper (see src/stage.c) */
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, s32 mode, GsOT *ot);
 
-s32 StepEffect7(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepCanCollect(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];

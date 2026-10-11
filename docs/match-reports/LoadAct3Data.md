@@ -9,7 +9,7 @@ Unit `src/code_29f54.c`. Loads a stage pack: five offsets at the head of
 LinkPropsTmd inlined (map a TMD, link its objects to `gStageObjs` /
 `gPropObjs`, point them at `gStageCoord`). Block 2 links `sAct3Objs[i]`
 to coordinates `sAct3Coords[i]`; block 3 links the piece objects (the table
-StepEffect11 sorts, `[10 + i]` of a table 10 records before `D_800960A8`)
+StepFlyingPiece sorts, `[10 + i]` of a table 10 records before `D_800960A8`)
 to `D_800CDF20[i]`. Block 4 is a sequence directory: entry `i` goes to
 `gAnimations[51 + i]` and the game head's `unk20` / `unk1B0` (the same
 spelling as main.c's and object.c's loaders). Then four
@@ -17,7 +17,7 @@ spelling as main.c's and object.c's loaders). Then four
 
 ## The blocker: a symbol, not the C
 
-The same blocker as StepEffect11. Retail builds the piece table's base
+The same blocker as StepFlyingPiece. Retail builds the piece table's base
 from the symbol splat named, `addiu $v1, %lo(D_800960A8)` then `addiu $s6,
 $v1, -0xA0`, and stores through `$s6 + (i + 10) * 16` while the call's
 argument walks a second pointer from `D_800960A8`. The source table starts
@@ -28,10 +28,10 @@ With a symbol there, the body below is byte-exact: measured in-tree with a
 temporary `__asm__(".globl sPieceObjs\n.set sPieceObjs, 0x80096008");` and
 `extern GsDOBJ2 sPieceObjs[];` in place of the `#define` (build `OK: build
 matches retail`, 243/243, insertions 0 / deletions 0). That asm line is a
-symbol definition in a .c and is not committed. As with StepEffect11, a
+symbol definition in a .c and is not committed. As with StepFlyingPiece, a
 symbols-file entry alone would not do: no instruction references
 0x80096008, so splat does not write it and the link fails. A linker-side
-definition (`sPieceObjs = 0x80096008;`) closes this and StepEffect11
+definition (`sPieceObjs = 0x80096008;`) closes this and StepFlyingPiece
 (0x800CDC00) together; the operator's call.
 
 Spellings without the symbol, all 9 words short (one saved register and
@@ -166,4 +166,4 @@ LinkStageTmd and LinkPropsTmd can become wrappers of `linkStage` /
   earlier and has no symbol.** No C spelling keeps the base: tree folding
   and RTL `plus_constant` cancel `(sym - n)[i + n]`, through a separate
   index local and through a literal address. Needs a linker-side symbol.
-  (LoadAct3Data, StepEffect11)
+  (LoadAct3Data, StepFlyingPiece)

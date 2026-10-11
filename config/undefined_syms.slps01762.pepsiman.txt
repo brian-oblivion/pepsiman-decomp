@@ -2,5 +2,5 @@
  * their own address, so splat cannot write them to undefined_syms_auto.
  * Each is the true start of an array that retail indexes from a later
  * element: the code builds the base as `%lo(later) - delta`. */
-sPieceObjs = 0x80096008; /* GsDOBJ2[], indexed from [10] (LoadAct3Data, StepEffect11) */
-sPieceCoords = 0x800CDC00; /* GsCOORDINATE2[], indexed from [10] (LoadAct3Data, StepEffect11) */
+sPieceObjs = 0x80096008; /* GsDOBJ2[], indexed from [10] (LoadAct3Data, StepFlyingPiece) */
+sPieceCoords = 0x800CDC00; /* GsCOORDINATE2[], indexed from [10] (LoadAct3Data, StepFlyingPiece) */

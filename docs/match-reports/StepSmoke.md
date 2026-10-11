@@ -1,4 +1,6 @@
-# StepEffect2 — MATCHED (86/86), round 6, runner echo
+# StepSmoke — MATCHED (86/86), round 6, runner echo
+
+> Renamed from `StepEffect2` on 2026-10-11 (tools/rename.py). Address 0x8003fa88.
 
 > Renamed from `func_8003FA88` on 2026-10-10 (tools/rename.py). Address 0x8003fa88.
 
@@ -23,7 +25,7 @@ static __inline__ void setLs(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 StepEffect2(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepSmoke(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -45,7 +47,7 @@ s32 StepEffect2(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 ## The lever: the matrix set-up was an inline function
 
-Round 5 parked StepEffect0 and StepEffect3 because retail rebuilds
+Round 5 parked StepBurst and StepFlash because retail rebuilds
 `&coord` (`addiu aN, sp, 0x28`) and `&ls` (`addiu aN, sp, 0x78`) before
 every call, while the build kept each in a saved register. Two clues
 pointed at inlining: `coord`/`ls` sit after the caller's own `size` and
@@ -83,8 +85,8 @@ About 30 builds, no permuter.
   frame: the code came from an inlined function.** Write a `static
   __inline__` helper; a non-inline spelling keeps the address in a saved
   register. A public inline is output at the end of the file, so an
-  out-of-line twin keeps its own body. (StepEffect2, StepEffect0,
-  StepEffect3)
+  out-of-line twin keeps its own body. (StepSmoke, StepBurst,
+  StepFlash)
 - **`if (!c) { ...; return x; } other; return 0;` puts `other` as the
   fall-through and the value straight into `v0`.** The if/else form with a
   `ret` local can leave `ret` in an argument register and add a `move v0`.

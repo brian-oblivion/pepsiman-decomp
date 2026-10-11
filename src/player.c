@@ -311,13 +311,13 @@ void UnusedHook1(void) {}
 /** @brief Empty and never called. */
 void UnusedHook2(void) {}
 
-void ScatterEffect4(VECTOR *pos) {
-    SpawnEffect(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+void ScatterDust(VECTOR *pos) {
+    SpawnEffect(EFFECT_DUST, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                 (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
-void ScatterEffect6(VECTOR *pos) {
-    SpawnEffect(6, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
+void ScatterDarkDust(VECTOR *pos) {
+    SpawnEffect(EFFECT_DARK_DUST, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                 (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
@@ -1049,7 +1049,7 @@ top:
             }
             state->actTimer2++;
             state->speed = (s16)gSpeedFixed >> 4;
-            ScatterEffect4((VECTOR *)&state->x);
+            ScatterDust((VECTOR *)&state->x);
             if (state->actTimer2 >= 30) {
                 state->action = ACT_RUN;
                 if (gPlayer.y >= gPlayer.groundY && (u32)(gPlayer.motion[0] - MOT_SLIDE_START) >= 3) {
@@ -1076,7 +1076,7 @@ top:
                 state->control = 1;
             }
             state->speed = (s16)gSpeedFixed >> 4;
-            ScatterEffect4((VECTOR *)&state->x);
+            ScatterDust((VECTOR *)&state->x);
             break;
         case ACT_BRAKE_RISE:
             if (state->motionResult[0] == 1) {
@@ -1320,7 +1320,7 @@ top:
                             state->motion[0] = MOT_DASH;
                             break;
                     }
-                    ScatterEffect4((VECTOR *)&state->x);
+                    ScatterDust((VECTOR *)&state->x);
                     state->airborne = 0;
                     state->onQuadTop = 1;
                     StartRumble(gRumblePatterns, RUMBLE_JUMP_LAND);
@@ -1337,7 +1337,7 @@ top:
                         state->motion[0] = MOT_DASH;
                         break;
                 }
-                ScatterEffect4((VECTOR *)&state->x);
+                ScatterDust((VECTOR *)&state->x);
                 state->airborne = 0;
                 state->onQuadTop = 0;
                 StartRumble(gRumblePatterns, RUMBLE_JUMP_LAND);
@@ -1503,13 +1503,13 @@ top:
                 }
             }
             if (gPlayer.y == gPlayer.groundY) {
-                ScatterEffect4((VECTOR *)&state->x);
+                ScatterDust((VECTOR *)&state->x);
             }
             StartRumble(gRumblePatterns, RUMBLE_SLIDE);
             break;
         case MOT_SLIDE:
             if (gFrameCount % 3 == 0) {
-                ScatterEffect4((VECTOR *)&state->x);
+                ScatterDust((VECTOR *)&state->x);
             }
             if (state->slideTimer == 0) {
                 state->motion[0] = MOT_SLIDE_END;
@@ -1560,7 +1560,7 @@ top:
         case MOT_KNOCKDOWN_SKID:
             state->speed -= 2;
             if (state->speed >= 0x15) {
-                ScatterEffect4((VECTOR *)&gPlayer.x);
+                ScatterDust((VECTOR *)&gPlayer.x);
             }
             if (state->speed <= 0) {
                 ResetSpeed();
@@ -1607,7 +1607,7 @@ top:
         case MOT_BOUNCE:
             if (state->motionResult[0] == 0) {
                 state->actTimer++;
-                ScatterEffect4((VECTOR *)&gPlayer.x);
+                ScatterDust((VECTOR *)&gPlayer.x);
                 state->motion[0] = MOT_BOUNCE;
                 state->curMotion[0] = MOT_OFF;
             }
@@ -1619,7 +1619,7 @@ top:
         case MOT_SKID:
             state->speed -= 1;
             if (state->speed >= 6) {
-                ScatterEffect4((VECTOR *)&gPlayer.x);
+                ScatterDust((VECTOR *)&gPlayer.x);
                 StartRumble(gRumblePatterns, RUMBLE_SKID);
             }
             if (state->speed <= 0) {
@@ -1717,7 +1717,7 @@ top:
                     }
             break;
         case MOT_THROWN_LAND:
-            ScatterEffect4((VECTOR *)&gPlayer.x);
+            ScatterDust((VECTOR *)&gPlayer.x);
             if (state->motionResult[0] == 0) {
                 switch (state->action) {
                     case ACT_LAUNCH:
@@ -1742,7 +1742,7 @@ top:
         case MOT_BOUNCE_BACK:
             if (state->motionResult[0] == 0) {
                 state->actTimer++;
-                ScatterEffect4((VECTOR *)&gPlayer.x);
+                ScatterDust((VECTOR *)&gPlayer.x);
                 state->motion[0] = MOT_BOUNCE_BACK;
                 state->curMotion[0] = MOT_OFF;
             }
@@ -1850,7 +1850,7 @@ top:
                     break;
                 case ACT_FALL_SKID:
                     if (state->speed >= 0x15) {
-                        ScatterEffect4((VECTOR *)&gPlayer.x);
+                        ScatterDust((VECTOR *)&gPlayer.x);
                     }
                     state->speed -= 2;
                     if (state->speed <= 0) {
@@ -2107,7 +2107,7 @@ void UpdateJump(void) {
             gPlayer.motion[0] = MOT_JUMP;
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
-            ScatterEffect4((VECTOR *)&gPlayer.x);
+            ScatterDust((VECTOR *)&gPlayer.x);
             PlaySe(SE_JUMP);
         }
         if (gPlayer.jumpState == JUMP_RISING) {
@@ -2637,7 +2637,7 @@ void UpdateCoverJump(void) {
             gPlayer.motion[0] = MOT_JUMP;
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
-            ScatterEffect4((VECTOR *)&gPlayer.x);
+            ScatterDust((VECTOR *)&gPlayer.x);
             PlaySe(SE_JUMP);
         }
         if (gPlayer.jumpState == JUMP_RISING) {

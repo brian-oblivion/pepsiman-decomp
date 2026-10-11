@@ -1,17 +1,19 @@
-# StepEffect0 — MATCHED (74/74), round 6, runner echo (stalled in round 5, bravo: 4 words long)
+# StepBurst — MATCHED (74/74), round 6, runner echo (stalled in round 5, bravo: 4 words long)
+
+> Renamed from `StepEffect0` on 2026-10-11 (tools/rename.py). Address 0x8003f960.
 
 > Renamed from `func_8003F960` on 2026-10-10 (tools/rename.py). Address 0x8003f960.
 
 ## Round 6: matched (echo)
 
-The lever came from StepEffect2 (see its report): the matrix set-up is
+The lever came from StepSmoke (see its report): the matrix set-up is
 SetLsTranslation's body inlined, through a `static __inline__` helper
 `setLs`. Inlined locals' addresses are rebuilt before every call, which
 is exactly the residue below. With the same control shape as
-StepEffect2 it matched on the first build:
+StepSmoke it matched on the first build:
 
 ```c
-s32 StepEffect0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepBurst(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -46,7 +48,7 @@ The body is parked under `#ifdef NON_MATCHING` in the unit.
 #include "draw.h" /* DrawBillboard */
 /* Slot: the unit's typedef (unk0 frame, unk2 delay, unkC/unkE/unk10 offset) */
 
-s32 StepEffect0(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepBurst(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
     GsCOORDINATE2 coord;
@@ -122,8 +124,8 @@ Makefile's flags):
   declarations (moving the frame layout, which is wrong) or move
   `GsGetLs` out of the `else` (changes the semantics): no lead.
 
-StepEffect3 (same unit, round 5) has the identical residue, and
-StepEffect2 between them looks like the same template, so one lever
+StepFlash (same unit, round 5) has the identical residue, and
+StepSmoke between them looks like the same template, so one lever
 should close all three.
 
 ### Proposed learning
@@ -132,5 +134,5 @@ should close all three.
   rematerialised at every call (`addiu aN, sp, K` each time); later locals
   have their address CSE'd into a callee-saved register across calls.**
   Declaration order therefore decides `addiu` vs `move aN, sN`
-  (SetLsTranslation). Not sufficient: StepEffect0 rematerialises two
+  (SetLsTranslation). Not sufficient: StepBurst rematerialises two
   non-first locals by a mechanism still unknown.

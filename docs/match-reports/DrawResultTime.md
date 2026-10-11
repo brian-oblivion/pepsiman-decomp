@@ -76,5 +76,5 @@ void DrawResultTime(SVECTOR *pos, s32 frames) {
   each time. The register choice for `d`'s sums came out right without it.
 - The last 6 words were the order of the two colours' `0x80` stores: the
   unused second colour's chained assignment comes first.
-- The `SColor` typedef moved up from above StepEffect10 so this function
+- The `SColor` typedef moved up from above StepHurry so this function
   can use it; nothing else changed.

@@ -1,15 +1,17 @@
-# StepEffect12 — MATCHED (119/119), round 8, runner charlie
+# StepSkidDust — MATCHED (119/119), round 8, runner charlie
+
+> Renamed from `StepEffect12` on 2026-10-11 (tools/rename.py). Address 0x8003f488.
 
 > Renamed from `func_8003F488` on 2026-10-10 (tools/rename.py). Address 0x8003f488.
 
-Unit `src/stage.c`. A slot step like StepEffect4 (sprite 0x12D
+Unit `src/stage.c`. A slot step like StepDust (sprite 0x12D
 growing 10 a frame, fading 4 a frame) that also moves: the slot drifts along
 the angle `unk4` at a speed `unk6` that slows by one a frame
 (`rsin`/`rcos` scaled by `/4096` into the x and z offsets) and rises by
 `unk8` a frame. Ends at frame 32.
 
 ```c
-s32 StepEffect12(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepSkidDust(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -35,7 +37,7 @@ s32 StepEffect12(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 ## Levers
 
 - Matched on the first build, on the unit's inlined `setLs` helper and
-  StepEffect4's shape. The `/ 4096` of a signed product gives retail's
+  StepDust's shape. The `/ 4096` of a signed product gives retail's
   `bgez` / `addiu 0xFFF` / `sra 12`.
 - **Struct view:** the `Slot` record's `u8 unk8[4]` became `s16 unk8` (read
   with `lhu` at 0x8 and subtracted from `unkE`) plus `u8 unkA[2]`. Same size

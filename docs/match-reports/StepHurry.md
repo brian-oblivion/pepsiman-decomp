@@ -1,4 +1,6 @@
-# StepEffect10 — MATCHED (112/112), round 8, runner charlie
+# StepHurry — MATCHED (112/112), round 8, runner charlie
+
+> Renamed from `StepEffect10` on 2026-10-11 (tools/rename.py). Address 0x8003ef40.
 
 > Renamed from `func_8003EF40` on 2026-10-10 (tools/rename.py). Address 0x8003ef40.
 
@@ -17,7 +19,7 @@ typedef struct {
     u8 cd; /**< code byte */
 } SColor;
 
-s32 StepEffect10(Slot *p) {
+s32 StepHurry(Slot *p) {
     SVECTOR pos;
     SColor color;
 
@@ -58,7 +60,7 @@ s32 StepEffect10(Slot *p) {
   order in source did not matter (r/g swapped gave the same output). A
   local `SColor { s8 r; u8 g, b, cd; }` passed as `(CVECTOR *)&color`
   keeps the store above the load and matches. The cast form is still right
-  for DrawFrozenFrameFaded and StepEffect9, where no load follows.
+  for DrawFrozenFrameFaded and StepFloat, where no load follows.
 - Each phase makes its own call; cross-jumping shares the tail
   (`gSubOt[gActiveBuff]` and the `jal`) the way retail does.
 
@@ -67,4 +69,4 @@ s32 StepEffect10(Slot *p) {
 - **An `s8` -1 byte store that retail keeps above a following load: a local
   struct whose member is declared `s8`**, not a `*(s8 *)&` cast on a
   `u_char` member; the cast's store can be scheduled past the load.
-  (StepEffect10)
+  (StepHurry)

@@ -7,7 +7,7 @@
 Unit `src/player.c`. Starts the three-step sequence kept in `sGame`'s
 0x390..0x3A0: with button bit 0x20 of `gGamePadTrig` held, once unk34C has
 reached its cap (or unk3B8 and unk3BC are both 1) and unk390 is idle, it
-sets unk390 to 1, calls OnJumpStart and ScatterEffect4 and plays sound
+sets unk390 to 1, calls OnJumpStart and ScatterDust and plays sound
 0x17. While unk390 is 1 it counts steps in unk392, picks unk398 from the
 step, and ends the sequence (unk390 = 2, then 0) with mode 8 or 9 in unk6
 and 0, 1 or 2 in unk3A0.
@@ -30,7 +30,7 @@ void UpdateCoverJump(void) {
             sGame.unk6 = 8;
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;
-            ScatterEffect4((VECTOR *)&sGame.unk348);
+            ScatterDust((VECTOR *)&sGame.unk348);
             PlaySe(0x17);
         }
         if (sGame.unk390 == 1) {

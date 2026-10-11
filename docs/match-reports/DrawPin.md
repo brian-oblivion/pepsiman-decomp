@@ -57,4 +57,4 @@ separate statement keeps cc1 from reassociating the constant onto the load.
 A constant added to a computed term BEFORE that term is added to a loaded
 value, where parenthesising does not hold it: assign the term with its
 constant to a local in its own statement, then add. (DrawPin; contrast
-ScatterEffect4 where parentheses sufficed)
+ScatterDust where parentheses sufficed)

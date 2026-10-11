@@ -35,7 +35,7 @@ void UpdateJump(void) {
             sGame.unk6 = 8;
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;
-            ScatterEffect4((VECTOR *)&sGame.unk348);
+            ScatterDust((VECTOR *)&sGame.unk348);
             PlaySe(0x17);
         }
         if (sGame.unk390 == 1) {

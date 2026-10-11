@@ -1,13 +1,15 @@
-# StepEffect6 — MATCHED (84/84), round 6, runner echo
+# StepDarkDust — MATCHED (84/84), round 6, runner echo
+
+> Renamed from `StepEffect6` on 2026-10-11 (tools/rename.py). Address 0x8003fe5c.
 
 > Renamed from `func_8003FE5C` on 2026-10-10 (tools/rename.py). Address 0x8003fe5c.
 
-Unit `src/stage.c`. StepEffect4 with colour mode 2 in `color.r`
+Unit `src/stage.c`. StepDust with colour mode 2 in `color.r`
 (the same sprite 0x12D, size `frame * 10 + 100`, fade
 `0x80 - frame * 16`, 8 frames).
 
 ```c
-s32 StepEffect6(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepDarkDust(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -25,6 +27,6 @@ s32 StepEffect6(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 }
 ```
 
-`setLs` is the inlined matrix set-up (see StepEffect2's report). Built
-alongside StepEffect4; the same one fix (`color.r` after both size
+`setLs` is the inlined matrix set-up (see StepSmoke's report). Built
+alongside StepDust; the same one fix (`color.r` after both size
 stores) closed both.

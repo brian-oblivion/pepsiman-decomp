@@ -410,7 +410,7 @@ void DefineHudSprites(void) {
     }
     DefineSprite(SPR_BLOB, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
     DefineSprite(SPR_UNDRAWN, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
-    DefineSprite(SPR_DRIFT, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
+    DefineSprite(SPR_FLOAT, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
     DefineSprite(SPR_LIVES, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
     DefineSprite(SPR_HURRY, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
     DefineSprite(SPR_HUD_TIME, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
@@ -528,7 +528,7 @@ void DrawHud(void) {
     }
     if (gTimeLeft == 0x14A) {
         PlaySe(SE_HURRY);
-        SpawnEffect(10, 0, 0, 0, 0);
+        SpawnEffect(EFFECT_HURRY, 0, 0, 0, 0);
     }
     n = gTimeLeft;
     n /= 30;
@@ -1585,7 +1585,7 @@ static __inline__ void setLs(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 StepEffect1(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepTwinkle(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1603,7 +1603,7 @@ s32 StepEffect1(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect5(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepGlint(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 c[2];
     POLY_F4 *f;
     DR_TPAGE *t;
@@ -1639,7 +1639,7 @@ s32 StepEffect5(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return ++p->frame == 8;
 }
 
-s32 StepEffect7(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepCanCollect(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];
@@ -1670,7 +1670,7 @@ s32 StepEffect7(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFiveCans(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
     s32 unused[2];
@@ -1708,7 +1708,7 @@ s32 StepEffect8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect10(Effect *p) {
+s32 StepHurry(Effect *p) {
     SVECTOR pos;
     SColor color;
 
@@ -1742,7 +1742,7 @@ s32 StepEffect10(Effect *p) {
 
 extern SVECTOR sPieceRots[]; /**< each piece object's rotation */
 
-s32 StepEffect11(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFlyingPiece(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     MATRIX m;
 
     if (p->delay == 0) {
@@ -1761,7 +1761,8 @@ s32 StepEffect11(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         GsGetLw(&sPieceCoords[p->param0 + 10], &m);
         GsSetLightMatrix(&m);
         if (p->frame % 5 == 0) {
-            SpawnEffect(4, p->x, p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096, p->z, 0);
+            SpawnEffect(EFFECT_DUST, p->x,
+                        p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096, p->z, 0);
         }
         p->x += p->param1;
         GsSortObject4(&sPieceObjs[p->param0 + 10], ot, 2, (u_long *)0x1F800000);
@@ -1771,7 +1772,7 @@ s32 StepEffect11(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect12(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepSkidDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1873,7 +1874,7 @@ void SetLsTranslation(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
-s32 StepEffect0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepBurst(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1889,7 +1890,7 @@ s32 StepEffect0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect2(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepSmoke(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1908,7 +1909,7 @@ s32 StepEffect2(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect3(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFlash(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1924,7 +1925,7 @@ s32 StepEffect3(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect4(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1941,7 +1942,7 @@ s32 StepEffect4(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect6(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepDarkDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1958,7 +1959,7 @@ s32 StepEffect6(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
-s32 StepEffect9(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepFloat(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
 
@@ -1967,7 +1968,7 @@ s32 StepEffect9(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 100;
         color.r = 0;
         color.g = color.b = color.cd = 0x80;
-        DrawBillboard(SPR_DRIFT, &size, &color, 2, ot);
+        DrawBillboard(SPR_FLOAT, &size, &color, 2, ot);
         return ++p->frame * p->param0 >= p->param1;
     }
     p->delay--;

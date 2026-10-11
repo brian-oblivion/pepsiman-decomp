@@ -1,4 +1,6 @@
-# StepEffect5 — MATCHED 195/195 (round 9, bravo)
+# StepGlint — MATCHED 195/195 (round 9, bravo)
+
+> Renamed from `StepEffect5` on 2026-10-11 (tools/rename.py). Address 0x8003e6f8.
 
 > Renamed from `func_8003E6F8` on 2026-10-10 (tools/rename.py). Address 0x8003e6f8.
 
@@ -9,7 +11,7 @@ scale that grows with the frame (`p->unk0`), fading as it shrinks, then an
 additive-blend draw-mode packet; done after 8 frames. First build matched.
 
 ```c
-s32 StepEffect5(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
+s32 StepGlint(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 c[2];
     POLY_F4 *f;
     DR_TPAGE *t;

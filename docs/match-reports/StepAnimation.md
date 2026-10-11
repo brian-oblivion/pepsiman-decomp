@@ -54,7 +54,7 @@ u8 StepAnimation(Player *obj, u16 index, s8 arg) {
         obj->time[index]++;
     }
     obj->data[index] = SetTodFrame(obj->time[index], obj->data[index], (s32)gTodObjTable,
-                                     (s32)D_800760EC, D_80095904, 0, arg);
+                                     (s32)sTodTmdIds, gModelTmd, 0, arg);
     return ret;
 }
 ```

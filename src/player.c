@@ -510,10 +510,10 @@ void UpdatePlayer(void) {
     g->yaw = v;
     D_8009EAB8[1] = gPlayer.yaw;
     D_8009EAB8[2] = gPlayer.lean;
-    D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-    D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-    D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+    gTodCoords[0].coord.t[0] = gPlayer.drawX;
+    gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+    gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
     gWorldShift[1] = 0;
     gWorldShift[0] = -gPlayer.x;
     gWorldShift[2] = -gPlayer.z;
@@ -1406,10 +1406,10 @@ top:
                 }
             }
             D_8009EAB8[1] = gPlayer.yaw + gPlayer.unk362;
-            D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-            D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-            D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
             break;
         case 0x10:
             if (state->unk374 < 10) {
@@ -1704,10 +1704,10 @@ top:
                     state->unk376 = 0;
                     state->unk374 = 0;
                 }
-                D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-                D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-                D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-                SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+                gTodCoords[0].coord.t[0] = gPlayer.drawX;
+                gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+                gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+                SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
                 break;
             }
             state->speed += 4;
@@ -1788,10 +1788,10 @@ top:
                 case 0x51:
                     D_8009EAB8[1] = gPlayer.unk362 = gCourse.rot.vy + 0x800;
                 case 0x55:
-                    D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-                    D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-                    D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-                    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+                    gTodCoords[0].coord.t[0] = gPlayer.drawX;
+                    gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+                    gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+                    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
                     if (++state->unk378 < 10) {
                         /* MATCHING: x - (5 - r) keeps the -5 on the loaded word. */
                         gView[0] = gView[0] - (5 - rand() % 10);
@@ -1819,10 +1819,10 @@ top:
                         gPlayer.unk360 = state->unk374 * 0x5000 / 360;
                     }
                     D_8009EAB8[0] = gPlayer.unk360;
-                    D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-                    D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-                    D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-                    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+                    gTodCoords[0].coord.t[0] = gPlayer.drawX;
+                    gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+                    gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+                    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
                     if (state->motionResult[0] == 0) {
                         gPlayer.unk360 = 0;
                         D_8009EAB8[0] = 0;
@@ -1910,10 +1910,10 @@ top:
         case 0x2D:
             gPlayer.drawX = rsin(gCourse.rot.vy + 0x400) * 20 >> 12;
             gPlayer.drawZ = rcos(gCourse.rot.vy + 0x400) * 20 >> 12;
-            D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-            D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-            D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
             gPlayer.drawZ = 0;
             gPlayer.drawX = 0;
         case 0x22:
@@ -1981,10 +1981,10 @@ top:
                     break;
             }
             D_8009EAB8[1] = gPlayer.unk362;
-            D_800D86E0[0].coord.t[0] = gPlayer.drawX;
-            D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-            D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
             break;
         case 0x31:
             if (state->motionResult[0] == 0) {
@@ -2339,7 +2339,7 @@ void DrawModeObject(void) {
             D_800D3860[0].unk18 = -0x88;
             D_800D3860[0].unk1A = 0xAA;
             D_800D3860[0].unk4 = 0;
-            D_800D8370[0].unk58 = (s32)&D_800D86E0[16];
+            D_800D8370[0].unk58 = (s32)&gTodCoords[16];
             D_800D3860[0].unk0 = -gWorldShift[0];
             D_800D3860[0].unk8 = -gWorldShift[2];
             DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
@@ -2349,7 +2349,7 @@ void DrawModeObject(void) {
             D_800D3860[5].unk1C = -0x88;
             D_800D3860[5].unk1A = 0xAA;
             D_800D3860[5].unk4 = 0;
-            D_800D8370[5].unk58 = (s32)&D_800D86E0[16];
+            D_800D8370[5].unk58 = (s32)&gTodCoords[16];
             D_800D3860[5].unk0 = -gWorldShift[0];
             D_800D3860[5].unk8 = -gWorldShift[2];
             DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
@@ -2358,7 +2358,7 @@ void DrawModeObject(void) {
             switch (gStage) {
                 case 3:
                     D_800D3860[3].unk4 = 0x3C;
-                    D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
+                    D_800D8370[3].unk58 = (s32)&gTodCoords[0];
                     D_800D3860[3].unk0 = -gWorldShift[0];
                     D_800D3860[3].unk8 = -gWorldShift[2];
                     D_800D3860[3].unk18 += ANGLE_DEG(gPlayer.speed / 2);
@@ -2369,7 +2369,7 @@ void DrawModeObject(void) {
                     break;
                 case 10:
                     D_800D3860[6].unk4 = 0x32;
-                    D_800D8370[6].unk58 = (s32)&D_800D86E0[0];
+                    D_800D8370[6].unk58 = (s32)&gTodCoords[0];
                     D_800D3860[6].unk0 = -gWorldShift[0];
                     D_800D3860[6].unk8 = -gWorldShift[2];
                     D_800D3860[6].unk18 += ANGLE_DEG(gPlayer.speed / 2);
@@ -2384,14 +2384,14 @@ void DrawModeObject(void) {
             switch (gStage) {
                 case 0:
                     D_800D3860[4].unk4 = 0;
-                    D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
+                    D_800D8370[4].unk58 = (s32)&gTodCoords[1];
                     D_800D3860[4].unk0 = -gWorldShift[0];
                     D_800D3860[4].unk8 = -gWorldShift[2];
                     DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
                     break;
                 case 12:
                     D_800D3860[2].unk4 = 0;
-                    D_800D8370[2].unk58 = (s32)&D_800D86E0[1];
+                    D_800D8370[2].unk58 = (s32)&gTodCoords[1];
                     D_800D3860[2].unk0 = -gWorldShift[0];
                     D_800D3860[2].unk8 = -gWorldShift[2];
                     DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
@@ -2413,14 +2413,14 @@ s32 AttachModeObject(void) {
         case 1:
             if ((u32)(gPlayer.motion[0] - 0x33) >= 7) {
                 gPlayer.motion[0] = 0x33;
-                D_800D83C8[0] = (s32)&D_800D86E0[16];
+                D_800D83C8[0] = (s32)&gTodCoords[16];
                 D_800D3896[0] = 0;
             }
             break;
         case 4:
             if ((u32)(gPlayer.motion[0] - 0x33) >= 7) {
                 gPlayer.motion[0] = 0x33;
-                D_800D8620[0] = (s32)&D_800D86E0[16];
+                D_800D8620[0] = (s32)&gTodCoords[16];
                 D_800D39FE[0] = 5;
             }
             break;
@@ -2429,11 +2429,11 @@ s32 AttachModeObject(void) {
                 gPlayer.motion[0] = 0x33;
                 switch (gStage) {
                     case 3:
-                        D_800D8530[0] = (s32)&D_800D86E0[0];
+                        D_800D8530[0] = (s32)&gTodCoords[0];
                         D_800D396E[0] = 3;
                         break;
                     case 10:
-                        D_800D8698[0] = (s32)&D_800D86E0[0];
+                        D_800D8698[0] = (s32)&gTodCoords[0];
                         D_800D3A46[0] = 6;
                         break;
                 }
@@ -2442,11 +2442,11 @@ s32 AttachModeObject(void) {
         case 3:
             switch (gStage) {
                 case 0:
-                    D_800D85A8[0] = (s32)&D_800D86E0[1];
+                    D_800D85A8[0] = (s32)&gTodCoords[1];
                     D_800D39B6[0] = 4;
                     break;
                 case 12:
-                    D_800D84B8[0] = (s32)&D_800D86E0[1];
+                    D_800D84B8[0] = (s32)&gTodCoords[1];
                     D_800D3926[0] = 2;
                     break;
             }

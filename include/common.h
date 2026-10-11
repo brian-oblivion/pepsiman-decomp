@@ -311,7 +311,7 @@ extern s16 gCdLoadCount;     /**< files in the current CD load */
 extern u8 gLoading; /**< 1 while a load runs: a fixed view and a black screen; 0 the game's view */
 extern s8 gPauseState;        /**< nonzero stops the frame counter; 2 units */
 extern s32 ClipF;             /**< a word inside libgte's clipf object, as a variable; 2 units */
-extern s32 D_80095904;        /**< the mapped model data's TMD address; 2 units */
+extern s32 gModelTmd;         /**< the mapped model data's TMD address; 2 units */
 extern s8 gCdLoadState;       /**< UpdateCdLoad's step; 6 when every file has been read */
 extern u8 gStereo;            /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
 extern s16 gMenuChoice;       /**< what RunMenu returned for the card menus */

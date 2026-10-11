@@ -9,7 +9,7 @@ speed display `gSpeedFixed` from unk3A8 (fixed at 70, 90 or 30 by flags in
 `D_80095864`, which can also push the player along the heading), moves
 the position by the speed along the heading, clamps unk380 to 0x155 of
 the camera yaw and hands the result to the camera (`D_8009EAB8`,
-`D_800D86E0[0]`, `gWorldShift`).
+`gTodCoords[0]`, `gWorldShift`).
 
 ```c
 extern s8 D_80095962;
@@ -146,10 +146,10 @@ void UpdatePlayer(void) {
     g->unk380 = v;
     D_8009EAB8[1] = sGame.unk380;
     D_8009EAB8[2] = sGame.unk384;
-    D_800D86E0[0].coord.t[0] = sGame.unk354;
-    D_800D86E0[0].coord.t[1] = sGame.unk34C + sGame.unk358;
-    D_800D86E0[0].coord.t[2] = sGame.unk35C;
-    SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+    gTodCoords[0].coord.t[0] = sGame.unk354;
+    gTodCoords[0].coord.t[1] = sGame.unk34C + sGame.unk358;
+    gTodCoords[0].coord.t[2] = sGame.unk35C;
+    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
     gWorldShift[1] = 0;
     gWorldShift[0] = -sGame.unk348;
     gWorldShift[2] = -sGame.unk350;

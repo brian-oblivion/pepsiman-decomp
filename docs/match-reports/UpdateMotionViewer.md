@@ -5,7 +5,7 @@
 Unit `src/code_7d74.c`. A model viewer's per-frame step, driven by the
 state `gModeStep`. State 0 sets the fog colour and the reference view,
 clears the model's rotation, translation and player state, applies the
-rotation to the coordinate system `D_800D86E0[0]` (SetCoordRotation), starts
+rotation to the coordinate system `gTodCoords[0]` (SetCoordRotation), starts
 the animation player (StepAnimation) and moves to state 1. State 1 steps
 the player when `gViewerReplay` asks for it, draws (DrawTodObjects), applies
 the level keys (SelectViewerMotion) and the orbiting view (OrbitViewerCamera), and
@@ -39,13 +39,13 @@ void UpdateMotionViewer(void) {
             gWorldShift[0] = 0;
             D_80095918 = 0;
             gWorldShift[2] = 0;
-            D_800D86E0[0].coord.t[0] = 0;
-            D_800D86E0[0].coord.t[1] = 0;
-            D_800D86E0[0].coord.t[2] = 0;
+            gTodCoords[0].coord.t[0] = 0;
+            gTodCoords[0].coord.t[1] = 0;
+            gTodCoords[0].coord.t[2] = 0;
             D_8009EAB8[0] = 0;
             D_8009EAB8[1] = sPlayer.unk380;
             D_8009EAB8[2] = sPlayer.unk384;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
             sPlayer.want[0] = 0;
             StepAnimation(&sPlayer, 0, 0);
             gModeStep++;
@@ -60,22 +60,22 @@ void UpdateMotionViewer(void) {
             SelectViewerMotion();
             OrbitViewerCamera();
             if (gPad & 0x2000) {
-                D_800D86E0[0].coord.t[0]++;
+                gTodCoords[0].coord.t[0]++;
             }
             if (gPad & 0x8000) {
-                D_800D86E0[0].coord.t[0]--;
+                gTodCoords[0].coord.t[0]--;
             }
             if (gPad & 0x4000) {
-                D_800D86E0[0].coord.t[1]++;
+                gTodCoords[0].coord.t[1]++;
             }
             if (gPad & 0x1000) {
-                D_800D86E0[0].coord.t[1]--;
+                gTodCoords[0].coord.t[1]--;
             }
             if (gPad & 1) {
-                D_800D86E0[0].coord.t[2]--;
+                gTodCoords[0].coord.t[2]--;
             }
             if (gPad & 2) {
-                D_800D86E0[0].coord.t[2]++;
+                gTodCoords[0].coord.t[2]++;
             }
             break;
     }
@@ -95,7 +95,7 @@ void UpdateMotionViewer(void) {
 
 - `gModeStep` moved into `include/common.h` as `u16` (retail loads it
   `lhu`); stage_flow.c's local `extern s16` (a store only) was deleted.
-- `D_800D86E0` (GsCOORDINATE2[]) moved from object.c into
+- `gTodCoords` (GsCOORDINATE2[]) moved from object.c into
   `include/object.h`, which now includes libgte/libgpu/libgs (all
   guarded); model includes that header.
 - `gViewerReplay` is now `s8` here (retail loads it `lb`; SelectViewerMotion

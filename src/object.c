@@ -280,7 +280,7 @@ void LocalToWorld(LocalPos *lp, VECTOR *out) {
     v.vx = lp->x;
     v.vy = lp->y;
     v.vz = lp->z;
-    GsGetLws(&D_800D86E0[lp->coord], &local, &world);
+    GsGetLws(&gTodCoords[lp->coord], &local, &world);
     GsSetLsMatrix(&local);
     RotTrans(&v, &t, &flag);
     out->vx = t.vx;

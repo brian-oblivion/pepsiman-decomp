@@ -4,12 +4,12 @@
 
 Unit `src/object.c`. Converts a local position (three words) to world
 space in the coordinate system the byte after them indexes in the
-`GsCOORDINATE2` table `D_800D86E0` (stride 0x50 = sizeof(GsCOORDINATE2)),
+`GsCOORDINATE2` table `gTodCoords` (stride 0x50 = sizeof(GsCOORDINATE2)),
 writing the result to `out`. Unlike UpdatePlacedPos it does not restore the
 light-source matrix afterwards.
 
 ```c
-extern GsCOORDINATE2 D_800D86E0[];
+extern GsCOORDINATE2 gTodCoords[];
 
 void LocalToWorld(LocalPos *lp, VECTOR *out) {
     MATRIX world;
@@ -22,7 +22,7 @@ void LocalToWorld(LocalPos *lp, VECTOR *out) {
     v.vx = lp->x;
     v.vy = lp->y;
     v.vz = lp->z;
-    GsGetLws(&D_800D86E0[lp->coord], &local, &world);
+    GsGetLws(&gTodCoords[lp->coord], &local, &world);
     GsSetLsMatrix(&local);
     RotTrans(&v, &t, &flag);
     out->vx = t.vx;

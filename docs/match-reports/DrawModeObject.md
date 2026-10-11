@@ -6,7 +6,7 @@ Unit `src/player.c`. Places the stage objects of the current mode
 (low nibble of unk3D0, then the stage `gStage`): for each it fills
 the SlotRec of the slot table at `D_800D3860` (position minus the view
 offset `gWorldShift`, a few angles), points the paired model slot in
-`D_800D8370` at a coordinate system in `D_800D86E0` and calls
+`D_800D8370` at a coordinate system in `gTodCoords` and calls
 DrawObjectModel on the pair. Mode 2 also turns the object by half of
 unk3A8 degrees and plays sound 0x81 every 20 frames. Slot 1 is placed
 whenever `D_8009EF48[0] >> 4` is 5.
@@ -32,7 +32,7 @@ void DrawModeObject(void) {
             D_800D3860[0].unk18 = -0x88;
             D_800D3860[0].unk1A = 0xAA;
             D_800D3860[0].unk4 = 0;
-            D_800D8370[0].unk58 = (s32)&D_800D86E0[16];
+            D_800D8370[0].unk58 = (s32)&gTodCoords[16];
             D_800D3860[0].unk0 = -gWorldShift[0];
             D_800D3860[0].unk8 = -gWorldShift[2];
             DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
@@ -42,7 +42,7 @@ void DrawModeObject(void) {
             D_800D3860[5].unk1C = -0x88;
             D_800D3860[5].unk1A = 0xAA;
             D_800D3860[5].unk4 = 0;
-            D_800D8370[5].unk58 = (s32)&D_800D86E0[16];
+            D_800D8370[5].unk58 = (s32)&gTodCoords[16];
             D_800D3860[5].unk0 = -gWorldShift[0];
             D_800D3860[5].unk8 = -gWorldShift[2];
             DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
@@ -51,7 +51,7 @@ void DrawModeObject(void) {
             switch (gStage) {
                 case 3:
                     D_800D3860[3].unk4 = 0x3C;
-                    D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
+                    D_800D8370[3].unk58 = (s32)&gTodCoords[0];
                     D_800D3860[3].unk0 = -gWorldShift[0];
                     D_800D3860[3].unk8 = -gWorldShift[2];
                     D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
@@ -62,7 +62,7 @@ void DrawModeObject(void) {
                     break;
                 case 10:
                     D_800D3860[6].unk4 = 0x32;
-                    D_800D8370[6].unk58 = (s32)&D_800D86E0[0];
+                    D_800D8370[6].unk58 = (s32)&gTodCoords[0];
                     D_800D3860[6].unk0 = -gWorldShift[0];
                     D_800D3860[6].unk8 = -gWorldShift[2];
                     D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
@@ -77,14 +77,14 @@ void DrawModeObject(void) {
             switch (gStage) {
                 case 0:
                     D_800D3860[4].unk4 = 0;
-                    D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
+                    D_800D8370[4].unk58 = (s32)&gTodCoords[1];
                     D_800D3860[4].unk0 = -gWorldShift[0];
                     D_800D3860[4].unk8 = -gWorldShift[2];
                     DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
                     break;
                 case 12:
                     D_800D3860[2].unk4 = 0;
-                    D_800D8370[2].unk58 = (s32)&D_800D86E0[1];
+                    D_800D8370[2].unk58 = (s32)&gTodCoords[1];
                     D_800D3860[2].unk0 = -gWorldShift[0];
                     D_800D3860[2].unk8 = -gWorldShift[2];
                     DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
@@ -109,7 +109,7 @@ void DrawModeObject(void) {
 - The case bodies follow AttachModeObject's order (1, 4, 2, 3) and its
   nested `switch (gStage)`; one call per arm, which cross-jumping
   folds into the shared `jal` tails retail has.
-- The addresses stored at +0x58 are `&D_800D86E0[16]`, `[0]` and `[1]`
+- The addresses stored at +0x58 are `&gTodCoords[16]`, `[0]` and `[1]`
   (0x50-byte GsCOORDINATE2s): `D_800D8BE0` and `D_800D8730` in the asm
   are those elements, not their own objects.
 - `ANGLE_DEG(sGame.unk3A8 / 2)` gives the `sra 1; sll 12` and the /360

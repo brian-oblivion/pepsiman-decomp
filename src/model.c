@@ -266,13 +266,13 @@ void UpdateMotionViewer(void) {
             gWorldShift[0] = 0;
             D_80095918 = 0;
             gWorldShift[2] = 0;
-            D_800D86E0[0].coord.t[0] = 0;
-            D_800D86E0[0].coord.t[1] = 0;
-            D_800D86E0[0].coord.t[2] = 0;
+            gTodCoords[0].coord.t[0] = 0;
+            gTodCoords[0].coord.t[1] = 0;
+            gTodCoords[0].coord.t[2] = 0;
             D_8009EAB8[0] = 0;
             D_8009EAB8[1] = gPlayer.yaw;
             D_8009EAB8[2] = gPlayer.lean;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
+            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
             gPlayer.motion[0] = 0;
             StepAnimation(&gPlayer, 0, 0);
             gModeStep++;
@@ -287,22 +287,22 @@ void UpdateMotionViewer(void) {
             SelectViewerMotion();
             OrbitViewerCamera();
             if (gPad & PADLright) {
-                D_800D86E0[0].coord.t[0]++;
+                gTodCoords[0].coord.t[0]++;
             }
             if (gPad & PADLleft) {
-                D_800D86E0[0].coord.t[0]--;
+                gTodCoords[0].coord.t[0]--;
             }
             if (gPad & PADLdown) {
-                D_800D86E0[0].coord.t[1]++;
+                gTodCoords[0].coord.t[1]++;
             }
             if (gPad & PADLup) {
-                D_800D86E0[0].coord.t[1]--;
+                gTodCoords[0].coord.t[1]--;
             }
             if (gPad & PADL2) {
-                D_800D86E0[0].coord.t[2]--;
+                gTodCoords[0].coord.t[2]--;
             }
             if (gPad & PADR2) {
-                D_800D86E0[0].coord.t[2]++;
+                gTodCoords[0].coord.t[2]++;
             }
             break;
     }
@@ -325,7 +325,7 @@ void OrbitViewerCamera(void) {
     }
 }
 
-extern u8 D_800760EC[];
+extern u8 sTodTmdIds[]; /**< SetTodFrame's TMD id table */
 
 u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
     u8 ret;
@@ -366,7 +366,7 @@ u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
         obj->motionTime[index]++;
     }
     obj->motionData[index] = SetTodFrame(obj->motionTime[index], obj->motionData[index],
-                                         (s32)gTodObjTable, (s32)D_800760EC, D_80095904, 0, arg);
+                                         (s32)gTodObjTable, (s32)sTodTmdIds, gModelTmd, 0, arg);
     return ret;
 }
 
@@ -798,8 +798,8 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                             }
                         }
                     } else {
-                        a = ratan2(D_800D86E0[0].coord.t[0] - gPlayer.lookX,
-                                   D_800D86E0[0].coord.t[2] - gPlayer.lookZ);
+                        a = ratan2(gTodCoords[0].coord.t[0] - gPlayer.lookX,
+                                   gTodCoords[0].coord.t[2] - gPlayer.lookZ);
                         v = D_8009EABA[0];
                         a -= v;
                         a &= 0xFFF;

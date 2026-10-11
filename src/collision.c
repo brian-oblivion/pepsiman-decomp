@@ -183,7 +183,7 @@ void PlacePlayerPoints(void) {
         v.vx = spec.p[i].x;
         v.vy = spec.p[i].y;
         v.vz = spec.p[i].z;
-        GsGetLws(&D_800D86E0[spec.p[i].coord], &lw, &ls);
+        GsGetLws(&gTodCoords[spec.p[i].coord], &lw, &ls);
         GsSetLsMatrix(&lw);
         RotTrans(&v, &out, &flag);
         gPlayerPoints[i].x = out.vx;

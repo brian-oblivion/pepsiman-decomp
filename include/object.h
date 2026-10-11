@@ -56,7 +56,7 @@ typedef struct {
     s16 unk6; /**< an index into the 128 byte flags */
 } Ent8;
 
-extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems; player points records at [0], [1] and [16] */
+extern GsCOORDINATE2 gTodCoords[]; /**< the 20 TOD objects' coordinate systems; player points records at [0], [1] and [16] */
 
 /** @brief Points the current-block globals at the block `hdr` heads.
  *  @param hdr the header */

@@ -5,7 +5,7 @@
 Unit `src/player.c`. On the low nibble of game-state byte 0x3D0
 (1..4), and outside modes 0x33.. (7 or 3 of them), sets mode 0x33 and
 points one per-stage 120-byte record (`D_800D83C8` + k*120) at a
-coordinate system `D_800D86E0[0]`, `[1]` or `[16]`, writing the
+coordinate system `gTodCoords[0]`, `[1]` or `[16]`, writing the
 kind k into the matching slot record's 0x36 field (`D_800D3896` + k*72,
 the slot table of SpawnModeObject).
 
@@ -16,14 +16,14 @@ s32 AttachModeObject(void) {
         case 1:
             if ((u32)(sGame.unk6 - 0x33) >= 7) {
                 sGame.unk6 = 0x33;
-                D_800D83C8[0] = (s32)&D_800D86E0[16];
+                D_800D83C8[0] = (s32)&gTodCoords[16];
                 D_800D3896[0] = 0;
             }
             break;
         case 4:
             if ((u32)(sGame.unk6 - 0x33) >= 7) {
                 sGame.unk6 = 0x33;
-                D_800D8620[0] = (s32)&D_800D86E0[16];
+                D_800D8620[0] = (s32)&gTodCoords[16];
                 D_800D39FE[0] = 5;
             }
             break;
@@ -32,11 +32,11 @@ s32 AttachModeObject(void) {
                 sGame.unk6 = 0x33;
                 switch (gStage) {
                     case 3:
-                        D_800D8530[0] = (s32)&D_800D86E0[0];
+                        D_800D8530[0] = (s32)&gTodCoords[0];
                         D_800D396E[0] = 3;
                         break;
                     case 10:
-                        D_800D8698[0] = (s32)&D_800D86E0[0];
+                        D_800D8698[0] = (s32)&gTodCoords[0];
                         D_800D3A46[0] = 6;
                         break;
                 }
@@ -45,11 +45,11 @@ s32 AttachModeObject(void) {
         case 3:
             switch (gStage) {
                 case 0:
-                    D_800D85A8[0] = (s32)&D_800D86E0[1];
+                    D_800D85A8[0] = (s32)&gTodCoords[1];
                     D_800D39B6[0] = 4;
                     break;
                 case 12:
-                    D_800D84B8[0] = (s32)&D_800D86E0[1];
+                    D_800D84B8[0] = (s32)&gTodCoords[1];
                     D_800D3926[0] = 2;
                     break;
             }
@@ -65,10 +65,10 @@ s32 AttachModeObject(void) {
   They are fields of two record tables (120-byte records from
   0x800D83C8, 72-byte from 0x800D3860); a typed table would be the
   readable form once the records are known.
-- `D_800D86E0` (`GsCOORDINATE2[]`) was declared in `src/object.c`
+- `gTodCoords` (`GsCOORDINATE2[]`) was declared in `src/object.c`
   (not a round-7 unit). Moved to `include/object.h`, which now
   includes libgte/libgpu/libgs itself; player includes that header.
-  Indexing it (`&D_800D86E0[16]`, `[1]`) builds the same bytes as
+  Indexing it (`&gTodCoords[16]`, `[1]`) builds the same bytes as
   retail's separate symbols `D_800D8BE0`/`D_800D8730`; both forms were
   built and matched.
 

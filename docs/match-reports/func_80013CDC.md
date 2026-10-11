@@ -1,7 +1,7 @@
 # func_80013CDC — MATCHED 130/130 (round 8, echo)
 
 Unit `src/main.c`. Loads the stage's model data: maps the TMD pack at
-0x8014D000 (`GsMapModelingData`, address kept in `D_80095904`), sets up the
+0x8014D000 (`GsMapModelingData`, address kept in `gModelTmd`), sets up the
 model `D_800963A0` and seven model slots from it (`InitModel`), builds
 the slot list (`InitTodObjTable`), registers the entries of the directory at
 0x80123000 into `gAnimations` and the stepper's two word tables (the same
@@ -12,9 +12,9 @@ Declaration changes: the `Stepper` typedef moved up to here and its
 `unk6[2]`/`unk9[0x337]` split into `unk6`, `unk7`, `unk9`, `unkA[0x16]`,
 `unk20[100]`, `unk1B0[100]` (same size, no byte change elsewhere);
 `StepAnimation`'s prototype moved up with it; `func_80013CDC` is now
-`void` (was an `s32` prototype); `D_80095904` moved from `src/model.c`
+`void` (was an `s32` prototype); `gModelTmd` moved from `src/model.c`
 to `include/common.h` (same type; declcheck's MULTI). main.c now includes
-`object.h` (for `D_800D86E0`) and carries unit-local copies of
+`object.h` (for `gTodCoords`) and carries unit-local copies of
 `Model70` and `DirEnt16`.
 
 ```c
@@ -46,8 +46,8 @@ typedef struct {
 } ModelSlot;
 
 extern ModelSlot D_800D8370[];
-extern u8 D_8009EF50[];
-extern u8 D_80096418[];
+extern u8 gTodObjs[];
+extern u8 gTodCoordParams[];
 
 /* MATCHING: object defines it on its own Model70 view. */
 void InitModel(Model70 *m, unsigned long *tmd, u8 n);
@@ -63,8 +63,8 @@ void func_80013CDC(void) {
     s32 *q;
 
     p = (s32 *)0x8014D000;
-    D_80095904 = (s32)((unsigned long *)((u8 *)p + *p) + 1);
-    GsMapModelingData((unsigned long *)D_80095904);
+    gModelTmd = (s32)((unsigned long *)((u8 *)p + *p) + 1);
+    GsMapModelingData((unsigned long *)gModelTmd);
     InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
     InitModel(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
@@ -74,7 +74,7 @@ void func_80013CDC(void) {
     InitModel(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
     InitModel(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
     InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
-    InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
+    InitTodObjTable(gTodObjTable, gTodObjs, gTodCoords, gTodCoordParams, 20);
     p = (s32 *)0x80123000;
     gLoopI = 0;
     gLoopJ = ((DirEnt16 *)p)->count;
@@ -86,7 +86,7 @@ void func_80013CDC(void) {
         gAnimations[gLoopI]++;
         sStepper.unk1B0[gLoopI] = gAnimations[gLoopI][1];
     }
-    GsInitCoordinate2(WORLD, &D_800D86E0[0]);
+    GsInitCoordinate2(WORLD, &gTodCoords[0]);
     sStepper.unk5 = 0;
     sStepper.unk6 = 0;
     /* MATCHING: retail stores 8 before 7. */

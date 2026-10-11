@@ -490,8 +490,8 @@ typedef struct {
 
 /* MATCHING: player has its own view of these slots. */
 extern ModelSlot D_800D8370[];
-extern u8 D_8009EF50[];
-extern u8 D_80096418[];
+extern u8 gTodObjs[];        /**< the 20 GsDOBJ2s of gTodObjTable */
+extern u8 gTodCoordParams[]; /**< a GsCOORD2PARAM for each of gTodCoords */
 
 /* MATCHING: object defines it on its own Model70 view. */
 void InitModel(Model70 *m, unsigned long *tmd, u8 n);
@@ -505,8 +505,8 @@ void func_80013CDC(void) {
     s32 *q;
 
     p = (s32 *)0x8014D000;
-    D_80095904 = (s32)((unsigned long *)((u8 *)p + *p) + 1);
-    GsMapModelingData((unsigned long *)D_80095904);
+    gModelTmd = (s32)((unsigned long *)((u8 *)p + *p) + 1);
+    GsMapModelingData((unsigned long *)gModelTmd);
     InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
     InitModel(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
@@ -516,7 +516,7 @@ void func_80013CDC(void) {
     InitModel(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
     InitModel(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
     InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
-    InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
+    InitTodObjTable(gTodObjTable, gTodObjs, gTodCoords, gTodCoordParams, 20);
     p = (s32 *)0x80123000;
     gLoopI = 0;
     gLoopJ = ((DirEnt16 *)p)->count;
@@ -528,7 +528,7 @@ void func_80013CDC(void) {
         gAnimations[gLoopI]++;
         gPlayer.motionStart[gLoopI] = gAnimations[gLoopI][1];
     }
-    GsInitCoordinate2(WORLD, &D_800D86E0[0]);
+    GsInitCoordinate2(WORLD, &gTodCoords[0]);
     gPlayer.action = 0;
     gPlayer.motion[0] = 0;
     /* MATCHING: retail stores 8 before 7. */

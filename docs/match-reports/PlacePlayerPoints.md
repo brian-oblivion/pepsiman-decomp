@@ -5,7 +5,7 @@
 Unit `src/collision.c`. Fills the 25-point table `gPlayerPoints`: copies a
 25-entry table of local points (three words plus a coordinate-system index
 byte, 16 bytes each) to the stack, then for each point gets the local-world
-matrix of `D_800D86E0[coord]` (`GsGetLws`), sets it and `RotTrans`es the
+matrix of `gTodCoords[coord]` (`GsGetLws`), sets it and `RotTrans`es the
 point. A 3-byte constant {7, 13, 19} is also copied to the stack and never
 read.
 
@@ -33,7 +33,7 @@ Levers:
   `VECTOR` and the byte copy: `s32 unused0[6];` and `s32 unused[2];` (the
   same 8-byte gap as LocalToWorld in object).
 
-`D_800D86E0` comes from `include/object.h`, which this unit now
+`gTodCoords` comes from `include/object.h`, which this unit now
 includes.
 
 ```c
@@ -102,7 +102,7 @@ void PlacePlayerPoints(void) {
         v.vx = spec.p[i].x;
         v.vy = spec.p[i].y;
         v.vz = spec.p[i].z;
-        GsGetLws(&D_800D86E0[spec.p[i].coord], &lw, &ls);
+        GsGetLws(&gTodCoords[spec.p[i].coord], &lw, &ls);
         GsSetLsMatrix(&lw);
         RotTrans(&v, &out, &flag);
         gPlayerPoints[i].x = out.vx;

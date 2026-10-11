@@ -9,11 +9,7 @@ D_800959B0
 D_800959D4
 D_800959D8
 D_80095A14
-D_80095A20
-D_80095A22
-D_80095A28
 D_80095A40
-D_80095A58
 D_80095A5C
 D_80095A89
 D_80095A8A
@@ -130,3 +126,7 @@ sPadActPtr
 sPadBufPtr
 sSpriteFlags
 sSteerDrift
+sToolInfoMode
+sToolModeSaved
+sToolPickMode
+sViewLerpStep

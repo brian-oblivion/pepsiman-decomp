@@ -5,8 +5,8 @@
 Unit `src/hit_tool.c`. A five-line menu step: sets the edit limit and
 wrap count, runs the menu (`StepMenuCursor`), and on flag bit 5 acts on the
 highlighted line (`gMenuLine`): lines 0 and 1 arm an edit and record the
-line in `gToolKind`; lines 2 and 3 toggle `D_80095A58` / `D_80095A28` and,
-when `D_80095A58` is set, pick an error code by `gToolKind`; line 4 sets
+line in `gToolKind`; lines 2 and 3 toggle `sToolPickMode` / `sToolInfoMode` and,
+when `sToolPickMode` is set, pick an error code by `gToolKind`; line 4 sets
 error 7. Flag bit 6 clears the error code.
 
 ```c
@@ -22,8 +22,8 @@ void UpdateToolMenu(void) {
                 gMenuLineCount = 2;
                 gMenuLine = 0;
                 gToolMode = 2;
-                D_80095A58 = 0;
-                D_80095A28 = 0;
+                sToolPickMode = 0;
+                sToolInfoMode = 0;
                 gEditValue = gToolRadius;
                 break;
             case 1:
@@ -31,18 +31,18 @@ void UpdateToolMenu(void) {
                 gMenuLine = 0;
                 gEditValue = 0;
                 gToolMode = 4;
-                D_80095A58 = 0;
-                D_80095A28 = 0;
+                sToolPickMode = 0;
+                sToolInfoMode = 0;
                 break;
             case 2:
-                D_80095A28 = 0;
-                D_80095A58 ^= 1;
+                sToolInfoMode = 0;
+                sToolPickMode ^= 1;
             case 3:
                 if (gMenuLine == 3) {
-                    D_80095A58 = D_80095A28 = D_80095A28 ^ 1;
+                    sToolPickMode = sToolInfoMode = sToolInfoMode ^ 1;
                 }
                 gSubStep = 0;
-                if (D_80095A58 == 1) {
+                if (sToolPickMode == 1) {
                     switch (gToolKind) {
                         case 0:
                             gToolMode = 3;

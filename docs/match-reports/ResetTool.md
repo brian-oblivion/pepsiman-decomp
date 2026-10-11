@@ -32,7 +32,7 @@ void ResetTool(void) {
     gToolViewStep = 2;
     gToolStep = 10;
     gToolViewPreset = 0;
-    D_80095A22 = 0;
+    sToolModeSaved = 0;
     gToolSection = 0;
     gToolKind = 0;
     gToolPointIndex = 0;
@@ -40,8 +40,8 @@ void ResetTool(void) {
     gToolQuadIndex = 0;
     D_80095A40 = 0;
     gToolRadius = 5;
-    D_80095A58 = 0;
-    D_80095A28 = 0;
+    sToolPickMode = 0;
+    sToolInfoMode = 0;
 }
 ```
 

@@ -6,7 +6,7 @@ Unit `src/code_31cec.c`. Starts a sound sequence (`id`, the entry in the
 sequence directory at 0x80101000): finds the first of slots 2..9 of
 `gSeqIds` whose sequence has ended (or takes slot 9), closes what was
 there, and unless loading is blocked (`gVabError`, returns -1) opens the
-sequence on its VAB (`D_8007BBEC` maps ids from 70 up to a bank, lower ids
+sequence on its VAB (`sSeVabBanks` maps ids from 70 up to a bank, lower ids
 use bank 0), plays it once at full volume, and moves the round-robin
 cursor `gSeSlot` on (wrapping to 2).
 
@@ -15,7 +15,7 @@ extern s16 gSeqIds[];
 extern u16 gSeSlot;
 extern s32 gVabError;
 extern s16 gBgmVab;
-extern u8 D_8007BBEC[];
+extern u8 sSeVabBanks[];
 
 s32 PlaySe(s32 id) {
     s16 *seq;
@@ -41,7 +41,7 @@ s32 PlaySe(s32 id) {
     if ((u16)id < 70) {
         bank = 0;
     } else {
-        bank = D_8007BBEC[(u16)id - 70];
+        bank = sSeVabBanks[(u16)id - 70];
     }
     gSeqIds[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
     SsSeqPlay(gSeqIds[(u16)i], 1, 1);

@@ -6,9 +6,9 @@ Stalled at 154/157 in rounds 9 (echo) and 12 (charlie).
 
 Unit `src/hit_tool.c`. Steps the camera offset by `gToolViewStep`: state 0
 saves the current offset (`gRefView[0..2]`) as the start
-(`D_800CEBA0`) and starts the step counter `D_80095A20`; state 1
+(`sViewLerpFrom`) and starts the step counter `sViewLerpStep`; state 1
 interpolates over 30 steps (`Lerp`) towards row `gToolViewPreset` of a
-five-row rodata table (`D_800115DC`, copied to the stack as one block)
+five-row rodata table (`sViewPresets`, copied to the stack as one block)
 scaled by `gToolZoom`; state 2 restores the saved value of `gToolMode`
 and advances to state 3; state 3 jumps straight to the target and clears
 the next three words. Every call clears `D_800DB2B8`.
@@ -22,13 +22,13 @@ typedef struct {
     s32 v[5][3];
 } Rows5;
 
-extern Rows5 D_800115DC;
-extern s32 D_800CEBA0[];
-extern u8 D_80095A20;
+extern Rows5 sViewPresets;
+extern s32 sViewLerpFrom[];
+extern u8 sViewLerpStep;
 extern s32 D_800DB2B8[];
 extern s32 gRefView[];  /* common.h */
 extern u8 gToolViewStep;
-extern s16 D_80095A22;
+extern s16 sToolModeSaved;
 extern s16 gToolMode;    /* common.h */
 extern u8 gToolViewPreset;
 extern u8 gToolZoom;
@@ -38,28 +38,28 @@ s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 void UpdateToolView(void) {
     Rows5 rows;
 
-    rows = D_800115DC;
+    rows = sViewPresets;
     switch (gToolViewStep) {
         case 0:
             gToolViewStep = 1;
-            D_80095A20 = 0;
-            D_800CEBA0[0] = gRefView[0];
-            D_800CEBA0[1] = gRefView[1];
-            D_800CEBA0[2] = gRefView[2];
+            sViewLerpStep = 0;
+            sViewLerpFrom[0] = gRefView[0];
+            sViewLerpFrom[1] = gRefView[1];
+            sViewLerpFrom[2] = gRefView[2];
             break;
         case 1:
-            gRefView[0] = Lerp(D_800CEBA0[0], rows.v[(s8)gToolViewPreset][0] * (s8)gToolZoom,
-                                          D_80095A20, 30);
-            gRefView[1] = Lerp(D_800CEBA0[1], rows.v[(s8)gToolViewPreset][1] * (s8)gToolZoom,
-                                          D_80095A20, 30);
-            gRefView[2] = Lerp(D_800CEBA0[2], rows.v[(s8)gToolViewPreset][2] * (s8)gToolZoom,
-                                          D_80095A20, 30);
-            if (++D_80095A20 == 30) {
+            gRefView[0] = Lerp(sViewLerpFrom[0], rows.v[(s8)gToolViewPreset][0] * (s8)gToolZoom,
+                                          sViewLerpStep, 30);
+            gRefView[1] = Lerp(sViewLerpFrom[1], rows.v[(s8)gToolViewPreset][1] * (s8)gToolZoom,
+                                          sViewLerpStep, 30);
+            gRefView[2] = Lerp(sViewLerpFrom[2], rows.v[(s8)gToolViewPreset][2] * (s8)gToolZoom,
+                                          sViewLerpStep, 30);
+            if (++sViewLerpStep == 30) {
                 gToolViewStep++;
             }
             break;
         case 2:
-            gToolMode = D_80095A22;
+            gToolMode = sToolModeSaved;
             gToolViewStep = 2;
             break;
         case 3:
@@ -80,9 +80,9 @@ void UpdateToolView(void) {
 
 Register only, three words, all in case 2: funcdiff `insertions 0 /
 deletions 0`. Retail stores `gToolViewStep = 2` from `$v0`, the constant the
-dispatch loaded for its `beq` against 2, and loads `D_80095A22` into `$v1`.
+dispatch loaded for its `beq` against 2, and loads `sToolModeSaved` into `$v1`.
 The build stores the switch value itself (`$v1`, known to equal 2 on that
-edge) and loads `D_80095A22` into `$v0`. cse picks the jump-equivalent
+edge) and loads `sToolModeSaved` into `$v0`. cse picks the jump-equivalent
 register over the compare constant; nothing in the C moved that choice.
 
 ## Levers
@@ -167,7 +167,7 @@ The residue was a misreading, not a register choice. Retail's case 2 is
 beq  $v1, $v0, .L800358D0
  addiu $v0, $zero, 0x3      # delay slot: runs on the taken edge too
 .L800358D0:
-lhu  $v1, D_80095A22
+lhu  $v1, sToolModeSaved
 sb   $v0, gToolViewStep        # stores 3
 ```
 
@@ -178,7 +178,7 @@ delay slot, not 2. Case 2 advances the state to 3.
 | --- | --- |
 | `gToolViewStep = 2;` (inherited) | 154/157 |
 | `switch` on a local `s`, `s = 0;` in case 2 (kills the index's equivalence) | store moves to the compare register, which then lives into case 2 and steals `$a0`: 32/157 (shifted) |
-| as above, with `s = (u16)D_80095A22; ...; gToolMode = s;` | 18/157 (load hoisted) |
+| as above, with `s = (u16)sToolModeSaved; ...; gToolMode = s;` | 18/157 (load hoisted) |
 | `gToolViewStep = 3;`, either statement order | one word long: a `li $v0, 3` stays in case 2 |
 | `gToolViewStep++;` | **157/157, build OK** |
 

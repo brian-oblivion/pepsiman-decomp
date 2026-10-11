@@ -6,7 +6,7 @@ Unit `src/stage_flow.c`. Stage start. Raises `D_80095900`; when the
 argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
 resets the head of the game state (`gPlayer`), copies the start position
 from `gCourse`, looks up a per-stage value when the stage's flag in
-`D_8007AD58` is 1, derives the camera height (`D_8009676C`) and the start
+`sStageFindsFloor` is 1, derives the camera height (`D_8009676C`) and the start
 heading (from `gStageStart`), runs the stage set-up calls and clears a
 halfword in each of the 200 Trap records.
 
@@ -19,7 +19,7 @@ halfword in each of the 200 Trap records.
  *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*gStageStart)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
- * D_800957B0; extern s8 D_8007AD58[]; extern s32 gFloorIndex, gSection;
+ * D_800957B0; extern s8 sStageFindsFloor[]; extern s32 gFloorIndex, gSection;
  * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
  * D_800957D6, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
@@ -42,7 +42,7 @@ void RestartStage(u8 arg0) {
     sStage.unk348.vz = gCourse.pos.vz;
     gMissState = 0;
     sStage.unk3CA = 0;
-    if (D_8007AD58[gStage] == 1) {
+    if (sStageFindsFloor[gStage] == 1) {
         gFloorIndex = FindFloor(&sStage.unk348);
     } else {
         gFloorIndex = 0;

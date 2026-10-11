@@ -5,7 +5,7 @@
 Unit `src/code_31cec.c`. Two-step sound-bank switch, driven by the state
 `gVabLoadStep`. Returns 1 at once when `bank` is 0 or already current
 (`gVabBank`). In state 0 it starts loading the bank: the source entry
-`&D_8007B6A4[bank]` and the size word `D_8007B6CC[bank + 6]` go to the
+`&D_8007B6A4[bank]` and the size word `sSoundFileSectors[bank + 6]` go to the
 loader globals (`gCdLoadLoc`, `gCdLoadSectors`), the destination
 0x8016D000 to `gCdLoadDest`, two loader flags are set to 1 and the state
 moves to 1. In state 1, once the loader's step byte `gCdLoadState` reaches
@@ -22,7 +22,7 @@ extern u16 gVabBank;
 extern s16 gCdLoadCount;
 extern s8 gCdLoadState;
 extern s32 D_8007B6A4[];
-extern s32 D_8007B6CC[];
+extern s32 sSoundFileSectors[];
 void LoadVab(s16 arg0);
 
 s32 LoadVabBank(u16 bank) {
@@ -37,7 +37,7 @@ s32 LoadVabBank(u16 bank) {
     switch (gVabLoadStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&D_8007B6A4[bank];
-            gCdLoadSectors[0] = D_8007B6CC[bank + 6];
+            gCdLoadSectors[0] = sSoundFileSectors[bank + 6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
@@ -61,7 +61,7 @@ s32 LoadVabBank(u16 bank) {
 | step | result |
 | --- | --- |
 | stores in the order the globals are listed in the asm (`gCdLoadSectors` last, where retail stores it in the `j` delay slot) | 21/62, the table load scheduled after the stores |
-| `gCdLoadSectors = D_8007B6CC[bank + 6];` written second, right after `gCdLoadLoc` | 61 words, one `li $v0, 1` short |
+| `gCdLoadSectors = sSoundFileSectors[bank + 6];` written second, right after `gCdLoadLoc` | 61 words, one `li $v0, 1` short |
 | **`gVabLoadStep++;` for the state store** | **62/62** |
 
 - **A second `li $v0, 1` right before a store, with `$v0` already 1: the

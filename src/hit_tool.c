@@ -114,18 +114,18 @@ extern u8 gToolZoom;
 extern u8 gToolViewStep;
 extern s16 gToolStep;
 extern u8 gToolViewPreset;
-extern s16 D_80095A22;
+extern s16 sToolModeSaved; /**< gToolMode, kept while the view moves to a preset */
 extern s32 gToolPointIndex;
 extern s32 D_80095A5C;
 extern s32 gToolQuadIndex;
 extern s32 D_80095A40;
-extern u8 D_80095A58;
-extern u8 D_80095A28;
+extern u8 sToolPickMode; /**< 1 while a record is being picked, for DELETE or INFO */
+extern u8 sToolInfoMode; /**< 1 while the picked record's INFO is shown */
 
 void ClearHitPoints(void);
 void ClearHitQuads(void);
 
-extern u8 D_80095774; /**< set while the reset below runs */
+extern u8 sPreviewing; /**< 1 while RefreshToolPreview runs */
 
 extern char sHitTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
 extern char sHitDataFilePath0[]; /**< path of the first hit-data file, HITDATA0.T1D */
@@ -208,7 +208,7 @@ INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSizeRangeFmt);
 
 INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTypeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115DC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sViewPresets);
 
 INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataModeText);
 
@@ -282,15 +282,15 @@ void UpdateTool(void) {
             gToolStep = 10;
             gToolRadius = 5;
             gToolViewPreset = 0;
-            D_80095A22 = 0;
+            sToolModeSaved = 0;
             gToolSection = 0;
             gToolKind = 0;
             gToolPointIndex = 0;
             D_80095A5C = 0;
             gToolQuadIndex = 0;
             D_80095A40 = 0;
-            D_80095A58 = 0;
-            D_80095A28 = 0;
+            sToolPickMode = 0;
+            sToolInfoMode = 0;
             gToolMode = 0;
             gMenuLine = 0;
             gEditValue = 0;
@@ -339,7 +339,7 @@ void UpdateTool(void) {
                 DrawHitQuad(&gToolNewQuad);
                 SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, gToolQuadW, gToolQuadH);
             }
-            if (D_80095A58 == 0) {
+            if (sToolPickMode == 0) {
                 SelectToolSection();
                 DrawToolPin((VECTOR *)&gPlayer.x);
                 DrawToolPole((VECTOR *)&gPlayer.x);
@@ -408,8 +408,8 @@ void UpdateToolMenu(void) {
                 gMenuLineCount = 2;
                 gMenuLine = 0;
                 gToolMode = 2;
-                D_80095A58 = 0;
-                D_80095A28 = 0;
+                sToolPickMode = 0;
+                sToolInfoMode = 0;
                 gEditValue = gToolRadius;
                 break;
             case 1:
@@ -417,18 +417,18 @@ void UpdateToolMenu(void) {
                 gMenuLine = 0;
                 gEditValue = 0;
                 gToolMode = 4;
-                D_80095A58 = 0;
-                D_80095A28 = 0;
+                sToolPickMode = 0;
+                sToolInfoMode = 0;
                 break;
             case 2:
-                D_80095A28 = 0;
-                D_80095A58 ^= 1;
+                sToolInfoMode = 0;
+                sToolPickMode ^= 1;
             case 3:
                 if (gMenuLine == 3) {
-                    D_80095A58 = D_80095A28 = D_80095A28 ^ 1;
+                    sToolPickMode = sToolInfoMode = sToolInfoMode ^ 1;
                 }
                 gSubStep = 0;
-                if (D_80095A58 == 1) {
+                if (sToolPickMode == 1) {
                     switch (gToolKind) {
                         case 0:
                             gToolMode = 3;
@@ -488,13 +488,13 @@ void PrintToolStatus(void) {
             FntPrint(sHitRideHitText);
             break;
     }
-    if (D_80095A28 == 1) {
+    if (sToolInfoMode == 1) {
         FntPrint(sHitInfoText);
-    } else if (D_80095A58 == 1) {
+    } else if (sToolPickMode == 1) {
         FntPrint(sHitDeleteNowText);
     }
     FntPrint(sHitNewlines6);
-    if (D_80095A28 == 1) {
+    if (sToolInfoMode == 1) {
         switch (gToolKind) {
             case 0:
                 FntPrint(sHitRadiusFmt, gToolPoint->radius);
@@ -508,8 +508,8 @@ void PrintToolStatus(void) {
     }
     switch ((u16)gToolMode) {
         case 1:
-            D_80095A58 = 0;
-            D_80095A28 = 0;
+            sToolPickMode = 0;
+            sToolInfoMode = 0;
             if (gMenuLine == 0) {
                 FntPrint(sHitColorWhite);
             } else {
@@ -729,7 +729,7 @@ void EditHitPoints(void) {
             e += gToolSection;
             if (e->count == 0) {
                 gToolMode = 0;
-                D_80095A58 = 0;
+                sToolPickMode = 0;
             }
             if (gPadTrig & PADR1) {
                 gToolPointIndex++;
@@ -749,9 +749,9 @@ void EditHitPoints(void) {
             pos.vz = -rec->z;
             if (gPadTrig & PADRdown) {
                 gToolMode = 0;
-                D_80095A58 = 0;
+                sToolPickMode = 0;
             }
-            if (D_80095A28 != 1 && (gPadTrig & PADRright)) {
+            if (sToolInfoMode != 1 && (gPadTrig & PADRright)) {
                 bank = (HitPointBank *)gHitPoints;
                 e = bank->entries;
                 e += gToolSection;
@@ -804,7 +804,7 @@ void EditHitQuads(void) {
             e += gToolSection;
             if (e->count == 0) {
                 gToolMode = 0;
-                D_80095A58 = 0;
+                sToolPickMode = 0;
             }
             if (gPadTrig & PADR1) {
                 gToolQuadIndex++;
@@ -824,9 +824,9 @@ void EditHitQuads(void) {
             pos.vz = -rec->pts[0].z;
             if (gPadTrig & PADRdown) {
                 gToolMode = 0;
-                D_80095A58 = 0;
+                sToolPickMode = 0;
             }
-            if (D_80095A28 != 1 && (gPadTrig & PADRright)) {
+            if (sToolInfoMode != 1 && (gPadTrig & PADRright)) {
                 bank = (HitQuadBank *)gHitQuads;
                 e = bank->entries;
                 e += gToolSection;
@@ -866,25 +866,25 @@ void SelectToolView(void) {
 
     if (flags & PADL2) {
         gToolViewPreset++;
-        D_80095A22 = gToolMode;
+        sToolModeSaved = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
     if (flags & PADR2) {
         gToolViewPreset--;
-        D_80095A22 = gToolMode;
+        sToolModeSaved = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
     if (flags & PADRleft) {
         gToolZoom++;
-        D_80095A22 = gToolMode;
+        sToolModeSaved = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
     if (flags & PADRdown) {
         gToolZoom--;
-        D_80095A22 = gToolMode;
+        sToolModeSaved = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
@@ -905,9 +905,9 @@ typedef struct {
     s32 v[5][3]; /**< per-row x, y, z */
 } Rows5;
 
-extern Rows5 D_800115DC; /**< the rows the step below scales */
-extern s32 D_800CEBA0[]; /**< start of the interpolation */
-extern u8 D_80095A20;    /**< interpolation step, 0..30 */
+extern Rows5 sViewPresets;  /**< the view presets the move goes to, scaled by the zoom */
+extern s32 sViewLerpFrom[]; /**< where the view move started, x y z */
+extern u8 sViewLerpStep;    /**< the view move's step, 0..30 */
 
 /* MATCHING: a per-unit view; model defines it as (s16, s16, u16, u16)
  * returning s16. */
@@ -916,28 +916,28 @@ s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 void UpdateToolView(void) {
     Rows5 rows;
 
-    rows = D_800115DC;
+    rows = sViewPresets;
     switch (gToolViewStep) {
         case 0:
             gToolViewStep = 1;
-            D_80095A20 = 0;
-            D_800CEBA0[0] = gRefView[0];
-            D_800CEBA0[1] = gRefView[1];
-            D_800CEBA0[2] = gRefView[2];
+            sViewLerpStep = 0;
+            sViewLerpFrom[0] = gRefView[0];
+            sViewLerpFrom[1] = gRefView[1];
+            sViewLerpFrom[2] = gRefView[2];
             break;
         case 1:
-            gRefView[0] =
-                Lerp(D_800CEBA0[0], rows.v[(s8)gToolViewPreset][0] * (s8)gToolZoom, D_80095A20, 30);
-            gRefView[1] =
-                Lerp(D_800CEBA0[1], rows.v[(s8)gToolViewPreset][1] * (s8)gToolZoom, D_80095A20, 30);
-            gRefView[2] =
-                Lerp(D_800CEBA0[2], rows.v[(s8)gToolViewPreset][2] * (s8)gToolZoom, D_80095A20, 30);
-            if (++D_80095A20 == 30) {
+            gRefView[0] = Lerp(sViewLerpFrom[0], rows.v[(s8)gToolViewPreset][0] * (s8)gToolZoom,
+                               sViewLerpStep, 30);
+            gRefView[1] = Lerp(sViewLerpFrom[1], rows.v[(s8)gToolViewPreset][1] * (s8)gToolZoom,
+                               sViewLerpStep, 30);
+            gRefView[2] = Lerp(sViewLerpFrom[2], rows.v[(s8)gToolViewPreset][2] * (s8)gToolZoom,
+                               sViewLerpStep, 30);
+            if (++sViewLerpStep == 30) {
                 gToolViewStep++;
             }
             break;
         case 2:
-            gToolMode = D_80095A22;
+            gToolMode = sToolModeSaved;
             gToolViewStep++;
             break;
         case 3:
@@ -1489,7 +1489,7 @@ void ResetTool(void) {
     gToolViewStep = 2;
     gToolStep = 10;
     gToolViewPreset = 0;
-    D_80095A22 = 0;
+    sToolModeSaved = 0;
     gToolSection = 0;
     gToolKind = 0;
     gToolPointIndex = 0;
@@ -1497,8 +1497,8 @@ void ResetTool(void) {
     gToolQuadIndex = 0;
     D_80095A40 = 0;
     gToolRadius = 5;
-    D_80095A58 = 0;
-    D_80095A28 = 0;
+    sToolPickMode = 0;
+    sToolInfoMode = 0;
 }
 
 void ClearHitPoints(void) {
@@ -1588,7 +1588,7 @@ void SelectToolSection(void) {
 }
 
 void RefreshToolPreview(void) {
-    D_80095774 = 1;
+    sPreviewing = 1;
     ResetCollision();
     gTraps[0] = 0;
     gTraps[1] = 0;
@@ -1601,7 +1601,7 @@ void RefreshToolPreview(void) {
     UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);
     ReactToHits(&gPlayer);
     func_80029838();
-    D_80095774 = 0;
+    sPreviewing = 0;
 }
 
 /* MATCHING: the unused 8 bytes give the 0x20-byte frame. */

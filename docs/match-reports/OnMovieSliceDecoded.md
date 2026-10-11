@@ -5,7 +5,7 @@
 Unit `src/sound.c`. The `DecDCToutCallback` handler of the movie
 player (PlayMovieFile installs it through InitMovieStream): Sony's sample
 `out_callback` on the unit's decode environment `gMovieDec` (a
-`DECENV`). It services a pending stream interrupt (`D_800E1F1C`, libcd's
+`DECENV`). It services a pending stream interrupt (`StCdIntrFlag`, libcd's
 `StCdIntrFlag`), sends the decoded slice to VRAM, steps the slice right,
 and either asks for the next slice or, at the frame's right edge, marks
 the frame done, flips the frame area and rewinds the slice to that
@@ -13,15 +13,15 @@ area's corner, offset by the movie's left margin (`gMovieOffsetX`) and
 vertically centred for its height (`gMovieDisplayHeight`).
 
 ```c
-extern s32 D_800E1F1C;
+extern s32 StCdIntrFlag;
 extern DECENV gMovieDec;
 extern s16 gMovieOffsetX;
 extern s16 gMovieDisplayHeight;
 
 void OnMovieSliceDecoded(void) {
-    if (D_800E1F1C) {
+    if (StCdIntrFlag) {
         StCdInterrupt();
-        D_800E1F1C = 0;
+        StCdIntrFlag = 0;
     }
     LoadImage(&gMovieDec.slice, (u_long *)gMovieDec.imgbuf);
     gMovieDec.slice.x += gMovieDec.slice.w;
@@ -46,7 +46,7 @@ void OnMovieSliceDecoded(void) {
 - Retail builds `&gMovieDec.slice` (splat's `D_800E04D4`) and derives the
   struct base from it (`addiu $s0, $a0, -0x24`): cc1's CSE of the first
   member address against the base, not a separate pointer.
-- `gMovieDec` is reached `lui`/`addiu` (48 bytes), `D_800E1F1C`
+- `gMovieDec` is reached `lui`/`addiu` (48 bytes), `StCdIntrFlag`
   `lui $v0` / `lw $v0` (a plain scalar). `StCdInterrupt` comes from
   `libcd.h`; a local prototype fails declcheck.
 - The `rectid` store lands before the `isdone` store although `isdone` is

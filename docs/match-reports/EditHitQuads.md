@@ -30,7 +30,7 @@ void EditHitQuads(void) {
             e += gToolSection;
             if (e->unk4 == 0) {
                 gToolMode = 0;
-                D_80095A58 = 0;
+                sToolPickMode = 0;
             }
             if (gPadTrig & 8) {
                 gToolQuadIndex++;
@@ -48,9 +48,9 @@ void EditHitQuads(void) {
             pos.vz = -rec->pts[0].z;
             if (gPadTrig & 0x40) {
                 gToolMode = 0;
-                D_80095A58 = 0;
+                sToolPickMode = 0;
             }
-            if (D_80095A28 != 1 && (gPadTrig & 0x20)) {
+            if (sToolInfoMode != 1 && (gPadTrig & 0x20)) {
                 bank = (Bank4C *)gHitQuads;
                 e = bank->entries;
                 e += gToolSection;

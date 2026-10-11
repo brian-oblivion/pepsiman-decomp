@@ -4,7 +4,7 @@
 
 Unit `src/hit_tool.c`. Input handling for two byte settings: flag bits 0
 and 1 step `gToolViewPreset` up and down, bits 7 and 6 step `gToolZoom`; each
-step also saves `gToolMode` into `D_80095A22`, sets it to 6 and clears
+step also saves `gToolMode` into `sToolModeSaved`, sets it to 6 and clears
 `gToolViewStep`. Then `gToolZoom` is clamped to 1..20 and `gToolViewPreset` wraps
 within 0..4.
 
@@ -15,7 +15,7 @@ void SelectToolView(void) {
 
     if (flags & 1) {
         gToolViewPreset++;
-        D_80095A22 = gToolMode;
+        sToolModeSaved = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }

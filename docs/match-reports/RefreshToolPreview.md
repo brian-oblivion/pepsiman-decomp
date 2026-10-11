@@ -3,7 +3,7 @@
 > Renamed from `func_80037114` on 2026-10-11 (tools/rename.py). Address 0x80037114.
 
 Unit `src/hit_tool.c`. Resets part of the play state around the current
-entry: raises `D_80095774` for the duration, calls `ResetCollision`, clears
+entry: raises `sPreviewing` for the duration, calls `ResetCollision`, clears
 words 0, 1, 2, 11, 12 and halfwords 12-14 of `gTraps`, then
 `UpdateObjectEntry` on the current `gObjectModels` record, `ReactToHits` on the
 game state and `func_80029838`.
@@ -25,7 +25,7 @@ game state and `func_80029838`.
 
 ```c
 void RefreshToolPreview(void) {
-    D_80095774 = 1;
+    sPreviewing = 1;
     ResetCollision();
     gTraps[0] = 0;
     gTraps[1] = 0;
@@ -38,7 +38,7 @@ void RefreshToolPreview(void) {
     UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);
     ReactToHits(gPlayer);
     func_80029838();
-    D_80095774 = 0;
+    sPreviewing = 0;
 }
 ```
 

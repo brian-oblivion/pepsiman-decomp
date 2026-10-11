@@ -4,8 +4,8 @@
 
 Unit `src/sound.c`. Sound start-up state machine stepped on
 `gSubStep`, returning 1 once finished. State 0 queues two CD loads for
-the loader (positions from the location table `D_8007B69C`, entries 0 and
-2, to 0x80101000 and 0x8016D000, sizes from `D_8007B6CC`); state 1 waits
+the loader (positions from the location table `sSoundFileLoc`, entries 0 and
+2, to 0x80101000 and 0x8016D000, sizes from `sSoundFileSectors`); state 1 waits
 for the loader's step byte `gCdLoadState` to reach 6 and opens bank 0
 (LoadVab); state 2 queues one more load (entry 3); state 3 opens
 bank 1, opens the sequences (InitSeSeqs) and records bank 1 as current
@@ -13,8 +13,8 @@ bank 1, opens the sequences (InitSeSeqs) and records bank 1 as current
 written out) and returns 1.
 
 ```c
-extern s32 D_8007B69C[];
-extern s32 D_8007B6CC[];
+extern s32 sSoundFileLoc[];
+extern s32 sSoundFileSectors[];
 extern u16 gVabBank;
 void LoadVab(s16 arg0);
 
@@ -23,14 +23,14 @@ s32 LoadSoundData(void) {
 
     switch (gSubStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&D_8007B69C[0];
+            gCdLoadLoc[0] = (s32)&sSoundFileLoc[0];
             gCdLoadDest[0] = 0x80101000;
-            gCdLoadLoc[1] = (s32)&D_8007B69C[2];
+            gCdLoadLoc[1] = (s32)&sSoundFileLoc[2];
             gCdLoadDest[1] = 0x8016D000;
             gCdLoadCount = 2;
             gCdLoadState = 1;
-            gCdLoadSectors[0] = D_8007B6CC[4];
-            gCdLoadSectors[1] = D_8007B6CC[6];
+            gCdLoadSectors[0] = sSoundFileSectors[4];
+            gCdLoadSectors[1] = sSoundFileSectors[6];
             gSubStep++;
             break;
         case 1:
@@ -40,11 +40,11 @@ s32 LoadSoundData(void) {
             }
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)&D_8007B69C[3];
+            gCdLoadLoc[0] = (s32)&sSoundFileLoc[3];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            gCdLoadSectors[0] = D_8007B6CC[7];
+            gCdLoadSectors[0] = sSoundFileSectors[7];
             gSubStep++;
             break;
         case 3:
@@ -80,9 +80,9 @@ s32 LoadSoundData(void) {
 
 - Independent global-table stores come out in source order (LEARNINGS,
   local structs); the same holds for these array stores.
-- `D_8007B69C` is the start of the CD location table that LoadVabBank
+- `sSoundFileLoc` is the start of the CD location table that LoadVabBank
   reaches as `D_8007B6A4` (= entry 2): splat split one table at each
-  address an instruction names. Entry `k`'s size is `D_8007B6CC[k + 4]`.
+  address an instruction names. Entry `k`'s size is `sSoundFileSectors[k + 4]`.
   A head-level merge of the two names (one `CdlLOC` table) would make
   LoadVabBank read `&tbl[bank + 2]`; not done here (no renames this
   round).

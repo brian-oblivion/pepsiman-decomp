@@ -80,13 +80,13 @@ void PrintToolStatus(void) {
             FntPrint(sHitRideHitText);
             break;
     }
-    if (D_80095A28 == 1) {
+    if (sToolInfoMode == 1) {
         FntPrint(sHitInfoText);
-    } else if (D_80095A58 == 1) {
+    } else if (sToolPickMode == 1) {
         FntPrint(sHitDeleteNowText);
     }
     FntPrint(sHitNewlines6);
-    if (D_80095A28 == 1) {
+    if (sToolInfoMode == 1) {
         switch (gToolKind) {
             case 0:
                 FntPrint(sHitRadiusFmt, gToolPoint->unk14);
@@ -100,8 +100,8 @@ void PrintToolStatus(void) {
     }
     switch ((u16)gToolMode) {
         case 1:
-            D_80095A58 = 0;
-            D_80095A28 = 0;
+            sToolPickMode = 0;
+            sToolInfoMode = 0;
             if (gMenuLine == 0) {
                 FntPrint(sHitColorWhite);
             } else {

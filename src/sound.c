@@ -28,7 +28,7 @@ u_long *GetNextMovieFrame(DECENV *dec);
 s32 LoadVab(s16 bank);
 
 extern s16 gSeqIds[];
-extern char D_800E0588[];
+extern char sSeqAttrTable[]; /**< SsSetTableSize's SEQ attribute table */
 extern s32 gMovieEnded;
 extern u16 gSeSlot;
 extern s32 gVabError;
@@ -38,8 +38,8 @@ extern s16 gBgmVolume;
 extern s16 gSeVab;
 extern s16 D_80095AEA;
 extern u16 gVabBank;
-extern s32 D_8007B6A4[];
-extern s32 D_8007B6CC[];
+extern s32 sSoundFileLoc[]; /**< the sound files' disc positions: the SEQ pack, then the VAB banks from [2] */
+extern s32 sSoundFileSectors[]; /**< their sizes in sectors, indexed 4 past the matching position */
 extern s16 gMovieOffsetX;
 extern s16 gMovieDisplayHeight;
 
@@ -161,12 +161,12 @@ s32 PlayMovieFile(char *name, s16 skippable) {
     return ret;
 }
 
-extern s32 D_800E1F1C;
+extern s32 StCdIntrFlag; /**< libcd streaming's flag: set when StCdInterrupt is owed */
 
 void OnMovieSliceDecoded(void) {
-    if (D_800E1F1C) {
+    if (StCdIntrFlag) {
         StCdInterrupt();
-        D_800E1F1C = 0;
+        StCdIntrFlag = 0;
     }
     LoadImage(&gMovieDec.slice, (u_long *)gMovieDec.imgbuf);
     gMovieDec.slice.x += gMovieDec.slice.w;
@@ -433,7 +433,7 @@ void UpdateSoundFade(void) {
     }
 }
 
-extern u8 D_8007BBEC[];
+extern u8 sSeVabBanks[]; /**< the VAB bank of each sound from id 70 on */
 
 s32 PlaySe(s32 id) {
     s16 *seq;
@@ -459,7 +459,7 @@ s32 PlaySe(s32 id) {
     if ((u16)id < 70) {
         bank = 0;
     } else {
-        bank = D_8007BBEC[(u16)id - 70];
+        bank = sSeVabBanks[(u16)id - 70];
     }
     gSeqIds[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
     SsSeqPlay(gSeqIds[(u16)i], 1, 1);
@@ -469,21 +469,19 @@ s32 PlaySe(s32 id) {
     }
 }
 
-extern s32 D_8007B69C[];
-
 s32 LoadSoundData(void) {
     s32 ret = 0;
 
     switch (gSubStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&D_8007B69C[0];
+            gCdLoadLoc[0] = (s32)&sSoundFileLoc[0];
             gCdLoadDest[0] = 0x80101000;
-            gCdLoadLoc[1] = (s32)&D_8007B69C[2];
+            gCdLoadLoc[1] = (s32)&sSoundFileLoc[2];
             gCdLoadDest[1] = 0x8016D000;
             gCdLoadCount = 2;
             gCdLoadState = 1;
-            gCdLoadSectors[0] = D_8007B6CC[4];
-            gCdLoadSectors[1] = D_8007B6CC[6];
+            gCdLoadSectors[0] = sSoundFileSectors[4];
+            gCdLoadSectors[1] = sSoundFileSectors[6];
             gSubStep++;
             break;
         case 1:
@@ -493,11 +491,11 @@ s32 LoadSoundData(void) {
             }
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)&D_8007B69C[3];
+            gCdLoadLoc[0] = (s32)&sSoundFileLoc[3];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;
-            gCdLoadSectors[0] = D_8007B6CC[7];
+            gCdLoadSectors[0] = sSoundFileSectors[7];
             gSubStep++;
             break;
         case 3:
@@ -525,7 +523,7 @@ s32 LoadSoundData(void) {
 
 void InitSound(void) {
     SsInit();
-    SsSetTableSize(D_800E0588, 9, 1);
+    SsSetTableSize(sSeqAttrTable, 9, 1);
     SsSetTickMode(1);
 }
 
@@ -590,8 +588,8 @@ s32 LoadVabBank(u16 bank) {
     }
     switch (gVabLoadStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&D_8007B6A4[bank];
-            gCdLoadSectors[0] = D_8007B6CC[bank + 6];
+            gCdLoadLoc[0] = (s32)&sSoundFileLoc[bank + 2];
+            gCdLoadSectors[0] = sSoundFileSectors[bank + 6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = 1;

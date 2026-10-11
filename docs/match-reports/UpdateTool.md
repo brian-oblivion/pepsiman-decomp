@@ -33,15 +33,15 @@ void UpdateTool(void) {
             gToolStep = 10;
             gToolRadius = 5;
             gToolViewPreset = 0;
-            D_80095A22 = 0;
+            sToolModeSaved = 0;
             gToolSection = 0;
             gToolKind = 0;
             gToolPointIndex = 0;
             D_80095A5C = 0;
             gToolQuadIndex = 0;
             D_80095A40 = 0;
-            D_80095A58 = 0;
-            D_80095A28 = 0;
+            sToolPickMode = 0;
+            sToolInfoMode = 0;
             gToolMode = 0;
             gMenuLine = 0;
             gEditValue = 0;
@@ -90,7 +90,7 @@ void UpdateTool(void) {
                 DrawHitQuad(&gToolNewQuad);
                 SetBoxAround(&gToolNewQuad, D_8009EEC0, gToolQuadW, gToolQuadH);
             }
-            if (D_80095A58 == 0) {
+            if (sToolPickMode == 0) {
                 SelectToolSection();
                 DrawToolPin((VECTOR *)D_8009EEC0);
                 DrawToolPole((VECTOR *)D_8009EEC0);

@@ -55,7 +55,7 @@ typedef struct {
 /* MATCHING: stored as u8 here; player tests it as s8 (lb). */
 extern u8 D_80095900;
 
-extern s8 D_8007AD58[];
+extern s8 sStageFindsFloor[]; /**< 1 for a stage whose start looks up the floor */
 
 /** @brief The record the start heading is read from. */
 typedef struct {
@@ -315,7 +315,7 @@ void RestartStage(u8 stage) {
     gPlayer.z = gCourse.z;
     gMissState = 0;
     gPlayer.unk3CA = 0;
-    if (D_8007AD58[gStage] == 1) {
+    if (sStageFindsFloor[gStage] == 1) {
         gFloorIndex = FindFloor((Pos3 *)&gPlayer.x);
     } else {
         gFloorIndex = 0;

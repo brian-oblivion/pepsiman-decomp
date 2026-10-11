@@ -118,32 +118,32 @@ typedef struct {
 extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
 
 /* Small: a plain extern. */
-extern s32 gTimInfo;       /**< 2 units, 4 functions */
-extern u8 gClearB;         /**< the screen clear and fog colour, blue */
-extern u8 gClearG;         /**< the screen clear and fog colour, green */
-extern u8 gClearR;         /**< the screen clear and fog colour, red */
-extern u8 D_800956F7;      /**< 3 units, 3 functions */
-extern s32 gCdTrackPos;    /**< 2 units, 2 functions */
-extern s32 gCdTrackPlays;  /**< 2 units, 2 functions */
-extern s32 gCdTrackStart;  /**< 2 units, 2 functions */
-extern s32 D_80095740;     /**< camera-facing y angle, eased by 8; 2 units */
-extern s32 D_80095744;     /**< camera-facing y angle, eased by 50; 2 units */
-extern u16 D_80095748;     /**< 2 units, 2 functions */
-extern s16 D_8009574A;     /**< the highlighted line of a three-line menu */
-extern u32 gStageObjCount; /**< an entry count */
-extern s32 gActiveBuff;    /**< the display buffer being drawn this frame, 0 or 1 */
-extern s32 gPad;           /**< port 1's held buttons this frame (PAD* bits), after ReadPad */
-extern s32 gGamePadTrig;   /**< remapped button flags; 2 units */
-extern u16 gModeStep;      /**< the model viewer's state; 2 units */
-extern u16 D_80095768;     /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D5;      /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D6;      /**< 2 units, 3 functions; never loaded, sign unknown */
-extern u8 D_800958EC;      /**< 2 units, 4 functions; never loaded, sign unknown */
-extern s16 gMissState;     /**< 2 units; set to 2 at the goal when 0 */
-extern s32 D_800958CC;     /**< 2 units, 2 functions; a loop counter kept in a global */
-extern s32 D_800959B4;     /**< 2 units, 2 functions */
-extern s32 D_800959B8;     /**< 2 units, 2 functions */
-extern s32 D_80095958;   /**< a pad word; its bits step a position or a highlighted line; 2 units */
+extern s32 gTimInfo;        /**< 2 units, 4 functions */
+extern u8 gClearB;          /**< the screen clear and fog colour, blue */
+extern u8 gClearG;          /**< the screen clear and fog colour, green */
+extern u8 gClearR;          /**< the screen clear and fog colour, red */
+extern u8 gRepeatButtonsOn; /**< 3 units, 3 functions */
+extern s32 gCdTrackPos;     /**< 2 units, 2 functions */
+extern s32 gCdTrackPlays;   /**< 2 units, 2 functions */
+extern s32 gCdTrackStart;   /**< 2 units, 2 functions */
+extern s32 D_80095740;      /**< camera-facing y angle, eased by 8; 2 units */
+extern s32 D_80095744;      /**< camera-facing y angle, eased by 50; 2 units */
+extern u16 D_80095748;      /**< 2 units, 2 functions */
+extern s16 D_8009574A;      /**< the highlighted line of a three-line menu */
+extern u32 gStageObjCount;  /**< an entry count */
+extern s32 gActiveBuff;     /**< the display buffer being drawn this frame, 0 or 1 */
+extern s32 gPad;            /**< port 1's held buttons this frame (PAD* bits), after ReadPad */
+extern s32 gGamePadTrig;    /**< remapped button flags; 2 units */
+extern u16 gModeStep;       /**< the model viewer's state; 2 units */
+extern u16 D_80095768;      /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D5;       /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u8 D_800957D6;       /**< 2 units, 3 functions; never loaded, sign unknown */
+extern u8 D_800958EC;       /**< 2 units, 4 functions; never loaded, sign unknown */
+extern s16 gMissState;      /**< 2 units; set to 2 at the goal when 0 */
+extern s32 D_800958CC;      /**< 2 units, 2 functions; a loop counter kept in a global */
+extern s32 D_800959B4;      /**< 2 units, 2 functions */
+extern s32 D_800959B8;      /**< 2 units, 2 functions */
+extern s32 gStickTrigY;  /**< a pad word; its bits step a position or a highlighted line; 2 units */
 extern s32 gVSyncTime;   /**< what EndFrame's VSync returned; printed first on the status panel */
 extern s32 gRetries;     /**< set to 0xFF on leaving the tool; 2 units */
 extern u8 gInEditor;     /**< 2 units */

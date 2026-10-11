@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libetc.h"
 #include "memory.h"
 #include "libapi.h"
 #include "sys/file.h"
@@ -303,7 +304,7 @@ void UpdateTool(void) {
             gToolMode = 0;
             D_8009574A = 0;
             D_80095748 = 0;
-            D_800956F7 = 1;
+            gRepeatButtonsOn = 1;
             gModeStep++;
             break;
         case 1:
@@ -311,7 +312,7 @@ void UpdateTool(void) {
                 case 0:
                     MoveToolCursor();
                     ToolPlace();
-                    if (gToolKind == 1 && (gPadTrig & 0x40)) {
+                    if (gToolKind == 1 && (gPadTrig & PADRdown)) {
                         gToolQuadStage = 0;
                     }
                     break;
@@ -365,41 +366,41 @@ void MoveToolCursor(void) {
 
     if (gToolQuadStage == 1) {
         flags = gPadTrig;
-        if (flags & 0x1000) {
+        if (flags & PADLup) {
             gToolQuadH += gToolStep;
         }
-        if (flags & 0x4000) {
+        if (flags & PADLdown) {
             gToolQuadH -= gToolStep;
         }
-        if (flags & 0x2000) {
+        if (flags & PADLright) {
             gToolQuadW += gToolStep;
         }
-        if (flags & 0x8000) {
+        if (flags & PADLleft) {
             gToolQuadW -= gToolStep;
         }
         gToolQuadW = gToolQuadW < 0 ? 0 : gToolQuadW > 1000 ? 1000 : gToolQuadW;
         gToolQuadH = gToolQuadH < 0 ? 0 : gToolQuadH > 1000 ? 1000 : gToolQuadH;
     } else {
-        if (gPadTrig & 0x1000) {
+        if (gPadTrig & PADLup) {
             sGamePos.unk350 -= gToolStep;
         }
-        if (gPadTrig & 0x4000) {
+        if (gPadTrig & PADLdown) {
             sGamePos.unk350 += gToolStep;
         }
-        if (gPadTrig & 0x2000) {
+        if (gPadTrig & PADLright) {
             sGamePos.unk348 -= gToolStep;
         }
-        if (gPadTrig & 0x8000) {
+        if (gPadTrig & PADLleft) {
             sGamePos.unk348 += gToolStep;
         }
     }
-    if (D_80095958 & 0x1000) {
+    if (gStickTrigY & PADLup) {
         sGamePos.unk34C -= gToolStep;
     }
-    if (D_80095958 & 0x4000) {
+    if (gStickTrigY & PADLdown) {
         sGamePos.unk34C += gToolStep;
     }
-    if (gPadTrig & 0x10) {
+    if (gPadTrig & PADRup) {
         gToolQuadStage = 0;
         gToolMode = 1;
     }
@@ -409,7 +410,7 @@ void UpdateToolMenu(void) {
     D_800958B0 = 1;
     D_800958B2 = 5;
     StepMenuCursor();
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         switch (D_8009574A) {
             case 0:
                 gToolKind = D_8009574A;
@@ -454,7 +455,7 @@ void UpdateToolMenu(void) {
                 break;
         }
     }
-    if (gPadTrig & 0x40) {
+    if (gPadTrig & PADRdown) {
         gToolMode = 0;
     }
 }
@@ -740,10 +741,10 @@ void EditHitPoints(void) {
                 gToolMode = 0;
                 D_80095A58 = 0;
             }
-            if (gPadTrig & 8) {
+            if (gPadTrig & PADR1) {
                 gToolPointIndex++;
             }
-            if (gPadTrig & 4) {
+            if (gPadTrig & PADL1) {
                 gToolPointIndex--;
             }
             e = bank->entries;
@@ -756,11 +757,11 @@ void EditHitPoints(void) {
             pos.vy = rec->y;
             gToolPoint = rec;
             pos.vz = -rec->z;
-            if (gPadTrig & 0x40) {
+            if (gPadTrig & PADRdown) {
                 gToolMode = 0;
                 D_80095A58 = 0;
             }
-            if (D_80095A28 != 1 && (gPadTrig & 0x20)) {
+            if (D_80095A28 != 1 && (gPadTrig & PADRright)) {
                 bank = (HitPointBank *)gHitPoints;
                 e = bank->entries;
                 e += gToolSection;
@@ -815,10 +816,10 @@ void EditHitQuads(void) {
                 gToolMode = 0;
                 D_80095A58 = 0;
             }
-            if (gPadTrig & 8) {
+            if (gPadTrig & PADR1) {
                 gToolQuadIndex++;
             }
-            if (gPadTrig & 4) {
+            if (gPadTrig & PADL1) {
                 gToolQuadIndex--;
             }
             e = bank->entries;
@@ -831,11 +832,11 @@ void EditHitQuads(void) {
             pos.vy = rec->pts[0].y;
             gToolQuad = rec;
             pos.vz = -rec->pts[0].z;
-            if (gPadTrig & 0x40) {
+            if (gPadTrig & PADRdown) {
                 gToolMode = 0;
                 D_80095A58 = 0;
             }
-            if (D_80095A28 != 1 && (gPadTrig & 0x20)) {
+            if (D_80095A28 != 1 && (gPadTrig & PADRright)) {
                 bank = (HitQuadBank *)gHitQuads;
                 e = bank->entries;
                 e += gToolSection;
@@ -873,25 +874,25 @@ void SelectToolView(void) {
     s32 flags = gPadTrig;
     u8 v;
 
-    if (flags & 1) {
+    if (flags & PADL2) {
         gToolViewPreset++;
         D_80095A22 = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
-    if (flags & 2) {
+    if (flags & PADR2) {
         gToolViewPreset--;
         D_80095A22 = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
-    if (flags & 0x80) {
+    if (flags & PADRleft) {
         gToolZoom++;
         D_80095A22 = gToolMode;
         gToolMode = 6;
         gToolViewStep = 0;
     }
-    if (flags & 0x40) {
+    if (flags & PADRdown) {
         gToolZoom--;
         D_80095A22 = gToolMode;
         gToolMode = 6;
@@ -990,7 +991,7 @@ s32 UpdateToolCard(void) {
                     }
                     break;
                 case 1:
-                    if (CheckCard() == -1 || (gPadTrig & 0x40)) {
+                    if (CheckCard() == -1 || (gPadTrig & PADRdown)) {
                         gToolCardStep = 18;
                         break;
                     }
@@ -1022,7 +1023,7 @@ s32 UpdateToolCard(void) {
                     }
                     break;
                 case 2:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolCardStep = 1;
                         break;
                     }
@@ -1040,7 +1041,7 @@ s32 UpdateToolCard(void) {
                     }
                     break;
                 case 10:
-                    if (gPadTrig & 0x60) {
+                    if (gPadTrig & (PADRdown | PADRright)) {
                         gToolCardStep = 1;
                     }
                     break;
@@ -1082,7 +1083,7 @@ s32 UpdateToolCard(void) {
                     }
                     break;
                 case 7:
-                    if (gPadTrig & 0x20) {
+                    if (gPadTrig & PADRright) {
                         gToolCardStep = 5;
                     }
                     break;
@@ -1094,7 +1095,7 @@ s32 UpdateToolCard(void) {
                     break;
                 case 11:
                 case 13:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolCardStep = 18;
                     }
                     break;
@@ -1532,7 +1533,7 @@ void ClearHitQuads(void) {
 }
 
 void ToolPlace(void) {
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         switch (gToolKind) {
             case 0:
                 InsertHitPoint();
@@ -1562,7 +1563,7 @@ void PlaceHitQuad(void) {
 
 /* MATCHING: s32 with no return; the jump table lands 4 bytes late. */
 s32 CycleToolStep(void) {
-    if (gPadTrig & 0x100) {
+    if (gPadTrig & PADselect) {
         switch (gToolStep) {
             case 10:
                 gToolStep = 20;
@@ -1586,10 +1587,10 @@ s32 CycleToolStep(void) {
 void SelectToolSection(void) {
     s32 flags = gPadTrig;
 
-    if (flags & 8) {
+    if (flags & PADR1) {
         gToolSection++;
     }
-    if (flags & 4) {
+    if (flags & PADL1) {
         gToolSection--;
     }
     gToolSection = gToolSection < 0                   ? 0
@@ -1641,7 +1642,7 @@ void EditToolValues(void) {
                 break;
         }
     }
-    if (gPadTrig & 0x40) {
+    if (gPadTrig & PADRdown) {
         gToolMode = 0;
     }
 }

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libetc.h"
 #include "rand.h"
 #include "libgte.h"
 #include "libgpu.h"
@@ -311,22 +312,22 @@ void UpdateMotionViewer(void) {
             DrawTodObjects();
             SelectViewerMotion();
             OrbitViewerCamera();
-            if (gPad & 0x2000) {
+            if (gPad & PADLright) {
                 D_800D86E0[0].coord.t[0]++;
             }
-            if (gPad & 0x8000) {
+            if (gPad & PADLleft) {
                 D_800D86E0[0].coord.t[0]--;
             }
-            if (gPad & 0x4000) {
+            if (gPad & PADLdown) {
                 D_800D86E0[0].coord.t[1]++;
             }
-            if (gPad & 0x1000) {
+            if (gPad & PADLup) {
                 D_800D86E0[0].coord.t[1]--;
             }
-            if (gPad & 1) {
+            if (gPad & PADL2) {
                 D_800D86E0[0].coord.t[2]--;
             }
-            if (gPad & 2) {
+            if (gPad & PADR2) {
                 D_800D86E0[0].coord.t[2]++;
             }
             break;
@@ -342,10 +343,10 @@ void OrbitViewerCamera(void) {
     gRefView[3] = 0;
     gRefView[4] = -100;
     gRefView[5] = 0;
-    if (gPad & 4) {
+    if (gPad & PADL1) {
         gViewerAngle += 2;
     }
-    if (gPad & 8) {
+    if (gPad & PADR1) {
         gViewerAngle -= 2;
     }
 }
@@ -632,10 +633,10 @@ typedef struct {
 void SelectViewerMotion(void) {
     s32 flags = gPadTrig;
 
-    if (flags & 0x10) {
+    if (flags & PADRup) {
         gViewerMotion++;
     }
-    if (flags & 0x80) {
+    if (flags & PADRleft) {
         gViewerMotion--;
     }
     if (gViewerMotion < 0) {
@@ -644,7 +645,7 @@ void SelectViewerMotion(void) {
     if (gViewerMotion >= 0x79) {
         gViewerMotion = 0x78;
     }
-    if (flags & 0x20) {
+    if (flags & PADRright) {
         (*(LevelHead *)gPlayer).unk8 = 0xFF;
         gViewerReplay = 1;
         (*(LevelHead *)gPlayer).unk6 = gViewerMotion;
@@ -811,10 +812,10 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
     }
     switch (type) {
         case 1:
-            if (flags & 1) {
+            if (flags & PADL2) {
                 break;
             }
-            if (flags & 2) {
+            if (flags & PADR2) {
                 if (sign != 0) {
                     if (id == type) {
                         for (k = 0; k < 3; k++) {
@@ -908,7 +909,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                 obj->coord2->flg = 0;
                 RotMatrix(&prm->rotate, m);
             }
-            if (flags & 4) {
+            if (flags & PADL1) {
                 prm->scale.vx = ((s16 *)p)[0];
                 prm->scale.vy = ((s16 *)p)[1];
                 prm->scale.vz = ((s16 *)p)[2];
@@ -929,11 +930,11 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                     prm->scale.vz = 0;
                 }
             }
-            if (!(flags & 2)) {
+            if (!(flags & PADR2)) {
                 RotMatrix(&prm->rotate, m);
             }
             ScaleMatrix(m, &prm->scale);
-            if (flags & 8) {
+            if (flags & PADR1) {
                 prm->trans.vx = ((s32 *)p)[0] / 5;
                 prm->trans.vy = ((s32 *)p)[1] / 5;
                 prm->trans.vz = ((s32 *)p)[2] / 5;

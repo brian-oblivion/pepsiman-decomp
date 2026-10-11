@@ -128,7 +128,7 @@ s32 PlayMovieFile(char *name, s16 skippable) {
             break;
         }
         ReadPad(0);
-        if ((gPadTrig & 0x800) && skippable == one) {
+        if ((gPadTrig & PADstart) && skippable == one) {
             atv.val3 = 0;
             atv.val2 = 0;
             atv.val1 = 0;

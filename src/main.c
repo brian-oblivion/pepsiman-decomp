@@ -652,11 +652,11 @@ extern s32 gPadPrev[2];
 extern s32 gPadPressed[2];
 extern s32 gPadHeld[2];
 
-extern s8 D_8009575D;
-extern u8 D_800956EA;
-extern u8 D_800956DB;
-extern u8 D_800956E8[2];
-extern u8 D_800956D8[3];
+extern s8 gRepeatSpeed;
+extern u8 gRepeatUp;
+extern u8 gRepeatDown;
+extern u8 gRepeatSides[2];
+extern u8 gRepeatButtons[3];
 
 void PollPads(void);
 
@@ -666,21 +666,21 @@ void PollPads(void);
  *        pressed-flags word every few frames. A release clears @p cnt.
  */
 /* MATCHING: a bare block; `do { } while (0)` changes the branch layout. */
-#define REPEAT(bit, cnt)                                                           \
-    {                                                                              \
-        if (gPad & (bit)) {                                                        \
-            if ((cnt) >= 30 / D_8009575D && gFrameCount % (4 / D_8009575D) == 0) { \
-                gPadTrig |= (bit);                                                 \
-            } else if ((cnt) < 30 / D_8009575D) {                                  \
-                (cnt)++;                                                           \
-            }                                                                      \
-        } else {                                                                   \
-            (cnt) = 0;                                                             \
-        }                                                                          \
+#define REPEAT(bit, cnt)                                                               \
+    {                                                                                  \
+        if (gPad & (bit)) {                                                            \
+            if ((cnt) >= 30 / gRepeatSpeed && gFrameCount % (4 / gRepeatSpeed) == 0) { \
+                gPadTrig |= (bit);                                                     \
+            } else if ((cnt) < 30 / gRepeatSpeed) {                                    \
+                (cnt)++;                                                               \
+            }                                                                          \
+        } else {                                                                       \
+            (cnt) = 0;                                                                 \
+        }                                                                              \
     }
 
 void ReadPad(s32 port) {
-    D_8009575D = 4;
+    gRepeatSpeed = 4;
     PollPads();
     if (gPadType == 0x41) {
         D_800957C0 = D_800957C8 = 0x80;
@@ -689,14 +689,14 @@ void ReadPad(s32 port) {
      * the stores still come out gPad first. */
     gPadTrig = gPadPressed[(u16)port];
     gPad = gPadHeld[(u16)port];
-    REPEAT(0x1000, D_800956EA)
-    REPEAT(0x4000, D_800956DB)
-    REPEAT(0x8000, D_800956E8[0])
-    REPEAT(0x2000, D_800956E8[1])
-    if (D_800956F7 == 1) {
-        REPEAT(0x80, D_800956D8[0])
-        REPEAT(0x40, D_800956D8[1])
-        REPEAT(0x20, D_800956D8[2])
+    REPEAT(PADLup, gRepeatUp)
+    REPEAT(PADLdown, gRepeatDown)
+    REPEAT(PADLleft, gRepeatSides[0])
+    REPEAT(PADLright, gRepeatSides[1])
+    if (gRepeatButtonsOn == 1) {
+        REPEAT(PADRleft, gRepeatButtons[0])
+        REPEAT(PADRdown, gRepeatButtons[1])
+        REPEAT(PADRright, gRepeatButtons[2])
     }
 }
 
@@ -713,19 +713,19 @@ void AdjustScreenPosition(void) {
     WaitFrames(20);
     for (;;) {
         pad = gPadHeld[0];
-        if (pad & 0x2000) {
+        if (pad & PADLright) {
             x += 8;
         }
-        if (pad & 0x8000) {
+        if (pad & PADLleft) {
             x -= 8;
         }
-        if (pad & 0x1000) {
+        if (pad & PADLup) {
             y -= 8;
         }
-        if (pad & 0x4000) {
+        if (pad & PADLdown) {
             y += 8;
         }
-        if (pad & 0x800) {
+        if (pad & PADstart) {
             break;
         }
         x = x < 0 ? 0 : x > 0x2C0 ? 0x2C0 : x;
@@ -958,10 +958,10 @@ s32 UpdateRumble(void) {
 
 extern u8 D_80072F44[];
 extern u8 gPadBuf[];
-extern s32 D_80095928;
-extern s32 D_80095920;
+extern s32 gStickY;
+extern s32 gStickX;
 /* MATCHING: editor declares it too; both reach it the same way. */
-extern s32 D_80095950;
+extern s32 gStickTrigX;
 
 extern s32 D_80095854;
 extern s32 D_8009584C;
@@ -1006,24 +1006,24 @@ void PollPads(void) {
     btn = (u16)btn & m;
     D_80095874 = btn;
     if (id == 0x73) {
-        m = D_80095928 ^ 0xFFFF;
+        m = gStickY ^ 0xFFFF;
         if (gPadBuf[7] < 10) {
-            D_80095928 = 0x1000;
+            gStickY = 0x1000;
         } else if (gPadBuf[7] >= 0xF6) {
-            D_80095928 = 0x4000;
+            gStickY = 0x4000;
         } else {
-            D_80095928 = 0;
+            gStickY = 0;
         }
-        D_80095958 = D_80095928 & m;
-        m = D_80095920 ^ 0xFFFF;
+        gStickTrigY = gStickY & m;
+        m = gStickX ^ 0xFFFF;
         if (gPadBuf[6] < 10) {
-            D_80095920 = 0x8000;
+            gStickX = 0x8000;
         } else if (gPadBuf[6] >= 0xF6) {
-            D_80095920 = 0x2000;
+            gStickX = 0x2000;
         } else {
-            D_80095920 = 0;
+            gStickX = 0;
         }
-        D_80095950 = D_80095920 & m;
+        gStickTrigX = gStickX & m;
         D_800957C0 = gPadBuf[6];
         D_800957C8 = gPadBuf[7];
     }

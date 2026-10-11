@@ -5,7 +5,7 @@
 Unit `src/editor.c`. The menu update: steps the edited value
 `D_80095748` (pad bits 0x2000 up, 0x8000 down) or the highlighted line
 `D_8009574A` (0x4000 up, 0x1000 down) from the pad word `gPadTrig`, else
-from `D_80095950` (value) and `D_80095958` (line), then wraps both with
+from `gStickTrigX` (value) and `gStickTrigY` (line), then wraps both with
 `WrapMenuValues`. Returns 0. Fourth build matched.
 
 ## Shapes read from retail
@@ -20,15 +20,15 @@ from `D_80095950` (value) and `D_80095958` (line), then wraps both with
 - A final `else { return 0; }` before `return 0;` gives the early
   `beqz ..., epilogue` with `v0 = 0` in its slot; without it the two
   returns share one `move v0, zero` after the epilogue's `lw ra`.
-- `D_80095950` / `D_80095958` are `s32` scalars (`lui $v1` / `lw $v1`),
+- `gStickTrigX` / `gStickTrigY` are `s32` scalars (`lui $v1` / `lw $v1`),
   declared in the unit (hit_tool and main also read them).
 - Returns 0 explicitly on both paths, so the function is `s32`;
   `include/common.h`'s prototype changed from `void` to `s32` (its callers
   discard the result; the whole image still matches).
 
 ```c
-extern s32 D_80095950;
-extern s32 D_80095958;
+extern s32 gStickTrigX;
+extern s32 gStickTrigY;
 s32 WrapMenuValues(void);
 
 s32 StepMenuCursor(void) {
@@ -44,16 +44,16 @@ s32 StepMenuCursor(void) {
     } else if (gPadTrig & 0x1000) {
         D_8009574A--;
         WrapMenuValues();
-    } else if (D_80095950 & 0x2000) {
+    } else if (gStickTrigX & 0x2000) {
         D_80095748++;
         WrapMenuValues();
-    } else if (D_80095950 & 0x8000) {
+    } else if (gStickTrigX & 0x8000) {
         D_80095748--;
         WrapMenuValues();
-    } else if (D_80095958 & 0x4000) {
+    } else if (gStickTrigY & 0x4000) {
         D_8009574A++;
         WrapMenuValues();
-    } else if (D_80095958 & 0x1000) {
+    } else if (gStickTrigY & 0x1000) {
         D_8009574A--;
         WrapMenuValues();
     } else {

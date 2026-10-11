@@ -3,11 +3,11 @@
 > Renamed from `func_800142EC` on 2026-10-10 (tools/rename.py). Address 0x800142ec.
 
 Unit `src/main.c`. The per-frame pad update: sets the speed byte
-`D_8009575D` to 4, polls the pads (PollPads), centres both analogue
+`gRepeatSpeed` to 4, polls the pads (PollPads), centres both analogue
 axes when the pad type is 0x41, copies pad `arg`'s held and pressed words
 (`gPadHeld[arg]` to `gPad`, `gPadPressed[arg]` to `gPadTrig`),
 then runs an auto-repeat on the four d-pad bits and, when
-`D_800956F7 == 1`, on 0x80, 0x40 and 0x20. Called from EndFrame,
+`gRepeatButtonsOn == 1`, on 0x80, 0x40 and 0x20. Called from EndFrame,
 AdjustScreenPosition and sound.
 
 The signature is common.h's, `void ReadPad(s32 arg)`; the body

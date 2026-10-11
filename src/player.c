@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libetc.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
@@ -316,28 +317,28 @@ void UpdateGridTest(void) {
     s32 y;
     POLY_F4 *pp;
 
-    if (gPadTrig & 0x10) {
+    if (gPadTrig & PADRup) {
         D_800959A8 = 0;
     }
-    if (gPad & 4) {
+    if (gPad & PADL1) {
         D_800959A8 += 2;
     }
-    if (gPad & 8) {
+    if (gPad & PADR1) {
         D_800959A8 -= 2;
     }
-    if (gPadTrig & 0x800) {
+    if (gPadTrig & PADstart) {
         gGameMode = 3;
     }
-    if (gPad & 0x8000) {
+    if (gPad & PADLleft) {
         gRefView[0]++;
     }
-    if (gPad & 0x2000) {
+    if (gPad & PADLright) {
         gRefView[0]--;
     }
-    if (gPad & 0x1000) {
+    if (gPad & PADLup) {
         gRefView[1]++;
     }
-    if (gPad & 0x4000) {
+    if (gPad & PADLdown) {
         gRefView[1]--;
     }
     line.attribute = 0;
@@ -606,18 +607,18 @@ void SteerPlayer(void) {
     if (sGame.control != 0) {
         switch (gPadType) {
             case 0x73:
-                if (gPad & 0x8000) {
+                if (gPad & PADLleft) {
                     ApplySteer(3, 16, 15);
-                } else if (gPad & 0x2000) {
+                } else if (gPad & PADLright) {
                     ApplySteer(2, 16, 15);
                 } else {
                     RecentreSteer();
                 }
                 break;
             case 0x41:
-                if (gPad & 0x8000) {
+                if (gPad & PADLleft) {
                     ApplySteer(3, 16, 15);
-                } else if (gPad & 0x2000) {
+                } else if (gPad & PADLright) {
                     ApplySteer(2, 16, 15);
                 } else {
                     RecentreSteer();
@@ -2103,12 +2104,12 @@ s32 UpdateRunSpeed(void) {
             v = sGame.speed;
             if (v < 40) {
                 gSpeedFixed += 16;
-            } else if (gPad & 0x1000) {
+            } else if (gPad & PADLup) {
                 gSpeedFixed += 32;
                 if ((s16)gSpeedFixed >> 4 > 40) {
                     gSpeedFixed = 640;
                 }
-            } else if (gPad & 0x4000) {
+            } else if (gPad & PADLdown) {
                 gSpeedFixed -= 32;
                 if ((s16)gSpeedFixed >> 4 < 40) {
                     gSpeedFixed = 640;
@@ -2144,14 +2145,14 @@ s32 UpdateSlideDash(void) {
             case 0:
                 sGame.slideState = 0;
                 sGame.unk38C = 0;
-                if ((u32)(sGame.motion - 2) < 3 && sGame.y >= sGame.groundY && (gGamePadTrig & 0x40)) {
+                if ((u32)(sGame.motion - 2) < 3 && sGame.y >= sGame.groundY && (gGamePadTrig & PADRdown)) {
                     btn = gPad;
-                    if (btn & 0x4000) {
+                    if (btn & PADLdown) {
                         sGame.slideState = 1;
                         sGame.unk38C = 0;
                         sGame.action = 0x3B;
                     }
-                    if (btn & 0x1000) {
+                    if (btn & PADLup) {
                         if ((u32)((u16)sGame.speed - 0x26) < 5) {
                             sGame.slideState = 2;
                             sGame.action = 0x39;
@@ -2180,7 +2181,7 @@ void UpdateJump(void) {
     s16 n;
 
     if (sGame.control != 0) {
-        if ((gGamePadTrig & 0x20) &&
+        if ((gGamePadTrig & PADRright) &&
             (sGame.y >= sGame.groundY || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
             sGame.jumpState == 0) {
             D_800956E0 = 0;
@@ -2211,7 +2212,7 @@ void UpdateJump(void) {
                 sGame.jumpState = 2;
                 sGame.motion = 9;
                 sGame.unk3A0 = 2;
-            } else if (gGamePad & 0x20) {
+            } else if (gGamePad & PADRright) {
                 sGame.jumpPower = 0x14;
             } else {
                 sGame.jumpState = 2;
@@ -2606,10 +2607,10 @@ void SteerMode2(void) {
     s32 hi;
 
     if (sGame.control != 0) {
-        if (gPad & 0x8000) {
+        if (gPad & PADLleft) {
             ApplySteer(3, 16, 5);
             D_800959B2 -= 4;
-        } else if (gPad & 0x2000) {
+        } else if (gPad & PADLright) {
             ApplySteer(2, 16, 5);
             D_800959B2 += 4;
         } else {
@@ -2658,12 +2659,12 @@ void UpdateSpeedMode2(void) {
         v = sGame.speed;
         if (v < 35) {
             gSpeedFixed += 16;
-        } else if (gPad & 0x1000) {
+        } else if (gPad & PADLup) {
             gSpeedFixed += 32;
             if ((s16)gSpeedFixed >> 4 > 35) {
                 gSpeedFixed = 560;
             }
-        } else if (gPad & 0x4000) {
+        } else if (gPad & PADLdown) {
             gSpeedFixed -= 32;
             if ((s16)gSpeedFixed >> 4 < 35) {
                 gSpeedFixed = 560;
@@ -2684,12 +2685,12 @@ void UpdateSpeedMode3(void) {
         v = sGame.speed;
         if (v < 30) {
             gSpeedFixed += 16;
-        } else if (gPad & 0x1000) {
+        } else if (gPad & PADLup) {
             gSpeedFixed += 32;
             if ((s16)gSpeedFixed >> 4 > 30) {
                 gSpeedFixed = 480;
             }
-        } else if (gPad & 0x4000) {
+        } else if (gPad & PADLdown) {
             gSpeedFixed -= 32;
             if ((s16)gSpeedFixed >> 4 < 30) {
                 gSpeedFixed = 480;
@@ -2708,7 +2709,7 @@ void UpdateJumpMode3(void) {
     s16 n;
 
     if (sGame.control != 0) {
-        if ((gGamePadTrig & 0x20) &&
+        if ((gGamePadTrig & PADRright) &&
             (sGame.y >= sGame.groundY || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
             sGame.jumpState == 0) {
             sGame.unk38F = 1;
@@ -2734,7 +2735,7 @@ void UpdateJumpMode3(void) {
                 sGame.jumpState = 2;
                 sGame.motion = 8;
                 sGame.unk3A0 = 2;
-            } else if (gGamePad & 0x20) {
+            } else if (gGamePad & PADRright) {
                 sGame.jumpPower = 0x14;
             } else {
                 sGame.jumpState = 2;
@@ -2768,10 +2769,10 @@ void SteerMode3(void) {
     s32 hi;
 
     if (sGame.control != 0) {
-        if (gPad & 0x2000) {
+        if (gPad & PADLright) {
             ApplySteer(3, 16, 8);
             D_800959B2 -= 4;
-        } else if (gPad & 0x8000) {
+        } else if (gPad & PADLleft) {
             ApplySteer(2, 16, 8);
             D_800959B2 += 4;
         } else if (sGame.y >= sGame.groundY) {
@@ -2912,7 +2913,7 @@ void func_80028500(void) {}
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
 s32 TrySlide(void) {
     if (sGame.control != 0 && (sGame.motion < 5 || sGame.motion >= 8) &&
-        (sGame.unk38F != 1 || sGame.jumpPower < 6) && !(gPad & 0x1000) && (gGamePadTrig & 0x40)) {
+        (sGame.unk38F != 1 || sGame.jumpPower < 6) && !(gPad & PADLup) && (gGamePadTrig & PADRdown)) {
         PlaySe(22);
         sGame.motion = 5;
     }

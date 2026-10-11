@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libetc.h"
 #include "memory.h"
 #include "libapi.h"
 #include "libgte.h"
@@ -188,8 +189,8 @@ typedef struct {
 #define sGameSave (*(GameSave *)gPlayer)
 
 /* MATCHING: also declared in object, which only zeroes it. */
-extern s32 D_80095824; /**< the current entry of the block, -1 for none */
-extern s32 D_80095950; /**< a pad word; bits step the edited value */
+extern s32 D_80095824;  /**< the current entry of the block, -1 for none */
+extern s32 gStickTrigX; /**< a pad word; bits step the edited value */
 
 s32 WrapMenuValues(void);
 
@@ -644,7 +645,7 @@ s32 UpdateEditor(void) {
             ResetGameState((Rec48 *)0x8016D000);
             gToolMode = 0;
             ResetStageOverlay();
-            D_800956F7 = 1;
+            gRepeatButtonsOn = 1;
             gModeStep++;
             break;
         case 1:
@@ -685,7 +686,7 @@ s32 UpdateEditor(void) {
                                 break;
                             case 2:
                                 EditorPickRecord();
-                                if (D_800959D8 == 1 && (gPadTrig & 0x20)) {
+                                if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
                                     sGameSave.unk348[0] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
                                     sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
                                     sGameSave.unk348[2] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
@@ -712,7 +713,7 @@ s32 UpdateEditor(void) {
                                 break;
                             case 3:
                                 EditorPickSprite();
-                                if (D_800959D8 == 1 && (gPadTrig & 0x20)) {
+                                if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
                                     sGameSave.unk348[0] = D_800A7898[sTotals.unk28].unk4[0];
                                     sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
                                     sGameSave.unk348[2] = D_800A7898[sTotals.unk28].unk4[2];
@@ -732,7 +733,7 @@ s32 UpdateEditor(void) {
                                 break;
                         }
                     }
-                    if (gPadTrig & 0x10) {
+                    if (gPadTrig & PADRup) {
                         gToolMode = 1;
                         D_80095748 = 0;
                         D_8009574A = 0;
@@ -740,7 +741,7 @@ s32 UpdateEditor(void) {
                     break;
                 case 1:
                     UpdateEditorMenu();
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         if (D_8009574A == 2) {
                             gSubStep = 0;
                         }
@@ -749,26 +750,26 @@ s32 UpdateEditor(void) {
                     break;
                 case 2:
                     func_80033B08();
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolMode = 0;
                     }
                     break;
                 case 3:
                     RunValueMenu();
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolMode = 0;
                     }
                     break;
                 case 4:
                     EditorEditRecordValues();
                     EditorArrangeRecords();
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolMode = 0;
                     }
                     break;
                 case 5:
                     EditorEditSpriteValues();
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolMode = 0;
                     }
                     break;
@@ -777,14 +778,14 @@ s32 UpdateEditor(void) {
                     break;
                 case 7:
                 case 8:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolMode = 0;
                     }
                     break;
                 case 9:
                 case 10:
                 case 11:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolMode = 0;
                         D_800958D8 = 0;
                         D_800959D8 = 0;
@@ -805,7 +806,7 @@ s32 UpdateEditor(void) {
             PrintEditorStatus();
             break;
     }
-    if (gPadTrig & 0x800) {
+    if (gPadTrig & PADstart) {
         sTotals.unk70 = gSection;
         BackupToolBuffer();
         gRetries = 0xFF;
@@ -814,7 +815,7 @@ s32 UpdateEditor(void) {
         gModeStep = 3;
         gGameMode = 14;
     }
-    if (gPadTrig & 0x100) {
+    if (gPadTrig & PADselect) {
         switch (sTotals.unk4) {
             case 50:
                 sTotals.unk4 = 100;
@@ -1584,7 +1585,7 @@ s32 UpdateEditorMenu(void) {
     /* MATCHING: non-void with no return puts the index sll in the bound
      * check's delay slot. */
     StepMenuCursor();
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         switch (D_8009574A) {
             case 0:
                 D_800958B0 = 200;
@@ -1682,16 +1683,16 @@ s32 EditorFreeMove(void) {
 
     /* MATCHING: non-void with no return keeps the flag test's delay slot
      * a nop. */
-    if (gPadTrig & 0x1000) {
+    if (gPadTrig & PADLup) {
         MoveGamePos(0, sTotals.unk4);
     }
-    if (gPadTrig & 0x4000) {
+    if (gPadTrig & PADLdown) {
         MoveGamePos(180, sTotals.unk4);
     }
-    if (gPadTrig & 0x8000) {
+    if (gPadTrig & PADLleft) {
         MoveGamePos(-90, sTotals.unk4);
     }
-    if (gPadTrig & 0x2000) {
+    if (gPadTrig & PADLright) {
         MoveGamePos(90, sTotals.unk4);
     }
     if (D_800957C8 < 0x60) {
@@ -1709,27 +1710,27 @@ s32 EditorFreeMove(void) {
     gWorldShift[1] = 0;
     gWorldShift[0] = -sGameSave.unk348[0];
     gWorldShift[2] = -sGameSave.unk348[2];
-    if (gPad & 4) {
+    if (gPad & PADL1) {
         D_800A7680[0].vy -= 11;
     }
-    if (gPad & 8) {
+    if (gPad & PADR1) {
         D_800A7680[0].vy += 11;
     }
     if (D_800958D8 == 0) {
-        if (gPad & 1) {
+        if (gPad & PADL2) {
             sTotals.unkC -= 5;
         }
-        if (gPad & 2) {
+        if (gPad & PADR2) {
             sTotals.unkC += 5;
         }
         if (sTotals.unkC > 0) {
             sTotals.unkC = 0;
         }
     }
-    if (gPadTrig & 0x80) {
+    if (gPadTrig & PADRleft) {
         sTotals.unk8 -= sTotals.unk4;
     }
-    if (gPadTrig & 0x40) {
+    if (gPadTrig & PADRdown) {
         sTotals.unk8 += sTotals.unk4;
     }
     sGameSave.unk3C4 = sGameSave.unk348[1];
@@ -1739,7 +1740,7 @@ s32 EditorFreeMove(void) {
         D_800957F4 = cur;
     }
     sGameSave.unk348[1] = gFloorY[0] + sTotals.unk8;
-    if (D_800958D8 == 0 && (gPadTrig & 0x20) && cur == -1) {
+    if (D_800958D8 == 0 && (gPadTrig & PADRright) && cur == -1) {
         gToolMode = 7;
     }
 }
@@ -1757,7 +1758,7 @@ void EditorInsertPoint(void) {
     s32 i;
     u32 j;
 
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         if (sTotals.unk26 == 200) {
             gToolMode = 8;
         } else if (D_80095824 == -1) {
@@ -1837,7 +1838,7 @@ s32 EditorEditPoints(void) {
         gToolMode = 10;
         return;
     }
-    if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
+    if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
         e = (Span8 *)D_800959C0;
         e += D_80095824;
         if (e->count == 0) {
@@ -1865,10 +1866,10 @@ s32 EditorEditPoints(void) {
             e++;
         }
     }
-    if (gPadTrig & 1) {
+    if (gPadTrig & PADL2) {
         sTotals.unk22--;
     }
-    if (gPadTrig & 2) {
+    if (gPadTrig & PADR2) {
         sTotals.unk22++;
     }
     e = (Span8 *)D_800959C0;
@@ -1923,7 +1924,7 @@ s32 EditorPlaceBox(void) {
     sRecs5C[sTotals.unk12].unk50[1] = sGameSave.unk348[1];
     sRecs5C[sTotals.unk12].unk50[2] = sGameSave.unk348[2];
     sRecs5C[sTotals.unk12].unk0 = -1;
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         if (D_80095824 == -1) {
             gToolMode = 7;
             return;
@@ -2006,12 +2007,12 @@ s32 EditorPickBox(void) {
             sel.vy = r[sTotals.unk12].unk50[1];
             sel.vz = r[sTotals.unk12].unk50[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
+            if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
                 sRecs5C[sTotals.unk12].unk0 = -1;
                 gSubStep = 0;
                 break;
             }
-            if (gPadTrig & 1) {
+            if (gPadTrig & PADL2) {
                 if (--sTotals.unk12 >= 200) {
                     sTotals.unk12 = 199;
                 }
@@ -2021,7 +2022,7 @@ s32 EditorPickBox(void) {
                     }
                 }
             }
-            if (gPadTrig & 2) {
+            if (gPadTrig & PADR2) {
                 /* the first step up clamps to 199, the later ones wrap to 0 */
                 if (++sTotals.unk12 >= 200) {
                     sTotals.unk12 = 199;
@@ -2052,7 +2053,7 @@ void EditorPlaceRecords(void) {
             sTotals.unk1A++;
         }
     }
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         /* MATCHING: one counter for both loops, unsigned (sltiu) in the
          * first and compared signed (slt) here. */
         for (i = 0; (s32)i < D_8009596E; i++) {
@@ -2147,12 +2148,12 @@ s32 EditorEditRecordValues(void) {
                 break;
         }
     }
-    if (gPad & 8) {
+    if (gPad & PADR1) {
         if (++sTotals.unk20 >= 360) {
             sTotals.unk20 = 0;
         }
     }
-    if (gPad & 4) {
+    if (gPad & PADL1) {
         if (--sTotals.unk20 < 0) {
             sTotals.unk20 = 359;
         }
@@ -2276,11 +2277,11 @@ s32 EditorPickRecord(void) {
             sel.vy = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
             sel.vz = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
+            if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
                 ((Obj48 *)D_800A9008)[sTotals.unk18].unk36 = -1;
             }
-            if (gPadTrig & 1) {
+            if (gPadTrig & PADL2) {
                 if (--sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
                 }
@@ -2290,7 +2291,7 @@ s32 EditorPickRecord(void) {
                     }
                 }
             }
-            if (gPadTrig & 2) {
+            if (gPadTrig & PADR2) {
                 /* the first step up clamps to 199, the later ones wrap to 0 */
                 if (++sTotals.unk18 >= 200) {
                     sTotals.unk18 = 199;
@@ -2388,12 +2389,12 @@ void EditorEditSpriteValues(void) {
                 break;
         }
     }
-    if (gPad & 8) {
+    if (gPad & PADR1) {
         if (++sTotals.unk6A >= 360) {
             sTotals.unk6A = 0;
         }
     }
-    if (gPad & 4) {
+    if (gPad & PADL1) {
         if (--sTotals.unk6A < 0) {
             sTotals.unk6A = 359;
         }
@@ -2452,7 +2453,7 @@ s32 EditorPlaceSprite(void) {
             sTotals.unk30++;
         }
     }
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         if (sTotals.unk30 == 100) {
             gToolMode = 8;
         } else {
@@ -2576,11 +2577,11 @@ s32 EditorPickSprite(void) {
             sel.vy = D_800A7898[sTotals.unk28].unk4[1];
             sel.vz = D_800A7898[sTotals.unk28].unk4[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
+            if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
                 D_800A7898[sTotals.unk28].unk0 = -1;
             }
-            if (gPadTrig & 1) {
+            if (gPadTrig & PADL2) {
                 if (--sTotals.unk28 >= 100) {
                     sTotals.unk28 = 99;
                 }
@@ -2590,7 +2591,7 @@ s32 EditorPickSprite(void) {
                     }
                 }
             }
-            if (gPadTrig & 2) {
+            if (gPadTrig & PADR2) {
                 /* the first step up clamps to 99, the later ones wrap to 0 */
                 if (++sTotals.unk28 >= 100) {
                     sTotals.unk28 = 99;
@@ -2637,7 +2638,7 @@ s32 UpdateEditorData(void) {
                     }
                     break;
                 case 1:
-                    if (CheckCard() == -1 || (gPadTrig & 0x40)) {
+                    if (CheckCard() == -1 || (gPadTrig & PADRdown)) {
                         gToolCardStep = 18;
                         break;
                     }
@@ -2668,7 +2669,7 @@ s32 UpdateEditorData(void) {
                     }
                     break;
                 case 2:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolCardStep = 1;
                         break;
                     }
@@ -2686,7 +2687,7 @@ s32 UpdateEditorData(void) {
                     }
                     break;
                 case 10:
-                    if (gPadTrig & 0x60) {
+                    if (gPadTrig & (PADRdown | PADRright)) {
                         sGameSave.unk348[0] = sRotPos.pos[0];
                         sGameSave.unk348[1] = sRotPos.pos[1];
                         sGameSave.unk348[2] = sRotPos.pos[2];
@@ -2744,7 +2745,7 @@ s32 UpdateEditorData(void) {
                     }
                     break;
                 case 7:
-                    if (gPadTrig & 0x20) {
+                    if (gPadTrig & PADRright) {
                         gToolCardStep = 5;
                     }
                     break;
@@ -2754,7 +2755,7 @@ s32 UpdateEditorData(void) {
                     break;
                 case 11:
                 case 13:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         gToolCardStep = 18;
                     }
                     break;
@@ -3071,28 +3072,28 @@ s32 WriteEditorSlotFiles(void) {
  *         word, else from the second and third, then wraps both.
  *  @return 0. */
 s32 StepMenuCursor(void) {
-    if (gPadTrig & 0x2000) {
+    if (gPadTrig & PADLright) {
         D_80095748++;
         WrapMenuValues();
-    } else if (gPadTrig & 0x8000) {
+    } else if (gPadTrig & PADLleft) {
         D_80095748--;
         WrapMenuValues();
-    } else if (gPadTrig & 0x4000) {
+    } else if (gPadTrig & PADLdown) {
         D_8009574A++;
         WrapMenuValues();
-    } else if (gPadTrig & 0x1000) {
+    } else if (gPadTrig & PADLup) {
         D_8009574A--;
         WrapMenuValues();
-    } else if (D_80095950 & 0x2000) {
+    } else if (gStickTrigX & PADLright) {
         D_80095748++;
         WrapMenuValues();
-    } else if (D_80095950 & 0x8000) {
+    } else if (gStickTrigX & PADLleft) {
         D_80095748--;
         WrapMenuValues();
-    } else if (D_80095958 & 0x4000) {
+    } else if (gStickTrigY & PADLdown) {
         D_8009574A++;
         WrapMenuValues();
-    } else if (D_80095958 & 0x1000) {
+    } else if (gStickTrigY & PADLup) {
         D_8009574A--;
         WrapMenuValues();
     } else {
@@ -3172,7 +3173,7 @@ s32 RunMenu(s16 n) {
     D_800958B0 = 1;
     D_8009574A = D_8009574A % n;
     StepMenuCursor();
-    if (gPadTrig & 0x20) {
+    if (gPadTrig & PADRright) {
         return D_8009574A;
     }
     return -1;

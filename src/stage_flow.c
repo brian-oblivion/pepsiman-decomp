@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libetc.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
@@ -313,13 +314,13 @@ void UpdateStagePlay(u8 stage) {
             break;
     }
     D_80095900 = 0;
-    if (gPadTrig & 0x800) {
+    if (gPadTrig & PADstart) {
         if ((u16)(gMissState + 1) < 2) {
             if (gPauseState == 0) {
                 SetCdVolume(30);
                 gPauseState = 1;
             } else {
-                if (gPad & 0x100) {
+                if (gPad & PADselect) {
                     StartRumble(gRumblePatterns, 0);
                     gGameMode = 6;
                     gModeStep = 0;

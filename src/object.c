@@ -1,4 +1,5 @@
 #include "common.h"
+#include "libetc.h"
 #include "memory.h"
 #include "libapi.h"
 #include "libgte.h"
@@ -820,10 +821,10 @@ void UpdateTrapViewer(void) {
     gClearB = 0;
     gClearG = 0;
     gClearR = 0;
-    if (flags & 2) {
+    if (flags & PADR2) {
         D_800958E2++;
     }
-    if (flags & 1) {
+    if (flags & PADL2) {
         D_800958E2--;
     }
     D_800958E2 = D_800958E2 < 0                   ? 0
@@ -897,10 +898,10 @@ void UpdateTrapLayoutViewer(void) {
         case 2:
             flags = gPadTrig;
             old = D_800958E2;
-            if (flags & 2) {
+            if (flags & PADR2) {
                 D_800958E2++;
             }
-            if (flags & 1) {
+            if (flags & PADL2) {
                 D_800958E2--;
             }
             D_800958E2 = D_800958E2 < 0                   ? 0

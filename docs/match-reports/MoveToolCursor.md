@@ -5,10 +5,10 @@
 Unit `src/hit_tool.c`. Steps by `gToolStep` either the dispatch object's
 two sizes (`gToolQuadW`/`gToolQuadH`, state 1 of `gToolQuadStage`, each clamped
 to 0..1000) or the game state's x and z (otherwise), then y on
-`D_80095958`'s bits, and on flag bit 4 leaves state 1 with error code 1.
+`gStickTrigY`'s bits, and on flag bit 4 leaves state 1 with error code 1.
 
 ```c
-extern s32 D_80095958; /**< a pad word; bits 12 and 14 step the position's y */
+extern s32 gStickTrigY; /**< a pad word; bits 12 and 14 step the position's y */
 
 void MoveToolCursor(void) {
     s32 flags;
@@ -43,10 +43,10 @@ void MoveToolCursor(void) {
             sGamePos.unk348 += gToolStep;
         }
     }
-    if (D_80095958 & 0x1000) {
+    if (gStickTrigY & 0x1000) {
         sGamePos.unk34C -= gToolStep;
     }
-    if (D_80095958 & 0x4000) {
+    if (gStickTrigY & 0x4000) {
         sGamePos.unk34C += gToolStep;
     }
     if (gPadTrig & 0x10) {
@@ -65,5 +65,5 @@ ternary.
 
 ## Declarations
 
-`D_80095958` is declared in this `.c` (editor declares it in its own);
+`gStickTrigY` is declared in this `.c` (editor declares it in its own);
 declcheck lists it LOCAL. It belongs in `common.h` at merge.

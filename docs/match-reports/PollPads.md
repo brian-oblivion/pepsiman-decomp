@@ -12,8 +12,8 @@ Unit `src/main.c`. Per-frame pad read: polls the pads (`UpdatePadActuators`),
 stores port 0's id byte in `gPadType`, builds each port's buttons
 (active high) into `gPadPrev[i]`/`gPadHeld[i]` and the newly pressed
 ones into `gPadPressed[i]`, and for an analog pad (id 0x73) turns the
-stick's extremes into direction bits (`D_80095928`/`D_80095920`, pressed
-edges in `D_80095958`/`D_80095950`) and keeps the raw axes in
+stick's extremes into direction bits (`gStickY`/`gStickX`, pressed
+edges in `gStickTrigY`/`gStickTrigX`) and keeps the raw axes in
 `D_800957C0`/`D_800957C8`.
 
 Best body (spliced in and built this session: `insertions 5 / deletions
@@ -30,10 +30,10 @@ extern s32 gPadHeld[2];
 extern u8 D_80072F44[];
 extern u8 gPadType;
 extern u8 gPadBuf[];
-extern s32 D_80095928;
-extern s32 D_80095920;
-extern s32 D_80095958;
-extern s32 D_80095950;
+extern s32 gStickY;
+extern s32 gStickX;
+extern s32 gStickTrigY;
+extern s32 gStickTrigX;
 extern s32 D_800957C0;
 extern s32 D_800957C8;
 
@@ -66,24 +66,24 @@ void PollPads(void) {
     btn = (u16)btn & m1;
     D_80095874 = btn;
     if (id == 0x73) {
-        m = D_80095928 ^ 0xFFFF;
+        m = gStickY ^ 0xFFFF;
         if (gPadBuf[7] < 10) {
-            D_80095928 = 0x1000;
+            gStickY = 0x1000;
         } else if (gPadBuf[7] >= 0xF6) {
-            D_80095928 = 0x4000;
+            gStickY = 0x4000;
         } else {
-            D_80095928 = 0;
+            gStickY = 0;
         }
-        D_80095958 = D_80095928 & m;
-        m = D_80095920 ^ 0xFFFF;
+        gStickTrigY = gStickY & m;
+        m = gStickX ^ 0xFFFF;
         if (gPadBuf[6] < 10) {
-            D_80095920 = 0x8000;
+            gStickX = 0x8000;
         } else if (gPadBuf[6] >= 0xF6) {
-            D_80095920 = 0x2000;
+            gStickX = 0x2000;
         } else {
-            D_80095920 = 0;
+            gStickX = 0;
         }
-        D_80095950 = D_80095920 & m;
+        gStickTrigX = gStickX & m;
         D_800957C0 = gPadBuf[6];
         D_800957C8 = gPadBuf[7];
     }
@@ -152,10 +152,10 @@ word short (as recorded). This round: 117 -> 118 words, 14 -> 101/118.
 ### Best body (101/118, `insertions 5 / deletions 5`, length exact)
 
 Declarations `gPadPrev[2]`, `gPadPressed[2]`, `gPadHeld[2]` (main.c,
-above PollPads's prototype) and `gPadType`, `D_80095958`,
+above PollPads's prototype) and `gPadType`, `gStickTrigY`,
 `D_800957C0`, `D_800957C8` (common.h) already exist. Splicing it in also
 means deleting main.c's later `extern u8 gPadBuf[];` (above
-InitPads) and giving `D_80095950` a `MATCHING:` note in one of its
+InitPads) and giving `gStickTrigX` a `MATCHING:` note in one of its
 two units for declcheck (editor declares it too). Splice-tested in
 this session (101/118).
 
@@ -163,9 +163,9 @@ this session (101/118).
 #if 0
 extern u8 D_80072F44[];
 extern u8 gPadBuf[];
-extern s32 D_80095928;
-extern s32 D_80095920;
-extern s32 D_80095950;
+extern s32 gStickY;
+extern s32 gStickX;
+extern s32 gStickTrigX;
 
 extern s32 D_80095854;
 extern s32 D_8009584C;
@@ -196,24 +196,24 @@ void PollPads(void) {
     btn = (u16)btn & m;
     D_80095874 = btn;
     if (id == 0x73) {
-        m = D_80095928 ^ 0xFFFF;
+        m = gStickY ^ 0xFFFF;
         if (gPadBuf[7] < 10) {
-            D_80095928 = 0x1000;
+            gStickY = 0x1000;
         } else if (gPadBuf[7] >= 0xF6) {
-            D_80095928 = 0x4000;
+            gStickY = 0x4000;
         } else {
-            D_80095928 = 0;
+            gStickY = 0;
         }
-        D_80095958 = D_80095928 & m;
-        m = D_80095920 ^ 0xFFFF;
+        gStickTrigY = gStickY & m;
+        m = gStickX ^ 0xFFFF;
         if (gPadBuf[6] < 10) {
-            D_80095920 = 0x8000;
+            gStickX = 0x8000;
         } else if (gPadBuf[6] >= 0xF6) {
-            D_80095920 = 0x2000;
+            gStickX = 0x2000;
         } else {
-            D_80095920 = 0;
+            gStickX = 0;
         }
-        D_80095950 = D_80095920 & m;
+        gStickTrigX = gStickX & m;
         D_800957C0 = gPadBuf[6];
         D_800957C8 = gPadBuf[7];
     }
@@ -258,7 +258,7 @@ allows it** (posted on the broadcast). It is also a sched barrier.
 - loads in `do { } while (0)` (sched barrier, bravo's/alpha's lever): 81
   (loop refs reshuffle global alloc).
 - `m1 = D_80095854;` early, `m = m1 ^ 0xFFFF;` later, and `m1` reused for
-  the analog `D_80095920` load: 90/118 but EVERY INSTRUCTION in retail's
+  the analog `gStickX` load: 90/118 but EVERY INSTRUCTION in retail's
   place (only registers differ: m1 `$a2` for `$a0`, m `$a3` for `$a2`, the
   two bases one register up). This is the next round's starting point: the
   reuse makes `m1` multi-set, so sched1 no longer boosts its load (a

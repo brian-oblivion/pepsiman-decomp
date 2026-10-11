@@ -45,7 +45,7 @@ void UpdateTool(void) {
             gToolMode = 0;
             D_8009574A = 0;
             D_80095748 = 0;
-            D_800956F7 = 1;
+            gRepeatButtonsOn = 1;
             gModeStep++;
             break;
         case 1:

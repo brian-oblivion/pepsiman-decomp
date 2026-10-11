@@ -1827,3 +1827,5 @@ sQuadHit = 0x80095898;
 sQuadHitWord = 0x8009589C;
 sSpriteShapes = 0x800A7618;
 sSaveData = 0x800959D4;
+gEditorPicking = 0x800958D8;
+gEditorInfo = 0x800959D8;

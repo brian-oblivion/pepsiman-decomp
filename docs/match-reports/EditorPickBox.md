@@ -40,7 +40,7 @@ on flag bits 0 and 1. Second build matched.
             sel.vy = r[sTotals.unk12].unk50[1];
             sel.vz = r[sTotals.unk12].unk50[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
+            if (gEditorInfo != 1 && (gPadTrig & 0x20)) {
                 sRecs5C[sTotals.unk12].unk0 = -1;
                 gSubStep = 0;
                 break;

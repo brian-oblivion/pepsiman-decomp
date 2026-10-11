@@ -9,7 +9,7 @@ of the 200-entry table `gTraps` into `sTotals.unk1A`; in state 0
 record, 11 when none is nearer than 25000000) and moves to state 1; in
 state 1 copies the record's `unk34` to `sTotals.unk1E`, moves the game
 position to it (`DrawPin`), frees it on flag bit 5 (unless
-`D_800959D8` is 1) and steps the selection down or up on flag bits 0 and 1,
+`gEditorInfo` is 1) and steps the selection down or up on flag bits 0 and 1,
 skipping free records. EditorPickSprite is its twin on the StageSprite table.
 Fourth build matched.
 
@@ -19,7 +19,7 @@ Fourth build matched.
   rebuilds `-1` every pass: `r = &tbl[i];` inside the body (LEARNINGS,
   "Loops"). `r++` at the bottom gave a biased pointer, a hoisted `-1` and
   two more saved registers (11/258).
-- `beq $v0, $s0` testing `D_800959D8 == 1` reuses the state value (1)
+- `beq $v0, $s0` testing `gEditorInfo == 1` reuses the state value (1)
   held in `$s0`: `switch (gSubStep)`, nothing to write.
 - The step-down and step-up each clamp once, then rotate a `while` over
   free records. **Retail's first step up clamps to 199, not 0**; only the

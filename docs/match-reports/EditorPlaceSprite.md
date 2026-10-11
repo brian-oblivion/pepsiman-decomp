@@ -113,8 +113,8 @@ s32 EditorPlaceSprite(void) {
                 }
             }
         found:
-            if (D_800959D8 == 1) {
-                D_800959D8 = 0;
+            if (gEditorInfo == 1) {
+                gEditorInfo = 0;
             }
         }
     }

@@ -179,24 +179,25 @@ typedef struct {
     BlockCopy block;   /**< the block header area */
 } SavedTables;
 
-/** @brief The game-progress block, as far as the full reset writes it. */
+/** @brief The editor's state block (editor's EditorState), as far as the
+ *         full reset writes it. */
 typedef struct {
-    u8 unk0;        /**< 0x38 after a reset */
-    u8 unk1;        /**< 1 after a reset */
-    u8 unk2;        /**< copied from a global byte on a reset */
-    u8 unk3;        /**< not yet known */
-    s32 unk4;       /**< 50 after a reset */
-    s32 unk8;       /**< zeroed on a reset */
-    s32 unkC;       /**< zeroed on a reset */
-    u8 unk10[2];    /**< not yet known */
-    s16 unk12[18];  /**< zeroed on a reset, but [14] (0x2E) set to 600 */
-    u8 unk36[0x32]; /**< not yet known */
-    u8 unk68;       /**< zeroed on a reset */
-    u8 unk69;       /**< zeroed on a reset */
-    s16 unk6A;      /**< zeroed on a reset */
-    u8 unk6C;       /**< zeroed on a reset */
-    u8 unk6D;       /**< zeroed on a reset */
-} Progress6E;
+    u8 magic;      /**< 0x38 after a reset, the mark a saved slot is checked for */
+    u8 unk1;       /**< 1 after a reset */
+    u8 stage;      /**< gStage, on a reset */
+    u8 kind;       /**< not written here */
+    s32 grid;      /**< the move step; 50 after a reset */
+    s32 height;    /**< the cursor's height above the ground */
+    s32 camHeight; /**< the camera's height offset */
+    u8 unk10[2];   /**< not yet known */
+    s16 values[18]; /**< switchNo to spriteFlip, as one array; [14], spriteSize, is 600 after a reset */
+    u8 unk36[0x32];  /**< not yet known */
+    u8 trapType;     /**< "TRAP SEL" TYPENO. */
+    u8 trapAct;      /**< "TRAP SEL" ACT NO. */
+    s16 spriteAngle; /**< the sprite's angle */
+    u8 spriteWalk;   /**< "SPRITE SEL" WALK. */
+    u8 spriteSe;     /**< "SPRITE SEL" SE. */
+} EditorReset;
 
 extern s16 sFloorHit[]; /**< FindFloorNear's result: a height, then a normal */
 /* MATCHING: copied whole as Quad16 here; draw reads its fields. */
@@ -207,8 +208,8 @@ extern u8 gCanState[];        /**< each can: 0 hidden, 1 to pop in, 2 shown */
 extern PathPt *gSectionEdges;       /**< the current path */
 extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
 extern s32 gCurBlock;               /**< zeroed by the full reset */
-extern u8 D_800958D8;               /**< zeroed by the full reset */
-extern u8 D_800959D8;               /**< zeroed by the full reset */
+extern u8 gEditorPicking;           /**< zeroed by the full reset */
+extern u8 gEditorInfo;              /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)gTimInfo)
@@ -216,8 +217,8 @@ extern u8 D_800959D8;               /**< zeroed by the full reset */
 #define sTraps ((Trap *)gTraps)
 /* MATCHING: the progress block, declared per unit; editor views the same
  * bytes as other records. */
-extern u8 gEditorState[]; /**< the editor's state; this unit reads its Progress6E view */
-#define sProgress (*(Progress6E *)gEditorState)
+extern u8 gEditorState[]; /**< the editor's state; this unit reads its EditorReset view */
+#define sEditorReset (*(EditorReset *)gEditorState)
 
 /* MATCHING: a per-unit view; collision calls the same 0x30-byte block Body. */
 s32 CollidePlayer(Query30 *q);
@@ -1650,36 +1651,36 @@ void ResetGameState(Trap *recs) {
     ResetTraps(sTraps);
     bzero((u8 *)gStageSprites, sizeof(StageSprite) * 100);
     ClearStageSprites(gStageSprites);
-    sProgress.unk0 = 0x38;
-    sProgress.unk1 = 1;
-    sProgress.unk68 = 0;
-    sProgress.unk69 = 0;
-    sProgress.unk4 = 50;
-    sProgress.unk8 = 0;
-    sProgress.unkC = 0;
-    sProgress.unk12[8] = 0;
-    sProgress.unk12[9] = 0;
-    sProgress.unk12[10] = 0;
-    sProgress.unk12[0] = 0;
-    sProgress.unk12[1] = 0;
-    sProgress.unk12[2] = 0;
-    sProgress.unk12[3] = 0;
-    sProgress.unk12[4] = 0;
-    sProgress.unk12[6] = 0;
-    sProgress.unk12[5] = 0;
-    sProgress.unk12[7] = 0;
-    sProgress.unk12[11] = 0;
-    sProgress.unk12[12] = 0;
-    sProgress.unk12[13] = 0;
-    sProgress.unk12[14] = 600;
-    sProgress.unk12[15] = 0;
-    sProgress.unk12[16] = 0;
-    sProgress.unk12[17] = 0;
-    sProgress.unk6A = 0;
-    sProgress.unk6C = 0;
-    sProgress.unk6D = 0;
+    sEditorReset.magic = 0x38;
+    sEditorReset.unk1 = 1;
+    sEditorReset.trapType = 0;
+    sEditorReset.trapAct = 0;
+    sEditorReset.grid = 50;
+    sEditorReset.height = 0;
+    sEditorReset.camHeight = 0;
+    sEditorReset.values[8] = 0;
+    sEditorReset.values[9] = 0;
+    sEditorReset.values[10] = 0;
+    sEditorReset.values[0] = 0;
+    sEditorReset.values[1] = 0;
+    sEditorReset.values[2] = 0;
+    sEditorReset.values[3] = 0;
+    sEditorReset.values[4] = 0;
+    sEditorReset.values[6] = 0;
+    sEditorReset.values[5] = 0;
+    sEditorReset.values[7] = 0;
+    sEditorReset.values[11] = 0;
+    sEditorReset.values[12] = 0;
+    sEditorReset.values[13] = 0;
+    sEditorReset.values[14] = 600;
+    sEditorReset.values[15] = 0;
+    sEditorReset.values[16] = 0;
+    sEditorReset.values[17] = 0;
+    sEditorReset.spriteAngle = 0;
+    sEditorReset.spriteWalk = 0;
+    sEditorReset.spriteSe = 0;
     gCurBlock = 0;
-    D_800958D8 = 0;
-    D_800959D8 = 0;
-    sProgress.unk2 = gStage;
+    gEditorPicking = 0;
+    gEditorInfo = 0;
+    sEditorReset.stage = gStage;
 }

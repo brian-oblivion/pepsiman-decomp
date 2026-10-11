@@ -19,7 +19,7 @@ start); 7 sets mode 6. Fourth build matched.
   slot: non-void with no return** (LEARNINGS, SetTmdSortMode).
 - **`li v0, 1` rebuilt for the second of two byte stores of 1: the second
   value is int-typed.** Two `= 1` stores (also chained, also with a volatile
-  first store) share one `li`; `D_800958D8 = D_800959D8 != 0;` (an
+  first store) share one `li`; `gEditorPicking = gEditorInfo != 0;` (an
   `int` 1 that cc1 folds) gives retail's second `li`. Probably not the
   original spelling; no plainer one was found.
 - The start position is reached through a unit-local `RotPos` view of
@@ -30,7 +30,7 @@ start); 7 sets mode 6. Fourth build matched.
 
 - `EditorState` (unit-local) gains `u8 unk3` and `u16 unk24`.
 - New in the `.c`: `RotPos`/`sRotPos`, a per-unit view
-  `s32 FindFloor(s32 *pos)` (MATCHING note), `extern u8 D_800958D8`.
+  `s32 FindFloor(s32 *pos)` (MATCHING note), `extern u8 gEditorPicking`.
 - `gFloorIndex` (`s32`, type unchanged) moved from stage_flow.c to
   include/common.h, since a second unit now uses it (declcheck LOCAL). This
   deletes one line in stage_flow.c.
@@ -45,8 +45,8 @@ s32 UpdateEditorMenu(void) {
             case 0:
                 gEditMax = 200;
                 gMenuLineCount = 1;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.unk3 = gMenuLine;
                 gEditValue = sTotals.unk24;
                 gMenuLine = 0;
@@ -55,8 +55,8 @@ s32 UpdateEditorMenu(void) {
             case 1:
                 gEditMax = 200;
                 gMenuLineCount = 2;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.unk3 = gMenuLine;
                 gEditValue = sTotals.unk12;
                 gMenuLine = 0;
@@ -65,8 +65,8 @@ s32 UpdateEditorMenu(void) {
             case 2:
                 gEditMax = 200;
                 gMenuLineCount = 5;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.unk3 = gMenuLine;
                 gEditValue = sTotals.unk18;
                 gMenuLine = 0;
@@ -76,8 +76,8 @@ s32 UpdateEditorMenu(void) {
             case 3:
                 gEditMax = 100;
                 gMenuLineCount = 9;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.unk3 = gMenuLine;
                 gEditValue = sTotals.unk28;
                 gMenuLine = 0;
@@ -85,14 +85,14 @@ s32 UpdateEditorMenu(void) {
                 gToolMode = 5;
                 break;
             case 4:
-                D_800958D8 = 1;
-                D_800959D8 = 0;
+                gEditorPicking = 1;
+                gEditorInfo = 0;
                 gSubStep = 0;
                 break;
             case 5:
-                D_800959D8 = 1;
+                gEditorInfo = 1;
                 /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
-                D_800958D8 = D_800959D8 != 0;
+                gEditorPicking = gEditorInfo != 0;
                 gSubStep = 0;
                 gToolMode = 0;
                 break;

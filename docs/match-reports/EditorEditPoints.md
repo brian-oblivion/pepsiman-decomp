@@ -7,7 +7,7 @@ Unit `src/code_1dc24.c`. The point editor, a two-state step on
 current entry's first point into `sTotals.unk22` and moves to state 1.
 State 1 moves the game position to the selected point
 (`DrawPin`), errors 10 on an empty or missing entry, and unless
-`D_800959D8` is 1, on flag bit 5 deletes the point (error 9 on an empty
+`gEditorInfo` is 1, on flag bit 5 deletes the point (error 9 on an empty
 entry): shifts the later points down, decrements the entry's count and
 every later entry's start. Then flag bits 0 and 1 step the selection and
 it is clamped to the entry. About 20 builds.
@@ -73,7 +73,7 @@ s32 EditorEditPoints(void) {
         gToolMode = 10;
         return;
     }
-    if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
+    if (gEditorInfo != 1 && (gPadTrig & 0x20)) {
         e = (Span8 *)gCanSpans;
         e += gCurBlock;
         if (e->count == 0) {

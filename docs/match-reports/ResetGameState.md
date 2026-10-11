@@ -27,43 +27,43 @@ void ResetGameState(Trap *recs) {
     ResetTraps(sRecs48);
     bzero((u8 *)gStageSprites, sizeof(StageSprite) * 100);
     ClearStageSprites(gStageSprites);
-    sProgress.unk0 = 0x38;
-    sProgress.unk1 = 1;
-    sProgress.unk68 = 0;
-    sProgress.unk69 = 0;
-    sProgress.unk4 = 50;
-    sProgress.unk8 = 0;
-    sProgress.unkC = 0;
-    sProgress.unk12[8] = 0;
-    sProgress.unk12[9] = 0;
-    sProgress.unk12[10] = 0;
-    sProgress.unk12[0] = 0;
-    sProgress.unk12[1] = 0;
-    sProgress.unk12[2] = 0;
-    sProgress.unk12[3] = 0;
-    sProgress.unk12[4] = 0;
-    sProgress.unk12[6] = 0;
-    sProgress.unk12[5] = 0;
-    sProgress.unk12[7] = 0;
-    sProgress.unk12[11] = 0;
-    sProgress.unk12[12] = 0;
-    sProgress.unk12[13] = 0;
-    sProgress.unk12[14] = 600;
-    sProgress.unk12[15] = 0;
-    sProgress.unk12[16] = 0;
-    sProgress.unk12[17] = 0;
-    sProgress.unk6A = 0;
-    sProgress.unk6C = 0;
-    sProgress.unk6D = 0;
+    sEditorReset.unk0 = 0x38;
+    sEditorReset.unk1 = 1;
+    sEditorReset.unk68 = 0;
+    sEditorReset.unk69 = 0;
+    sEditorReset.unk4 = 50;
+    sEditorReset.unk8 = 0;
+    sEditorReset.unkC = 0;
+    sEditorReset.unk12[8] = 0;
+    sEditorReset.unk12[9] = 0;
+    sEditorReset.unk12[10] = 0;
+    sEditorReset.unk12[0] = 0;
+    sEditorReset.unk12[1] = 0;
+    sEditorReset.unk12[2] = 0;
+    sEditorReset.unk12[3] = 0;
+    sEditorReset.unk12[4] = 0;
+    sEditorReset.unk12[6] = 0;
+    sEditorReset.unk12[5] = 0;
+    sEditorReset.unk12[7] = 0;
+    sEditorReset.unk12[11] = 0;
+    sEditorReset.unk12[12] = 0;
+    sEditorReset.unk12[13] = 0;
+    sEditorReset.unk12[14] = 600;
+    sEditorReset.unk12[15] = 0;
+    sEditorReset.unk12[16] = 0;
+    sEditorReset.unk12[17] = 0;
+    sEditorReset.unk6A = 0;
+    sEditorReset.unk6C = 0;
+    sEditorReset.unk6D = 0;
     gCurBlock = 0;
-    D_800958D8 = 0;
-    D_800959D8 = 0;
-    sProgress.unk2 = gStage;
+    gEditorPicking = 0;
+    gEditorInfo = 0;
+    sEditorReset.unk2 = gStage;
 }
 ```
 
-The progress block is a unit-local `Progress6E` view through
-`#define sProgress (*(Progress6E *)gEditorState)` (retail stores the first
+The editor state block is a unit-local `EditorReset` view through
+`#define sEditorReset (*(EditorReset *)gEditorState)` (retail stores the first
 byte through `%lo(gEditorState)`, then builds the base and stores the rest
 off it: a struct lvalue). Stores are in retail's order; the copy of
 `gStage` comes last, its load hoisted by the scheduler.
@@ -71,7 +71,7 @@ off it: a struct lvalue). Stores are in retail's order; the copy of
 ## Declarations (need the head)
 
 New in this unit: `extern StageSprite gStageSprites[]`, `extern u8
-gEditorState[]`, `gCurBlock` (s32), `D_800958D8` and `D_800959D8` (u8;
+gEditorState[]`, `gCurBlock` (s32), `gEditorPicking` and `gEditorInfo` (u8;
 the last reached `$gp`, already in config/gp/object.txt), and
 prototypes of editor's BuildEmptyBlock, ClearSwitches, ResetTraps
 and ClearStageSprites, under one `MATCHING:` per-unit-view note (StageSprite is

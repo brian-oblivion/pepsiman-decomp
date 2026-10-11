@@ -7,7 +7,7 @@ Unit `src/editor.c`, its first function. The tool's main step, by
 error code `gToolMode` and sets the tool up; state 1 marks the 127 entry
 flags `gCanGroupOn[1..127]`, then by `gToolMode` runs the current mode's
 editors (mode 0 picks by `sTotals.unk3` between the four placers, or with
-`D_800958D8` set the four pickers, and on flag bit 5 loads the picked
+`gEditorPicking` set the four pickers, and on flag bit 5 loads the picked
 EditorTrap or StageSprite record into the menu editor's state), the menus of modes
 1..5, the data mode (`UpdateEditorData`) or the message screens; then moves
 the camera and the view (`DrawPin`, `UpdatePickups`,
@@ -28,7 +28,7 @@ other to 50). About 20 builds.
   globals sit between the record reads; the source order that matched is
   retail's store order (`gToolMode = 4;` before `sTotals.unk1E = ...`;
   for the StageSprite one: unk2C, `gToolMode = 5`, unk2A, unk6D, unk6C,
-  `gEditMax`, `D_800958D8`, `gMenuLineCount`, `gEditValue`, `gMenuLine`,
+  `gEditMax`, `gEditorPicking`, `gMenuLineCount`, `gEditValue`, `gMenuLine`,
   `gSubStep`, unk6A).
 - **`li a1, 100` in the delay slot of the `& 0x100` test, a `nop` left in
   the load delay below: `s32` with no return.** Void let reorg fill the

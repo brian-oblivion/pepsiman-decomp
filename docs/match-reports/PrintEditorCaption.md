@@ -3,7 +3,7 @@
 > Renamed from `func_8002F270` on 2026-10-11 (tools/rename.py). Address 0x8002f270.
 
 Unit `src/editor.c`. The tool mode's caption printer: while
-`D_800959D8` is 1, prints with `FntPrint` the state of the current tool
+`gEditorInfo` is 1, prints with `FntPrint` the state of the current tool
 mode (`sTotals.unk3`): mode 0 the selected point and the entry's point
 count, mode 1 the selected switch, mode 2 the selected EditorTrap record (model
 or "OPTIONS", switch, type, act), mode 3 the selected StageSprite sprite (model,

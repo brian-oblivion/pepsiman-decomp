@@ -23,11 +23,11 @@ typedef struct {
     s32 unk20;    /**< a copy of unk1C */
     u8 unk24[2];  /**< not yet known */
     u8 unk26;     /**< bit 7 picks one of two handlers */
-    u8 unk27;     /**< sTotals.unk6C when placed */
-    u8 unk28;     /**< sTotals.unk6D when placed */
+    u8 unk27;     /**< sTotals.spriteWalk when placed */
+    u8 unk28;     /**< sTotals.spriteSe when placed */
     u8 unk29;     /**< not yet known */
-    u16 unk2A;    /**< sTotals.unk6A when placed */
-    s16 unk2C;    /**< matched against sTotals.unk2A */
+    u16 unk2A;    /**< sTotals.spriteAngle when placed */
+    s16 unk2C;    /**< matched against sTotals.spriteSwitch */
     u8 unk2E[2];  /**< not yet known */
     s32 unk30;    /**< a global stamp when placed */
     s32 unk34;    /**< the current entry when placed */
@@ -59,40 +59,43 @@ enum EditKind {
     EK_SPRITE = 3  /**< stage sprites */
 };
 
-/** @brief The tool state block: counts, totals and saved menu values. */
+/** @brief The editor's state block: the cursor, the counts, and each SEL
+ *         screen's values, named from the labels it prints. */
 typedef struct {
-    u8 unk0[3];  /**< not yet known */
-    u8 kind;     /**< what is placed and picked, an EditKind */
-    s32 unk4;    /**< a step: the move distance and the height step */
-    s32 unk8;    /**< a height offset added to the ground height */
-    s32 unkC;    /**< a height offset added to the camera's y */
-    u8 unk10[2]; /**< not yet known */
-    u16 unk12;   /**< the edited value saved for menu line 0 */
-    u16 unk14;   /**< the edited value saved for menu line 1 */
-    u16 unk16;   /**< number of switches in use */
-    u16 unk18;   /**< number of EditorTrap records in use */
-    u16 unk1A;   /**< number of EditorTrap records counted live */
-    u16 unk1C;   /**< unk38 of the first record placed */
-    u16 unk1E;   /**< matched against a Trap's unk34 */
-    s16 unk20;   /**< an angle in degrees, wrapped to 0..359 */
-    u16 unk22;   /**< the selected point of the current entry */
+    u8 magic;   /**< 0x38, the mark a saved slot is checked for */
+    u8 unk1;    /**< 1 after a reset */
+    u8 stage;   /**< gStage when the state was reset */
+    u8 kind;    /**< what is placed and picked, an EditKind */
+    s32 grid;   /**< the move and height step, " GRID"; 2, 10, 50 or 100 */
+    s32 height; /**< the cursor's height above the ground; the y readout is red above, blue below */
+    s32 camHeight;   /**< the camera's height offset, 0 or below */
+    u8 unk10[2];     /**< not yet known */
+    u16 switchNo;    /**< "SWITCH SEL" NO.: the switch slot edited */
+    u16 switchType;  /**< "SWITCH SEL" TYPE.: the box size, 0 to 2 */
+    u16 switchCount; /**< switches in use, "SWITCH NO" */
+    u16 trapNo;      /**< "TRAP SEL" NO.: the trap slot the next goes to, or the one picked */
+    u16 trapCount;   /**< traps counted live, "TRAP NO" */
+    u16 trapModel;   /**< "TRAP SEL" MODEL.: the trap's stage hook */
+    u16 trapSwitch;  /**< "TRAP SEL" SWITCH.: the switch that triggers it */
+    s16 trapAngle;   /**< the trap's angle in degrees, 0..359 */
+    u16 canNo;       /**< "CAN NO.": the selected can of the current block */
     u16 canGroup; /**< the group the next can gets, less one; the edited value saved for ED_PEPSI_SEL */
-    u16 unk26;      /**< a sum over the current block's entries */
-    u16 unk28;      /**< the StageSprite slot the next record goes to */
-    u16 unk2A;      /**< matched against a StageSprite's unk2C */
-    u16 unk2C;      /**< a StageSprite kind, less 30 */
-    u16 unk2E;      /**< a height base for the StageSprite template */
-    u16 unk30;      /**< number of StageSprite records in use */
-    u16 unk32;      /**< picks one of two StageSprite handlers */
-    u16 unk34;      /**< negates the StageSprite template's height when set */
-    u8 unk36[0x32]; /**< not yet known */
-    u8 unk68;       /**< copied into a placed record's unk42 */
-    u8 unk69;       /**< copied into a placed record's unk43 */
-    s16 unk6A;      /**< an angle in degrees; copied into a placed StageSprite's unk2A */
-    u8 unk6C;       /**< copied into a placed StageSprite's unk27 */
-    u8 unk6D;       /**< copied into a placed StageSprite's unk28 */
-    u8 unk6E[2];    /**< not yet known */
-    s32 unk70;      /**< the global stamp, saved on leaving the tool */
+    u16 canCount; /**< cans in the current block, "PEPSI NO" */
+    u16 spriteNo; /**< "SPRITE SEL" NO.: the StageSprite slot the next goes to, or the one picked */
+    u16 spriteSwitch; /**< "SPRITE SEL" SWITCH. */
+    u16 spriteModel;  /**< "SPRITE SEL" MODEL.: the sprite kind, less 30 */
+    u16 spriteSize;   /**< "SPRITE SEL" SIZE., shown less 500 */
+    u16 spriteCount;  /**< StageSprites in use */
+    u16 spriteHit;    /**< "SPRITE SEL" HIT.: off or on; picks one of two StageSprite handlers */
+    u16 spriteFlip;   /**< "SPRITE SEL" FLIP.: off or on; negates the template's height */
+    u8 unk36[0x32];   /**< not yet known */
+    u8 trapType;      /**< "TRAP SEL" TYPENO. */
+    u8 trapAct;       /**< "TRAP SEL" ACT NO. */
+    s16 spriteAngle;  /**< the sprite's angle in degrees, 0..359 */
+    u8 spriteWalk;    /**< "SPRITE SEL" WALK.: 0 off, else a number */
+    u8 spriteSe;      /**< "SPRITE SEL" SE.: 0 off, 1 man, 2 woman, 3 child, 4 dog */
+    u8 unk6E[2];      /**< not yet known */
+    s32 savedSection; /**< gSection, saved on leaving the tool */
 } EditorState;
 
 /** @brief 64 KiB of the tool buffer, copied whole. */
@@ -142,7 +145,7 @@ typedef struct {
 } SaveSlot;
 
 /* MATCHING: gStageSprites and gEditorState are also declared in object, each
- * unit through its own view (StageSprite, EditorState here; StageSprite, Progress6E there). */
+ * unit through its own view (StageSprite, EditorState here; StageSprite, EditorReset there). */
 extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
 extern u8 gEditorState[];           /**< the editor's state, an EditorState */
 extern char sEdTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
@@ -248,23 +251,23 @@ typedef struct {
     s32 unk28;   /**< the current entry when placed */
     s32 unk2C;   /**< an angle from the light direction */
     s32 unk30;   /**< a second angle from the light direction */
-    s16 unk34;   /**< sTotals.unk1E when placed */
+    s16 unk34;   /**< sTotals.trapSwitch when placed */
     s16 unk36;   /**< -1 when free */
-    s16 unk38;   /**< sTotals.unk1C for the first placed, else -1 */
+    s16 unk38;   /**< sTotals.trapModel for the first placed, else -1 */
     u8 unk3A[2]; /**< not yet known */
     s32 unk3C;   /**< a global stamp when placed */
     u8 unk40;    /**< cleared when placed */
     u8 unk41;    /**< not yet known */
-    u8 unk42;    /**< sTotals.unk68 when placed */
-    u8 unk43;    /**< sTotals.unk69 when placed */
+    u8 unk42;    /**< sTotals.trapType when placed */
+    u8 unk43;    /**< sTotals.trapAct when placed */
     u8 unk44[4]; /**< not yet known */
 } EditorTrap;
 
-/* MATCHING: object declares D_800959D8 as u8 (it only zeroes it); this
+/* MATCHING: object declares gEditorInfo as u8 (it only zeroes it); this
  * unit tests it as s8. */
 extern EditorTrap gPlaceQueue[]; /**< records waiting to be placed */
 extern u16 gPlaceCount;          /**< number of records waiting */
-extern s8 D_800959D8;            /**< a flag; cleared after placing when 1 */
+extern s8 gEditorInfo;           /**< 1 when picking shows INFO instead of deleting */
 
 /* MATCHING: per-unit views while StageSprite is unit-local; the two handlers
  * take an s32 id here (passed unextended), u16 and s16 in object. */
@@ -279,7 +282,7 @@ void DrawObjectSprite(s32 id, StageSprite *r);
 /* MATCHING: declared per unit (object and stage_flow give their own
  * views); here the start position is passed as words. */
 s32 FindFloor(s32 *pos);
-extern u8 D_800958D8; /**< a flag set by tool modes 4 and 5 */
+extern u8 gEditorPicking; /**< 1 while ED_MOVE picks (DELETE or INFO), 0 while it places */
 
 /* MATCHING: object declares it as its SwitchBox records. */
 extern s32 gSwitches[]; /**< the 200 switches */
@@ -664,7 +667,7 @@ s32 UpdateEditor(void) {
             switch ((u16)gToolMode) {
                 case ED_MOVE:
                     EditorFreeMove();
-                    if (D_800958D8 == 0) {
+                    if (gEditorPicking == 0) {
                         switch (sTotals.kind) {
                             case EK_PEPSI:
                                 EditorInsertPoint();
@@ -692,49 +695,50 @@ s32 UpdateEditor(void) {
                                 break;
                             case EK_TRAP:
                                 EditorPickRecord();
-                                if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
-                                    gPlayer.x = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[0];
-                                    gPlayer.y = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[1];
-                                    gPlayer.z = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[2];
-                                    sTotals.unk1C = ((EditorTrap *)gTraps)[sTotals.unk18].unk38;
+                                if (gEditorInfo == 1 && (gPadTrig & PADRright)) {
+                                    gPlayer.x = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[0];
+                                    gPlayer.y = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[1];
+                                    gPlayer.z = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[2];
+                                    sTotals.trapModel = ((EditorTrap *)gTraps)[sTotals.trapNo].unk38;
                                     gToolMode = ED_TRAP_SEL;
-                                    sTotals.unk1E = ((EditorTrap *)gTraps)[sTotals.unk18].unk34;
-                                    sTotals.unk68 = ((EditorTrap *)gTraps)[sTotals.unk18].unk42;
-                                    sTotals.unk69 = ((EditorTrap *)gTraps)[sTotals.unk18].unk43;
-                                    sTotals.unk20 =
-                                        ((EditorTrap *)gTraps)[sTotals.unk18].unk1A * 360 / 4096;
-                                    gPlaceCount = CallStageHook(sTotals.unk1C, gPlaceQueue, gPlaceQueue);
+                                    sTotals.trapSwitch = ((EditorTrap *)gTraps)[sTotals.trapNo].unk34;
+                                    sTotals.trapType = ((EditorTrap *)gTraps)[sTotals.trapNo].unk42;
+                                    sTotals.trapAct = ((EditorTrap *)gTraps)[sTotals.trapNo].unk43;
+                                    sTotals.trapAngle =
+                                        ((EditorTrap *)gTraps)[sTotals.trapNo].unk1A * 360 / 4096;
+                                    gPlaceCount =
+                                        CallStageHook(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
                                     for (i = 1; i < gPlaceCount; i++) {
                                         /* MATCHING: base taken in the body */
                                         r = (EditorTrap *)gTraps;
-                                        r[sTotals.unk18 + i].unk36 = -1;
+                                        r[sTotals.trapNo + i].unk36 = -1;
                                     }
                                     gEditMax = 200;
-                                    D_800958D8 = 0;
+                                    gEditorPicking = 0;
                                     gMenuLineCount = 5;
                                     gMenuLine = 0;
                                     gSubStep = 0;
-                                    gEditValue = sTotals.unk18;
+                                    gEditValue = sTotals.trapNo;
                                 }
                                 break;
                             case EK_SPRITE:
                                 EditorPickSprite();
-                                if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
-                                    gPlayer.x = gStageSprites[sTotals.unk28].unk4[0];
-                                    gPlayer.y = gStageSprites[sTotals.unk28].unk4[1];
-                                    gPlayer.z = gStageSprites[sTotals.unk28].unk4[2];
-                                    sTotals.unk2C = gStageSprites[sTotals.unk28].unk0 - 30;
+                                if (gEditorInfo == 1 && (gPadTrig & PADRright)) {
+                                    gPlayer.x = gStageSprites[sTotals.spriteNo].unk4[0];
+                                    gPlayer.y = gStageSprites[sTotals.spriteNo].unk4[1];
+                                    gPlayer.z = gStageSprites[sTotals.spriteNo].unk4[2];
+                                    sTotals.spriteModel = gStageSprites[sTotals.spriteNo].unk0 - 30;
                                     gToolMode = ED_SPRITE_SEL;
-                                    sTotals.unk2A = gStageSprites[sTotals.unk28].unk2C;
-                                    sTotals.unk6D = gStageSprites[sTotals.unk28].unk28;
-                                    sTotals.unk6C = gStageSprites[sTotals.unk28].unk27;
+                                    sTotals.spriteSwitch = gStageSprites[sTotals.spriteNo].unk2C;
+                                    sTotals.spriteSe = gStageSprites[sTotals.spriteNo].unk28;
+                                    sTotals.spriteWalk = gStageSprites[sTotals.spriteNo].unk27;
                                     gEditMax = 100;
-                                    D_800958D8 = 0;
+                                    gEditorPicking = 0;
                                     gMenuLineCount = 9;
-                                    gEditValue = sTotals.unk28;
+                                    gEditValue = sTotals.spriteNo;
                                     gMenuLine = 0;
                                     gSubStep = 0;
-                                    sTotals.unk6A = gStageSprites[sTotals.unk28].unk2A;
+                                    sTotals.spriteAngle = gStageSprites[sTotals.spriteNo].unk2A;
                                 }
                                 break;
                         }
@@ -793,12 +797,12 @@ s32 UpdateEditor(void) {
                 case ED_NONE_NEAR:
                     if (gPadTrig & PADRdown) {
                         gToolMode = ED_MOVE;
-                        D_800958D8 = 0;
-                        D_800959D8 = 0;
+                        gEditorPicking = 0;
+                        gEditorInfo = 0;
                     }
                     break;
             }
-            if (D_800958D8 == 0) {
+            if (gEditorPicking == 0) {
                 DrawPin((VECTOR *)&gPlayer.x);
                 DrawPole((VECTOR *)&gPlayer.x);
             }
@@ -813,7 +817,7 @@ s32 UpdateEditor(void) {
             break;
     }
     if (gPadTrig & PADstart) {
-        sTotals.unk70 = gSection;
+        sTotals.savedSection = gSection;
         BackupToolBuffer();
         gRetries = 0xFF;
         gToolExited = 1;
@@ -822,18 +826,18 @@ s32 UpdateEditor(void) {
         gGameMode = GM_STAGE;
     }
     if (gPadTrig & PADselect) {
-        switch (sTotals.unk4) {
+        switch (sTotals.grid) {
             case 50:
-                sTotals.unk4 = 100;
+                sTotals.grid = 100;
                 break;
             case 100:
-                sTotals.unk4 = 2;
+                sTotals.grid = 2;
                 break;
             case 1000:
-                sTotals.unk4 = 10;
+                sTotals.grid = 10;
                 break;
             default:
-                sTotals.unk4 = 50;
+                sTotals.grid = 50;
                 break;
         }
     }
@@ -962,15 +966,15 @@ s32 PrintEditorStatus(void) {
     }
     FntPrint(gSyncFmt, gVSyncTime);
     FntPrint(sEdColorWhite);
-    FntPrint(gGridFmt, sTotals.unk4);
+    FntPrint(gGridFmt, sTotals.grid);
     FntPrint(gNowBlockFmt, gCurBlock, gStageObjCount);
     sStatusPos.vx = gPlayer.x;
     sStatusPos.vy = gPlayer.y;
     sStatusPos.vz = gPlayer.z;
     FntPrint(sEdPositionFmt, sStatusPos.vx);
-    if (sTotals.unk8 == 0) {
+    if (sTotals.height == 0) {
         FntPrint(sEdColorWhite);
-    } else if (sTotals.unk8 < 0) {
+    } else if (sTotals.height < 0) {
         FntPrint(sEdColorBlue);
     } else {
         FntPrint(sEdColorRed);
@@ -983,30 +987,30 @@ s32 PrintEditorStatus(void) {
     } else {
         FntPrint(sEdColorRed);
     }
-    FntPrint(sEdSwitchNoFmt, sTotals.unk16, 200);
-    FntPrint(sEdTrapNoFmt, sTotals.unk1A, 200);
-    FntPrint(sEdPepsiNoFmt, sTotals.unk26, 200);
+    FntPrint(sEdSwitchNoFmt, sTotals.switchCount, 200);
+    FntPrint(sEdTrapNoFmt, sTotals.trapCount, 200);
+    FntPrint(sEdPepsiNoFmt, sTotals.canCount, 200);
     FntPrint(sEdItemText);
     switch (sTotals.kind) {
         case EK_PEPSI:
             FntPrint(sEdPepsiFmt, sTotals.canGroup + 1);
             break;
         case EK_SWITCH:
-            FntPrint(sEdSwitchFmt, sTotals.unk12);
+            FntPrint(sEdSwitchFmt, sTotals.switchNo);
             break;
         case EK_TRAP:
-            FntPrint(sEdTrapFmt, sTotals.unk18);
+            FntPrint(sEdTrapFmt, sTotals.trapNo);
             break;
         case EK_SPRITE:
-            FntPrint(sEdSpriteFmt, sTotals.unk28);
+            FntPrint(sEdSpriteFmt, sTotals.spriteNo);
             break;
     }
     FntPrint(sEdColorWhite);
     SortSemiQuad(0x421, -160, -120, 160, -120, 160, -70, -160, -70, 0);
     FntPrint(sEdNewline);
-    if (D_800959D8 == 1) {
+    if (gEditorInfo == 1) {
         FntPrint(sEdInfoText);
-    } else if (D_800958D8 == 1) {
+    } else if (gEditorPicking == 1) {
         if ((gFrameCount & 0xF) < 8) {
             FntPrint(sEdColorWhite);
         } else {
@@ -1111,12 +1115,12 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdSwitchNoRangeText);
             recs = sSwitches;
-            if (recs[sTotals.unk12].unk0 == -1) {
+            if (recs[sTotals.switchNo].unk0 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
             }
-            FntPrint(sEdNum2Fmt, sTotals.unk12);
+            FntPrint(sEdNum2Fmt, sTotals.switchNo);
             if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1129,13 +1133,13 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdColorBlue);
             }
-            FntPrint(sEdSwitchTypeRangeFmt, sTotals.unk14, 2);
+            FntPrint(sEdSwitchTypeRangeFmt, sTotals.switchType, 2);
             SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case ED_TRAP_SEL:
             PrintTabs(4);
             FntPrint(sEdTrapSelModeText);
-            if (D_800959D8 == 0) {
+            if (gEditorInfo == 0) {
                 FntPrint(sEdNewlines4);
             }
             PrintEditorCaption();
@@ -1150,12 +1154,12 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdTrapNoRangeText);
             objs = (EditorTrap *)gTraps;
-            if (objs[sTotals.unk18].unk36 == -1) {
+            if (objs[sTotals.trapNo].unk36 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
             }
-            FntPrint(sEdNum2Fmt, sTotals.unk18);
+            FntPrint(sEdNum2Fmt, sTotals.trapNo);
             if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1168,7 +1172,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdColorBlue);
             }
-            FntPrint(sEdTrapModelRangeFmt, sTotals.unk1C, gSectionCount);
+            FntPrint(sEdTrapModelRangeFmt, sTotals.trapModel, gSectionCount);
             PrintTabs(3);
             FntPrint(sEdUseBufferFmt, gPlaceCount);
             PrintTabs(3);
@@ -1179,12 +1183,12 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdTrapSwitchRangeText);
             recs = sSwitches;
-            if (recs[sTotals.unk1E].unk0 != -1) {
+            if (recs[sTotals.trapSwitch].unk0 != -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
             }
-            FntPrint(sEdNum2Fmt, sTotals.unk1E);
+            FntPrint(sEdNum2Fmt, sTotals.trapSwitch);
             if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1198,7 +1202,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdTrapTypeRangeText);
-            FntPrint(sEdNum2Fmt, sTotals.unk68);
+            FntPrint(sEdNum2Fmt, sTotals.trapType);
             FntPrint(sEdRangeEnd2Fmt, 255);
             PrintTabs(3);
             if (gMenuLine == 4) {
@@ -1207,11 +1211,11 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdTrapActRangeText);
-            FntPrint(sEdNum2Fmt, sTotals.unk69);
+            FntPrint(sEdNum2Fmt, sTotals.trapAct);
             FntPrint(sEdRangeEnd2Fmt, 255);
             FntPrint(sEdColorWhite);
             PrintTabs(2);
-            FntPrint(sEdAngleRangeFmt, sTotals.unk20);
+            FntPrint(sEdAngleRangeFmt, sTotals.trapAngle);
             SortSemiQuad(0x421, -100, -30, 100, -30, 100, 56, -100, 56, 0);
             break;
         case ED_SPRITE_SEL:
@@ -1227,12 +1231,12 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteNoRangeText);
-            if (gStageSprites[sTotals.unk28].unk0 == -1) {
+            if (gStageSprites[sTotals.spriteNo].unk0 == -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
             }
-            FntPrint(sEdNum2Fmt, sTotals.unk28);
+            FntPrint(sEdNum2Fmt, sTotals.spriteNo);
             if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1245,7 +1249,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdColorBlue);
             }
-            FntPrint(sEdSpriteModelRangeFmt, sTotals.unk2C, 512);
+            FntPrint(sEdSpriteModelRangeFmt, sTotals.spriteModel, 512);
             PrintTabs(2);
             if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
@@ -1254,12 +1258,12 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdSpriteSwitchRangeText);
             recs = sSwitches;
-            if (recs[sTotals.unk2A].unk0 != -1) {
+            if (recs[sTotals.spriteSwitch].unk0 != -1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorGrey);
             }
-            FntPrint(sEdNum2Fmt, sTotals.unk2A);
+            FntPrint(sEdNum2Fmt, sTotals.spriteSwitch);
             if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
@@ -1272,7 +1276,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdColorBlue);
             }
-            FntPrint(sEdSpriteSizeRangeFmt, (s16)sTotals.unk2E - 500, 999);
+            FntPrint(sEdSpriteSizeRangeFmt, (s16)sTotals.spriteSize - 500, 999);
             PrintTabs(2);
             if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
@@ -1280,7 +1284,7 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdHitLabel);
-            if (sTotals.unk32 == 0) {
+            if (sTotals.spriteHit == 0) {
                 FntPrint(sEdOffLine);
             } else {
                 FntPrint(sEdOnLine);
@@ -1292,7 +1296,7 @@ s32 PrintEditorStatus(void) {
             }
             PrintTabs(2);
             FntPrint(sEdFlipLabel);
-            if (sTotals.unk34 == 0) {
+            if (sTotals.spriteFlip == 0) {
                 FntPrint(sEdOffLine);
             } else {
                 FntPrint(sEdOnLine);
@@ -1322,10 +1326,10 @@ s32 PrintEditorStatus(void) {
             }
             PrintTabs(2);
             FntPrint(sEdWalkLabel);
-            if (sTotals.unk6C == 0) {
+            if (sTotals.spriteWalk == 0) {
                 FntPrint(sEdOffLine);
             } else {
-                FntPrint(sEdSeNoFmt, sTotals.unk6C);
+                FntPrint(sEdSeNoFmt, sTotals.spriteWalk);
             }
             if (gMenuLine == 8) {
                 FntPrint(sEdColorWhite);
@@ -1334,7 +1338,7 @@ s32 PrintEditorStatus(void) {
             }
             PrintTabs(2);
             FntPrint(sEdSeLabel);
-            switch (sTotals.unk6D) {
+            switch (sTotals.spriteSe) {
                 case 0:
                     FntPrint(sEdOffLine);
                     break;
@@ -1353,7 +1357,7 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdColorWhite);
             PrintTabs(2);
-            FntPrint(sEdAngleRangeFmt, sTotals.unk6A);
+            FntPrint(sEdAngleRangeFmt, sTotals.spriteAngle);
             SortSemiQuad(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
             break;
         case ED_DATA:
@@ -1504,46 +1508,46 @@ void PrintEditorCaption(void) {
     Span8 *e;
     EditorTrap *r;
 
-    if (D_800959D8 != 1) {
+    if (gEditorInfo != 1) {
         return;
     }
     switch (sTotals.kind) {
         case EK_PEPSI:
             e = (Span8 *)gCanSpans;
             e += gCurBlock;
-            FntPrint(sEdCanNoFmt, sTotals.unk22);
+            FntPrint(sEdCanNoFmt, sTotals.canNo);
             FntPrint(sEdCanNumFmt, e->count);
             break;
         case EK_SWITCH:
-            FntPrint(sEdInfoSwitchNoFmt, sTotals.unk12);
+            FntPrint(sEdInfoSwitchNoFmt, sTotals.switchNo);
             break;
         case EK_TRAP:
-            FntPrint(sEdInfoTrapNoFmt, sTotals.unk18);
-            if (((EditorTrap *)gTraps)[sTotals.unk18].unk38 != -1) {
-                FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.unk18].unk38);
+            FntPrint(sEdInfoTrapNoFmt, sTotals.trapNo);
+            if (((EditorTrap *)gTraps)[sTotals.trapNo].unk38 != -1) {
+                FntPrint(sEdInfoTrapModelFmt, ((EditorTrap *)gTraps)[sTotals.trapNo].unk38);
             } else {
                 FntPrint(sEdOptionsText);
             }
             /* MATCHING: the table base in a pointer local after the join
              * takes $s1, the totals' base $s0. */
             r = (EditorTrap *)gTraps;
-            FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.unk18].unk34);
-            FntPrint(sEdInfoTypeFmt, r[sTotals.unk18].unk42);
-            FntPrint(sEdInfoActFmt, r[sTotals.unk18].unk43);
+            FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.trapNo].unk34);
+            FntPrint(sEdInfoTypeFmt, r[sTotals.trapNo].unk42);
+            FntPrint(sEdInfoActFmt, r[sTotals.trapNo].unk43);
             break;
         case EK_SPRITE:
-            FntPrint(sEdInfoSpriteFmt, sTotals.unk28);
-            FntPrint(sEdInfoSpriteModelFmt, gStageSprites[sTotals.unk28].unk0 - 30);
-            FntPrint(sEdInfoSpriteSwitchFmt, gStageSprites[sTotals.unk28].unk2C);
+            FntPrint(sEdInfoSpriteFmt, sTotals.spriteNo);
+            FntPrint(sEdInfoSpriteModelFmt, gStageSprites[sTotals.spriteNo].unk0 - 30);
+            FntPrint(sEdInfoSpriteSwitchFmt, gStageSprites[sTotals.spriteNo].unk2C);
             FntPrint(sEdInfoHitLabel);
             /* MATCHING: the clear-bit arm first, as retail's bnez. */
-            if (!(gStageSprites[sTotals.unk28].unk26 & 0x80)) {
+            if (!(gStageSprites[sTotals.spriteNo].unk26 & 0x80)) {
                 FntPrint(sEdInfoOffText);
             } else {
                 FntPrint(sEdInfoOnText);
             }
             FntPrint(sEdInfoActLabel);
-            switch (gStageSprites[sTotals.unk28].unk26 & 0x3F) {
+            switch (gStageSprites[sTotals.spriteNo].unk26 & 0x3F) {
                 case 0:
                     FntPrint(sEdNoActText);
                     break;
@@ -1555,13 +1559,13 @@ void PrintEditorCaption(void) {
                     break;
             }
             FntPrint(sEdInfoWalkLabel);
-            if (gStageSprites[sTotals.unk28].unk27 == 0) {
+            if (gStageSprites[sTotals.spriteNo].unk27 == 0) {
                 FntPrint(sEdInfoOffLine);
             } else {
-                FntPrint(sEdInfoWalkTypeFmt, gStageSprites[sTotals.unk28].unk27);
+                FntPrint(sEdInfoWalkTypeFmt, gStageSprites[sTotals.spriteNo].unk27);
             }
             FntPrint(sEdInfoSeLabel);
-            switch (gStageSprites[sTotals.unk28].unk28) {
+            switch (gStageSprites[sTotals.spriteNo].unk28) {
                 case 0:
                     FntPrint(sEdNoSeText);
                     break;
@@ -1596,8 +1600,8 @@ s32 UpdateEditorMenu(void) {
             case 0:
                 gEditMax = 200;
                 gMenuLineCount = 1;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.kind = gMenuLine;
                 gEditValue = sTotals.canGroup;
                 gMenuLine = 0;
@@ -1606,20 +1610,20 @@ s32 UpdateEditorMenu(void) {
             case 1:
                 gEditMax = 200;
                 gMenuLineCount = 2;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.kind = gMenuLine;
-                gEditValue = sTotals.unk12;
+                gEditValue = sTotals.switchNo;
                 gMenuLine = 0;
                 gToolMode = ED_SWITCH_SEL;
                 break;
             case 2:
                 gEditMax = 200;
                 gMenuLineCount = 5;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.kind = gMenuLine;
-                gEditValue = sTotals.unk18;
+                gEditValue = sTotals.trapNo;
                 gMenuLine = 0;
                 gSubStep = 0;
                 gToolMode = ED_TRAP_SEL;
@@ -1627,23 +1631,23 @@ s32 UpdateEditorMenu(void) {
             case 3:
                 gEditMax = 100;
                 gMenuLineCount = 9;
-                D_800958D8 = 0;
-                D_800959D8 = 0;
+                gEditorPicking = 0;
+                gEditorInfo = 0;
                 sTotals.kind = gMenuLine;
-                gEditValue = sTotals.unk28;
+                gEditValue = sTotals.spriteNo;
                 gMenuLine = 0;
                 gSubStep = 0;
                 gToolMode = ED_SPRITE_SEL;
                 break;
             case 4:
-                D_800958D8 = 1;
-                D_800959D8 = 0;
+                gEditorPicking = 1;
+                gEditorInfo = 0;
                 gSubStep = 0;
                 break;
             case 5:
-                D_800959D8 = 1;
+                gEditorInfo = 1;
                 /* MATCHING: an int-valued 1 (retail rebuilds the constant). */
-                D_800958D8 = D_800959D8 != 0;
+                gEditorPicking = gEditorInfo != 0;
                 gSubStep = 0;
                 gToolMode = ED_MOVE;
                 break;
@@ -1672,7 +1676,7 @@ void SetEditorCamera(void) {
 
     rot = &gCourse.rot;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
-    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (gPlayer.y + sTotals.unkC);
+    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (gPlayer.y + sTotals.camHeight);
     gRefView[2] = rcos(rot->vy) * 500 / 4096;
     gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;
     gRefView[4] = gPlayer.y;
@@ -1690,28 +1694,28 @@ s32 EditorFreeMove(void) {
     /* MATCHING: non-void with no return keeps the flag test's delay slot
      * a nop. */
     if (gPadTrig & PADLup) {
-        MoveGamePos(0, sTotals.unk4);
+        MoveGamePos(0, sTotals.grid);
     }
     if (gPadTrig & PADLdown) {
-        MoveGamePos(180, sTotals.unk4);
+        MoveGamePos(180, sTotals.grid);
     }
     if (gPadTrig & PADLleft) {
-        MoveGamePos(-90, sTotals.unk4);
+        MoveGamePos(-90, sTotals.grid);
     }
     if (gPadTrig & PADLright) {
-        MoveGamePos(90, sTotals.unk4);
+        MoveGamePos(90, sTotals.grid);
     }
     if (gStickRawY < 0x60) {
-        MoveGamePos(0, sTotals.unk4);
+        MoveGamePos(0, sTotals.grid);
     }
     if (gStickRawY > 0xA0) {
-        MoveGamePos(180, sTotals.unk4);
+        MoveGamePos(180, sTotals.grid);
     }
     if (gStickRawX < 0x60) {
-        MoveGamePos(-90, sTotals.unk4);
+        MoveGamePos(-90, sTotals.grid);
     }
     if (gStickRawX > 0xA0) {
-        MoveGamePos(90, sTotals.unk4);
+        MoveGamePos(90, sTotals.grid);
     }
     gWorldShift[1] = 0;
     gWorldShift[0] = -gPlayer.x;
@@ -1722,22 +1726,22 @@ s32 EditorFreeMove(void) {
     if (gPad & PADR1) {
         gCourse.rot.vy += 11;
     }
-    if (D_800958D8 == 0) {
+    if (gEditorPicking == 0) {
         if (gPad & PADL2) {
-            sTotals.unkC -= 5;
+            sTotals.camHeight -= 5;
         }
         if (gPad & PADR2) {
-            sTotals.unkC += 5;
+            sTotals.camHeight += 5;
         }
-        if (sTotals.unkC > 0) {
-            sTotals.unkC = 0;
+        if (sTotals.camHeight > 0) {
+            sTotals.camHeight = 0;
         }
     }
     if (gPadTrig & PADRleft) {
-        sTotals.unk8 -= sTotals.unk4;
+        sTotals.height -= sTotals.grid;
     }
     if (gPadTrig & PADRdown) {
-        sTotals.unk8 += sTotals.unk4;
+        sTotals.height += sTotals.grid;
     }
     gPlayer.unk3C4 = gPlayer.y;
     cur = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
@@ -1745,8 +1749,8 @@ s32 EditorFreeMove(void) {
     if (cur != -1) {
         gFloorIndex = cur;
     }
-    gPlayer.y = gFloorY[0] + sTotals.unk8;
-    if (D_800958D8 == 0 && (gPadTrig & PADRright) && cur == -1) {
+    gPlayer.y = gFloorY[0] + sTotals.height;
+    if (gEditorPicking == 0 && (gPadTrig & PADRright) && cur == -1) {
         gToolMode = ED_NO_GROUND;
     }
 }
@@ -1765,7 +1769,7 @@ void EditorInsertPoint(void) {
     u32 j;
 
     if (gPadTrig & PADRright) {
-        if (sTotals.unk26 == 200) {
+        if (sTotals.canCount == 200) {
             gToolMode = ED_FULL;
         } else if (gCurBlock == -1) {
             gToolMode = ED_NO_GROUND;
@@ -1825,7 +1829,7 @@ s32 EditorEditPoints(void) {
             e = (Span8 *)gCanSpans;
             e += gCurBlock;
             gSubStep = 1;
-            sTotals.unk22 = e->start;
+            sTotals.canNo = e->start;
             return;
         case 1:
             break;
@@ -1833,7 +1837,7 @@ s32 EditorEditPoints(void) {
             return;
     }
     src = (Pt8 *)gCanPoints;
-    src += sTotals.unk22;
+    src += sTotals.canNo;
     pos.vx = src->x;
     pos.vy = src->y;
     pos.vz = src->z;
@@ -1844,7 +1848,7 @@ s32 EditorEditPoints(void) {
         gToolMode = ED_NONE_HERE;
         return;
     }
-    if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
+    if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
         e = (Span8 *)gCanSpans;
         e += gCurBlock;
         if (e->count == 0) {
@@ -1855,8 +1859,8 @@ s32 EditorEditPoints(void) {
         e += gCurBlock;
         dst = (Pt8 *)gCanPoints;
         src = dst;
-        src += sTotals.unk22 + 1;
-        dst += sTotals.unk22;
+        src += sTotals.canNo + 1;
+        dst += sTotals.canNo;
         for (i = e->start + e->count; i < 199; i++) {
             *dst = *src;
             dst++;
@@ -1873,20 +1877,20 @@ s32 EditorEditPoints(void) {
         }
     }
     if (gPadTrig & PADL2) {
-        sTotals.unk22--;
+        sTotals.canNo--;
     }
     if (gPadTrig & PADR2) {
-        sTotals.unk22++;
+        sTotals.canNo++;
     }
     e = (Span8 *)gCanSpans;
     e += gCurBlock;
-    if (sTotals.unk22 < (u32)e->start) {
-        sTotals.unk22 = e->start;
+    if (sTotals.canNo < (u32)e->start) {
+        sTotals.canNo = e->start;
     }
     /* MATCHING: the compare as start + (count - 1), the store as
      * count - 1 + start; unsigned, as retail's sltu. */
-    if ((u32)e->start + (e->count - 1) < sTotals.unk22) {
-        sTotals.unk22 = (u32)e->count - 1 + e->start;
+    if ((u32)e->start + (e->count - 1) < sTotals.canNo) {
+        sTotals.canNo = (u32)e->count - 1 + e->start;
     }
 }
 
@@ -1902,18 +1906,18 @@ s32 EditorPlaceBox(void) {
     /* MATCHING: non-void with no return value keeps the flag test's delay
      * slot a nop. */
     sizes = sBoxSizes;
-    sTotals.unk16 = 0;
+    sTotals.switchCount = 0;
     for (i = 0; i < 200; i++) {
         if (sSwitches[i].unk0 != -1) {
             sSwitches[i].unk0 = 0;
-            sTotals.unk16++;
+            sTotals.switchCount++;
         }
     }
-    if (sTotals.unk16 == 200) {
+    if (sTotals.switchCount == 200) {
         gToolMode = ED_FULL;
         return;
     }
-    if (sSwitches[sTotals.unk12].unk0 != -1) {
+    if (sSwitches[sTotals.switchNo].unk0 != -1) {
         for (i = 0; i < 200; i++) {
             if (sSwitches[i].unk0 == -1) {
                 break;
@@ -1923,19 +1927,20 @@ s32 EditorPlaceBox(void) {
             gToolMode = ED_FULL;
             return;
         }
-        sTotals.unk12 = i;
+        sTotals.switchNo = i;
     }
-    SetBoxCentred(&sSwitches[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
-    sSwitches[sTotals.unk12].unk50[0] = gPlayer.x;
-    sSwitches[sTotals.unk12].unk50[1] = gPlayer.y;
-    sSwitches[sTotals.unk12].unk50[2] = gPlayer.z;
-    sSwitches[sTotals.unk12].unk0 = -1;
+    SetBoxCentred(&sSwitches[sTotals.switchNo], sizes.s[sTotals.switchType].w,
+                  sizes.s[sTotals.switchType].d);
+    sSwitches[sTotals.switchNo].unk50[0] = gPlayer.x;
+    sSwitches[sTotals.switchNo].unk50[1] = gPlayer.y;
+    sSwitches[sTotals.switchNo].unk50[2] = gPlayer.z;
+    sSwitches[sTotals.switchNo].unk0 = -1;
     if (gPadTrig & PADRright) {
         if (gCurBlock == -1) {
             gToolMode = ED_NO_GROUND;
             return;
         }
-        sSwitches[sTotals.unk12].unk0 = 0;
+        sSwitches[sTotals.switchNo].unk0 = 0;
         for (i = 0; i < 200; i++) {
             if (sSwitches[i].unk0 == -1) {
                 break;
@@ -1945,7 +1950,7 @@ s32 EditorPlaceBox(void) {
             gToolMode = ED_FULL;
             return;
         }
-        sTotals.unk12 = i;
+        sTotals.switchNo = i;
     }
 }
 
@@ -1967,16 +1972,16 @@ s32 EditorPickBox(void) {
     /* MATCHING: non-void with no return keeps the last test's delay slot a
      * nop; the counter cleared before the count, as retail's prologue. */
     i = 0;
-    sTotals.unk16 = 0;
+    sTotals.switchCount = 0;
     for (; i < 200; i++) {
         if (sSwitches[i].unk0 != -1) {
             sSwitches[i].unk0 = 0;
-            sTotals.unk16++;
+            sTotals.switchCount++;
         }
     }
     switch (gSubStep) {
         case 0:
-            if (sTotals.unk16 == 0) {
+            if (sTotals.switchCount == 0) {
                 gToolMode = ED_EMPTY;
                 break;
             }
@@ -1994,7 +1999,7 @@ s32 EditorPickBox(void) {
                     at.vz = r->unk50[2];
                     d = DistanceSquared(&pos, &at);
                     if (d < best) {
-                        sTotals.unk12 = i;
+                        sTotals.switchNo = i;
                         best = d;
                     }
                 }
@@ -2009,33 +2014,33 @@ s32 EditorPickBox(void) {
             /* MATCHING: the table base in the record pointer first; indexing
              * sSwitches directly builds the totals' address first. */
             r = sSwitches;
-            sel.vx = r[sTotals.unk12].unk50[0];
-            sel.vy = r[sTotals.unk12].unk50[1];
-            sel.vz = r[sTotals.unk12].unk50[2];
+            sel.vx = r[sTotals.switchNo].unk50[0];
+            sel.vy = r[sTotals.switchNo].unk50[1];
+            sel.vz = r[sTotals.switchNo].unk50[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
-                sSwitches[sTotals.unk12].unk0 = -1;
+            if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
+                sSwitches[sTotals.switchNo].unk0 = -1;
                 gSubStep = 0;
                 break;
             }
             if (gPadTrig & PADL2) {
-                if (--sTotals.unk12 >= 200) {
-                    sTotals.unk12 = 199;
+                if (--sTotals.switchNo >= 200) {
+                    sTotals.switchNo = 199;
                 }
-                while (sSwitches[sTotals.unk12].unk0 == -1) {
-                    if (--sTotals.unk12 >= 200) {
-                        sTotals.unk12 = 199;
+                while (sSwitches[sTotals.switchNo].unk0 == -1) {
+                    if (--sTotals.switchNo >= 200) {
+                        sTotals.switchNo = 199;
                     }
                 }
             }
             if (gPadTrig & PADR2) {
                 /* the first step up clamps to 199, the later ones wrap to 0 */
-                if (++sTotals.unk12 >= 200) {
-                    sTotals.unk12 = 199;
+                if (++sTotals.switchNo >= 200) {
+                    sTotals.switchNo = 199;
                 }
-                while (sSwitches[sTotals.unk12].unk0 == -1) {
-                    if (++sTotals.unk12 >= 200) {
-                        sTotals.unk12 = 0;
+                while (sSwitches[sTotals.switchNo].unk0 == -1) {
+                    if (++sTotals.switchNo >= 200) {
+                        sTotals.switchNo = 0;
                     }
                 }
             }
@@ -2052,11 +2057,11 @@ void EditorPlaceRecords(void) {
     EditorTrap *w;
 
     recs = (EditorTrap *)gTraps;
-    n = sTotals.unk18;
-    sTotals.unk1A = 0;
+    n = sTotals.trapNo;
+    sTotals.trapCount = 0;
     for (i = 0; i < 200; i++) {
         if (recs[i].unk36 != -1) {
-            sTotals.unk1A++;
+            sTotals.trapCount++;
         }
     }
     if (gPadTrig & PADRright) {
@@ -2076,29 +2081,29 @@ void EditorPlaceRecords(void) {
             w->unk26 = 0;
             w->unk28 = gCurBlock;
             w->unk3C = gSection;
-            w->unk42 = sTotals.unk68;
-            w->unk43 = sTotals.unk69;
+            w->unk42 = sTotals.trapType;
+            w->unk43 = sTotals.trapAct;
             if (i == 0) {
                 /* MATCHING: stored through the table base, not w. */
-                gPlaceQueue[0].unk38 = sTotals.unk1C;
+                gPlaceQueue[0].unk38 = sTotals.trapModel;
             } else {
                 w->unk38 = -1;
             }
             ((EditorTrap *)gTraps)[(s16)n] = *w;
-            ((EditorTrap *)gTraps)[(s16)n].unk34 = sTotals.unk1E;
+            ((EditorTrap *)gTraps)[(s16)n].unk34 = sTotals.trapSwitch;
             n++;
-            sTotals.unk18 = n;
+            sTotals.trapNo = n;
         }
         gSubStep = 0;
-        if (D_800959D8 == 1) {
-            D_800959D8 = 0;
+        if (gEditorInfo == 1) {
+            gEditorInfo = 0;
         }
     }
 }
 
 /** @brief Runs the menu editor; on a line change loads the new line's
  *         value and limit, else stores the edited value back; then steps
- *         the angle in sTotals.unk20 on flag bits 3 and 2.
+ *         the angle in sTotals.trapAngle on flag bits 3 and 2.
  *  @return nothing; the value is undefined. */
 s32 EditorEditRecordValues(void) {
     s16 line;
@@ -2116,52 +2121,52 @@ s32 EditorEditRecordValues(void) {
         switch (gMenuLine) {
             case 0:
                 gEditMax = 200;
-                gEditValue = sTotals.unk18;
+                gEditValue = sTotals.trapNo;
                 break;
             case 1:
                 gEditMax = gSectionCount;
-                gEditValue = sTotals.unk1C;
+                gEditValue = sTotals.trapModel;
                 break;
             case 2:
                 gEditMax = 200;
-                gEditValue = sTotals.unk1E;
+                gEditValue = sTotals.trapSwitch;
                 break;
             case 3:
                 gEditMax = 0x100;
-                gEditValue = sTotals.unk68;
+                gEditValue = sTotals.trapType;
                 break;
             case 4:
                 gEditMax = 0x100;
-                gEditValue = sTotals.unk69;
+                gEditValue = sTotals.trapAct;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                sTotals.unk18 = gEditValue;
+                sTotals.trapNo = gEditValue;
                 break;
             case 1:
-                sTotals.unk1C = gEditValue;
+                sTotals.trapModel = gEditValue;
                 break;
             case 2:
-                sTotals.unk1E = gEditValue;
+                sTotals.trapSwitch = gEditValue;
                 break;
             case 3:
-                sTotals.unk68 = gEditValue;
+                sTotals.trapType = gEditValue;
                 break;
             case 4:
-                sTotals.unk69 = gEditValue;
+                sTotals.trapAct = gEditValue;
                 break;
         }
     }
     if (gPad & PADR1) {
-        if (++sTotals.unk20 >= 360) {
-            sTotals.unk20 = 0;
+        if (++sTotals.trapAngle >= 360) {
+            sTotals.trapAngle = 0;
         }
     }
     if (gPad & PADL1) {
-        if (--sTotals.unk20 < 0) {
-            sTotals.unk20 = 359;
+        if (--sTotals.trapAngle < 0) {
+            sTotals.trapAngle = 359;
         }
     }
 }
@@ -2185,8 +2190,8 @@ s32 EditorArrangeRecords(void) {
             gPlaceQueue[0].unk0[0] = gPlayer.x;
             gPlaceQueue[0].unk0[1] = gPlayer.y;
             gPlaceQueue[0].unk0[2] = gPlayer.z;
-            gPlaceQueue[0].unk1A = (sTotals.unk20 << 12) / 360;
-            gPlaceCount = CallStageHook(sTotals.unk1C, gPlaceQueue, gPlaceQueue);
+            gPlaceQueue[0].unk1A = (sTotals.trapAngle << 12) / 360;
+            gPlaceCount = CallStageHook(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
             gSubStep++;
             /* fall through */
         case 1:
@@ -2194,7 +2199,7 @@ s32 EditorArrangeRecords(void) {
             w->unk0[0] = gPlayer.x;
             w->unk0[1] = gPlayer.y;
             w->unk0[2] = gPlayer.z;
-            w->unk1A = (sTotals.unk20 << 12) / 360;
+            w->unk1A = (sTotals.trapAngle << 12) / 360;
             if (gCurBlock == -1) {
                 gFloorY[1] = 0;
                 gFloorY[2] = -0x1000;
@@ -2240,15 +2245,15 @@ s32 EditorPickRecord(void) {
     /* MATCHING: non-void with no return keeps the last test's delay slot a
      * nop; the counter cleared before the count, as retail's prologue. */
     i = 0;
-    sTotals.unk1A = 0;
+    sTotals.trapCount = 0;
     for (; i < 200; i++) {
         if (((EditorTrap *)gTraps)[i].unk36 != -1) {
-            sTotals.unk1A++;
+            sTotals.trapCount++;
         }
     }
     switch (gSubStep) {
         case 0:
-            if (sTotals.unk1A == 0) {
+            if (sTotals.trapCount == 0) {
                 gToolMode = ED_EMPTY;
                 break;
             }
@@ -2266,7 +2271,7 @@ s32 EditorPickRecord(void) {
                     at.vz = r->unk0[2];
                     d = DistanceSquared(&pos, &at);
                     if (d < best) {
-                        sTotals.unk18 = i;
+                        sTotals.trapNo = i;
                         best = d;
                     }
                 }
@@ -2278,33 +2283,33 @@ s32 EditorPickRecord(void) {
             }
             break;
         case 1:
-            sTotals.unk1E = ((EditorTrap *)gTraps)[sTotals.unk18].unk34;
-            sel.vx = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[0];
-            sel.vy = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[1];
-            sel.vz = ((EditorTrap *)gTraps)[sTotals.unk18].unk0[2];
+            sTotals.trapSwitch = ((EditorTrap *)gTraps)[sTotals.trapNo].unk34;
+            sel.vx = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[0];
+            sel.vy = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[1];
+            sel.vz = ((EditorTrap *)gTraps)[sTotals.trapNo].unk0[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
+            if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
-                ((EditorTrap *)gTraps)[sTotals.unk18].unk36 = -1;
+                ((EditorTrap *)gTraps)[sTotals.trapNo].unk36 = -1;
             }
             if (gPadTrig & PADL2) {
-                if (--sTotals.unk18 >= 200) {
-                    sTotals.unk18 = 199;
+                if (--sTotals.trapNo >= 200) {
+                    sTotals.trapNo = 199;
                 }
-                while (((EditorTrap *)gTraps)[sTotals.unk18].unk36 == -1) {
-                    if (--sTotals.unk18 >= 200) {
-                        sTotals.unk18 = 199;
+                while (((EditorTrap *)gTraps)[sTotals.trapNo].unk36 == -1) {
+                    if (--sTotals.trapNo >= 200) {
+                        sTotals.trapNo = 199;
                     }
                 }
             }
             if (gPadTrig & PADR2) {
                 /* the first step up clamps to 199, the later ones wrap to 0 */
-                if (++sTotals.unk18 >= 200) {
-                    sTotals.unk18 = 199;
+                if (++sTotals.trapNo >= 200) {
+                    sTotals.trapNo = 199;
                 }
-                while (((EditorTrap *)gTraps)[sTotals.unk18].unk36 == -1) {
-                    if (++sTotals.unk18 >= 200) {
-                        sTotals.unk18 = 0;
+                while (((EditorTrap *)gTraps)[sTotals.trapNo].unk36 == -1) {
+                    if (++sTotals.trapNo >= 200) {
+                        sTotals.trapNo = 0;
                     }
                 }
             }
@@ -2329,27 +2334,27 @@ void EditorEditSpriteValues(void) {
         switch (gMenuLine) {
             case 0:
                 gEditMax = 100;
-                gEditValue = sTotals.unk28;
+                gEditValue = sTotals.spriteNo;
                 break;
             case 1:
                 gEditMax = 0x200;
-                gEditValue = sTotals.unk2C;
+                gEditValue = sTotals.spriteModel;
                 break;
             case 2:
                 gEditMax = 200;
-                gEditValue = sTotals.unk2A;
+                gEditValue = sTotals.spriteSwitch;
                 break;
             case 3:
                 gEditMax = 1000;
-                gEditValue = sTotals.unk2E;
+                gEditValue = sTotals.spriteSize;
                 break;
             case 4:
                 gEditMax = 2;
-                gEditValue = sTotals.unk32;
+                gEditValue = sTotals.spriteHit;
                 break;
             case 5:
                 gEditMax = 2;
-                gEditValue = sTotals.unk34;
+                gEditValue = sTotals.spriteFlip;
                 break;
             case 6:
                 gEditMax = 3;
@@ -2357,77 +2362,77 @@ void EditorEditSpriteValues(void) {
                 break;
             case 7:
                 gEditMax = 2;
-                gEditValue = sTotals.unk6C;
+                gEditValue = sTotals.spriteWalk;
                 break;
             case 8:
                 gEditMax = 5;
-                gEditValue = sTotals.unk6D;
+                gEditValue = sTotals.spriteSe;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                sTotals.unk28 = gEditValue;
+                sTotals.spriteNo = gEditValue;
                 break;
             case 1:
-                sTotals.unk2C = gEditValue;
+                sTotals.spriteModel = gEditValue;
                 break;
             case 2:
-                sTotals.unk2A = gEditValue;
+                sTotals.spriteSwitch = gEditValue;
                 break;
             case 3:
-                sTotals.unk2E = gEditValue;
+                sTotals.spriteSize = gEditValue;
                 break;
             case 4:
-                sTotals.unk32 = gEditValue;
+                sTotals.spriteHit = gEditValue;
                 break;
             case 5:
-                sTotals.unk34 = gEditValue;
+                sTotals.spriteFlip = gEditValue;
                 break;
             case 6:
                 sSpriteFlags = gEditValue;
                 break;
             case 7:
-                sTotals.unk6C = gEditValue;
+                sTotals.spriteWalk = gEditValue;
                 break;
             case 8:
-                sTotals.unk6D = gEditValue;
+                sTotals.spriteSe = gEditValue;
                 break;
         }
     }
     if (gPad & PADR1) {
-        if (++sTotals.unk6A >= 360) {
-            sTotals.unk6A = 0;
+        if (++sTotals.spriteAngle >= 360) {
+            sTotals.spriteAngle = 0;
         }
     }
     if (gPad & PADL1) {
-        if (--sTotals.unk6A < 0) {
-            sTotals.unk6A = 359;
+        if (--sTotals.spriteAngle < 0) {
+            sTotals.spriteAngle = 359;
         }
     }
-    if (sTotals.unk6C != 0) {
-        DrawHeadingLine((VECTOR *)&gPlayer.x, sTotals.unk6A);
+    if (sTotals.spriteWalk != 0) {
+        DrawHeadingLine((VECTOR *)&gPlayer.x, sTotals.spriteAngle);
     }
     sSpriteTemplate.unk4[0] = gPlayer.x;
     sSpriteTemplate.unk4[1] = gPlayer.y;
     sSpriteTemplate.unk4[2] = gPlayer.z;
-    GetQuad16(sTotals.unk2C + 30, &e);
+    GetQuad16(sTotals.spriteModel + 30, &e);
     /* MATCHING: each offset in its own s32 local; inline, the sum is
      * narrowed to a halfword add, and one shared local merges the arms. */
-    if (sTotals.unk34 == 0) {
+    if (sTotals.spriteFlip == 0) {
         h0 = e.b[6] - 500;
-        sSpriteTemplate.unk1C = sTotals.unk2E + h0;
+        sSpriteTemplate.unk1C = sTotals.spriteSize + h0;
     } else {
         h1 = e.b[6] - 500;
-        sSpriteTemplate.unk1C = -(sTotals.unk2E + h1);
+        sSpriteTemplate.unk1C = -(sTotals.spriteSize + h1);
     }
     h2 = e.b[7] - 500;
-    sSpriteTemplate.unk1E = sTotals.unk2E + h2;
+    sSpriteTemplate.unk1E = sTotals.spriteSize + h2;
     sSpriteTemplate.unk20 = sSpriteTemplate.unk1C;
-    if (sTotals.unk32 == 0) {
-        DrawObjectSprite(sTotals.unk2C + 30, &sSpriteTemplate);
+    if (sTotals.spriteHit == 0) {
+        DrawObjectSprite(sTotals.spriteModel + 30, &sSpriteTemplate);
     } else {
-        StepSprite(sTotals.unk2C + 30, &sSpriteTemplate);
+        StepSprite(sTotals.spriteModel + 30, &sSpriteTemplate);
     }
 }
 
@@ -2445,50 +2450,50 @@ s32 EditorPlaceSprite(void) {
     sSpriteTemplate.unk4[0] = gPlayer.x;
     sSpriteTemplate.unk4[1] = gPlayer.y;
     sSpriteTemplate.unk4[2] = gPlayer.z;
-    if (sTotals.unk32 == 0) {
-        DrawObjectSprite(sTotals.unk2C + 30, &sSpriteTemplate);
+    if (sTotals.spriteHit == 0) {
+        DrawObjectSprite(sTotals.spriteModel + 30, &sSpriteTemplate);
     } else {
-        StepSprite(sTotals.unk2C + 30, &sSpriteTemplate);
+        StepSprite(sTotals.spriteModel + 30, &sSpriteTemplate);
     }
     /* MATCHING: the counter is cleared before the store, so each arm above
      * ends with it (one in a jump's delay slot). */
     i = 0;
-    sTotals.unk30 = 0;
+    sTotals.spriteCount = 0;
     for (; i < 100; i++) {
         if (gStageSprites[i].unk0 != -1) {
-            sTotals.unk30++;
+            sTotals.spriteCount++;
         }
     }
     if (gPadTrig & PADRright) {
-        if (sTotals.unk30 == 100) {
+        if (sTotals.spriteCount == 100) {
             gToolMode = ED_FULL;
         } else {
-            sSpriteTemplate.unk2C = sTotals.unk2A;
-            sSpriteTemplate.unk0 = sTotals.unk2C + 30;
+            sSpriteTemplate.unk2C = sTotals.spriteSwitch;
+            sSpriteTemplate.unk0 = sTotals.spriteModel + 30;
             sSpriteTemplate.unk10[0] = sSpriteTemplate.unk4[0];
             sSpriteTemplate.unk10[1] = sSpriteTemplate.unk4[1];
             sSpriteTemplate.unk10[2] = sSpriteTemplate.unk4[2];
             /* MATCHING: an s32 local assigned after the copy, and the flag
              * byte or-ed in by a second store. */
-            f = sTotals.unk32 << 7;
+            f = sTotals.spriteHit << 7;
             sSpriteTemplate.unk26 = f;
             sSpriteTemplate.unk26 |= sSpriteFlags;
-            sSpriteTemplate.unk27 = sTotals.unk6C;
-            sSpriteTemplate.unk28 = sTotals.unk6D;
-            sSpriteTemplate.unk2A = sTotals.unk6A;
+            sSpriteTemplate.unk27 = sTotals.spriteWalk;
+            sSpriteTemplate.unk28 = sTotals.spriteSe;
+            sSpriteTemplate.unk2A = sTotals.spriteAngle;
             sSpriteTemplate.unk30 = gSection;
             sSpriteTemplate.unk34 = gCurBlock;
-            gStageSprites[sTotals.unk28] = sSpriteTemplate;
+            gStageSprites[sTotals.spriteNo] = sSpriteTemplate;
             /* MATCHING: the full-table store inside the loop, so its 8 is
              * hoisted and the block is not merged with the one above. */
             i = 0;
             while (1) {
-                if (gStageSprites[sTotals.unk28].unk0 == -1) {
+                if (gStageSprites[sTotals.spriteNo].unk0 == -1) {
                     goto found;
                 }
-                sTotals.unk28++;
-                if (sTotals.unk28 == 100) {
-                    sTotals.unk28 = 0;
+                sTotals.spriteNo++;
+                if (sTotals.spriteNo == 100) {
+                    sTotals.spriteNo = 0;
                 }
                 if (++i == 100) {
                     gToolMode = ED_FULL;
@@ -2496,22 +2501,22 @@ s32 EditorPlaceSprite(void) {
                 }
             }
         found:
-            if (D_800959D8 == 1) {
-                D_800959D8 = 0;
+            if (gEditorInfo == 1) {
+                gEditorInfo = 0;
             }
         }
     }
 }
 
 /** @brief Runs one of two handlers on every used StageSprite whose unk2C equals
- *         sTotals.unk2A, picked by bit 7 of its unk26. */
+ *         sTotals.spriteSwitch, picked by bit 7 of its unk26. */
 void EditorRunSprites(void) {
     u32 i;
     StageSprite *r;
 
     for (i = 0; i < 100; i++) {
         r = &gStageSprites[i];
-        if (r->unk0 != -1 && sTotals.unk2A == r->unk2C) {
+        if (r->unk0 != -1 && sTotals.spriteSwitch == r->unk2C) {
             if (r->unk26 & 0x80) {
                 StepSprite(r->unk0, r);
             } else {
@@ -2540,15 +2545,15 @@ s32 EditorPickSprite(void) {
     /* MATCHING: non-void with no return keeps the last test's delay slot a
      * nop; the counter cleared before the count, as retail's prologue. */
     i = 0;
-    sTotals.unk30 = 0;
+    sTotals.spriteCount = 0;
     for (; i < 100; i++) {
         if (gStageSprites[i].unk0 != -1) {
-            sTotals.unk30++;
+            sTotals.spriteCount++;
         }
     }
     switch (gSubStep) {
         case 0:
-            if (sTotals.unk30 == 0) {
+            if (sTotals.spriteCount == 0) {
                 gToolMode = ED_EMPTY;
                 break;
             }
@@ -2566,7 +2571,7 @@ s32 EditorPickSprite(void) {
                     at.vz = r->unk4[2];
                     d = DistanceSquared(&pos, &at);
                     if (d < best) {
-                        sTotals.unk28 = i;
+                        sTotals.spriteNo = i;
                         best = d;
                     }
                 }
@@ -2578,33 +2583,33 @@ s32 EditorPickSprite(void) {
             }
             break;
         case 1:
-            sTotals.unk2A = gStageSprites[sTotals.unk28].unk2C;
-            sel.vx = gStageSprites[sTotals.unk28].unk4[0];
-            sel.vy = gStageSprites[sTotals.unk28].unk4[1];
-            sel.vz = gStageSprites[sTotals.unk28].unk4[2];
+            sTotals.spriteSwitch = gStageSprites[sTotals.spriteNo].unk2C;
+            sel.vx = gStageSprites[sTotals.spriteNo].unk4[0];
+            sel.vy = gStageSprites[sTotals.spriteNo].unk4[1];
+            sel.vz = gStageSprites[sTotals.spriteNo].unk4[2];
             DrawPin(&sel);
-            if (D_800959D8 != 1 && (gPadTrig & PADRright)) {
+            if (gEditorInfo != 1 && (gPadTrig & PADRright)) {
                 gSubStep = 0;
-                gStageSprites[sTotals.unk28].unk0 = -1;
+                gStageSprites[sTotals.spriteNo].unk0 = -1;
             }
             if (gPadTrig & PADL2) {
-                if (--sTotals.unk28 >= 100) {
-                    sTotals.unk28 = 99;
+                if (--sTotals.spriteNo >= 100) {
+                    sTotals.spriteNo = 99;
                 }
-                while (gStageSprites[sTotals.unk28].unk0 == -1) {
-                    if (--sTotals.unk28 >= 100) {
-                        sTotals.unk28 = 99;
+                while (gStageSprites[sTotals.spriteNo].unk0 == -1) {
+                    if (--sTotals.spriteNo >= 100) {
+                        sTotals.spriteNo = 99;
                     }
                 }
             }
             if (gPadTrig & PADR2) {
                 /* the first step up clamps to 99, the later ones wrap to 0 */
-                if (++sTotals.unk28 >= 100) {
-                    sTotals.unk28 = 99;
+                if (++sTotals.spriteNo >= 100) {
+                    sTotals.spriteNo = 99;
                 }
-                while (gStageSprites[sTotals.unk28].unk0 == -1) {
-                    if (++sTotals.unk28 >= 100) {
-                        sTotals.unk28 = 0;
+                while (gStageSprites[sTotals.spriteNo].unk0 == -1) {
+                    if (++sTotals.spriteNo >= 100) {
+                        sTotals.spriteNo = 0;
                     }
                 }
             }
@@ -3344,15 +3349,15 @@ void MoveGamePos(s32 deg, s32 dist) {
     gPlayer.z -= rcos(rot->vy + ang) * dist >> 12;
 }
 
-/** @brief Totals unk4 of the current block's entries into sTotals.unk26. */
+/** @brief Totals unk4 of the current block's entries into sTotals.canCount. */
 void TotalBlockEntries(void) {
     s32 i;
     Ent8 *e;
 
     e = (Ent8 *)gCanSpans;
-    sTotals.unk26 = 0;
+    sTotals.canCount = 0;
     for (i = 0; i < gCanSpanCount; i++) {
-        sTotals.unk26 += e->unk4;
+        sTotals.canCount += e->unk4;
         e++;
     }
 }
@@ -3376,26 +3381,26 @@ void RunValueMenu(void) {
         switch (gMenuLine) {
             case 0:
                 gEditMax = 200;
-                gEditValue = sTotals.unk12;
+                gEditValue = sTotals.switchNo;
                 break;
             case 1:
                 gEditMax = 3;
-                gEditValue = sTotals.unk14;
+                gEditValue = sTotals.switchType;
                 break;
         }
     } else {
         switch (old) {
             case 0:
-                sTotals.unk12 = gEditValue;
+                sTotals.switchNo = gEditValue;
                 break;
             case 1:
-                sTotals.unk14 = gEditValue;
+                sTotals.switchType = gEditValue;
                 break;
         }
     }
 }
 
-/** @brief Applies every used Trap whose unk34 equals sTotals.unk1E to the
+/** @brief Applies every used Trap whose unk34 equals sTotals.trapSwitch to the
  *         ObjectModel its unk36 names. */
 void ApplyRecordsToEntries(void) {
     u32 i;
@@ -3403,7 +3408,7 @@ void ApplyRecordsToEntries(void) {
 
     for (i = 0; i < 200; i++) {
         r = &((Trap *)gTraps)[i];
-        if (r->unk36 != -1 && sTotals.unk1E == r->unk34) {
+        if (r->unk36 != -1 && sTotals.trapSwitch == r->unk34) {
             UpdateObjectEntry(&gObjectModels[r->unk36], r);
         }
     }

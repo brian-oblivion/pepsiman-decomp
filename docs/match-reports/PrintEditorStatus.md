@@ -179,9 +179,9 @@ s32 PrintEditorStatus(void) {
     FntPrint(sEdColorWhite);
     SortSemiQuad(0x421, -160, -120, 160, -120, 160, -70, -160, -70, 0);
     FntPrint(sEdNewline);
-    if (D_800959D8 == 1) {
+    if (gEditorInfo == 1) {
         FntPrint(sEdInfoText);
-    } else if (D_800958D8 == 1) {
+    } else if (gEditorPicking == 1) {
         if ((gFrameCount & 0xF) < 8) {
             FntPrint(sEdColorWhite);
         } else {
@@ -310,7 +310,7 @@ s32 PrintEditorStatus(void) {
         case 4:
             PrintTabs(4);
             FntPrint(sEdTrapSelModeText);
-            if (D_800959D8 == 0) {
+            if (gEditorInfo == 0) {
                 FntPrint(sEdNewlines4);
             }
             PrintEditorCaption();

@@ -8,7 +8,7 @@ Unit `src/editor.c`. Counts the live records (`unk36 != -1`) of the
 `sTotals.unk18` (stamping position copy, entry, `gSection`, two bytes of
 the tool block, and `unk38` = `sTotals.unk1C` for the first, -1 for the
 rest), with error 8 in `gToolMode` when the table is full; then clears
-`gSubStep` and a set `D_800959D8`. Fourth build matched.
+`gSubStep` and a set `gEditorInfo`. Fourth build matched.
 
 ## Shapes read from retail
 
@@ -82,8 +82,8 @@ void EditorPlaceRecords(void) {
             sTotals.unk18 = n;
         }
         gSubStep = 0;
-        if (D_800959D8 == 1) {
-            D_800959D8 = 0;
+        if (gEditorInfo == 1) {
+            gEditorInfo = 0;
         }
     }
 }

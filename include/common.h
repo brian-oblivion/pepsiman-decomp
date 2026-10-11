@@ -316,7 +316,7 @@ extern s32 gModelTmd;         /**< the mapped model data's TMD address; 2 units 
 extern s8 gCdLoadState;       /**< UpdateCdLoad's step; 6 when every file has been read */
 extern u8 gStereo;            /**< nonzero for stereo: the CD mix has no cross-feed; 2 units */
 extern s16 gMenuChoice;       /**< what RunMenu returned for the card menus */
-extern u16 gToolCardStep;     /**< 2 units, 4 functions */
+extern u16 gToolCardStep;     /**< the card data screen's step, a CardStep */
 extern s16 gToolSlot;         /**< 2 units, 4 functions */
 extern u16 D_80095A14;        /**< 3 units, 3 functions; never loaded, sign unknown */
 extern s32 gHitQuads;         /**< 2 units, 7 functions */
@@ -485,6 +485,52 @@ void PrintSaveLoad(void);
  *  @return the highlighted line when flag bit 5 is set, else -1. */
 s32 RunMenu(s16 n);
 
+/** @brief A memory card operation, RunCardOp1's and RunCardOp2's `mode`. */
+enum CardOp {
+    CARD_OP_PROBE = -1,  /**< probes the card and stops */
+    CARD_OP_READ = 0,    /**< reads the save file */
+    CARD_OP_REWRITE = 1, /**< rewrites the save file in place */
+    CARD_OP_CREATE = 2,  /**< creates the save file and writes it */
+    CARD_OP_FORMAT = 3,  /**< formats the card */
+    CARD_OP_ERASE = 4,   /**< erases the save file */
+    CARD_OP_CHECK = 5    /**< tests for the file, then for room for it */
+};
+
+/** @brief What RunCardOp1 and RunCardOp2 return. */
+enum CardResult {
+    CARD_PROBE_FAILED = -2, /**< the card answered with an error 16 times */
+    CARD_FAILED = -1,       /**< a file step failed; gCardError says which */
+    CARD_OK = 0,            /**< done */
+    CARD_FULL = 1,          /**< no room for the save file */
+    CARD_ABSENT = 2,        /**< no card answered */
+    CARD_NO_FILE = 3,       /**< the card has no save file */
+    CARD_UNFORMATTED = 4    /**< a new card, not formatted */
+};
+
+/** @brief The card data screen's steps, gToolCardStep: the editor's and
+ *         the hit-data tool's share them. */
+enum CardStep {
+    CS_CHECK = 0,        /**< reads the card */
+    CS_MODE_SELECT = 1,  /**< SAVE or LOAD */
+    CS_SLOT_SELECT = 2,  /**< one of the three slots */
+    CS_SAVE_CHECK = 3,   /**< checks the slot before writing it */
+    CS_SAVE_ASK = 4,     /**< "OVER WRITE OK ?" */
+    CS_LOAD_CHECK = 5,   /**< checks the slot before loading it */
+    CS_LOAD_ASK = 6,     /**< "LOAD OK ?" */
+    CS_NO_DATA = 7,      /**< "CAN NOT OPEN DATA" */
+    CS_WRITE = 8,        /**< stores the slot and rewrites the file */
+    CS_LOAD = 9,         /**< restores the slot */
+    CS_COMPLETE = 10,    /**< "COMPLATE" */
+    CS_ERROR = 11,       /**< "ERROR" */
+    CS_NO_MEMORY = 12,   /**< "NOT ENOUGH MEMORY"; no way out */
+    CS_NO_CARD = 13,     /**< "NO CONNECT CARD" */
+    CS_NO_FILE = 14,     /**< "NO FILE", "CREATE NEW FILE ?" */
+    CS_UNFORMATTED = 15, /**< "UN FORMAT", "FORMAT OK ?" */
+    CS_CREATE = 16,      /**< creates the save file */
+    CS_FORMAT = 17,      /**< formats the card */
+    CS_EXIT = 18         /**< leaves the data screen */
+};
+
 /** @brief Defined in card. */
 void OpenCardEvents(void);
 
@@ -493,8 +539,8 @@ void CloseCardEvents(void);
 
 /** @brief Defined in card: runs one memory card operation on the
  *         second save file.
- *  @param mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks
- *  @return 0 or -1 */
+ *  @param mode a CardOp
+ *  @return a CardResult */
 s32 RunCardOp2(s16 mode);
 
 /** @brief Defined in collision: tests a 0x4C-byte record.

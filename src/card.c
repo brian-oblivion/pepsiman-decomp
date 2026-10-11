@@ -25,10 +25,35 @@ typedef struct {
     BlockCount blocks; /**< size in 8 KiB blocks */
 } CardFile;
 
+/** @brief A memory card event, as WaitCardSwEvent and WaitCardHwEvent
+ *         return it: which of the four events of a kind fired. */
+enum CardEvent {
+    CARD_EV_IOE = 0,     /**< the operation completed */
+    CARD_EV_ERROR = 1,   /**< the card reported an error */
+    CARD_EV_TIMEOUT = 2, /**< no card answered */
+    CARD_EV_NEW = 3      /**< a new card: unformatted, or swapped */
+};
+
+/** @brief The file step that failed, gCardError. */
+enum CardError {
+    CARD_ERR_NONE = 0,
+    CARD_ERR_READ_OPEN = 1,     /**< opening the file to read it */
+    CARD_ERR_READ_SEEK = 2,     /**< seeking to its start */
+    CARD_ERR_READ = 3,          /**< reading it */
+    CARD_ERR_REWRITE_OPEN = 5,  /**< opening the file to rewrite it */
+    CARD_ERR_REWRITE_SEEK = 6,  /**< seeking to its start */
+    CARD_ERR_REWRITE = 7,       /**< writing it */
+    CARD_ERR_CREATE = 8,        /**< creating the file */
+    CARD_ERR_CREATE_OPEN = 9,   /**< opening the new file */
+    CARD_ERR_CREATE_WRITE = 10, /**< writing it */
+    CARD_ERR_FORMAT = 11,       /**< formatting the card */
+    CARD_ERR_ERASE = 12         /**< erasing the file */
+};
+
 extern CardFile gCardFiles[];
-extern u16 gCardStatus;
+extern u16 gCardStatus; /**< ProbeCard's CardEvent; 0xFFFF when the directory scan finds no file */
 extern s32 gCardFileCount;   /**< number of records in use */
-extern s16 gCardError;       /**< 11 after a failed format, 12 after a failed erase */
+extern s16 gCardError;       /**< the step that failed, a CardError */
 extern char *gCardFileName;  /**< name of the file last erased */
 extern char sCardDevice[];   /**< "bu10:" */
 extern char sToolCardFile[]; /**< "bu10:BISLPS-12345PEPTOOL" */
@@ -138,7 +163,7 @@ void SetHitBanks(BankFile *a, BankFile *b) {
     ApplyHitQuads();
 }
 
-/** @brief Runs one memory card operation on the first save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
+/** @brief Runs one memory card operation, a CardOp, on the first save file; returns a CardResult. */
 s32 RunCardOp1(s16 mode) {
     s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
     s32 ret;
@@ -146,66 +171,66 @@ s32 RunCardOp1(s16 mode) {
     u16 sum;
     s32 off; /* MATCHING: a constant offset is split into %hi + low; a register one is not */
 
-    ret = 0;
+    ret = CARD_OK;
     retry = 0;
-    gCardStatus = 0;
-    gCardError = 0;
+    gCardStatus = CARD_EV_IOE;
+    gCardError = CARD_ERR_NONE;
     sSaveData = (u8 *)0x8018D000;
     gSaveBuf = (u8 *)0x8016D000;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
     gCardStatus = ProbeCard();
     switch (gCardStatus) {
-        case 0: /* MATCHING: the empty case gives retail's compare tree */
+        case CARD_EV_IOE: /* MATCHING: the empty case gives retail's compare tree */
             break;
-        case 1:
+        case CARD_EV_ERROR:
             if (retry < 16) {
                 retry++;
                 goto again;
             }
-            ret = -2;
+            ret = CARD_PROBE_FAILED;
             goto end;
-        case 2:
+        case CARD_EV_TIMEOUT:
             gCardFileCount = 0;
-            ret = 2;
+            ret = CARD_ABSENT;
             goto end;
-        case 3:
+        case CARD_EV_NEW:
             gCardFileCount = 0;
-            ret = 4;
-            if (mode == 3) {
+            ret = CARD_UNFORMATTED;
+            if (mode == CARD_OP_FORMAT) {
                 goto format;
             }
             goto end;
     }
-    if (mode == -1) {
+    if (mode == CARD_OP_PROBE) {
         goto end;
     }
     ScanCardFiles();
-    if (mode == 5) {
+    if (mode == CARD_OP_CHECK) {
         if (FindSave1() != -1) {
-            ret = 0;
+            ret = CARD_OK;
         } else {
             ret = CheckSave1Space() == -1;
         }
-    } else if (mode == 0 || mode == 1 || mode == 4) {
+    } else if (mode == CARD_OP_READ || mode == CARD_OP_REWRITE || mode == CARD_OP_ERASE) {
         if (FindSave1() == -1) {
-            ret = 3;
+            ret = CARD_NO_FILE;
             goto end;
         }
         switch (mode) {
-            case 0:
+            case CARD_OP_READ:
                 ret = ReadSave1();
                 break;
-            case 1:
+            case CARD_OP_REWRITE:
                 ret = RewriteSave1();
                 break;
-            case 4:
+            case CARD_OP_ERASE:
                 ret = EraseSave1();
                 break;
         }
-    } else if (mode == 2) {
+    } else if (mode == CARD_OP_CREATE) {
         if (CheckSave1Space() == -1) {
-            ret = 1;
+            ret = CARD_FULL;
         } else {
             BuildSave1Header();
             *(SaveImage *)gSaveBuf = *(SaveImage *)&gCardHeader;
@@ -215,7 +240,7 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             *(u16 *)(sSaveData + off) = sum;
             ret = CreateSave1();
         }
-    } else if (mode == 3) {
+    } else if (mode == CARD_OP_FORMAT) {
     format:
         ret = FormatCard();
     }
@@ -234,15 +259,15 @@ s16 ProbeCard(void) {
         _card_info(0x10);
         r = WaitCardSwEvent();
         switch (r) {
-            case 1: /* MATCHING: the empty case gives retail's compare tree */
+            case CARD_EV_ERROR: /* MATCHING: the empty case gives retail's compare tree */
                 break;
-            case 2:
+            case CARD_EV_TIMEOUT:
                 retry++;
                 if (retry >= 11) {
-                    return 2;
+                    return CARD_EV_TIMEOUT;
                 }
                 break;
-            case 3:
+            case CARD_EV_NEW:
                 ClearCardHwEvents();
                 _card_clear(0x10);
                 WaitCardHwEvent();
@@ -252,8 +277,8 @@ s16 ProbeCard(void) {
         ClearCardSwEvents();
         _card_load(0x10);
         r = WaitCardSwEvent();
-    } while (r == 1 || r == 2);
-    if (r == 0) {
+    } while (r == CARD_EV_ERROR || r == CARD_EV_TIMEOUT);
+    if (r == CARD_EV_IOE) {
         return 0;
     }
     return r;
@@ -267,15 +292,15 @@ s32 ReadSave1(void) {
     u8 *buf;
     s16 tries;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         fd = open(sToolCardFile, 1);
         if (fd != -1) {
             goto opened;
         }
     }
-    gCardError = 1;
-    ret = -1;
+    gCardError = CARD_ERR_READ_OPEN;
+    ret = CARD_FAILED;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -284,8 +309,8 @@ opened:
         }
     }
     close(fd);
-    gCardError = 2;
-    ret = -1;
+    gCardError = CARD_ERR_READ_SEEK;
+    ret = CARD_FAILED;
     goto end;
 seeked:
     buf = gSaveBuf;
@@ -299,14 +324,14 @@ seeked:
             }
         }
         close(fd);
-        gCardError = 2;
-        ret = -1;
+        gCardError = CARD_ERR_READ_SEEK;
+        ret = CARD_FAILED;
         goto end;
     reseeked:;
     }
     close(fd);
-    gCardError = 3;
-    ret = -1;
+    gCardError = CARD_ERR_READ;
+    ret = CARD_FAILED;
     goto end;
 done:
     close(fd);
@@ -321,15 +346,15 @@ s32 RewriteSave1(void) {
     s32 fd;
     u8 *buf;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         fd = open(sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
     }
-    ret = -1;
-    gCardError = 5;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_REWRITE_OPEN;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -338,8 +363,8 @@ opened:
         }
     }
     close(fd);
-    ret = -1;
-    gCardError = 6;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_REWRITE_SEEK;
     goto end;
 seeked:
     buf = gSaveBuf;
@@ -353,14 +378,14 @@ seeked:
             }
         }
         close(fd);
-        ret = -1;
-        gCardError = 6;
+        ret = CARD_FAILED;
+        gCardError = CARD_ERR_REWRITE_SEEK;
         goto end;
     reseeked:;
     }
     close(fd);
-    ret = -1;
-    gCardError = 7;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_REWRITE;
     goto end;
 written:
     close(fd);
@@ -374,7 +399,7 @@ s32 CreateSave1(void) {
     s16 i;
     s32 fd;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         fd = open(sToolCardFile, 0xF0200);
         if (fd != -1) {
@@ -382,8 +407,8 @@ s32 CreateSave1(void) {
         }
     }
     /* MATCHING: ret before the code keeps the three fail tails apart */
-    ret = -1;
-    gCardError = 8;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_CREATE;
     goto end;
 created:
     close(fd);
@@ -393,8 +418,8 @@ created:
             goto opened;
         }
     }
-    ret = -1;
-    gCardError = 9;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_CREATE_OPEN;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -403,8 +428,8 @@ opened:
         }
     }
     close(fd);
-    ret = -1;
-    gCardError = 10;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_CREATE_WRITE;
     goto end;
 written:
     close(fd);
@@ -433,7 +458,7 @@ loop:
         i++;
     } while (0);
     if (nextfile(&de) == NULL) {
-        gCardStatus = 0;
+        gCardStatus = CARD_EV_IOE;
         return 0;
     }
     rec = &gCardFiles[i];
@@ -541,7 +566,7 @@ s16 CheckCard(void) {
     EnableCardEvents();
     ClearCardSwEvents();
     _card_info(0x10);
-    if (WaitCardSwEvent() == 2) {
+    if (WaitCardSwEvent() == CARD_EV_TIMEOUT) {
         result = -1;
     }
     DisableCardEvents();
@@ -552,13 +577,13 @@ s32 FormatCard(void) {
     s32 ret;
     s16 i;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         if (format(sCardDevice) != 0) {
             return ret;
         }
     }
-    gCardError = 11;
+    gCardError = CARD_ERR_FORMAT;
     return -1;
 }
 
@@ -566,14 +591,14 @@ s32 EraseSave1(void) {
     s32 ret;
     s16 i;
 
-    ret = 0;
+    ret = CARD_OK;
     gCardFileName = sToolCardFile;
     for (i = 0; i < 10; i++) {
         if (erase(gCardFileName) != 0) {
             return ret;
         }
     }
-    gCardError = 12;
+    gCardError = CARD_ERR_ERASE;
     return -1;
 }
 
@@ -652,16 +677,16 @@ void DisableCardEvents(void) {
 s16 WaitCardSwEvent(void) {
     while (1) {
         if (TestEvent(gCardSwIoe) == 1) {
-            return 0;
+            return CARD_EV_IOE;
         }
         if (TestEvent(gCardSwError) == 1) {
-            return 1;
+            return CARD_EV_ERROR;
         }
         if (TestEvent(gCardSwTimeout) == 1) {
-            return 2;
+            return CARD_EV_TIMEOUT;
         }
         if (TestEvent(gCardSwNew) == 1) {
-            return 3;
+            return CARD_EV_NEW;
         }
     }
 }
@@ -669,16 +694,16 @@ s16 WaitCardSwEvent(void) {
 s16 WaitCardHwEvent(void) {
     while (1) {
         if (TestEvent(gCardHwIoe) == 1) {
-            return 0;
+            return CARD_EV_IOE;
         }
         if (TestEvent(gCardHwError) == 1) {
-            return 1;
+            return CARD_EV_ERROR;
         }
         if (TestEvent(gCardHwTimeout) == 1) {
-            return 2;
+            return CARD_EV_TIMEOUT;
         }
         if (TestEvent(gCardHwNew) == 1) {
-            return 3;
+            return CARD_EV_NEW;
         }
     }
 }
@@ -705,7 +730,7 @@ void ZeroBytes(u8 *p, s32 n) {
     }
 }
 
-/** @brief Runs one memory card operation on the second save file; mode 0 reads, 1 rewrites, 2 creates, 3 formats, 4 erases, 5 checks. */
+/** @brief Runs one memory card operation, a CardOp, on the second save file; returns a CardResult. */
 s32 RunCardOp2(s16 mode) {
     s32 unused[2]; /* MATCHING: retail's frame holds 8 unused bytes */
     s32 ret;
@@ -713,66 +738,66 @@ s32 RunCardOp2(s16 mode) {
     u16 sum;
     s32 off; /* MATCHING: a constant offset is split into %hi + low; a register one is not */
 
-    ret = 0;
+    ret = CARD_OK;
     retry = 0;
-    gCardStatus = 0;
-    gCardError = 0;
+    gCardStatus = CARD_EV_IOE;
+    gCardError = CARD_ERR_NONE;
     sSaveData = (u8 *)0x80195000;
     gSaveBuf = (u8 *)0x8018D000;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
     gCardStatus = ProbeCard();
     switch (gCardStatus) {
-        case 0: /* MATCHING: the empty case gives retail's compare tree */
+        case CARD_EV_IOE: /* MATCHING: the empty case gives retail's compare tree */
             break;
-        case 1:
+        case CARD_EV_ERROR:
             if (retry < 16) {
                 retry++;
                 goto again;
             }
-            ret = -2;
+            ret = CARD_PROBE_FAILED;
             goto end;
-        case 2:
+        case CARD_EV_TIMEOUT:
             gCardFileCount = 0;
-            ret = 2;
+            ret = CARD_ABSENT;
             goto end;
-        case 3:
+        case CARD_EV_NEW:
             gCardFileCount = 0;
-            ret = 4;
-            if (mode == 3) {
+            ret = CARD_UNFORMATTED;
+            if (mode == CARD_OP_FORMAT) {
                 goto format;
             }
             goto end;
     }
-    if (mode == -1) {
+    if (mode == CARD_OP_PROBE) {
         goto end;
     }
     ScanCardFiles();
-    if (mode == 5) {
+    if (mode == CARD_OP_CHECK) {
         if (FindSave2() != -1) {
-            ret = 0;
+            ret = CARD_OK;
         } else {
             ret = CheckSave2Space() == -1;
         }
-    } else if (mode == 0 || mode == 1 || mode == 4) {
+    } else if (mode == CARD_OP_READ || mode == CARD_OP_REWRITE || mode == CARD_OP_ERASE) {
         if (FindSave2() == -1) {
-            ret = 3;
+            ret = CARD_NO_FILE;
             goto end;
         }
         switch (mode) {
-            case 0:
+            case CARD_OP_READ:
                 ret = ReadSave2();
                 break;
-            case 1:
+            case CARD_OP_REWRITE:
                 ret = RewriteSave2();
                 break;
-            case 4:
+            case CARD_OP_ERASE:
                 ret = EraseSave2();
                 break;
         }
-    } else if (mode == 2) {
+    } else if (mode == CARD_OP_CREATE) {
         if (CheckSave2Space() == -1) {
-            ret = 1;
+            ret = CARD_FULL;
         } else {
             BuildSave2Header();
             *(SaveImage *)gSaveBuf = *(SaveImage *)&gCardHeader;
@@ -782,7 +807,7 @@ again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
             *(u16 *)(sSaveData + off) = sum;
             ret = CreateSave2();
         }
-    } else if (mode == 3) {
+    } else if (mode == CARD_OP_FORMAT) {
     format:
         ret = FormatCard();
     }
@@ -799,15 +824,15 @@ s32 ReadSave2(void) {
     u8 *buf;
     s16 tries;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         fd = open(sHitCardFile, 1);
         if (fd != -1) {
             goto opened;
         }
     }
-    gCardError = 1;
-    ret = -1;
+    gCardError = CARD_ERR_READ_OPEN;
+    ret = CARD_FAILED;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -816,8 +841,8 @@ opened:
         }
     }
     close(fd);
-    gCardError = 2;
-    ret = -1;
+    gCardError = CARD_ERR_READ_SEEK;
+    ret = CARD_FAILED;
     goto end;
 seeked:
     buf = gSaveBuf;
@@ -831,14 +856,14 @@ seeked:
             }
         }
         close(fd);
-        gCardError = 2;
-        ret = -1;
+        gCardError = CARD_ERR_READ_SEEK;
+        ret = CARD_FAILED;
         goto end;
     reseeked:;
     }
     close(fd);
-    gCardError = 3;
-    ret = -1;
+    gCardError = CARD_ERR_READ;
+    ret = CARD_FAILED;
     goto end;
 done:
     close(fd);
@@ -853,15 +878,15 @@ s32 RewriteSave2(void) {
     s32 fd;
     u8 *buf;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         fd = open(sHitCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
     }
-    ret = -1;
-    gCardError = 5;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_REWRITE_OPEN;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -870,8 +895,8 @@ opened:
         }
     }
     close(fd);
-    ret = -1;
-    gCardError = 6;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_REWRITE_SEEK;
     goto end;
 seeked:
     buf = gSaveBuf;
@@ -885,14 +910,14 @@ seeked:
             }
         }
         close(fd);
-        ret = -1;
-        gCardError = 6;
+        ret = CARD_FAILED;
+        gCardError = CARD_ERR_REWRITE_SEEK;
         goto end;
     reseeked:;
     }
     close(fd);
-    ret = -1;
-    gCardError = 7;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_REWRITE;
     goto end;
 written:
     close(fd);
@@ -906,7 +931,7 @@ s32 CreateSave2(void) {
     s16 i;
     s32 fd;
 
-    ret = 0;
+    ret = CARD_OK;
     for (i = 0; i < 10; i++) {
         fd = open(sHitCardFile, 0xC0200);
         if (fd != -1) {
@@ -914,8 +939,8 @@ s32 CreateSave2(void) {
         }
     }
     /* MATCHING: ret before the code keeps the three fail tails apart */
-    ret = -1;
-    gCardError = 8;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_CREATE;
     goto end;
 created:
     close(fd);
@@ -925,8 +950,8 @@ created:
             goto opened;
         }
     }
-    ret = -1;
-    gCardError = 9;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_CREATE_OPEN;
     goto end;
 opened:
     for (i = 0; i < 10; i++) {
@@ -935,8 +960,8 @@ opened:
         }
     }
     close(fd);
-    ret = -1;
-    gCardError = 10;
+    ret = CARD_FAILED;
+    gCardError = CARD_ERR_CREATE_WRITE;
     goto end;
 written:
     close(fd);
@@ -966,14 +991,14 @@ s32 EraseSave2(void) {
     s32 ret;
     s16 i;
 
-    ret = 0;
+    ret = CARD_OK;
     gCardFileName = sHitCardFile;
     for (i = 0; i < 10; i++) {
         if (erase(gCardFileName) != 0) {
             return ret;
         }
     }
-    gCardError = 12;
+    gCardError = CARD_ERR_ERASE;
     return -1;
 }
 

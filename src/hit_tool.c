@@ -959,61 +959,61 @@ s32 CheckCard(void);
 /* MATCHING: s32 with no return keeps the error table's index shift in its
  * bound check's delay slot. */
 s32 UpdateToolCard(void) {
-    s32 err = 0;
+    s32 err = CARD_OK;
     s32 r;
 
     switch (gSubStep) {
         case 0:
             OpenCardEvents();
-            gToolCardStep = 0;
+            gToolCardStep = CS_CHECK;
             gMenuLine = 0;
             gEditValue = 0;
             gSubStep++;
             break;
         case 1:
             switch (gToolCardStep) {
-                case 0:
+                case CS_CHECK:
                     D_80095A14 = 0;
-                    err = RunCardOp2(0);
-                    if (err == 0) {
-                        gToolCardStep = 1;
+                    err = RunCardOp2(CARD_OP_READ);
+                    if (err == CARD_OK) {
+                        gToolCardStep = CS_MODE_SELECT;
                     }
                     break;
-                case 1:
+                case CS_MODE_SELECT:
                     if (CheckCard() == -1 || (gPadTrig & PADRdown)) {
-                        gToolCardStep = 18;
+                        gToolCardStep = CS_EXIT;
                         break;
                     }
                     gMenuChoice = RunMenu(2);
                     switch (gMenuChoice) {
                         case 2:
                             if (WriteToolFile() == -1) {
-                                gToolCardStep = 11;
+                                gToolCardStep = CS_ERROR;
                             } else if (WriteHitDataFiles() == -1) {
-                                gToolCardStep = 11;
+                                gToolCardStep = CS_ERROR;
                             } else {
-                                gToolCardStep = 10;
+                                gToolCardStep = CS_COMPLETE;
                             }
                             break;
                         case 3:
                             if (ReadToolFile() == -1) {
-                                gToolCardStep = 11;
+                                gToolCardStep = CS_ERROR;
                             } else {
                                 gMenuChoice = 1;
-                                gToolCardStep = 2;
+                                gToolCardStep = CS_SLOT_SELECT;
                             }
                             break;
                         case -1:
                             break;
                         default:
                             gMenuLine = 0;
-                            gToolCardStep = 2;
+                            gToolCardStep = CS_SLOT_SELECT;
                             break;
                     }
                     break;
-                case 2:
+                case CS_SLOT_SELECT:
                     if (gPadTrig & PADRdown) {
-                        gToolCardStep = 1;
+                        gToolCardStep = CS_MODE_SELECT;
                         break;
                     }
                     gToolSlot = RunMenu(3);
@@ -1022,130 +1022,130 @@ s32 UpdateToolCard(void) {
                     }
                     switch (gMenuChoice) {
                         case 0:
-                            gToolCardStep = 3;
+                            gToolCardStep = CS_SAVE_CHECK;
                             break;
                         case 1:
-                            gToolCardStep = 5;
+                            gToolCardStep = CS_LOAD_CHECK;
                             break;
                     }
                     break;
-                case 10:
+                case CS_COMPLETE:
                     if (gPadTrig & (PADRdown | PADRright)) {
-                        gToolCardStep = 1;
+                        gToolCardStep = CS_MODE_SELECT;
                     }
                     break;
-                /* MATCHING: before case 4, so its block merges into 4's. */
-                case 3:
-                    gToolCardStep = 8;
+                /* MATCHING: before CS_SAVE_ASK, so its block merges into that one. */
+                case CS_SAVE_CHECK:
+                    gToolCardStep = CS_WRITE;
                     break;
-                case 4:
+                case CS_SAVE_ASK:
                     r = RunMenu(2);
                     switch (r) {
                         case 0:
-                            gToolCardStep = 8;
+                            gToolCardStep = CS_WRITE;
                             break;
                         case 1:
-                            gToolCardStep = 1;
+                            gToolCardStep = CS_MODE_SELECT;
                             break;
                     }
                     break;
-                case 8:
+                case CS_WRITE:
                     StoreHitSlot(gToolSlot);
-                    err = RunCardOp2(1);
-                    if (err == 0) {
-                        gToolCardStep = 10;
+                    err = RunCardOp2(CARD_OP_REWRITE);
+                    if (err == CARD_OK) {
+                        gToolCardStep = CS_COMPLETE;
                     }
                     break;
-                case 5:
-                    gToolCardStep = 6;
+                case CS_LOAD_CHECK:
+                    gToolCardStep = CS_LOAD_ASK;
                     gMenuLine = 0;
                     break;
-                case 6:
+                case CS_LOAD_ASK:
                     r = RunMenu(2);
                     switch (r) {
                         case 0:
-                            gToolCardStep = 9;
+                            gToolCardStep = CS_LOAD;
                             break;
                         case 1:
-                            gToolCardStep = 1;
+                            gToolCardStep = CS_MODE_SELECT;
                             break;
                     }
                     break;
-                case 7:
+                case CS_NO_DATA:
                     if (gPadTrig & PADRright) {
-                        gToolCardStep = 5;
+                        gToolCardStep = CS_LOAD_CHECK;
                     }
                     break;
-                case 9:
+                case CS_LOAD:
                     LoadHitSlot(gToolSlot);
                     ApplyHitPoints();
                     ApplyHitQuads();
-                    gToolCardStep = 10;
+                    gToolCardStep = CS_COMPLETE;
                     break;
-                case 11:
-                case 13:
+                case CS_ERROR:
+                case CS_NO_CARD:
                     if (gPadTrig & PADRdown) {
-                        gToolCardStep = 18;
+                        gToolCardStep = CS_EXIT;
                     }
                     break;
-                case 14:
+                case CS_NO_FILE:
                     r = RunMenu(2);
                     switch (r) {
                         case 0:
-                            gToolCardStep = 16;
+                            gToolCardStep = CS_CREATE;
                             break;
                         case 1:
-                            gToolCardStep = 18;
+                            gToolCardStep = CS_EXIT;
                             break;
                         case -1:
                             break;
                     }
                     break;
-                case 15:
+                case CS_UNFORMATTED:
                     r = RunMenu(2);
                     switch (r) {
                         case 0:
-                            gToolCardStep = 17;
+                            gToolCardStep = CS_FORMAT;
                             break;
                         case 1:
-                            gToolCardStep = 18;
+                            gToolCardStep = CS_EXIT;
                             break;
                         case -1:
                             break;
                     }
                     break;
-                case 16:
-                    err = RunCardOp2(2);
-                    if (err == 0) {
-                        gToolCardStep = 0;
+                case CS_CREATE:
+                    err = RunCardOp2(CARD_OP_CREATE);
+                    if (err == CARD_OK) {
+                        gToolCardStep = CS_CHECK;
                     }
                     break;
-                case 17:
-                    err = RunCardOp2(3);
-                    if (err == 0) {
-                        gToolCardStep = 0;
+                case CS_FORMAT:
+                    err = RunCardOp2(CARD_OP_FORMAT);
+                    if (err == CARD_OK) {
+                        gToolCardStep = CS_CHECK;
                     }
                     break;
-                case 18:
+                case CS_EXIT:
                     gSubStep++;
                     break;
             }
             switch (err) {
-                case -2:
-                case -1:
-                    gToolCardStep = 11;
+                case CARD_PROBE_FAILED:
+                case CARD_FAILED:
+                    gToolCardStep = CS_ERROR;
                     break;
-                case 1:
-                    gToolCardStep = 12;
+                case CARD_FULL:
+                    gToolCardStep = CS_NO_MEMORY;
                     break;
-                case 2:
-                    gToolCardStep = 13;
+                case CARD_ABSENT:
+                    gToolCardStep = CS_NO_CARD;
                     break;
-                case 3:
-                    gToolCardStep = 14;
+                case CARD_NO_FILE:
+                    gToolCardStep = CS_NO_FILE;
                     break;
-                case 4:
-                    gToolCardStep = 15;
+                case CARD_UNFORMATTED:
+                    gToolCardStep = CS_UNFORMATTED;
                     break;
             }
             break;
@@ -1183,34 +1183,34 @@ void PrintToolCardMenu(void) {
     FntPrint(sHitDataModeText);
     FntPrint(sHitNewlines3);
     switch (gToolCardStep) {
-        case 0:
+        case CS_CHECK:
             FntPrint(sHitNewlines3);
             PrintTabs(4);
             FntPrint(sHitCheckText);
             break;
-        case 1:
+        case CS_MODE_SELECT:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitModeSelectText);
             PrintSaveLoad();
             break;
-        case 2:
+        case CS_SLOT_SELECT:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitBufferSelectText);
             PrintToolSlots();
             break;
-        case 16:
+        case CS_CREATE:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitCreateFileText);
             break;
-        case 17:
+        case CS_FORMAT:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitCardFormatText);
             break;
-        case 4:
+        case CS_SAVE_ASK:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitSaveToDataFmt, gToolSlot + 1);
@@ -1218,12 +1218,12 @@ void PrintToolCardMenu(void) {
             FntPrint(sHitOverwriteOkText);
             PrintYesNo();
             break;
-        case 8:
+        case CS_WRITE:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitDataWritingText);
             break;
-        case 6:
+        case CS_LOAD_ASK:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitLoadFromDataFmt, gToolSlot + 1);
@@ -1231,32 +1231,32 @@ void PrintToolCardMenu(void) {
             FntPrint(sHitLoadOkText);
             PrintYesNo();
             break;
-        case 7:
+        case CS_NO_DATA:
             FntPrint(sHitNewlines3);
             PrintTabs(2);
             FntPrint(sHitCantOpenDataFmt, gToolSlot + 1);
             break;
-        case 10:
+        case CS_COMPLETE:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitCompleteText);
             break;
-        case 11:
+        case CS_ERROR:
             FntPrint(sHitNewlines3);
             PrintTabs(2);
             FntPrint(sHitErrorText);
             break;
-        case 12:
+        case CS_NO_MEMORY:
             FntPrint(sHitNewlines3);
             PrintTabs(2);
             FntPrint(sHitNotEnoughMemoryText);
             break;
-        case 13:
+        case CS_NO_CARD:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitNoCardText);
             break;
-        case 14:
+        case CS_NO_FILE:
             FntPrint(sHitNewlines3);
             PrintTabs(4);
             FntPrint(sHitNoFileText);
@@ -1264,7 +1264,7 @@ void PrintToolCardMenu(void) {
             FntPrint(sHitCreateNewFileText);
             PrintYesNo();
             break;
-        case 15:
+        case CS_UNFORMATTED:
             FntPrint(sHitNewlines3);
             PrintTabs(3);
             FntPrint(sHitUnformattedText);

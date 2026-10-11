@@ -378,7 +378,7 @@ void ResetStage(void) {
     gPlayer.unk3CA = 0;
     gPlayer.twoTracks = 0;
     gPlayer.unk4 = 0;
-    gPlayer.action = 0;
+    gPlayer.action = ACT_RUN;
     gPlayer.curMotion[0] = 0xFF;
     StepAnimation(&gPlayer, 0, 0);
     gPlayer.speed = 50;
@@ -414,7 +414,7 @@ void ResetStage(void) {
         gCans = sSaved.unk1A;
         gView[1] = sSaved.unk20;
     } else if (gStage == 4) {
-        gPlayer.action = 0x57;
+        gPlayer.action = ACT_BLOWN_AWAY;
         gPlayer.motion[0] = 0x23;
         gPlayer.jumpPower = 0;
         gPlayer.speed = 0;

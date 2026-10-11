@@ -529,7 +529,7 @@ void func_80013CDC(void) {
         gPlayer.motionStart[gLoopI] = gAnimations[gLoopI][1];
     }
     GsInitCoordinate2(WORLD, &gTodCoords[0]);
-    gPlayer.action = 0;
+    gPlayer.action = ACT_RUN;
     gPlayer.motion[0] = 0;
     /* MATCHING: retail stores 8 before 7. */
     gPlayer.curMotion[0] = 0xFF;
@@ -1210,7 +1210,7 @@ void BeginLoadScreenModel(void) {
     gLoadScreenModel.x = 0;
     gLoadScreenModel.y = 0;
     gLoadScreenModel.z = 0;
-    gLoadScreenModel.action = 0x61;
+    gLoadScreenModel.action = ACT_MODEL_LOOP;
     gLoadScreenModel.speed = 0;
     gLoadScreenModel.control = 0;
     gRefView[0] = rsin(0x800) * 400 / 4096;
@@ -1833,9 +1833,9 @@ static __inline__ void stepObj(PlayerState *obj) {
     result = StepAnimation(obj, 0, obj->unk4);
     obj->motionResult[0] = result;
     switch (obj->action) {
-        case 0x60:
+        case ACT_MODEL_ONCE:
             break;
-        case 0x61:
+        case ACT_MODEL_LOOP:
             if (result == 0) {
                 obj->curMotion[0] = 0xFF;
             }

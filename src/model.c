@@ -421,7 +421,7 @@ s32 DrawTodObjects(void) {
     s32 i;
 
     if (gPlayer.hittable == 0 && (gFrameCount & 3) < 2) {
-        if (gPlayer.action == 0 || gPlayer.action == 0x5E) {
+        if (gPlayer.action == ACT_RUN || gPlayer.action == ACT_RIDE_STRAIGHT) {
             return;
         }
     }

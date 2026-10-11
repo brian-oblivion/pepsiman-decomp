@@ -108,9 +108,14 @@ extern s8 gToolExited;
 
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
 
-/** @brief How the player reacts to one kind of hit: the action per state. */
+/** @brief How the player reacts to one kind of hit. b[0] to b[4] are the
+ *         PlayerAction it starts while running, jumping, sliding, dashing
+ *         and in any other action (kinds 15 to 18 instead pick b[2], b[1]
+ *         or b[0] by the hit group: head, body, legs); b[5] 1 gives 150
+ *         frames of invulnerability, else 18; b[6] 1 zeroes the bonus
+ *         level; b[7] 1 takes one bonus level. */
 typedef struct {
-    u8 b[8]; /**< per stage mode and flag */
+    u8 b[8]; /**< the columns above */
 } HitReaction;
 
 extern HitReaction gHitReactions[];
@@ -771,8 +776,8 @@ void ReactToHits(PlayerState *state) {
         if ((u32)(*(volatile u8 *)&p->kind - 15) >= 4) {
             m = state->motion[0];
             switch (state->action) {
-                case 0:
-                case 0x5E:
+                case ACT_RUN:
+                case ACT_RIDE_STRAIGHT:
                     switch (m) {
                         case 0x33:
                             if ((gPlayer.rideMode & 0xF) != 3) {
@@ -796,12 +801,12 @@ void ReactToHits(PlayerState *state) {
                             break;
                     }
                     break;
-                case 0x39:
-                case 0x3A:
+                case ACT_DASH_START:
+                case ACT_DASH:
                     v = gHitReactions[p->kind].b[3];
                     break;
-                case 0x3B:
-                case 0x3C:
+                case ACT_BRAKE_START:
+                case ACT_BRAKE:
                     v = gHitReactions[p->kind].b[0];
                     break;
                 default:
@@ -809,7 +814,7 @@ void ReactToHits(PlayerState *state) {
                         case 1:
                         case 2:
                         case 4:
-                            v = 0x42;
+                            v = ACT_THROWN_BACK_START;
                             break;
                         case 3:
                         default:
@@ -822,13 +827,13 @@ void ReactToHits(PlayerState *state) {
                 case 1:
                 case 2:
                 case 4:
-                    v = 0x42;
+                    v = ACT_THROWN_BACK_START;
                     break;
             }
         } else {
             v = gHitReactions[p->kind].b[2 - i];
             if (gPlayer.rideMode & 0xF) {
-                v = 0x42;
+                v = ACT_THROWN_BACK_START;
             }
         }
         switch (gPlayer.rideMode & 0xF) {
@@ -919,31 +924,31 @@ s32 UpdatePlayerAction(PlayerState *state) {
     }
 top:
     switch (state->action) {
-        case 0x7:
-            state->action = 8;
+        case ACT_TRIP_START:
+            state->action = ACT_TRIP;
             state->motion[0] = 0xD;
             state->control = 0;
             StartRumble(gRumblePatterns, 1);
             break;
-        case 0x9:
-            state->action = 0xA;
+        case ACT_TRIP_HARD_START:
+            state->action = ACT_TRIP_HARD;
             state->motion[0] = 0xD;
             state->control = 0;
             state->unk376 = 0;
             state->unk374 = 0;
             StartRumble(gRumblePatterns, 2);
             break;
-        case 0xF:
-            state->action = 0x10;
+        case ACT_TOD_FILTER_START:
+            state->action = ACT_TOD_FILTER;
             state->unk4 = 0x80;
             break;
-        case 0x11:
-            state->action = 0x12;
+        case ACT_LOOK_RESET_START:
+            state->action = ACT_LOOK_RESET;
             state->unk374 = 0;
             state->lookX = 0;
             state->lookZ = 0;
             break;
-        case 0x12:
+        case ACT_LOOK_RESET:
             if (state->unk374 < 60) {
                 state->unk374++;
             }
@@ -953,35 +958,35 @@ top:
 
             if (gLookYawNarrow == 0) {
                 state->unk4 = 0;
-                state->action = 0;
+                state->action = ACT_RUN;
             }
             break;
-        case 0x13:
-            state->action = 0x14;
+        case ACT_SPIN_START:
+            state->action = ACT_SPIN;
             state->motion[0] = 0x15;
             state->control = 0;
             state->unk376 = 0;
             state->unk374 = 0;
             StartRumble(gRumblePatterns, 7);
             break;
-        case 0x17:
+        case ACT_STOP_START:
             if ((u8)(m - 2) < 3) {
-                state->action = 0x18;
+                state->action = ACT_STOP;
                 state->motion[0] = 0x10;
                 state->unk374 = 0;
                 state->control = 0;
                 state->unk3AA = state->speed;
             }
             break;
-        case 0x23:
-            state->action = 0x24;
+        case ACT_TIME_UP_START:
+            state->action = ACT_TIME_UP;
             state->motion[0] = 0xE;
             state->unk374 = 0;
             state->control = 0;
             state->unk3AA = state->speed;
             break;
-        case 0x19:
-            state->action = 0x1A;
+        case ACT_STOP_WAIT_START:
+            state->action = ACT_STOP_WAIT;
             state->control = 0;
             state->unk374 = 0;
             if (state->speed == 0) {
@@ -992,8 +997,8 @@ top:
                 state->unk3AA = state->speed;
             }
             break;
-        case 0x1B:
-            state->action = 0x1C;
+        case ACT_STOP_ITEM_START:
+            state->action = ACT_STOP_ITEM;
             state->control = 0;
             if (state->speed == 0) {
                 state->motionResult[0] = 1;
@@ -1005,8 +1010,8 @@ top:
                 state->unk3AA = state->speed;
             }
             break;
-        case 0x1F:
-            state->action = 0x20;
+        case ACT_STOP_POSE_START:
+            state->action = ACT_STOP_POSE;
             state->control = 0;
             if (state->speed != 0) {
                 state->motion[0] = 0x10;
@@ -1017,22 +1022,22 @@ top:
                 state->motion[0] = 0x12;
             }
             break;
-        case 0x27:
+        case ACT_LAUNCH_START:
             PlaySe(0x3C);
-            state->action = 0x28;
+            state->action = ACT_LAUNCH;
             state->motion[0] = 0x14;
             state->jumpPower = 70;
             state->unk376 = 0;
             state->unk374 = 0;
             state->control = 0;
             break;
-        case 0x39:
-            state->action = 0x3A;
+        case ACT_DASH_START:
+            state->action = ACT_DASH;
             state->motion[0] = 0x1A;
             state->unk376 = 0;
             state->unk3AA = state->speed;
             StartRumble(gRumblePatterns, 10);
-        case 0x3A:
+        case ACT_DASH:
             if (state->unk376 < 5) {
                 DrawFrozenFrame();
                 gSpeedFixed = 0x5A0;
@@ -1043,15 +1048,15 @@ top:
             state->speed = (s16)gSpeedFixed >> 4;
             ScatterEffect4((VECTOR *)&state->x);
             if (state->unk376 >= 30) {
-                state->action = 0;
+                state->action = ACT_RUN;
                 if (gPlayer.y >= gPlayer.groundY && (u32)(gPlayer.motion[0] - 5) >= 3) {
                     state->motion[0] = 4;
                 }
             }
             break;
-        case 0x3B:
+        case ACT_BRAKE_START:
             PlaySe(0x16);
-            state->action = 0x3C;
+            state->action = ACT_BRAKE;
             state->control = 0;
             state->motion[0] = 0x18;
             state->unk378 = 0;
@@ -1059,27 +1064,27 @@ top:
             state->unk374 = 0;
             state->unk3AA = state->speed;
             StartRumble(gRumblePatterns, 12);
-        case 0x3C:
+        case ACT_BRAKE:
             gSpeedFixed -= 0x20;
             if (++state->unk378 >= 16 || (s16)gSpeedFixed < 0) {
                 gSpeedFixed = 0;
-                state->action = 0x3D;
+                state->action = ACT_BRAKE_RISE;
                 state->motion[0] = 0x19;
                 state->control = 1;
             }
             state->speed = (s16)gSpeedFixed >> 4;
             ScatterEffect4((VECTOR *)&state->x);
             break;
-        case 0x3D:
+        case ACT_BRAKE_RISE:
             if (state->motionResult[0] == 1) {
                 state->motion[0] = 4;
-                state->action = 0;
+                state->action = ACT_RUN;
                 state->slideState = SLIDE_NONE;
                 gSpeedFixed = 0x320;
             }
             break;
-        case 0x3E:
-            state->action = 0x3F;
+        case ACT_KNOCKDOWN_START:
+            state->action = ACT_KNOCKDOWN;
             state->motion[0] = 0x1B;
             state->jumpPower = 70;
             state->unk376 = 0;
@@ -1087,8 +1092,8 @@ top:
             state->control = 0;
             StartRumble(gRumblePatterns, 2);
             break;
-        case 0x40:
-            state->action = 0x41;
+        case ACT_KNOCKDOWN_BOUNCE_START:
+            state->action = ACT_KNOCKDOWN_BOUNCE;
             state->motion[0] = 0x1B;
             state->jumpPower = 70;
             state->unk376 = 0;
@@ -1096,8 +1101,8 @@ top:
             state->control = 0;
             StartRumble(gRumblePatterns, 2);
             break;
-        case 0x42:
-            state->action = 0x43;
+        case ACT_THROWN_BACK_START:
+            state->action = ACT_THROWN_BACK;
             state->motion[0] = 0x23;
             if (state->speed < 90) {
                 state->speed = 70;
@@ -1108,8 +1113,8 @@ top:
             state->speed *= -1;
             StartRumble(gRumblePatterns, 4);
             break;
-        case 0x44:
-            state->action = 0x45;
+        case ACT_THROWN_BACK_BOUNCE_START:
+            state->action = ACT_THROWN_BACK_BOUNCE;
             state->motion[0] = 0x23;
             if (state->speed < 90) {
                 state->speed = 70;
@@ -1119,8 +1124,8 @@ top:
             state->speed *= -1;
             StartRumble(gRumblePatterns, 4);
             break;
-        case 0x46:
-            state->action = 0x47;
+        case ACT_REEL_START:
+            state->action = ACT_REEL;
             state->motion[0] = 0x28;
             ResetSpeed();
             state->unk374 = 10;
@@ -1128,36 +1133,36 @@ top:
             state->control = 0;
             StartRumble(gRumblePatterns, 5);
             break;
-        case 0x48:
-            state->action = 0x49;
+        case ACT_HEAD_HIT_START:
+            state->action = ACT_HEAD_HIT;
             state->motion[0] = 0x2C;
             state->unk376 = 0;
             state->unk374 = 0;
             state->control = 0;
             if (AddBonusLevel(0) <= 0) {
-                state->action = 0x42;
+                state->action = ACT_THROWN_BACK_START;
                 goto top;
             }
             StartRumble(gRumblePatterns, 4);
             ResetSpeed();
             break;
-        case 0x4A:
-            state->action = 0x4B;
+        case ACT_FALL_SKID_START:
+            state->action = ACT_FALL_SKID;
             state->motion[0] = 0x2E;
             state->unk376 = 0;
             state->unk374 = 0;
             state->control = 0;
             StartRumble(gRumblePatterns, 4);
             break;
-        case 0x4C:
-            state->action = 0x4D;
+        case ACT_FALL_FLAT_START:
+            state->action = ACT_FALL_FLAT;
             state->motion[0] = 0x2F;
             ResetSpeed();
             state->control = 0;
             StartRumble(gRumblePatterns, 4);
             break;
-        case 0x4E:
-            state->action = 0x4F;
+        case ACT_TWIRL_START:
+            state->action = ACT_TWIRL;
             state->motion[0] = 0x30;
             ResetSpeed();
             state->unk37A = 0;
@@ -1167,12 +1172,12 @@ top:
             state->control = 0;
             StartRumble(gRumblePatterns, 8);
             break;
-        case 0x50:
+        case ACT_SCREEN_HIT_START:
             if (rand() & 1) {
-                state->action = 0x51;
+                state->action = ACT_SCREEN_HIT_TWIRL;
                 state->motion[0] = 0x30;
             } else {
-                state->action = 0x55;
+                state->action = ACT_SCREEN_HIT_FLY;
                 state->motion[0] = 0x23;
             }
             ResetSpeed();
@@ -1185,8 +1190,8 @@ top:
             state->invulnTimer = 150;
             StartRumble(gRumblePatterns, 4);
             break;
-        case 0x52:
-            state->action = 0x53;
+        case ACT_FLATTENED_START:
+            state->action = ACT_FLATTENED;
             state->motion[0] = 0x32;
             state->unk3D2 = 1;
             ResetSpeed();
@@ -1197,9 +1202,9 @@ top:
             state->control = 0;
             StartRumble(gRumblePatterns, 9);
             break;
-        case 0x56:
+        case ACT_BLOWN_AWAY_START:
             gMissState = MISS_DYING;
-            state->action = 0x57;
+            state->action = ACT_BLOWN_AWAY;
             state->motion[0] = 0x23;
             ResetSpeed();
             state->jumpPower = 300;
@@ -1212,7 +1217,7 @@ top:
             state->control = 0;
             StartRumble(gRumblePatterns, 4);
             break;
-        case 0x33:
+        case ACT_RIDE_CENTRE_START:
             switch (state->motion[0]) {
                 case 0x33:
                     break;
@@ -1229,13 +1234,13 @@ top:
                 case 0x35:
                 case 0x37:
                     if (state->motionResult[0] == 0) {
-                        state->action = 0x34;
+                        state->action = ACT_RIDE_CENTRE;
                         state->motion[0] = 0x33;
                     }
                     break;
             }
             break;
-        case 0x35:
+        case ACT_RIDE_LEAN_A_START:
             switch (state->motion[0]) {
                 case 0x35:
                 case 0x36:
@@ -1243,33 +1248,33 @@ top:
                 case 0x33:
                 case 0x37:
                     if (state->motionResult[0] == 0) {
-                        state->action = 0x36;
+                        state->action = ACT_RIDE_LEAN_A;
                         state->motion[0] = 0x34;
                     }
                     break;
             }
             break;
-        case 0x37:
+        case ACT_RIDE_LEAN_B_START:
             switch (state->motion[0]) {
                 case 0x34:
                     break;
                 case 0x33:
                 case 0x35:
                     if (state->motionResult[0] == 0) {
-                        state->action = 0x38;
+                        state->action = ACT_RIDE_LEAN_B;
                         state->motion[0] = 0x36;
                     }
                     break;
             }
             break;
-        case 0x5A:
+        case ACT_RIDE_LEAN_A_IN:
             state->motion[0] = 0x34;
             break;
-        case 0x5C:
+        case ACT_RIDE_LEAN_A_OUT:
             state->motion[0] = 0x35;
             break;
-        case 0x58:
-        case 0x5E:
+        case ACT_ROLL_STRAIGHT:
+        case ACT_RIDE_STRAIGHT:
             state->motion[0] = 0x33;
             break;
     }
@@ -1347,7 +1352,8 @@ top:
             }
             /* MATCHING: cases 7, 0x1F and 0x26 branch here; their own calls would be the copies
              * cross-jumping keeps. */
-            if (state->motionResult[0] == 0 && (state->action == 8 || state->action == 0xA)) {
+            if (state->motionResult[0] == 0 &&
+                (state->action == ACT_TRIP || state->action == ACT_TRIP_HARD)) {
             reset:
                 ResetPlayerAction();
             }
@@ -1400,22 +1406,22 @@ top:
             }
             state->speed = Lerp(state->unk3AA, 0, state->unk374, 10);
             switch (state->action) {
-                case 0x18:
+                case ACT_STOP:
                     if (state->motionResult[0] == 0) {
                         state->motion[0] = 0x13;
                     }
                     break;
-                case 0x1A:
+                case ACT_STOP_WAIT:
                     if (state->motionResult[0] == 0) {
                         state->motion[0] = 0xF;
                     }
                     break;
-                case 0x1C:
+                case ACT_STOP_ITEM:
                     if (state->motionResult[0] == 0) {
                         state->motion[0] = 0x11;
                     }
                     break;
-                case 0x20:
+                case ACT_STOP_POSE:
                     if (state->motionResult[0] == 0) {
                         state->motion[0] = 0x12;
                     }
@@ -1435,7 +1441,7 @@ top:
             gPlayer.unk3D4 = 1;
             if (state->motionResult[0] == 0) {
                 if (++state->unk374 >= 46) {
-                    state->action = 0;
+                    state->action = ACT_RUN;
                     state->motion[0] = 0x13;
                     gPlayer.unk3D4 = 0;
                 }
@@ -1471,7 +1477,7 @@ top:
             }
         case 0x12:
             if (state->motionResult[0] == 0) {
-                state->action = 0;
+                state->action = ACT_RUN;
                 state->motion[0] = 0x13;
                 state->rideMode &= 0xF;
             }
@@ -1538,11 +1544,11 @@ top:
                 if (r >= 0)
                     if (r < 3) {
                         switch (state->action) {
-                            case 0x41:
+                            case ACT_KNOCKDOWN_BOUNCE:
                                 StartRumble(gRumblePatterns, 3);
                                 state->motion[0] = 0x20;
                                 break;
-                            case 0x3F:
+                            case ACT_KNOCKDOWN:
                                 state->motion[0] = 0x1C;
                                 break;
                         }
@@ -1580,15 +1586,15 @@ top:
         case 0x1E:
             if (state->motionResult[0] == 0) {
                 switch (state->action) {
-                    case 0x14:
-                    case 0x28:
-                    case 0x3F:
-                    case 0x43:
+                    case ACT_SPIN:
+                    case ACT_LAUNCH:
+                    case ACT_KNOCKDOWN:
+                    case ACT_THROWN_BACK:
                         state->unk376 = 0;
                         state->motion[0] = 0x1F;
                         break;
-                    case 0x41:
-                    case 0x45:
+                    case ACT_KNOCKDOWN_BOUNCE:
+                    case ACT_THROWN_BACK_BOUNCE:
                         state->unk376 = 0;
                         state->motion[0] = 0x22;
                         break;
@@ -1631,7 +1637,7 @@ top:
                                 }
                             }
                             break;
-                        case 0x49:
+                        case ACT_HEAD_HIT:
                             if (AddBonusLevel(0) != 0) {
                                 state->unk376 = 0;
                                 state->motion[0] = 0x2D;
@@ -1644,7 +1650,7 @@ top:
                                 }
                             }
                             break;
-                        case 0x4F:
+                        case ACT_TWIRL:
                             if (AddBonusLevel(0) != 0) {
                                 state->motion[0] = 0x22;
                             } else {
@@ -1656,7 +1662,7 @@ top:
                                 }
                             }
                             break;
-                        case 0x57:
+                        case ACT_BLOWN_AWAY:
                             gMissState = MISS_DYING;
                             if (state->unk374 >= 61) {
                                 if (gStage == 4 && gSection == 0) {
@@ -1675,7 +1681,7 @@ top:
             }
             break;
         case 0x23:
-            if (state->action == 0x55) {
+            if (state->action == ACT_SCREEN_HIT_FLY) {
                 gPlayer.drawX = Lerp(0, gView[0], state->unk378, 5);
                 gPlayer.drawY = Lerp(0, -50, state->unk378, 5);
                 gPlayer.drawZ = Lerp(0, gView[2], state->unk378, 5);
@@ -1711,12 +1717,12 @@ top:
             ScatterEffect4((VECTOR *)&gPlayer.x);
             if (state->motionResult[0] == 0) {
                 switch (state->action) {
-                    case 0x28:
-                    case 0x43:
-                    case 0x57:
+                    case ACT_LAUNCH:
+                    case ACT_THROWN_BACK:
+                    case ACT_BLOWN_AWAY:
                         state->motion[0] = 0x25;
                         break;
-                    case 0x45:
+                    case ACT_THROWN_BACK_BOUNCE:
                         StartRumble(gRumblePatterns, 3);
                         state->motion[0] = 0x27;
                         break;
@@ -1741,11 +1747,11 @@ top:
             if (state->unk374 >= 2) {
                 if (AddBonusLevel(0) > 0) {
                     switch (state->action) {
-                        case 0x45:
+                        case ACT_THROWN_BACK_BOUNCE:
                             state->unk374 = 0;
                             state->motion[0] = 0x21;
                             break;
-                        case 0x47:
+                        case ACT_REEL:
                             state->unk374 = 0;
                             state->unk376 = 0;
                             state->motion[0] = 0x1F;
@@ -1768,9 +1774,9 @@ top:
             break;
         case 0x28:
             switch (state->action) {
-                case 0x51:
+                case ACT_SCREEN_HIT_TWIRL:
                     gBodyRot[1] = gPlayer.unk362 = gCourse.rot.vy + 0x800;
-                case 0x55:
+                case ACT_SCREEN_HIT_FLY:
                     gTodCoords[0].coord.t[0] = gPlayer.drawX;
                     gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
                     gTodCoords[0].coord.t[2] = gPlayer.drawZ;
@@ -1839,7 +1845,7 @@ top:
                         }
                     }
                     break;
-                case 0x4B:
+                case ACT_FALL_SKID:
                     if (state->speed >= 0x15) {
                         ScatterEffect4((VECTOR *)&gPlayer.x);
                     }
@@ -1860,7 +1866,7 @@ top:
                         }
                     }
                     break;
-                case 0x4D:
+                case ACT_FALL_FLAT:
                     if (state->motionResult[0] == 0 && ++state->unk374 >= 16) {
                         if (AddBonusLevel(0) != 0) {
                             state->unk376 = 0;
@@ -1939,7 +1945,7 @@ top:
             break;
         case 0x30:
             switch (state->action) {
-                case 0x51:
+                case ACT_SCREEN_HIT_TWIRL:
                     gPlayer.unk362 = state->unk376 = Lerp(state->unk376, 0x6000, state->unk374, 30);
                     gPlayer.drawX = Lerp(0, gView[0], state->unk378, 15);
                     gPlayer.drawY = Lerp(0, -50, state->unk378, 15);
@@ -1954,7 +1960,7 @@ top:
                         state->unk374 = 0;
                     }
                     break;
-                case 0x4F:
+                case ACT_TWIRL:
                     if (++state->unk378 >= 41) {
                         state->unk378 = 60;
                         state->motion[0] = 0x31;
@@ -1997,7 +2003,7 @@ s32 UpdateRunSpeed(void) {
     s16 v;
 
     if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - 8) >= 4) {
-        if (gPlayer.action != 0x3A) {
+        if (gPlayer.action != ACT_DASH) {
             v = gPlayer.speed;
             if (v < 40) {
                 gSpeedFixed += 16;
@@ -2046,25 +2052,25 @@ s32 UpdateSlideDash(void) {
                     (gGamePadTrig & PADRdown)) {
                     btn = gPad;
                     if (btn & PADLdown) {
-                        gPlayer.slideState = SLIDE_SLIDING;
+                        gPlayer.slideState = SLIDE_BRAKING;
                         gPlayer.unk38C = 0;
-                        gPlayer.action = 0x3B;
+                        gPlayer.action = ACT_BRAKE_START;
                     }
                     if (btn & PADLup) {
                         if ((u32)((u16)gPlayer.speed - 0x26) < 5) {
                             gPlayer.slideState = SLIDE_DASHING;
-                            gPlayer.action = 0x39;
+                            gPlayer.action = ACT_DASH_START;
                             PlaySe(0x71);
                             gPlayer.unk38C = 0;
                         }
                     }
                 }
                 break;
-            case SLIDE_SLIDING:
+            case SLIDE_BRAKING:
                 func_80028500();
                 break;
             case SLIDE_DASHING:
-                if (gPlayer.action == 0) {
+                if (gPlayer.action == ACT_RUN) {
                     gPlayer.slideState = SLIDE_NONE;
                     gPlayer.unk38C = 0;
                 }
@@ -2234,7 +2240,7 @@ top:
             gPlayer.slideState = SLIDE_NONE;
             gPlayer.unk38C = 0;
             if (gPlayer.rideMode & 0xF) {
-                gPlayer.action = 0;
+                gPlayer.action = ACT_RUN;
                 gPlayer.rideMode &= 0xF0;
                 gPlayer.unk3D1 = 1;
                 gPlayer.jumpPower = 0;
@@ -2246,11 +2252,11 @@ top:
             if (gSwitches[198].unk0 == 1) {
                 break;
             }
-            if (gPlayer.action == 0 || gPlayer.action == 0x3A || gPlayer.action == 0x3C) {
+            if (gPlayer.action == ACT_RUN || gPlayer.action == ACT_DASH || gPlayer.action == ACT_BRAKE) {
                 if ((s16)gSpeedFixed >> 4 < 15) {
                     gSpeedFixed = 0xF0;
                 }
-                gPlayer.action = 0x23;
+                gPlayer.action = ACT_TIME_UP_START;
                 gMissState = MISS_TIME_UP;
                 D_800959B0 = 0;
                 gMissTimer = 0;
@@ -2519,7 +2525,7 @@ void SteerMode2(void) {
             ApplySteer(2, 16, 5);
             sSteerDrift += 4;
         } else {
-            gPlayer.action = 0x58;
+            gPlayer.action = ACT_ROLL_STRAIGHT;
             if (sSteerDrift != 0) {
                 if (sSteerDrift < 0) {
                     sSteerDrift += 2;
@@ -2681,7 +2687,7 @@ void SteerMode3(void) {
             ApplySteer(2, 16, 8);
             sSteerDrift += 4;
         } else if (gPlayer.y >= gPlayer.groundY) {
-            gPlayer.action = 0x5E;
+            gPlayer.action = ACT_RIDE_STRAIGHT;
             if (sSteerDrift != 0) {
                 if (sSteerDrift < 0) {
                     sSteerDrift += 2;
@@ -2777,7 +2783,7 @@ s32 UpdateSpeedBand(void) {
 
 void ResetPlayerAction(void) {
     gPlayer.motion[0] = 2;
-    gPlayer.action = 0;
+    gPlayer.action = ACT_RUN;
     gPlayer.control = 1;
     gPlayer.slideState = SLIDE_NONE;
     if (gHitRecover == 1) {

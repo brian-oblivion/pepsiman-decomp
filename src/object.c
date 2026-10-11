@@ -505,14 +505,15 @@ void PushPlayerFromWalls(void) {
     func_8002A558();
 }
 
-/** @brief Switches the game mode byte to 0x42 and resets, when a status
- *         field is 1 and the mode is not already 0x43.
+/** @brief Throws the player back (ACT_THROWN_BACK_START) and takes a
+ *         bonus level, when the stage parameter's bits 4-5 are 1 and the
+ *         player is not already thrown back.
  *  @return nothing; the value is undefined. */
 s32 func_8002A558(void) {
     /* MATCHING: non-void with no return keeps the second branch's delay
      * slot a nop. */
-    if ((((u32)gStageParams >> 4) & 3) == 1 && gPlayer.action != 0x43) {
-        gPlayer.action = 0x42;
+    if ((((u32)gStageParams >> 4) & 3) == 1 && gPlayer.action != ACT_THROWN_BACK) {
+        gPlayer.action = ACT_THROWN_BACK_START;
         AddBonusLevel(-1);
     }
 }

@@ -163,10 +163,88 @@ typedef struct {
 
 extern ObjectModel gObjectModels[]; /**< the 80 object model slots */
 
+/** @brief PlayerState.action, what UpdatePlayerAction runs. Most come in
+ *         pairs: a request (`_START`), which sets the motion and the
+ *         rumble, then the state it runs in. A hit picks its action from
+ *         the HitReaction table. The knock-downs end with the player lying
+ *         still: up again while gBonusLevel is above 0, else a miss.
+ *         Values no code here sets are set by the stage overlays. */
+enum PlayerAction {
+    ACT_RUN = 0x00,                      /**< running under control */
+    ACT_TRIP_START = 0x07,               /**< a light hit while running */
+    ACT_TRIP = 0x08,                     /**< slows down; runs on when the motion ends */
+    ACT_TRIP_HARD_START = 0x09,          /**< as ACT_TRIP_START, with a stronger rumble */
+    ACT_TRIP_HARD = 0x0A,                /**< as ACT_TRIP */
+    ACT_TOD_FILTER_START = 0x0F,         /**< sets the motion's packet filter to 0x80 */
+    ACT_TOD_FILTER = 0x10,               /**< runs with it */
+    ACT_LOOK_RESET_START = 0x11,         /**< clears the look point */
+    ACT_LOOK_RESET = 0x12,               /**< eases the look yaws back to 0, then ACT_RUN */
+    ACT_SPIN_START = 0x13,               /**< a spinning hit */
+    ACT_SPIN = 0x14,                     /**< spins and bounces for 30 frames, then up or a fall */
+    ACT_STOP_START = 0x17,               /**< from a run: stops */
+    ACT_STOP = 0x18,                     /**< slows to a halt and stands */
+    ACT_STOP_WAIT_START = 0x19,          /**< stops, then waits */
+    ACT_STOP_WAIT = 0x1A,                /**< 46 frames with object 10's other model, then on */
+    ACT_STOP_ITEM_START = 0x1B,          /**< stops, then holds an object */
+    ACT_STOP_ITEM = 0x1C,                /**< the object appears at frame 40, three sounds
+                                      *   follow (likely the Pepsi drink) */
+    ACT_STOP_POSE_START = 0x1F,          /**< stops, then a pose */
+    ACT_STOP_POSE = 0x20,                /**< the pose, then ACT_RUN */
+    ACT_TIME_UP_START = 0x23,            /**< the clock ran out */
+    ACT_TIME_UP = 0x24,                  /**< slows to a halt over 60 frames */
+    ACT_LAUNCH_START = 0x27,             /**< knocked into the air */
+    ACT_LAUNCH = 0x28,                   /**< lands, skids, lies still */
+    ACT_RIDE_CENTRE_START = 0x33,        /**< a ride: back from a lean */
+    ACT_RIDE_CENTRE = 0x34,              /**< a ride: centred */
+    ACT_RIDE_LEAN_A_START = 0x35,        /**< a ride: leans one way */
+    ACT_RIDE_LEAN_A = 0x36,              /**< leaning that way */
+    ACT_RIDE_LEAN_B_START = 0x37,        /**< a ride: leans the other way */
+    ACT_RIDE_LEAN_B = 0x38,              /**< leaning that way */
+    ACT_DASH_START = 0x39,               /**< up and the slide button at top speed */
+    ACT_DASH = 0x3A,                     /**< a burst of speed for 30 frames */
+    ACT_BRAKE_START = 0x3B,              /**< down and the slide button */
+    ACT_BRAKE = 0x3C,                    /**< slows to a halt within 16 frames */
+    ACT_BRAKE_RISE = 0x3D,               /**< gets up, then ACT_RUN */
+    ACT_KNOCKDOWN_START = 0x3E,          /**< thrown up and forward */
+    ACT_KNOCKDOWN = 0x3F,                /**< lands, skids, lies still */
+    ACT_KNOCKDOWN_BOUNCE_START = 0x40,   /**< thrown up and forward */
+    ACT_KNOCKDOWN_BOUNCE = 0x41,         /**< lands with two bounces, skids, lies still */
+    ACT_THROWN_BACK_START = 0x42,        /**< thrown back: every hit on a ride */
+    ACT_THROWN_BACK = 0x43,              /**< flies back, lands, skids, lies still */
+    ACT_THROWN_BACK_BOUNCE_START = 0x44, /**< thrown back */
+    ACT_THROWN_BACK_BOUNCE = 0x45,       /**< flies back, lands with bounces, lies still */
+    ACT_REEL_START = 0x46,               /**< stopped dead */
+    ACT_REEL = 0x47,                     /**< rocks from side to side, falls back, lies still */
+    ACT_HEAD_HIT_START = 0x48,           /**< a hit on the head; ACT_THROWN_BACK_START with
+                                      *   no bonus level left */
+    ACT_HEAD_HIT = 0x49,                 /**< staggers sideways, then runs on */
+    ACT_FALL_SKID_START = 0x4A,          /**< falls at speed */
+    ACT_FALL_SKID = 0x4B,                /**< skids to a halt and lies still */
+    ACT_FALL_FLAT_START = 0x4C,          /**< stopped dead */
+    ACT_FALL_FLAT = 0x4D,                /**< drops flat and lies still */
+    ACT_TWIRL_START = 0x4E,              /**< a turning hit */
+    ACT_TWIRL = 0x4F,                    /**< turns five and a half times, falls, lies still */
+    ACT_SCREEN_HIT_START = 0x50,         /**< a miss: one of the two below, at random */
+    ACT_SCREEN_HIT_TWIRL = 0x51,         /**< turns while flying at the camera, hits the
+                                      *   screen, shakes the view and slides down */
+    ACT_FLATTENED_START = 0x52,          /**< a miss: crushed */
+    ACT_FLATTENED = 0x53,                /**< drawn flat; MISS_RETRY after 90 frames */
+    ACT_SCREEN_HIT_FLY = 0x55,           /**< flies straight at the camera and hits the screen */
+    ACT_BLOWN_AWAY_START = 0x56,         /**< a miss: thrown high */
+    ACT_BLOWN_AWAY = 0x57,               /**< falls, lies still, MISS_RETRY; stage 4 drops
+                                      *   the player in with it and recovers */
+    ACT_ROLL_STRAIGHT = 0x58,            /**< ride mode 2 with no steering */
+    ACT_RIDE_LEAN_A_IN = 0x5A,           /**< holds the first lean's motion */
+    ACT_RIDE_LEAN_A_OUT = 0x5C,          /**< holds its return motion */
+    ACT_RIDE_STRAIGHT = 0x5E,            /**< ride mode 3 on the ground with no steering */
+    ACT_MODEL_ONCE = 0x60,               /**< a demo model: plays its motion once */
+    ACT_MODEL_LOOP = 0x61                /**< a demo model: loops its motion */
+};
+
 /** @brief PlayerState.slideState: what the slide button last started. */
 enum SlideState {
     SLIDE_NONE = 0,    /**< running */
-    SLIDE_SLIDING = 1, /**< sliding, from down and the button */
+    SLIDE_BRAKING = 1, /**< braking, from down and the slide button */
     SLIDE_DASHING = 2  /**< dashing, from up and the button at top speed */
 };
 
@@ -194,8 +272,7 @@ typedef struct {
                                *   when the player is drawn every other frame pair */
     u8 twoTracks;         /**< nonzero steps both animation channels instead of one */
     u8 unk4;              /**< SetTodFrame's last argument for a single-channel step */
-    u8 action;            /**< the action state UpdatePlayerAction runs (jump, slide, hit
-                               *   reactions); 0x60 and 0x61 for a demo model */
+    u8 action;            /**< what UpdatePlayerAction runs, a PlayerAction */
     u8 motion[2];         /**< the motion each channel is asked to play; for channel 0,
                                *   2 to 4 are the run bands, 8 to 11 the jump */
     u8 curMotion[2];      /**< the motion each channel is playing; 0xFF forces a restart */

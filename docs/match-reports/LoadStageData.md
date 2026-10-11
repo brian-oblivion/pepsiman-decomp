@@ -31,12 +31,12 @@ words). The residue is the order and register use of the offset block:
 extern s32 D_800957F4;
 extern s32 gFloorData;
 extern s32 gSectionEdges;
-extern s32 D_80095840;
-extern s32 D_80095790;
-extern s32 D_80095808;
+extern s32 gStageStart;
+extern s32 gLightColors;
+extern s32 sSectionCamHeights;
 extern s32 gSkyColors;
-extern s32 D_80095948;
-extern s32 D_8009594C;
+extern s32 gStageRunCount;
+extern s32 gPropRunCount;
 
 void LoadStageData(s32 *hdr) {
     u32 i;
@@ -79,16 +79,16 @@ void LoadStageData(s32 *hdr) {
     gSectionEdges = hdr[3] + (s32)hdr + 4;
     gBoundaryEdges = (Edge *)(hdr[4] + (s32)hdr + 4);
     gStageRuns = (Run *)(hdr[5] + 4 + (s32)hdr);
-    D_80095948 = *(s32 *)(hdr[5] + (s32)hdr);
-    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + D_80095948 * 4 + 4);
+    gStageRunCount = *(s32 *)(hdr[5] + (s32)hdr);
+    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + gStageRunCount * 4 + 4);
     gPropRuns = (Run *)(hdr[6] + (s32)hdr + 4);
-    D_8009594C = *(s32 *)(hdr[6] + (s32)hdr);
-    D_80095840 = hdr[7] + (s32)hdr;
-    D_80095808 = hdr[8] + (s32)hdr;
+    gPropRunCount = *(s32 *)(hdr[6] + (s32)hdr);
+    gStageStart = hdr[7] + (s32)hdr;
+    sSectionCamHeights = hdr[8] + (s32)hdr;
     gFogColors = (u8 *)(hdr[9] + (s32)hdr);
-    D_80095790 = hdr[10] + (s32)hdr;
+    gLightColors = hdr[10] + (s32)hdr;
     gSkyColors = hdr[11] + (s32)hdr;
-    gPropRunObjs = (s8 *)(hdr[6] + (s32)hdr + D_8009594C * 4 + 4);
+    gPropRunObjs = (s8 *)(hdr[6] + (s32)hdr + gPropRunCount * 4 + 4);
 }
 
 #endif
@@ -132,17 +132,17 @@ copy shape and stops the `hdr[5]` load from rising is the next thing to try.
 ## Round 13 (alpha)
 
 The round-9 body no longer compiled as given: the unit has since declared
-`gSectionEdges` as `Edge *` and `D_80095808` as `s8 *` further down. With
+`gSectionEdges` as `Edge *` and `sSectionCamHeights` as `s8 *` further down. With
 those two externs retyped and their stores cast, the splice measured
 130/165, 11 insertions / 11 deletions, as recorded.
 
 Matched 165/165 by reading each **count before its table**:
 
 ```c
-    D_80095948 = *(s32 *)(hdr[5] + (s32)hdr);
+    gStageRunCount = *(s32 *)(hdr[5] + (s32)hdr);
     gStageRuns = (Run *)(hdr[5] + (s32)hdr + 4);
-    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + D_80095948 * 4 + 4);
-    D_8009594C = *(s32 *)(hdr[6] + (s32)hdr);
+    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + gStageRunCount * 4 + 4);
+    gPropRunCount = *(s32 *)(hdr[6] + (s32)hdr);
     gPropRuns = (Run *)(hdr[6] + (s32)hdr + 4);
 ```
 
@@ -160,7 +160,7 @@ hdr[5]` (all as the table-first form).
 
 The definition takes `unsigned long *hdr`, main.c's prototype (identical
 code). Declcheck then needed `MATCHING:` notes on the other units' views of
-`D_80095790` (player), `D_80095840` (stage_flow), `gSkyColors`
+`gLightColors` (player), `gStageStart` (stage_flow), `gSkyColors`
 (model) and on main.c's prototype; comments only.
 
 ### Proposed learning

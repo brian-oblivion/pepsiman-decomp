@@ -26,9 +26,9 @@ void DrawCpuMeter(void) {
                 p->y3 = -120;
             }
             p->y2 = p->y3;
-            p->r0 = D_800AC848[i];
-            p->g0 = D_800A7888[i];
-            p->b0 = D_800A76E8[i];
+            p->r0 = sCpuMarkR[i];
+            p->g0 = sCpuMarkG[i];
+            p->b0 = sCpuMarkB[i];
             addPrim(gCurOt->org, p);
             p++;
             GsOUT_PACKET_P = (u8 *)p;

@@ -8,18 +8,18 @@ UpdateSection, inlined, on `gSectionEdges`), turns the camera heading
 `gCameraYaw` toward the path segment's direction (`ratan2`) faster the
 further off it is, places the reference view `gView` on a 400-unit
 circle around that heading, eases its height toward `height` plus the
-per-segment offset `D_80095890` in clamped steps, aims it between `height`
+per-segment offset `sCamHeight` in clamped steps, aims it between `height`
 and `target`, and returns the segment's angle.
 
 ```c
 extern Edge *gSectionEdges; /* declared above DrawHud */
 extern u16 gCameraYaw;
-extern s32 D_80095828;
-extern s16 D_80095994;
-extern s16 D_80095996;
-extern s8 *D_80095808;
-extern s16 D_80095890;
-extern s16 D_800957DE;
+extern s32 sCamTurnStep;
+extern s16 sCamOffsetX;
+extern s16 sCamOffsetZ;
+extern s8 *sSectionCamHeights;
+extern s16 sCamHeight;
+extern s16 sPrevViewY;
 
 #define sView (*(GsRVIEW2 *)gView)
 
@@ -84,36 +84,36 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     /* MATCHING: the distance re-derived in each test; a local for it gets
      * a register retail gives to a. */
     if (iabs(a - b) > 50) {
-        if (D_80095828 < 20) {
-            D_80095828 += 2;
+        if (sCamTurnStep < 20) {
+            sCamTurnStep += 2;
         }
     } else if (iabs(a - b) > 30) {
-        D_80095828 = 10;
+        sCamTurnStep = 10;
     } else if (iabs(a - b) > 5) {
-        D_80095828 = 5;
+        sCamTurnStep = 5;
     } else if (a == b) {
-        D_80095828 = 0;
+        sCamTurnStep = 0;
     } else {
-        D_80095828 = 1;
+        sCamTurnStep = 1;
     }
     if (a - b > 0) {
-        gCameraYaw += D_80095828;
+        gCameraYaw += sCamTurnStep;
     } else {
-        gCameraYaw -= D_80095828;
+        gCameraYaw -= sCamTurnStep;
     }
-    D_80095994 = rsin((s16)gCameraYaw + 0x800) * 400 / 4096;
-    D_80095996 = rcos((s16)gCameraYaw + 0x800) * 400 / 4096;
-    sView.vpz = D_80095996;
-    sView.vpx = D_80095994;
-    D_800957DE = sView.vpy;
-    if (D_80095808[gSection] * 10 < D_80095890) {
-        D_80095890 -= 10;
+    sCamOffsetX = rsin((s16)gCameraYaw + 0x800) * 400 / 4096;
+    sCamOffsetZ = rcos((s16)gCameraYaw + 0x800) * 400 / 4096;
+    sView.vpz = sCamOffsetZ;
+    sView.vpx = sCamOffsetX;
+    sPrevViewY = sView.vpy;
+    if (sSectionCamHeights[gSection] * 10 < sCamHeight) {
+        sCamHeight -= 10;
     }
-    if (D_80095890 < D_80095808[gSection] * 10) {
-        D_80095890 += 10;
+    if (sCamHeight < sSectionCamHeights[gSection] * 10) {
+        sCamHeight += 10;
     }
-    old = D_800957DE;
-    v = height + D_80095890;
+    old = sPrevViewY;
+    v = height + sCamHeight;
     sView.vpy = v;
     if (v - old > 200) {
         sView.vpy = old + 50;
@@ -127,12 +127,12 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
             sView.vpy = a + 10;
         }
     }
-    if (sView.vpy - D_800957DE < -200) {
-        sView.vpy = D_800957DE - 50;
-    } else if (sView.vpy - D_800957DE < -50) {
-        sView.vpy = D_800957DE - 20;
-    } else if (sView.vpy - D_800957DE < -20) {
-        sView.vpy = D_800957DE - 10;
+    if (sView.vpy - sPrevViewY < -200) {
+        sView.vpy = sPrevViewY - 50;
+    } else if (sView.vpy - sPrevViewY < -50) {
+        sView.vpy = sPrevViewY - 20;
+    } else if (sView.vpy - sPrevViewY < -20) {
+        sView.vpy = sPrevViewY - 10;
     }
     /* MATCHING: a fresh local, so the sum stays in one register; -height
      * first loads height first. */
@@ -152,7 +152,7 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
 | step | words |
 | --- | --- |
 | first body (the edge step as UpdateSection's body in a `static __inline__` helper) | 60/272 (length off, so addresses drifted), frame 8 bytes small |
-| `iabs()` for the 0x800 test, the speed ladder ending `a == b ? 0 : 1`, integer-sum segment address | same length; shared `D_80095828` store as retail |
+| `iabs()` for the 0x800 test, the speed ladder ending `a == b ? 0 : 1`, integer-sum segment address | same length; shared `sCamTurnStep` store as retail |
 | `s32 unused[2]`, store order vpz / vpx / vpy, `(-height + target) / 2 - 150` in its own statement | |
 | `s16 angle` (extended only at the return) with `angle = a = ratan2(...)` | 232/272 |
 | the distance re-derived as `iabs(a - b)` in every test instead of a local | 245/272 |

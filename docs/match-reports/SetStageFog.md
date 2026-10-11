@@ -2,21 +2,21 @@
 
 > Renamed from `func_80028650` on 2026-10-11 (tools/rename.py). Address 0x80028650.
 
-**Resolved by the head after merge (round 2):** `D_80095864` is now `extern s32 D_80095864;`
+**Resolved by the head after merge (round 2):** `gStageParams` is now `extern s32 gStageParams;`
 in `include/common.h` (all 6 retail loads are the scalar `lui $X` / `lw $X` form), and the
-body below, reading `D_80095864` instead of `D_80095864[0]`, is live and matches 24/24.
+body below, reading `gStageParams` instead of `gStageParams[0]`, is live and matches 24/24.
 The text below is the stall analysis as filed.
 
 Unit `src/player.c`. Sets the GTE fog range (`SetFogNearFar(3000,
 8000, 250)`) and the far colour from a 4-byte RGB entry of the table
-`gFogColors` points to, picked by bits 8..9 of `D_80095864`.
+`gFogColors` points to, picked by bits 8..9 of `gStageParams`.
 
 ## Blocked on a shared declaration, not on the C
 
-Retail loads `D_80095864` as `lui $s0` / `lw $s0,%lo(D_80095864)($s0)`: the
+Retail loads `gStageParams` as `lui $s0` / `lw $s0,%lo(gStageParams)($s0)`: the
 destination register carries the `%hi`, which is the assembler's expansion
 of a plain symbolic load (a scalar extern). common.h declares it
-`extern s32 D_80095864[];`, so cc1 splits the address itself, picks `$v0`
+`extern s32 gStageParams[];`, so cc1 splits the address itself, picks `$v0`
 for the `%hi`, and schedules that `lui` above the `sw $s0`:
 
 ```
@@ -27,19 +27,19 @@ lw   s0,0x5864(s0)             lw   s0,0x5864(v0)
 ```
 
 The other 23 words are the same. With a local experiment changing
-common.h's line to `extern s32 D_80095864;` (and `(u32)D_80095864`) the
+common.h's line to `extern s32 gStageParams;` (and `(u32)gStageParams`) the
 whole image matches: `OK: build matches retail`, 24/24. Every retail access
-to `D_80095864` in all three units (UpdatePlayer twice, UpdateStageLights,
+to `gStageParams` in all three units (UpdatePlayer twice, UpdateStageLights,
 func_8002A558, FadeInFog, this one) is a `lw` with the `%hi` in the
 destination register, so the scalar declaration fits every one. No unit in
 `src/` references it yet. The edit is not additive, so it is left to the
-head: change common.h's array to `extern s32 D_80095864;` (move it from
+head: change common.h's array to `extern s32 gStageParams;` (move it from
 the arrays block to the small-objects block), then this body goes live
-with `D_80095864` in place of `D_80095864[0]`.
+with `gStageParams` in place of `gStageParams[0]`.
 
 Shapes tried with the array declaration, all 21/24 with the same `$v0`:
-`D_80095864[0]` direct, a `u32` temp loaded first, a local `s32 *p =
-D_80095864;`.
+`gStageParams[0]` direct, a `u32` temp loaded first, a local `s32 *p =
+gStageParams;`.
 
 - The shift is logical (`srl`): the word is cast `(u32)` (an `s32` gives
   `sra`, 23/24).
@@ -54,13 +54,13 @@ D_80095864;`.
 #include "common.h"
 #include "libgte.h"
 
-extern s32 D_80095864; /* scalar, not common.h's array */
+extern s32 gStageParams; /* scalar, not common.h's array */
 extern u8 *gFogColors;
 
 void SetStageFog(void) {
     s32 i;
 
-    i = ((u32)D_80095864 >> 8) & 3;
+    i = ((u32)gStageParams >> 8) & 3;
     SetFogNearFar(3000, 8000, 250);
     SetFarColor(gFogColors[i * 4], gFogColors[i * 4 + 1], gFogColors[i * 4 + 2]);
 }
@@ -68,7 +68,7 @@ void SetStageFog(void) {
 ```
 
 The unit keeps the same body under `#ifdef NON_MATCHING` (with
-`D_80095864[0]`).
+`gStageParams[0]`).
 
 ### Proposed learning
 

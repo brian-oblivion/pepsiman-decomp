@@ -2,13 +2,13 @@
 
 > Renamed from `func_80039C3C` on 2026-10-10 (tools/rename.py). Address 0x80039c3c.
 
-**Round 13 (head):** `D_80096008` is now defined by the tracked linker file `config/undefined_syms.slps01762.pepsiman.txt` (linked by the Makefile ahead of splat's auto file). The body below went live with the array declared at its true start in place of the `D_800960A8 - 10` define; build `OK`. The rest of this report is the round-it-stalled record.
+**Round 13 (head):** `sPieceObjs` is now defined by the tracked linker file `config/undefined_syms.slps01762.pepsiman.txt` (linked by the Makefile ahead of splat's auto file). The body below went live with the array declared at its true start in place of the `D_800960A8 - 10` define; build `OK`. The rest of this report is the round-it-stalled record.
 
 Unit `src/code_29f54.c`. Loads a stage pack: five offsets at the head of
 `pack`, each to a block. Blocks 0 and 1 are the bodies of LinkStageTmd and
 LinkPropsTmd inlined (map a TMD, link its objects to `gStageObjs` /
-`gPropObjs`, point them at `gStageCoord`). Block 2 links `D_800CEF00[i]`
-to coordinates `D_800CEF40[i]`; block 3 links the piece objects (the table
+`gPropObjs`, point them at `gStageCoord`). Block 2 links `sAct3Objs[i]`
+to coordinates `sAct3Coords[i]`; block 3 links the piece objects (the table
 StepEffect11 sorts, `[10 + i]` of a table 10 records before `D_800960A8`)
 to `D_800CDF20[i]`. Block 4 is a sequence directory: entry `i` goes to
 `gAnimations[51 + i]` and the game head's `unk20` / `unk1B0` (the same
@@ -25,13 +25,13 @@ argument walks a second pointer from `D_800960A8`. The source table starts
 symbol (`config/undefined_syms_auto` has only `D_800960A8`).
 
 With a symbol there, the body below is byte-exact: measured in-tree with a
-temporary `__asm__(".globl D_80096008\n.set D_80096008, 0x80096008");` and
-`extern GsDOBJ2 D_80096008[];` in place of the `#define` (build `OK: build
+temporary `__asm__(".globl sPieceObjs\n.set sPieceObjs, 0x80096008");` and
+`extern GsDOBJ2 sPieceObjs[];` in place of the `#define` (build `OK: build
 matches retail`, 243/243, insertions 0 / deletions 0). That asm line is a
 symbol definition in a .c and is not committed. As with StepEffect11, a
 symbols-file entry alone would not do: no instruction references
 0x80096008, so splat does not write it and the link fails. A linker-side
-definition (`D_80096008 = 0x80096008;`) closes this and StepEffect11
+definition (`sPieceObjs = 0x80096008;`) closes this and StepEffect11
 (0x800CDC00) together; the operator's call.
 
 Spellings without the symbol, all 9 words short (one saved register and
@@ -49,8 +49,8 @@ only other fix was the operand order of the offset sums (`pack[k] +
 
 ```c
 #if 0
-extern GsDOBJ2 D_800CEF00[];
-extern GsCOORDINATE2 D_800CEF40[];
+extern GsDOBJ2 sAct3Objs[];
+extern GsCOORDINATE2 sAct3Coords[];
 extern GsDOBJ2 D_800960A8[];
 extern GsCOORDINATE2 D_800CDF20[];
 
@@ -126,9 +126,9 @@ void LoadAct3Data(s32 *pack) {
     GsMapModelingData((unsigned long *)(pack[2] + (s32)pack + 4));
     n = *(s32 *)(pack[2] + (s32)pack + 8);
     for (i = 0; i < n; i++) {
-        GsLinkObject4((unsigned long)(pack[2] + (s32)pack + 12), &D_800CEF00[i], i);
-        D_800CEF00[i].coord2 = &D_800CEF40[i];
-        D_800CEF00[i].attribute = 0;
+        GsLinkObject4((unsigned long)(pack[2] + (s32)pack + 12), &sAct3Objs[i], i);
+        sAct3Objs[i].coord2 = &sAct3Coords[i];
+        sAct3Objs[i].attribute = 0;
     }
     GsMapModelingData((unsigned long *)(pack[3] + (s32)pack + 4));
     n = *(s32 *)(pack[3] + (s32)pack + 8);

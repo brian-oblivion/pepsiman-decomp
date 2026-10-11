@@ -64,7 +64,7 @@ typedef struct {
 } StartRec;
 
 /* MATCHING: a per-unit view; stage stores it as an s32. */
-extern StartRec *D_80095840;
+extern StartRec *gStageStart;
 
 /* MATCHING: object hands it a Rec48; here it gets a position. */
 s32 FindFloor(Pos3 *pos);
@@ -321,7 +321,7 @@ void RestartStage(u8 stage) {
         D_800957F4 = 0;
     }
     gSection = 0;
-    yaw = -D_80095840->unk6;
+    yaw = -gStageStart->unk6;
     gView[1] = (s16)(gCourse.y - 500);
     gCourse.rot.vy = yaw;
     gPlayer.unk37C = gPlayer.yaw = yaw;
@@ -357,7 +357,7 @@ void ResetStage(void) {
     StopCdTrack();
     if (gGameMode != GM_LOAD_SCREEN_MODEL) {
         r.x = 0;
-        r.y = D_800E474C * 240;
+        r.y = PSDIDX * 240;
         r.w = 320;
         r.h = 240;
         MoveImage(&r, 0x280, 0);
@@ -544,7 +544,7 @@ void FadeInFog(void) {
             p++;
             GsOUT_PACKET_P = (u8 *)p;
         }
-        i = ((u32)D_80095864 >> 8) & 3;
+        i = ((u32)gStageParams >> 8) & 3;
         SetFogNearFar(gFogFade * 3000 * 2048 / 0x10000, gFogFade * 8000 * 2048 / 0x10000, 250);
         SetFarColor(gFogColors[i * 4] * (gFogFade << 11) / 0x10000,
                     gFogColors[i * 4 + 1] * (gFogFade << 11) / 0x10000,

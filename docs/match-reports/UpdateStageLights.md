@@ -4,7 +4,7 @@
 
 Unit `src/player.c`. Sets up the scene's three flat lights in the
 table at `gFlatLights`: all three take the colour picked from the 4-byte
-palette entries at `D_80095790` by bits 12-13 of `D_80095864`; light 0
+palette entries at `gLightColors` by bits 12-13 of `gStageParams`; light 0
 points (0, 100, 100), lights 1 and 2 (±86, 100, -50); each is handed to
 `GsSetFlatLight`. Then, if `gFogFade` is 100 or `gStage % 3 == 2`,
 calls SetStageFog (fog and far colour).
@@ -17,14 +17,14 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)gFlatLights)   /* s32 gFlatLights[] in common.h */
 
-extern u8 *D_80095790;
+extern u8 *gLightColors;
 extern u16 gFogFade;
 void SetStageFog(void);
 
 void UpdateStageLights(void) {
     u8 *c;
 
-    c = (u8 *)((((u32)D_80095864 >> 12) & 3) * 4 + (s32)D_80095790);
+    c = (u8 *)((((u32)gStageParams >> 12) & 3) * 4 + (s32)gLightColors);
     sLights.l[0].r = sLights.l[1].r = sLights.l[2].r = c[0];
     sLights.l[0].g = sLights.l[1].g = sLights.l[2].g = c[1];
     sLights.l[0].b = sLights.l[1].b = sLights.l[2].b = c[2];
@@ -64,8 +64,8 @@ void UpdateStageLights(void) {
   retail.
 - **Index-first integer sum** (bravo's round-5 lever): retail adds `idx +
   ptr` (`addu v1, v1(idx), v0(ptr)` with the index loaded first).
-  `D_80095790 + idx` and `&D_80095790[idx]` put the pointer first (69/75,
-  register swap only); `(u8 *)(idx * 4 + (s32)D_80095790)` matches.
+  `gLightColors + idx` and `&gLightColors[idx]` put the pointer first (69/75,
+  register swap only); `(u8 *)(idx * 4 + (s32)gLightColors)` matches.
 - The constant 100 stays in `$s1` across the three calls and serves the
   final compare with no local needed.
 

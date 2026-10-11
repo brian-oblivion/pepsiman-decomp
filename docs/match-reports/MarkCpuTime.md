@@ -5,23 +5,23 @@
 Unit `src/stage.c`. Appends an entry to a 16-slot queue: if the count
 `gCpuMarkCount` is below 16, stores `VSync(1)` (the horizontal-blank counter)
 in the `s32` table `gCpuMarkTimes` and the three arguments in the byte tables
-`D_800AC848`, `D_800A7888` and `D_800A76E8`, then bumps the count.
+`sCpuMarkR`, `sCpuMarkG` and `sCpuMarkB`, then bumps the count.
 
 ```c
 #include "libetc.h" /* VSync */
 
 extern s32 gCpuMarkCount;
 extern s32 gCpuMarkTimes[];
-extern u8 D_800AC848[];
-extern u8 D_800A7888[];
-extern u8 D_800A76E8[];
+extern u8 sCpuMarkR[];
+extern u8 sCpuMarkG[];
+extern u8 sCpuMarkB[];
 
 void MarkCpuTime(s32 a, s32 b, s32 c) {
     if (gCpuMarkCount < 16) {
         gCpuMarkTimes[gCpuMarkCount] = VSync(1);
-        D_800AC848[gCpuMarkCount] = a;
-        D_800A7888[gCpuMarkCount] = b;
-        D_800A76E8[gCpuMarkCount] = c;
+        sCpuMarkR[gCpuMarkCount] = a;
+        sCpuMarkG[gCpuMarkCount] = b;
+        sCpuMarkB[gCpuMarkCount] = c;
         gCpuMarkCount++;
     }
 }

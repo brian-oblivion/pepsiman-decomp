@@ -20,8 +20,8 @@ extern s32 gWipeActive;
 extern s32 gResultsStep;
 extern s8 gResultsSliding[8];
 extern s8 gResultsSlide[8];
-extern u8 D_800956B0[];
-extern u8 D_800956B8[];
+extern u8 sActResultsSlide[];   /**< each results line's slide-in start, for an act */
+extern u8 sWorldResultsSlide[]; /**< each results line's slide-in start, for a world */
 
 /** @brief An 8-byte boundary record: a point and the direction its sign
  *         test projects onto. */
@@ -40,9 +40,9 @@ extern GsDOBJ2 gPropObjs[];
 extern GsCOORDINATE2 gStageCoord;
 
 extern s32 gCpuMarkTimes[];
-extern u8 D_800AC848[];
-extern u8 D_800A7888[];
-extern u8 D_800A76E8[];
+extern u8 sCpuMarkR[]; /**< each CPU-time mark's colour, red */
+extern u8 sCpuMarkG[]; /**< green */
+extern u8 sCpuMarkB[]; /**< blue */
 
 /** @brief A run of entries in a draw list: where it starts and how long. */
 typedef struct {
@@ -55,10 +55,10 @@ extern Run *gStageRuns;
 extern Run *gPropRuns;
 extern s8 *gPropRunObjs;
 
-extern DR_STP D_800DFA90;
-extern DR_ENV D_800DFA10;
-extern DR_STP D_800DFAA0;
-extern DR_ENV D_800DFA50;
+extern DR_STP sDrawStpMain;
+extern DR_ENV sDrawEnvMain;
+extern DR_STP sDrawStpSub;
+extern DR_ENV sDrawEnvSub;
 
 void SetLetterbox(s32 clip) {
     DRAWENV env;
@@ -68,32 +68,32 @@ void SetLetterbox(s32 clip) {
     if (clip) {
         GetDrawEnv(&env);
         env.clip.x = 0;
-        env.clip.y = D_800E474C * 240 + 32;
+        env.clip.y = PSDIDX * 240 + 32;
         env.clip.w = 319;
         env.clip.h = 175;
-        SetDrawStp(&D_800DFA90, 1);
-        addPrim(gOt[gActiveBuff].org + 0xFFF, &D_800DFA90);
-        SetDrawEnv(&D_800DFA10, &env);
-        addPrim(gOt[gActiveBuff].org + 0xFFF, &D_800DFA10);
+        SetDrawStp(&sDrawStpMain, 1);
+        addPrim(gOt[gActiveBuff].org + 0xFFF, &sDrawStpMain);
+        SetDrawEnv(&sDrawEnvMain, &env);
+        addPrim(gOt[gActiveBuff].org + 0xFFF, &sDrawEnvMain);
         env.clip.x = 0;
-        env.clip.y = D_800E474C * 240;
+        env.clip.y = PSDIDX * 240;
         env.clip.w = 319;
         env.clip.h = 239;
-        SetDrawStp(&D_800DFAA0, 1);
-        addPrim(gSubOt[gActiveBuff].org, &D_800DFAA0);
-        SetDrawEnv(&D_800DFA50, &env);
-        addPrim(gSubOt[gActiveBuff].org, &D_800DFA50);
+        SetDrawStp(&sDrawStpSub, 1);
+        addPrim(gSubOt[gActiveBuff].org, &sDrawStpSub);
+        SetDrawEnv(&sDrawEnvSub, &env);
+        addPrim(gSubOt[gActiveBuff].org, &sDrawEnvSub);
     }
 }
 
 /* MATCHING: per-unit views; this loader stores the stage pointers plainly. */
 extern Edge *gSectionEdges;
-extern s32 D_80095840;
-extern s32 D_80095790;
-extern s8 *D_80095808;
+extern s32 gStageStart;        /**< stage header part 7: the record the start heading comes from */
+extern s32 gLightColors;       /**< stage header part 10: light colours, four bytes each */
+extern s8 *sSectionCamHeights; /**< stage header part 8: each section's camera height, in tens */
 extern s32 gSkyColors;
-extern s32 D_80095948;
-extern s32 D_8009594C;
+extern s32 gStageRunCount; /**< the number of runs in gStageRuns */
+extern s32 gPropRunCount;  /**< the number of runs in gPropRuns */
 
 void LoadStageData(unsigned long *hdr) {
     u32 i;
@@ -135,26 +135,23 @@ void LoadStageData(unsigned long *hdr) {
     gFloorData = hdr[2] + (s32)hdr;
     gSectionEdges = (Edge *)(hdr[3] + (s32)hdr + 4);
     gBoundaryEdges = (Edge *)(hdr[4] + (s32)hdr + 4);
-    D_80095948 = *(s32 *)(hdr[5] + (s32)hdr);
+    gStageRunCount = *(s32 *)(hdr[5] + (s32)hdr);
     gStageRuns = (Run *)(hdr[5] + (s32)hdr + 4);
-    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + D_80095948 * 4 + 4);
-    D_8009594C = *(s32 *)(hdr[6] + (s32)hdr);
+    gStageRunObjs = (s8 *)(hdr[5] + (s32)hdr + gStageRunCount * 4 + 4);
+    gPropRunCount = *(s32 *)(hdr[6] + (s32)hdr);
     gPropRuns = (Run *)(hdr[6] + (s32)hdr + 4);
-    D_80095840 = hdr[7] + (s32)hdr;
-    D_80095808 = (s8 *)(hdr[8] + (s32)hdr);
+    gStageStart = hdr[7] + (s32)hdr;
+    sSectionCamHeights = (s8 *)(hdr[8] + (s32)hdr);
     gFogColors = (u8 *)(hdr[9] + (s32)hdr);
-    D_80095790 = hdr[10] + (s32)hdr;
+    gLightColors = hdr[10] + (s32)hdr;
     gSkyColors = hdr[11] + (s32)hdr;
-    gPropRunObjs = (s8 *)(hdr[6] + (s32)hdr + D_8009594C * 4 + 4);
+    gPropRunObjs = (s8 *)(hdr[6] + (s32)hdr + gPropRunCount * 4 + 4);
 }
 
-extern GsDOBJ2 D_800CEF00[];
-extern GsCOORDINATE2 D_800CEF40[];
-extern GsDOBJ2 D_80096008[];
-extern GsCOORDINATE2 D_800CDF20[];
-
-/* MATCHING: D_80096008 is the piece table's true start (undefined_syms.*.txt). */
-
+extern GsDOBJ2 sAct3Objs[];          /**< the act-3 pack's third model's objects */
+extern GsCOORDINATE2 sAct3Coords[];  /**< their coordinate systems */
+extern GsDOBJ2 sPieceObjs[];         /**< the piece objects; LoadAct3Data links from [10] */
+extern GsCOORDINATE2 sPieceCoords[]; /**< each piece object's coordinate system */
 
 /**
  * @brief Maps the stage TMD and links its objects to the stage object table.
@@ -214,16 +211,16 @@ void LoadAct3Data(s32 *pack) {
     GsMapModelingData((unsigned long *)(pack[2] + (s32)pack + 4));
     n = *(s32 *)(pack[2] + (s32)pack + 8);
     for (i = 0; i < n; i++) {
-        GsLinkObject4((unsigned long)(pack[2] + (s32)pack + 12), &D_800CEF00[i], i);
-        D_800CEF00[i].coord2 = &D_800CEF40[i];
-        D_800CEF00[i].attribute = 0;
+        GsLinkObject4((unsigned long)(pack[2] + (s32)pack + 12), &sAct3Objs[i], i);
+        sAct3Objs[i].coord2 = &sAct3Coords[i];
+        sAct3Objs[i].attribute = 0;
     }
     GsMapModelingData((unsigned long *)(pack[3] + (s32)pack + 4));
     n = *(s32 *)(pack[3] + (s32)pack + 8);
     for (i = 0; i < n; i++) {
-        GsLinkObject4((unsigned long)(pack[3] + (s32)pack + 12), &D_80096008[i + 10], i);
-        D_80096008[i + 10].coord2 = &D_800CDF20[i];
-        D_80096008[i + 10].attribute = 0;
+        GsLinkObject4((unsigned long)(pack[3] + (s32)pack + 12), &sPieceObjs[i + 10], i);
+        sPieceObjs[i + 10].coord2 = &sPieceCoords[i + 10];
+        sPieceObjs[i + 10].attribute = 0;
     }
     t = (u8 *)(pack[4] + (s32)pack);
     n = *(s32 *)t / 4;
@@ -434,7 +431,7 @@ void DefineHudSprites(void) {
     DefineSprite(0x15F, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
 }
 
-extern u32 D_80095A84;
+extern u32 sBonusDist; /**< speed summed each frame; its hundreds pick the bonus sprite's frame */
 
 /** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
 typedef struct {
@@ -491,23 +488,23 @@ void DrawHud(void) {
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
     quad[6] = 0;
-    D_80095A84 += gPlayer.speed;
+    sBonusDist += gPlayer.speed;
     switch (gBonusLevel) {
         case 1:
             quad[4] = quad[5] = 0x800;
             if ((gFrameCount >> 1) & 1) {
-                DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+                DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
     if (gTimeLeft == 0x14A) {
@@ -648,11 +645,11 @@ void LineCircleIntersect(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     }
 }
 
-extern s32 D_80095828;
-extern s16 D_80095994;
-extern s16 D_80095996;
-extern s16 D_80095890;
-extern s16 D_800957DE;
+extern s32 sCamTurnStep; /**< how far gCameraYaw turns this frame toward the section's heading */
+extern s16 sCamOffsetX;
+extern s16 sCamOffsetZ;
+extern s16 sCamHeight; /**< the camera height, eased by 10 toward the section's */
+extern s16 sPrevViewY; /**< the view point's y before this frame's clamp */
 
 #define sView (*(GsRVIEW2 *)gView)
 
@@ -715,36 +712,36 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     /* MATCHING: the distance re-derived in each test; a local for it gets
      * a register retail gives to a. */
     if (iabs(a - b) > 50) {
-        if (D_80095828 < 20) {
-            D_80095828 += 2;
+        if (sCamTurnStep < 20) {
+            sCamTurnStep += 2;
         }
     } else if (iabs(a - b) > 30) {
-        D_80095828 = 10;
+        sCamTurnStep = 10;
     } else if (iabs(a - b) > 5) {
-        D_80095828 = 5;
+        sCamTurnStep = 5;
     } else if (a == b) {
-        D_80095828 = 0;
+        sCamTurnStep = 0;
     } else {
-        D_80095828 = 1;
+        sCamTurnStep = 1;
     }
     if (a - b > 0) {
-        gCameraYaw += D_80095828;
+        gCameraYaw += sCamTurnStep;
     } else {
-        gCameraYaw -= D_80095828;
+        gCameraYaw -= sCamTurnStep;
     }
-    D_80095994 = rsin((s16)gCameraYaw + 0x800) * 400 / 4096;
-    D_80095996 = rcos((s16)gCameraYaw + 0x800) * 400 / 4096;
-    sView.vpz = D_80095996;
-    sView.vpx = D_80095994;
-    D_800957DE = sView.vpy;
-    if (D_80095808[gSection] * 10 < D_80095890) {
-        D_80095890 -= 10;
+    sCamOffsetX = rsin((s16)gCameraYaw + 0x800) * 400 / 4096;
+    sCamOffsetZ = rcos((s16)gCameraYaw + 0x800) * 400 / 4096;
+    sView.vpz = sCamOffsetZ;
+    sView.vpx = sCamOffsetX;
+    sPrevViewY = sView.vpy;
+    if (sSectionCamHeights[gSection] * 10 < sCamHeight) {
+        sCamHeight -= 10;
     }
-    if (D_80095890 < D_80095808[gSection] * 10) {
-        D_80095890 += 10;
+    if (sCamHeight < sSectionCamHeights[gSection] * 10) {
+        sCamHeight += 10;
     }
-    old = D_800957DE;
-    v = height + D_80095890;
+    old = sPrevViewY;
+    v = height + sCamHeight;
     sView.vpy = v;
     if (v - old > 200) {
         sView.vpy = old + 50;
@@ -758,12 +755,12 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
             sView.vpy = a + 10;
         }
     }
-    if (sView.vpy - D_800957DE < -200) {
-        sView.vpy = D_800957DE - 50;
-    } else if (sView.vpy - D_800957DE < -50) {
-        sView.vpy = D_800957DE - 20;
-    } else if (sView.vpy - D_800957DE < -20) {
-        sView.vpy = D_800957DE - 10;
+    if (sView.vpy - sPrevViewY < -200) {
+        sView.vpy = sPrevViewY - 50;
+    } else if (sView.vpy - sPrevViewY < -50) {
+        sView.vpy = sPrevViewY - 20;
+    } else if (sView.vpy - sPrevViewY < -20) {
+        sView.vpy = sPrevViewY - 10;
     }
     /* MATCHING: a fresh local, so the sum stays in one register; -height
      * first loads height first. */
@@ -794,9 +791,9 @@ void DrawCpuMeter(void) {
                 p->y3 = -120;
             }
             p->y2 = p->y3;
-            p->r0 = D_800AC848[i];
-            p->g0 = D_800A7888[i];
-            p->b0 = D_800A76E8[i];
+            p->r0 = sCpuMarkR[i];
+            p->g0 = sCpuMarkG[i];
+            p->b0 = sCpuMarkB[i];
             addPrim(gCurOt->org, p);
             p++;
             GsOUT_PACKET_P = (u8 *)p;
@@ -823,7 +820,7 @@ void DrawFrozenFrame(void) {
     DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
     DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
-    rect.y = D_800E474C * 240;
+    rect.y = PSDIDX * 240;
     rect.w = 320;
     rect.h = 240;
     MoveImage(&rect, 640, 0);
@@ -845,7 +842,7 @@ void DrawFrozenFrameFaded(u8 level) {
     DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
     DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
-    rect.y = D_800E474C * 240;
+    rect.y = PSDIDX * 240;
     rect.w = 320;
     rect.h = 240;
     MoveImage(&rect, 640, 0);
@@ -1360,7 +1357,7 @@ typedef struct {
     s8 b[4][4]; /**< four rows of four */
 } Bytes16;
 
-extern Bytes16 D_80011EB0;
+extern Bytes16 sButtonMaps; /**< RemapButtons' table, a row per gButtonConfig */
 
 void RemapButtons(void) {
     Bytes16 tbl;
@@ -1370,7 +1367,7 @@ void RemapButtons(void) {
 
     /* MATCHING: the row index in a local, indexed per use; a row pointer
      * moves the address add above the first andi. */
-    tbl = D_80011EB0;
+    tbl = sButtonMaps;
     a = gPadTrig;
     b = gPad;
     k = gButtonConfig;
@@ -1465,9 +1462,9 @@ void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
 void MarkCpuTime(s32 a, s32 b, s32 c) {
     if (gCpuMarkCount < 16) {
         gCpuMarkTimes[gCpuMarkCount] = VSync(1);
-        D_800AC848[gCpuMarkCount] = a;
-        D_800A7888[gCpuMarkCount] = b;
-        D_800A76E8[gCpuMarkCount] = c;
+        sCpuMarkR[gCpuMarkCount] = a;
+        sCpuMarkG[gCpuMarkCount] = b;
+        sCpuMarkB[gCpuMarkCount] = c;
         gCpuMarkCount++;
     }
 }
@@ -1515,7 +1512,7 @@ void StartActResults(void) {
     s32 i;
     Bytes8 buf;
 
-    buf = *(Bytes8 *)D_800956B0;
+    buf = *(Bytes8 *)sActResultsSlide;
     gResultsStep = 0;
     gResultsTimer = 0;
     gResultsActive = 1;
@@ -1530,7 +1527,7 @@ void StartWorldResults(void) {
     s32 i;
     Bytes8 buf;
 
-    buf = *(Bytes8 *)D_800956B8;
+    buf = *(Bytes8 *)sWorldResultsSlide;
     gResultsStep = 0;
     gResultsTimer = 0;
     gResultsActive = 1;
@@ -1721,34 +1718,31 @@ s32 StepEffect10(Effect *p) {
     return 0;
 }
 
-extern GsCOORDINATE2 D_800CDC00[];
-extern SVECTOR D_800CEBE0[];
-extern GsDOBJ2 D_800960A8[];
+extern SVECTOR sPieceRots[]; /**< each piece object's rotation */
 
-/* MATCHING: D_800CDC00 is the coordinate table's true start (undefined_syms.*.txt). */
 s32 StepEffect11(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     MATRIX m;
 
     if (p->delay == 0) {
-        GsInitCoordinate2(WORLD, &D_800CDC00[p->param0 + 10]);
-        D_800CDC00[p->param0 + 10].coord.t[0] = p->x + x;
-        D_800CDC00[p->param0 + 10].coord.t[1] =
+        GsInitCoordinate2(WORLD, &sPieceCoords[p->param0 + 10]);
+        sPieceCoords[p->param0 + 10].coord.t[0] = p->x + x;
+        sPieceCoords[p->param0 + 10].coord.t[1] =
             p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096 + y;
-        D_800CDC00[p->param0 + 10].coord.t[2] = p->z + z;
-        D_800CDC00[p->param0 + 10].flg = 0;
-        D_800CEBE0[p->param0 + 10].vx = (p->frame * p->param3 << 12) / 360;
-        D_800CEBE0[p->param0 + 10].vy = 0;
-        D_800CEBE0[p->param0 + 10].vz = 0;
-        SetCoordRotation(&D_800CEBE0[p->param0 + 10], &D_800CDC00[p->param0 + 10]);
-        GsGetLs(&D_800CDC00[p->param0 + 10], &m);
+        sPieceCoords[p->param0 + 10].coord.t[2] = p->z + z;
+        sPieceCoords[p->param0 + 10].flg = 0;
+        sPieceRots[p->param0 + 10].vx = (p->frame * p->param3 << 12) / 360;
+        sPieceRots[p->param0 + 10].vy = 0;
+        sPieceRots[p->param0 + 10].vz = 0;
+        SetCoordRotation(&sPieceRots[p->param0 + 10], &sPieceCoords[p->param0 + 10]);
+        GsGetLs(&sPieceCoords[p->param0 + 10], &m);
         GsSetLsMatrix(&m);
-        GsGetLw(&D_800CDC00[p->param0 + 10], &m);
+        GsGetLw(&sPieceCoords[p->param0 + 10], &m);
         GsSetLightMatrix(&m);
         if (p->frame % 5 == 0) {
             SpawnEffect(4, p->x, p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096, p->z, 0);
         }
         p->x += p->param1;
-        GsSortObject4(&D_800960A8[p->param0], ot, 2, (u_long *)0x1F800000);
+        GsSortObject4(&sPieceObjs[p->param0 + 10], ot, 2, (u_long *)0x1F800000);
         return ++p->frame > 29;
     }
     p->delay--;

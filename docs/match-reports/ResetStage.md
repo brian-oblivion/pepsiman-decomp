@@ -14,7 +14,7 @@ one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
 /* Unit-local views: StageState (gPlayer's head, widened for this
  * function), SavedStart (gSavedStart: s32 valid; Pos3 pos; s32 unk10,
  * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (gCourse).
- * Locals: extern s16 D_800E474C; u16 gGameMode, gCameraYaw; u8
+ * Locals: extern s16 PSDIDX; u16 gGameMode, gCameraYaw; u8
  * gLoading, gPauseState; s32 D_800957A4, gTimeLeft, ClipF;
  * s32 gTimeLimitsAlt[][3], gTimeLimits[][3]. The rest from common.h. */
 void ResetStage(void) {
@@ -26,7 +26,7 @@ void ResetStage(void) {
     StopCdTrack();
     if (gGameMode != 0x29) {
         r.x = 0;
-        r.y = D_800E474C * 240;
+        r.y = PSDIDX * 240;
         r.w = 320;
         r.h = 240;
         MoveImage(&r, 0x280, 0);

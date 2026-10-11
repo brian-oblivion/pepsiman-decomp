@@ -6,7 +6,7 @@ Unit `src/code_13068.c`. The player's per-frame step: runs the unit's
 checks, dispatches the stage mode (low nibble of unk3D0) and the camera
 mode (low nibble of `D_8009EF48[0]`) through three jump tables, sets the
 speed display `gSpeedFixed` from unk3A8 (fixed at 70, 90 or 30 by flags in
-`D_80095864`, which can also push the player along the heading), moves
+`gStageParams`, which can also push the player along the heading), moves
 the position by the speed along the heading, clamps unk380 to 0x155 of
 the camera yaw and hands the result to the camera (`gBodyRot`,
 `gTodCoords[0]`, `gWorldShift`).
@@ -59,7 +59,7 @@ void UpdatePlayer(void) {
     }
     sGame.unk344 = (40 - sGame.unk3A8) / 3 + 1;
     t = sGame.unk3A8;
-    switch (((u32)D_80095864 >> 22) & 3) {
+    switch (((u32)gStageParams >> 22) & 3) {
         case 1:
             if (t != 0) {
                 t = 70;
@@ -78,7 +78,7 @@ void UpdatePlayer(void) {
             }
             break;
     }
-    switch (((u32)D_80095864 >> 20) & 3) {
+    switch (((u32)gStageParams >> 20) & 3) {
         case 1:
             if (D_8009EF20[0] != 0) {
                 t = 30;

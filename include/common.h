@@ -324,14 +324,13 @@ extern s32 gHitPointSections; /**< entry count of the first record bank; 2 units
 extern s32 gHitQuadSections;  /**< entry count of the second record bank; 2 units */
 extern u16 gVabLoadStep;      /**< 2 units, 3 functions */
 extern u8 gStage;          /**< the stage being played: stage / 3 is the world, stage % 3 the act */
-extern s32 D_80095864;     /**< 3 units, 5 functions */
+extern s32 gStageParams;   /**< 2-bit stage settings, read at bits 4, 8, 12, 20 and 22 */
 extern u8 gEffectActive;   /**< 2 units, 2 functions */
 extern u8 gEffectFree;     /**< 2 units, 2 functions */
 extern u16 gCans;          /**< 5 units, 7 functions */
 extern s16 gEditMax;       /**< limit of the value being edited */
 extern s16 gMenuLineCount; /**< the count a menu line wraps at */
 extern s32 gPadTrig;       /**< port 1's newly pressed buttons this frame, auto-repeat included */
-extern s16 D_800E474C;     /**< libgs's PSDIDX; 2 units */
 extern u8 *D_800959C0;     /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;     /**< the BlockHeader's second part */
 extern s32 D_800959C8;     /**< the BlockHeader's first word */

@@ -37,7 +37,7 @@ extern s32 D_80095804;
 extern s32 D_8009580C;
 
 /* MATCHING: a per-unit view; stage stores it as an s32. */
-extern u8 *D_80095790;
+extern u8 *gLightColors; /**< the stage's light colours, four bytes each */
 
 /** @brief The three flat lights of the scene: one overhead-front, two behind to the sides. */
 typedef struct {
@@ -405,7 +405,7 @@ void UpdatePlayer(void) {
     }
     gPlayer.unk344 = (40 - gPlayer.speed) / 3 + 1;
     t = gPlayer.speed;
-    switch (((u32)D_80095864 >> 22) & 3) {
+    switch (((u32)gStageParams >> 22) & 3) {
         case 1:
             if (t != 0) {
                 t = 70;
@@ -424,7 +424,7 @@ void UpdatePlayer(void) {
             }
             break;
     }
-    switch (((u32)D_80095864 >> 20) & 3) {
+    switch (((u32)gStageParams >> 20) & 3) {
         case 1:
             if (gPlayer.speed != 0) {
                 t = 30;
@@ -2158,7 +2158,7 @@ s32 SetPlayerView(void) {
 void UpdateStageLights(void) {
     u8 *c;
 
-    c = (u8 *)((((u32)D_80095864 >> 12) & 3) * 4 + (s32)D_80095790);
+    c = (u8 *)((((u32)gStageParams >> 12) & 3) * 4 + (s32)gLightColors);
     sLights.l[0].r = sLights.l[1].r = sLights.l[2].r = c[0];
     sLights.l[0].g = sLights.l[1].g = sLights.l[2].g = c[1];
     sLights.l[0].b = sLights.l[1].b = sLights.l[2].b = c[2];
@@ -2839,7 +2839,7 @@ void PolarOffset(s32 deg, s32 radius, VECTOR *out) {
 void SetStageFog(void) {
     s32 i;
 
-    i = ((u32)D_80095864 >> 8) & 3;
+    i = ((u32)gStageParams >> 8) & 3;
     SetFogNearFar(3000, 8000, 250);
     SetFarColor(gFogColors[i * 4], gFogColors[i * 4 + 1], gFogColors[i * 4 + 2]);
 }

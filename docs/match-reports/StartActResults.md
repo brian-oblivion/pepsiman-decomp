@@ -4,9 +4,9 @@
 
 Unit `src/stage.c`. Resets four state words (`gResultsStep`,
 `gResultsTimer`, `gTallyCans` to 0, `gResultsActive` to 1), then copies the
-8-byte pattern `D_800956B0` (`.sdata`, bytes `F0 .. F7 ...`) into `gResultsSlide`
+8-byte pattern `sActResultsSlide` (`.sdata`, bytes `F0 .. F7 ...`) into `gResultsSlide`
 and clears `gResultsSliding`, byte by byte. StartActResults and StartWorldResults are
-the same body over `D_800956B0` and `D_800956B8`.
+the same body over `sActResultsSlide` and `sWorldResultsSlide`.
 
 ```c
 typedef struct {
@@ -19,13 +19,13 @@ extern s32 gResultsTimer;
 extern s32 gResultsStep;
 extern s8 gResultsSliding[8];
 extern s8 gResultsSlide[8];
-extern u8 D_800956B0[];
+extern u8 sActResultsSlide[];
 
 void StartActResults(void) {
     s32 i;
     Bytes8 buf;
 
-    buf = *(Bytes8 *)D_800956B0;
+    buf = *(Bytes8 *)sActResultsSlide;
     gResultsStep = 0;
     gResultsTimer = 0;
     gResultsActive = 1;
@@ -39,9 +39,9 @@ void StartActResults(void) {
 
 ## Levers
 
-- **The 8-byte local.** Retail copies `D_800956B0` to `0($sp)` with `lwl`/`lwr`
+- **The 8-byte local.** Retail copies `sActResultsSlide` to `0($sp)` with `lwl`/`lwr`
   pairs: a block move of an alignment-1 aggregate. A struct of `u8 b[8]`
-  assigned from `*(Bytes8 *)D_800956B0` gives it. The source is reached
+  assigned from `*(Bytes8 *)sActResultsSlide` gives it. The source is reached
   `lui $v0` / `addiu $t3, $v0, %lo`: cc1's split, so an array of unknown
   size.
 - **`gResultsSlide` and `gResultsSliding` are arrays of KNOWN size 8.** Retail loads

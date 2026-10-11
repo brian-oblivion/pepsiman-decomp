@@ -7,7 +7,7 @@ argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
 resets the head of the game state (`gPlayer`), copies the start position
 from `gCourse`, looks up a per-stage value when the stage's flag in
 `D_8007AD58` is 1, derives the camera height (`D_8009676C`) and the start
-heading (from `D_80095840`), runs the stage set-up calls and clears a
+heading (from `gStageStart`), runs the stage set-up calls and clears a
 halfword in each of the 200 Rec48 records.
 
 ```c
@@ -17,7 +17,7 @@ halfword in each of the 200 Rec48 records.
  *               0x348; s32 unk37C, unk380; s16 unk3C8, unk3CA
  *   Rec48Clear  object's Rec48 with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
- *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
+ *   StartRec    { u8 unk0[6]; s16 unk6; }   (*gStageStart)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
  * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
@@ -48,7 +48,7 @@ void RestartStage(u8 arg0) {
         D_800957F4 = 0;
     }
     gSection = 0;
-    yaw = -D_80095840->unk6;
+    yaw = -gStageStart->unk6;
     D_8009676C[0] = (s16)(gCourse.pos.vy - 500);
     gCourse.rot.vy = yaw;
     sStage.unk37C = sStage.unk380 = yaw;
@@ -86,7 +86,7 @@ void RestartStage(u8 arg0) {
   16-byte VECTOR it even copied a fourth word. Same family as bravo's
   round-6 lever on separate `s32` assignments.
 - **Statement order around the heading.** `gSection = 0; yaw =
-  -D_80095840->unk6; D_8009676C[0] = (s16)(gCourse.pos.vy - 500);
+  -gStageStart->unk6; D_8009676C[0] = (s16)(gCourse.pos.vy - 500);
   gCourse.rot.vy = yaw;` matches. With the `D_8009676C` store before
   the heading read, the build stored it right after its `sra` and moved
   `gSection` down (107/127).

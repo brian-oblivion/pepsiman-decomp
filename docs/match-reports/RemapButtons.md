@@ -5,7 +5,7 @@
 Unit `src/stage.c`. Copies the two button words `gPadTrig` and
 `gPad` into `gGamePadTrig` and `gGamePad`, clears bits 5..7 of each,
 and moves those three bits to positions `5 + row[0..2]`, where `row` is one
-4-byte row of a 16-byte rodata table (`D_80011EB0`, which splat places in
+4-byte row of a 16-byte rodata table (`sButtonMaps`, which splat places in
 card's rodata) chosen by the `s8` `gButtonConfig`. A button remap.
 
 ```c
@@ -13,7 +13,7 @@ typedef struct {
     s8 b[4][4];
 } Bytes16;
 
-extern Bytes16 D_80011EB0;
+extern Bytes16 sButtonMaps;
 extern s8 gButtonConfig;
 extern s32 gGamePad; /* gGamePadTrig: common.h */
 
@@ -23,7 +23,7 @@ void RemapButtons(void) {
     u32 a;
     u32 b;
 
-    tbl = D_80011EB0;
+    tbl = sButtonMaps;
     a = gPadTrig;
     b = gPad;
     k = gButtonConfig;
@@ -43,7 +43,7 @@ void RemapButtons(void) {
 ## Levers
 
 - **The 16-byte local** is a struct copy from an extern struct (three
-  `lwl`/`lwr` words, then the fourth): `tbl = D_80011EB0;`. The table stays
+  `lwl`/`lwr` words, then the fourth): `tbl = sButtonMaps;`. The table stays
   `INCLUDE_RODATA` in card and is only referenced here.
 - **`srl`, not `sra`, after the masks: the copies are `u32`** (88/97 with
   `s32`, which gives `sra`).

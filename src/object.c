@@ -511,7 +511,7 @@ void PushPlayerFromWalls(void) {
 s32 func_8002A558(void) {
     /* MATCHING: non-void with no return keeps the second branch's delay
      * slot a nop. */
-    if ((((u32)D_80095864 >> 4) & 3) == 1 && gPlayer.action != 0x43) {
+    if ((((u32)gStageParams >> 4) & 3) == 1 && gPlayer.action != 0x43) {
         gPlayer.action = 0x42;
         AddBonusLevel(-1);
     }

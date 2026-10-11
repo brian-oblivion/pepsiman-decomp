@@ -2,12 +2,12 @@
 
 > Renamed from `func_8003F100` on 2026-10-10 (tools/rename.py). Address 0x8003f100.
 
-**Round 13 (head):** `D_800CDC00` is now defined by the tracked linker file `config/undefined_syms.slps01762.pepsiman.txt` (linked by the Makefile ahead of splat's auto file). The body below went live with the array declared at its true start in place of the `D_800CDF20 - 10` define; build `OK`. The rest of this report is the round-it-stalled record.
+**Round 13 (head):** `sPieceCoords` is now defined by the tracked linker file `config/undefined_syms.slps01762.pepsiman.txt` (linked by the Makefile ahead of splat's auto file). The body below went live with the array declared at its true start in place of the `D_800CDF20 - 10` define; build `OK`. The rest of this report is the round-it-stalled record.
 
 Unit `src/stage.c`. A slot step (the `SlotStep` signature): places a
 spinning, bobbing 3D piece. After the wait it sets up the piece's
 coordinate record (`[unk4 + 10]` of a GsCOORDINATE2 table) at the slot's
-position plus a sine bob, its rotation record (`D_800CEBE0[unk4 + 10]`,
+position plus a sine bob, its rotation record (`sPieceRots[unk4 + 10]`,
 turning `unkA` degrees per frame), sets the local-screen and light
 matrices, spawns a SpawnEffect effect every fifth frame, moves the piece by
 `unk6` and sorts its object `D_800960A8[unk4]`; done after 30 frames.
@@ -23,15 +23,15 @@ against the +800 and the base register disappears (7 words short, two fewer
 saved registers).
 
 With a symbol at 0x800CDC00 the body below is byte-exact: proven in-tree
-with a temporary `__asm__(".globl D_800CDC00\n.set D_800CDC00,
+with a temporary `__asm__(".globl sPieceCoords\n.set sPieceCoords,
 0x800CDC00");` and `#define sPieceCoords D_800CDC00` (build `OK`, 226/226).
 That asm line is a symbol definition in a .c, not committed. A symbols-file entry
 alone does NOT close it (round 9, head, measured): splat writes only symbols
 that retail's code references into `undefined_syms_auto`, and no instruction
 references 0x800CDC00, so the link fails on `undefined reference to
-D_800CDC00`. Closing it needs a linker-side definition of the symbol (a
+sPieceCoords`. Closing it needs a linker-side definition of the symbol (a
 build change; the operator's call), then
-`extern GsCOORDINATE2 D_800CDC00[];` in place of the `#define` below.
+`extern GsCOORDINATE2 sPieceCoords[];` in place of the `#define` below.
 
 The body also needs `Slot.unkA` as `s16` (`lh 0xA`); that retype is
 committed (layout unchanged, image OK).
@@ -39,7 +39,7 @@ committed (layout unchanged, image OK).
 ```c
 #if 0
 extern GsCOORDINATE2 D_800CDF20[];
-extern SVECTOR D_800CEBE0[];
+extern SVECTOR sPieceRots[];
 extern GsDOBJ2 D_800960A8[];
 
 /* MATCHING: retail indexes the coordinate table from 10 records before the
@@ -57,10 +57,10 @@ s32 StepEffect11(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         sPieceCoords[p->unk4 + 10].coord.t[1] = p->unkE - rsin(p->unk0 * 3 * 8192 / 360) * p->unk8 / 4096 + y;
         sPieceCoords[p->unk4 + 10].coord.t[2] = p->unk10 + z;
         sPieceCoords[p->unk4 + 10].flg = 0;
-        D_800CEBE0[p->unk4 + 10].vx = (p->unk0 * p->unkA << 12) / 360;
-        D_800CEBE0[p->unk4 + 10].vy = 0;
-        D_800CEBE0[p->unk4 + 10].vz = 0;
-        SetCoordRotation(&D_800CEBE0[p->unk4 + 10], &sPieceCoords[p->unk4 + 10]);
+        sPieceRots[p->unk4 + 10].vx = (p->unk0 * p->unkA << 12) / 360;
+        sPieceRots[p->unk4 + 10].vy = 0;
+        sPieceRots[p->unk4 + 10].vz = 0;
+        SetCoordRotation(&sPieceRots[p->unk4 + 10], &sPieceCoords[p->unk4 + 10]);
         GsGetLs(&sPieceCoords[p->unk4 + 10], &m);
         GsSetLsMatrix(&m);
         GsGetLw(&sPieceCoords[p->unk4 + 10], &m);

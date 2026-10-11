@@ -1030,4 +1030,4 @@ INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon1);
 
 INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon2);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011EB0);
+INCLUDE_RODATA("asm/nonmatchings/card", sButtonMaps);

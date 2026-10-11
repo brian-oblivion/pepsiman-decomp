@@ -6,14 +6,14 @@ Unit `src/stage_flow.c`. Fog fade-in, one step a frame. While the step
 `gFogFade` is below 100: on step 0 it adds a full-screen white
 `POLY_F4` (from the primitive buffer `GsOUT_PACKET_P`) to the current ordering
 table; every step it sets the fog near/far planes and the far colour
-scaled by step/32 (the colour picked by bits 8-9 of `D_80095864`, as
+scaled by step/32 (the colour picked by bits 8-9 of `gStageParams`, as
 SetStageFog does at full strength), then advances the step and parks it
 at 100 after 32.
 
 ```c
 /* libgte.h, libgpu.h, libgs.h; draw.h for gSubOt.
  * extern u8 *GsOUT_PACKET_P; common.h: gFogFade (u16), gFogColors (u8 *),
- * D_80095864, gActiveBuff. */
+ * gStageParams, gActiveBuff. */
 void FadeInFog(void) {
     POLY_F4 *p;
     s32 i;
@@ -28,7 +28,7 @@ void FadeInFog(void) {
             p++;
             GsOUT_PACKET_P = (u8 *)p;
         }
-        i = ((u32)D_80095864 >> 8) & 3;
+        i = ((u32)gStageParams >> 8) & 3;
         SetFogNearFar(gFogFade * 3000 * 2048 / 0x10000, gFogFade * 8000 * 2048 / 0x10000, 250);
         SetFarColor(gFogColors[i * 4] * (gFogFade << 11) / 0x10000,
                     gFogColors[i * 4 + 1] * (gFogFade << 11) / 0x10000,

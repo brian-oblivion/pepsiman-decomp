@@ -5,7 +5,7 @@
 Unit `src/stage.c`. The race HUD, drawn each frame: the lap count
 `gCans` left-aligned at the top left (a lone `0` when it is zero),
 the speed dial (DrawSpriteTransformed quads; its needle sprite chosen from the
-distance counter `D_80095A84` advanced by `D_8009EF20[0]`, scaled by the
+distance counter `sBonusDist` advanced by `D_8009EF20[0]`, scaled by the
 mode `gBonusLevel`, blinking in mode 1), a sound cue at frame 330, the
 seconds left (`gTimeLeft / 30`, red under 11, blinking under 5), the
 course progress marker (`gSection` along the path, scaled by the count
@@ -13,7 +13,7 @@ stored before `gSectionEdges`), the time with DrawHudTime and the score
 `gRetries` up to five digits.
 
 ```c
-extern u32 D_80095A84;
+extern u32 sBonusDist;
 extern Edge *gSectionEdges;
 
 /** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
@@ -71,23 +71,23 @@ void DrawHud(void) {
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
     quad[6] = 0;
-    D_80095A84 += D_8009EF20[0];
+    sBonusDist += D_8009EF20[0];
     switch (gBonusLevel) {
         case 1:
             quad[4] = quad[5] = 0x800;
             if ((gFrameCount >> 1) & 1) {
-                DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+                DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            DrawSpriteTransformed(D_80095A84 / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
     if (gTimeLeft == 0x14A) {
@@ -180,7 +180,7 @@ void DrawHud(void) {
   block of the `/ 4096`.
 - **The second digit-count loop has no use**: retail keeps its divisions
   and drops the counter; written without one.
-- **Unsigned `D_80095A84`**: `multu` / `srl` for `/ 100 % 10`, a `u32`.
+- **Unsigned `sBonusDist`**: `multu` / `srl` for `/ 100 % 10`, a `u32`.
 - `switch (gBonusLevel)` with an explicit `case 0: break;` gives retail's
   `beqz` straight to the join; the three needle calls share one tail.
 - `gSectionEdges` is read here as `Edge *` (unit-local type), `((s32

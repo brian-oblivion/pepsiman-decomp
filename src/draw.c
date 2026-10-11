@@ -1925,7 +1925,7 @@ PACKET *SortTmdEnvMapGT3(TmdGT3 *prim, SVECTOR *vtx, SVECTOR *nrm, PACKET *packe
     u32 *tag;
 
     pkt = (POLY_FT3 *)packet;
-    page = (s16)(D_800E474C ^ 1) << 4;
+    page = (s16)(PSDIDX ^ 1) << 4;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();
@@ -1986,7 +1986,7 @@ PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY
     s32 i;
     u32 *tag;
 
-    page = (s16)(D_800E474C ^ 1) << 4;
+    page = (s16)(PSDIDX ^ 1) << 4;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();

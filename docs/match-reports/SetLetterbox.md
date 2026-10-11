@@ -10,10 +10,10 @@ full 319x239 buffer and queues the second draw-mode packet and environment
 at the front of the first ordering table.
 
 ```c
-extern DR_STP D_800DFA90;
-extern DR_ENV D_800DFA10;
-extern DR_STP D_800DFAA0;
-extern DR_ENV D_800DFA50;
+extern DR_STP sDrawStpMain;
+extern DR_ENV sDrawEnvMain;
+extern DR_STP sDrawStpSub;
+extern DR_ENV sDrawEnvSub;
 
 void SetLetterbox(s32 clip) {
     DRAWENV env;
@@ -23,21 +23,21 @@ void SetLetterbox(s32 clip) {
     if (clip) {
         GetDrawEnv(&env);
         env.clip.x = 0;
-        env.clip.y = D_800E474C * 240 + 32;
+        env.clip.y = PSDIDX * 240 + 32;
         env.clip.w = 319;
         env.clip.h = 175;
-        SetDrawStp(&D_800DFA90, 1);
-        addPrim(gOt[gActiveBuff].org + 0xFFF, &D_800DFA90);
-        SetDrawEnv(&D_800DFA10, &env);
-        addPrim(gOt[gActiveBuff].org + 0xFFF, &D_800DFA10);
+        SetDrawStp(&sDrawStpMain, 1);
+        addPrim(gOt[gActiveBuff].org + 0xFFF, &sDrawStpMain);
+        SetDrawEnv(&sDrawEnvMain, &env);
+        addPrim(gOt[gActiveBuff].org + 0xFFF, &sDrawEnvMain);
         env.clip.x = 0;
-        env.clip.y = D_800E474C * 240;
+        env.clip.y = PSDIDX * 240;
         env.clip.w = 319;
         env.clip.h = 239;
-        SetDrawStp(&D_800DFAA0, 1);
-        addPrim(gSubOt[gActiveBuff].org, &D_800DFAA0);
-        SetDrawEnv(&D_800DFA50, &env);
-        addPrim(gSubOt[gActiveBuff].org, &D_800DFA50);
+        SetDrawStp(&sDrawStpSub, 1);
+        addPrim(gSubOt[gActiveBuff].org, &sDrawStpSub);
+        SetDrawEnv(&sDrawEnvSub, &env);
+        addPrim(gSubOt[gActiveBuff].org, &sDrawEnvSub);
     }
 }
 ```

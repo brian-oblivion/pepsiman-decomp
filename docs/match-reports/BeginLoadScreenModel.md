@@ -38,7 +38,7 @@ void BeginLoadScreenModel(void) {
     DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
     DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
-    rect.y = D_800E474C * 240;
+    rect.y = PSDIDX * 240;
     rect.w = 320;
     rect.h = 240;
     MoveImage(&rect, 640, 0);

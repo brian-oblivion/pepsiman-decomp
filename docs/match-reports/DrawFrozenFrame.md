@@ -18,7 +18,7 @@ void DrawFrozenFrame(void) {
     DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
     DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
-    rect.y = D_800E474C * 240;
+    rect.y = PSDIDX * 240;
     rect.w = 320;
     rect.h = 240;
     MoveImage(&rect, 640, 0);
@@ -37,7 +37,7 @@ First build. Frame: `RECT` at 0x28, `SVECTOR` at 0x30, `CVECTOR` at 0x38
 (declaration order after 0x24 bytes of outgoing arguments). The repeated
 `pos.vy = -120` is what keeps -120 in `s1` across the call.
 
-Declarations added to the unit: `extern s16 D_800E474C;` (libgs's
+Declarations added to the unit: `extern s16 PSDIDX;` (libgs's
 `PSDIDX`, the double-buffer index: `GsInitGraph` clears it, and every
 retail read is `lui`/`lh` into one register, a scalar);
 `extern GsOT gOt[];` (DrawFrozenFrameFaded's table); and prototypes of

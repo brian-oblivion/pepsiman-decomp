@@ -19,7 +19,6 @@ D_80095A28
 D_80095A40
 D_80095A58
 D_80095A5C
-D_80095A84
 D_80095A89
 D_80095A8A
 D_80095A8B
@@ -123,6 +122,7 @@ gVabLoadStep
 gViewerMotion
 gWipeActive
 gWipeFrame
+sBonusDist
 sCdModeParam
 sGridAngle
 sJumpDistance

@@ -19,7 +19,7 @@ function's match report, not here.
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
   load. cc1's split of an array puts the address and the value in different
   registers (`lui $v0` / `lbu $v1`). Check every retail load before declaring.
-  (func_800414EC, `u8 gStage`; SetStageFog, `s32 D_80095864`)
+  (func_800414EC, `u8 gStage`; SetStageFog, `s32 gStageParams`)
   Only when the two are ADJACENT: a `lui` in a delay slot with another load
   before its `lw` is cc1's array split (`extern s32 D_8009EF44[];`,
   LandPlayer).

@@ -5,7 +5,7 @@
 Unit `src/draw.c`. The quad twin of SortTmdEnvMapGT3, installed by
 SetTmdSortMode's mode 3 as the TMD handler for lit gouraud-textured quads:
 projects each TmdGT4, culls on the GTE flags and on back faces, and writes a
-POLY_FT4 (code 0x2D, texture page 0x161 plus the page flip of `D_800E474C`)
+POLY_FT4 (code 0x2D, texture page 0x161 plus the page flip of `PSDIDX`)
 whose UVs come from each corner's normal rotated by the current matrix
 (environment-map style: `u = (nx >> 8) - (x/8 - 0x60)`, `v = y/8 + 0x78 +
 (ny >> 8) - page`). The local prototype changed from `PACKET
@@ -24,7 +24,7 @@ PACKET *SortTmdEnvMapGT4(TmdGT4 *prim, SVECTOR *vtx, SVECTOR *nrm, volatile POLY
     s32 i;
     u32 *tag;
 
-    page = (s16)(D_800E474C ^ 1) << 4;
+    page = (s16)(PSDIDX ^ 1) << 4;
     for (i = 0; i < n; i++, prim++) {
         gte_ldv3(&vtx[prim->v0], &vtx[prim->v1], &vtx[prim->v2]);
         gte_rtpt();

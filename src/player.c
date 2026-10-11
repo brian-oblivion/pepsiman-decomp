@@ -327,7 +327,7 @@ void UpdateGridTest(void) {
         D_800959A8 -= 2;
     }
     if (gPadTrig & PADstart) {
-        gGameMode = 3;
+        gGameMode = GM_OVERLAY0_LOAD;
     }
     if (gPad & PADLleft) {
         gRefView[0]++;
@@ -1379,17 +1379,17 @@ top:
     }
     switch (state->motion) {
         case 2:
-            if (gGameMode == 0xE && gLoading == 0 && (gFrameCount & 7) == 0) {
+            if (gGameMode == GM_STAGE && gLoading == 0 && (gFrameCount & 7) == 0) {
                 PlaySe(0x13);
             }
             break;
         case 3:
-            if (gGameMode == 0xE && gLoading == 0 && gFrameCount % 6 == 0) {
+            if (gGameMode == GM_STAGE && gLoading == 0 && gFrameCount % 6 == 0) {
                 PlaySe(0x13);
             }
             break;
         case 4:
-            if (gGameMode == 0xE && gLoading == 0 && (gFrameCount & 3) == 0) {
+            if (gGameMode == GM_STAGE && gLoading == 0 && (gFrameCount & 3) == 0) {
                 PlaySe(0x13);
             }
             break;
@@ -2400,7 +2400,7 @@ top:
             ClipF = 0;
             if (gRetries == 0) {
                 D_8009EF4A[0] = 0;
-                gGameMode = 6;
+                gGameMode = GM_MENU_LOAD;
                 gModeStep = 0xFFFF;
             } else {
                 RestartStage();
@@ -2411,7 +2411,7 @@ top:
             t = ++gMissTimer;
             func_8003E360(t);
             if (t == 0x180) {
-                gGameMode = 6;
+                gGameMode = GM_MENU_LOAD;
             }
             break;
     }

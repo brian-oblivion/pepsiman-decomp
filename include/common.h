@@ -77,6 +77,51 @@
  * one of those members is a `GteLong *`. */
 typedef GTE_LONG_BASE GteLong;
 
+/** @brief The main loop's states, gGameMode. */
+enum GameMode {
+    GM_BOOT = 0,            /**< clears the clear colour and starts the boot load */
+    GM_BOOT_LOAD = 1,       /**< LoadBootData */
+    GM_SOUND_LOAD = 2,      /**< LoadSoundData */
+    GM_OVERLAY0_LOAD = 3,   /**< loads overlay 0 */
+    GM_OVERLAY0_WAIT = 4,   /**< waits for overlay 0 */
+    GM_OVERLAY0 = 5,        /**< runs overlay 0 */
+    GM_MENU_LOAD = 6,       /**< loads overlay 2, the menus; game over and quitting return here */
+    GM_MENU_WAIT = 7,       /**< waits for overlay 2 */
+    GM_MENU = 8,            /**< runs overlay 2 */
+    GM_STAGE_LOAD = 12,     /**< loads the stage overlay */
+    GM_STAGE_WAIT = 13,     /**< waits for the stage overlay */
+    GM_STAGE = 14,          /**< UpdateStagePlay */
+    GM_GRID_TEST_INIT = 15, /**< InitGridTest */
+    GM_GRID_TEST = 16,      /**< UpdateGridTest */
+    GM_MOTION_VIEWER_INIT = 17, /**< starts the motion viewer */
+    GM_MOTION_VIEWER = 19,      /**< UpdateMotionViewer */
+    GM_TRAP_VIEWER_LOAD = 20,   /**< loads the stage overlay for the trap viewer */
+    GM_TRAP_VIEWER_WAIT = 21,   /**< waits for it */
+    GM_TRAP_VIEWER_INIT = 22,   /**< InitStageOverlay */
+    GM_TRAP_VIEWER = 23,        /**< UpdateTrapViewer */
+    GM_TRAP_LAYOUT_LOAD = 24,   /**< loads the stage overlay for the layout viewer */
+    GM_TRAP_LAYOUT_WAIT = 25,   /**< waits for it */
+    GM_TRAP_LAYOUT_INIT = 26,   /**< InitStageOverlay */
+    GM_TRAP_LAYOUT = 27,        /**< UpdateTrapLayoutViewer */
+    GM_EDITOR_LOAD = 28,        /**< loads the stage overlay for the editor */
+    GM_EDITOR_WAIT = 29,        /**< waits for it */
+    GM_EDITOR_INIT = 30,        /**< InitStageOverlay */
+    GM_EDITOR_RELOAD = 31,      /**< waits for a load, then the editor */
+    GM_EDITOR = 32,             /**< UpdateEditor */
+    GM_HIT_TOOL_LOAD = 33,      /**< loads the stage overlay for the hit-data tool */
+    GM_HIT_TOOL_WAIT = 34,      /**< waits for it */
+    GM_HIT_TOOL_INIT = 35,      /**< InitStageOverlay */
+    GM_HIT_TOOL_RELOAD = 36,    /**< waits for a load, then the tool */
+    GM_HIT_TOOL = 37,           /**< UpdateTool */
+    GM_WORLD_INTRO_LOAD = 38,   /**< loads the world's intro overlay (18 + world) */
+    GM_WORLD_INTRO_WAIT = 39,   /**< waits for it */
+    GM_WORLD_INTRO = 40,        /**< runs it */
+    GM_LOAD_SCREEN_MODEL = 41,  /**< UpdateLoadScreenModel */
+    GM_LOAD_SCREEN = 42,        /**< UpdateLoadScreen */
+    GM_LOAD_SCREEN_ACT3 = 43,   /**< UpdateAct3LoadScreen */
+    GM_MOVIE = 44,              /**< plays the world's movie */
+};
+
 /* --- Globals shared across units ------------------------------------------
  *
  * Only what every unit can use unchanged: a global that some units reach as a
@@ -165,7 +210,7 @@ extern s32 gFloorData;     /**< the address of the floor data a probe tests; 2 u
 extern u8 gLivePoints[];   /**< a 0x44C0-byte buffer of 0x2C-byte placed records */
 extern u8 gLiveQuads[];    /**< a 0x1DB0-byte buffer of 0x4C-byte records */
 extern u8 gCdTrackPlaying; /**< 1 while CD audio is playing; 2 units */
-extern u16 gGameMode;      /**< the main loop's state */
+extern u16 gGameMode;      /**< the main loop's state, a GameMode */
 extern s16 gCdLoadCount;   /**< files in the current CD load */
 extern u8 gLoading; /**< 1 while a load runs: a fixed view and a black screen; 0 the game's view */
 extern s8 gPauseState;        /**< nonzero stops the frame counter; 2 units */

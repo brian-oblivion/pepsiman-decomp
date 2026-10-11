@@ -813,7 +813,7 @@ s32 UpdateEditor(void) {
         D_80095962 = 1;
         ResetStageObjects();
         gModeStep = 3;
-        gGameMode = 14;
+        gGameMode = GM_STAGE;
     }
     if (gPadTrig & PADselect) {
         switch (sTotals.unk4) {

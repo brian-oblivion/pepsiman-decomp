@@ -577,7 +577,7 @@ void DrawObjectModel(Rec78 *rec, Rec48 *r) {
     param.scale.vz = m->scale.vz;
     ScaleMatrix(&mat, &param.scale);
     GsSetLsMatrix(&mat);
-    if (gGameMode == 0x25) {
+    if (gGameMode == GM_HIT_TOOL) {
         GsSortObject4(&m->obj, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
     } else if (absInt(m->coord.coord.t[0]) > 700 || absInt(m->coord.coord.t[2]) > 700) {
         GsSortObject4J(&m->obj, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
@@ -1034,8 +1034,8 @@ void DrawObjectSprite(u16 id, Rec3C *r) {
     coord.flg = 0;
     GsGetLs(&coord, &mat);
     GsSetLsMatrix(&mat);
-    if (gGameMode != 0x20 && (r->unk26 & 0x3F) == 1 && absInt(r->unk4 + gWorldShift[0]) < 600 &&
-        absInt(r->unkC + gWorldShift[2]) < 600) {
+    if (gGameMode != GM_EDITOR && (r->unk26 & 0x3F) == 1 &&
+        absInt(r->unk4 + gWorldShift[0]) < 600 && absInt(r->unkC + gWorldShift[2]) < 600) {
         k = id + 1;
     }
     switch (D_800A7618[k - 30]) {

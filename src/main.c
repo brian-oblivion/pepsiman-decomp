@@ -96,7 +96,7 @@ int main(void) {
     }
     gViewerMotion = 0;
     gModeStep = 0;
-    gGameMode = 0;
+    gGameMode = GM_BOOT;
     gLoading = 0;
     gRumbleLarge = 0;
     gRumbleSmall = 0;
@@ -110,49 +110,49 @@ int main(void) {
             ResetClearColor();
         }
         switch (gGameMode) {
-            case 0:
+            case GM_BOOT:
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gSubStep = 0;
-                gGameMode = 1;
+                gGameMode = GM_BOOT_LOAD;
                 gVSyncMode = 2;
                 break;
-            case 1:
+            case GM_BOOT_LOAD:
                 if (LoadBootData() == 1) {
                     gSubStep = 0;
-                    gGameMode = 2;
+                    gGameMode = GM_SOUND_LOAD;
                 }
                 break;
-            case 2:
+            case GM_SOUND_LOAD:
                 if (LoadSoundData() == 1) {
-                    gGameMode = 6;
+                    gGameMode = GM_MENU_LOAD;
                 }
                 break;
-            case 3:
+            case GM_OVERLAY0_LOAD:
                 gLoading = 1;
-                gGameMode = 4;
+                gGameMode = GM_OVERLAY0_WAIT;
                 LoadOverlay(0);
                 break;
-            case 4:
+            case GM_OVERLAY0_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 5;
+                    gGameMode = GM_OVERLAY0;
                     gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
-            case 5:
+            case GM_OVERLAY0:
                 func_800F026C();
                 break;
-            case 6:
+            case GM_MENU_LOAD:
                 gLoading = 1;
                 gInEditor = 0;
-                gGameMode = 7;
+                gGameMode = GM_MENU_WAIT;
                 LoadOverlay(2);
                 break;
-            case 7:
+            case GM_MENU_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 8;
+                    gGameMode = GM_MENU;
                     if (gModeStep == 0xFFFF) {
                         gModeStep = 50;
                     } else {
@@ -161,27 +161,27 @@ int main(void) {
                     gLoading = 0;
                 }
                 break;
-            case 8:
+            case GM_MENU:
                 func_800F6670();
                 UpdateRumble();
                 break;
-            case 38:
+            case GM_WORLD_INTRO_LOAD:
                 world = gStage / 3;
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gLoading = 1;
-                gGameMode = 39;
+                gGameMode = GM_WORLD_INTRO_WAIT;
                 LoadOverlay(world + 18);
                 break;
-            case 39:
+            case GM_WORLD_INTRO_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 40;
+                    gGameMode = GM_WORLD_INTRO;
                 }
                 gModeStep = 0;
                 D_80095768 = 0;
                 break;
-            case 40:
+            case GM_WORLD_INTRO:
                 switch ((u8)(gStage / 3)) {
                     case 0:
                         func_800F03BC();
@@ -202,193 +202,193 @@ int main(void) {
                         break;
                 }
                 break;
-            case 12:
+            case GM_STAGE_LOAD:
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gInEditor = 0;
                 gLoading = 1;
-                gGameMode = 13;
+                gGameMode = GM_STAGE_WAIT;
                 LoadStageOverlay(gStage);
                 break;
-            case 13:
+            case GM_STAGE_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 14;
+                    gGameMode = GM_STAGE;
                 }
                 gModeStep = 0;
                 break;
-            case 14:
+            case GM_STAGE:
                 UpdateStagePlay(gStage);
                 break;
-            case 15:
-                gGameMode = 16;
+            case GM_GRID_TEST_INIT:
+                gGameMode = GM_GRID_TEST;
                 InitGridTest();
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gVSyncMode = 2;
                 break;
-            case 16:
+            case GM_GRID_TEST:
                 UpdateGridTest();
                 break;
-            case 17:
+            case GM_MOTION_VIEWER_INIT:
                 gVSyncMode = 2;
-                gGameMode = 19;
+                gGameMode = GM_MOTION_VIEWER;
                 gModeStep = 0;
                 break;
-            case 19:
+            case GM_MOTION_VIEWER:
                 UpdateMotionViewer();
                 break;
-            case 20:
-                gGameMode = 23;
+            case GM_TRAP_VIEWER_LOAD:
+                gGameMode = GM_TRAP_VIEWER;
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gLoading = 1;
-                gGameMode = 21;
+                gGameMode = GM_TRAP_VIEWER_WAIT;
                 gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 0;
                 break;
-            case 21:
+            case GM_TRAP_VIEWER_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 22;
+                    gGameMode = GM_TRAP_VIEWER_INIT;
                 }
                 break;
-            case 22:
+            case GM_TRAP_VIEWER_INIT:
                 if (InitStageOverlay(gStage) == 1) {
-                    gGameMode = 23;
+                    gGameMode = GM_TRAP_VIEWER;
                     gLoading = 0;
                 }
                 break;
-            case 23:
+            case GM_TRAP_VIEWER:
                 UpdateTrapViewer();
                 break;
-            case 24:
+            case GM_TRAP_LAYOUT_LOAD:
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gLoading = 1;
-                gGameMode = 25;
+                gGameMode = GM_TRAP_LAYOUT_WAIT;
                 gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 0;
                 break;
-            case 25:
+            case GM_TRAP_LAYOUT_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 26;
+                    gGameMode = GM_TRAP_LAYOUT_INIT;
                 }
                 break;
-            case 26:
+            case GM_TRAP_LAYOUT_INIT:
                 if (InitStageOverlay(gStage) == 1) {
-                    gGameMode = 27;
+                    gGameMode = GM_TRAP_LAYOUT;
                     gLoading = 0;
                     gModeStep = 0;
                 }
                 break;
-            case 27:
+            case GM_TRAP_LAYOUT:
                 UpdateTrapLayoutViewer();
                 break;
-            case 28:
+            case GM_EDITOR_LOAD:
                 gInEditor = 1;
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gLoading = 1;
-                gGameMode = 29;
+                gGameMode = GM_EDITOR_WAIT;
                 gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 2;
                 break;
-            case 29:
+            case GM_EDITOR_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 30;
+                    gGameMode = GM_EDITOR_INIT;
                 }
                 break;
-            case 30:
+            case GM_EDITOR_INIT:
                 if (InitStageOverlay(gStage) == 1) {
-                    gGameMode = 32;
+                    gGameMode = GM_EDITOR;
                     gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
-            case 31:
+            case GM_EDITOR_RELOAD:
                 if (gCdLoadState == 6) {
-                    gGameMode = 32;
+                    gGameMode = GM_EDITOR;
                     gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
-            case 32:
+            case GM_EDITOR:
                 UpdateEditor();
                 break;
-            case 33:
+            case GM_HIT_TOOL_LOAD:
                 gInEditor = 1;
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gLoading = 1;
-                gGameMode = 34;
+                gGameMode = GM_HIT_TOOL_WAIT;
                 gSubStep = 0;
                 D_800958E2 = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 2;
                 break;
-            case 34:
+            case GM_HIT_TOOL_WAIT:
                 if (gCdLoadState == 6) {
-                    gGameMode = 35;
+                    gGameMode = GM_HIT_TOOL_INIT;
                 }
                 break;
-            case 35:
+            case GM_HIT_TOOL_INIT:
                 if (InitStageOverlay(gStage) == 1) {
-                    gGameMode = 37;
+                    gGameMode = GM_HIT_TOOL;
                     gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
-            case 36:
+            case GM_HIT_TOOL_RELOAD:
                 if (gCdLoadState == 6) {
-                    gGameMode = 37;
+                    gGameMode = GM_HIT_TOOL;
                     gModeStep = 0;
                     gLoading = 0;
                 }
                 break;
-            case 37:
+            case GM_HIT_TOOL:
                 UpdateTool();
                 break;
-            case 41:
+            case GM_LOAD_SCREEN_MODEL:
                 UpdateLoadScreenModel();
                 break;
-            case 42:
+            case GM_LOAD_SCREEN:
                 UpdateLoadScreen();
                 break;
-            case 43:
+            case GM_LOAD_SCREEN_ACT3:
                 UpdateAct3LoadScreen();
                 break;
-            case 44:
+            case GM_MOVIE:
                 switch ((u8)(gStage / 3)) {
                     case 0:
                         PlayMovie("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
-                        gGameMode = 38;
+                        gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
                     case 1:
                         PlayMovie("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
-                        gGameMode = 38;
+                        gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
                     case 2:
                         PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
-                        gGameMode = 38;
+                        gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
                     case 3:
                         PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
-                        gGameMode = 38;
+                        gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
                     case 4:
                         PlayMovie("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
-                        gGameMode = 38;
+                        gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
                     case 5:
                         PlayMovie("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
@@ -399,7 +399,7 @@ int main(void) {
                             gUnlocks |= 8;
                         }
                         D_800957A0 = -1;
-                        gGameMode = 6;
+                        gGameMode = GM_MENU_LOAD;
                         gModeStep = 0;
                         break;
                 }
@@ -609,7 +609,7 @@ void EndFrame(void) {
 
     switch (gLoading) {
         case 0:
-            if (gGameMode != 14) {
+            if (gGameMode != GM_STAGE) {
                 GsSetRefView2((GsRVIEW2 *)gRefView);
             }
             break;
@@ -1270,7 +1270,7 @@ void BeginLoadScreenModel(void) {
     gRefView[4] = -150;
     gRefView[5] = 0;
     gSubStep = 0;
-    gGameMode = 0x29;
+    gGameMode = GM_LOAD_SCREEN_MODEL;
 }
 
 void BeginLoadScreen(void) {
@@ -1291,7 +1291,7 @@ void BeginLoadScreen(void) {
     pos.vy = -120;
     DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
-    gGameMode = 0x2A;
+    gGameMode = GM_LOAD_SCREEN;
 }
 
 void BeginAct3LoadScreen(void) {
@@ -1312,7 +1312,7 @@ void BeginAct3LoadScreen(void) {
     pos.vy = -120;
     DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
-    gGameMode = 0x2B;
+    gGameMode = GM_LOAD_SCREEN_ACT3;
 }
 
 /* Each stage's disc directory (the names are guesses): file positions,
@@ -1945,7 +1945,7 @@ void UpdateLoadScreenModel(void) {
         gModeStep = 4;
         gElapsed = 0;
         gSubStep = 0;
-        gGameMode = 14;
+        gGameMode = GM_STAGE;
         PlayStageMusic(gStage);
     }
 }
@@ -1967,7 +1967,7 @@ void UpdateLoadScreen(void) {
         gModeStep = 4;
         gElapsed = 0;
         gSubStep = 0;
-        gGameMode = 14;
+        gGameMode = GM_STAGE;
         PlayStageMusic(gStage);
     }
 }
@@ -1990,7 +1990,7 @@ void UpdateAct3LoadScreen(void) {
     if (gSubStep == 100) {
         gModeStep = 4;
         gSubStep = 0;
-        gGameMode = 14;
+        gGameMode = GM_STAGE;
     }
 }
 

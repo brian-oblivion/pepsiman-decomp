@@ -322,7 +322,7 @@ void UpdateStagePlay(u8 stage) {
             } else {
                 if (gPad & PADselect) {
                     StartRumble(gRumblePatterns, 0);
-                    gGameMode = 6;
+                    gGameMode = GM_MENU_LOAD;
                     gModeStep = 0;
                     StopCdTrack();
                     sStage.unk3D2 = 0;
@@ -415,7 +415,7 @@ void ResetStage(void) {
 
     D_80095900 = 1;
     StopCdTrack();
-    if (gGameMode != 0x29) {
+    if (gGameMode != GM_LOAD_SCREEN_MODEL) {
         r.x = 0;
         r.y = D_800E474C * 240;
         r.w = 320;

@@ -244,6 +244,20 @@ typedef struct {
 
 extern PlayerState gPlayer; /**< the player */
 
+/** @brief A 10-byte hit record, one per group of the player's collision
+ *         points; collision fills it, player reacts to it. */
+typedef struct {
+    s8 hit;   /**< the hit flag; 0 when free */
+    u8 point; /**< the nearest point of the group */
+    u8 kind;  /**< what hit, a row of the HitReaction table */
+    u8 unk3;  /**< from the query */
+    s16 unk4; /**< from the query */
+    s16 unk6; /**< from the query */
+    s16 unk8; /**< from the query */
+} PlayerHit;
+
+extern PlayerHit gPlayerHits[3]; /**< one per point group */
+
 /* Small: a plain extern. */
 extern s32 gTimInfo;        /**< 2 units, 4 functions */
 extern u8 gClearB;          /**< the screen clear and fog colour, blue */
@@ -358,7 +372,6 @@ extern s16 D_8009EF20[];      /**< 2 units, 6 functions */
 extern u8 D_8009EF48[];       /**< 4 units, 7 functions */
 extern s8 D_8009EF4A[];       /**< 2 units, 2 functions */
 extern s32 gCdLoadDest[];     /**< each file's load address in the current CD load */
-extern u8 gPlayerHits[];      /**< 2 units, 4 functions */
 extern s32 gCdLoadSectors[];  /**< each file's length in sectors, less one */
 extern s32 gWorldShift[];     /**< 5 units, 22 functions */
 extern s32 D_800A9008[];      /**< 3 units, 17 functions */

@@ -36,19 +36,7 @@ typedef struct {
     u8 pad1A[0x30 - 0x1A];
 } Sphere;
 
-/** @brief A 10-byte hit record, one per player point group. */
-typedef struct {
-    s8 hit;   /**< the hit flag; 0 when free */
-    u8 point; /**< the nearest point of the group */
-    u8 unk2;  /**< from the query */
-    u8 unk3;  /**< from the query */
-    s16 unk4; /**< from the query */
-    s16 unk6; /**< from the query */
-    s16 unk8; /**< from the query */
-} PlayerHit;
-
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-#define sHits ((PlayerHit *)gPlayerHits)
 
 /** @brief A 0x4C-byte record: four local corners, their world positions
  *         and the coordinate system that places them. */
@@ -271,14 +259,14 @@ s32 CollidePlayer(Sphere *q) {
         a.radius = r[i];
         hit |= SpheresOverlap(&a, &b);
         h = hit;
-        if (h == 1 && sHits[i].hit == 0) {
-            sHits[i].point = FindNearestPlayerPoint(i * 6 + 7, (VECTOR *)&b);
-            sHits[i].hit = h;
-            sHits[i].unk2 = q->unk18;
-            sHits[i].unk3 = q->unk19;
-            sHits[i].unk4 = q->unkC;
-            sHits[i].unk6 = q->unkE;
-            sHits[i].unk8 = q->unk10;
+        if (h == 1 && gPlayerHits[i].hit == 0) {
+            gPlayerHits[i].point = FindNearestPlayerPoint(i * 6 + 7, (VECTOR *)&b);
+            gPlayerHits[i].hit = h;
+            gPlayerHits[i].kind = q->unk18;
+            gPlayerHits[i].unk3 = q->unk19;
+            gPlayerHits[i].unk4 = q->unkC;
+            gPlayerHits[i].unk6 = q->unkE;
+            gPlayerHits[i].unk8 = q->unk10;
         }
     }
     return hit;
@@ -522,9 +510,9 @@ void func_80029838(void) {
 }
 
 void ResetPlayerHits(void) {
-    gPlayerHits[0] = 0;
-    gPlayerHits[10] = 0;
-    gPlayerHits[20] = 0;
+    gPlayerHits[0].hit = 0;
+    gPlayerHits[1].hit = 0;
+    gPlayerHits[2].hit = 0;
     PlacePlayerPoints();
 }
 

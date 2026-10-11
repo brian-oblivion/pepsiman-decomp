@@ -124,16 +124,7 @@ s32 TrySlide(void);
 /* MATCHING: editor stores it as u8; this unit's tests load it lb. */
 extern s8 D_80095962;
 
-/** @brief One of gPlayerHits' three records; a live one is reacted to. */
-typedef struct {
-    s8 unk0; /**< nonzero when the slot is live */
-    u8 pad1;
-    u8 unk2; /**< what hit, a row of the HitReaction table */
-    u8 pad3[7];
-} HitSlot;
-
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-#define sHits ((HitSlot *)gPlayerHits)
 
 /** @brief How the player reacts to one kind of hit: the action per state. */
 typedef struct {
@@ -775,12 +766,12 @@ s32 ApplyGravity(void) {
 end:;
 }
 
-/* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
+/* MATCHING: the volatile read keeps the later kind reads as reloads, as retail. */
 void ReactToHits(PlayerState *state) {
     u8 v;
     s16 i;
     u8 m;
-    HitSlot *p;
+    PlayerHit *p;
 
     v = 0;
     if (state->hittable == 0) {
@@ -790,12 +781,12 @@ void ReactToHits(PlayerState *state) {
         return;
     }
     for (i = 0; i < 3; i++) {
-        p = &sHits[i];
-        if (p->unk0 == 0) {
+        p = &gPlayerHits[i];
+        if (p->hit == 0) {
             continue;
         }
         D_8009599C = 0;
-        if ((u32)(*(volatile u8 *)&p->unk2 - 15) >= 4) {
+        if ((u32)(*(volatile u8 *)&p->kind - 15) >= 4) {
             m = state->motion[0];
             switch (state->action) {
                 case 0:
@@ -808,28 +799,28 @@ void ReactToHits(PlayerState *state) {
                         case 2:
                         case 3:
                         case 4:
-                            v = gHitReactions[sHits[i].unk2].b[0];
+                            v = gHitReactions[gPlayerHits[i].kind].b[0];
                             break;
                         case 8:
                         case 9:
                         case 10:
                         case 11:
-                            v = gHitReactions[sHits[i].unk2].b[1];
+                            v = gHitReactions[gPlayerHits[i].kind].b[1];
                             break;
                         case 5:
                         case 6:
                         case 7:
-                            v = gHitReactions[sHits[i].unk2].b[2];
+                            v = gHitReactions[gPlayerHits[i].kind].b[2];
                             break;
                     }
                     break;
                 case 0x39:
                 case 0x3A:
-                    v = gHitReactions[p->unk2].b[3];
+                    v = gHitReactions[p->kind].b[3];
                     break;
                 case 0x3B:
                 case 0x3C:
-                    v = gHitReactions[p->unk2].b[0];
+                    v = gHitReactions[p->kind].b[0];
                     break;
                 default:
                     switch (gPlayer.rideMode & 0xF) {
@@ -840,7 +831,7 @@ void ReactToHits(PlayerState *state) {
                             break;
                         case 3:
                         default:
-                            v = gHitReactions[sHits[i].unk2].b[4];
+                            v = gHitReactions[gPlayerHits[i].kind].b[4];
                             break;
                     }
                     break;
@@ -853,7 +844,7 @@ void ReactToHits(PlayerState *state) {
                     break;
             }
         } else {
-            v = gHitReactions[p->unk2].b[2 - i];
+            v = gHitReactions[p->kind].b[2 - i];
             if (gPlayer.rideMode & 0xF) {
                 v = 0x42;
             }
@@ -870,17 +861,17 @@ void ReactToHits(PlayerState *state) {
                 D_8009599C = 1;
                 state->invulnTimer = 750;
                 state->action = v;
-                if (sHits[i].unk2 != 0) {
+                if (gPlayerHits[i].kind != 0) {
                     EndJump();
                 }
-                D_8009575F = sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0;
+                D_8009575F = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
                 return;
             case 0:
             default:
                 if (v == 0) {
                     continue;
                 }
-                if (gHitReactions[sHits[i].unk2].b[5] == 1) {
+                if (gHitReactions[gPlayerHits[i].kind].b[5] == 1) {
                     state->hittable = 0;
                     state->invulnTimer = 150;
                     D_8009599C = 1;
@@ -888,19 +879,19 @@ void ReactToHits(PlayerState *state) {
                     state->hittable = 0;
                     state->invulnTimer = 18;
                 }
-                if (gHitReactions[sHits[i].unk2].b[6] == 1) {
+                if (gHitReactions[gPlayerHits[i].kind].b[6] == 1) {
                     gPlayer.unk3D5 = 1;
                     gBonusLevel = 0;
                 }
-                if (gHitReactions[sHits[i].unk2].b[7] == 1 &&
-                    (s8)(sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0) != D_8009575F) {
+                if (gHitReactions[gPlayerHits[i].kind].b[7] == 1 &&
+                    (s8)(gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit) != D_8009575F) {
                     AddBonusLevel(-1);
                 }
                 state->action = v;
-                if (sHits[i].unk2 != 0) {
+                if (gPlayerHits[i].kind != 0) {
                     EndJump();
                 }
-                D_8009575F = sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0;
+                D_8009575F = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
                 return;
         }
     }
@@ -931,7 +922,7 @@ s32 UpdatePlayerAction(PlayerState *state) {
         gPlayer.invulnTimer = 0;
         gPlayer.hittable = 1;
     } else {
-        if (sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0) {
+        if (gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit) {
             if (t == 1) {
                 gPlayer.invulnTimer = 2;
             }

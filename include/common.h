@@ -163,6 +163,26 @@ typedef struct {
 
 extern ObjectModel gObjectModels[]; /**< the 80 object model slots */
 
+/** @brief PlayerState.slideState: what the slide button last started. */
+enum SlideState {
+    SLIDE_NONE = 0,    /**< running */
+    SLIDE_SLIDING = 1, /**< sliding, from down and the button */
+    SLIDE_DASHING = 2  /**< dashing, from up and the button at top speed */
+};
+
+/** @brief PlayerState.jumpState. */
+enum JumpState {
+    JUMP_NONE = 0,    /**< on the ground, or falling: a jump can start */
+    JUMP_RISING = 1,  /**< the button is held and the jump still rises */
+    JUMP_RELEASED = 2 /**< for one step after the rise ends */
+};
+
+/** @brief The controller type byte, gPadType. */
+enum PadType {
+    PAD_TYPE_DIGITAL = 0x41, /**< a digital pad */
+    PAD_TYPE_ANALOG = 0x73   /**< an analog pad in analog mode */
+};
+
 /** @brief The player's state (gPlayer), 0x3D8 bytes. Its head is the
  *         animation state StepAnimation runs: two channels, each asking
  *         for a motion (a TOD sequence) and playing one. The load screen
@@ -209,9 +229,9 @@ typedef struct {
     s32 lean;       /**< the body roll while steering, -15..15; decays to 0 */
     s32 unk388;     /**< object 2's eased turn toward the look point (gLookYawNarrow) */
     s16 unk38C;     /**< cleared whenever slideState changes */
-    u8 slideState;  /**< 0 running, 1 sliding, 2 dashing */
+    u8 slideState;  /**< a SlideState */
     u8 unk38F;      /**< 1 also gates a check on jumpPower */
-    u16 jumpState;  /**< 0 on the ground, 1 while the button is held, 2 for one step after */
+    u16 jumpState;  /**< a JumpState */
     s16 jumpTime;   /**< steps the button has been held while jumpState is 1 */
     s32 jumpStartY; /**< y when the jump began */
     s16 jumpPower;  /**< the jump's strength, set by how long the button is held */
@@ -294,7 +314,7 @@ extern s32 gTimeLeft;    /**< 2 units */
 extern s16 D_800957B0;   /**< 2 units */
 extern s32 gGamePad;     /**< 2 units */
 extern s8 gViewerMotion; /**< a level, kept within 0..120; 2 units */
-extern u8 gPadType;      /**< port 1's controller type byte (0x41 digital, 0x73 analog) */
+extern u8 gPadType;      /**< port 1's controller type byte, a PadType */
 extern u32 gStickRawY;   /**< pad byte 7, an analogue stick axis, 0x80 at rest */
 extern u32 gStickRawX;   /**< pad byte 6, the axis gStickX is read from, 0x80 at rest */
 extern s16 gSelectedSection; /**< the selected ObjectModel entry; 2 units */

@@ -11,9 +11,17 @@
 #include "libgpu.h"
 #include "libgs.h"
 
+/** @brief A TIM image's pixel mode, TimInfo.mode. */
+enum TimMode {
+    TIM_4BIT = 0,  /**< 4-bit indexed */
+    TIM_8BIT = 1,  /**< 8-bit indexed */
+    TIM_16BIT = 2, /**< 16-bit direct */
+    TIM_24BIT = 3  /**< 24-bit direct */
+};
+
 /** @brief A TIM image's header, unpacked: where its CLUT and pixels go. */
 typedef struct {
-    s16 mode;      /**< pixel mode, the low 3 bits of the TIM flags */
+    s16 mode;      /**< a TimMode, the low 3 bits of the TIM flags */
     s16 hasClut;   /**< 1 when the TIM carries a CLUT */
     u32 *clut;     /**< the CLUT's pixel data */
     RECT clutRect; /**< where the CLUT goes in VRAM */

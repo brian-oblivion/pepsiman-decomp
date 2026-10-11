@@ -504,7 +504,7 @@ void UpdatePlayer(void) {
 void SteerPlayer(void) {
     if (gPlayer.control != 0) {
         switch (gPadType) {
-            case 0x73:
+            case PAD_TYPE_ANALOG:
                 if (gPad & PADLleft) {
                     ApplySteer(3, 16, 15);
                 } else if (gPad & PADLright) {
@@ -513,7 +513,7 @@ void SteerPlayer(void) {
                     RecentreSteer();
                 }
                 break;
-            case 0x41:
+            case PAD_TYPE_DIGITAL:
                 if (gPad & PADLleft) {
                     ApplySteer(3, 16, 15);
                 } else if (gPad & PADLright) {
@@ -1074,7 +1074,7 @@ top:
             if (state->motionResult[0] == 1) {
                 state->motion[0] = 4;
                 state->action = 0;
-                state->slideState = 0;
+                state->slideState = SLIDE_NONE;
                 gSpeedFixed = 0x320;
             }
             break;
@@ -1304,11 +1304,11 @@ top:
                     func_80018CAC(&gPlayer, d);
                     /* MATCHING: case 0 shares the default body, which the compare tree reaches first. */
                     switch ((s8)gPlayer.slideState) {
-                        case 0:
+                        case SLIDE_NONE:
                         default:
                             state->motion[0] = 3;
                             break;
-                        case 2:
+                        case SLIDE_DASHING:
                             state->motion[0] = 0x1A;
                             break;
                     }
@@ -1321,11 +1321,11 @@ top:
                 state->y = gFloorY[0];
                 func_80018CAC(&gPlayer);
                 switch ((s8)gPlayer.slideState) {
-                    case 0:
+                    case SLIDE_NONE:
                     default:
                         state->motion[0] = 3;
                         break;
-                    case 2:
+                    case SLIDE_DASHING:
                         state->motion[0] = 0x1A;
                         break;
                 }
@@ -2039,20 +2039,20 @@ s32 UpdateSlideDash(void) {
 
     if (gPlayer.control != 0) {
         switch ((s8)gPlayer.slideState) {
-            case 0:
-                gPlayer.slideState = 0;
+            case SLIDE_NONE:
+                gPlayer.slideState = SLIDE_NONE;
                 gPlayer.unk38C = 0;
                 if ((u32)(gPlayer.motion[0] - 2) < 3 && gPlayer.y >= gPlayer.groundY &&
                     (gGamePadTrig & PADRdown)) {
                     btn = gPad;
                     if (btn & PADLdown) {
-                        gPlayer.slideState = 1;
+                        gPlayer.slideState = SLIDE_SLIDING;
                         gPlayer.unk38C = 0;
                         gPlayer.action = 0x3B;
                     }
                     if (btn & PADLup) {
                         if ((u32)((u16)gPlayer.speed - 0x26) < 5) {
-                            gPlayer.slideState = 2;
+                            gPlayer.slideState = SLIDE_DASHING;
                             gPlayer.action = 0x39;
                             PlaySe(0x71);
                             gPlayer.unk38C = 0;
@@ -2060,12 +2060,12 @@ s32 UpdateSlideDash(void) {
                     }
                 }
                 break;
-            case 1:
+            case SLIDE_SLIDING:
                 func_80028500();
                 break;
-            case 2:
+            case SLIDE_DASHING:
                 if (gPlayer.action == 0) {
-                    gPlayer.slideState = 0;
+                    gPlayer.slideState = SLIDE_NONE;
                     gPlayer.unk38C = 0;
                 }
                 break;
@@ -2081,7 +2081,7 @@ void UpdateJump(void) {
     if (gPlayer.control != 0) {
         if ((gGamePadTrig & PADRright) &&
             (gPlayer.y >= gPlayer.groundY || (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1)) &&
-            gPlayer.jumpState == 0) {
+            gPlayer.jumpState == JUMP_NONE) {
             sJumpDistance = 0;
             sJumpStart[1] = gPlayer.y;
             sJumpPeakY = gPlayer.y;
@@ -2089,7 +2089,7 @@ void UpdateJump(void) {
             sJumpStart[2] = gPlayer.z;
             gPlayer.unk38F = 1;
             gPlayer.unk3BC = 0;
-            gPlayer.jumpState = 1;
+            gPlayer.jumpState = JUMP_RISING;
             gPlayer.jumpTime = 0;
             gPlayer.unk39C = 0;
             func_80018CA4(&gPlayer);
@@ -2099,7 +2099,7 @@ void UpdateJump(void) {
             ScatterEffect4((VECTOR *)&gPlayer.x);
             PlaySe(0x17);
         }
-        if (gPlayer.jumpState == 1) {
+        if (gPlayer.jumpState == JUMP_RISING) {
             n = ++gPlayer.jumpTime;
             if (n < 3) {
                 gPlayer.jumpPower = 0x19;
@@ -2107,13 +2107,13 @@ void UpdateJump(void) {
                 gPlayer.jumpPower = 0x12;
             } else if (n >= 9) {
                 gPlayer.jumpPower = 0x14;
-                gPlayer.jumpState = 2;
+                gPlayer.jumpState = JUMP_RELEASED;
                 gPlayer.motion[0] = 9;
                 gPlayer.unk3A0 = 2;
             } else if (gGamePad & PADRright) {
                 gPlayer.jumpPower = 0x14;
             } else {
-                gPlayer.jumpState = 2;
+                gPlayer.jumpState = JUMP_RELEASED;
                 switch (n) {
                     case 3:
                         gPlayer.motion[0] = 0xB;
@@ -2130,8 +2130,8 @@ void UpdateJump(void) {
                 }
             }
         }
-        if (gPlayer.jumpState == 2) {
-            gPlayer.jumpState = 0;
+        if (gPlayer.jumpState == JUMP_RELEASED) {
+            gPlayer.jumpState = JUMP_NONE;
         }
     }
 }
@@ -2231,14 +2231,14 @@ top:
             gPlayer.control = 0;
             gPlayer.hittable = 0;
             gPlayer.invulnTimer = 500;
-            gPlayer.slideState = 0;
+            gPlayer.slideState = SLIDE_NONE;
             gPlayer.unk38C = 0;
             if (gPlayer.rideMode & 0xF) {
                 gPlayer.action = 0;
                 gPlayer.rideMode &= 0xF0;
                 gPlayer.unk3D1 = 1;
                 gPlayer.jumpPower = 0;
-                gPlayer.jumpState = 0;
+                gPlayer.jumpState = JUMP_NONE;
             }
             if (gSwitches[196].unk0 == 1) {
                 break;
@@ -2616,10 +2616,10 @@ void UpdateJumpMode3(void) {
     if (gPlayer.control != 0) {
         if ((gGamePadTrig & PADRright) &&
             (gPlayer.y >= gPlayer.groundY || (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1)) &&
-            gPlayer.jumpState == 0) {
+            gPlayer.jumpState == JUMP_NONE) {
             gPlayer.unk38F = 1;
             gPlayer.unk3BC = 0;
-            gPlayer.jumpState = 1;
+            gPlayer.jumpState = JUMP_RISING;
             gPlayer.jumpTime = 0;
             gPlayer.unk39C = 0;
             func_80018CA4(&gPlayer);
@@ -2629,7 +2629,7 @@ void UpdateJumpMode3(void) {
             ScatterEffect4((VECTOR *)&gPlayer.x);
             PlaySe(0x17);
         }
-        if (gPlayer.jumpState == 1) {
+        if (gPlayer.jumpState == JUMP_RISING) {
             n = ++gPlayer.jumpTime;
             if (n < 3) {
                 gPlayer.jumpPower = 0x19;
@@ -2637,13 +2637,13 @@ void UpdateJumpMode3(void) {
                 gPlayer.jumpPower = 0x12;
             } else if (n >= 9) {
                 gPlayer.jumpPower = 0x14;
-                gPlayer.jumpState = 2;
+                gPlayer.jumpState = JUMP_RELEASED;
                 gPlayer.motion[0] = 8;
                 gPlayer.unk3A0 = 2;
             } else if (gGamePad & PADRright) {
                 gPlayer.jumpPower = 0x14;
             } else {
-                gPlayer.jumpState = 2;
+                gPlayer.jumpState = JUMP_RELEASED;
                 switch (n) {
                     case 3:
                         gPlayer.motion[0] = 9;
@@ -2660,8 +2660,8 @@ void UpdateJumpMode3(void) {
                 }
             }
         }
-        if (gPlayer.jumpState == 2) {
-            gPlayer.jumpState = 0;
+        if (gPlayer.jumpState == JUMP_RELEASED) {
+            gPlayer.jumpState = JUMP_NONE;
         }
     }
 }
@@ -2779,7 +2779,7 @@ void ResetPlayerAction(void) {
     gPlayer.motion[0] = 2;
     gPlayer.action = 0;
     gPlayer.control = 1;
-    gPlayer.slideState = 0;
+    gPlayer.slideState = SLIDE_NONE;
     if (gHitRecover == 1) {
         gPlayer.hittable = 0;
         gPlayer.invulnTimer = 60;
@@ -2826,7 +2826,7 @@ s32 TrySlide(void) {
 
 void EndJump(void) {
     gPlayer.jumpPower = 0;
-    gPlayer.jumpState = 2;
+    gPlayer.jumpState = JUMP_RELEASED;
 }
 
 void PolarOffset(s32 deg, s32 radius, VECTOR *out) {

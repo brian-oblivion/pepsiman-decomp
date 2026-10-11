@@ -382,7 +382,7 @@ void ResetStage(void) {
     gPlayer.curMotion[0] = 0xFF;
     StepAnimation(&gPlayer, 0, 0);
     gPlayer.speed = 50;
-    gPlayer.slideState = 0;
+    gPlayer.slideState = SLIDE_NONE;
     gPlayer.unk38C = 0;
     gPlayer.unk3D2 = 0;
     gPlayer.drawX = gPlayer.drawY = gPlayer.drawZ = 0;

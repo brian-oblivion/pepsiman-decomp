@@ -652,7 +652,7 @@ void PollPads(void);
 void ReadPad(s32 port) {
     gRepeatSpeed = 4;
     PollPads();
-    if (gPadType == 0x41) {
+    if (gPadType == PAD_TYPE_DIGITAL) {
         gStickRawX = gStickRawY = 0x80;
     }
     /* MATCHING: this order builds gPadPressed's address first, as retail;

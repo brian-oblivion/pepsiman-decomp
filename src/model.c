@@ -124,12 +124,12 @@ s8 ReadTimHeader(u16 *tim) {
     sTim->pixRect.h = *p++;
     sTim->pixel = (u32 *)p;
     switch (sTim->mode) {
-        case 0:
+        case TIM_4BIT:
             sTim->perUnit = 4;
             /* MATCHING: a multiply, not a shift, loads the width with lh. */
             sTim->width = sTim->pixRect.w * 4;
             break;
-        case 1:
+        case TIM_8BIT:
             sTim->perUnit = 2;
             sTim->width = sTim->pixRect.w * 2;
             break;

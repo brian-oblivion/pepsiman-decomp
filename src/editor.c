@@ -2642,7 +2642,7 @@ s32 UpdateEditorData(void) {
         case 1:
             switch (gToolCardStep) {
                 case CS_CHECK:
-                    D_80095A14 = 0;
+                    gCardNew = 0;
                     err = RunCardOp1(CARD_OP_READ);
                     if (err == CARD_OK) {
                         gToolCardStep = CS_MODE_SELECT;

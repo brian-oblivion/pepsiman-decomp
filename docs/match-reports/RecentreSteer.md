@@ -6,11 +6,11 @@ Unit `src/player.c`. Three steps per call (a `u16` counter): the
 game-state word at 0x384 decays one step towards 0, and the angle at 0x380
 follows the camera yaw (`gCourse[0].vy`): by 56 while it is more than
 56 away, by 11 once within 56. Each step copies the angle's low half to
-`D_800957BC`. SteerPlayer calls it when no turn button is held.
+`gSteerYaw`. SteerPlayer calls it when no turn button is held.
 
 ```c
 /* GameState gains: s32 unk380 at 0x380, s32 unk384 at 0x384 */
-extern s16 D_800957BC;
+extern s16 gSteerYaw;
 extern SVECTOR gCourse[];   /* unit */
 
 void RecentreSteer(void) {
@@ -42,7 +42,7 @@ void RecentreSteer(void) {
                 sGame.unk380 -= 11;
             }
         }
-        D_800957BC = sGame.unk380;
+        gSteerYaw = sGame.unk380;
     }
 }
 ```

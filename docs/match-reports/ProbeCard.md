@@ -6,7 +6,7 @@ Unit `src/code_27bc8.c`. Memory card check loop for port 0x10: clears the
 software events (`ClearCardSwEvents`), starts `_card_info` and waits for the
 result (`WaitCardSwEvent`: 0..3). A result of 2 is counted and gives up with 2
 after the eleventh; 3 (a new card) runs `_card_clear` and its wait and sets
-`D_80095A14` to 1. Then it starts `_card_load` and waits again. It loops
+`gCardNew` to 1. Then it starts `_card_load` and waits again. It loops
 while that result is 1 or 2, and returns it otherwise (0 or 3).
 
 ```c
@@ -32,7 +32,7 @@ s16 ProbeCard(void) {
             ClearCardHwEvents();
             _card_clear(0x10);
             WaitCardHwEvent();
-            D_80095A14 = 1;
+            gCardNew = 1;
             break;
         }
         ClearCardSwEvents();

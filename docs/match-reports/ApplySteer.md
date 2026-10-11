@@ -3,7 +3,7 @@
 > Renamed from `func_80023834` on 2026-10-11 (tools/rename.py). Address 0x80023834.
 
 Unit `src/code_13068.c`. Steers the player: mode 3 turns one way, mode 2
-the other. Each moves the heading `D_800957BC` by `2a` and `D_800957B0` by
+the other. Each moves the heading `gSteerYaw` by `2a` and `gSteerYawHalf` by
 `a`, keeps unk380 within the camera yaw, eases the lean in unk384 to at
 most 15 either way, moves unk3B4 by 50 and pushes the position back by
 `b` at 90 degrees to the yaw (the unit's `pushBack` helper). The heading
@@ -11,7 +11,7 @@ is then clamped to 0x100 of the yaw. A repeated mode only resets unk380
 to the yaw.
 
 ```c
-extern s16 D_800957B0;
+extern s16 gSteerYawHalf;
 
 static __inline__ void pushBack(s32 deg, s32 dist) {
     s32 angle;
@@ -35,9 +35,9 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 if (yaw - 0x2D < sGame.unk380) {
                     sGame.unk380 = yaw - 0x2D;
                 }
-                D_800957BC -= a * 2;
-                D_800957B0 -= a;
-                sGame.unk380 = D_800957BC;
+                gSteerYaw -= a * 2;
+                gSteerYawHalf -= a;
+                sGame.unk380 = gSteerYaw;
                 if ((sGame.unk3D0 & 0xF) != 2 && yaw < sGame.unk380) {
                     sGame.unk380 = yaw;
                 }
@@ -58,9 +58,9 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 if (sGame.unk380 < yaw + 0x4000) {
                     sGame.unk380 = yaw + 0x2D;
                 }
-                D_800957BC += a * 2;
-                D_800957B0 += a;
-                sGame.unk380 = D_800957BC;
+                gSteerYaw += a * 2;
+                gSteerYawHalf += a;
+                sGame.unk380 = gSteerYaw;
                 if ((sGame.unk3D0 & 0xF) != 2 && sGame.unk380 < yaw) {
                     sGame.unk380 = yaw;
                 }
@@ -77,9 +77,9 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 pushBack(90, b);
                 break;
         }
-        D_800957BC = D_800957BC < gCourse->vy - 0x100   ? gCourse->vy - 0x100
-                     : gCourse->vy + 0x100 < D_800957BC ? gCourse->vy + 0x100
-                                                           : (u16)D_800957BC;
+        gSteerYaw = gSteerYaw < gCourse->vy - 0x100   ? gCourse->vy - 0x100
+                     : gCourse->vy + 0x100 < gSteerYaw ? gCourse->vy + 0x100
+                                                           : (u16)gSteerYaw;
         if (sGame.unk3B8 == 1 && sGame.unk3BC == 1 && sGame.unk38F == 0) {
             sGame.unk34C = sGame.unk3C0;
         }
@@ -112,7 +112,7 @@ Seven builds, 3 -> 44 -> 81 -> 84 -> 142 -> 157 -> 187.
   bound in the delay slot and the copy after it, as retail. A named `v =
   unk384` copy swaps `v`/`w`'s registers; `?:` reverses the branch.
 - The heading clamp is one nested ternary; its "in range" arm is
-  `(u16)D_800957BC`, which gives retail's second (`lhu`) load beside the
+  `(u16)gSteerYaw`, which gives retail's second (`lhu`) load beside the
   `lh` used for the compares.
 
 ### Proposed learning

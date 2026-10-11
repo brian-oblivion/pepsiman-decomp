@@ -94,7 +94,7 @@ typedef struct {
     s32 count;     /**< how many */
 } DrawList;
 
-extern s32 D_800963A0[];
+extern s32 gAltModel[];
 
 s32 DrawTodObjects(void) {
     GsDOBJ2 save;
@@ -118,7 +118,7 @@ s32 DrawTodObjects(void) {
             save = *o;
             q = o;
             if (o->id == 10 && (*(DrawHead *)gPlayer).unk3D4 == 1) {
-                o->tmd = (unsigned long *)D_800963A0[2];
+                o->tmd = (unsigned long *)gAltModel[2];
             }
             GsGetLs(o->coord2, &m);
             GsSetLsMatrix(&m);

@@ -33,7 +33,7 @@ extern s32 gMovieEnded;
 extern u16 gSeSlot;
 extern s32 gVabError;
 extern s16 gBgmVab;
-extern u8 *D_80095B08;
+extern u8 *sVabBody; /**< the sound VAB body address: worked out for bank 0, reused for bank 1 */
 extern s16 gBgmVolume;
 extern s16 gSeVab;
 extern s16 D_80095AEA;
@@ -312,10 +312,10 @@ s32 LoadVab(s16 bank) {
             dst = (u8 *)rec[0];
             dst += rec[1];
             dst += 0x80101000;
-            D_80095B08 = dst + vh[1];
+            sVabBody = dst + vh[1];
             break;
         case 1:
-            dst = D_80095B08;
+            dst = sVabBody;
             break;
     }
     src = 0x8016D000;

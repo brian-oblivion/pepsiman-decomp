@@ -271,7 +271,7 @@ s16 ProbeCard(void) {
                 ClearCardHwEvents();
                 _card_clear(0x10);
                 WaitCardHwEvent();
-                D_80095A14 = 1;
+                gCardNew = 1;
                 break;
         }
         ClearCardSwEvents();

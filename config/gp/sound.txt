@@ -7,7 +7,6 @@ D_80095AE2
 D_80095AE4
 D_80095AE6
 D_80095AEA
-D_80095B08
 gBgmVab
 gBgmVolume
 gCdVolume
@@ -31,3 +30,4 @@ gSoundFadeTimer
 gStereo
 gVabBank
 gVabLoadStep
+sVabBody

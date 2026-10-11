@@ -479,25 +479,25 @@ extern s32 gPad;           /**< port 1's held buttons this frame (PAD* bits), af
 extern s32 gGamePadTrig;   /**< remapped button flags; 2 units */
 extern u16 gModeStep;      /**< the model viewer's state; 2 units */
 extern u16 D_80095768;     /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D5;      /**< 2 units, 2 functions; never loaded, sign unknown */
-extern u8 D_800957D6;      /**< 2 units, 3 functions; never loaded, sign unknown */
-extern u8 gFellOff;        /**< set when the player falls below the floor; never read here */
+extern u8 gAllTargetsBeaten; /**< 1 once every act's best time beats its target; set by the act results */
+extern u8 gPlayLive; /**< 1 from a stage's start or restart until a time-up miss freezes the play */
+extern u8 gFellOff;  /**< set when the player falls below the floor; never read here */
 extern s16 gMissState;     /**< the play state, a MissState */
 extern s32 gLoopI;         /**< a loop counter kept in a global */
 extern s32 gSlotTableSize; /**< the slot table's size in bytes */
 extern s32 gSlotTable;     /**< the address of the 72-byte slot records */
-extern s32 gStickTrigY;  /**< a pad word; its bits step a position or a highlighted line; 2 units */
-extern s32 gVSyncTime;   /**< what EndFrame's VSync returned; printed first on the status panel */
-extern s32 gRetries;     /**< set to 0xFF on leaving the tool; 2 units */
-extern u8 gInEditor;     /**< 2 units */
-extern s32 gElapsed;     /**< 2 units */
-extern s32 gTimeLeft;    /**< 2 units */
-extern s16 D_800957B0;   /**< 2 units */
-extern s32 gGamePad;     /**< 2 units */
-extern s8 gViewerMotion; /**< a level, kept within 0..120; 2 units */
-extern u8 gPadType;      /**< port 1's controller type byte, a PadType */
-extern u32 gStickRawY;   /**< pad byte 7, an analogue stick axis, 0x80 at rest */
-extern u32 gStickRawX;   /**< pad byte 6, the axis gStickX is read from, 0x80 at rest */
+extern s32 gStickTrigY; /**< a pad word; its bits step a position or a highlighted line; 2 units */
+extern s32 gVSyncTime;  /**< what EndFrame's VSync returned; printed first on the status panel */
+extern s32 gRetries;    /**< set to 0xFF on leaving the tool; 2 units */
+extern u8 gInEditor;    /**< 2 units */
+extern s32 gElapsed;    /**< 2 units */
+extern s32 gTimeLeft;   /**< 2 units */
+extern s16 gSteerYawHalf;    /**< moved by half of gSteerYaw's steering steps */
+extern s32 gGamePad;         /**< 2 units */
+extern s8 gViewerMotion;     /**< a level, kept within 0..120; 2 units */
+extern u8 gPadType;          /**< port 1's controller type byte, a PadType */
+extern u32 gStickRawY;       /**< pad byte 7, an analogue stick axis, 0x80 at rest */
+extern u32 gStickRawX;       /**< pad byte 6, the axis gStickX is read from, 0x80 at rest */
 extern s16 gSelectedSection; /**< the selected ObjectModel entry; 2 units */
 extern u16 gCameraYaw;       /**< 2 units */
 extern s8 gButtonConfig;     /**< 2 units */
@@ -519,7 +519,7 @@ extern u8 gStereo;            /**< nonzero for stereo: the CD mix has no cross-f
 extern s16 gMenuChoice;       /**< what RunMenu returned for the card menus */
 extern u16 gToolCardStep;     /**< the card data screen's step, a CardStep */
 extern s16 gToolSlot;         /**< 2 units, 4 functions */
-extern u16 D_80095A14;        /**< 3 units, 3 functions; never loaded, sign unknown */
+extern u16 gCardNew;          /**< 1 after ProbeCard clears a new card; the tools reset it */
 extern s32 gHitQuads;         /**< 2 units, 7 functions */
 extern s32 gHitPoints;        /**< 2 units, 7 functions */
 extern s32 gHitPointSections; /**< entry count of the first record bank; 2 units */
@@ -534,14 +534,14 @@ extern s16 gEditMax;          /**< limit of the value being edited */
 extern s16 gMenuLineCount;    /**< the count a menu line wraps at */
 extern s32 gPadTrig;  /**< port 1's newly pressed buttons this frame, auto-repeat included */
 extern u8 *gCanSpans; /**< each stage block's cans: first point and count (after the BlockHeader) */
-extern u8 *gCanPoints;     /**< the cans: x, y, z and group, eight bytes each */
-extern s32 gCanSpanCount;  /**< how many blocks have a span (the BlockHeader's first word) */
-extern s16 gSoundFade;     /**< the fade running, a SoundFade */
-extern s32 gBonusLevel;    /**< 2 units; 3 when a stage starts */
-extern s16 D_800957BC;     /**< 2 units; a heading */
-extern u8 *gFogColors;     /**< 2 units; far (fog) colours, four bytes each */
-extern u16 gFogFade;       /**< 2 units; fog fade-in step: 0..31, then 100 */
-extern s32 gVSyncMode;     /**< EndFrame's VSync argument: the frames to wait */
+extern u8 *gCanPoints;    /**< the cans: x, y, z and group, eight bytes each */
+extern s32 gCanSpanCount; /**< how many blocks have a span (the BlockHeader's first word) */
+extern s16 gSoundFade;    /**< the fade running, a SoundFade */
+extern s32 gBonusLevel;   /**< 2 units; 3 when a stage starts */
+extern s16 gSteerYaw;  /**< the heading steering builds; held within 0x100 of the course heading */
+extern u8 *gFogColors; /**< 2 units; far (fog) colours, four bytes each */
+extern u16 gFogFade;   /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern s32 gVSyncMode; /**< EndFrame's VSync argument: the frames to wait */
 extern s32 gStageTableSet; /**< 1 picks the second set of stage tables; -1 at boot */
 extern s8 gHitRecover; /**< set by a hit reaction; the next ResetPlayerAction gives 60 frames of invulnerability */
 extern u16 gSpeedFixed;   /**< 2 units */

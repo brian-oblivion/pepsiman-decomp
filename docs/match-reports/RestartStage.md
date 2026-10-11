@@ -19,9 +19,9 @@ halfword in each of the 200 Trap records.
  *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*gStageStart)
  * extern u8 gSkipLandRumble, gInEditor; extern s16 gModeStep, gMissState,
- * D_800957B0; extern s8 sStageFindsFloor[]; extern s32 gFloorIndex, gSection;
- * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
- * D_800957D6, gStage.
+ * gSteerYawHalf; extern s8 sStageFindsFloor[]; extern s32 gFloorIndex, gSection;
+ * common.h: gBonusLevel (s32), gSteerYaw (s16), D_8009676C[], gFellOff,
+ * gPlayLive, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
  * PlayStageMusic(u8) and OnStageRestart(u8). */
 void RestartStage(u8 arg0) {
@@ -52,8 +52,8 @@ void RestartStage(u8 arg0) {
     D_8009676C[0] = (s16)(gCourse.pos.vy - 500);
     gCourse.rot.vy = yaw;
     sStage.unk37C = sStage.unk380 = yaw;
-    D_800957BC = yaw;
-    D_800957B0 = yaw;
+    gSteerYaw = yaw;
+    gSteerYawHalf = yaw;
     if (gInEditor != 1) {
         RestoreStageObjects();
     } else {
@@ -64,7 +64,7 @@ void RestartStage(u8 arg0) {
     sStage.unk6 = 2;
     sStage.unk0 = 1;
     gFellOff = 0;
-    D_800957D6 = 1;
+    gPlayLive = 1;
     for (i = 0; i < 200; i++) {
         sRecs48[i].unk26 = 0;
     }
@@ -104,7 +104,7 @@ void RestartStage(u8 arg0) {
 
 ## Declarations
 
-- `gBonusLevel` (`s32`) and `D_800957BC` (`s16`) are now in
+- `gBonusLevel` (`s32`) and `gSteerYaw` (`s16`) are now in
   `include/common.h` (additive); their copies in `src/player.c` were
   deleted (same types).
 - `gCourse` is an `SVECTOR[]` in player and a `Placement` here;

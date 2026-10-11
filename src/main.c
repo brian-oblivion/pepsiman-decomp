@@ -29,7 +29,7 @@ extern Pair8 gBestTimes[];
 extern Pair8 gTargetTimes[];
 extern u8 gRumbleEnabled;
 extern s8 D_800957A0;
-extern u8 D_800958A5;
+extern u8 gGameCleared; /**< 1 once the last movie has played with the first stage table */
 extern s32 D_80095984;
 extern s32 D_80095998;
 extern u16 gRumbleSmall;
@@ -80,8 +80,8 @@ int main(void) {
     ClipF = 0;
     gTmdSortMode = 0;
     gButtonConfig = 0;
-    D_800957D5 = 0;
-    D_800958A5 = 0;
+    gAllTargetsBeaten = 0;
+    gGameCleared = 0;
     gStageTableSet = -1;
     D_80095984 = 0;
     D_80095998 = 0;
@@ -393,7 +393,7 @@ int main(void) {
                     case 5:
                         PlayMovie("\\MOVIE5.STR;1", NULL, 0x661, 0xF0, 1);
                         if (gStageTableSet == 0) {
-                            D_800958A5 = 1;
+                            gGameCleared = 1;
                             gUnlocks |= 2;
                         } else if (gStageTableSet == 1) {
                             gUnlocks |= 8;
@@ -480,7 +480,7 @@ typedef struct {
 } DirEnt16;
 
 /* MATCHING: per-unit view; model.c reads it as a word array. */
-extern Model70 D_800963A0;
+extern Model70 gAltModel; /**< object 16 of the common pack; object 10 draws its TMD during MOT_STOP_WAIT */
 
 /** @brief A 0x78-byte model slot: a Model70 and 8 bytes not yet known. */
 typedef struct {
@@ -498,7 +498,7 @@ void InitModel(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: model types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 
-/** @brief Sets up the models every stage shares: the player's model, the
+/** @brief Sets up the models every stage shares: gAltModel, the
  *         seven mode objects, the TOD objects and the animations; then
  *         starts the player's motion. */
 void LoadCommonModels(void) {
@@ -510,7 +510,7 @@ void LoadCommonModels(void) {
     p = (s32 *)0x8014D000;
     gModelTmd = (s32)((unsigned long *)((u8 *)p + *p) + 1);
     GsMapModelingData((unsigned long *)gModelTmd);
-    InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
+    InitModel(&gAltModel, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
     InitModel(&gModeObjectModels[0].m, (unsigned long *)(*p + 0x8014D000), 0);
     InitModel(&gModeObjectModels[1].m, (unsigned long *)(*p + 0x8014D000), 1);

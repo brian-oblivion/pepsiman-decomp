@@ -4,7 +4,7 @@
 
 Unit `src/main.c`. Loads the stage's model data: maps the TMD pack at
 0x8014D000 (`GsMapModelingData`, address kept in `gModelTmd`), sets up the
-model `D_800963A0` and seven model slots from it (`InitModel`), builds
+model `gAltModel` and seven model slots from it (`InitModel`), builds
 the slot list (`InitTodObjTable`), registers the entries of the directory at
 0x80123000 into `gAnimations` and the stepper's two word tables (the same
 loop as object's LoadStageSprites, from slot 0), then resets the stepper
@@ -39,7 +39,7 @@ typedef struct {
     u16 count;    /**< entry count; read from the first entry only */
 } DirEnt16;
 
-extern Model70 D_800963A0;
+extern Model70 gAltModel;
 
 /** @brief A 0x78-byte model slot: a Model70 and 8 bytes not yet known. */
 typedef struct {
@@ -67,7 +67,7 @@ void LoadCommonModels(void) {
     p = (s32 *)0x8014D000;
     gModelTmd = (s32)((unsigned long *)((u8 *)p + *p) + 1);
     GsMapModelingData((unsigned long *)gModelTmd);
-    InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
+    InitModel(&gAltModel, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
     InitModel(&gModeObjectModels[0].m, (unsigned long *)(*p + 0x8014D000), 0);
     InitModel(&gModeObjectModels[1].m, (unsigned long *)(*p + 0x8014D000), 1);

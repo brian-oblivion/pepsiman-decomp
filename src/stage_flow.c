@@ -325,8 +325,8 @@ void RestartStage(u8 stage) {
     gView[1] = (s16)(gCourse.y - 500);
     gCourse.rot.vy = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
-    D_800957BC = yaw;
-    D_800957B0 = yaw;
+    gSteerYaw = yaw;
+    gSteerYawHalf = yaw;
     if (gInEditor != 1) {
         RestoreStageObjects();
     } else {
@@ -337,7 +337,7 @@ void RestartStage(u8 stage) {
     gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gFellOff = 0;
-    D_800957D6 = 1;
+    gPlayLive = 1;
     for (i = 0; i < 200; i++) {
         sTraps[i].unk26 = 0;
     }
@@ -397,7 +397,7 @@ void ResetStage(void) {
     gView[6] = 0;
     gPlayer.control = 1;
     gFellOff = 0;
-    D_800957D6 = 1;
+    gPlayLive = 1;
     gSection = 0;
     gPauseState = 0;
     D_800957A4 = 0;

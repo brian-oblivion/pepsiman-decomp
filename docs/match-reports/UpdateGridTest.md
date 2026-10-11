@@ -14,10 +14,10 @@ display.
 ```c
 extern DVECTOR sGridScreen[];
 extern s32 D_800DED50[];
-extern s32 D_800957F8;
-extern s32 D_80095800;
-extern s32 D_80095804;
-extern s32 D_8009580C;
+extern s32 gGridLastAngle;
+extern s32 gGridLastValue;
+extern s32 gGridLastX;
+extern s32 gGridLastY;
 
 /* MATCHING: the parity mask through y, the first loop's local, keeps 0xFF out of the preheader. */
 void UpdateGridTest(void) {
@@ -112,10 +112,10 @@ void UpdateGridTest(void) {
             GsSortPoly(pp, &gOt[gActiveBuff], sGridPoints[gLoopJ * 21 + gLoopI].z >> 6);
         }
     }
-    D_800957F8 = sGridAngle;
-    D_80095800 = D_800DED50[0];
-    D_80095804 = sGridScreen[0].vx;
-    D_8009580C = sGridScreen[0].vy;
+    gGridLastAngle = sGridAngle;
+    gGridLastValue = D_800DED50[0];
+    gGridLastX = sGridScreen[0].vx;
+    gGridLastY = sGridScreen[0].vy;
 }
 ```
 

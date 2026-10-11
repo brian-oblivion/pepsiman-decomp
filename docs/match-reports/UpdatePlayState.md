@@ -119,7 +119,7 @@ top:
                     gSwitches[i].unk0 = 2;
                 }
                 gFellOff = 0;
-                D_800957D6 = 0;
+                gPlayLive = 0;
                 *(Words3 *)sSavedPos = *(Words3 *)D_8009EEC0;
             }
             if (gMissTimer >= 10) {

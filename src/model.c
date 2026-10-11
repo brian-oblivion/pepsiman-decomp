@@ -411,7 +411,7 @@ typedef struct {
 } DrawList;
 
 /* MATCHING: per-unit view; main.c reads the same slot as a Model70. */
-extern s32 D_800963A0[];
+extern s32 gAltModel[]; /**< main's Model70, read as words: [2] is its TMD */
 
 s32 DrawTodObjects(void) {
     GsDOBJ2 save;
@@ -435,7 +435,7 @@ s32 DrawTodObjects(void) {
             save = *o;
             q = o;
             if (o->id == 10 && gPlayer.altModel == 1) {
-                o->tmd = (unsigned long *)D_800963A0[2];
+                o->tmd = (unsigned long *)gAltModel[2];
             }
             GsGetLs(o->coord2, &m);
             GsSetLsMatrix(&m);

@@ -10,7 +10,7 @@ sound every 10 and a bonus every 25 (10), the "all cans" flourish (11),
 the new-record check and banner against the per-course best table
 `gBestCans[course][slot]` (10, 11, 15), the second timeline (20), the time
 record against `gBestTimes` (30, 35), and the final tally (50: every time
-under its rodata par `gTargetTimes` sets `D_800957D5`, all cans in all
+under its rodata par `gTargetTimes` sets `gAllTargetsBeaten`, all cans in all
 courses sets bit 2 of `gUnlocks`, and the run's cans and time go to
 `gActCans` / `gActTimes` by `rank % 3`). It then slides the rows in and
 draws the score, the banners and the four results lines.
@@ -202,7 +202,7 @@ void UpdateActResults(void) {
                     }
                 }
                 if (n == 0) {
-                    D_800957D5 = 1;
+                    gAllTargetsBeaten = 1;
                 }
                 n = 0;
                 for (i = 0; i < 4; i++) {

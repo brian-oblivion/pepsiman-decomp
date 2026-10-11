@@ -1181,7 +1181,7 @@ void UpdateActResults(void) {
                     }
                 }
                 if (n == 0) {
-                    D_800957D5 = 1;
+                    gAllTargetsBeaten = 1;
                 }
                 n = 0;
                 for (i = 0; i < 4; i++) {

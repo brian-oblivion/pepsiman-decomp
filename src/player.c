@@ -13,7 +13,7 @@
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
 
-extern s32 D_800AC860;
+extern s32 gFloorFlags; /**< the floor's attribute bits, after gFloorY; 0x40 is a drop the player falls off */
 extern s16 sSteerDrift; /**< SteerRoller's drift: +-4 a step while steering, back by 2, within +-10 */
 
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
@@ -31,10 +31,10 @@ extern s32 sGridAngle;          /**< UpdateGridTest's angle, moved by L1 and R1 
 extern GridPoint sGridPoints[]; /**< UpdateGridTest's 21 x 16 grid */
 extern DVECTOR sGridScreen[];   /**< each grid point projected to the screen */
 extern s32 D_800DED50[];
-extern s32 D_800957F8;
-extern s32 D_80095800;
-extern s32 D_80095804;
-extern s32 D_8009580C;
+extern s32 gGridLastAngle; /**< the grid test's last angle */
+extern s32 gGridLastValue; /**< the grid test's last table value */
+extern s32 gGridLastX;     /**< the grid test's first point on screen, x */
+extern s32 gGridLastY;     /**< the grid test's first point on screen, y */
 
 /* MATCHING: a per-unit view; stage stores it as an s32. */
 extern u8 *gLightColors; /**< the stage's light colours, four bytes each */
@@ -136,8 +136,8 @@ void UpdateBrake(void);
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void StartRumble(u16 *table, s32 index);
 extern s32 gGamePad;
-extern u16 sViewSpeed; /**< follows speed by 1 a frame */
-extern s16 D_800957B0;
+extern u16 sViewSpeed;     /**< follows speed by 1 a frame */
+extern s16 gSteerYawHalf;  /**< moved by half of gSteerYaw's steering steps */
 extern s32 sJumpPeakY;     /**< the lowest y (highest point) since the jump began */
 extern s32 sJumpDistance;  /**< the distance from sJumpStart to sJumpLanding; 0 until landing */
 extern s32 sJumpStart[];   /**< where the jump began, x y z */
@@ -299,10 +299,10 @@ void UpdateGridTest(void) {
             GsSortPoly(pp, &gOt[gActiveBuff], sGridPoints[gLoopJ * 21 + gLoopI].z >> 6);
         }
     }
-    D_800957F8 = sGridAngle;
-    D_80095800 = D_800DED50[0];
-    D_80095804 = sGridScreen[0].vx;
-    D_8009580C = sGridScreen[0].vy;
+    gGridLastAngle = sGridAngle;
+    gGridLastValue = D_800DED50[0];
+    gGridLastX = sGridScreen[0].vx;
+    gGridLastY = sGridScreen[0].vy;
 }
 
 /** @brief Empty and never called. */
@@ -563,9 +563,9 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 if (yaw - 0x2D < gPlayer.yaw) {
                     gPlayer.yaw = yaw - 0x2D;
                 }
-                D_800957BC -= a * 2;
-                D_800957B0 -= a;
-                gPlayer.yaw = D_800957BC;
+                gSteerYaw -= a * 2;
+                gSteerYawHalf -= a;
+                gPlayer.yaw = gSteerYaw;
                 if ((gPlayer.rideMode & RIDE_MASK) != RIDE_ROLLER && yaw < gPlayer.yaw) {
                     gPlayer.yaw = yaw;
                 }
@@ -586,9 +586,9 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 if (gPlayer.yaw < yaw + 0x4000) {
                     gPlayer.yaw = yaw + 0x2D;
                 }
-                D_800957BC += a * 2;
-                D_800957B0 += a;
-                gPlayer.yaw = D_800957BC;
+                gSteerYaw += a * 2;
+                gSteerYawHalf += a;
+                gPlayer.yaw = gSteerYaw;
                 if ((gPlayer.rideMode & RIDE_MASK) != RIDE_ROLLER && gPlayer.yaw < yaw) {
                     gPlayer.yaw = yaw;
                 }
@@ -605,9 +605,9 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 pushBack(90, b);
                 break;
         }
-        D_800957BC = D_800957BC < gCourse.rot.vy - 0x100   ? gCourse.rot.vy - 0x100
-                     : gCourse.rot.vy + 0x100 < D_800957BC ? gCourse.rot.vy + 0x100
-                                                           : (u16)D_800957BC;
+        gSteerYaw = gSteerYaw < gCourse.rot.vy - 0x100   ? gCourse.rot.vy - 0x100
+                    : gCourse.rot.vy + 0x100 < gSteerYaw ? gCourse.rot.vy + 0x100
+                                                         : (u16)gSteerYaw;
         if (gPlayer.onRideQuad == 1 && gPlayer.onQuadTop == 1 && gPlayer.airborne == 0) {
             gPlayer.y = gPlayer.groundY;
         }
@@ -647,7 +647,7 @@ void RecentreSteer(void) {
                 gPlayer.yaw -= 11;
             }
         }
-        D_800957BC = gPlayer.yaw;
+        gSteerYaw = gPlayer.yaw;
     }
 }
 
@@ -655,7 +655,7 @@ void RecentreSteer(void) {
 s32 CheckFall(void) {
     s32 unused[2];
 
-    if ((D_800AC860 & 0x40) && gPlayer.motion[0] != MOT_TIME_UP) {
+    if ((gFloorFlags & 0x40) && gPlayer.motion[0] != MOT_TIME_UP) {
         if (gPlayer.rideMode & RIDE_MASK) {
             gPlayer.falling = 1;
             if ((gPlayer.rideMode & RIDE_MASK) != RIDE_COVER) {
@@ -2278,7 +2278,7 @@ top:
                     gSwitches[i].state = SWITCH_OFF;
                 }
                 gFellOff = 0;
-                D_800957D6 = 0;
+                gPlayLive = 0;
                 *(Words3 *)sSavedPos = *(Words3 *)&gPlayer.x;
             }
             if (gMissTimer >= 10) {

@@ -2214,7 +2214,7 @@ s32 EditorArrangeRecords(void) {
                 gLocalPos.vx = r->home[0];
                 gLocalPos.vy = r->home[1];
                 gLocalPos.vz = r->home[2];
-                TransformByCoord((GsCOORDINATE2 *)gObjectModels[w->model].unk10, &gLocalPos, &gWorldPos);
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[w->model].coord, &gLocalPos, &gWorldPos);
                 r->pos[0] = gWorldPos.vx;
                 r->pos[1] = gWorldPos.vy;
                 r->pos[2] = gWorldPos.vz;

@@ -148,16 +148,16 @@ typedef struct {
 
 extern Effect gEffects[]; /**< the 128-record pool */
 
-/** @brief An object's model slot (gObjectModels, 80 of them): its
- *         GsDOBJ2 and coordinate system, and its hit-data ranges; two pairs of halfwords
- *         are reset together. */
+/** @brief An object's model slot (gObjectModels, 80 of them): object's
+ *         Model70 (GsDOBJ2, coordinate system, rotation, scale), then the
+ *         object's ranges in the two hit-data banks. */
 typedef struct {
-    u8 unk0[0x10];  /**< not yet known */
-    u8 unk10[0x5E]; /**< handed to the dispatch's object on entering state 1 */
-    s16 unk6E;      /**< zeroed when the second buffer is cleared */
-    s16 unk70;      /**< -1 when the second buffer is cleared */
-    s16 unk72;      /**< zeroed when the first buffer is cleared, -1 when banks are installed */
-    s16 unk74;      /**< -1 when the first buffer is cleared, zeroed when banks are installed */
+    u8 obj[0x10];   /**< the GsDOBJ2 */
+    u8 coord[0x5E]; /**< the GsCOORDINATE2, then the rotation and scale */
+    s16 quadFirst;  /**< its first HitQuad, in the scale's pad halfword; 0 when cleared */
+    s16 quadCount;  /**< its HitQuad count; -1 when cleared */
+    s16 pointFirst; /**< its first HitPoint; 0 when cleared, -1 when a card's banks go in */
+    s16 pointCount; /**< its HitPoint count; -1 when cleared, 0 when a card's banks go in */
     u8 unk76[2];    /**< not yet known */
 } ObjectModel;
 

@@ -1413,14 +1413,14 @@ void ApplyHitPoints(void) {
     HitPoint *rec;
 
     for (i = 0; i < (u32)gHitPointSections; i++) {
-        gObjectModels[i].unk72 = e->first;
-        gObjectModels[i].unk74 = e->count;
+        gObjectModels[i].pointFirst = e->first;
+        gObjectModels[i].pointCount = e->count;
         e++;
     }
     for (i = 0; i < 400; i++) {
         rec = GetHitPoint(0, i);
         __builtin_memcpy(&((Live2C *)gLivePoints)[i], rec, 0x2A);
-        ((Live2C *)gLivePoints)[i].unk28 = gObjectModels[rec->section].unk10;
+        ((Live2C *)gLivePoints)[i].unk28 = gObjectModels[rec->section].coord;
     }
 }
 
@@ -1430,13 +1430,14 @@ void ApplyHitQuads(void) {
     BankEntry *e = ((HitQuadBank *)gHitQuads)->entries;
 
     for (i = 0; i < (u32)gHitQuadSections; i++) {
-        gObjectModels[i].unk6E = e->first;
-        gObjectModels[i].unk70 = e->count;
+        gObjectModels[i].quadFirst = e->first;
+        gObjectModels[i].quadCount = e->count;
         e++;
     }
     for (i = 0; i < 80; i++) {
-        for (j = gObjectModels[i].unk6E; j < gObjectModels[i].unk70 + gObjectModels[i].unk6E; j++) {
-            GetHitQuad(0, j)->unk48 = gObjectModels[i].unk10;
+        for (j = gObjectModels[i].quadFirst;
+             j < gObjectModels[i].quadCount + gObjectModels[i].quadFirst; j++) {
+            GetHitQuad(0, j)->unk48 = gObjectModels[i].coord;
         }
     }
     for (i = 0; i < 100; i++) {
@@ -1523,8 +1524,8 @@ void ClearHitPoints(void) {
 
     bzero(gLivePoints, 0x44C0);
     for (i = 0; i < 80; i++) {
-        gObjectModels[i].unk72 = 0;
-        gObjectModels[i].unk74 = -1;
+        gObjectModels[i].pointFirst = 0;
+        gObjectModels[i].pointCount = -1;
     }
 }
 
@@ -1533,8 +1534,8 @@ void ClearHitQuads(void) {
 
     bzero(gLiveQuads, 0x1DB0);
     for (i = 0; i < 80; i++) {
-        gObjectModels[i].unk6E = 0;
-        gObjectModels[i].unk70 = -1;
+        gObjectModels[i].quadFirst = 0;
+        gObjectModels[i].quadCount = -1;
     }
 }
 
@@ -1556,7 +1557,7 @@ void PlaceHitQuad(void) {
         case 0:
             gToolQuadW = 100;
             gToolQuadH = 100;
-            gToolNewQuad.unk48 = gObjectModels[gToolSection].unk10;
+            gToolNewQuad.unk48 = gObjectModels[gToolSection].coord;
             SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, 100, 100);
             gToolQuadStage = 1;
             break;

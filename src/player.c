@@ -73,7 +73,7 @@ typedef struct {
  *         index; main's ModelSlot is the same record. */
 typedef struct {
     u8 pad0[0x58];
-    s32 unk58; /**< the address of the coordinate system the model hangs from */
+    s32 parent; /**< its coordinate system's super: the one the model hangs from */
     u8 pad5C[0x78 - 0x5C];
 } ObjRec;
 
@@ -2330,7 +2330,7 @@ void DrawModeObject(void) {
             gModeObjects[0].rotX = -0x88;
             gModeObjects[0].rotY = 0xAA;
             gModeObjects[0].y = 0;
-            gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
+            gModeObjectModels[0].parent = (s32)&gTodCoords[16];
             gModeObjects[0].x = -gWorldShift[0];
             gModeObjects[0].z = -gWorldShift[2];
             DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[0].model],
@@ -2341,7 +2341,7 @@ void DrawModeObject(void) {
             gModeObjects[5].rotZ = -0x88;
             gModeObjects[5].rotY = 0xAA;
             gModeObjects[5].y = 0;
-            gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
+            gModeObjectModels[5].parent = (s32)&gTodCoords[16];
             gModeObjects[5].x = -gWorldShift[0];
             gModeObjects[5].z = -gWorldShift[2];
             DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[5].model],
@@ -2351,7 +2351,7 @@ void DrawModeObject(void) {
             switch (gStage) {
                 case STAGE_2_1:
                     gModeObjects[3].y = 0x3C;
-                    gModeObjectModels[3].unk58 = (s32)&gTodCoords[0];
+                    gModeObjectModels[3].parent = (s32)&gTodCoords[0];
                     gModeObjects[3].x = -gWorldShift[0];
                     gModeObjects[3].z = -gWorldShift[2];
                     gModeObjects[3].rotX += ANGLE_DEG(gPlayer.speed / 2);
@@ -2363,7 +2363,7 @@ void DrawModeObject(void) {
                     break;
                 case STAGE_4_2:
                     gModeObjects[6].y = 0x32;
-                    gModeObjectModels[6].unk58 = (s32)&gTodCoords[0];
+                    gModeObjectModels[6].parent = (s32)&gTodCoords[0];
                     gModeObjects[6].x = -gWorldShift[0];
                     gModeObjects[6].z = -gWorldShift[2];
                     gModeObjects[6].rotX += ANGLE_DEG(gPlayer.speed / 2);
@@ -2379,7 +2379,7 @@ void DrawModeObject(void) {
             switch (gStage) {
                 case STAGE_1_1:
                     gModeObjects[4].y = 0;
-                    gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
+                    gModeObjectModels[4].parent = (s32)&gTodCoords[1];
                     gModeObjects[4].x = -gWorldShift[0];
                     gModeObjects[4].z = -gWorldShift[2];
                     DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[4].model],
@@ -2387,7 +2387,7 @@ void DrawModeObject(void) {
                     break;
                 case STAGE_5_1:
                     gModeObjects[2].y = 0;
-                    gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
+                    gModeObjectModels[2].parent = (s32)&gTodCoords[1];
                     gModeObjects[2].x = -gWorldShift[0];
                     gModeObjects[2].z = -gWorldShift[2];
                     DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[2].model],
@@ -2411,14 +2411,14 @@ s32 AttachModeObject(void) {
         case RIDE_BOARD:
             if ((u32)(gPlayer.motion[0] - MOT_RIDE) >= 7) {
                 gPlayer.motion[0] = MOT_RIDE;
-                gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
+                gModeObjectModels[0].parent = (s32)&gTodCoords[16];
                 gModeObjects[0].model = 0;
             }
             break;
         case RIDE_BOARD_2:
             if ((u32)(gPlayer.motion[0] - MOT_RIDE) >= 7) {
                 gPlayer.motion[0] = MOT_RIDE;
-                gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
+                gModeObjectModels[5].parent = (s32)&gTodCoords[16];
                 gModeObjects[5].model = 5;
             }
             break;
@@ -2427,11 +2427,11 @@ s32 AttachModeObject(void) {
                 gPlayer.motion[0] = MOT_RIDE;
                 switch (gStage) {
                     case STAGE_2_1:
-                        gModeObjectModels[3].unk58 = (s32)&gTodCoords[0];
+                        gModeObjectModels[3].parent = (s32)&gTodCoords[0];
                         gModeObjects[3].model = 3;
                         break;
                     case STAGE_4_2:
-                        gModeObjectModels[6].unk58 = (s32)&gTodCoords[0];
+                        gModeObjectModels[6].parent = (s32)&gTodCoords[0];
                         gModeObjects[6].model = 6;
                         break;
                 }
@@ -2440,11 +2440,11 @@ s32 AttachModeObject(void) {
         case RIDE_COVER:
             switch (gStage) {
                 case STAGE_1_1:
-                    gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
+                    gModeObjectModels[4].parent = (s32)&gTodCoords[1];
                     gModeObjects[4].model = 4;
                     break;
                 case STAGE_5_1:
-                    gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
+                    gModeObjectModels[2].parent = (s32)&gTodCoords[1];
                     gModeObjects[2].model = 2;
                     break;
             }
@@ -2475,27 +2475,27 @@ void SpawnModeObject(void) {
             slot += idx;
             switch (gStage) {
                 case STAGE_1_1:
-                    gModeObjectModels[4].unk58 = 0;
+                    gModeObjectModels[4].parent = 0;
                     slot->model = 4;
                     break;
                 case STAGE_1_2:
-                    gModeObjectModels[0].unk58 = 0;
+                    gModeObjectModels[0].parent = 0;
                     slot->model = 0;
                     break;
                 case STAGE_2_1:
-                    gModeObjectModels[3].unk58 = 0;
+                    gModeObjectModels[3].parent = 0;
                     slot->model = 3;
                     break;
                 case STAGE_4_2:
-                    gModeObjectModels[6].unk58 = 0;
+                    gModeObjectModels[6].parent = 0;
                     slot->model = 6;
                     break;
                 case STAGE_5_1:
-                    gModeObjectModels[2].unk58 = 0;
+                    gModeObjectModels[2].parent = 0;
                     slot->model = 2;
                     break;
                 case STAGE_5_2:
-                    gModeObjectModels[5].unk58 = 0;
+                    gModeObjectModels[5].parent = 0;
                     slot->model = 5;
                     break;
             }
@@ -2889,7 +2889,7 @@ void StopSpeed(void) {
 
 void AttachHeldItem(void) {
     if ((gPlayer.rideMode >> 4) == RIDE_ITEM) {
-        gModeObjectModels[1].unk58 = (s32)&gTodCoords[8];
+        gModeObjectModels[1].parent = (s32)&gTodCoords[8];
         gModeObjects[1].model = 1;
     }
 }

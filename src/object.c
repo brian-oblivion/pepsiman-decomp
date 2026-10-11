@@ -591,8 +591,8 @@ s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
     u8 *q;
 
     DrawObjectModel(rec, r);
-    start = rec->unk72;
-    n = rec->unk74;
+    start = rec->pointFirst;
+    n = rec->pointCount;
     r->unk40 = 0;
     if (n != -1) {
         for (i = start; i < start + n; i++) {
@@ -602,8 +602,8 @@ s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
         }
     }
     if (gPlayer.hittable != 0) {
-        start = rec->unk6E;
-        n = rec->unk70;
+        start = rec->quadFirst;
+        n = rec->quadCount;
         if (n != -1) {
             for (i = start; i < start + n; i++) {
                 q = gLiveQuads + i * 0x4C;
@@ -902,7 +902,7 @@ void UpdateTrapLayoutViewer(void) {
                 gLocalPos.vx = r->o.homeX;
                 gLocalPos.vy = r->o.homeY;
                 gLocalPos.vz = r->o.homeZ;
-                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->model].unk10, &gLocalPos,
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->model].coord, &gLocalPos,
                                  &gWorldPos);
                 r->o.x = gWorldPos.vx;
                 r->o.y = gWorldPos.vy;
@@ -1358,7 +1358,7 @@ void AttachToParent(Trap *a, Trap *b) {
     gLocalPos.vx = pb->homeX;
     gLocalPos.vy = pb->homeY;
     gLocalPos.vz = pb->homeZ;
-    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->model].unk10, &gLocalPos, &gWorldPos);
+    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->model].coord, &gLocalPos, &gWorldPos);
     pb->x = gWorldPos.vx;
     pb->y = gWorldPos.vy;
     pb->z = gWorldPos.vz;

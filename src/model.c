@@ -434,7 +434,7 @@ s32 DrawTodObjects(void) {
         if (o->tmd != NULL) {
             save = *o;
             q = o;
-            if (o->id == 10 && gPlayer.unk3D4 == 1) {
+            if (o->id == 10 && gPlayer.altModel == 1) {
                 o->tmd = (unsigned long *)D_800963A0[2];
             }
             GsGetLs(o->coord2, &m);
@@ -859,7 +859,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                 prm->scale.vz = ((s16 *)p)[2];
                 p += 8;
             } else {
-                if (gPlayer.unk3D2 == 0) {
+                if (gPlayer.flattened == 0) {
                     prm->scale.vx = 0x1000;
                     prm->scale.vy = 0x1000;
                     prm->scale.vz = 0x1000;

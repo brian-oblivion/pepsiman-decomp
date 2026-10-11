@@ -371,53 +371,53 @@ typedef struct {
     s32 drawX;                /**< added to x for the drawn position */
     s32 drawY;                /**< added to y for the drawn position */
     s32 drawZ;                /**< added to z for the drawn position */
-    s16 unk360;               /**< an angle copied to the camera rotation's x */
-    s16 unk362;               /**< an angle added to yaw for the camera rotation's y */
+    s16 bodyRotX;             /**< added to the body's x rotation: ACT_REEL's rocking */
+    s16 bodyYaw;              /**< added to the body's yaw: the spins and twirls */
     s16 unk364;               /**< cleared on a reset */
     u8 pad366[0x368 - 0x366]; /**< not yet known */
     s32 lookX;      /**< x of the point the models turn to face (gLookYaw*); cleared by player */
     s32 lookY;      /**< y of that point */
     s32 lookZ;      /**< z of that point; cleared by player */
-    s16 unk374;     /**< cleared when y passes the goal line */
-    s16 unk376;     /**< a step counter of the current mode */
-    s16 unk378;     /**< a second step counter of the current mode */
-    s16 unk37A;     /**< cleared with unk378 */
+    s16 actTimer;   /**< the current action's first counter, mostly its frames */
+    s16 actTimer2;  /**< the current action's second counter */
+    s16 actTimer3;  /**< the current action's third counter */
+    s16 actTimer4;  /**< the current action's fourth counter */
     s32 unk37C;     /**< set with yaw to the start heading */
     s32 yaw;        /**< the body heading; follows the course heading in bounded steps */
     s32 lean;       /**< the body roll while steering, -15..15; decays to 0 */
     s32 unk388;     /**< object 2's eased turn toward the look point (gLookYawNarrow) */
     s16 unk38C;     /**< cleared whenever slideState changes */
     u8 slideState;  /**< a SlideState */
-    u8 unk38F;      /**< 1 also gates a check on jumpPower */
+    u8 airborne;    /**< 1 from a jump's start to its landing */
     u16 jumpState;  /**< a JumpState */
     s16 jumpTime;   /**< steps the button has been held while jumpState is 1 */
     s32 jumpStartY; /**< y when the jump began */
     s16 jumpPower;  /**< the jump's strength, set by how long the button is held */
     u8 pad39A[0x39C - 0x39A]; /**< not yet known */
-    s32 unk39C;               /**< with unk3CC, picks which cap y gets */
-    s32 unk3A0;               /**< 0, 1 or 2, set as jumpState goes to 2 */
-    s16 unk3A4;               /**< a countdown set to 1 by some speed ranges */
+    s32 peakY;                /**< the jump's highest point (lowest y); 0 on landing */
+    s32 jumpHeight;           /**< the jump just released: 0 low, 1 mid, 2 high */
+    s16 slideTimer;           /**< frames left in MOT_SLIDE */
     s16 fallSpeed;            /**< added (times 5) to y each step in the air; reset on landing */
     s16 speed;                /**< the running speed; 40 is cruising, 50 after a reset */
-    s16 unk3AA;               /**< speed saved when a mode starts */
+    s16 startSpeed;           /**< the speed when the action began, eased down from */
     u16 speedBand;            /**< 0 below 13 in speed, 1 below 26, else 2 */
     s16 stepX;                /**< speed along the sine of the heading: this step's x move */
     s16 stepZ;                /**< speed along the cosine of the heading: this step's z move */
     u8 pad3B2[0x3B4 - 0x3B2]; /**< not yet known */
     s32 unk3B4;               /**< moved by 50 a step while steering */
-    s32 unk3B8;               /**< 1 selects the global cap for y; set when a placed record hits */
-    s32 unk3BC;               /**< 1 with unk3B8 also starts the jumpState sequence */
+    s32 onRideQuad;           /**< 1 while over a ride-hit quad */
+    s32 onQuadTop;            /**< 1 while standing on it */
     s32 groundY;              /**< the ground height under the player */
     s32 unk3C4;               /**< the editor keeps y here before snapping to the floor */
     s16 invulnTimer;          /**< counts down after a hit; the player is hittable again at 0 */
-    u16 unk3CA;    /**< set to 1 when the stage ends; selects the second ordering tables */
-    s32 unk3CC;    /**< with unk39C, picks which cap y gets */
-    u8 rideMode;   /**< the ride and the held object, RideMode values */
-    u8 unk3D1;     /**< set to 1 when a stage ends with a mode in rideMode */
-    s8 unk3D2;     /**< set to 1 by one mode */
-    s8 showShadow; /**< nonzero draws the shadow under the player */
-    s8 unk3D4;     /**< 1 while mode 0xF runs; swaps object 10's model */
-    s8 unk3D5;     /**< set to 1 by some pickups */
+    u16 unk3CA;     /**< set to 1 when the stage ends; selects the second ordering tables */
+    s32 rideQuadY;  /**< that quad's top */
+    u8 rideMode;    /**< the ride and the held object, RideMode values */
+    u8 dropRide;    /**< 1 leaves the ride behind as a stage object */
+    s8 flattened;   /**< 1 draws the player with no depth (ACT_FLATTENED) */
+    s8 showShadow;  /**< nonzero draws the shadow under the player */
+    s8 altModel;    /**< 1 while MOT_STOP_WAIT runs: object 10 draws its other model */
+    s8 bonusLocked; /**< 1 holds the bonus level at 0 and stops the clock */
     u8 pad3D6[0x3D8 - 0x3D6]; /**< not yet known */
 } PlayerState;
 

@@ -610,8 +610,8 @@ s32 UpdateObjectEntry(ObjectModel *rec, Trap *r) {
                 PlaceCollisionQuad(q);
                 GetQuadHeightUnderPlayer(q, &sQuadHit);
                 if (sQuadHit == 1) {
-                    gPlayer.unk3B8 = sQuadHit;
-                    gPlayer.unk3CC = sQuadHitWord;
+                    gPlayer.onRideQuad = sQuadHit;
+                    gPlayer.rideQuadY = sQuadHitWord;
                 }
             }
         }

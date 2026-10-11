@@ -503,8 +503,8 @@ void ResetCollision(void) {
 }
 
 void func_80029838(void) {
-    if (gPlayer.unk3B8 == 0) {
-        gPlayer.unk3BC = 0;
+    if (gPlayer.onRideQuad == 0) {
+        gPlayer.onQuadTop = 0;
     }
 }
 
@@ -516,7 +516,7 @@ void ResetPlayerHits(void) {
 }
 
 void func_8002988C(void) {
-    gPlayer.unk3B8 = 0;
+    gPlayer.onRideQuad = 0;
 }
 
 INCLUDE_RODATA("asm/nonmatchings/collision", gTrapNoFmt);

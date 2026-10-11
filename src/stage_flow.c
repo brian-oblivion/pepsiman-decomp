@@ -265,7 +265,7 @@ void UpdateStagePlay(u8 stage) {
                     gGameMode = GM_MENU_LOAD;
                     gModeStep = 0;
                     StopCdTrack();
-                    gPlayer.unk3D2 = 0;
+                    gPlayer.flattened = 0;
                     gPlayer.rideMode = RIDE_NONE;
                 }
                 SetCdVolume(80);
@@ -384,15 +384,15 @@ void ResetStage(void) {
     gPlayer.speed = 50;
     gPlayer.slideState = SLIDE_NONE;
     gPlayer.unk38C = 0;
-    gPlayer.unk3D2 = 0;
+    gPlayer.flattened = 0;
     gPlayer.drawX = gPlayer.drawY = gPlayer.drawZ = 0;
-    gPlayer.unk360 = gPlayer.unk362 = gPlayer.unk364 = 0;
-    gPlayer.unk3D1 = 0;
+    gPlayer.bodyRotX = gPlayer.bodyYaw = gPlayer.unk364 = 0;
+    gPlayer.dropRide = 0;
     gPlayer.showShadow = 1;
     gPlayer.invulnTimer = 0;
     gPlayer.hittable = 1;
     gHitRecover = 0;
-    gPlayer.unk3D4 = gPlayer.unk3D5 = 0;
+    gPlayer.altModel = gPlayer.bonusLocked = 0;
     gPlayer.fallSpeed = 0;
     gView[6] = 0;
     gPlayer.control = 1;
@@ -419,7 +419,7 @@ void ResetStage(void) {
         gPlayer.jumpPower = 0;
         gPlayer.speed = 0;
         gSpeedFixed = 0;
-        gPlayer.unk374 = gPlayer.unk376 = gPlayer.unk378 = gPlayer.unk37A = 0;
+        gPlayer.actTimer = gPlayer.actTimer2 = gPlayer.actTimer3 = gPlayer.actTimer4 = 0;
         gPlayer.control = 0;
         gPlayer.y = gCourse.y - 1000;
     }

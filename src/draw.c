@@ -178,6 +178,10 @@ typedef struct {
     u16 v3;     /**< fourth vertex index */
 } TmdGT4U;
 
+/** @brief The SortTmdDiv* functions split a polygon into four when its
+ *         deepest vertex's Z, over 4, is nearer than this. */
+#define SUBDIVIDE_Z 250
+
 /** @brief A sprite's place in VRAM, set by DefineSprite. */
 typedef struct {
     u16 tpage; /**< texture page, with the semi-transparency bit at bit 7 */
@@ -807,7 +811,7 @@ PACKET *SortTmdDivF3(TmdF3 *prim, SVECTOR *vtx, POLY_F3 *pkt, s32 n, s32 shift, 
             linkPrim(tag, pkt, POLY_F3);
             pkt++;
         }
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -897,7 +901,7 @@ PACKET *SortTmdDivF4(TmdF4 *prim, SVECTOR *vtx, POLY_F4 *pkt, s32 n, s32 shift, 
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1012,7 +1016,7 @@ PACKET *SortTmdDivG3(TmdG3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1144,7 +1148,7 @@ PACKET *SortTmdDivG4(TmdG4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shift
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1300,7 +1304,7 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
             gte_dpcs();
             gte_strgb(&pkt->r0);
             /* MATCHING: volatile code stores stay on the packet base. */
-            ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+            ((volatile POLY_FT3 *)pkt)->code = prim->mode & ~PRIM_RAW;
             *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
             *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
@@ -1309,7 +1313,7 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1372,7 +1376,7 @@ PACKET *SortTmdDivFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 gte_lddp(dp);
                 gte_dpcs();
                 gte_strgb(&pkt->r0);
-                ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+                ((volatile POLY_FT3 *)pkt)->code = prim->mode & ~PRIM_RAW;
                 linkPrim(tag, pkt, POLY_FT3);
                 pkt++;
             }
@@ -1428,7 +1432,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
             gte_lddp(dp);
             gte_dpcs();
             gte_strgb(&pkt->r0);
-            ((volatile POLY_FT4 *)pkt)->code = prim->mode & 0xFE;
+            ((volatile POLY_FT4 *)pkt)->code = prim->mode & ~PRIM_RAW;
             *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
             *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
@@ -1438,7 +1442,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1536,7 +1540,7 @@ PACKET *SortTmdDivFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 shi
                 gte_lddp(dp);
                 gte_dpcs();
                 gte_strgb(&pkt->r0);
-                ((volatile POLY_FT4 *)pkt)->code = prim->mode & 0xFE;
+                ((volatile POLY_FT4 *)pkt)->code = prim->mode & ~PRIM_RAW;
                 linkPrim(tag, pkt, POLY_FT4);
                 pkt++;
             }
@@ -1589,7 +1593,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
             gte_lddp(dp);
             gte_dpct();
             gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
-            ((volatile POLY_GT3 *)pkt)->code = prim->mode & 0xFE;
+            ((volatile POLY_GT3 *)pkt)->code = prim->mode & ~PRIM_RAW;
             *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
             *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
@@ -1598,7 +1602,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1681,7 +1685,7 @@ PACKET *SortTmdDivGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->r2 = (prim->c2.b << 16) | (prim->c2.g << 8) | prim->c2.r;
                         break;
                 }
-                ((volatile POLY_GT3 *)pkt)->code = prim->mode & 0xFE;
+                ((volatile POLY_GT3 *)pkt)->code = prim->mode & ~PRIM_RAW;
                 linkPrim(tag, pkt, POLY_GT3);
                 pkt++;
             }
@@ -1746,7 +1750,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
             gte_lddp(dp);
             gte_dpcs();
             gte_strgb(&pkt->r3);
-            ((volatile POLY_GT4 *)pkt)->code = prim->mode & 0xFE;
+            ((volatile POLY_GT4 *)pkt)->code = prim->mode & ~PRIM_RAW;
             *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
             *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
             *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;
@@ -1756,7 +1760,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
             pkt++;
         }
         tag = (u32 *)ot->org + (v >> shift);
-        if (v < 250) {
+        if (v < SUBDIVIDE_Z) {
             m[0].vx = (vtx[prim->v0].vx + vtx[prim->v1].vx) >> 1;
             m[0].vy = (vtx[prim->v0].vy + vtx[prim->v1].vy) >> 1;
             m[0].vz = (vtx[prim->v0].vz + vtx[prim->v1].vz) >> 1;
@@ -1881,7 +1885,7 @@ PACKET *SortTmdDivGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
                         *(u32 *)&pkt->r3 = (prim->c3.b << 16) | (prim->c3.g << 8) | prim->c3.r;
                         break;
                 }
-                ((volatile POLY_GT4 *)pkt)->code = prim->mode & 0xFE;
+                ((volatile POLY_GT4 *)pkt)->code = prim->mode & ~PRIM_RAW;
                 linkPrim(tag, pkt, POLY_GT4);
                 pkt++;
             }
@@ -2496,7 +2500,7 @@ PACKET *SortTmdFastFT3(TmdFT3 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         gte_strgb(&pkt->r0);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer; it still pays for reducing &pkt->u2. */
-        ((volatile POLY_FT3 *)pkt)->code = prim->mode & 0xFE;
+        ((volatile POLY_FT3 *)pkt)->code = prim->mode & ~PRIM_RAW;
         *(u32 *)&pkt->u0 = *(u32 *)&prim->uv0;
         *(u32 *)&pkt->u1 = *(u32 *)&prim->uv1;
         *(u16 *)&pkt->u2 = *(u16 *)&prim->uv2;

@@ -189,7 +189,7 @@ PACKET *SortTmdFastFT4(TmdFT4 *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 sh
         gte_strgb(&pkt->r0);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
-        ((volatile POLY_FT4 *)pkt)->code = prim->mode & 0xFE;
+        ((volatile POLY_FT4 *)pkt)->code = prim->mode & ~PRIM_RAW;
         *(u32 *)&pkt->u0 = prim->uv0;
         *(u32 *)&pkt->u1 = prim->uv1;
         *(u16 *)&pkt->u2 = prim->uv2;
@@ -234,7 +234,7 @@ PACKET *SortTmdFastGT3(TmdGT3U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         gte_strgb3(&pkt->r0, &pkt->r1, &pkt->r2);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
-        ((volatile POLY_GT3 *)pkt)->code = prim->mode & 0xFE;
+        ((volatile POLY_GT3 *)pkt)->code = prim->mode & ~PRIM_RAW;
         *(u32 *)&pkt->u0 = prim->uv0;
         *(u32 *)&pkt->u1 = prim->uv1;
         *(u16 *)&pkt->u2 = prim->uv2;
@@ -289,7 +289,7 @@ PACKET *SortTmdFastGT4(TmdGT4U *prim, SVECTOR *vtx, PACKET *packet, s32 n, s32 s
         gte_strgb(&pkt->r3);
         /* MATCHING: a volatile store, which loop cannot rebase onto its
          * reduced pointer. */
-        ((volatile POLY_GT4 *)pkt)->code = prim->mode & 0xFE;
+        ((volatile POLY_GT4 *)pkt)->code = prim->mode & ~PRIM_RAW;
         *(u32 *)&pkt->u0 = prim->uv0;
         *(u32 *)&pkt->u1 = prim->uv1;
         *(u16 *)&pkt->u2 = prim->uv2;

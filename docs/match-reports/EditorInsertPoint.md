@@ -4,11 +4,11 @@
 
 Unit `src/editor.c`. On flag bit 5: error 8 in `gToolMode` when
 `sTotals.unk26` is 200, error 7 when there is no current entry
-(`D_80095824 == -1`); otherwise shifts the block's 8-byte points
-(`D_800959C4`) up by one from the end of the current entry, writes the
+(`gCurBlock == -1`); otherwise shifts the block's 8-byte points
+(`gCanPoints`) up by one from the end of the current entry, writes the
 game position (`sGameSave.unk348`, as halfwords) and `D_80095B4C[0] + 1`
 as the new point, bumps the entry's count and the start of every later
-entry (`D_800959C0`, `gStageObjCount` entries), and rebuilds the block header
+entry (`gCanSpans`, `gStageObjCount` entries), and rebuilds the block header
 with `SetCurrentBlock(0x801FD000)`.
 
 ## How it closed
@@ -17,12 +17,12 @@ The structure matched early (19/112 at first, 36/112 once the entry pointer
 of the first part was the same local as the second's). The rest were
 aliasing and register-allocation shapes:
 
-1. **`D_800959C0` reloaded after the count store, `D_80095824` not:
-   `D_800959C0` / `D_800959C4` are reached as MEMBERS of a struct at a
+1. **`gCanSpans` reloaded after the count store, `gCurBlock` not:
+   `gCanSpans` / `gCanPoints` are reached as MEMBERS of a struct at a
    fixed address**, here a unit-local view `#define sCur (*(BlockCur
-   *)&D_800959C0)`. GCC 2.8.1 assumes a member store through a pointer
+   *)&gCanSpans)`. GCC 2.8.1 assumes a member store through a pointer
    cannot alias a scalar at a fixed address, but may alias a member of a
-   fixed struct, so the scalar `D_80095824` stays in its register and the
+   fixed struct, so the scalar `gCurBlock` stays in its register and the
    pointer is reloaded. Declared as plain scalars (common.h), neither is
    reloaded. (`*(s32 *)` and `s32 *` stores were tried for the count and
    change nothing about that reload.)
@@ -30,11 +30,11 @@ aliasing and register-allocation shapes:
    e->count = j + 1;`), a permuter lead (output score 555 from 2080):
    `n = e->count++` with its own local copies it into a new register.
 3. **The second loop's pointer loaded, then advanced**: `e = (Span8
-   *)sCur.ents; e += D_80095824 + 1;`.
+   *)sCur.ents; e += gCurBlock + 1;`.
 4. **One `Pt8 *p` for both the shift's source pointer and the new point**
    (permuter lead, 280 then 95): 78/112, then 108/112.
 5. **Each entry pointer loaded, then advanced**, `e = (Span8 *)sCur.ents;
-   e += D_80095824;`, in both parts: 111/112, the last word being data
+   e += gCurBlock;`, in both parts: 111/112, the last word being data
    drift from another live near-miss in the unit; byte-exact once that was
    wrapped.
 
@@ -53,9 +53,9 @@ object identical apart from addresses, so AGREE (check 3).
 - `Span8` (an entry as `start`, `count` words) and `Pt8` (an 8-byte point,
   three `s16` and a `u16`): unit-local views. object.h's `Ent8` is the
   same entry seen as halfwords.
-- `BlockCur` / `sCur`: the unit's member view of `D_800959C0` and
-  `D_800959C4` (see 1), with a `MATCHING:` note.
-- `D_80095824` (`s32`) declared in the unit. `gToolMode` moved from
+- `BlockCur` / `sCur`: the unit's member view of `gCanSpans` and
+  `gCanPoints` (see 1), with a `MATCHING:` note.
+- `gCurBlock` (`s32`) declared in the unit. `gToolMode` moved from
   hit_tool.c to `include/common.h`, type unchanged (declcheck).
 
 ```c
@@ -70,11 +70,11 @@ void EditorInsertPoint(void) {
     if (gPadTrig & 0x20) {
         if (sTotals.unk26 == 200) {
             gToolMode = 8;
-        } else if (D_80095824 == -1) {
+        } else if (gCurBlock == -1) {
             gToolMode = 7;
         } else {
             e = (Span8 *)sCur.ents;
-            e += D_80095824;
+            e += gCurBlock;
             p = (Pt8 *)sCur.pts;
             dst = p;
             pos[0] = sGameSave.unk348[0];
@@ -88,18 +88,18 @@ void EditorInsertPoint(void) {
                 p--;
             }
             e = (Span8 *)sCur.ents;
-            e += D_80095824;
+            e += gCurBlock;
             p = (Pt8 *)sCur.pts;
             j = e->count;
             e->count = j + 1;
             p += e->start + j;
             e = (Span8 *)sCur.ents;
-            e += D_80095824 + 1;
+            e += gCurBlock + 1;
             p->x = pos[0];
             p->y = pos[1];
             p->z = pos[2];
             p->tag = D_80095B4C[0] + 1;
-            for (j = D_80095824 + 1; j < gStageObjCount; j++) {
+            for (j = gCurBlock + 1; j < gStageObjCount; j++) {
                 e->start++;
                 e++;
             }

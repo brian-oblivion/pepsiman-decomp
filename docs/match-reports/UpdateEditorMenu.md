@@ -8,7 +8,7 @@ flag bit 5 of `gPadTrig` enters the tool mode of the highlighted line
 and line count, save the line in `sTotals.unk3`, load the edited value
 from the tool block and set mode 2..5 in `gToolMode`; 4 and 5 set flags;
 6 copies the start position into the game state and recomputes
-`D_800957F4` and `D_8009676C[0]` (the same shape as stage_flow's stage
+`gFloorIndex` and `D_8009676C[0]` (the same shape as stage_flow's stage
 start); 7 sets mode 6. Fourth build matched.
 
 ## Shapes read from retail
@@ -31,7 +31,7 @@ start); 7 sets mode 6. Fourth build matched.
 - `Totals28` (unit-local) gains `u8 unk3` and `u16 unk24`.
 - New in the `.c`: `RotPos`/`sRotPos`, a per-unit view
   `s32 FindFloor(s32 *pos)` (MATCHING note), `extern u8 D_800958D8`.
-- `D_800957F4` (`s32`, type unchanged) moved from stage_flow.c to
+- `gFloorIndex` (`s32`, type unchanged) moved from stage_flow.c to
   include/common.h, since a second unit now uses it (declcheck LOCAL). This
   deletes one line in stage_flow.c.
 
@@ -102,7 +102,7 @@ s32 UpdateEditorMenu(void) {
                 sGameSave.unk348[1] = sRotPos.pos[1];
                 sGameSave.unk348[2] = sRotPos.pos[2];
                 sRotPos.rot.vy = sRotPos.rot.vz;
-                D_800957F4 = FindFloor(sGameSave.unk348);
+                gFloorIndex = FindFloor(sGameSave.unk348);
                 gSection = 0;
                 D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                 break;

@@ -15,13 +15,13 @@ void AttachToParent(Trap *a, Trap *b) {
 
     pa = (Obj34 *)a;
     pb = (Obj34 *)b;
-    D_800957E4.vx = pb->unkC;
-    D_800957E4.vy = pb->unk10;
-    D_800957E4.vz = pb->unk14;
-    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->unk36].unk10, &D_800957E4, &D_8009F268);
-    pb->unk0 = D_8009F268.vx;
-    pb->unk4 = D_8009F268.vy;
-    pb->unk8 = D_8009F268.vz;
+    gLocalPos.vx = pb->unkC;
+    gLocalPos.vy = pb->unk10;
+    gLocalPos.vz = pb->unk14;
+    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->unk36].unk10, &gLocalPos, &gWorldPos);
+    pb->unk0 = gWorldPos.vx;
+    pb->unk4 = gWorldPos.vy;
+    pb->unk8 = gWorldPos.vz;
     pb->unk2C = pa->unk2C;
     pb->unk30 = pa->unk30;
     pb->unk1A = pa->unk1A + pb->unk20;
@@ -31,11 +31,11 @@ void AttachToParent(Trap *a, Trap *b) {
 
 ## Declarations added (unit-local, in the .c)
 
-- `extern SVECTOR D_800957E4;`: retail takes its address `lui`/`addiu`
+- `extern SVECTOR gLocalPos;`: retail takes its address `lui`/`addiu`
   (cc1's `la` of an object of at most 8 bytes) and stores the three
   halfwords through `lui $at`. splat names the halfwords D_800957E6 and
-  D_800957E8; `%lo(D_800957E4+2)` assembles to the same bytes.
-- `extern VECTOR D_8009F268;`: read `lui` + `%lo` and then off the base.
+  D_800957E8; `%lo(gLocalPos+2)` assembles to the same bytes.
+- `extern VECTOR gWorldPos;`: read `lui` + `%lo` and then off the base.
 - Prototypes for TransformByCoord (player) and DrawObjectModel (this unit,
   still asm; `(ObjectModel *, Trap *)` like UpdateObjectEntry).
 

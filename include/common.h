@@ -332,27 +332,27 @@ extern u16 gCans;          /**< 5 units, 7 functions */
 extern s16 gEditMax;       /**< limit of the value being edited */
 extern s16 gMenuLineCount; /**< the count a menu line wraps at */
 extern s32 gPadTrig;       /**< port 1's newly pressed buttons this frame, auto-repeat included */
-extern u8 *D_800959C0;     /**< the bytes after a BlockHeader */
-extern u8 *D_800959C4;     /**< the BlockHeader's second part */
-extern s32 D_800959C8;     /**< the BlockHeader's first word */
-extern s16 gSoundFade;     /**< 2 units, 2 functions */
-extern s32 gBonusLevel;    /**< 2 units; 3 when a stage starts */
-extern s16 D_800957BC;     /**< 2 units; a heading */
-extern u8 *gFogColors;     /**< 2 units; far (fog) colours, four bytes each */
-extern u16 gFogFade;       /**< 2 units; fog fade-in step: 0..31, then 100 */
-extern s32 gVSyncMode;     /**< EndFrame's VSync argument: the frames to wait */
-extern s32 D_800958AC;     /**< 2 units; 1 picks the second set of stage tables */
-extern s8 D_8009599C;      /**< 2 units */
-extern u16 gSpeedFixed;    /**< 2 units */
-extern u32 gFrameCount;    /**< frames drawn while not paused */
-extern s32 gLoopJ;         /**< a second loop counter, or a count, kept in a global */
-extern s16 gSectionCount;  /**< number of entries; 2 units */
-extern s16 gViewerAngle;   /**< the view's orbit angle, in degrees; 2 units */
-extern s32 gSection;       /**< stamped on placed records; 2 units */
-extern u16 gSubStep;       /**< a state switched on in main; cleared after placing; 2 units */
-extern s16 gToolMode;      /**< an error code; cleared when flag bit 6 is set; 2 units */
-extern s32 D_800957F4;     /**< the result of the start-position lookup; 2 units */
-extern s32 gTmdSortMode;   /**< SetTmdSortMode's argument for the models */
+extern u8 *gCanSpans; /**< each stage block's cans: first point and count (after the BlockHeader) */
+extern u8 *gCanPoints;    /**< the cans: x, y, z and group, eight bytes each */
+extern s32 gCanSpanCount; /**< how many blocks have a span (the BlockHeader's first word) */
+extern s16 gSoundFade;    /**< 2 units, 2 functions */
+extern s32 gBonusLevel;   /**< 2 units; 3 when a stage starts */
+extern s16 D_800957BC;    /**< 2 units; a heading */
+extern u8 *gFogColors;    /**< 2 units; far (fog) colours, four bytes each */
+extern u16 gFogFade;      /**< 2 units; fog fade-in step: 0..31, then 100 */
+extern s32 gVSyncMode;    /**< EndFrame's VSync argument: the frames to wait */
+extern s32 D_800958AC;    /**< 2 units; 1 picks the second set of stage tables */
+extern s8 D_8009599C;     /**< 2 units */
+extern u16 gSpeedFixed;   /**< 2 units */
+extern u32 gFrameCount;   /**< frames drawn while not paused */
+extern s32 gLoopJ;        /**< a second loop counter, or a count, kept in a global */
+extern s16 gSectionCount; /**< number of entries; 2 units */
+extern s16 gViewerAngle;  /**< the view's orbit angle, in degrees; 2 units */
+extern s32 gSection;      /**< stamped on placed records; 2 units */
+extern u16 gSubStep;      /**< a state switched on in main; cleared after placing; 2 units */
+extern s16 gToolMode;     /**< an error code; cleared when flag bit 6 is set; 2 units */
+extern s32 gFloorIndex; /**< the floor under the player, from FindFloor; the hint FindFloorNear starts from */
+extern s32 gTmdSortMode; /**< SetTmdSortMode's argument for the models */
 
 /* Per-stage tables, three words per stage; a global flag picks the set. */
 extern s32 gTimeLimits[][3];    /**< 2 units */

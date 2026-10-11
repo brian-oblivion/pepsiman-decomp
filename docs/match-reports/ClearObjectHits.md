@@ -30,5 +30,5 @@ order; the load of `unk41` rises above them on its own.
 
 As `void`: 19/21, reorg fills the back branch's slot with the loop top's
 `sll $v0, $a0, 16` and retargets the branch. `s32` with no `return` (the
-`ClearFlags128` lever) keeps the `nop`: 21/21. One more "control reaches end
+`ClearCanGroups` lever) keeps the `nop`: 21/21. One more "control reaches end
 of non-void function" warning to baseline.

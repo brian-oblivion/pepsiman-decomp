@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. The tool's status panel, printed every frame from
 UpdateEditor: the sync count (two colour codes past 400 and 450), the grid
-step, the block, the position (copied into `D_800ACED0`), the record counts
+step, the block, the position (copied into `sStatusPos`), the record counts
 and the current item, a frame around it, the INFO / DELETE line, then one
 panel per `gToolMode` (a jump table over 0..11): move mode, the menu, the
 pepsi, switch, trap and sprite selectors with their highlighted line
@@ -112,7 +112,7 @@ extern char sEdWomanLine[]; /**< "WOMAN\n" */
 extern char sEdChildLine[]; /**< "CHILD\n" */
 extern char sEdDogLine[]; /**< "DOG\n" */
 extern char sEdYouAreLine[]; /**< "IMASU." */
-extern VECTOR D_800ACED0; /**< the position printed on the status panel */
+extern VECTOR sStatusPos; /**< the position printed on the status panel */
 
 void PrintEditorCaption(void);
 void PrintEditorData(void);
@@ -138,11 +138,11 @@ s32 PrintEditorStatus(void) {
     FntPrint(gSyncFmt, gVSyncTime);
     FntPrint(sEdColorWhite);
     FntPrint(gGridFmt, sTotals.unk4);
-    FntPrint(gNowBlockFmt, D_80095824, gStageObjCount);
-    D_800ACED0.vx = sGameSave.unk348[0];
-    D_800ACED0.vy = sGameSave.unk348[1];
-    D_800ACED0.vz = sGameSave.unk348[2];
-    FntPrint(sEdPositionFmt, D_800ACED0.vx);
+    FntPrint(gNowBlockFmt, gCurBlock, gStageObjCount);
+    sStatusPos.vx = sGameSave.unk348[0];
+    sStatusPos.vy = sGameSave.unk348[1];
+    sStatusPos.vz = sGameSave.unk348[2];
+    FntPrint(sEdPositionFmt, sStatusPos.vx);
     if (sTotals.unk8 == 0) {
         FntPrint(sEdColorWhite);
     } else if (sTotals.unk8 < 0) {
@@ -150,10 +150,10 @@ s32 PrintEditorStatus(void) {
     } else {
         FntPrint(sEdColorRed);
     }
-    FntPrint(sEdPosYFmt, D_800ACED0.vy);
+    FntPrint(sEdPosYFmt, sStatusPos.vy);
     FntPrint(sEdColorWhite);
-    FntPrint(sEdPosZFmt, D_800ACED0.vz);
-    if (D_80095824 != -1) {
+    FntPrint(sEdPosZFmt, sStatusPos.vz);
+    if (gCurBlock != -1) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorRed);
@@ -345,7 +345,7 @@ s32 PrintEditorStatus(void) {
             }
             FntPrint(sEdTrapModelRangeFmt, sTotals.unk1C, gSectionCount);
             PrintTabs(3);
-            FntPrint(sEdUseBufferFmt, D_8009596E);
+            FntPrint(sEdUseBufferFmt, gPlaceCount);
             PrintTabs(3);
             if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
@@ -479,7 +479,7 @@ s32 PrintEditorStatus(void) {
             }
             PrintTabs(2);
             FntPrint(sEdActLabel);
-            switch (D_800959E2) {
+            switch (sSpriteFlags) {
                 case 0:
                     FntPrint(sEdNoActLine);
                     break;
@@ -671,7 +671,7 @@ s32 PrintEditorStatus(void) {
 ```
 
 `sTotals`, `sGameSave`, `sRecs5C`, `EditorSwitch` and `EditorTrap` are the unit's
-existing views (declared above UpdateEditor). `D_800ACED0` (a VECTOR two
+existing views (declared above UpdateEditor). `sStatusPos` (a VECTOR two
 GsOTs past `gSubOt`) and the strings are new externs in the unit; the
 prototype `void PrintEditorStatus(void);` above UpdateEditor became `s32`.
 

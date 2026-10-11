@@ -14,7 +14,7 @@ it is clamped to the entry. About 20 builds.
 
 ## Shapes read from retail
 
-- **Every entry access as `e = (Span8 *)D_800959C0; e += k;`** (retail's
+- **Every entry access as `e = (Span8 *)gCanSpans; e += k;`** (retail's
   `addu a1, a1, v0`, base register as destination; EditorInsertPoint's
   lever). With indexed spellings the build also dropped the second
   `count == 0` test: CSE proved it from the first. Retail reloads the
@@ -51,8 +51,8 @@ s32 EditorEditPoints(void) {
      * `e = base; e += k;`, which also keeps the second count test. */
     switch (gSubStep) {
         case 0:
-            e = (Span8 *)D_800959C0;
-            e += D_80095824;
+            e = (Span8 *)gCanSpans;
+            e += gCurBlock;
             gSubStep = 1;
             sTotals.unk22 = e->start;
             return;
@@ -61,28 +61,28 @@ s32 EditorEditPoints(void) {
         default:
             return;
     }
-    src = (Pt8 *)D_800959C4;
+    src = (Pt8 *)gCanPoints;
     src += sTotals.unk22;
     pos.vx = src->x;
     pos.vy = src->y;
     pos.vz = src->z;
     DrawPin(&pos);
-    e = (Span8 *)D_800959C0;
-    e += D_80095824;
-    if (e->count == 0 || D_80095824 == -1) {
+    e = (Span8 *)gCanSpans;
+    e += gCurBlock;
+    if (e->count == 0 || gCurBlock == -1) {
         gToolMode = 10;
         return;
     }
     if (D_800959D8 != 1 && (gPadTrig & 0x20)) {
-        e = (Span8 *)D_800959C0;
-        e += D_80095824;
+        e = (Span8 *)gCanSpans;
+        e += gCurBlock;
         if (e->count == 0) {
             gToolMode = 9;
             return;
         }
-        e = (Span8 *)D_800959C0;
-        e += D_80095824;
-        dst = (Pt8 *)D_800959C4;
+        e = (Span8 *)gCanSpans;
+        e += gCurBlock;
+        dst = (Pt8 *)gCanPoints;
         src = dst;
         src += sTotals.unk22 + 1;
         dst += sTotals.unk22;
@@ -91,12 +91,12 @@ s32 EditorEditPoints(void) {
             dst++;
             src++;
         }
-        e = (Span8 *)D_800959C0;
-        e += D_80095824;
+        e = (Span8 *)gCanSpans;
+        e += gCurBlock;
         e->count--;
-        e = (Span8 *)D_800959C0;
-        e += D_80095824 + 1;
-        for (j = D_80095824 + 1; j < gStageObjCount; j++) {
+        e = (Span8 *)gCanSpans;
+        e += gCurBlock + 1;
+        for (j = gCurBlock + 1; j < gStageObjCount; j++) {
             e->start--;
             e++;
         }
@@ -107,8 +107,8 @@ s32 EditorEditPoints(void) {
     if (gPadTrig & 2) {
         sTotals.unk22++;
     }
-    e = (Span8 *)D_800959C0;
-    e += D_80095824;
+    e = (Span8 *)gCanSpans;
+    e += gCurBlock;
     if (sTotals.unk22 < (u32)e->start) {
         sTotals.unk22 = e->start;
     }

@@ -78,7 +78,7 @@ void ResetStage(void) {
         sStage.unk348.vx = sSaved.pos.vx;
         sStage.unk348.vy = sSaved.pos.vy;
         sStage.unk348.vz = sSaved.pos.vz;
-        D_800957F4 = sSaved.unk14;
+        gFloorIndex = sSaved.unk14;
         gCameraYaw = sSaved.unk18;
         gCans = sSaved.unk1A;
         gView[1] = sSaved.unk20;

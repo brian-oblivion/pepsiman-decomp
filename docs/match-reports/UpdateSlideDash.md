@@ -70,7 +70,7 @@ unit) got a prototype in the `.c`.
 
 - **Non-void with no return**: `$v0` is live at the exit, so reorg cannot
   put `li $v0, 2` in the delay slot and takes `li $a0, 0x71`. The same
-  lever as ClearFlags128/UpdateSpeedBand, here on a forward branch's slot
+  lever as ClearCanGroups/UpdateSpeedBand, here on a forward branch's slot
   filled from the fall-through block. Adds a baselinable "control reaches
   end of non-void function" warning.
 

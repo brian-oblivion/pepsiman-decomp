@@ -4,7 +4,7 @@
 
 Unit `src/editor.c`. Counts the live records (`unk36 != -1`) of the
 200-entry 0x48-byte table at `gTraps` into `sTotals.unk1A`; on flag bit
-5, places each of the `D_8009596E` waiting records of `D_80096788` at slot
+5, places each of the `gPlaceCount` waiting records of `gPlaceQueue` at slot
 `sTotals.unk18` (stamping position copy, entry, `gSection`, two bytes of
 the tool block, and `unk38` = `sTotals.unk1C` for the first, -1 for the
 rest), with error 8 in `gToolMode` when the table is full; then clears
@@ -14,14 +14,14 @@ rest), with error 8 in `gToolMode` when the table is full; then clears
 
 - **One counter register (`$t0`) for both loops, tested `sltiu` in the
   first and `slt` against a `u16` global in the second: one `u32` counter,
-  compared `(s32)i < D_8009596E` in the second loop.** Two counters move the
+  compared `(s32)i < gPlaceCount` in the second loop.** Two counters move the
   registers (112/122); one `s32` counter gives `slti` in the first loop
   (121/122).
 - The slot count is read once into a `u16` local (`andi 0xFFFF` for the
   `== 200` test, `(s16)` for the index) and written back after each
   placement.
 - The first record's `unk38` is stored through the table base
-  (`sh ..., 0x38($t4)`), not the walking pointer: `D_80096788[0].unk38`.
+  (`sh ..., 0x38($t4)`), not the walking pointer: `gPlaceQueue[0].unk38`.
 - The placement is a 0x48-byte struct copy (four-word loop plus two words),
   then `unk34` stored into the placed slot.
 
@@ -54,8 +54,8 @@ void EditorPlaceRecords(void) {
     if (gPadTrig & 0x20) {
         /* MATCHING: one counter for both loops, unsigned (sltiu) in the
          * first and compared signed (slt) here. */
-        for (i = 0; (s32)i < D_8009596E; i++) {
-            w = &D_80096788[i];
+        for (i = 0; (s32)i < gPlaceCount; i++) {
+            w = &gPlaceQueue[i];
             if (n == 200) {
                 gToolMode = 8;
                 return;
@@ -66,13 +66,13 @@ void EditorPlaceRecords(void) {
             w->unk40 = 0;
             w->unk24 = 0;
             w->unk26 = 0;
-            w->unk28 = D_80095824;
+            w->unk28 = gCurBlock;
             w->unk3C = gSection;
             w->unk42 = sTotals.unk68;
             w->unk43 = sTotals.unk69;
             if (i == 0) {
                 /* MATCHING: stored through the table base, not w. */
-                D_80096788[0].unk38 = sTotals.unk1C;
+                gPlaceQueue[0].unk38 = sTotals.unk1C;
             } else {
                 w->unk38 = -1;
             }

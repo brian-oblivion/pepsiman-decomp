@@ -55,7 +55,7 @@ void ResetGameState(Trap *recs) {
     sProgress.unk6A = 0;
     sProgress.unk6C = 0;
     sProgress.unk6D = 0;
-    D_80095824 = 0;
+    gCurBlock = 0;
     D_800958D8 = 0;
     D_800959D8 = 0;
     sProgress.unk2 = gStage;
@@ -71,7 +71,7 @@ off it: a struct lvalue). Stores are in retail's order; the copy of
 ## Declarations (need the head)
 
 New in this unit: `extern StageSprite gStageSprites[]`, `extern u8
-D_80095B28[]`, `D_80095824` (s32), `D_800958D8` and `D_800959D8` (u8;
+D_80095B28[]`, `gCurBlock` (s32), `D_800958D8` and `D_800959D8` (u8;
 the last reached `$gp`, already in config/gp/object.txt), and
 prototypes of editor's BuildEmptyBlock, ClearSwitches, ResetTraps
 and ClearStageSprites, under one `MATCHING:` per-unit-view note (StageSprite is

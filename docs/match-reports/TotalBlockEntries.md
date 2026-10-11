@@ -2,16 +2,16 @@
 
 > Renamed from `func_80033AB8` on 2026-10-11 (tools/rename.py). Address 0x80033ab8.
 
-**Resolved by the head after round 5:** retail reaches `D_800959C0`/`C4`/`C8`
-through `$gp` only up to LaunchMarkedEffect and through `lui` from PrintEditorCaption on:
+**Resolved by the head after round 5:** retail reaches `gCanSpans`/`C4`/`C8`
+through `$gp` only up to PopInNextCan and through `lui` from PrintEditorCaption on:
 two source files. object is now split at UpdateEditor (where splat had
 already placed the unit's rodata), the second half is `src/editor.c`, and
 its own gp list leaves those symbols out. The body is live. Original title:
-TotalBlockEntries — STALL: 2 words short (18/20), 2/20 positional, first diff at +0x8 (`lw $a1, %gp_rel(D_800959C0)($gp)` for `lui $a1` / `lw $a1, %lo(D_800959C0)($a1)`) (round 4, alpha)
+TotalBlockEntries — STALL: 2 words short (18/20), 2/20 positional, first diff at +0x8 (`lw $a1, %gp_rel(gCanSpans)($gp)` for `lui $a1` / `lw $a1, %lo(gCanSpans)($a1)`) (round 4, alpha)
 
 Unit `src/editor.c`. Zeroes the halfword at 0x26 of `D_80095B28`, then
-adds into it the halfword at 4 of each of the `D_800959C8` eight-byte
-entries at `D_800959C0`.
+adds into it the halfword at 4 of each of the `gCanSpanCount` eight-byte
+entries at `gCanSpans`.
 
 Parked under `#ifdef NON_MATCHING`. The C is right: apart from the two
 global loads, cc1 + maspsx emit retail's instructions in retail's order
@@ -19,13 +19,13 @@ global loads, cc1 + maspsx emit retail's instructions in retail's order
 
 ## Why it cannot match in this unit
 
-Retail reads `D_800959C0` and `D_800959C8` as `lui $aN` / `lw $aN,
+Retail reads `gCanSpans` and `gCanSpanCount` as `lui $aN` / `lw $aN,
 %lo(sym)($aN)`: a symbolic scalar load that the assembler expanded without
 `$gp`. Every retail access of these two symbols, by address:
 
 - `%gp_rel`: 8002CD68 (C8), 8002CDB4 (C0), 8002D050 (C0), and the stores
-  in `SetCurrentBlock` (matched C). `D_800959C4` is `%gp_rel` in
-  `PromoteMarks` / `MarkByGroup` too.
+  in `SetCurrentBlock` (matched C). `gCanPoints` is `%gp_rel` in
+  `ShowRevealedCans` / `RevealCanGroup` too.
 - `lui` + `lw`/`sw`, never gp: 8002F2D8, 8002FE1C, 8002FEB0, 8002FEDC,
   8002FFA4, 80030020, 80030084, 800300B4, 80030134, 80030160, 800301F0,
   80033804 (`sw` via `$at`), 80033818 (`sw` via `$at`), 8003382C,
@@ -60,8 +60,8 @@ typedef struct {
     u8 unk0[0x26];
     u16 unk26; /* the total */
 } Totals28;
-extern u8 *D_800959C0;
-extern s32 D_800959C8;
+extern u8 *gCanSpans;
+extern s32 gCanSpanCount;
 extern u8 D_80095B28[];
 #define sTotals (*(Totals28 *)D_80095B28)
 
@@ -69,9 +69,9 @@ void TotalBlockEntries(void) {
     s32 i;
     Ent8 *e;
 
-    e = (Ent8 *)D_800959C0;
+    e = (Ent8 *)gCanSpans;
     sTotals.unk26 = 0;
-    for (i = 0; i < D_800959C8; i++) {
+    for (i = 0; i < gCanSpanCount; i++) {
         sTotals.unk26 += e->unk4;
         e++;
     }

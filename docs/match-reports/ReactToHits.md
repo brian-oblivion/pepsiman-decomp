@@ -49,7 +49,7 @@ void ReactToHits(u8 *state) {
     if (((GameState *)state)->unk2 == 0) {
         return;
     }
-    if (D_80095962 == 1) {
+    if (gToolExited == 1) {
         return;
     }
     for (i = 0; i < 3; i++) {

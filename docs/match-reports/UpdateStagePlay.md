@@ -66,7 +66,7 @@ void UpdateStagePlay(u8 stage) {
             sSaved.pos.vx = gCourse.pos.vx;
             sSaved.pos.vy = gCourse.pos.vy;
             sSaved.pos.vz = gCourse.pos.vz;
-            sSaved.unk14 = D_800957F4;
+            sSaved.unk14 = gFloorIndex;
             ResetStage();
             D_80095900 = 1;
             gModeStep = 4;

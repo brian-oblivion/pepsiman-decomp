@@ -51,4 +51,4 @@ Triggers `-Wall`'s "control reaches end of non-void function" (NEW in
 - **A jump table whose bound-check delay slot holds the index `sll`, not
   the table's `lui $v0`: the function is non-void with no `return`.** The
   live `$v0` keeps the `lui` out of the slot. Same mechanism as
-  ClearFlags128's loop slot. (SetTmdSortMode)
+  ClearCanGroups's loop slot. (SetTmdSortMode)

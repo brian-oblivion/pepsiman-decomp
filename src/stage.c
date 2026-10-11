@@ -131,7 +131,7 @@ void LoadStageData(unsigned long *hdr) {
         obj++;
     }
     gSection = 0;
-    D_800957F4 = 0;
+    gFloorIndex = 0;
     gFloorData = hdr[2] + (s32)hdr;
     gSectionEdges = (Edge *)(hdr[3] + (s32)hdr + 4);
     gBoundaryEdges = (Edge *)(hdr[4] + (s32)hdr + 4);

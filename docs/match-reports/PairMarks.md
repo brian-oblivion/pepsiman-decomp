@@ -8,7 +8,7 @@ before it to 2.
 
 Matched on the first build with two known levers: a `u16` counter indexed
 through `(s16)i` (ClearObjectHits), and `s32` with no return, which keeps the
-loop's back-branch delay slot a `nop` (ClearFlags128). As `void` it scores
+loop's back-branch delay slot a `nop` (ClearCanGroups). As `void` it scores
 30/32 (the slot gets filled). The second record is indexed `(s16)i - 1`, as
 retail rebuilds its address from the sign-extended index minus one.
 

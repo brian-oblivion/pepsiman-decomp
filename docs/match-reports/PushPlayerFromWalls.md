@@ -5,7 +5,7 @@
 Unit `src/object.c`. Two wall probes: a point 50 units from the
 player (`sGameHead` 0x348/0x34C/0x350) at the heading `gCourse[0].vy`
 plus and minus 0x200 (45 degrees); UpdateSection finds the path segment
-from `D_800957F4`, and when QueryWall reports a hit the player moves
+from `gFloorIndex`, and when QueryWall reports a hit the player moves
 25 units back along heading ±0x400. Then func_8002A558.
 
 ```c
@@ -15,7 +15,7 @@ void UpdateSection(s32 *index, s32 x, s32 y);
 
 s32 QueryWall(s32 index, VECTOR *pos, u8 *data);
 s32 func_8002A558(void);
-extern s32 D_800957F4; /**< a path index the probe starts from */
+extern s32 gFloorIndex; /**< a path index the probe starts from */
 extern s32 gFloorData; /**< the address of the data the probe tests */
 
 /** @brief Probes 50 units ahead of the player, 45 degrees either side of
@@ -28,7 +28,7 @@ void PushPlayerFromWalls(void) {
     pos.vx = sGameHead.unk348 + (rsin(gCourse[0].vy + 0x200) * 50 >> 12);
     pos.vy = sGameHead.unk34C;
     pos.vz = sGameHead.unk350 + (rcos(gCourse[0].vy + 0x200) * 50 >> 12);
-    idx = D_800957F4;
+    idx = gFloorIndex;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (u8 *)gFloorData)) {
         sGameHead.unk348 -= rsin(gCourse[0].vy + 0x400) * 25 >> 12;
@@ -37,7 +37,7 @@ void PushPlayerFromWalls(void) {
     pos.vx = sGameHead.unk348 + (rsin(gCourse[0].vy - 0x200) * 50 >> 12);
     pos.vy = sGameHead.unk34C;
     pos.vz = sGameHead.unk350 + (rcos(gCourse[0].vy - 0x200) * 50 >> 12);
-    idx = D_800957F4;
+    idx = gFloorIndex;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (u8 *)gFloorData)) {
         sGameHead.unk348 -= rsin(gCourse[0].vy - 0x400) * 25 >> 12;
@@ -52,7 +52,7 @@ no offset moved.
 UpdateSection's x and y arrive unextended (`lw` straight into `$a1`), so
 this unit's view takes `s32` (LEARNINGS, "a callee's prototype is a
 per-unit view"). QueryWall is still asm; its prototype here is a
-guess from this call (index, position, data base). `D_800957F4` and
+guess from this call (index, position, data base). `gFloorIndex` and
 `gFloorData` are declared here as stage_flow and model declare them
 (`s32`); declcheck lists them MULTI until a merge moves them to
 `common.h`.

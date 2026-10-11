@@ -3,7 +3,7 @@
 > Renamed from `func_800317D0` on 2026-10-11 (tools/rename.py). Address 0x800317d0.
 
 Unit `src/editor.c`. Copies the game position into the StageSprite template
-`D_800DF818`, runs one of two handlers on it (`DrawObjectSprite` or
+`sSpriteTemplate`, runs one of two handlers on it (`DrawObjectSprite` or
 `StepSprite`, picked by `sTotals.unk32`, id `sTotals.unk2C + 30`),
 counts the used records of the 100-entry StageSprite table into
 `sTotals.unk30`; on flag bit 5 of `gPadTrig` stamps the template
@@ -30,16 +30,16 @@ permuter search (stopped early on its lead).
 - **Non-void with no return value**: `void` reorders the whole function
   (50/158). The early `return;` draws a "return with no value" warning.
 - **The flag byte**: retail loads `unk32` with `lhu`, stores
-  `unk32 << 7`, then stores it or-ed with `D_800959E2`. A plain
+  `unk32 << 7`, then stores it or-ed with `sSpriteFlags`. A plain
   `unk26 = unk32 << 7` narrows the load to `lbu`; a `u16` local
   allocates it to a long-lived register (139/158). The permuter's lead
   (score 80 from 1345, about 4000 iterations): an `s32` local, the first
   store after the `unk10` copy. Moving the assignment of `f` after the
   copy as well closed the last load-order pair. Retail's `or` keeps the
-  shifted value's register as destination: `unk26 |= D_800959E2;`, not
-  `unk26 = f | D_800959E2;` (154/158).
+  shifted value's register as destination: `unk26 |= sSpriteFlags;`, not
+  `unk26 = f | sSpriteFlags;` (154/158).
 - The 0x3C-byte copy is a struct assignment
-  `gStageSprites[sTotals.unk28] = D_800DF818;` (four-word loop plus three).
+  `gStageSprites[sTotals.unk28] = sSpriteTemplate;` (four-word loop plus three).
   A `Words12` struct copy of the position emits a block move in `t4`..
   instead of retail's `a0`..`a2`: three separate word assignments.
 
@@ -48,7 +48,7 @@ permuter search (stopped early on its lead).
 - `StageSprite` (unit-local) gains `unk4[3]`, `unk10[3]`, `unk27`, `unk28`,
   `unk2A`, `unk30`, `unk34`; `Totals28` (unit-local) gains `unk28`,
   `unk2C`, `unk30`, `unk32`, `unk6A`, `unk6C`, `unk6D`.
-- New externs in the `.c`: `StageSprite D_800DF818`, `u8 D_800959E2`.
+- New externs in the `.c`: `StageSprite sSpriteTemplate`, `u8 sSpriteFlags`.
 - CHANGED existing declarations (unit-local, in editor.c only):
   `DrawObjectSprite` and `StepSprite` now take `s32 id`.
 
@@ -59,13 +59,13 @@ s32 EditorPlaceSprite(void) {
 
     /* MATCHING: non-void with no return value; void moves the block order
      * and the delay slots. */
-    D_800DF818.unk4[0] = sGameSave.unk348[0];
-    D_800DF818.unk4[1] = sGameSave.unk348[1];
-    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    sSpriteTemplate.unk4[0] = sGameSave.unk348[0];
+    sSpriteTemplate.unk4[1] = sGameSave.unk348[1];
+    sSpriteTemplate.unk4[2] = sGameSave.unk348[2];
     if (sTotals.unk32 == 0) {
-        DrawObjectSprite(sTotals.unk2C + 30, &D_800DF818);
+        DrawObjectSprite(sTotals.unk2C + 30, &sSpriteTemplate);
     } else {
-        StepSprite(sTotals.unk2C + 30, &D_800DF818);
+        StepSprite(sTotals.unk2C + 30, &sSpriteTemplate);
     }
     /* MATCHING: the counter is cleared before the store, so each arm above
      * ends with it (one in a jump's delay slot). */
@@ -80,22 +80,22 @@ s32 EditorPlaceSprite(void) {
         if (sTotals.unk30 == 100) {
             gToolMode = 8;
         } else {
-            D_800DF818.unk2C = sTotals.unk2A;
-            D_800DF818.unk0 = sTotals.unk2C + 30;
-            D_800DF818.unk10[0] = D_800DF818.unk4[0];
-            D_800DF818.unk10[1] = D_800DF818.unk4[1];
-            D_800DF818.unk10[2] = D_800DF818.unk4[2];
+            sSpriteTemplate.unk2C = sTotals.unk2A;
+            sSpriteTemplate.unk0 = sTotals.unk2C + 30;
+            sSpriteTemplate.unk10[0] = sSpriteTemplate.unk4[0];
+            sSpriteTemplate.unk10[1] = sSpriteTemplate.unk4[1];
+            sSpriteTemplate.unk10[2] = sSpriteTemplate.unk4[2];
             /* MATCHING: an s32 local assigned after the copy, and the flag
              * byte or-ed in by a second store. */
             f = sTotals.unk32 << 7;
-            D_800DF818.unk26 = f;
-            D_800DF818.unk26 |= D_800959E2;
-            D_800DF818.unk27 = sTotals.unk6C;
-            D_800DF818.unk28 = sTotals.unk6D;
-            D_800DF818.unk2A = sTotals.unk6A;
-            D_800DF818.unk30 = gSection;
-            D_800DF818.unk34 = D_80095824;
-            gStageSprites[sTotals.unk28] = D_800DF818;
+            sSpriteTemplate.unk26 = f;
+            sSpriteTemplate.unk26 |= sSpriteFlags;
+            sSpriteTemplate.unk27 = sTotals.unk6C;
+            sSpriteTemplate.unk28 = sTotals.unk6D;
+            sSpriteTemplate.unk2A = sTotals.unk6A;
+            sSpriteTemplate.unk30 = gSection;
+            sSpriteTemplate.unk34 = gCurBlock;
+            gStageSprites[sTotals.unk28] = sSpriteTemplate;
             /* MATCHING: the full-table store inside the loop, so its 8 is
              * hoisted and the block is not merged with the one above. */
             i = 0;

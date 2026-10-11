@@ -7,35 +7,35 @@ Unit `src/object.c`. Points three `$gp` globals at a block whose
 offset of a second part, and zeroes a halfword global.
 
 ```c
-extern u8 *D_800959C0;
-extern u8 *D_800959C4;
-extern s32 D_800959C8;
+extern u8 *gCanSpans;
+extern u8 *gCanPoints;
+extern s32 gCanSpanCount;
 extern u16 gCans;
 
 void SetCurrentBlock(BlockHeader *hdr) {
-    D_800959C0 = (u8 *)hdr + 8;
-    D_800959C8 = hdr->unk0;
+    gCanSpans = (u8 *)hdr + 8;
+    gCanSpanCount = hdr->unk0;
     /* MATCHING: ... */
-    D_800959C4 = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
+    gCanPoints = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
     gCans = 0;
 }
 ```
 
 ## Externs
 
-`D_800959C0/C4/C8` are in `config/gp-symbols.txt` and declared as plain
+`gCanSpans/C4/C8` are in `config/gp-symbols.txt` and declared as plain
 scalars (`%gp_rel` stores). `gCans` is a `u16` scalar not in the list:
 retail stores it with `lui $at; sh $zero,%lo(..)($at)`, and another unit
 loads it with `lui $v0; lhu $v0,%lo(..)($v0)` — the same scalar, assembled
 both ways by the load/store expansion. Other functions in this unit reach
-`D_800959C0`/`C4`/`C8` with `lui <reg>` too; whoever matches them may need a
+`gCanSpans`/`C4`/`C8` with `lui <reg>` too; whoever matches them may need a
 per-function declaration.
 
 ## Levers (order of loads against global stores)
 
-Retail loads `hdr[0]` first, stores `D_800959C0` and `D_800959C8`, and only
+Retail loads `hdr[0]` first, stores `gCanSpans` and `gCanSpanCount`, and only
 then loads the offset word; the `gCans` store sits between that load
-and the `D_800959C4` store. Measured:
+and the `gCanPoints` store. Measured:
 
 | C | result |
 | --- | --- |

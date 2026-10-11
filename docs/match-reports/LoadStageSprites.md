@@ -63,6 +63,6 @@ function" (to baseline).
 
 - The order of a loop's hoisted invariants in the preheader can depend on
   the function being non-void with no `return`, like the delay-slot nops
-  in the existing entry (ClearFlags128, UpdateSpeedBand).
+  in the existing entry (ClearCanGroups, UpdateSpeedBand).
 - A store `A[g] = (p = expr) + 1;` loads the index `g` before `expr`'s
   loads; with `p = expr; A[g] = p + 1;` they come the other way round.

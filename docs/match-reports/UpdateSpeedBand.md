@@ -28,7 +28,7 @@ s32 UpdateSpeedBand(void) {
 - **Non-void with no `return`.** Retail's `beqz` after `slti v0,v1,13` has a
   `nop` in its delay slot. As `void`, reorg fills it from the target with
   `slti $v0,$v1,26`. Declaring the function `s32` keeps `$v0` live at the
-  exits, so the fill is blocked. Same lever as round 1's ClearFlags128, here
+  exits, so the fill is blocked. Same lever as round 1's ClearCanGroups, here
   on a plain if/else-if chain rather than a loop. GCC warns "control reaches
   end of non-void function", which `tools/typeviews.py --warnings` reports as
   new for player (the baseline is outside this runner's scope).

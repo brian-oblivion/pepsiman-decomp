@@ -4,12 +4,12 @@
 
 Unit `src/object.c`. The trap viewer's step, UpdateTrapViewer's
 sibling with a state `gModeStep`: state 0 sets the fixed view, clears
-the fog and moves to 1; state 1 zeroes the start record `D_80096788`,
+the fog and moves to 1; state 1 zeroes the start record `gPlaceQueue`,
 turns it with the frame counter and has CallStageHook fill the Trap
-table from it (`D_8009596E` records), then moves to 2; state 2 steps the
+table from it (`gPlaceCount` records), then moves to 2; state 2 steps the
 selected entry `gSelectedSection` with the pad (back to state 1 when it
 changes), places record 0 on its ObjectModel entry and every further record
-relative to it (TransformByCoord into `D_8009F268`), draws the axes; every
+relative to it (TransformByCoord into `gWorldPos`), draws the axes; every
 state prints the entry number.
 
 The matched body is live in `src/object.c`. Earlier title: "STALL: length exact, 219/247 raw, first real diff at 0x8002B438 (register choice from there on) (round 9, charlie)".
@@ -19,7 +19,7 @@ The round-9 residue and levers below are kept as history.
 
 From `i = 1` on, retail and the build agree on every instruction but
 swap registers: retail keeps `i` in `s1` and the table base
-`gTraps` in `s2` (which later holds `&D_8009F268`); the build has
+`gTraps` in `s2` (which later holds `&gWorldPos`); the build has
 them the other way round. Retail also builds the `gObjectModels` base after
 the first call's index load, and its copies into `s3`/`s5` (`recs`,
 `tbl`) sit after the loop guard.
@@ -76,7 +76,7 @@ register.
 |---|---|
 | `recs` and `tbl` both the loop body's first statements | head shape right, but cse ties the call's `gObjectModels[..].unk10` to `tbl` and the `+16` is not hoisted; frame one register short |
 | `tbl` before the loop, `recs` first in the body | 233/247, 3/3: `recs`/`i`/A9008 right, gObjectModels's base still local (`lui s0; addiu s0, s0`) |
-| `recs` first in the body, `tbl = gObjectModels;` after the TransformByCoord call (or just before the second call) | movables in retail's order (recs, base+16, &D_8009F268, tbl), but global alloc gives the gTraps base (5 refs / 34 insns, priority 0.294) `s0` ahead of the gObjectModels base (4 / 28, 0.286); `tbl` then takes the latter's register and its copy vanishes: one word short (151 raw, 1/1) |
+| `recs` first in the body, `tbl = gObjectModels;` after the TransformByCoord call (or just before the second call) | movables in retail's order (recs, base+16, &gWorldPos, tbl), but global alloc gives the gTraps base (5 refs / 34 insns, priority 0.294) `s0` ahead of the gObjectModels base (4 / 28, 0.286); `tbl` then takes the latter's register and its copy vanishes: one word short (151 raw, 1/1) |
 | the head call as an integer sum | no change |
 | `i = 1` after `ResetCollision()` | no change in priority |
 | **`i = 1` as the `for` init** (plus the row above) | sched1's order lengthens the gTraps base to 36 insns (0.278), the gObjectModels base goes first into `s0` (shared with the loop's `r`), `tbl` gets `s5` with its copy: **247/247, byte-exact** |

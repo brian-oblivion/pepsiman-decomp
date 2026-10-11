@@ -5,7 +5,7 @@
 Unit `src/editor.c`, its first function. The tool's main step, by
 `gModeStep`: state 0 resets the tool buffer (`ResetGameState`), clears the
 error code `gToolMode` and sets the tool up; state 1 marks the 127 entry
-flags `D_800A74D0[1..127]`, then by `gToolMode` runs the current mode's
+flags `gCanGroupOn[1..127]`, then by `gToolMode` runs the current mode's
 editors (mode 0 picks by `sTotals.unk3` between the four placers, or with
 `D_800958D8` set the four pickers, and on flag bit 5 loads the picked
 EditorTrap or StageSprite record into the menu editor's state), the menus of modes
@@ -53,16 +53,16 @@ other to 50). About 20 builds.
   `GameSave`: `unk354[0x70]` split into `unk354[0x6C]` + `s32 unk3C0`.
   Unit-local; whole oracle green.
 - Prototypes in this `.c` for functions of other units without (or not
-  in) a header: `ResetGameState(Trap *)`, `PromoteMarks`, `TestBoxes`,
+  in) a header: `ResetGameState(Trap *)`, `ShowRevealedCans`, `TestBoxes`,
   `ResetStageObjects`, `ResetStageOverlay`, `DrawSky`,
   `DrawStage(s16, s16, s16)`, `UpdateCamera(s16, s16, s16, s16)`, and
   `UpdatePickups(GsOT *)` with a `MATCHING:` note (object's stall body
   takes no parameter; the call passes `&gSubOt[gActiveBuff]`). Forward
   prototypes for the unit's own later functions.
-- `extern u8 D_800A74D0[];` (also declared in object.c), `extern s32
-  gRetries;`, `extern u8 D_80095962;`.
-- **declcheck hits left for the head:** MULTI `D_800A74D0` (object.c
-  and this unit; belongs in a shared header); LOCAL `PromoteMarks`,
+- `extern u8 gCanGroupOn[];` (also declared in object.c), `extern s32
+  gRetries;`, `extern u8 gToolExited;`.
+- **declcheck hits left for the head:** MULTI `gCanGroupOn` (object.c
+  and this unit; belongs in a shared header); LOCAL `ShowRevealedCans`,
   `ResetGameState` (belong in object.h), `ResetStageOverlay` (stage_flow.c's
   local prototype, now also used here; belongs in a header for
   stage_overlay).
@@ -70,7 +70,7 @@ other to 50). About 20 builds.
   end of non-void function" and one more "unused variable `unused'".
 
 ```c
-                                    for (i = 1; i < D_8009596E; i++) {
+                                    for (i = 1; i < gPlaceCount; i++) {
                                         r = (EditorTrap *)gTraps;
                                         r[sTotals.unk18 + i].unk36 = -1;
                                     }

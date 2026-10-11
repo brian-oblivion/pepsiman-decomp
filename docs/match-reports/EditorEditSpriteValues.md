@@ -8,7 +8,7 @@ sibling of EditorEditRecordValues: saves the highlighted line, runs
 (`gEditValue`) and limit (`gEditMax`) from the tool block, otherwise
 stores the edited value back. Steps the angle `sTotals.unk6A` on flag bits
 3 and 2 of `gPad` (wrapping 0..359), turns `D_8009EEC0` to it when
-`sTotals.unk6C` is set, then rebuilds the template `D_800DF818` at the game
+`sTotals.unk6C` is set, then rebuilds the template `sSpriteTemplate` at the game
 position, takes two heights from the kind's eight-byte table entry
 (`GetQuad16`), and runs one of the two StageSprite handlers. Fifth build
 matched.
@@ -17,7 +17,7 @@ matched.
 
 - Two nine-case jump tables, `switch (gMenuLine)` after a change and
   `switch (line)` otherwise; EditorEditRecordValues's layout unchanged. Case 6 moves
-  the low byte of `gEditValue` to `D_800959E2` (`$gp`).
+  the low byte of `gEditValue` to `sSpriteFlags` (`$gp`).
 - The angle is read `lh` for the call and compared after `sll`/`sra`: an
   `s16` field.
 - `lbu 0x16($sp)` / `lbu 0x17($sp)` after `GetQuad16(.., $sp+0x10)`:
@@ -62,24 +62,24 @@ void EditorEditSpriteValues(void) {
         switch (line) { /* nine cases: store back */ }
     }
     /* angle step on bits 3 and 2, DrawHeadingLine on sTotals.unk6C */
-    D_800DF818.unk4[0] = sGameSave.unk348[0];
-    D_800DF818.unk4[1] = sGameSave.unk348[1];
-    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    sSpriteTemplate.unk4[0] = sGameSave.unk348[0];
+    sSpriteTemplate.unk4[1] = sGameSave.unk348[1];
+    sSpriteTemplate.unk4[2] = sGameSave.unk348[2];
     GetQuad16(sTotals.unk2C + 30, &e);
     if (sTotals.unk34 == 0) {
         h0 = e.b[6] - 500;
-        D_800DF818.unk1C = sTotals.unk2E + h0;
+        sSpriteTemplate.unk1C = sTotals.unk2E + h0;
     } else {
         h1 = e.b[6] - 500;
-        D_800DF818.unk1C = -(sTotals.unk2E + h1);
+        sSpriteTemplate.unk1C = -(sTotals.unk2E + h1);
     }
     h2 = e.b[7] - 500;
-    D_800DF818.unk1E = sTotals.unk2E + h2;
-    D_800DF818.unk20 = D_800DF818.unk1C;
+    sSpriteTemplate.unk1E = sTotals.unk2E + h2;
+    sSpriteTemplate.unk20 = sSpriteTemplate.unk1C;
     if (sTotals.unk32 == 0) {
-        DrawObjectSprite(sTotals.unk2C + 30, &D_800DF818);
+        DrawObjectSprite(sTotals.unk2C + 30, &sSpriteTemplate);
     } else {
-        StepSprite(sTotals.unk2C + 30, &D_800DF818);
+        StepSprite(sTotals.unk2C + 30, &sSpriteTemplate);
     }
 }
 ```

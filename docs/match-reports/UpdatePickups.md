@@ -4,8 +4,8 @@
 
 Unit `src/object.c`. Draws the markers of the current zone: for
 each group of the zone (`gStageRuns[gSection]`, group list
-`gStageRunObjs`) below `D_800959C8`, each block entry of the group marked
-2 in `D_800A7550` whose flag index (`unk6`) is set in `D_800A74D0`,
+`gStageRunObjs`) below `gCanSpanCount`, each block entry of the group marked
+2 in `gCanState` whose flag index (`unk6`) is set in `gCanGroupOn`,
 non-zero and not yet done (bit 15): places a 75x75 sprite 0xFA at the
 entry relative to the player, sorts it near or far as DrawObjectSprite does,
 and when ProbePosition reports the player 50 units above it, runs
@@ -89,16 +89,16 @@ void UpdatePickups(void) {
 
     GsInitCoordinate2(WORLD, &coord);
     for (j = 0; j < gStageRuns[gSection].count; j++) {
-        if (gStageRunObjs[gStageRuns[gSection].start + j] < D_800959C8) {
+        if (gStageRunObjs[gStageRuns[gSection].start + j] < gCanSpanCount) {
             for (i = 0;
-                 i < ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].count; i++) {
-                k = ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].first + i;
-                if ((s8)D_800A7550[k] != 2) {
+                 i < ((Group8 *)gCanSpans)[gStageRunObjs[gStageRuns[gSection].start + j]].count; i++) {
+                k = ((Group8 *)gCanSpans)[gStageRunObjs[gStageRuns[gSection].start + j]].first + i;
+                if ((s8)gCanState[k] != 2) {
                     continue;
                 }
-                e = (Ent8 *)(k * 8 + (u32)D_800959C4);
+                e = (Ent8 *)(k * 8 + (u32)gCanPoints);
                 n = e->unk6;
-                if ((s8)D_800A74D0[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
+                if ((s8)gCanGroupOn[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
                     continue;
                 }
                 coord.coord.t[0] = -sGameHead.unk348 + e->unk0;
@@ -126,18 +126,18 @@ void UpdatePickups(void) {
                         case 1:
                         default:
                             PlaySe(0x35);
-                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
-                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
-                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
+                                          ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
+                                          (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
                             break;
                         case 2:
                             PlaySe(0x35);
-                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
-                                          ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
-                                          (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
+                                          ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
+                                          (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
                             break;
                     }
-                    ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk6 |= 0x8000;
+                    ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk6 |= 0x8000;
                 }
             }
         }
@@ -167,7 +167,7 @@ puts the compare in `v1`.
 
 ## What was tried (about 12 builds and one permuter run)
 
-- The vertex address as an integer sum (`k * 8 + (u32)D_800959C4`) and
+- The vertex address as an integer sum (`k * 8 + (u32)gCanPoints`) and
   the call arguments read through the sum, not a pointer local: 87 ->
   238. `-sGameHead.unk348 + e->unk0` (subtrahend loaded first, LEARNINGS
   "operand order sets load order"): 242.

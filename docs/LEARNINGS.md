@@ -315,7 +315,7 @@ function's match report, not here.
   the loop target with an instruction writing `$v0`: the function is non-void
   with no `return`** (likely K&R implicit int). The live return register
   blocks the fill. Triggers "control reaches end of non-void function",
-  baselined likewise. (ClearFlags128; PromoteMarks and MarkByGroup show the
+  baselined likewise. (ClearCanGroups; ShowRevealedCans and RevealCanGroup show the
   same slot) The same holds for a forward branch: the first `beqz` of an
   if/else-if chain keeps its `nop` slot only as `s32` with no return.
   (UpdateSpeedBand)

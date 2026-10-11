@@ -198,15 +198,15 @@ typedef struct {
     u8 unk6D;       /**< zeroed on a reset */
 } Progress6E;
 
-extern s16 D_80096738[]; /**< filled by the lookup: a height, then a direction */
+extern s16 sFloorHit[]; /**< FindFloorNear's result: a height, then a normal */
 /* MATCHING: copied whole as Quad16 here; draw reads its fields. */
 extern Quad16 gSpriteDefs[];  /**< a table of eight-byte entries */
 extern SwitchBox gSwitches[]; /**< 200 SwitchBox records */
-extern u8 D_800A7550[];       /**< 200 byte marks, one per block entry */
+extern u8 gCanState[];        /**< each can: 0 hidden, 1 to pop in, 2 shown */
 /* MATCHING: a per-unit view; stage reads the same path as Edge. */
 extern PathPt *gSectionEdges;       /**< the current path */
 extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
-extern s32 D_80095824;              /**< zeroed by the full reset */
+extern s32 gCurBlock;               /**< zeroed by the full reset */
 extern u8 D_800958D8;               /**< zeroed by the full reset */
 extern u8 D_800959D8;               /**< zeroed by the full reset */
 
@@ -487,7 +487,7 @@ void PushPlayerFromWalls(void) {
     pos.vx = gPlayer.x + (rsin(gCourse.rot.vy + 0x200) * 50 >> 12);
     pos.vy = gPlayer.y;
     pos.vz = gPlayer.z + (rcos(gCourse.rot.vy + 0x200) * 50 >> 12);
-    idx = D_800957F4;
+    idx = gFloorIndex;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
         gPlayer.x -= rsin(gCourse.rot.vy + 0x400) * 25 >> 12;
@@ -496,7 +496,7 @@ void PushPlayerFromWalls(void) {
     pos.vx = gPlayer.x + (rsin(gCourse.rot.vy - 0x200) * 50 >> 12);
     pos.vy = gPlayer.y;
     pos.vz = gPlayer.z + (rcos(gCourse.rot.vy - 0x200) * 50 >> 12);
-    idx = D_800957F4;
+    idx = gFloorIndex;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
         gPlayer.x -= rsin(gCourse.rot.vy - 0x400) * 25 >> 12;
@@ -833,8 +833,8 @@ typedef struct {
 } TrapPlaced;
 
 /* MATCHING: per-unit views of editor's placement record, count and filler. */
-extern Obj34 D_80096788; /**< the record the placement starts from */
-extern u16 D_8009596E;   /**< how many records the placement filled */
+extern Obj34 gPlaceQueue; /**< the record the placement starts from */
+extern u16 gPlaceCount;   /**< how many records the placement filled */
 u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2);
 
 /** @brief The trap viewer's step: state 0 sets the fixed view, state 1
@@ -866,13 +866,13 @@ void UpdateTrapLayoutViewer(void) {
             gModeStep = 1;
             break;
         case 1:
-            D_80096788.unk0 = 0;
-            D_80096788.unk4 = 0;
-            D_80096788.unk8 = 0;
-            D_80096788.unk18 = 0;
-            D_80096788.unk1A = gFrameCount % 360 * 4096 / 360;
-            D_80096788.unk1C = 0;
-            D_8009596E = CallStageHook(gSelectedSection, (s32)&D_80096788, (s32)gTraps);
+            gPlaceQueue.unk0 = 0;
+            gPlaceQueue.unk4 = 0;
+            gPlaceQueue.unk8 = 0;
+            gPlaceQueue.unk18 = 0;
+            gPlaceQueue.unk1A = gFrameCount % 360 * 4096 / 360;
+            gPlaceQueue.unk1C = 0;
+            gPlaceCount = CallStageHook(gSelectedSection, (s32)&gPlaceQueue, (s32)gTraps);
             gModeStep++;
             break;
         case 2:
@@ -893,18 +893,18 @@ void UpdateTrapLayoutViewer(void) {
             ResetCollision();
             ((TrapPlaced *)gTraps)->o.unk1A = gFrameCount % 360 * 4096 / 360;
             UpdateObjectEntry(&gObjectModels[((TrapPlaced *)gTraps)->unk36], (Trap *)gTraps);
-            for (i = 1; i < D_8009596E; i++) {
+            for (i = 1; i < gPlaceCount; i++) {
                 /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
                 recs = (TrapPlaced *)gTraps;
                 r = (TrapPlaced *)(i * 72 + (u32)recs);
-                D_800957E4.vx = r->o.unkC;
-                D_800957E4.vy = r->o.unk10;
-                D_800957E4.vz = r->o.unk14;
-                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->unk36].unk10, &D_800957E4,
-                                 &D_8009F268);
-                r->o.unk0 = D_8009F268.vx;
-                r->o.unk4 = D_8009F268.vy;
-                r->o.unk8 = D_8009F268.vz;
+                gLocalPos.vx = r->o.unkC;
+                gLocalPos.vy = r->o.unk10;
+                gLocalPos.vz = r->o.unk14;
+                TransformByCoord((GsCOORDINATE2 *)gObjectModels[recs->unk36].unk10, &gLocalPos,
+                                 &gWorldPos);
+                r->o.unk0 = gWorldPos.vx;
+                r->o.unk4 = gWorldPos.vy;
+                r->o.unk8 = gWorldPos.vz;
                 r->o.unk1A = recs->o.unk1A + r->o.unk20;
                 tbl = gObjectModels;
                 UpdateObjectEntry((ObjectModel *)(r->unk36 * 120 + (u32)tbl), (Trap *)r);
@@ -1168,12 +1168,12 @@ s32 LoadStageSprites(void) {
 s32 SnapToFloor(Obj34 *p) {
     s32 v;
 
-    v = FindFloorNear(p, D_80096738, p->unk28);
+    v = FindFloorNear(p, sFloorHit, p->unk28);
     if (v != -1) {
         p->unk28 = v;
-        p->unk4 = p->unk10 = D_80096738[0];
-        p->unk2C = ratan2(-D_80096738[3], D_80096738[2]);
-        p->unk30 = ratan2(-D_80096738[1], D_80096738[2]);
+        p->unk4 = p->unk10 = sFloorHit[0];
+        p->unk2C = ratan2(-sFloorHit[3], sFloorHit[2]);
+        p->unk30 = ratan2(-sFloorHit[1], sFloorHit[2]);
     }
     return v;
 }
@@ -1229,7 +1229,7 @@ void RestoreStageObjects(void) {
 void RefreshZone(Obj2C *p) {
     s32 v;
 
-    v = FindFloorNear(p, D_80096738, p->unk28);
+    v = FindFloorNear(p, sFloorHit, p->unk28);
     if (v != -1) {
         p->unk28 = v;
     }
@@ -1352,13 +1352,13 @@ void AttachToParent(Trap *a, Trap *b) {
 
     pa = (Obj34 *)a;
     pb = (Obj34 *)b;
-    D_800957E4.vx = pb->unkC;
-    D_800957E4.vy = pb->unk10;
-    D_800957E4.vz = pb->unk14;
-    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->unk36].unk10, &D_800957E4, &D_8009F268);
-    pb->unk0 = D_8009F268.vx;
-    pb->unk4 = D_8009F268.vy;
-    pb->unk8 = D_8009F268.vz;
+    gLocalPos.vx = pb->unkC;
+    gLocalPos.vy = pb->unk10;
+    gLocalPos.vz = pb->unk14;
+    TransformByCoord((GsCOORDINATE2 *)gObjectModels[a->unk36].unk10, &gLocalPos, &gWorldPos);
+    pb->unk0 = gWorldPos.vx;
+    pb->unk4 = gWorldPos.vy;
+    pb->unk8 = gWorldPos.vz;
     pb->unk2C = pa->unk2C;
     pb->unk30 = pa->unk30;
     pb->unk1A = pa->unk1A + pb->unk20;
@@ -1491,16 +1491,16 @@ void UpdatePickups(void) {
 
     GsInitCoordinate2(WORLD, &coord);
     for (j = 0; j < gStageRuns[gSection].count; j++) {
-        if (gStageRunObjs[gStageRuns[gSection].start + j] < D_800959C8) {
+        if (gStageRunObjs[gStageRuns[gSection].start + j] < gCanSpanCount) {
             for (i = 0;
-                 i < ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].count; i++) {
-                k = ((Group8 *)D_800959C0)[gStageRunObjs[gStageRuns[gSection].start + j]].first + i;
-                if ((s8)D_800A7550[k] != 2) {
+                 i < ((Group8 *)gCanSpans)[gStageRunObjs[gStageRuns[gSection].start + j]].count; i++) {
+                k = ((Group8 *)gCanSpans)[gStageRunObjs[gStageRuns[gSection].start + j]].first + i;
+                if ((s8)gCanState[k] != 2) {
                     continue;
                 }
-                e = (Ent8 *)(k * 8 + (u32)D_800959C4);
+                e = (Ent8 *)(k * 8 + (u32)gCanPoints);
                 n = e->unk6;
-                if ((s8)D_800A74D0[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
+                if ((s8)gCanGroupOn[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
                     continue;
                 }
                 coord.coord.t[0] = -gPlayer.x + e->unk0;
@@ -1528,18 +1528,18 @@ void UpdatePickups(void) {
                         case 1:
                         default:
                             PlaySe(0x35);
-                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
-                                        ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
-                                        (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
+                                        ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
+                                        (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
                             break;
                         case 2:
                             PlaySe(0x35);
-                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk0,
-                                        ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk2 - 50,
-                                        (s16)((Ent8 *)(k * 8 + (u32)D_800959C4))->unk4, 0);
+                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
+                                        ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
+                                        (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
                             break;
                     }
-                    ((Ent8 *)(k * 8 + (u32)D_800959C4))->unk6 |= 0x8000;
+                    ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk6 |= 0x8000;
                 }
             }
         }
@@ -1548,11 +1548,11 @@ void UpdatePickups(void) {
 
 /** @brief Points the current-block globals at the block `hdr` heads. */
 void SetCurrentBlock(BlockHeader *hdr) {
-    D_800959C0 = (u8 *)hdr + 8;
-    D_800959C8 = hdr->unk0;
+    gCanSpans = (u8 *)hdr + 8;
+    gCanSpanCount = hdr->unk0;
     /* MATCHING: offset read through a byte pointer, not hdr->offset: the
-     * member access lets the load rise above the D_800959C8 store. */
-    D_800959C4 = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
+     * member access lets the load rise above the gCanSpanCount store. */
+    gCanPoints = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);
     gCans = 0;
 }
 
@@ -1568,49 +1568,49 @@ s8 ProbePosition(Vec3 *pos) {
     return CollidePlayer(&q);
 }
 
-/** @brief Clears a 128-byte table of flags.
+/** @brief Hides every can group.
  *  @return nothing; the value is undefined. */
-s32 ClearFlags128(void) {
+s32 ClearCanGroups(void) {
     u32 i;
 
     /* MATCHING: non-void with no return; it keeps $v0 live at the exit, so
      * the loop's delay slot stays a nop. */
     for (i = 0; i < 128; i++) {
-        D_800A74D0[i] = 0;
+        gCanGroupOn[i] = 0;
     }
 }
 
-/** @brief Marks with 2 every block entry whose flag is 1.
+/** @brief Shows (marks 2) every can whose group is revealed.
  *  @return nothing; the value is undefined. */
-s32 PromoteMarks(void) {
+s32 ShowRevealedCans(void) {
     u32 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     for (i = 0; i < 200; i++) {
-        if ((s8)D_800A74D0[((Ent8 *)D_800959C4)[i].unk6] == 1) {
-            D_800A7550[i] = 2;
+        if ((s8)gCanGroupOn[((Ent8 *)gCanPoints)[i].unk6] == 1) {
+            gCanState[i] = 2;
         }
     }
 }
 
-/** @brief Flags n, then marks with 1 every block entry whose unk6 is n.
- *  @param n the flag to set and the value to look for
+/** @brief Reveals can group n: flags it, then marks its cans to pop in.
+ *  @param n the group
  *  @return nothing; the value is undefined. */
-s32 MarkByGroup(s16 n) {
+s32 RevealCanGroup(s16 n) {
     u32 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
-    D_800A74D0[n] = 1;
+    gCanGroupOn[n] = 1;
     for (i = 0; i < 200; i++) {
-        if (((Ent8 *)D_800959C4)[i].unk6 == n) {
-            D_800A7550[i] = 1;
+        if (((Ent8 *)gCanPoints)[i].unk6 == n) {
+            gCanState[i] = 1;
         }
     }
 }
 
-/** @brief On even frames, launches effect 4 at the first block entry marked
- *         1 and marks it 2. */
-void LaunchMarkedEffect(void) {
+/** @brief On even frames, pops in the first can marked 1: effect 4 at it,
+ *         then marks it shown. */
+void PopInNextCan(void) {
     u32 i;
     Ent8 *e;
 
@@ -1618,11 +1618,11 @@ void LaunchMarkedEffect(void) {
         return;
     }
     for (i = 0; i < 200; i++) {
-        if ((s8)D_800A7550[i] == 1) {
+        if ((s8)gCanState[i] == 1) {
             /* MATCHING: an integer sum puts the scaled index first. */
-            e = (Ent8 *)(i * 8 + (u32)D_800959C4);
+            e = (Ent8 *)(i * 8 + (u32)gCanPoints);
             SpawnEffect(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
-            D_800A7550[i] = 2;
+            gCanState[i] = 2;
             return;
         }
     }
@@ -1677,7 +1677,7 @@ void ResetGameState(Trap *recs) {
     sProgress.unk6A = 0;
     sProgress.unk6C = 0;
     sProgress.unk6D = 0;
-    D_80095824 = 0;
+    gCurBlock = 0;
     D_800958D8 = 0;
     D_800959D8 = 0;
     sProgress.unk2 = gStage;

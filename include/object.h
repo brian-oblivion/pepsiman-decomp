@@ -69,13 +69,13 @@ void SetCurrentBlock(BlockHeader *hdr);
  *  @return nothing; the value is undefined (non-void for the match) */
 s32 UpdateObjectEntry(ObjectModel *rec, Trap *r);
 
-extern SVECTOR D_800957E4; /**< a local position to transform to world */
-extern VECTOR D_8009F268;  /**< the world position of that local one */
-extern u8 D_800A74D0[];    /**< 128 byte flags; cleared together */
+extern SVECTOR gLocalPos; /**< a local position to transform to world */
+extern VECTOR gWorldPos;  /**< the world position of that local one */
+extern u8 gCanGroupOn[];  /**< each can group's revealed flag, 128 of them */
 
 /** @brief Marks with 2 every block entry whose flag is 1.
  *  @return nothing; the value is undefined. */
-s32 PromoteMarks(void);
+s32 ShowRevealedCans(void);
 
 /** @brief Resets the game state: clears the 0x30000-byte block at `recs`
  *         and frees its 200 Trap records, and resets the tables.

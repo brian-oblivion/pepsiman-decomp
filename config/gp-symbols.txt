@@ -6,12 +6,8 @@ D_800956D9
 D_800956DA
 D_800956E9
 D_800959B0
-D_800959C0
-D_800959C4
-D_800959C8
 D_800959D4
 D_800959D8
-D_800959E2
 D_80095A14
 D_80095A20
 D_80095A22
@@ -41,6 +37,9 @@ D_80095AEA
 D_80095B08
 gBgmVab
 gBgmVolume
+gCanPoints
+gCanSpanCount
+gCanSpans
 gCardError
 gCardFileCount
 gCardFileName
@@ -129,4 +128,5 @@ sJumpDistance
 sJumpPeakY
 sPadActPtr
 sPadBufPtr
+sSpriteFlags
 sSteerDrift

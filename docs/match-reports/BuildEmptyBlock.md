@@ -2,22 +2,22 @@
 
 > Renamed from `func_800337E4` on 2026-10-11 (tools/rename.py). Address 0x800337e4.
 
-**Resolved by the head after round 5:** retail reaches `D_800959C0`/`C4`/`C8`
-through `$gp` only up to LaunchMarkedEffect and through `lui` from PrintEditorCaption on:
+**Resolved by the head after round 5:** retail reaches `gCanSpans`/`C4`/`C8`
+through `$gp` only up to PopInNextCan and through `lui` from PrintEditorCaption on:
 two source files. object is now split at UpdateEditor (where splat had
 already placed the unit's rodata), the second half is `src/editor.c`, and
 its own gp list leaves those symbols out. The body is live. Original title:
-BuildEmptyBlock — STALL: 4 words short (24/28), first diff at +0x20 (`sw $v0, %gp_rel(D_800959C0)($gp)` for `lui $at` / `sw $v0, %lo(D_800959C0)($at)`) (round 5, alpha)
+BuildEmptyBlock — STALL: 4 words short (24/28), first diff at +0x20 (`sw $v0, %gp_rel(gCanSpans)($gp)` for `lui $at` / `sw $v0, %lo(gCanSpans)($at)`) (round 5, alpha)
 
 Unit `src/editor.c`. Calls `SetCurrentBlock(buf)`, then builds an empty
 block header in `buf` for the entry count `gStageObjCount`: points
-`D_800959C0` at `buf + 8`, stores the count in `D_800959C8`, points
-`D_800959C4` at `buf + count * 8 + 8`, and writes the count and that offset
+`gCanSpans` at `buf + 8`, stores the count in `gCanSpanCount`, points
+`gCanPoints` at `buf + count * 8 + 8`, and writes the count and that offset
 into the header's two words.
 
 Parked under `#ifdef NON_MATCHING`. The C is right: built, it emits
 retail's instruction sequence in retail's order and registers, except that
-the three stores and one load of `D_800959C0`/`C4`/`C8` are `%gp_rel` (one
+the three stores and one load of `gCanSpans`/`C4`/`C8` are `%gp_rel` (one
 word) where retail has `lui $at`/`sw` and `lui $v0`/`lw` (two). That is
 round 4's gp seam (see TotalBlockEntries's report): everything in this unit
 from PrintEditorCaption on reaches these three symbols `lui`, while
@@ -32,7 +32,7 @@ differences against retail are those four accesses (each one word short).
 
 ## The lever that got the rest
 
-Retail stores the count into `buf`, then RELOADS `D_800959C8` for the
+Retail stores the count into `buf`, then RELOADS `gCanSpanCount` for the
 second word, and keeps all three global stores before the `buf` stores.
 With `((BlockHeader *)buf)->unk0 = n;` cc1 drops the reload and sinks the
 global stores after the `buf` stores (6/28 at 24 words, wrong order):
@@ -40,8 +40,8 @@ a struct-member store through a varying address is assumed not to alias a
 fixed scalar global (GCC's `fixed_scalar_and_varying_struct_p`). Plain
 `*(s32 *)buf` and `*(s32 *)(buf + 4)` stores are not "in struct", may alias,
 and give retail's order and reload. Other negatives: a `volatile` reload
-of `D_800959C8` rises above the `buf` store; storing through
-`(BlockHeader *)(D_800959C0 - 8)` reorders everything.
+of `gCanSpanCount` rises above the `buf` store; storing through
+`(BlockHeader *)(gCanSpans - 8)` reorders everything.
 
 ```c
 #if 0
@@ -49,9 +49,9 @@ typedef struct {
     s32 unk0;
     s32 offset;
 } BlockHeader;
-extern u8 *D_800959C0;
-extern u8 *D_800959C4;
-extern s32 D_800959C8;
+extern u8 *gCanSpans;
+extern u8 *gCanPoints;
+extern s32 gCanSpanCount;
 extern s32 gStageObjCount;
 void SetCurrentBlock(BlockHeader *hdr);
 
@@ -60,11 +60,11 @@ void BuildEmptyBlock(u8 *buf) {
 
     SetCurrentBlock((BlockHeader *)buf);
     n = gStageObjCount;
-    D_800959C0 = buf + 8;
-    D_800959C8 = n;
-    D_800959C4 = buf + (n * 8 + 8);
+    gCanSpans = buf + 8;
+    gCanSpanCount = n;
+    gCanPoints = buf + (n * 8 + 8);
     *(s32 *)buf = n;
-    *(s32 *)(buf + 4) = D_800959C8 * 8 + 8;
+    *(s32 *)(buf + 4) = gCanSpanCount * 8 + 8;
 }
 #endif
 ```

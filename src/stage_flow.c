@@ -175,7 +175,7 @@ void UpdateStagePlay(u8 stage) {
             sSaved.pos.vx = gCourse.x;
             sSaved.pos.vy = gCourse.y;
             sSaved.pos.vz = gCourse.z;
-            sSaved.unk14 = D_800957F4;
+            sSaved.unk14 = gFloorIndex;
             ResetStage();
             D_80095900 = 1;
             gModeStep = 4;
@@ -316,9 +316,9 @@ void RestartStage(u8 stage) {
     gMissState = 0;
     gPlayer.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
-        D_800957F4 = FindFloor((Pos3 *)&gPlayer.x);
+        gFloorIndex = FindFloor((Pos3 *)&gPlayer.x);
     } else {
-        D_800957F4 = 0;
+        gFloorIndex = 0;
     }
     gSection = 0;
     yaw = -gStageStart->unk6;
@@ -409,7 +409,7 @@ void ResetStage(void) {
         gPlayer.x = sSaved.pos.vx;
         gPlayer.y = sSaved.pos.vy;
         gPlayer.z = sSaved.pos.vz;
-        D_800957F4 = sSaved.unk14;
+        gFloorIndex = sSaved.unk14;
         gCameraYaw = sSaved.unk18;
         gCans = sSaved.unk1A;
         gView[1] = sSaved.unk20;

@@ -12,7 +12,7 @@ the camera yaw and hands the result to the camera (`gBodyRot`,
 `gTodCoords[0]`, `gWorldShift`).
 
 ```c
-extern s8 D_80095962;
+extern s8 gToolExited;
 void func_800F8A58(void); /* and func_800F8B60, func_800F6FA0, func_800F70A8,
                              func_800F8D64, func_800F729C: overlay entries */
 
@@ -25,7 +25,7 @@ void UpdatePlayer(void) {
     s32 hi;
     GameState *g;
 
-    if (D_80095962 != 1) {
+    if (gToolExited != 1) {
         CheckFall();
     }
     UpdateSpeedBand();

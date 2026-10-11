@@ -19,7 +19,7 @@ halfword in each of the 200 Trap records.
  *   Placement   { SVECTOR rot; Pos3 pos; }  (gCourse)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*gStageStart)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
- * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
+ * D_800957B0; extern s8 D_8007AD58[]; extern s32 gFloorIndex, gSection;
  * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
  * D_800957D6, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
@@ -43,9 +43,9 @@ void RestartStage(u8 arg0) {
     gMissState = 0;
     sStage.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
-        D_800957F4 = FindFloor(&sStage.unk348);
+        gFloorIndex = FindFloor(&sStage.unk348);
     } else {
-        D_800957F4 = 0;
+        gFloorIndex = 0;
     }
     gSection = 0;
     yaw = -gStageStart->unk6;

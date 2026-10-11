@@ -104,7 +104,7 @@ void PolarOffset(s32 deg, s32 radius, VECTOR *out);
 void AttachMode5Object(void);
 s32 TrySlide(void);
 /* MATCHING: editor stores it as u8; this unit's tests load it lb. */
-extern s8 D_80095962;
+extern s8 gToolExited;
 
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
 
@@ -371,7 +371,7 @@ void UpdatePlayer(void) {
     s32 hi;
     PlayerState *g;
 
-    if (D_80095962 != 1) {
+    if (gToolExited != 1) {
         CheckFall();
     }
     UpdateSpeedBand();
@@ -759,7 +759,7 @@ void ReactToHits(PlayerState *state) {
     if (state->hittable == 0) {
         return;
     }
-    if (D_80095962 == 1) {
+    if (gToolExited == 1) {
         return;
     }
     for (i = 0; i < 3; i++) {

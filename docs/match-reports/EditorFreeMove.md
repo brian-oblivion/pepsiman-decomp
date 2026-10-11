@@ -9,8 +9,8 @@ the two analogue axes `gStickRawY`/`gStickRawX` (below 0x60 or above
 position; turns `gCourse[0].vy` by 11; unless `D_800958D8`, steps the
 camera height `sTotals.unkC` by 5 (clamped to at most 0); steps the height
 offset `sTotals.unk8` by `sTotals.unk4`; then finds the entry under the
-position with `FindFloorNear`, stores it in `D_80095824` (and
-`D_800957F4` when found), puts the position on that ground height plus the
+position with `FindFloorNear`, stores it in `gCurBlock` (and
+`gFloorIndex` when found), puts the position on that ground height plus the
 offset, and on flag bit 5 with no entry sets error 7. Second build matched.
 
 ## Shapes read from retail
@@ -83,10 +83,10 @@ s32 EditorFreeMove(void) {
         sTotals.unk8 += sTotals.unk4;
     }
     sGameSave.unk3C4 = sGameSave.unk348[1];
-    cur = FindFloorNear(sGameSave.unk348, gFloorY, D_800957F4);
-    D_80095824 = cur;
+    cur = FindFloorNear(sGameSave.unk348, gFloorY, gFloorIndex);
+    gCurBlock = cur;
     if (cur != -1) {
-        D_800957F4 = cur;
+        gFloorIndex = cur;
     }
     sGameSave.unk348[1] = gFloorY[0] + sTotals.unk8;
     if (D_800958D8 == 0 && (gPadTrig & 0x20) && cur == -1) {

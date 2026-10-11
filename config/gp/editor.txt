@@ -2,8 +2,8 @@
 # editor: the symbols retail reaches through $gp from editor's own code,
 # and the symbols of C-owned .sdata/.sbss ranges.
 D_800959D8
-D_800959E2
 D_80095A14
 gMenuChoice
 gToolCardStep
 gToolSlot
+sSpriteFlags

@@ -4,7 +4,7 @@
 
 Unit `src/code_29f54.c`. Loads a stage file from its header (`hdr`, twelve
 byte offsets): maps and links the two model sets (as LinkStageTmd and
-LinkPropsTmd do separately), clears `gSection` and `D_800957F4`, then
+LinkPropsTmd do separately), clears `gSection` and `gFloorIndex`, then
 turns each header offset into a pointer global (two of them, the run tables,
 also store their leading counts and the byte list that follows them).
 
@@ -28,7 +28,7 @@ words). The residue is the order and register use of the offset block:
 #if 0
 /* MATCHING: this unit's views of the stage pointers; other units declare
  * their own (stage_flow, model, object, player). */
-extern s32 D_800957F4;
+extern s32 gFloorIndex;
 extern s32 gFloorData;
 extern s32 gSectionEdges;
 extern s32 gStageStart;
@@ -74,7 +74,7 @@ void LoadStageData(s32 *hdr) {
         obj++;
     }
     gSection = 0;
-    D_800957F4 = 0;
+    gFloorIndex = 0;
     gFloorData = hdr[2] + (s32)hdr;
     gSectionEdges = hdr[3] + (s32)hdr + 4;
     gBoundaryEdges = (Edge *)(hdr[4] + (s32)hdr + 4);

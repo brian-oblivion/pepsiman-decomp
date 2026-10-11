@@ -355,7 +355,7 @@ extern s32 gPadTrig;       /**< port 1's newly pressed buttons this frame, auto-
 extern u8 *gCanSpans; /**< each stage block's cans: first point and count (after the BlockHeader) */
 extern u8 *gCanPoints;     /**< the cans: x, y, z and group, eight bytes each */
 extern s32 gCanSpanCount;  /**< how many blocks have a span (the BlockHeader's first word) */
-extern s16 gSoundFade;     /**< 2 units, 2 functions */
+extern s16 gSoundFade;     /**< the fade running, a SoundFade */
 extern s32 gBonusLevel;    /**< 2 units; 3 when a stage starts */
 extern s16 D_800957BC;     /**< 2 units; a heading */
 extern u8 *gFogColors;     /**< 2 units; far (fog) colours, four bytes each */
@@ -619,10 +619,16 @@ void DrawFrozenFrame(void);
 /** @brief Defined in stage_flow. */
 void FadeInFog(void);
 
+/** @brief What UpdateSoundFade fades out over 50 frames, gSoundFade. */
+enum SoundFade {
+    FADE_NONE = 0, /**< no fade: resets the volumes */
+    FADE_BGM = 1,  /**< the BGM sequence, then stops it */
+    FADE_ALL = 3,  /**< the BGM and the sound effects; falls into FADE_CD */
+    FADE_CD = 4    /**< the CD audio, then stops the track */
+};
+
 /** @brief Starts a fade that UpdateSoundFade runs over 50 frames.
- *  @param mode 1 the BGM, 3 the BGM, the sound effects and the CD audio
- *              (it falls through into 4), 4 the CD
- *              audio; 0 none */
+ *  @param mode a SoundFade */
 void SetSoundFade(u8 mode);
 
 /** @brief Defined in player. */

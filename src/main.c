@@ -804,8 +804,8 @@ void PlayStageMusic(u8 idx) {
     Bytes15 tbl;
 
     tbl = *(Bytes15 *)sStageMusicTracks;
-    if (gSoundFade != 0) {
-        gSoundFade = 0;
+    if (gSoundFade != FADE_NONE) {
+        gSoundFade = FADE_NONE;
     }
     PlayCdTrack(tbl.b[idx], 1);
 }

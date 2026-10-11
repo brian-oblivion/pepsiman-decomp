@@ -17,7 +17,23 @@ extern s32 gTallyCans;
 extern s32 gResultsActive;
 extern s32 gResultsTimer;
 extern s32 gWipeActive;
-extern s32 gResultsStep;
+
+/** @brief The results screens' steps, gResultsStep. An act's runs them
+ *         in order, skipping the record steps when no record falls; a
+ *         world's uses RES_SLIDE_IN, then RES_WORLD_DONE. */
+enum ResultsStep {
+    RES_SLIDE_IN = 0,    /**< the lines slide in on a timer */
+    RES_TALLY_CANS = 10, /**< counts the cans up; a life every 25 */
+    RES_ALL_CANS = 11,   /**< all 100 cans: a flashing tile and a life */
+    RES_BEST_CANS = 15,  /**< a can record: stores it */
+    RES_SLIDE_TIME = 20, /**< the time lines slide in */
+    RES_CHECK_TIME = 30, /**< tests the time against the record */
+    RES_BEST_TIME = 35,  /**< a time record: stores it */
+    RES_END = 50,        /**< after 60 frames, the unlocks and the act's totals */
+    RES_WORLD_DONE = 10  /**< a world's results are finished */
+};
+
+extern s32 gResultsStep; /**< a ResultsStep */
 extern s8 gResultsSliding[8];
 extern s8 gResultsSlide[8];
 extern u8 sActResultsSlide[];   /**< each results line's slide-in start, for an act */
@@ -1018,7 +1034,7 @@ void UpdateActResults(void) {
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
     switch (gResultsStep) {
-        case 0:
+        case RES_SLIDE_IN:
             switch (gResultsTimer) {
                 case 0:
                     gResultsSliding[0] = 1;
@@ -1036,12 +1052,12 @@ void UpdateActResults(void) {
                     gResultsSliding[3] = 1;
                     break;
                 case 80:
-                    gResultsStep = 10;
+                    gResultsStep = RES_TALLY_CANS;
                     break;
             }
             gResultsTimer++;
             break;
-        case 10:
+        case RES_TALLY_CANS:
             if (gTallyCans < gCans) {
                 if (gTallyCans % 10 == 0) {
                     PlaySe(0x2A);
@@ -1061,19 +1077,19 @@ void UpdateActResults(void) {
                     gResultsSlide[6] = -9;
                     tile[0] = 0;
                     gResultsTimer = 0;
-                    gResultsStep = 11;
+                    gResultsStep = RES_ALL_CANS;
                 } else if (gBestCans[rank / 3][rank % 3] < gTallyCans) {
                     PlaySe(0x25);
                     gResultsSlide[7] = -9;
                     gResultsTimer = 0;
-                    gResultsStep = 15;
+                    gResultsStep = RES_BEST_CANS;
                 } else {
                     gResultsTimer = 0;
-                    gResultsStep = 20;
+                    gResultsStep = RES_SLIDE_TIME;
                 }
             }
             break;
-        case 11:
+        case RES_ALL_CANS:
             if (gResultsSlide[6] == 0) {
                 if (gResultsTimer < 36) {
                     tile[1] = 0x1FB;
@@ -1091,14 +1107,14 @@ void UpdateActResults(void) {
                     PlaySe(0x25);
                     gResultsSlide[7] = -9;
                     gResultsTimer = 0;
-                    gResultsStep = 15;
+                    gResultsStep = RES_BEST_CANS;
                 } else {
                     gResultsTimer = 0;
-                    gResultsStep = 20;
+                    gResultsStep = RES_SLIDE_TIME;
                 }
             }
             break;
-        case 15:
+        case RES_BEST_CANS:
             tile[3] = 1;
             tile[1] = 0x1FA;
             tile[2] = 0x10;
@@ -1110,10 +1126,10 @@ void UpdateActResults(void) {
                 }
             } else if (++gResultsSlide[7] == 9) {
                 gResultsTimer = 0;
-                gResultsStep = 20;
+                gResultsStep = RES_SLIDE_TIME;
             }
             break;
-        case 20:
+        case RES_SLIDE_TIME:
             switch (gResultsTimer) {
                 case 15:
                     gResultsSliding[4] = 1;
@@ -1122,23 +1138,23 @@ void UpdateActResults(void) {
                     gResultsSliding[5] = 1;
                     break;
                 case 31:
-                    gResultsStep = 30;
+                    gResultsStep = RES_CHECK_TIME;
                     break;
             }
             gResultsTimer++;
             break;
-        case 30:
+        case RES_CHECK_TIME:
             if (gElapsed < gBestTimes[rank / 3][rank % 3]) {
                 PlaySe(0x25);
                 gResultsSlide[7] = -9;
                 gResultsTimer = 0;
-                gResultsStep = 35;
+                gResultsStep = RES_BEST_TIME;
             } else {
                 gResultsTimer = 0;
-                gResultsStep = 50;
+                gResultsStep = RES_END;
             }
             break;
-        case 35:
+        case RES_BEST_TIME:
             tile[3] = 1;
             tile[1] = 0x1FA;
             tile[2] = 0x10;
@@ -1150,10 +1166,10 @@ void UpdateActResults(void) {
                 }
             } else if (++gResultsSlide[7] == 9) {
                 gResultsTimer = 0;
-                gResultsStep = 50;
+                gResultsStep = RES_END;
             }
             break;
-        case 50:
+        case RES_END:
             if (++gResultsTimer == 60) {
                 n = 0;
                 for (i = 0; i < 4; i++) {
@@ -1277,7 +1293,7 @@ void UpdateWorldResults(void) {
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
     switch (gResultsStep) {
-        case 0:
+        case RES_SLIDE_IN:
             switch (gResultsTimer) {
                 case 0:
                     gResultsSliding[0] = 1;
@@ -1301,12 +1317,12 @@ void UpdateWorldResults(void) {
                     gResultsSliding[6] = 1;
                     break;
                 case 300:
-                    gResultsStep = 10;
+                    gResultsStep = RES_WORLD_DONE;
                     break;
             }
             gResultsTimer++;
             break;
-        case 10:
+        case RES_WORLD_DONE:
             gResultsActive = 0;
             break;
     }
@@ -1513,7 +1529,7 @@ void StartActResults(void) {
     Bytes8 buf;
 
     buf = *(Bytes8 *)sActResultsSlide;
-    gResultsStep = 0;
+    gResultsStep = RES_SLIDE_IN;
     gResultsTimer = 0;
     gResultsActive = 1;
     gTallyCans = 0;
@@ -1528,7 +1544,7 @@ void StartWorldResults(void) {
     Bytes8 buf;
 
     buf = *(Bytes8 *)sWorldResultsSlide;
-    gResultsStep = 0;
+    gResultsStep = RES_SLIDE_IN;
     gResultsTimer = 0;
     gResultsActive = 1;
     gTallyCans = 0;

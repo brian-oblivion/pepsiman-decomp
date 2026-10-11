@@ -2255,7 +2255,7 @@ top:
                 D_800959B0 = 0;
                 gMissTimer = 0;
                 gPlayer.speed = (s16)gSpeedFixed >> 4;
-                SetSoundFade(4);
+                SetSoundFade(FADE_CD);
                 goto top;
             }
             break;

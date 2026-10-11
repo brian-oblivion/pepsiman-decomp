@@ -363,7 +363,7 @@ s32 PlayBgm(u16 song) {
     SsSeqPlay(gSeqIds[0], 1, 0);
     gBgmVolume = 100;
     SsSeqSetVol(gSeqIds[0], 100, 100);
-    gSoundFade = 0;
+    gSoundFade = FADE_NONE;
 }
 
 /* MATCHING: model defines it with s16 arguments and result; this unit
@@ -378,25 +378,25 @@ void UpdateSoundFade(void) {
     s16 i;
 
     switch (gSoundFade) {
-        case 0:
+        case FADE_NONE:
             gSoundFadeTimer = 50;
             gSeVolume = 127;
             gBgmVolume = 127;
             gCdVolume = 80;
             break;
-        case 1:
+        case FADE_BGM:
             gBgmVolume = Lerp(0, 100, --gSoundFadeTimer, 50);
             gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
             if (gSoundFadeTimer == 0) {
                 SsSeqStop(gSeqIds[0]);
                 SsSeqClose(gSeqIds[0]);
-                gSoundFade = 0;
+                gSoundFade = FADE_NONE;
                 gSeVolume = 127;
                 gBgmVolume = 127;
             }
             SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
             break;
-        case 3:
+        case FADE_ALL:
             gBgmVolume = Lerp(0, 100, --gSoundFadeTimer, 50);
             gSeVolume = gBgmVolume = gBgmVolume < 0 ? 0 : gBgmVolume > 127 ? 127 : gBgmVolume;
             SsSeqSetVol(gSeqIds[0], gBgmVolume, gBgmVolume);
@@ -414,22 +414,23 @@ void UpdateSoundFade(void) {
                 }
                 gSeVolume = 127;
                 gBgmVolume = 127;
-                gSoundFade = 0;
+                gSoundFade = FADE_NONE;
                 gCdVolume = 80;
             }
-        case 4:
+            /* falls through: FADE_ALL fades the CD audio too */
+        case FADE_CD:
             gCdVolume = Lerp(0, 80, --gSoundFadeTimer, 50);
             gCdVolume = gCdVolume < 0 ? 0 : gCdVolume > 80 ? 80 : gCdVolume;
             SetCdVolume(gCdVolume);
             if (gSoundFadeTimer == 0) {
                 gCdVolume = 80;
                 StopCdTrack();
-                gSoundFade = 0;
+                gSoundFade = FADE_NONE;
             }
             break;
     }
     if (gSoundFadeTimer < 0) {
-        gSoundFade = 0;
+        gSoundFade = FADE_NONE;
     }
 }
 

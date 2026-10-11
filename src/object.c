@@ -1489,7 +1489,7 @@ void UpdatePickups(void) {
     u32 i;
     u32 k;
     u16 n;
-    Ent8 *e;
+    CanPoint *e;
     s16 m;
 
     GsInitCoordinate2(WORLD, &coord);
@@ -1501,14 +1501,14 @@ void UpdatePickups(void) {
                 if ((s8)gCanState[k] != 2) {
                     continue;
                 }
-                e = (Ent8 *)(k * 8 + (u32)gCanPoints);
-                n = e->unk6;
-                if ((s8)gCanGroupOn[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
+                e = (CanPoint *)(k * 8 + (u32)gCanPoints);
+                n = e->group;
+                if ((s8)gCanGroupOn[e->group] == 0 || e->group == 0 || (e->group & CAN_COLLECTED)) {
                     continue;
                 }
-                coord.coord.t[0] = -gPlayer.x + e->unk0;
-                coord.coord.t[1] = e->unk2;
-                coord.coord.t[2] = -gPlayer.z + (s16)e->unk4;
+                coord.coord.t[0] = -gPlayer.x + e->x;
+                coord.coord.t[1] = e->y;
+                coord.coord.t[2] = -gPlayer.z + (s16)e->z;
                 coord.flg = 0;
                 GsGetLs(&coord, &mat);
                 GsSetLsMatrix(&mat);
@@ -1531,18 +1531,18 @@ void UpdatePickups(void) {
                         case 1:
                         default:
                             PlaySe(0x35);
-                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
-                                        ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
-                                        (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
+                            SpawnEffect(7, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
+                                        ((CanPoint *)(k * 8 + (u32)gCanPoints))->y - 50,
+                                        (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->z, 0);
                             break;
                         case 2:
                             PlaySe(0x35);
-                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
-                                        ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
-                                        (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
+                            SpawnEffect(8, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
+                                        ((CanPoint *)(k * 8 + (u32)gCanPoints))->y - 50,
+                                        (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->z, 0);
                             break;
                     }
-                    ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk6 |= 0x8000;
+                    ((CanPoint *)(k * 8 + (u32)gCanPoints))->group |= CAN_COLLECTED;
                 }
             }
         }
@@ -1590,7 +1590,7 @@ s32 ShowRevealedCans(void) {
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     for (i = 0; i < 200; i++) {
-        if ((s8)gCanGroupOn[((Ent8 *)gCanPoints)[i].unk6] == 1) {
+        if ((s8)gCanGroupOn[((CanPoint *)gCanPoints)[i].group] == 1) {
             gCanState[i] = 2;
         }
     }
@@ -1605,7 +1605,7 @@ s32 RevealCanGroup(s16 n) {
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
     gCanGroupOn[n] = 1;
     for (i = 0; i < 200; i++) {
-        if (((Ent8 *)gCanPoints)[i].unk6 == n) {
+        if (((CanPoint *)gCanPoints)[i].group == n) {
             gCanState[i] = 1;
         }
     }
@@ -1615,7 +1615,7 @@ s32 RevealCanGroup(s16 n) {
  *         then marks it shown. */
 void PopInNextCan(void) {
     u32 i;
-    Ent8 *e;
+    CanPoint *e;
 
     if (gFrameCount & 1) {
         return;
@@ -1623,8 +1623,8 @@ void PopInNextCan(void) {
     for (i = 0; i < 200; i++) {
         if ((s8)gCanState[i] == 1) {
             /* MATCHING: an integer sum puts the scaled index first. */
-            e = (Ent8 *)(i * 8 + (u32)gCanPoints);
-            SpawnEffect(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
+            e = (CanPoint *)(i * 8 + (u32)gCanPoints);
+            SpawnEffect(4, e->x, e->y - 50, (s16)e->z, 0);
             gCanState[i] = 2;
             return;
         }

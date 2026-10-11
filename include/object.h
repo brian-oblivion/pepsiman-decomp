@@ -73,13 +73,16 @@ typedef struct {
     s32 offset; /**< byte offset of the second part from the header */
 } BlockHeader;
 
-/** @brief An eight-byte entry of the BlockHeader's first part. */
+/** @brief CanPoint.group's bit for a can already collected. */
+#define CAN_COLLECTED 0x8000
+
+/** @brief A Pepsi can (gCanPoints), eight bytes. */
 typedef struct {
-    s16 unk0; /**< not yet known */
-    s16 unk2; /**< not yet known */
-    u16 unk4; /**< summed over the entries */
-    s16 unk6; /**< an index into the 128 byte flags */
-} Ent8;
+    s16 x;     /**< x */
+    s16 y;     /**< y */
+    u16 z;     /**< z, read signed */
+    s16 group; /**< its group, an index into gCanGroupOn; bit 15 once collected */
+} CanPoint;
 
 extern GsCOORDINATE2 gTodCoords[]; /**< the 20 TOD objects' coordinate systems; player points records at [0], [1] and [16] */
 

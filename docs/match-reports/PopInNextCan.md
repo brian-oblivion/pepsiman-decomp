@@ -12,14 +12,14 @@ is 1, launches effect 4 at that entry's position (y raised by 50) through
 ```c
 void PopInNextCan(void) {
     u32 i;
-    Ent8 *e;
+    CanPoint *e;
 
     if (gFrameCount & 1) {
         return;
     }
     for (i = 0; i < 200; i++) {
         if ((s8)gCanState[i] == 1) {
-            e = (Ent8 *)(i * 8 + (u32)gCanPoints);
+            e = (CanPoint *)(i * 8 + (u32)gCanPoints);
             SpawnEffect(4, e->unk0, e->unk2 - 50, (s16)e->unk4, 0);
             gCanState[i] = 2;
             return;
@@ -30,12 +30,12 @@ void PopInNextCan(void) {
 
 Third build.
 
-- Build 1, `e = &((Ent8 *)gCanPoints)[i];`: 32/36, the entry address
+- Build 1, `e = &((CanPoint *)gCanPoints)[i];`: 32/36, the entry address
   built `addu $v1, $v1, $v0` (base first) where retail has `addu $v0, $v0,
   $v1` (scaled index first); the next three loads follow the register.
-- Build 2, `(Ent8 *)(i * 8 + gCanPoints)`: unchanged; pointer arithmetic
+- Build 2, `(CanPoint *)(i * 8 + gCanPoints)`: unchanged; pointer arithmetic
   still puts the pointer first.
-- Build 3, `(Ent8 *)(i * 8 + (u32)gCanPoints)`: 36/36. The LEARNINGS entry
+- Build 3, `(CanPoint *)(i * 8 + (u32)gCanPoints)`: 36/36. The LEARNINGS entry
   for UpdateSection/UpdateStageLights again.
 
 Declarations: `gFrameCount` is a scalar (`lui $v0` / `lw $v0, %lo` in one

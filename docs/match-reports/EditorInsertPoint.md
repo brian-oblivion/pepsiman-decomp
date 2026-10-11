@@ -51,7 +51,7 @@ object identical apart from addresses, so AGREE (check 3).
 ## Declarations
 
 - `Span8` (an entry as `start`, `count` words) and `Pt8` (an 8-byte point,
-  three `s16` and a `u16`): unit-local views. object.h's `Ent8` is the
+  three `s16` and a `u16`): unit-local views. object.h's `CanPoint` is the
   same entry seen as halfwords.
 - `BlockCur` / `sCur`: the unit's member view of `gCanSpans` and
   `gCanPoints` (see 1), with a `MATCHING:` note.

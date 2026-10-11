@@ -84,7 +84,7 @@ void UpdatePickups(void) {
     u32 k;
     u16 n;
     Group8 *g;
-    Ent8 *e;
+    CanPoint *e;
     s16 m;
 
     GsInitCoordinate2(WORLD, &coord);
@@ -96,7 +96,7 @@ void UpdatePickups(void) {
                 if ((s8)gCanState[k] != 2) {
                     continue;
                 }
-                e = (Ent8 *)(k * 8 + (u32)gCanPoints);
+                e = (CanPoint *)(k * 8 + (u32)gCanPoints);
                 n = e->unk6;
                 if ((s8)gCanGroupOn[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
                     continue;
@@ -126,18 +126,18 @@ void UpdatePickups(void) {
                         case 1:
                         default:
                             PlaySe(0x35);
-                            SpawnEffect(7, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
-                                          ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
-                                          (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
+                            SpawnEffect(7, ((CanPoint *)(k * 8 + (u32)gCanPoints))->unk0,
+                                          ((CanPoint *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
+                                          (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->unk4, 0);
                             break;
                         case 2:
                             PlaySe(0x35);
-                            SpawnEffect(8, ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk0,
-                                          ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
-                                          (s16)((Ent8 *)(k * 8 + (u32)gCanPoints))->unk4, 0);
+                            SpawnEffect(8, ((CanPoint *)(k * 8 + (u32)gCanPoints))->unk0,
+                                          ((CanPoint *)(k * 8 + (u32)gCanPoints))->unk2 - 50,
+                                          (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->unk4, 0);
                             break;
                     }
-                    ((Ent8 *)(k * 8 + (u32)gCanPoints))->unk6 |= 0x8000;
+                    ((CanPoint *)(k * 8 + (u32)gCanPoints))->unk6 |= 0x8000;
                 }
             }
         }

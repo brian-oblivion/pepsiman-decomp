@@ -3349,15 +3349,22 @@ void MoveGamePos(s32 deg, s32 dist) {
     gPlayer.z -= rcos(rot->vy + ang) * dist >> 12;
 }
 
-/** @brief Totals unk4 of the current block's entries into sTotals.canCount. */
+/** @brief A can span as TotalBlockEntries sums it: its count's low half. */
+typedef struct {
+    s32 start;   /**< index of the span's first can */
+    u16 count;   /**< the count's low half */
+    u16 countHi; /**< its high half */
+} SpanCount;
+
+/** @brief Totals the cans of the current block's spans into sTotals.canCount. */
 void TotalBlockEntries(void) {
     s32 i;
-    Ent8 *e;
+    SpanCount *e;
 
-    e = (Ent8 *)gCanSpans;
+    e = (SpanCount *)gCanSpans;
     sTotals.canCount = 0;
     for (i = 0; i < gCanSpanCount; i++) {
-        sTotals.canCount += e->unk4;
+        sTotals.canCount += e->count;
         e++;
     }
 }

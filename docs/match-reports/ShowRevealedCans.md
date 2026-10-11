@@ -13,7 +13,7 @@ s32 ShowRevealedCans(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
-        if ((s8)gCanGroupOn[((Ent8 *)gCanPoints)[i].unk6] == 1) {
+        if ((s8)gCanGroupOn[((CanPoint *)gCanPoints)[i].unk6] == 1) {
             gCanState[i] = 2;
         }
     }

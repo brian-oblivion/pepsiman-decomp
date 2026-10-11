@@ -55,7 +55,7 @@ typedef struct {
     s16 unk2;
     u16 unk4; /* summed */
     s16 unk6;
-} Ent8;
+} CanPoint;
 typedef struct {
     u8 unk0[0x26];
     u16 unk26; /* the total */
@@ -67,9 +67,9 @@ extern u8 gEditorState[];
 
 void TotalBlockEntries(void) {
     s32 i;
-    Ent8 *e;
+    CanPoint *e;
 
-    e = (Ent8 *)gCanSpans;
+    e = (CanPoint *)gCanSpans;
     sTotals.unk26 = 0;
     for (i = 0; i < gCanSpanCount; i++) {
         sTotals.unk26 += e->unk4;

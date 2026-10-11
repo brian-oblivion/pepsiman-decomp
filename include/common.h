@@ -162,6 +162,88 @@ typedef struct {
 
 extern Rec78 D_800D8D20[]; /**< the 80 records; 2 units */
 
+/** @brief The player's state (gPlayer), 0x3D8 bytes. Its head is the
+ *         animation state StepAnimation runs: two channels, each asking
+ *         for a motion (a TOD sequence) and playing one. The load screen
+ *         keeps a whole copy as its turning model (gLoadScreenModel). */
+typedef struct {
+    u8 control;           /**< 1 while the pad steers the player; cleared by a miss or the goal */
+    u8 unk1;              /**< the steering mode last applied; a repeat only resets yaw */
+    u8 hittable;          /**< 1 when a hit can be reacted to; 0 while invulnTimer runs,
+                               *   when the player is drawn every other frame pair */
+    u8 twoTracks;         /**< nonzero steps both animation channels instead of one */
+    u8 unk4;              /**< SetTodFrame's last argument for a single-channel step */
+    u8 action;            /**< the action state UpdatePlayerAction runs (jump, slide, hit
+                               *   reactions); 0x60 and 0x61 for a demo model */
+    u8 motion[2];         /**< the motion each channel is asked to play; for channel 0,
+                               *   2 to 4 are the run bands, 8 to 11 the jump */
+    u8 curMotion[2];      /**< the motion each channel is playing; 0xFF forces a restart */
+    s16 motionTime[2];    /**< each channel's clock */
+    u8 padE[0x18 - 0xE];  /**< not yet known */
+    u8 *motionData[2];    /**< each channel's position in its sequence */
+    s32 motionLen[100];   /**< each motion's length */
+    s32 motionStart[100]; /**< each motion's start time */
+    s8 motionResult[2];   /**< StepAnimation's result for each channel; 2 at a loop's end */
+    u8 pad342[0x344 - 0x342]; /**< not yet known */
+    s32 unk344;               /**< (40 - speed) / 3 + 1 */
+    s32 x;                    /**< position x */
+    s32 y;                    /**< position y, down positive; held at groundY on the ground */
+    s32 z;                    /**< position z */
+    s32 drawX;                /**< added to x for the drawn position */
+    s32 drawY;                /**< added to y for the drawn position */
+    s32 drawZ;                /**< added to z for the drawn position */
+    s16 unk360;               /**< an angle copied to the camera rotation's x */
+    s16 unk362;               /**< an angle added to yaw for the camera rotation's y */
+    s16 unk364;               /**< cleared on a reset */
+    u8 pad366[0x368 - 0x366]; /**< not yet known */
+    s32 unk368;               /**< a camera target's x; cleared by player */
+    s32 unk36C;               /**< a camera target's y */
+    s32 unk370;               /**< a camera target's z; cleared by player */
+    s16 unk374;               /**< cleared when y passes the goal line */
+    s16 unk376;               /**< a step counter of the current mode */
+    s16 unk378;               /**< a second step counter of the current mode */
+    s16 unk37A;               /**< cleared with unk378 */
+    s32 unk37C;               /**< set with yaw to the start heading */
+    s32 yaw;                  /**< the body heading; follows the course heading in bounded steps */
+    s32 lean;                 /**< the body roll while steering, -15..15; decays to 0 */
+    u8 pad388[0x38C - 0x388]; /**< not yet known */
+    s16 unk38C;               /**< cleared whenever slideState changes */
+    u8 slideState;            /**< 0 running, 1 sliding, 2 dashing */
+    u8 unk38F;                /**< 1 also gates a check on jumpPower */
+    u16 jumpState;  /**< 0 on the ground, 1 while the button is held, 2 for one step after */
+    s16 jumpTime;   /**< steps the button has been held while jumpState is 1 */
+    s32 jumpStartY; /**< y when the jump began */
+    s16 jumpPower;  /**< the jump's strength, set by how long the button is held */
+    u8 pad39A[0x39C - 0x39A]; /**< not yet known */
+    s32 unk39C;               /**< with unk3CC, picks which cap y gets */
+    s32 unk3A0;               /**< 0, 1 or 2, set as jumpState goes to 2 */
+    s16 unk3A4;               /**< a countdown set to 1 by some speed ranges */
+    s16 fallSpeed;            /**< added (times 5) to y each step in the air; reset on landing */
+    s16 speed;                /**< the running speed; 40 is cruising, 50 after a reset */
+    s16 unk3AA;               /**< speed saved when a mode starts */
+    u16 speedBand;            /**< 0 below 13 in speed, 1 below 26, else 2 */
+    s16 stepX;                /**< speed along the sine of the heading: this step's x move */
+    s16 stepZ;                /**< speed along the cosine of the heading: this step's z move */
+    u8 pad3B2[0x3B4 - 0x3B2]; /**< not yet known */
+    s32 unk3B4;               /**< moved by 50 a step while steering */
+    s32 unk3B8;               /**< 1 selects the global cap for y; set when a placed record hits */
+    s32 unk3BC;               /**< 1 with unk3B8 also starts the jumpState sequence */
+    s32 groundY;              /**< the ground height under the player */
+    s32 unk3C4;               /**< the editor keeps y here before snapping to the floor */
+    s16 invulnTimer;          /**< counts down after a hit; the player is hittable again at 0 */
+    u16 unk3CA;    /**< set to 1 when the stage ends; selects the second ordering tables */
+    s32 unk3CC;    /**< with unk39C, picks which cap y gets */
+    u8 rideMode;   /**< low nibble: 0 on foot, else the stage's ride (1 to 4) */
+    u8 unk3D1;     /**< set to 1 when a stage ends with a mode in rideMode */
+    u8 unk3D2;     /**< set to 1 by one mode */
+    s8 showShadow; /**< nonzero draws the shadow under the player */
+    s8 unk3D4;     /**< 1 while mode 0xF runs; swaps object 10's model */
+    u8 unk3D5;     /**< set to 1 by some pickups */
+    u8 pad3D6[0x3D8 - 0x3D6]; /**< not yet known */
+} PlayerState;
+
+extern PlayerState gPlayer; /**< the player */
+
 /* Small: a plain extern. */
 extern s32 gTimInfo;        /**< 2 units, 4 functions */
 extern u8 gClearB;          /**< the screen clear and fog colour, blue */
@@ -270,8 +352,6 @@ extern s32 gView[];           /**< 4 units, 4 functions */
 extern s32 D_8009676C[];      /**< 2 units, 3 functions */
 extern u16 D_8009EAB8[];      /**< 2 units, 3 functions; never loaded, sign unknown */
 extern s16 D_8009EABA[];      /**< 2 units, 2 functions */
-extern u8 gPlayer[];          /**< 8 units, 69 functions */
-extern u8 D_8009EB7E[];       /**< 2 units, 2 functions */
 extern u8 D_8009EEC0[];       /**< an object with a position; passed to
                           *   distance tests */
 extern s16 D_8009EF20[];      /**< 2 units, 6 functions */

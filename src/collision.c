@@ -122,17 +122,6 @@ typedef struct {
     u8 unkE;  /**< zeroed */
 } DebugLine;
 
-/** @brief The player's position, as this unit reads the game state. */
-typedef struct {
-    u8 pad0[0x348];
-    s32 x; /**< position */
-    s32 y; /**< position */
-    s32 z; /**< position */
-} GamePos;
-
-/* MATCHING: a struct lvalue keeps the game state's base in a register. */
-#define sGamePos (*(GamePos *)gPlayer)
-
 /* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
 #define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
@@ -236,7 +225,7 @@ s32 CollidePlayer(Sphere *q) {
     switch (D_8009EF48[0] & 0xF) {
         case 0:
             r[0] = 20;
-            v = D_8009EB7E[0];
+            v = gPlayer.motion[0];
             r[1] = 35;
             r[2] = 35;
             if (v < 5) {
@@ -410,9 +399,9 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     }
     w[1] = -1;
     w[0] = 0;
-    p.vx = sGamePos.x + gWorldShift[0];
-    p.vy = sGamePos.y;
-    p.vz = sGamePos.z + gWorldShift[2];
+    p.vx = gPlayer.x + gWorldShift[0];
+    p.vy = gPlayer.y;
+    p.vz = gPlayer.z + gWorldShift[2];
     w[2] = 0;
     q.p[4].x = 0;
     q.p[4].z = 0;
@@ -521,16 +510,14 @@ s32 DistanceSquared(VECTOR *a, VECTOR *b) {
 }
 
 void ResetCollision(void) {
-    gPlayer[1] = 0;
+    gPlayer.unk1 = 0;
     ResetPlayerHits();
     func_8002988C();
 }
 
 void func_80029838(void) {
-    s32 *p = (s32 *)gPlayer;
-
-    if (p[0x3B8 / 4] == 0) {
-        p[0x3BC / 4] = 0;
+    if (gPlayer.unk3B8 == 0) {
+        gPlayer.unk3BC = 0;
     }
 }
 

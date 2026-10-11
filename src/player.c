@@ -9,81 +9,6 @@
 #include "model.h"
 #include "rand.h"
 
-/** @brief The player's state, gPlayer, as far as this unit reads it. The
- *         shared header declares it as a byte array; other units keep
- *         their own views of it. */
-typedef struct {
-    u8 control;  /**< 1 while the pad steers the player; cleared by a miss or the goal */
-    u8 unk1;     /**< the steering mode last applied; a repeat only resets yaw */
-    u8 hittable; /**< 1 when a hit can be reacted to; 0 while invulnTimer runs */
-    u8 unk3;     /**< nonzero steps two animation tracks instead of one */
-    u8 unk4;     /**< the argument of the single-track step */
-    u8 action;   /**< the action state UpdatePlayerAction runs (jump, slide, hit reactions) */
-    u8 motion;   /**< the animation sequence asked for; 2 to 4 the run bands, 8 to 11 the jump */
-    u8 unk7;     /**< 0x13 or 0xFF; not yet known */
-    u8 unk8;     /**< set to 0xFF; not yet known */
-    u8 unk9;     /**< set to 0xFF; not yet known */
-    u8 padA[0x340 - 0xA];
-    s8 animResult;  /**< StepAnimation's result for the first track; 2 at a loop's end */
-    s8 animResult2; /**< StepAnimation's result for the second track */
-    u8 pad342[0x344 - 0x342];
-    s32 unk344; /**< (40 - speed) / 3 + 1 */
-    s32 x;      /**< position x */
-    s32 y;      /**< position y, down positive; held at groundY on the ground */
-    s32 z;      /**< position z */
-    s32 drawX;  /**< added to x for the drawn position */
-    s32 drawY;  /**< added to y for the drawn position */
-    s32 drawZ;  /**< added to z for the drawn position */
-    s16 unk360; /**< an angle copied to the camera rotation's x */
-    s16 unk362; /**< an angle added to yaw for the camera rotation's y */
-    u8 pad364[0x368 - 0x364];
-    s32 unk368; /**< cleared; not yet known */
-    u8 pad36C[0x370 - 0x36C];
-    s32 unk370; /**< cleared; not yet known */
-    s16 unk374; /**< cleared when y passes the goal line */
-    s16 unk376; /**< a step counter of the current mode */
-    s16 unk378; /**< a second step counter of the current mode */
-    s16 unk37A; /**< cleared with unk378 */
-    u8 pad37C[0x380 - 0x37C];
-    s32 yaw;  /**< the body heading; follows the course heading in bounded steps */
-    s32 lean; /**< the body roll while steering, -15..15; decays to 0 */
-    u8 pad388[0x38C - 0x388];
-    s16 unk38C;     /**< cleared whenever slideState changes */
-    u8 slideState;  /**< 0 running, 1 sliding, 2 dashing */
-    u8 unk38F;      /**< 1 also gates a check on jumpPower */
-    u16 jumpState;  /**< 0 on the ground, 1 while the button is held, 2 for one step after */
-    s16 jumpTime;   /**< steps the button has been held while jumpState is 1 */
-    s32 jumpStartY; /**< y when the jump began */
-    s16 jumpPower;  /**< the jump's strength, set by how long the button is held */
-    u8 pad39A[0x39C - 0x39A];
-    s32 unk39C;    /**< with unk3CC, picks which cap y gets */
-    s32 unk3A0;    /**< 0, 1 or 2, set as jumpState goes to 2 */
-    s16 unk3A4;    /**< a countdown set to 1 by some speed ranges */
-    s16 fallSpeed; /**< added (times 5) to y each step in the air; reset on landing */
-    s16 speed;     /**< the running speed; 40 is cruising */
-    s16 unk3AA;    /**< speed saved when a mode starts */
-    u16 speedBand; /**< 0 below 13 in speed, 1 below 26, else 2 */
-    s16 stepX;     /**< speed along the sine of the heading: this step's x move */
-    s16 stepZ;     /**< speed along the cosine of the heading: this step's z move */
-    u8 pad3B2[0x3B4 - 0x3B2];
-    s32 unk3B4;  /**< moved by 50 a step while steering */
-    s32 unk3B8;  /**< 1 selects the global cap for y */
-    s32 unk3BC;  /**< 1 with unk3B8 also starts the jumpState sequence */
-    s32 groundY; /**< the ground height under the player */
-    u8 pad3C4[0x3C8 - 0x3C4];
-    s16 invulnTimer; /**< counts down after a hit; the player is hittable again at 0 */
-    s16 unk3CA;      /**< set to 1 when the stage ends */
-    s32 unk3CC;      /**< with unk39C, picks which cap y gets */
-    u8 rideMode;     /**< low nibble: 0 on foot, else the stage's ride (1 to 4) */
-    u8 unk3D1;       /**< set to 1 when a stage ends with a mode in rideMode */
-    u8 unk3D2;       /**< set to 1 by one mode */
-    s8 showShadow;   /**< nonzero draws the shadow under the player */
-    u8 unk3D4;       /**< 1 while mode 0xF runs */
-    u8 unk3D5;       /**< set to 1 by some pickups */
-} GameState;
-
-/* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
-#define sGame (*(GameState *)gPlayer)
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
@@ -260,7 +185,7 @@ extern s8 D_80095900;
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
 /* MATCHING: model defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
-void func_80018CA4(GameState *g);
+void func_80018CA4(PlayerState *g);
 
 void DrawPlayerShadow(void) {
     GsCOORDINATE2 coord;
@@ -270,14 +195,14 @@ void DrawPlayerShadow(void) {
     CVECTOR color;
     s32 d;
 
-    if (sGame.showShadow != 0) {
+    if (gPlayer.showShadow != 0) {
         GsInitCoordinate2(WORLD, &coord);
-        coord.coord.t[0] = sGame.x + sGame.drawX + gWorldShift[0];
+        coord.coord.t[0] = gPlayer.x + gPlayer.drawX + gWorldShift[0];
         coord.coord.t[1] = gFloorY[0];
-        coord.coord.t[2] = sGame.z + sGame.drawZ + gWorldShift[2];
+        coord.coord.t[2] = gPlayer.z + gPlayer.drawZ + gWorldShift[2];
         GsGetLs(&coord, &ls);
         GsSetLsMatrix(&ls);
-        d = (sGame.groundY - sGame.y) / 10;
+        d = (gPlayer.groundY - gPlayer.y) / 10;
         color.r = 2;
         size.vx = 100 - d;
         size.vy = size.vx / 2;
@@ -464,26 +389,26 @@ void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     GsSetLsMatrix(&world);
 }
 
-/* MATCHING: g keeps the sGame base in a register for the clamp's store at the join;
+/* MATCHING: g keeps the gPlayer base in a register for the clamp's store at the join;
  * cases 1 and 2 of the second switch are separate arms, merged by cross-jumping. */
 void UpdatePlayer(void) {
     s32 t;
     s32 x;
     s32 v;
     s32 hi;
-    GameState *g;
+    PlayerState *g;
 
     if (D_80095962 != 1) {
         CheckFall();
     }
     UpdateSpeedBand();
     ApplyGravity();
-    if (sGame.control == 1) {
+    if (gPlayer.control == 1) {
         AttachModeObject();
     }
     AttachMode5Object();
     SpawnModeObject();
-    switch (sGame.rideMode & 0xF) {
+    switch (gPlayer.rideMode & 0xF) {
         case 0:
             UpdateRunSpeed();
             UpdateSlideDash();
@@ -505,8 +430,8 @@ void UpdatePlayer(void) {
             UpdateSpeedMode3();
             break;
     }
-    sGame.unk344 = (40 - sGame.speed) / 3 + 1;
-    t = sGame.speed;
+    gPlayer.unk344 = (40 - gPlayer.speed) / 3 + 1;
+    t = gPlayer.speed;
     switch (((u32)D_80095864 >> 22) & 3) {
         case 1:
             if (t != 0) {
@@ -519,10 +444,10 @@ void UpdatePlayer(void) {
             }
             break;
         case 3:
-            if (sGame.y >= sGame.groundY) {
+            if (gPlayer.y >= gPlayer.groundY) {
                 PolarOffset(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
-                sGame.x += D_800D39C8[0];
-                sGame.z += D_800D39C8[2];
+                gPlayer.x += D_800D39C8[0];
+                gPlayer.z += D_800D39C8[2];
             }
             break;
     }
@@ -538,10 +463,10 @@ void UpdatePlayer(void) {
             }
             break;
         case 3:
-            if (sGame.y >= sGame.groundY) {
+            if (gPlayer.y >= gPlayer.groundY) {
                 PolarOffset(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
-                sGame.x += D_800D39C8[0];
-                sGame.z += D_800D39C8[2];
+                gPlayer.x += D_800D39C8[0];
+                gPlayer.z += D_800D39C8[2];
             }
             break;
     }
@@ -551,16 +476,16 @@ void UpdatePlayer(void) {
         case 1:
         case 3:
         case 4:
-            sGame.stepX = rsin(D_800A7680->vy) * sGame.speed >> 12;
-            sGame.stepZ = rcos(D_800A7680->vy) * sGame.speed >> 12;
-            sGame.x -= sGame.stepX;
-            sGame.z -= sGame.stepZ;
+            gPlayer.stepX = rsin(D_800A7680->vy) * gPlayer.speed >> 12;
+            gPlayer.stepZ = rcos(D_800A7680->vy) * gPlayer.speed >> 12;
+            gPlayer.x -= gPlayer.stepX;
+            gPlayer.z -= gPlayer.stepZ;
             break;
         case 2:
-            sGame.stepX = rsin(sGame.yaw) * sGame.speed >> 12;
-            sGame.stepZ = rcos(sGame.yaw) * sGame.speed >> 12;
-            sGame.x -= sGame.stepX;
-            sGame.z -= sGame.stepZ;
+            gPlayer.stepX = rsin(gPlayer.yaw) * gPlayer.speed >> 12;
+            gPlayer.stepZ = rcos(gPlayer.yaw) * gPlayer.speed >> 12;
+            gPlayer.x -= gPlayer.stepX;
+            gPlayer.z -= gPlayer.stepZ;
             break;
     }
     switch (D_8009EF48[0] & 0xF) {
@@ -580,7 +505,7 @@ void UpdatePlayer(void) {
             SteerMode3();
             break;
     }
-    g = &sGame;
+    g = &gPlayer;
     x = g->yaw;
     v = D_800A7680->vy - 0x155;
     if (x >= v) {
@@ -592,19 +517,19 @@ void UpdatePlayer(void) {
         }
     }
     g->yaw = v;
-    D_8009EAB8[1] = sGame.yaw;
-    D_8009EAB8[2] = sGame.lean;
-    D_800D86E0[0].coord.t[0] = sGame.drawX;
-    D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
-    D_800D86E0[0].coord.t[2] = sGame.drawZ;
+    D_8009EAB8[1] = gPlayer.yaw;
+    D_8009EAB8[2] = gPlayer.lean;
+    D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+    D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+    D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
     SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
     gWorldShift[1] = 0;
-    gWorldShift[0] = -sGame.x;
-    gWorldShift[2] = -sGame.z;
+    gWorldShift[0] = -gPlayer.x;
+    gWorldShift[2] = -gPlayer.z;
 }
 
 void SteerPlayer(void) {
-    if (sGame.control != 0) {
+    if (gPlayer.control != 0) {
         switch (gPadType) {
             case 0x73:
                 if (gPad & PADLleft) {
@@ -628,7 +553,7 @@ void SteerPlayer(void) {
                 RecentreSteer();
                 break;
         }
-        if (sGame.control != 0) {
+        if (gPlayer.control != 0) {
             return;
         }
     }
@@ -641,8 +566,8 @@ static __inline__ void pushBack(s32 deg, s32 dist) {
 
     rot = D_800A7680;
     angle = ANGLE_DEG(deg);
-    sGame.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    sGame.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+    gPlayer.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
 }
 
 /* MATCHING: the (u16) read is the separate lhu retail stores when the heading is in range. */
@@ -650,63 +575,63 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
     s16 yaw;
     s32 w;
 
-    if (sGame.unk1 != mode) {
+    if (gPlayer.unk1 != mode) {
         switch (mode) {
             case 3:
                 yaw = D_800A7680->vy;
-                if (yaw - 0x2D < sGame.yaw) {
-                    sGame.yaw = yaw - 0x2D;
+                if (yaw - 0x2D < gPlayer.yaw) {
+                    gPlayer.yaw = yaw - 0x2D;
                 }
                 D_800957BC -= a * 2;
                 D_800957B0 -= a;
-                sGame.yaw = D_800957BC;
-                if ((sGame.rideMode & 0xF) != 2 && yaw < sGame.yaw) {
-                    sGame.yaw = yaw;
+                gPlayer.yaw = D_800957BC;
+                if ((gPlayer.rideMode & 0xF) != 2 && yaw < gPlayer.yaw) {
+                    gPlayer.yaw = yaw;
                 }
-                if (sGame.lean < 0) {
-                    sGame.lean += 0x22;
+                if (gPlayer.lean < 0) {
+                    gPlayer.lean += 0x22;
                 }
-                if (sGame.lean < 16) {
-                    w = sGame.lean;
+                if (gPlayer.lean < 16) {
+                    w = gPlayer.lean;
                 } else {
                     w = 15;
                 }
-                sGame.lean = w;
-                sGame.unk3B4 -= 50;
+                gPlayer.lean = w;
+                gPlayer.unk3B4 -= 50;
                 pushBack(-90, b);
                 break;
             case 2:
                 yaw = D_800A7680->vy;
-                if (sGame.yaw < yaw + 0x4000) {
-                    sGame.yaw = yaw + 0x2D;
+                if (gPlayer.yaw < yaw + 0x4000) {
+                    gPlayer.yaw = yaw + 0x2D;
                 }
                 D_800957BC += a * 2;
                 D_800957B0 += a;
-                sGame.yaw = D_800957BC;
-                if ((sGame.rideMode & 0xF) != 2 && sGame.yaw < yaw) {
-                    sGame.yaw = yaw;
+                gPlayer.yaw = D_800957BC;
+                if ((gPlayer.rideMode & 0xF) != 2 && gPlayer.yaw < yaw) {
+                    gPlayer.yaw = yaw;
                 }
-                if (sGame.lean > 0) {
-                    sGame.lean -= 0x22;
+                if (gPlayer.lean > 0) {
+                    gPlayer.lean -= 0x22;
                 }
-                if (sGame.lean >= -15) {
-                    w = sGame.lean;
+                if (gPlayer.lean >= -15) {
+                    w = gPlayer.lean;
                 } else {
                     w = -15;
                 }
-                sGame.lean = w;
-                sGame.unk3B4 += 50;
+                gPlayer.lean = w;
+                gPlayer.unk3B4 += 50;
                 pushBack(90, b);
                 break;
         }
         D_800957BC = D_800957BC < D_800A7680->vy - 0x100   ? D_800A7680->vy - 0x100
                      : D_800A7680->vy + 0x100 < D_800957BC ? D_800A7680->vy + 0x100
                                                            : (u16)D_800957BC;
-        if (sGame.unk3B8 == 1 && sGame.unk3BC == 1 && sGame.unk38F == 0) {
-            sGame.y = sGame.groundY;
+        if (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1 && gPlayer.unk38F == 0) {
+            gPlayer.y = gPlayer.groundY;
         }
     } else {
-        sGame.yaw = D_800A7680->vy;
+        gPlayer.yaw = D_800A7680->vy;
     }
 }
 
@@ -718,30 +643,30 @@ void RecentreSteer(void) {
     s32 d;
 
     for (i = 0; i < 3; i++) {
-        if (sGame.lean < 0) {
-            sGame.lean++;
+        if (gPlayer.lean < 0) {
+            gPlayer.lean++;
         }
-        if (sGame.lean > 0) {
-            sGame.lean--;
+        if (gPlayer.lean > 0) {
+            gPlayer.lean--;
         }
         yaw = D_800A7680->vy;
-        d = sGame.yaw - yaw;
+        d = gPlayer.yaw - yaw;
         if ((d < 0 ? -d : d) > 56) {
-            if (sGame.yaw < yaw) {
-                sGame.yaw += 56;
+            if (gPlayer.yaw < yaw) {
+                gPlayer.yaw += 56;
             }
-            if (sGame.yaw > yaw) {
-                sGame.yaw -= 56;
+            if (gPlayer.yaw > yaw) {
+                gPlayer.yaw -= 56;
             }
         } else {
-            if (sGame.yaw < yaw) {
-                sGame.yaw += 11;
+            if (gPlayer.yaw < yaw) {
+                gPlayer.yaw += 11;
             }
-            if (sGame.yaw > yaw) {
-                sGame.yaw -= 11;
+            if (gPlayer.yaw > yaw) {
+                gPlayer.yaw -= 11;
             }
         }
-        D_800957BC = sGame.yaw;
+        D_800957BC = gPlayer.yaw;
     }
 }
 
@@ -749,34 +674,34 @@ void RecentreSteer(void) {
 s32 CheckFall(void) {
     s32 unused[2];
 
-    if ((D_800AC860 & 0x40) && sGame.motion != 0xE) {
-        if (sGame.rideMode & 0xF) {
-            sGame.unk3CA = 1;
-            if ((sGame.rideMode & 0xF) != 3) {
-                sGame.jumpPower = 20;
-                sGame.rideMode &= 0xF0;
+    if ((D_800AC860 & 0x40) && gPlayer.motion[0] != 0xE) {
+        if (gPlayer.rideMode & 0xF) {
+            gPlayer.unk3CA = 1;
+            if ((gPlayer.rideMode & 0xF) != 3) {
+                gPlayer.jumpPower = 20;
+                gPlayer.rideMode &= 0xF0;
             }
             ResetSpeed();
-            sGame.control = 0;
+            gPlayer.control = 0;
         }
-        sGame.groundY = 30000;
-        if (sGame.y >= gFloorY[0] + 100) {
+        gPlayer.groundY = 30000;
+        if (gPlayer.y >= gFloorY[0] + 100) {
             if (gMissState == 0) {
                 gMissState = 2;
             }
             D_800958EC = 1;
-            sGame.control = 0;
-            sGame.fallSpeed += 2;
+            gPlayer.control = 0;
+            gPlayer.fallSpeed += 2;
             ResetSpeed();
-            sGame.unk374 = 0;
-            if (sGame.y > gFloorY[0] + 0x8C && (sGame.rideMode & 0xF) == 3) {
-                sGame.rideMode &= 0xF0;
+            gPlayer.unk374 = 0;
+            if (gPlayer.y > gFloorY[0] + 0x8C && (gPlayer.rideMode & 0xF) == 3) {
+                gPlayer.rideMode &= 0xF0;
             }
-            sGame.unk3CA = 1;
-            if (sGame.y > gFloorY[0] + 1000) {
-                sGame.motion = 12;
-                sGame.fallSpeed = 0;
-                sGame.rideMode &= 0xF0;
+            gPlayer.unk3CA = 1;
+            if (gPlayer.y > gFloorY[0] + 1000) {
+                gPlayer.motion[0] = 12;
+                gPlayer.fallSpeed = 0;
+                gPlayer.rideMode &= 0xF0;
             }
         }
     }
@@ -789,76 +714,76 @@ s32 ApplyGravity(void) {
     s32 y;
     s32 z;
 
-    x = sGame.y;
+    x = gPlayer.y;
     if (x < D_800956E4) {
         D_800956E4 = x;
     }
-    y = sGame.y;
-    if (y < sGame.unk39C) {
-        sGame.unk39C = y;
+    y = gPlayer.y;
+    if (y < gPlayer.unk39C) {
+        gPlayer.unk39C = y;
     }
-    if ((u32)(sGame.motion - 8) < 4) {
+    if ((u32)(gPlayer.motion[0] - 8) < 4) {
         goto end;
     }
-    if ((u32)(sGame.motion - 0x38) < 2 && (sGame.rideMode & 0xF) != 3) {
+    if ((u32)(gPlayer.motion[0] - 0x38) < 2 && (gPlayer.rideMode & 0xF) != 3) {
         goto end;
     }
-    d = sGame.groundY - y;
+    d = gPlayer.groundY - y;
     y = 0;
     if ((d >= 0 ? d : -d) < 50) {
-        sGame.y = sGame.groundY;
+        gPlayer.y = gPlayer.groundY;
     } else {
-        sGame.y = x + (u16)sGame.fallSpeed * 5;
+        gPlayer.y = x + (u16)gPlayer.fallSpeed * 5;
     }
-    if (sGame.unk3B8 == 1 && sGame.unk3BC == 1) {
-        sGame.fallSpeed = 0;
-        sGame.unk39C = 0;
-        sGame.y = sGame.unk3CC;
+    if (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1) {
+        gPlayer.fallSpeed = 0;
+        gPlayer.unk39C = 0;
+        gPlayer.y = gPlayer.unk3CC;
         goto end;
     }
-    d = sGame.unk39C;
-    y = sGame.unk3CC;
-    if (d <= y && sGame.unk3B8 == 1) {
-        if (sGame.y >= y) {
-            sGame.y = y;
-            sGame.fallSpeed = 0;
-            sGame.unk39C = 0;
-            sGame.unk3BC = sGame.unk3B8;
+    d = gPlayer.unk39C;
+    y = gPlayer.unk3CC;
+    if (d <= y && gPlayer.unk3B8 == 1) {
+        if (gPlayer.y >= y) {
+            gPlayer.y = y;
+            gPlayer.fallSpeed = 0;
+            gPlayer.unk39C = 0;
+            gPlayer.unk3BC = gPlayer.unk3B8;
         } else {
-            sGame.fallSpeed++;
+            gPlayer.fallSpeed++;
         }
         goto end;
     }
-    if (sGame.y >= sGame.groundY) {
+    if (gPlayer.y >= gPlayer.groundY) {
         z = gFloorY[0];
-        sGame.fallSpeed = 0;
-        sGame.unk39C = 0;
-        sGame.unk3BC = 0;
-        sGame.y = z;
+        gPlayer.fallSpeed = 0;
+        gPlayer.unk39C = 0;
+        gPlayer.unk3BC = 0;
+        gPlayer.y = z;
         if (D_800956E0 == 0) {
-            D_800DF5B0[0] = sGame.x;
+            D_800DF5B0[0] = gPlayer.x;
             D_800DF5B0[1] = z;
-            D_800DF5B0[2] = sGame.z;
+            D_800DF5B0[2] = gPlayer.z;
             D_800956E0 = SquareRoot0(DistanceSquared((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
             if (D_80095900 == 0) {
                 StartRumble(gRumblePatterns, 13);
             }
         }
     } else {
-        sGame.fallSpeed++;
+        gPlayer.fallSpeed++;
     }
 end:;
 }
 
 /* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
-void ReactToHits(u8 *state) {
+void ReactToHits(PlayerState *state) {
     u8 v;
     s16 i;
     u8 m;
     HitSlot *p;
 
     v = 0;
-    if (((GameState *)state)->hittable == 0) {
+    if (state->hittable == 0) {
         return;
     }
     if (D_80095962 == 1) {
@@ -871,13 +796,13 @@ void ReactToHits(u8 *state) {
         }
         D_8009599C = 0;
         if ((u32)(*(volatile u8 *)&p->unk2 - 15) >= 4) {
-            m = ((GameState *)state)->motion;
-            switch (((GameState *)state)->action) {
+            m = state->motion[0];
+            switch (state->action) {
                 case 0:
                 case 0x5E:
                     switch (m) {
                         case 0x33:
-                            if ((sGame.rideMode & 0xF) != 3) {
+                            if ((gPlayer.rideMode & 0xF) != 3) {
                                 break;
                             }
                         case 2:
@@ -907,7 +832,7 @@ void ReactToHits(u8 *state) {
                     v = gHitReactions[p->unk2].b[0];
                     break;
                 default:
-                    switch (sGame.rideMode & 0xF) {
+                    switch (gPlayer.rideMode & 0xF) {
                         case 1:
                         case 2:
                         case 4:
@@ -920,7 +845,7 @@ void ReactToHits(u8 *state) {
                     }
                     break;
             }
-            switch (sGame.rideMode & 0xF) {
+            switch (gPlayer.rideMode & 0xF) {
                 case 1:
                 case 2:
                 case 4:
@@ -929,22 +854,22 @@ void ReactToHits(u8 *state) {
             }
         } else {
             v = gHitReactions[p->unk2].b[2 - i];
-            if (sGame.rideMode & 0xF) {
+            if (gPlayer.rideMode & 0xF) {
                 v = 0x42;
             }
         }
-        switch (sGame.rideMode & 0xF) {
+        switch (gPlayer.rideMode & 0xF) {
             case 1:
             case 2:
             case 4:
-                sGame.unk3D1 = 1;
-                sGame.unk3D5 = 1;
+                gPlayer.unk3D1 = 1;
+                gPlayer.unk3D5 = 1;
                 gBonusLevel = 0;
-                sGame.rideMode &= 0xF0;
-                ((GameState *)state)->hittable = 0;
+                gPlayer.rideMode &= 0xF0;
+                state->hittable = 0;
                 D_8009599C = 1;
-                ((GameState *)state)->invulnTimer = 750;
-                ((GameState *)state)->action = v;
+                state->invulnTimer = 750;
+                state->action = v;
                 if (sHits[i].unk2 != 0) {
                     EndJump();
                 }
@@ -956,22 +881,22 @@ void ReactToHits(u8 *state) {
                     continue;
                 }
                 if (gHitReactions[sHits[i].unk2].b[5] == 1) {
-                    ((GameState *)state)->hittable = 0;
-                    ((GameState *)state)->invulnTimer = 150;
+                    state->hittable = 0;
+                    state->invulnTimer = 150;
                     D_8009599C = 1;
                 } else {
-                    ((GameState *)state)->hittable = 0;
-                    ((GameState *)state)->invulnTimer = 18;
+                    state->hittable = 0;
+                    state->invulnTimer = 18;
                 }
                 if (gHitReactions[sHits[i].unk2].b[6] == 1) {
-                    sGame.unk3D5 = 1;
+                    gPlayer.unk3D5 = 1;
                     gBonusLevel = 0;
                 }
                 if (gHitReactions[sHits[i].unk2].b[7] == 1 &&
                     (s8)(sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0) != D_8009575F) {
                     AddBonusLevel(-1);
                 }
-                ((GameState *)state)->action = v;
+                state->action = v;
                 if (sHits[i].unk2 != 0) {
                     EndJump();
                 }
@@ -982,56 +907,54 @@ void ReactToHits(u8 *state) {
     D_8009575F = 0;
 }
 
-/* MATCHING: model types the object as its own view; this unit passes the state block. */
-u8 StepAnimation(GameState *obj, u16 index, u8 arg);
 /* MATCHING: model defines this with s16/u16 parameters and an s16 result; this unit's
  * calls pass halfwords unextended and store the result as a word. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 /* MATCHING: empty void(void) in model; unprototyped here, called with two args and one. */
 void func_80018CAC();
 
-s32 LandPlayer(GameState *g);
+s32 LandPlayer(PlayerState *g);
 void ResetPlayerAction(void);
 
 /* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for
  * every step so global-alloc gives it $a1, the step's argument register. */
-s32 UpdatePlayerAction(GameState *state) {
+s32 UpdatePlayerAction(PlayerState *state) {
     u8 m;
     s16 t;
     s32 v;
     s8 r;
     s32 d;
 
-    m = state->motion;
-    t = --sGame.invulnTimer;
+    m = state->motion[0];
+    t = --gPlayer.invulnTimer;
     if (t < 0) {
-        sGame.invulnTimer = 0;
-        sGame.hittable = 1;
+        gPlayer.invulnTimer = 0;
+        gPlayer.hittable = 1;
     } else {
         if (sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0) {
             if (t == 1) {
-                sGame.invulnTimer = 2;
+                gPlayer.invulnTimer = 2;
             }
         }
-        sGame.hittable = 0;
+        gPlayer.hittable = 0;
     }
-    if (state->unk3 == 0) {
-        state->animResult = StepAnimation(state, 0, state->unk4);
+    if (state->twoTracks == 0) {
+        state->motionResult[0] = StepAnimation(state, 0, state->unk4);
     } else {
-        state->animResult = StepAnimation(state, 0, 1);
-        state->animResult2 = StepAnimation(state, 1, 2);
+        state->motionResult[0] = StepAnimation(state, 0, 1);
+        state->motionResult[1] = StepAnimation(state, 1, 2);
     }
 top:
     switch (state->action) {
         case 0x7:
             state->action = 8;
-            state->motion = 0xD;
+            state->motion[0] = 0xD;
             state->control = 0;
             StartRumble(gRumblePatterns, 1);
             break;
         case 0x9:
             state->action = 0xA;
-            state->motion = 0xD;
+            state->motion[0] = 0xD;
             state->control = 0;
             state->unk376 = 0;
             state->unk374 = 0;
@@ -1062,7 +985,7 @@ top:
             break;
         case 0x13:
             state->action = 0x14;
-            state->motion = 0x15;
+            state->motion[0] = 0x15;
             state->control = 0;
             state->unk376 = 0;
             state->unk374 = 0;
@@ -1071,7 +994,7 @@ top:
         case 0x17:
             if ((u8)(m - 2) < 3) {
                 state->action = 0x18;
-                state->motion = 0x10;
+                state->motion[0] = 0x10;
                 state->unk374 = 0;
                 state->control = 0;
                 state->unk3AA = state->speed;
@@ -1079,7 +1002,7 @@ top:
             break;
         case 0x23:
             state->action = 0x24;
-            state->motion = 0xE;
+            state->motion[0] = 0xE;
             state->unk374 = 0;
             state->control = 0;
             state->unk3AA = state->speed;
@@ -1089,9 +1012,9 @@ top:
             state->control = 0;
             state->unk374 = 0;
             if (state->speed == 0) {
-                state->motion = 0xF;
+                state->motion[0] = 0xF;
             } else {
-                state->motion = 0x10;
+                state->motion[0] = 0x10;
                 state->unk374 = 0;
                 state->unk3AA = state->speed;
             }
@@ -1100,11 +1023,11 @@ top:
             state->action = 0x1C;
             state->control = 0;
             if (state->speed == 0) {
-                state->animResult = 1;
+                state->motionResult[0] = 1;
                 state->unk374 = 0;
-                state->motion = 0x11;
+                state->motion[0] = 0x11;
             } else {
-                state->motion = 0x10;
+                state->motion[0] = 0x10;
                 state->unk374 = 0;
                 state->unk3AA = state->speed;
             }
@@ -1113,18 +1036,18 @@ top:
             state->action = 0x20;
             state->control = 0;
             if (state->speed != 0) {
-                state->motion = 0x10;
+                state->motion[0] = 0x10;
                 state->unk374 = 0;
                 state->unk3AA = state->speed;
             } else {
-                state->animResult = 1;
-                state->motion = 0x12;
+                state->motionResult[0] = 1;
+                state->motion[0] = 0x12;
             }
             break;
         case 0x27:
             PlaySe(0x3C);
             state->action = 0x28;
-            state->motion = 0x14;
+            state->motion[0] = 0x14;
             state->jumpPower = 70;
             state->unk376 = 0;
             state->unk374 = 0;
@@ -1132,7 +1055,7 @@ top:
             break;
         case 0x39:
             state->action = 0x3A;
-            state->motion = 0x1A;
+            state->motion[0] = 0x1A;
             state->unk376 = 0;
             state->unk3AA = state->speed;
             StartRumble(gRumblePatterns, 10);
@@ -1148,8 +1071,8 @@ top:
             ScatterEffect4((VECTOR *)&state->x);
             if (state->unk376 >= 30) {
                 state->action = 0;
-                if (sGame.y >= sGame.groundY && (u32)(sGame.motion - 5) >= 3) {
-                    state->motion = 4;
+                if (gPlayer.y >= gPlayer.groundY && (u32)(gPlayer.motion[0] - 5) >= 3) {
+                    state->motion[0] = 4;
                 }
             }
             break;
@@ -1157,7 +1080,7 @@ top:
             PlaySe(0x16);
             state->action = 0x3C;
             state->control = 0;
-            state->motion = 0x18;
+            state->motion[0] = 0x18;
             state->unk378 = 0;
             state->unk376 = 0;
             state->unk374 = 0;
@@ -1168,15 +1091,15 @@ top:
             if (++state->unk378 >= 16 || (s16)gSpeedFixed < 0) {
                 gSpeedFixed = 0;
                 state->action = 0x3D;
-                state->motion = 0x19;
+                state->motion[0] = 0x19;
                 state->control = 1;
             }
             state->speed = (s16)gSpeedFixed >> 4;
             ScatterEffect4((VECTOR *)&state->x);
             break;
         case 0x3D:
-            if (state->animResult == 1) {
-                state->motion = 4;
+            if (state->motionResult[0] == 1) {
+                state->motion[0] = 4;
                 state->action = 0;
                 state->slideState = 0;
                 gSpeedFixed = 0x320;
@@ -1184,7 +1107,7 @@ top:
             break;
         case 0x3E:
             state->action = 0x3F;
-            state->motion = 0x1B;
+            state->motion[0] = 0x1B;
             state->jumpPower = 70;
             state->unk376 = 0;
             state->unk374 = 0;
@@ -1193,7 +1116,7 @@ top:
             break;
         case 0x40:
             state->action = 0x41;
-            state->motion = 0x1B;
+            state->motion[0] = 0x1B;
             state->jumpPower = 70;
             state->unk376 = 0;
             state->unk374 = 0;
@@ -1202,7 +1125,7 @@ top:
             break;
         case 0x42:
             state->action = 0x43;
-            state->motion = 0x23;
+            state->motion[0] = 0x23;
             if (state->speed < 90) {
                 state->speed = 70;
             }
@@ -1214,7 +1137,7 @@ top:
             break;
         case 0x44:
             state->action = 0x45;
-            state->motion = 0x23;
+            state->motion[0] = 0x23;
             if (state->speed < 90) {
                 state->speed = 70;
             }
@@ -1225,7 +1148,7 @@ top:
             break;
         case 0x46:
             state->action = 0x47;
-            state->motion = 0x28;
+            state->motion[0] = 0x28;
             ResetSpeed();
             state->unk374 = 10;
             state->unk376 = 0;
@@ -1234,7 +1157,7 @@ top:
             break;
         case 0x48:
             state->action = 0x49;
-            state->motion = 0x2C;
+            state->motion[0] = 0x2C;
             state->unk376 = 0;
             state->unk374 = 0;
             state->control = 0;
@@ -1247,7 +1170,7 @@ top:
             break;
         case 0x4A:
             state->action = 0x4B;
-            state->motion = 0x2E;
+            state->motion[0] = 0x2E;
             state->unk376 = 0;
             state->unk374 = 0;
             state->control = 0;
@@ -1255,14 +1178,14 @@ top:
             break;
         case 0x4C:
             state->action = 0x4D;
-            state->motion = 0x2F;
+            state->motion[0] = 0x2F;
             ResetSpeed();
             state->control = 0;
             StartRumble(gRumblePatterns, 4);
             break;
         case 0x4E:
             state->action = 0x4F;
-            state->motion = 0x30;
+            state->motion[0] = 0x30;
             ResetSpeed();
             state->unk37A = 0;
             state->unk378 = 0;
@@ -1274,10 +1197,10 @@ top:
         case 0x50:
             if (rand() & 1) {
                 state->action = 0x51;
-                state->motion = 0x30;
+                state->motion[0] = 0x30;
             } else {
                 state->action = 0x55;
-                state->motion = 0x23;
+                state->motion[0] = 0x23;
             }
             ResetSpeed();
             state->unk37A = 0;
@@ -1291,7 +1214,7 @@ top:
             break;
         case 0x52:
             state->action = 0x53;
-            state->motion = 0x32;
+            state->motion[0] = 0x32;
             state->unk3D2 = 1;
             ResetSpeed();
             state->unk37A = 0;
@@ -1304,7 +1227,7 @@ top:
         case 0x56:
             gMissState = -1;
             state->action = 0x57;
-            state->motion = 0x23;
+            state->motion[0] = 0x23;
             ResetSpeed();
             state->jumpPower = 300;
             /* MATCHING: a bare barrier keeps the call's arguments below this store. */
@@ -1317,67 +1240,67 @@ top:
             StartRumble(gRumblePatterns, 4);
             break;
         case 0x33:
-            switch (state->motion) {
+            switch (state->motion[0]) {
                 case 0x33:
                     break;
                 case 0x36:
-                    if (state->animResult == 0) {
-                        state->motion = 0x37;
+                    if (state->motionResult[0] == 0) {
+                        state->motion[0] = 0x37;
                     }
                     break;
                 case 0x34:
-                    if (state->animResult == 0) {
-                        state->motion = 0x35;
+                    if (state->motionResult[0] == 0) {
+                        state->motion[0] = 0x35;
                     }
                     break;
                 case 0x35:
                 case 0x37:
-                    if (state->animResult == 0) {
+                    if (state->motionResult[0] == 0) {
                         state->action = 0x34;
-                        state->motion = 0x33;
+                        state->motion[0] = 0x33;
                     }
                     break;
             }
             break;
         case 0x35:
-            switch (state->motion) {
+            switch (state->motion[0]) {
                 case 0x35:
                 case 0x36:
                     break;
                 case 0x33:
                 case 0x37:
-                    if (state->animResult == 0) {
+                    if (state->motionResult[0] == 0) {
                         state->action = 0x36;
-                        state->motion = 0x34;
+                        state->motion[0] = 0x34;
                     }
                     break;
             }
             break;
         case 0x37:
-            switch (state->motion) {
+            switch (state->motion[0]) {
                 case 0x34:
                     break;
                 case 0x33:
                 case 0x35:
-                    if (state->animResult == 0) {
+                    if (state->motionResult[0] == 0) {
                         state->action = 0x38;
-                        state->motion = 0x36;
+                        state->motion[0] = 0x36;
                     }
                     break;
             }
             break;
         case 0x5A:
-            state->motion = 0x34;
+            state->motion[0] = 0x34;
             break;
         case 0x5C:
-            state->motion = 0x35;
+            state->motion[0] = 0x35;
             break;
         case 0x58:
         case 0x5E:
-            state->motion = 0x33;
+            state->motion[0] = 0x33;
             break;
     }
-    switch (state->motion) {
+    switch (state->motion[0]) {
         case 2:
             if (gGameMode == GM_STAGE && gLoading == 0 && (gFrameCount & 7) == 0) {
                 PlaySe(0x13);
@@ -1402,18 +1325,18 @@ top:
             state->jumpPower -= 5;
             d = state->jumpPower;
             state->y -= d;
-            if (state->unk39C <= sGame.unk3CC && state->unk3B8 == 1) {
-                if (state->y >= sGame.unk3CC) {
-                    state->y = sGame.unk3CC;
-                    func_80018CAC(&sGame, d);
+            if (state->unk39C <= gPlayer.unk3CC && state->unk3B8 == 1) {
+                if (state->y >= gPlayer.unk3CC) {
+                    state->y = gPlayer.unk3CC;
+                    func_80018CAC(&gPlayer, d);
                     /* MATCHING: case 0 shares the default body, which the compare tree reaches first. */
-                    switch ((s8)sGame.slideState) {
+                    switch ((s8)gPlayer.slideState) {
                         case 0:
                         default:
-                            state->motion = 3;
+                            state->motion[0] = 3;
                             break;
                         case 2:
-                            state->motion = 0x1A;
+                            state->motion[0] = 0x1A;
                             break;
                     }
                     ScatterEffect4((VECTOR *)&state->x);
@@ -1423,14 +1346,14 @@ top:
                 }
             } else if (state->y >= state->groundY) {
                 state->y = gFloorY[0];
-                func_80018CAC(&sGame);
-                switch ((s8)sGame.slideState) {
+                func_80018CAC(&gPlayer);
+                switch ((s8)gPlayer.slideState) {
                     case 0:
                     default:
-                        state->motion = 3;
+                        state->motion[0] = 3;
                         break;
                     case 2:
-                        state->motion = 0x1A;
+                        state->motion[0] = 0x1A;
                         break;
                 }
                 ScatterEffect4((VECTOR *)&state->x);
@@ -1450,7 +1373,7 @@ top:
             }
             /* MATCHING: cases 7, 0x1F and 0x26 branch here; their own calls would be the copies
              * cross-jumping keeps. */
-            if (state->animResult == 0 && (state->action == 8 || state->action == 0xA)) {
+            if (state->motionResult[0] == 0 && (state->action == 8 || state->action == 0xA)) {
             reset:
                 ResetPlayerAction();
             }
@@ -1462,39 +1385,39 @@ top:
             if (state->speed <= 0) {
                 ResetSpeed();
             }
-            if (sGame.unk374 == 0) {
+            if (gPlayer.unk374 == 0) {
                 PlaySe(0x1A);
             }
             state->control = 0;
-            sGame.unk374++;
-            sGame.unk362 += ANGLE_DEG(sGame.unk374 / 2);
-            if (state->animResult == 0) {
-                sGame.unk376 = (sGame.unk376 + 20) % 360;
-                if (sGame.unk376 == 80 || sGame.unk376 == 260) {
-                    state->motion = 0x16;
+            gPlayer.unk374++;
+            gPlayer.unk362 += ANGLE_DEG(gPlayer.unk374 / 2);
+            if (state->motionResult[0] == 0) {
+                gPlayer.unk376 = (gPlayer.unk376 + 20) % 360;
+                if (gPlayer.unk376 == 80 || gPlayer.unk376 == 260) {
+                    state->motion[0] = 0x16;
                 }
-                if (sGame.unk376 == 160 || sGame.unk376 == 340) {
-                    state->motion = 0x17;
+                if (gPlayer.unk376 == 160 || gPlayer.unk376 == 340) {
+                    state->motion[0] = 0x17;
                 }
-                v = rsin(ANGLE_DEG(sGame.unk376));
+                v = rsin(ANGLE_DEG(gPlayer.unk376));
                 /* MATCHING: one expression, so the table's %hi is built before the abs. */
-                sGame.y = gFloorY[0] - ((v * 100 >> 12) >= 0 ? (v * 100 >> 12) : -(v * 100 >> 12));
+                gPlayer.y = gFloorY[0] - ((v * 100 >> 12) >= 0 ? (v * 100 >> 12) : -(v * 100 >> 12));
 
-                if (sGame.unk374 >= 30) {
+                if (gPlayer.unk374 >= 30) {
                     state->unk362 = 0;
                     ResetSpeed();
                     if (AddBonusLevel(0) != 0) {
                         ResetPlayerAction();
                     } else {
-                        sGame.unk374 = 0;
-                        state->motion = 0x31;
+                        gPlayer.unk374 = 0;
+                        state->motion[0] = 0x31;
                     }
                 }
             }
-            D_8009EAB8[1] = sGame.yaw + sGame.unk362;
-            D_800D86E0[0].coord.t[0] = sGame.drawX;
-            D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
-            D_800D86E0[0].coord.t[2] = sGame.drawZ;
+            D_8009EAB8[1] = gPlayer.yaw + gPlayer.unk362;
+            D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+            D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
             SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             break;
         case 0x10:
@@ -1504,23 +1427,23 @@ top:
             state->speed = Lerp(state->unk3AA, 0, state->unk374, 10);
             switch (state->action) {
                 case 0x18:
-                    if (state->animResult == 0) {
-                        state->motion = 0x13;
+                    if (state->motionResult[0] == 0) {
+                        state->motion[0] = 0x13;
                     }
                     break;
                 case 0x1A:
-                    if (state->animResult == 0) {
-                        state->motion = 0xF;
+                    if (state->motionResult[0] == 0) {
+                        state->motion[0] = 0xF;
                     }
                     break;
                 case 0x1C:
-                    if (state->animResult == 0) {
-                        state->motion = 0x11;
+                    if (state->motionResult[0] == 0) {
+                        state->motion[0] = 0x11;
                     }
                     break;
                 case 0x20:
-                    if (state->animResult == 0) {
-                        state->motion = 0x12;
+                    if (state->motionResult[0] == 0) {
+                        state->motion[0] = 0x12;
                     }
                     break;
             }
@@ -1535,12 +1458,12 @@ top:
             state->control = 0;
             break;
         case 0xF:
-            sGame.unk3D4 = 1;
-            if (state->animResult == 0) {
+            gPlayer.unk3D4 = 1;
+            if (state->motionResult[0] == 0) {
                 if (++state->unk374 >= 46) {
                     state->action = 0;
-                    state->motion = 0x13;
-                    sGame.unk3D4 = 0;
+                    state->motion[0] = 0x13;
+                    gPlayer.unk3D4 = 0;
                 }
             }
             break;
@@ -1564,25 +1487,25 @@ top:
                 PlaySe(0x2B);
             }
             if (state->unk374 == 90) {
-                state->unk3 = 1;
-                state->unk7 = 0x13;
+                state->twoTracks = 1;
+                state->motion[1] = 0x13;
             }
-            if (state->animResult2 == 0) {
-                state->unk3 = 0;
-                state->unk7 = 0xFF;
-                state->unk9 = 0xFF;
+            if (state->motionResult[1] == 0) {
+                state->twoTracks = 0;
+                state->motion[1] = 0xFF;
+                state->curMotion[1] = 0xFF;
             }
         case 0x12:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->action = 0;
-                state->motion = 0x13;
+                state->motion[0] = 0x13;
                 state->rideMode &= 0xF;
             }
             break;
         case 5:
-            state->unk3 = 0;
-            if (state->animResult == 0) {
-                state->motion = 6;
+            state->twoTracks = 0;
+            if (state->motionResult[0] == 0) {
+                state->motion[0] = 6;
                 if (state->speed >= 0xB0) {
                     state->unk3A4 = 1;
                 }
@@ -1596,7 +1519,7 @@ top:
                     state->unk3A4 = 1;
                 }
             }
-            if (sGame.y == sGame.groundY) {
+            if (gPlayer.y == gPlayer.groundY) {
                 ScatterEffect4((VECTOR *)&state->x);
             }
             StartRumble(gRumblePatterns, 14);
@@ -1606,7 +1529,7 @@ top:
                 ScatterEffect4((VECTOR *)&state->x);
             }
             if (state->unk3A4 == 0) {
-                state->motion = 7;
+                state->motion[0] = 7;
             }
             state->unk3A4--;
             break;
@@ -1625,7 +1548,7 @@ top:
             if (r != 0)
                 if (r >= 0)
                     if (r < 3) {
-                        state->motion = 0x24;
+                        state->motion[0] = 0x24;
                     }
             break;
         case 0x1B:
@@ -1643,10 +1566,10 @@ top:
                         switch (state->action) {
                             case 0x41:
                                 StartRumble(gRumblePatterns, 3);
-                                state->motion = 0x20;
+                                state->motion[0] = 0x20;
                                 break;
                             case 0x3F:
-                                state->motion = 0x1C;
+                                state->motion[0] = 0x1C;
                                 break;
                         }
                     }
@@ -1660,16 +1583,16 @@ top:
                 ResetSpeed();
                 if (++state->unk374 >= 16) {
                     state->unk374 = 0;
-                    state->motion = 0x1D;
+                    state->motion[0] = 0x1D;
                 }
             }
             break;
         case 0x1D:
             state->unk374++;
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 if (AddBonusLevel(0) != 0) {
                     state->unk376 = 0;
-                    state->motion = 0x1F;
+                    state->motion[0] = 0x1F;
                 } else {
                     if (state->unk374 == 30) {
                         PlaySe(0x34);
@@ -1681,33 +1604,33 @@ top:
             }
             break;
         case 0x1E:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 switch (state->action) {
                     case 0x14:
                     case 0x28:
                     case 0x3F:
                     case 0x43:
                         state->unk376 = 0;
-                        state->motion = 0x1F;
+                        state->motion[0] = 0x1F;
                         break;
                     case 0x41:
                     case 0x45:
                         state->unk376 = 0;
-                        state->motion = 0x22;
+                        state->motion[0] = 0x22;
                         break;
                 }
             }
             break;
         case 0x20:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->unk374++;
                 ScatterEffect4((VECTOR *)D_8009EEC0);
-                state->motion = 0x20;
-                state->unk8 = 0xFF;
+                state->motion[0] = 0x20;
+                state->curMotion[0] = 0xFF;
             }
             if (state->unk374 == 2) {
                 state->unk374 = 0;
-                state->motion = 0x21;
+                state->motion[0] = 0x21;
             }
             break;
         case 0x21:
@@ -1724,7 +1647,7 @@ top:
                             if (AddBonusLevel(0) != 0) {
                                 state->unk374 = 0;
                                 state->unk376 = 0;
-                                state->motion = 0x1F;
+                                state->motion[0] = 0x1F;
                             } else {
                                 if (state->unk374 == 30) {
                                     PlaySe(0x34);
@@ -1737,7 +1660,7 @@ top:
                         case 0x49:
                             if (AddBonusLevel(0) != 0) {
                                 state->unk376 = 0;
-                                state->motion = 0x2D;
+                                state->motion[0] = 0x2D;
                             } else {
                                 if (state->unk374 == 30) {
                                     PlaySe(0x34);
@@ -1749,7 +1672,7 @@ top:
                             break;
                         case 0x4F:
                             if (AddBonusLevel(0) != 0) {
-                                state->motion = 0x22;
+                                state->motion[0] = 0x22;
                             } else {
                                 if (state->unk374 == 30) {
                                     PlaySe(0x34);
@@ -1763,7 +1686,7 @@ top:
                             gMissState = -1;
                             if (state->unk374 >= 61) {
                                 if (gStage == 4 && gSection == 0) {
-                                    state->motion = 0x22;
+                                    state->motion[0] = 0x22;
                                     gMissState = 0;
                                 } else {
                                     gMissState = 100;
@@ -1779,20 +1702,20 @@ top:
             break;
         case 0x23:
             if (state->action == 0x55) {
-                sGame.drawX = Lerp(0, gView[0], state->unk378, 5);
-                sGame.drawY = Lerp(0, -50, state->unk378, 5);
-                sGame.drawZ = Lerp(0, gView[2], state->unk378, 5);
+                gPlayer.drawX = Lerp(0, gView[0], state->unk378, 5);
+                gPlayer.drawY = Lerp(0, -50, state->unk378, 5);
+                gPlayer.drawZ = Lerp(0, gView[2], state->unk378, 5);
                 if (++state->unk378 >= 5) {
                     StartRumble(gRumblePatterns, 5);
-                    state->motion = 0x28;
+                    state->motion[0] = 0x28;
                     state->unk37A = 0;
                     state->unk378 = 0;
                     state->unk376 = 0;
                     state->unk374 = 0;
                 }
-                D_800D86E0[0].coord.t[0] = sGame.drawX;
-                D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
-                D_800D86E0[0].coord.t[2] = sGame.drawZ;
+                D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+                D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+                D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
                 SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
                 break;
             }
@@ -1807,38 +1730,38 @@ top:
             if (r != 0)
                 if (r >= 0)
                     if (r < 3) {
-                        state->motion = 0x24;
+                        state->motion[0] = 0x24;
                     }
             break;
         case 0x24:
             ScatterEffect4((VECTOR *)D_8009EEC0);
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 switch (state->action) {
                     case 0x28:
                     case 0x43:
                     case 0x57:
-                        state->motion = 0x25;
+                        state->motion[0] = 0x25;
                         break;
                     case 0x45:
                         StartRumble(gRumblePatterns, 3);
-                        state->motion = 0x27;
+                        state->motion[0] = 0x27;
                         break;
                 }
             }
             break;
         case 0x25:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->unk376 = 0;
                 state->unk374 = 0;
-                state->motion = 0x21;
+                state->motion[0] = 0x21;
             }
             break;
         case 0x27:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->unk374++;
                 ScatterEffect4((VECTOR *)D_8009EEC0);
-                state->motion = 0x27;
-                state->unk8 = 0xFF;
+                state->motion[0] = 0x27;
+                state->curMotion[0] = 0xFF;
             }
             state->unk376++;
             if (state->unk374 >= 2) {
@@ -1846,19 +1769,19 @@ top:
                     switch (state->action) {
                         case 0x45:
                             state->unk374 = 0;
-                            state->motion = 0x21;
+                            state->motion[0] = 0x21;
                             break;
                         case 0x47:
                             state->unk374 = 0;
                             state->unk376 = 0;
-                            state->motion = 0x1F;
+                            state->motion[0] = 0x1F;
                             state->speed = 0;
                             state->unk374 = 0;
                             break;
                     }
                 } else {
                     StartRumble(gRumblePatterns, 6);
-                    state->motion = 0x21;
+                    state->motion[0] = 0x21;
                     state->unk374 = 0;
                     if (state->unk376 == 30) {
                         PlaySe(0x34);
@@ -1872,11 +1795,11 @@ top:
         case 0x28:
             switch (state->action) {
                 case 0x51:
-                    D_8009EAB8[1] = sGame.unk362 = D_800A7680[0].vy + 0x800;
+                    D_8009EAB8[1] = gPlayer.unk362 = D_800A7680[0].vy + 0x800;
                 case 0x55:
-                    D_800D86E0[0].coord.t[0] = sGame.drawX;
-                    D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
-                    D_800D86E0[0].coord.t[2] = sGame.drawZ;
+                    D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+                    D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+                    D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
                     SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
                     if (++state->unk378 < 10) {
                         /* MATCHING: x - (5 - r) keeps the -5 on the loaded word. */
@@ -1886,7 +1809,7 @@ top:
                         GsSetRefView2((GsRVIEW2 *)gView);
                     }
                     if (state->unk378 >= 31) {
-                        sGame.drawY += 2;
+                        gPlayer.drawY += 2;
                     }
                     gMissState = -1;
                     if (state->unk378 >= 121) {
@@ -1900,38 +1823,38 @@ top:
                         state->unk374 = 1;
                     }
                     if (state->unk376 & 1) {
-                        sGame.unk360 = -(state->unk374 * 0x5000 / 360);
+                        gPlayer.unk360 = -(state->unk374 * 0x5000 / 360);
                     } else {
-                        sGame.unk360 = state->unk374 * 0x5000 / 360;
+                        gPlayer.unk360 = state->unk374 * 0x5000 / 360;
                     }
-                    D_8009EAB8[0] = sGame.unk360;
-                    D_800D86E0[0].coord.t[0] = sGame.drawX;
-                    D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
-                    D_800D86E0[0].coord.t[2] = sGame.drawZ;
+                    D_8009EAB8[0] = gPlayer.unk360;
+                    D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+                    D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+                    D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
                     SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
-                    if (state->animResult == 0) {
-                        sGame.unk360 = 0;
+                    if (state->motionResult[0] == 0) {
+                        gPlayer.unk360 = 0;
                         D_8009EAB8[0] = 0;
-                        state->motion = 0x29;
+                        state->motion[0] = 0x29;
                     }
                     break;
             }
             break;
         case 0x29:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->unk374 = 0;
                 state->unk376 = 0;
                 state->speed = -5;
                 StartRumble(gRumblePatterns, 3);
-                state->motion = 0x27;
+                state->motion[0] = 0x27;
             }
             break;
         case 0x2A:
             switch (state->action) {
                 default:
-                    if (state->animResult == 0 && ++state->unk374 >= 16) {
+                    if (state->motionResult[0] == 0 && ++state->unk374 >= 16) {
                         if (AddBonusLevel(0) != 0) {
-                            state->motion = 0x2B;
+                            state->motion[0] = 0x2B;
                         } else {
                             if (state->unk374 == 30) {
                                 PlaySe(0x34);
@@ -1950,9 +1873,9 @@ top:
                     if (state->speed <= 0) {
                         ResetSpeed();
                     }
-                    if (state->animResult == 0 && state->speed == 0 && ++state->unk374 >= 16) {
+                    if (state->motionResult[0] == 0 && state->speed == 0 && ++state->unk374 >= 16) {
                         if (AddBonusLevel(0) != 0) {
-                            state->motion = 0x2B;
+                            state->motion[0] = 0x2B;
                         } else {
                             if (state->unk374 == 30) {
                                 PlaySe(0x34);
@@ -1964,10 +1887,10 @@ top:
                     }
                     break;
                 case 0x4D:
-                    if (state->animResult == 0 && ++state->unk374 >= 16) {
+                    if (state->motionResult[0] == 0 && ++state->unk374 >= 16) {
                         if (AddBonusLevel(0) != 0) {
                             state->unk376 = 0;
-                            state->motion = 0x26;
+                            state->motion[0] = 0x26;
                             state->unk374 = 0;
                         } else {
                             if (state->unk374 == 30) {
@@ -1982,32 +1905,32 @@ top:
             }
             break;
         case 0x2B:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->unk376 = 0;
-                state->motion = 0x1F;
+                state->motion[0] = 0x1F;
             }
             break;
         case 0x2C:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 state->unk376 = 0;
-                state->motion = 0x2D;
+                state->motion[0] = 0x2D;
             }
             break;
         case 0x2D:
-            sGame.drawX = rsin(D_800A7680[0].vy + 0x400) * 20 >> 12;
-            sGame.drawZ = rcos(D_800A7680[0].vy + 0x400) * 20 >> 12;
-            D_800D86E0[0].coord.t[2] = sGame.drawZ;
-            D_800D86E0[0].coord.t[0] = sGame.drawX;
-            D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
+            gPlayer.drawX = rsin(D_800A7680[0].vy + 0x400) * 20 >> 12;
+            gPlayer.drawZ = rcos(D_800A7680[0].vy + 0x400) * 20 >> 12;
+            D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
+            D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+            D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
             SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
-            sGame.drawZ = 0;
-            sGame.drawX = 0;
+            gPlayer.drawZ = 0;
+            gPlayer.drawX = 0;
         case 0x22:
             if (++state->unk376 == 1) {
                 PlaySe(0x50);
             }
         case 0x7:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 goto reset;
             }
             break;
@@ -2016,17 +1939,17 @@ top:
             if (state->speed <= 0) {
                 ResetSpeed();
             }
-            if (state->animResult == 0) {
-                state->motion = 0x2A;
+            if (state->motionResult[0] == 0) {
+                state->motion[0] = 0x2A;
             }
             break;
         case 0x2F:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 r = LandPlayer(state);
                 if (r != 0)
                     if (r >= 0)
                         if (r < 3) {
-                            state->motion = 0x2A;
+                            state->motion[0] = 0x2A;
                         }
             }
             break;
@@ -2035,7 +1958,7 @@ top:
             if (++state->unk376 == 1) {
                 PlaySe(0x50);
             }
-            if (state->animResult == 0 && ++state->unk374 >= 16) {
+            if (state->motionResult[0] == 0 && ++state->unk374 >= 16) {
                 goto reset;
             }
 
@@ -2043,14 +1966,14 @@ top:
         case 0x30:
             switch (state->action) {
                 case 0x51:
-                    sGame.unk362 = state->unk376 = Lerp(state->unk376, 0x6000, state->unk374, 30);
-                    sGame.drawX = Lerp(0, gView[0], state->unk378, 15);
-                    sGame.drawY = Lerp(0, -50, state->unk378, 15);
-                    sGame.drawZ = Lerp(0, gView[2], state->unk378, 15);
+                    gPlayer.unk362 = state->unk376 = Lerp(state->unk376, 0x6000, state->unk374, 30);
+                    gPlayer.drawX = Lerp(0, gView[0], state->unk378, 15);
+                    gPlayer.drawY = Lerp(0, -50, state->unk378, 15);
+                    gPlayer.drawZ = Lerp(0, gView[2], state->unk378, 15);
                     state->unk374++;
                     if (++state->unk378 >= 14) {
                         StartRumble(gRumblePatterns, 5);
-                        state->motion = 0x28;
+                        state->motion[0] = 0x28;
                         state->unk37A = 0;
                         state->unk378 = 0;
                         state->unk376 = 0;
@@ -2060,23 +1983,23 @@ top:
                 case 0x4F:
                     if (++state->unk378 >= 41) {
                         state->unk378 = 60;
-                        state->motion = 0x31;
+                        state->motion[0] = 0x31;
                         state->unk374 = 0;
                     }
-                    sGame.unk362 = state->unk376 = Lerp(state->unk376, 0x5800, state->unk378, 60);
+                    gPlayer.unk362 = state->unk376 = Lerp(state->unk376, 0x5800, state->unk378, 60);
                     break;
             }
-            D_8009EAB8[1] = sGame.unk362;
-            D_800D86E0[0].coord.t[0] = sGame.drawX;
-            D_800D86E0[0].coord.t[1] = sGame.y + sGame.drawY;
-            D_800D86E0[0].coord.t[2] = sGame.drawZ;
+            D_8009EAB8[1] = gPlayer.unk362;
+            D_800D86E0[0].coord.t[0] = gPlayer.drawX;
+            D_800D86E0[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            D_800D86E0[0].coord.t[2] = gPlayer.drawZ;
             SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
             break;
         case 0x31:
-            if (state->animResult == 0) {
+            if (state->motionResult[0] == 0) {
                 StartRumble(gRumblePatterns, 6);
                 state->unk374 = 0;
-                state->motion = 0x21;
+                state->motion[0] = 0x21;
             }
             break;
         case 0x32:
@@ -2088,8 +2011,8 @@ top:
         case 0x33:
         case 0x34:
         case 0x35:
-            if ((u32)((D_8009EF48[0] & 0xF) - 2) < 2 && state->animResult == 0) {
-                state->unk8 = 0xFF;
+            if ((u32)((D_8009EF48[0] & 0xF) - 2) < 2 && state->motionResult[0] == 0) {
+                state->curMotion[0] = 0xFF;
             }
             break;
     }
@@ -2099,9 +2022,9 @@ top:
 s32 UpdateRunSpeed(void) {
     s16 v;
 
-    if (sGame.control != 0 && (u32)(sGame.motion - 8) >= 4) {
-        if (sGame.action != 0x3A) {
-            v = sGame.speed;
+    if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - 8) >= 4) {
+        if (gPlayer.action != 0x3A) {
+            v = gPlayer.speed;
             if (v < 40) {
                 gSpeedFixed += 16;
             } else if (gPad & PADLup) {
@@ -2119,19 +2042,19 @@ s32 UpdateRunSpeed(void) {
             } else {
                 gSpeedFixed += 16;
             }
-            sGame.speed = (s16)gSpeedFixed >> 4;
-            if (sGame.speedBand == 2 && sGame.animResult == 2) {
-                sGame.motion = 4;
+            gPlayer.speed = (s16)gSpeedFixed >> 4;
+            if (gPlayer.speedBand == 2 && gPlayer.motionResult[0] == 2) {
+                gPlayer.motion[0] = 4;
             }
-            if (sGame.speedBand == 1 && sGame.animResult == 2) {
-                sGame.motion = 3;
+            if (gPlayer.speedBand == 1 && gPlayer.motionResult[0] == 2) {
+                gPlayer.motion[0] = 3;
             }
-            if (sGame.speedBand == 0 && sGame.animResult == 2) {
-                sGame.motion = 2;
+            if (gPlayer.speedBand == 0 && gPlayer.motionResult[0] == 2) {
+                gPlayer.motion[0] = 2;
             }
         } else {
             gSpeedFixed = 0x460;
-            sGame.speed = 0x46;
+            gPlayer.speed = 0x46;
         }
     }
 }
@@ -2140,24 +2063,25 @@ s32 UpdateRunSpeed(void) {
 s32 UpdateSlideDash(void) {
     s32 btn;
 
-    if (sGame.control != 0) {
-        switch ((s8)sGame.slideState) {
+    if (gPlayer.control != 0) {
+        switch ((s8)gPlayer.slideState) {
             case 0:
-                sGame.slideState = 0;
-                sGame.unk38C = 0;
-                if ((u32)(sGame.motion - 2) < 3 && sGame.y >= sGame.groundY && (gGamePadTrig & PADRdown)) {
+                gPlayer.slideState = 0;
+                gPlayer.unk38C = 0;
+                if ((u32)(gPlayer.motion[0] - 2) < 3 && gPlayer.y >= gPlayer.groundY &&
+                    (gGamePadTrig & PADRdown)) {
                     btn = gPad;
                     if (btn & PADLdown) {
-                        sGame.slideState = 1;
-                        sGame.unk38C = 0;
-                        sGame.action = 0x3B;
+                        gPlayer.slideState = 1;
+                        gPlayer.unk38C = 0;
+                        gPlayer.action = 0x3B;
                     }
                     if (btn & PADLup) {
-                        if ((u32)((u16)sGame.speed - 0x26) < 5) {
-                            sGame.slideState = 2;
-                            sGame.action = 0x39;
+                        if ((u32)((u16)gPlayer.speed - 0x26) < 5) {
+                            gPlayer.slideState = 2;
+                            gPlayer.action = 0x39;
                             PlaySe(0x71);
-                            sGame.unk38C = 0;
+                            gPlayer.unk38C = 0;
                         }
                     }
                 }
@@ -2166,9 +2090,9 @@ s32 UpdateSlideDash(void) {
                 func_80028500();
                 break;
             case 2:
-                if (sGame.action == 0) {
-                    sGame.slideState = 0;
-                    sGame.unk38C = 0;
+                if (gPlayer.action == 0) {
+                    gPlayer.slideState = 0;
+                    gPlayer.unk38C = 0;
                 }
                 break;
         }
@@ -2180,60 +2104,60 @@ s32 UpdateSlideDash(void) {
 void UpdateJump(void) {
     s16 n;
 
-    if (sGame.control != 0) {
+    if (gPlayer.control != 0) {
         if ((gGamePadTrig & PADRright) &&
-            (sGame.y >= sGame.groundY || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
-            sGame.jumpState == 0) {
+            (gPlayer.y >= gPlayer.groundY || (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1)) &&
+            gPlayer.jumpState == 0) {
             D_800956E0 = 0;
-            D_800DF5A0[1] = sGame.y;
-            D_800956E4 = sGame.y;
-            D_800DF5A0[0] = *(volatile s32 *)&sGame.x;
-            D_800DF5A0[2] = sGame.z;
-            sGame.unk38F = 1;
-            sGame.unk3BC = 0;
-            sGame.jumpState = 1;
-            sGame.jumpTime = 0;
-            sGame.unk39C = 0;
-            func_80018CA4(&sGame);
-            sGame.motion = 8;
-            sGame.jumpPower = 0x23;
-            sGame.jumpStartY = sGame.y;
-            ScatterEffect4((VECTOR *)&sGame.x);
+            D_800DF5A0[1] = gPlayer.y;
+            D_800956E4 = gPlayer.y;
+            D_800DF5A0[0] = *(volatile s32 *)&gPlayer.x;
+            D_800DF5A0[2] = gPlayer.z;
+            gPlayer.unk38F = 1;
+            gPlayer.unk3BC = 0;
+            gPlayer.jumpState = 1;
+            gPlayer.jumpTime = 0;
+            gPlayer.unk39C = 0;
+            func_80018CA4(&gPlayer);
+            gPlayer.motion[0] = 8;
+            gPlayer.jumpPower = 0x23;
+            gPlayer.jumpStartY = gPlayer.y;
+            ScatterEffect4((VECTOR *)&gPlayer.x);
             PlaySe(0x17);
         }
-        if (sGame.jumpState == 1) {
-            n = ++sGame.jumpTime;
+        if (gPlayer.jumpState == 1) {
+            n = ++gPlayer.jumpTime;
             if (n < 3) {
-                sGame.jumpPower = 0x19;
+                gPlayer.jumpPower = 0x19;
             } else if ((u16)(n - 4) < 3) {
-                sGame.jumpPower = 0x12;
+                gPlayer.jumpPower = 0x12;
             } else if (n >= 9) {
-                sGame.jumpPower = 0x14;
-                sGame.jumpState = 2;
-                sGame.motion = 9;
-                sGame.unk3A0 = 2;
+                gPlayer.jumpPower = 0x14;
+                gPlayer.jumpState = 2;
+                gPlayer.motion[0] = 9;
+                gPlayer.unk3A0 = 2;
             } else if (gGamePad & PADRright) {
-                sGame.jumpPower = 0x14;
+                gPlayer.jumpPower = 0x14;
             } else {
-                sGame.jumpState = 2;
+                gPlayer.jumpState = 2;
                 switch (n) {
                     case 3:
-                        sGame.motion = 0xB;
-                        sGame.unk3A0 = 0;
+                        gPlayer.motion[0] = 0xB;
+                        gPlayer.unk3A0 = 0;
                         break;
                     case 7:
-                        sGame.motion = 0xA;
-                        sGame.unk3A0 = 1;
+                        gPlayer.motion[0] = 0xA;
+                        gPlayer.unk3A0 = 1;
                         break;
                     default:
-                        sGame.motion = 9;
-                        sGame.unk3A0 = 2;
+                        gPlayer.motion[0] = 9;
+                        gPlayer.unk3A0 = 2;
                         break;
                 }
             }
         }
-        if (sGame.jumpState == 2) {
-            sGame.jumpState = 0;
+        if (gPlayer.jumpState == 2) {
+            gPlayer.jumpState = 0;
         }
     }
 }
@@ -2241,17 +2165,17 @@ void UpdateJump(void) {
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
 s32 SetPlayerView(void) {
     gRefView[0] = 0;
-    gRefView[1] = rsin((gViewerAngle << 12) / 360) * 500 / 4096 + sGame.groundY;
+    gRefView[1] = rsin((gViewerAngle << 12) / 360) * 500 / 4096 + gPlayer.groundY;
     gRefView[2] = rcos((gViewerAngle << 12) / 360) * 600 / 4096;
-    gRefView[4] = sGame.y;
+    gRefView[4] = gPlayer.y;
     gRefView[0] = rsin(D_800A7680->vy) * 400 / 4096;
     gRefView[2] = rcos(D_800A7680->vy) * 400 / 4096;
     gRefView[3] = rsin(D_800A7680->vy - 0x800) * 900 / 4096;
     gRefView[5] = rcos(D_800A7680->vy - 0x800) * 900 / 4096;
-    if (D_8009587E < sGame.speed) {
+    if (D_8009587E < gPlayer.speed) {
         D_8009587E++;
     }
-    if (D_8009587E > sGame.speed) {
+    if (D_8009587E > gPlayer.speed) {
         D_8009587E--;
     }
 }
@@ -2330,17 +2254,17 @@ top:
                 break;
             }
             gTimeLeft = 0;
-            sGame.control = 0;
-            sGame.hittable = 0;
-            sGame.invulnTimer = 500;
-            sGame.slideState = 0;
-            sGame.unk38C = 0;
-            if (sGame.rideMode & 0xF) {
-                sGame.action = 0;
-                sGame.rideMode &= 0xF0;
-                sGame.unk3D1 = 1;
-                sGame.jumpPower = 0;
-                sGame.jumpState = 0;
+            gPlayer.control = 0;
+            gPlayer.hittable = 0;
+            gPlayer.invulnTimer = 500;
+            gPlayer.slideState = 0;
+            gPlayer.unk38C = 0;
+            if (gPlayer.rideMode & 0xF) {
+                gPlayer.action = 0;
+                gPlayer.rideMode &= 0xF0;
+                gPlayer.unk3D1 = 1;
+                gPlayer.jumpPower = 0;
+                gPlayer.jumpState = 0;
             }
             if (D_800CF080[196].unk0 == 1) {
                 break;
@@ -2348,15 +2272,15 @@ top:
             if (D_800CF080[198].unk0 == 1) {
                 break;
             }
-            if (sGame.action == 0 || sGame.action == 0x3A || sGame.action == 0x3C) {
+            if (gPlayer.action == 0 || gPlayer.action == 0x3A || gPlayer.action == 0x3C) {
                 if ((s16)gSpeedFixed >> 4 < 15) {
                     gSpeedFixed = 0xF0;
                 }
-                sGame.action = 0x23;
+                gPlayer.action = 0x23;
                 gMissState = 1;
                 D_800959B0 = 0;
                 gMissTimer = 0;
-                sGame.speed = (s16)gSpeedFixed >> 4;
+                gPlayer.speed = (s16)gSpeedFixed >> 4;
                 SetSoundFade(4);
                 goto top;
             }
@@ -2373,9 +2297,9 @@ top:
                 *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
             }
             if (gMissTimer >= 10) {
-                sGame.speed = 0;
+                gPlayer.speed = 0;
                 gSpeedFixed = 0;
-                *(Words3 *)&sGame.x = *(Words3 *)D_800DF5C0;
+                *(Words3 *)&gPlayer.x = *(Words3 *)D_800DF5C0;
             }
             if (gMissTimer > 100) {
                 t = gMissTimer - 100;
@@ -2419,7 +2343,7 @@ end:;
 }
 
 void DrawModeObject(void) {
-    switch (sGame.rideMode & 0xF) {
+    switch (gPlayer.rideMode & 0xF) {
         case 1:
             D_800D3860[0].unk18 = -0x88;
             D_800D3860[0].unk1A = 0xAA;
@@ -2446,7 +2370,7 @@ void DrawModeObject(void) {
                     D_800D8370[3].unk58 = (s32)&D_800D86E0[0];
                     D_800D3860[3].unk0 = -gWorldShift[0];
                     D_800D3860[3].unk8 = -gWorldShift[2];
-                    D_800D3860[3].unk18 += ANGLE_DEG(sGame.speed / 2);
+                    D_800D3860[3].unk18 += ANGLE_DEG(gPlayer.speed / 2);
                     DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
@@ -2457,7 +2381,7 @@ void DrawModeObject(void) {
                     D_800D8370[6].unk58 = (s32)&D_800D86E0[0];
                     D_800D3860[6].unk0 = -gWorldShift[0];
                     D_800D3860[6].unk8 = -gWorldShift[2];
-                    D_800D3860[6].unk18 += ANGLE_DEG(sGame.speed / 2);
+                    D_800D3860[6].unk18 += ANGLE_DEG(gPlayer.speed / 2);
                     DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
@@ -2494,24 +2418,24 @@ void DrawModeObject(void) {
 
 /* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
 s32 AttachModeObject(void) {
-    switch (sGame.rideMode & 0xF) {
+    switch (gPlayer.rideMode & 0xF) {
         case 1:
-            if ((u32)(sGame.motion - 0x33) >= 7) {
-                sGame.motion = 0x33;
+            if ((u32)(gPlayer.motion[0] - 0x33) >= 7) {
+                gPlayer.motion[0] = 0x33;
                 D_800D83C8[0] = (s32)&D_800D86E0[16];
                 D_800D3896[0] = 0;
             }
             break;
         case 4:
-            if ((u32)(sGame.motion - 0x33) >= 7) {
-                sGame.motion = 0x33;
+            if ((u32)(gPlayer.motion[0] - 0x33) >= 7) {
+                gPlayer.motion[0] = 0x33;
                 D_800D8620[0] = (s32)&D_800D86E0[16];
                 D_800D39FE[0] = 5;
             }
             break;
         case 2:
-            if ((u32)(sGame.motion - 0x33) >= 3) {
-                sGame.motion = 0x33;
+            if ((u32)(gPlayer.motion[0] - 0x33) >= 3) {
+                gPlayer.motion[0] = 0x33;
                 switch (gStage) {
                     case 3:
                         D_800D8530[0] = (s32)&D_800D86E0[0];
@@ -2603,10 +2527,10 @@ void SteerMode2(void) {
     s16 step;
     s32 v;
     s32 x;
-    GameState *g;
+    PlayerState *g;
     s32 hi;
 
-    if (sGame.control != 0) {
+    if (gPlayer.control != 0) {
         if (gPad & PADLleft) {
             ApplySteer(3, 16, 5);
             D_800959B2 -= 4;
@@ -2614,7 +2538,7 @@ void SteerMode2(void) {
             ApplySteer(2, 16, 5);
             D_800959B2 += 4;
         } else {
-            sGame.action = 0x58;
+            gPlayer.action = 0x58;
             if (D_800959B2 != 0) {
                 if (D_800959B2 < 0) {
                     D_800959B2 += 2;
@@ -2625,10 +2549,10 @@ void SteerMode2(void) {
         }
         switch (gStage) {
             case 3:
-                sGame.y = sGame.groundY - 0x5A;
+                gPlayer.y = gPlayer.groundY - 0x5A;
                 break;
             case 10:
-                sGame.y = sGame.groundY - 0x50;
+                gPlayer.y = gPlayer.groundY - 0x50;
                 break;
         }
         D_800959B2 = D_800959B2 < -10 ? -10 : D_800959B2 > 10 ? 10 : D_800959B2;
@@ -2636,7 +2560,7 @@ void SteerMode2(void) {
         pushBack(90, step);
         /* MATCHING: as in SteerMode3. */
         __asm__("");
-        g = &sGame;
+        g = &gPlayer;
         x = g->yaw;
         v = D_800A7680->vy - 0x71;
         if (x >= v) {
@@ -2655,8 +2579,8 @@ void SteerMode2(void) {
 void UpdateSpeedMode2(void) {
     s16 v;
 
-    if (sGame.control != 0 && (u32)(sGame.motion - 0x33) < 3) {
-        v = sGame.speed;
+    if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - 0x33) < 3) {
+        v = gPlayer.speed;
         if (v < 35) {
             gSpeedFixed += 16;
         } else if (gPad & PADLup) {
@@ -2681,8 +2605,8 @@ void UpdateSpeedMode2(void) {
 void UpdateSpeedMode3(void) {
     s16 v;
 
-    if (sGame.control != 0 && sGame.motion == 0x33) {
-        v = sGame.speed;
+    if (gPlayer.control != 0 && gPlayer.motion[0] == 0x33) {
+        v = gPlayer.speed;
         if (v < 30) {
             gSpeedFixed += 16;
         } else if (gPad & PADLup) {
@@ -2708,55 +2632,55 @@ void UpdateSpeedMode3(void) {
 void UpdateJumpMode3(void) {
     s16 n;
 
-    if (sGame.control != 0) {
+    if (gPlayer.control != 0) {
         if ((gGamePadTrig & PADRright) &&
-            (sGame.y >= sGame.groundY || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
-            sGame.jumpState == 0) {
-            sGame.unk38F = 1;
-            sGame.unk3BC = 0;
-            sGame.jumpState = 1;
-            sGame.jumpTime = 0;
-            sGame.unk39C = 0;
-            func_80018CA4(&sGame);
-            sGame.motion = 8;
-            sGame.jumpPower = 0x23;
-            sGame.jumpStartY = sGame.y;
-            ScatterEffect4((VECTOR *)&sGame.x);
+            (gPlayer.y >= gPlayer.groundY || (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1)) &&
+            gPlayer.jumpState == 0) {
+            gPlayer.unk38F = 1;
+            gPlayer.unk3BC = 0;
+            gPlayer.jumpState = 1;
+            gPlayer.jumpTime = 0;
+            gPlayer.unk39C = 0;
+            func_80018CA4(&gPlayer);
+            gPlayer.motion[0] = 8;
+            gPlayer.jumpPower = 0x23;
+            gPlayer.jumpStartY = gPlayer.y;
+            ScatterEffect4((VECTOR *)&gPlayer.x);
             PlaySe(0x17);
         }
-        if (sGame.jumpState == 1) {
-            n = ++sGame.jumpTime;
+        if (gPlayer.jumpState == 1) {
+            n = ++gPlayer.jumpTime;
             if (n < 3) {
-                sGame.jumpPower = 0x19;
+                gPlayer.jumpPower = 0x19;
             } else if ((u16)(n - 4) < 3) {
-                sGame.jumpPower = 0x12;
+                gPlayer.jumpPower = 0x12;
             } else if (n >= 9) {
-                sGame.jumpPower = 0x14;
-                sGame.jumpState = 2;
-                sGame.motion = 8;
-                sGame.unk3A0 = 2;
+                gPlayer.jumpPower = 0x14;
+                gPlayer.jumpState = 2;
+                gPlayer.motion[0] = 8;
+                gPlayer.unk3A0 = 2;
             } else if (gGamePad & PADRright) {
-                sGame.jumpPower = 0x14;
+                gPlayer.jumpPower = 0x14;
             } else {
-                sGame.jumpState = 2;
+                gPlayer.jumpState = 2;
                 switch (n) {
                     case 3:
-                        sGame.motion = 9;
-                        sGame.unk3A0 = 0;
+                        gPlayer.motion[0] = 9;
+                        gPlayer.unk3A0 = 0;
                         break;
                     case 7:
-                        sGame.motion = 9;
-                        sGame.unk3A0 = 1;
+                        gPlayer.motion[0] = 9;
+                        gPlayer.unk3A0 = 1;
                         break;
                     default:
-                        sGame.motion = 9;
-                        sGame.unk3A0 = 2;
+                        gPlayer.motion[0] = 9;
+                        gPlayer.unk3A0 = 2;
                         break;
                 }
             }
         }
-        if (sGame.jumpState == 2) {
-            sGame.jumpState = 0;
+        if (gPlayer.jumpState == 2) {
+            gPlayer.jumpState = 0;
         }
     }
 }
@@ -2765,18 +2689,18 @@ void SteerMode3(void) {
     s16 step;
     s32 v;
     s32 x;
-    GameState *g;
+    PlayerState *g;
     s32 hi;
 
-    if (sGame.control != 0) {
+    if (gPlayer.control != 0) {
         if (gPad & PADLright) {
             ApplySteer(3, 16, 8);
             D_800959B2 -= 4;
         } else if (gPad & PADLleft) {
             ApplySteer(2, 16, 8);
             D_800959B2 += 4;
-        } else if (sGame.y >= sGame.groundY) {
-            sGame.action = 0x5E;
+        } else if (gPlayer.y >= gPlayer.groundY) {
+            gPlayer.action = 0x5E;
             if (D_800959B2 != 0) {
                 if (D_800959B2 < 0) {
                     D_800959B2 += 2;
@@ -2789,9 +2713,9 @@ void SteerMode3(void) {
         step = D_800959B2 / 10;
         pushBack(90, step);
         /* MATCHING: the barrier keeps the yaw and unk380 loads below the unk350 store;
-         * g keeps the sGame base in a register for the store at the join. */
+         * g keeps the gPlayer base in a register for the store at the join. */
         __asm__("");
-        g = &sGame;
+        g = &gPlayer;
         x = g->yaw;
         v = D_800A7680->vy - 0x71;
         if (x >= v) {
@@ -2806,7 +2730,7 @@ void SteerMode3(void) {
     }
 }
 
-s32 LandPlayer(GameState *g) {
+s32 LandPlayer(PlayerState *g) {
     s32 ret;
 
     ret = 0;
@@ -2845,43 +2769,43 @@ s32 AddBonusLevel(s32 n) {
     return gBonusLevel;
 }
 
-/* MATCHING: the local pointer lets angle and the sGame base share $s0. */
+/* MATCHING: the local pointer lets angle and the gPlayer base share $s0. */
 void PushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
     rot = D_800A7680;
     angle = ANGLE_DEG(deg);
-    sGame.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    sGame.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+    gPlayer.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
+    gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
 }
 
 /* MATCHING: non-void with no return keeps the first delay slot a nop. */
 s32 UpdateSpeedBand(void) {
     s16 v;
 
-    v = sGame.speed;
+    v = gPlayer.speed;
     if (v < 13) {
-        sGame.speedBand = 0;
+        gPlayer.speedBand = 0;
     } else if (v >= 26) {
-        sGame.speedBand = 2;
+        gPlayer.speedBand = 2;
     } else {
-        sGame.speedBand = 1;
+        gPlayer.speedBand = 1;
     }
 }
 
 void ResetPlayerAction(void) {
-    sGame.motion = 2;
-    sGame.action = 0;
-    sGame.control = 1;
-    sGame.slideState = 0;
+    gPlayer.motion[0] = 2;
+    gPlayer.action = 0;
+    gPlayer.control = 1;
+    gPlayer.slideState = 0;
     if (D_8009599C == 1) {
-        sGame.hittable = 0;
-        sGame.invulnTimer = 60;
+        gPlayer.hittable = 0;
+        gPlayer.invulnTimer = 60;
         D_8009599C = 0;
     }
-    if ((sGame.rideMode & 0xF) == 3) {
-        sGame.motion = 0x33;
+    if ((gPlayer.rideMode & 0xF) == 3) {
+        gPlayer.motion[0] = 0x33;
     }
 }
 
@@ -2912,16 +2836,16 @@ void func_80028500(void) {}
 
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
 s32 TrySlide(void) {
-    if (sGame.control != 0 && (sGame.motion < 5 || sGame.motion >= 8) &&
-        (sGame.unk38F != 1 || sGame.jumpPower < 6) && !(gPad & PADLup) && (gGamePadTrig & PADRdown)) {
+    if (gPlayer.control != 0 && (gPlayer.motion[0] < 5 || gPlayer.motion[0] >= 8) &&
+        (gPlayer.unk38F != 1 || gPlayer.jumpPower < 6) && !(gPad & PADLup) && (gGamePadTrig & PADRdown)) {
         PlaySe(22);
-        sGame.motion = 5;
+        gPlayer.motion[0] = 5;
     }
 }
 
 void EndJump(void) {
-    sGame.jumpPower = 0;
-    sGame.jumpState = 2;
+    gPlayer.jumpPower = 0;
+    gPlayer.jumpState = 2;
 }
 
 void PolarOffset(s32 deg, s32 radius, VECTOR *out) {

@@ -14,9 +14,9 @@
  *  @param out the screen position */
 void ProjectToScreen(VECTOR *pos, SVECTOR *out);
 
-/** @brief Defined in player; takes the game state block.
+/** @brief Defined in player; reacts to the player's hit records.
  *  @param state the state block */
-void ReactToHits(u8 *state);
+void ReactToHits(PlayerState *state);
 
 /** @brief Defined in player.
  *  @param n not yet known

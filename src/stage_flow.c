@@ -4,6 +4,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "draw.h"
+#include "model.h"
 #include "object.h"
 
 u16 func_800FAD08(s16 id, s32 a, s32 b);
@@ -39,55 +40,6 @@ typedef struct {
     s32 vy; /**< y */
     s32 vz; /**< z */
 } Pos3;
-
-/** @brief The head of the game state as this unit writes it. */
-typedef struct {
-    u8 unk0;                  /**< set to 1 when a stage starts */
-    u8 pad1;                  /**< not yet known */
-    u8 unk2;                  /**< set to 1 when a stage starts */
-    u8 unk3;                  /**< cleared on a reset */
-    u8 unk4;                  /**< cleared on a reset */
-    u8 unk5;                  /**< cleared on a reset; 0x57 in mode 4 */
-    u8 unk6;                  /**< 2 when a stage starts, 3 on a reset */
-    u8 pad7;                  /**< not yet known */
-    u8 unk8;                  /**< 0xFF on a reset */
-    u8 pad9[0x348 - 0x9];     /**< not yet known */
-    Pos3 unk348;              /**< the start position */
-    s32 unk354;               /**< cleared on a reset */
-    s32 unk358;               /**< cleared on a reset */
-    s32 unk35C;               /**< cleared on a reset */
-    s16 unk360;               /**< cleared on a reset */
-    s16 unk362;               /**< cleared on a reset */
-    s16 unk364;               /**< cleared on a reset */
-    u8 pad366[0x374 - 0x366]; /**< not yet known */
-    s16 unk374;               /**< cleared in mode 4 */
-    s16 unk376;               /**< cleared in mode 4 */
-    s16 unk378;               /**< cleared in mode 4 */
-    s16 unk37A;               /**< cleared in mode 4 */
-    s32 unk37C;               /**< the start heading */
-    s32 unk380;               /**< the start heading */
-    u8 pad384[0x38C - 0x384]; /**< not yet known */
-    s16 unk38C;               /**< cleared on a reset */
-    u8 unk38E;                /**< cleared on a reset */
-    u8 pad38F[0x398 - 0x38F]; /**< not yet known */
-    s16 unk398;               /**< cleared in mode 4 */
-    u8 pad39A[0x3A6 - 0x39A]; /**< not yet known */
-    s16 unk3A6;               /**< cleared on a reset */
-    s16 unk3A8;               /**< 50 on a reset, 0 in mode 4 */
-    u8 pad3AA[0x3C8 - 0x3AA]; /**< not yet known */
-    s16 unk3C8;               /**< cleared when a stage starts */
-    s16 unk3CA;               /**< cleared when a stage starts */
-    u8 pad3CC[0x3D0 - 0x3CC]; /**< not yet known */
-    u8 unk3D0;                /**< cleared when leaving through the menu */
-    u8 unk3D1;                /**< cleared on a reset */
-    u8 unk3D2;                /**< cleared on a reset */
-    u8 unk3D3;                /**< 1 on a reset */
-    u8 unk3D4;                /**< cleared on a reset */
-    u8 unk3D5;                /**< cleared on a reset */
-} StageState;
-
-/* MATCHING: a struct lvalue keeps the base in a register. */
-#define sStage (*(StageState *)gPlayer)
 
 /** @brief object's Rec48 with the halfword this unit clears. */
 typedef struct {
@@ -167,9 +119,6 @@ void func_800F809C(void);
 void func_800F8264(void);
 void DrawPausedFrame(void);
 
-/* MATCHING: main.c types the object as its Stepper; here it is the game
- * state's head. */
-u8 StepAnimation(StageState *obj, u16 index, u8 arg);
 /* MATCHING: main.c defines it on a RumbleStep; the table is a u16 array
  * here, as in player. */
 void StartRumble(u16 *table, s32 index);
@@ -325,8 +274,8 @@ void UpdateStagePlay(u8 stage) {
                     gGameMode = GM_MENU_LOAD;
                     gModeStep = 0;
                     StopCdTrack();
-                    sStage.unk3D2 = 0;
-                    sStage.unk3D0 = 0;
+                    gPlayer.unk3D2 = 0;
+                    gPlayer.rideMode = 0;
                 }
                 SetCdVolume(80);
                 gPauseState = 0;
@@ -367,16 +316,16 @@ void RestartStage(u8 stage) {
         gModeStep = 2;
         return;
     }
-    sStage.unk3C8 = 0;
-    sStage.unk2 = 1;
+    gPlayer.invulnTimer = 0;
+    gPlayer.hittable = 1;
     gBonusLevel = 3;
-    sStage.unk348.vx = D_800A7680.pos.vx;
-    sStage.unk348.vy = D_800A7680.pos.vy;
-    sStage.unk348.vz = D_800A7680.pos.vz;
+    gPlayer.x = D_800A7680.pos.vx;
+    gPlayer.y = D_800A7680.pos.vy;
+    gPlayer.z = D_800A7680.pos.vz;
     gMissState = 0;
-    sStage.unk3CA = 0;
+    gPlayer.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
-        D_800957F4 = FindFloor(&sStage.unk348);
+        D_800957F4 = FindFloor((Pos3 *)&gPlayer.x);
     } else {
         D_800957F4 = 0;
     }
@@ -384,7 +333,7 @@ void RestartStage(u8 stage) {
     yaw = -D_80095840->unk6;
     D_8009676C[0] = (s16)(D_800A7680.pos.vy - 500);
     D_800A7680.rot.vy = yaw;
-    sStage.unk37C = sStage.unk380 = yaw;
+    gPlayer.unk37C = gPlayer.yaw = yaw;
     D_800957BC = yaw;
     D_800957B0 = yaw;
     if (gInEditor != 1) {
@@ -394,8 +343,8 @@ void RestartStage(u8 stage) {
     }
     ResetStageObjects();
     func_80041118(gStage);
-    sStage.unk6 = 2;
-    sStage.unk0 = 1;
+    gPlayer.motion[0] = 2;
+    gPlayer.control = 1;
     D_800958EC = 0;
     D_800957D6 = 1;
     for (i = 0; i < 200; i++) {
@@ -434,28 +383,28 @@ void ResetStage(void) {
     gMissState = 0;
     SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
-    sStage.unk6 = 3;
-    sStage.unk3CA = 0;
-    sStage.unk3 = 0;
-    sStage.unk4 = 0;
-    sStage.unk5 = 0;
-    sStage.unk8 = 0xFF;
-    StepAnimation(&sStage, 0, 0);
-    sStage.unk3A8 = 50;
-    sStage.unk38E = 0;
-    sStage.unk38C = 0;
-    sStage.unk3D2 = 0;
-    sStage.unk354 = sStage.unk358 = sStage.unk35C = 0;
-    sStage.unk360 = sStage.unk362 = sStage.unk364 = 0;
-    sStage.unk3D1 = 0;
-    sStage.unk3D3 = 1;
-    sStage.unk3C8 = 0;
-    sStage.unk2 = 1;
+    gPlayer.motion[0] = 3;
+    gPlayer.unk3CA = 0;
+    gPlayer.twoTracks = 0;
+    gPlayer.unk4 = 0;
+    gPlayer.action = 0;
+    gPlayer.curMotion[0] = 0xFF;
+    StepAnimation(&gPlayer, 0, 0);
+    gPlayer.speed = 50;
+    gPlayer.slideState = 0;
+    gPlayer.unk38C = 0;
+    gPlayer.unk3D2 = 0;
+    gPlayer.drawX = gPlayer.drawY = gPlayer.drawZ = 0;
+    gPlayer.unk360 = gPlayer.unk362 = gPlayer.unk364 = 0;
+    gPlayer.unk3D1 = 0;
+    gPlayer.showShadow = 1;
+    gPlayer.invulnTimer = 0;
+    gPlayer.hittable = 1;
     D_8009599C = 0;
-    sStage.unk3D4 = sStage.unk3D5 = 0;
-    sStage.unk3A6 = 0;
+    gPlayer.unk3D4 = gPlayer.unk3D5 = 0;
+    gPlayer.fallSpeed = 0;
     gView[6] = 0;
-    sStage.unk0 = 1;
+    gPlayer.control = 1;
     D_800958EC = 0;
     D_800957D6 = 1;
     gSection = 0;
@@ -466,22 +415,22 @@ void ResetStage(void) {
     ResetSpeed();
     if (sSaved.valid != 0) {
         gSection = sSaved.unk10;
-        sStage.unk348.vx = sSaved.pos.vx;
-        sStage.unk348.vy = sSaved.pos.vy;
-        sStage.unk348.vz = sSaved.pos.vz;
+        gPlayer.x = sSaved.pos.vx;
+        gPlayer.y = sSaved.pos.vy;
+        gPlayer.z = sSaved.pos.vz;
         D_800957F4 = sSaved.unk14;
         gCameraYaw = sSaved.unk18;
         gCans = sSaved.unk1A;
         gView[1] = sSaved.unk20;
     } else if (gStage == 4) {
-        sStage.unk5 = 0x57;
-        sStage.unk6 = 0x23;
-        sStage.unk398 = 0;
-        sStage.unk3A8 = 0;
+        gPlayer.action = 0x57;
+        gPlayer.motion[0] = 0x23;
+        gPlayer.jumpPower = 0;
+        gPlayer.speed = 0;
         gSpeedFixed = 0;
-        sStage.unk374 = sStage.unk376 = sStage.unk378 = sStage.unk37A = 0;
-        sStage.unk0 = 0;
-        sStage.unk348.vy = D_800A7680.pos.vy - 1000;
+        gPlayer.unk374 = gPlayer.unk376 = gPlayer.unk378 = gPlayer.unk37A = 0;
+        gPlayer.control = 0;
+        gPlayer.y = D_800A7680.pos.vy - 1000;
     }
     mode = gStage;
     saved = sSaved.valid;

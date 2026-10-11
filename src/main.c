@@ -463,34 +463,6 @@ s8 LoadBootData(void) {
     return ret;
 }
 
-/**
- * @brief A per-channel stepping state (the name is a guess): its stepper
- *        advances channel N through tables at offsets 0x20 and 0x1B0.
- *        Only the bytes this unit touches are named.
- */
-typedef struct {
-    u8 unk0[4];      /**< not yet known */
-    u8 unk4;         /**< passed on as the stepper's third argument */
-    u8 unk5;         /**< a kind: 0x60 and 0x61 are tested; cleared at load */
-    u8 unk6;         /**< cleared at load */
-    u8 unk7;         /**< cleared at load */
-    u8 unk8;         /**< set to 0xFF when a 0x61 step returns zero */
-    u8 unk9;         /**< set to 0xFF at load */
-    u8 unkA[0x16];   /**< not yet known */
-    s32 unk20[100];  /**< first word of each loaded entry */
-    s32 unk1B0[100]; /**< third word of each loaded entry */
-    u8 unk340;       /**< the stepper's last result */
-    u8 unk341[7];    /**< not yet known */
-    s32 unk348;      /**< a position, x: the model's translation */
-    s32 unk34C;      /**< a position, y */
-    s32 unk350;      /**< a position, z */
-    u8 unk354[0x2C]; /**< not yet known */
-    u16 unk380;      /**< a rotation about y */
-} Stepper;
-
-/* The stepper's state lives at the head of the game state. */
-#define sStepper (*(Stepper *)gPlayer)
-
 /** @brief A model object with its own coordinate system (a unit-local
  *         copy of object's view). */
 typedef struct {
@@ -525,8 +497,6 @@ extern u8 D_80096418[];
 void InitModel(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: model types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
-/* MATCHING: stage_flow passes the game state's head in its own view. */
-u8 StepAnimation(Stepper *obj, u16 index, u8 arg);
 
 void func_80013CDC(void) {
     /* MATCHING: one pointer reused for the pack, its second word and the
@@ -554,18 +524,18 @@ void func_80013CDC(void) {
         /* MATCHING: assigned inside the store, as in LoadStageSprites. */
         gAnimations[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
         p += 4;
-        sStepper.unk20[D_800958CC] = *gAnimations[D_800958CC];
+        gPlayer.motionLen[D_800958CC] = *gAnimations[D_800958CC];
         gAnimations[D_800958CC]++;
-        sStepper.unk1B0[D_800958CC] = gAnimations[D_800958CC][1];
+        gPlayer.motionStart[D_800958CC] = gAnimations[D_800958CC][1];
     }
     GsInitCoordinate2(WORLD, &D_800D86E0[0]);
-    sStepper.unk5 = 0;
-    sStepper.unk6 = 0;
+    gPlayer.action = 0;
+    gPlayer.motion[0] = 0;
     /* MATCHING: retail stores 8 before 7. */
-    sStepper.unk8 = 0xFF;
-    sStepper.unk7 = 0;
-    sStepper.unk9 = 0xFF;
-    StepAnimation(&sStepper, 0, 0);
+    gPlayer.curMotion[0] = 0xFF;
+    gPlayer.motion[1] = 0;
+    gPlayer.curMotion[1] = 0xFF;
+    StepAnimation(&gPlayer, 0, 0);
 }
 
 /* Sony's (libgs, carved as asm): GsInitGraph by its arguments. */
@@ -1215,27 +1185,7 @@ void LoadFile(char *name, void *buf) {
     close(fd);
 }
 
-/**
- * @brief A 0x3D8-byte copy of the game state's head, reset for a demo or
- *        replay. Only the members this unit writes are named.
- */
-typedef struct {
-    u8 unk0;         /**< cleared */
-    u8 unk1[4];      /**< not yet known */
-    u8 unk5;         /**< the stepper kind; set to 0x61 */
-    u8 unk6;         /**< set to 3 */
-    u8 unk7[0x341];  /**< not yet known */
-    s32 unk348;      /**< a position, x */
-    s32 unk34C;      /**< a position, y */
-    s32 unk350;      /**< a position, z */
-    u8 unk354[0x2C]; /**< not yet known */
-    s32 unk380;      /**< a rotation about y, as a word */
-    u8 unk384[0x24]; /**< not yet known */
-    s16 unk3A8;      /**< cleared */
-    u8 unk3AA[0x2E]; /**< not yet known */
-} StateCopy;
-
-extern StateCopy gLoadScreenModel;
+extern PlayerState gLoadScreenModel;
 
 void BeginLoadScreenModel(void) {
     SVECTOR pos;
@@ -1254,15 +1204,15 @@ void BeginLoadScreenModel(void) {
     pos.vx = 0;
     pos.vy = -120;
     DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    gLoadScreenModel = *(StateCopy *)gPlayer;
-    gLoadScreenModel.unk380 = 0x800;
-    gLoadScreenModel.unk6 = 3;
-    gLoadScreenModel.unk348 = 0;
-    gLoadScreenModel.unk34C = 0;
-    gLoadScreenModel.unk350 = 0;
-    gLoadScreenModel.unk5 = 0x61;
-    gLoadScreenModel.unk3A8 = 0;
-    gLoadScreenModel.unk0 = 0;
+    gLoadScreenModel = gPlayer;
+    gLoadScreenModel.yaw = 0x800;
+    gLoadScreenModel.motion[0] = 3;
+    gLoadScreenModel.x = 0;
+    gLoadScreenModel.y = 0;
+    gLoadScreenModel.z = 0;
+    gLoadScreenModel.action = 0x61;
+    gLoadScreenModel.speed = 0;
+    gLoadScreenModel.control = 0;
     gRefView[0] = rsin(0x800) * 400 / 4096;
     gRefView[1] = -150;
     gRefView[2] = rcos(0x800) * 400 / 4096;
@@ -1876,18 +1826,18 @@ void LoadStage(void);
 
 /** @brief One step of @p obj: runs the stepper and marks a finished 0x61
  *         channel. Inlined here and by the out-of-line step below. */
-static __inline__ void stepObj(Stepper *obj) {
+static __inline__ void stepObj(PlayerState *obj) {
     /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
     s8 result;
 
     result = StepAnimation(obj, 0, obj->unk4);
-    obj->unk340 = result;
-    switch (obj->unk5) {
+    obj->motionResult[0] = result;
+    switch (obj->action) {
         case 0x60:
             break;
         case 0x61:
             if (result == 0) {
-                obj->unk8 = 0xFF;
+                obj->curMotion[0] = 0xFF;
             }
             break;
     }
@@ -1895,7 +1845,7 @@ static __inline__ void stepObj(Stepper *obj) {
 
 /** @brief Draws @p obj's models at its position and rotation. Inlined
  *         here and by the out-of-line draw below. */
-static __inline__ void drawObj(Stepper *obj) {
+static __inline__ void drawObj(PlayerState *obj) {
     MATRIX m;
     SVECTOR rot;
     GsDOBJ2 *o;
@@ -1903,11 +1853,11 @@ static __inline__ void drawObj(Stepper *obj) {
 
     SetTmdSortMode(D_80095758);
     o = sModels.objs;
-    o->coord2->coord.t[0] = obj->unk348;
-    o->coord2->coord.t[1] = obj->unk34C;
-    o->coord2->coord.t[2] = obj->unk350;
+    o->coord2->coord.t[0] = obj->x;
+    o->coord2->coord.t[1] = obj->y;
+    o->coord2->coord.t[2] = obj->z;
     rot.vx = 0;
-    rot.vy = obj->unk380;
+    rot.vy = obj->yaw;
     rot.vz = 0;
     SetCoordRotation(&rot, o->coord2);
     for (i = 0; i < sModels.count; o++, i++) {
@@ -1936,8 +1886,8 @@ void UpdateLoadScreenModel(void) {
     gRefView[4] = -150;
     gRefView[5] = 0;
     GsSetRefView2((GsRVIEW2 *)gRefView);
-    stepObj((Stepper *)&gLoadScreenModel);
-    drawObj((Stepper *)&gLoadScreenModel);
+    stepObj(&gLoadScreenModel);
+    drawObj(&gLoadScreenModel);
     LoadStage();
     if (gSubStep == 100) {
         SetFogNearFar(0, 0, 250);
@@ -1994,11 +1944,11 @@ void UpdateAct3LoadScreen(void) {
     }
 }
 
-void DrawStepper(Stepper *obj) {
+void DrawStepper(PlayerState *obj) {
     drawObj(obj);
 }
 
-void StepStepper(Stepper *obj) {
+void StepStepper(PlayerState *obj) {
     stepObj(obj);
 }
 

@@ -110,25 +110,6 @@ typedef struct {
     SVECTOR scale;       /**< scale, 0x1000 = 1 */
 } Model70;
 
-/** @brief The head of the game state, as far as this unit reaches. */
-typedef struct {
-    u8 unk0[2];      /**< not yet known */
-    u8 unk2;         /**< nonzero to place the second-buffer records */
-    u8 unk3[2];      /**< not yet known */
-    u8 unk5;         /**< a mode byte: 0x42 and 0x43 seen */
-    u8 unk6[0x1A];   /**< not yet known */
-    s32 unk20[100];  /**< first word of each loaded entry */
-    s32 unk1B0[100]; /**< third word of each loaded entry */
-    u8 unk340[8];    /**< not yet known */
-    s32 unk348;      /**< x of the player (a guess) */
-    s32 unk34C;      /**< y */
-    s32 unk350;      /**< z */
-    u8 unk354[0x64]; /**< not yet known */
-    s32 unk3B8;      /**< 1 once a placed record reports a hit */
-    u8 unk3BC[0x10]; /**< not yet known */
-    s32 unk3CC;      /**< the word reported with that hit */
-} GameHead;
-
 /** @brief A 16-byte directory entry of a loaded file. */
 typedef struct {
     s32 offset;   /**< byte offset of the entry from the directory */
@@ -231,11 +212,10 @@ extern u8 D_800959D8;         /**< zeroed by the full reset */
 
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)gTimInfo)
-/* MATCHING: a struct lvalue keeps the base in a register. */
-#define sGameHead (*(GameHead *)gPlayer)
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
-/* The progress block; editor views the same bytes as other records. */
+/* MATCHING: the progress block, declared per unit; editor views the same
+ * bytes as other records. */
 extern u8 D_80095B28[];
 #define sProgress (*(Progress6E *)D_80095B28)
 
@@ -504,23 +484,23 @@ void PushPlayerFromWalls(void) {
     VECTOR pos;
     s32 idx;
 
-    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy + 0x200) * 50 >> 12);
-    pos.vy = sGameHead.unk34C;
-    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vx = gPlayer.x + (rsin(D_800A7680[0].vy + 0x200) * 50 >> 12);
+    pos.vy = gPlayer.y;
+    pos.vz = gPlayer.z + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
-        sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
-        sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
+        gPlayer.x -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
+        gPlayer.z -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
     }
-    pos.vx = sGameHead.unk348 + (rsin(D_800A7680[0].vy - 0x200) * 50 >> 12);
-    pos.vy = sGameHead.unk34C;
-    pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vx = gPlayer.x + (rsin(D_800A7680[0].vy - 0x200) * 50 >> 12);
+    pos.vy = gPlayer.y;
+    pos.vz = gPlayer.z + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
-        sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
-        sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
+        gPlayer.x -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
+        gPlayer.z -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
     }
     func_8002A558();
 }
@@ -531,8 +511,8 @@ void PushPlayerFromWalls(void) {
 s32 func_8002A558(void) {
     /* MATCHING: non-void with no return keeps the second branch's delay
      * slot a nop. */
-    if ((((u32)D_80095864 >> 4) & 3) == 1 && sGameHead.unk5 != 0x43) {
-        sGameHead.unk5 = 0x42;
+    if ((((u32)D_80095864 >> 4) & 3) == 1 && gPlayer.action != 0x43) {
+        gPlayer.action = 0x42;
         AddBonusLevel(-1);
     }
 }
@@ -619,7 +599,7 @@ s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r) {
             r->unk40 |= CollidePlayer((Query30 *)p) & 1;
         }
     }
-    if (sGameHead.unk2 != 0) {
+    if (gPlayer.hittable != 0) {
         start = rec->unk6E;
         n = rec->unk70;
         if (n != -1) {
@@ -628,8 +608,8 @@ s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r) {
                 PlaceCollisionQuad(q);
                 GetQuadHeightUnderPlayer(q, &D_80095898);
                 if (D_80095898 == 1) {
-                    sGameHead.unk3B8 = D_80095898;
-                    sGameHead.unk3CC = D_8009589C;
+                    gPlayer.unk3B8 = D_80095898;
+                    gPlayer.unk3CC = D_8009589C;
                 }
             }
         }
@@ -690,8 +670,8 @@ s32 TestBoxes(void) {
             if (b->unk0 != 0) {
                 continue;
             }
-            px = sGameHead.unk348 - b->x;
-            pz = sGameHead.unk350 - b->z;
+            px = gPlayer.x - b->x;
+            pz = gPlayer.z - b->z;
             if ((px - v[0][0] / 2) * ((v[1][2] - v[0][2]) / 2) +
                     (pz - v[0][2] / 2) * -((v[1][0] - v[0][0]) / 2) <
                 0) {
@@ -838,7 +818,7 @@ void UpdateTrapViewer(void) {
     ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
     UpdateObjectEntry(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
-    ReactToHits(gPlayer);
+    ReactToHits(&gPlayer);
     func_80029838();
     DrawAxes();
     FntPrint(D_80010B34, D_800958E2, gSectionCount);
@@ -928,7 +908,7 @@ void UpdateTrapLayoutViewer(void) {
                 tbl = D_800D8D20;
                 UpdateObjectEntry((Rec78 *)(r->unk36 * 120 + (u32)tbl), (Rec48 *)r);
             }
-            ReactToHits(gPlayer);
+            ReactToHits(&gPlayer);
             func_80029838();
             DrawAxes();
             break;
@@ -1175,9 +1155,9 @@ s32 LoadStageSprites(void) {
     for (; D_800958CC < D_800958D0 + 0x33; D_800958CC++) {
         gAnimations[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
         e++;
-        sGameHead.unk20[D_800958CC] = *gAnimations[D_800958CC];
+        gPlayer.motionLen[D_800958CC] = *gAnimations[D_800958CC];
         gAnimations[D_800958CC]++;
-        sGameHead.unk1B0[D_800958CC] = gAnimations[D_800958CC][1];
+        gPlayer.motionStart[D_800958CC] = gAnimations[D_800958CC][1];
     }
 }
 
@@ -1522,9 +1502,9 @@ void UpdatePickups(void) {
                 if ((s8)D_800A74D0[e->unk6] == 0 || e->unk6 == 0 || (e->unk6 & 0x8000)) {
                     continue;
                 }
-                coord.coord.t[0] = -sGameHead.unk348 + e->unk0;
+                coord.coord.t[0] = -gPlayer.x + e->unk0;
                 coord.coord.t[1] = e->unk2;
-                coord.coord.t[2] = -sGameHead.unk350 + (s16)e->unk4;
+                coord.coord.t[2] = -gPlayer.z + (s16)e->unk4;
                 coord.flg = 0;
                 GsGetLs(&coord, &mat);
                 GsSetLsMatrix(&mat);

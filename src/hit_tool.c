@@ -109,16 +109,6 @@ extern char D_8001175C[]; /**< format of one numbered line */
 extern u16 gToolRadius; /**< saved value of menu line 0 */
 extern u8 gToolType;    /**< saved value of menu line 1 */
 
-/** @brief The three words of the game state this unit resets. */
-typedef struct {
-    u8 pad0[0x348]; /**< not reached here */
-    s32 unk348;     /**< cleared on a reset */
-    s32 unk34C;     /**< cleared on a reset */
-    s32 unk350;     /**< cleared on a reset */
-} GameStatePos;
-
-/* MATCHING: a struct lvalue keeps the base in a register. */
-#define sGamePos (*(GameStatePos *)gPlayer)
 
 extern u8 gToolZoom;
 extern u8 gToolViewStep;
@@ -284,9 +274,9 @@ void UpdateTool(void) {
             gHitQuadSections = 80;
             gHitQuads = 0x8017D004;
             ClearHitQuads();
-            sGamePos.unk348 = 0;
-            sGamePos.unk34C = 0;
-            sGamePos.unk350 = 0;
+            gPlayer.x = 0;
+            gPlayer.y = 0;
+            gPlayer.z = 0;
             gToolZoom = 10;
             gToolViewStep = 2;
             gToolStep = 10;
@@ -382,23 +372,23 @@ void MoveToolCursor(void) {
         gToolQuadH = gToolQuadH < 0 ? 0 : gToolQuadH > 1000 ? 1000 : gToolQuadH;
     } else {
         if (gPadTrig & PADLup) {
-            sGamePos.unk350 -= gToolStep;
+            gPlayer.z -= gToolStep;
         }
         if (gPadTrig & PADLdown) {
-            sGamePos.unk350 += gToolStep;
+            gPlayer.z += gToolStep;
         }
         if (gPadTrig & PADLright) {
-            sGamePos.unk348 -= gToolStep;
+            gPlayer.x -= gToolStep;
         }
         if (gPadTrig & PADLleft) {
-            sGamePos.unk348 += gToolStep;
+            gPlayer.x += gToolStep;
         }
     }
     if (gStickTrigY & PADLup) {
-        sGamePos.unk34C -= gToolStep;
+        gPlayer.y -= gToolStep;
     }
     if (gStickTrigY & PADLdown) {
-        sGamePos.unk34C += gToolStep;
+        gPlayer.y += gToolStep;
     }
     if (gPadTrig & PADRup) {
         gToolQuadStage = 0;
@@ -488,7 +478,7 @@ void PrintToolStatus(void) {
     FntPrint(D_800114DC, gVSyncTime);
     FntPrint(D_800114E8, gToolSection);
     FntPrint(D_800114F4, gToolStep);
-    FntPrint(D_80011500, sGamePos.unk348, sGamePos.unk34C, sGamePos.unk350);
+    FntPrint(D_80011500, gPlayer.x, gPlayer.y, gPlayer.z);
     FntPrint(D_8001151C);
     switch (gToolKind) {
         case 0:
@@ -695,10 +685,10 @@ void InsertHitPoint(void) {
     e = bank->entries;
     e += gToolSection;
     rec = GetHitPoint(gToolSection, e->count);
-    rec->x = -sGamePos.unk348;
-    rec->y = sGamePos.unk34C;
+    rec->x = -gPlayer.x;
+    rec->y = gPlayer.y;
     gToolPoint = rec;
-    rec->z = -sGamePos.unk350;
+    rec->z = -gPlayer.z;
     rec->radius = (s16)gToolRadius * 10;
     rec->section = gToolSection;
     rec->type = gToolType;
@@ -1493,9 +1483,9 @@ void ResetTool(void) {
     gHitQuadSections = 80;
     gHitQuads = 0x8017D004;
     ClearHitQuads();
-    sGamePos.unk348 = 0;
-    sGamePos.unk34C = 0;
-    sGamePos.unk350 = 0;
+    gPlayer.x = 0;
+    gPlayer.y = 0;
+    gPlayer.z = 0;
     gToolZoom = 10;
     gToolViewStep = 2;
     gToolStep = 10;
@@ -1610,7 +1600,7 @@ void RefreshToolPreview(void) {
     D_800A9008[11] = 0;
     D_800A9008[12] = 0;
     UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
-    ReactToHits(gPlayer);
+    ReactToHits(&gPlayer);
     func_80029838();
     D_80095774 = 0;
 }

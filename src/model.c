@@ -57,32 +57,6 @@ typedef struct {
  * declares the table as words. */
 #define sLights ((*(FlatLights *)gFlatLights).l)
 
-/** @brief The head of the game state, seen as a two-channel animation
- *         player. */
-typedef struct {
-    u8 unk0[6];      /**< not yet known */
-    u8 want[2];      /**< the sequence each channel is asked to play */
-    u8 cur[2];       /**< the sequence each channel is playing */
-    s16 time[2];     /**< each channel's clock */
-    u8 unkE[0xA];    /**< not yet known */
-    u8 *data[2];     /**< each channel's position in its sequence */
-    s32 len[100];    /**< each sequence's length */
-    s32 start[100];  /**< each sequence's start time */
-    u8 unk340[8];    /**< not yet known */
-    s32 unk348;      /**< cleared when the viewer starts */
-    s32 unk34C;      /**< cleared when the viewer starts */
-    s32 unk350;      /**< cleared when the viewer starts */
-    u8 unk354[0x2C]; /**< not yet known */
-    s32 unk380;      /**< the model's starting y rotation */
-    s32 unk384;      /**< the model's starting z rotation */
-} Player;
-
-/* MATCHING: a struct lvalue keeps the base in a register. */
-#define sPlayer (*(Player *)gPlayer)
-
-/* MATCHING: each caller declares its own view of the state it passes;
- * this is the defining unit's. */
-u8 StepAnimation(Player *obj, u16 index, s8 arg);
 
 void OrbitViewerCamera(void);
 s32 DrawTodObjects(void);
@@ -284,11 +258,11 @@ void UpdateMotionViewer(void) {
             gRefView[4] = 0;
             gRefView[5] = 0;
             gViewerAngle = -90;
-            sPlayer.unk380 = 0;
-            sPlayer.unk384 = 0;
-            sPlayer.unk348 = 0;
-            sPlayer.unk34C = 0;
-            sPlayer.unk350 = 0;
+            gPlayer.yaw = 0;
+            gPlayer.lean = 0;
+            gPlayer.x = 0;
+            gPlayer.y = 0;
+            gPlayer.z = 0;
             gWorldShift[0] = 0;
             D_80095918 = 0;
             gWorldShift[2] = 0;
@@ -296,18 +270,18 @@ void UpdateMotionViewer(void) {
             D_800D86E0[0].coord.t[1] = 0;
             D_800D86E0[0].coord.t[2] = 0;
             D_8009EAB8[0] = 0;
-            D_8009EAB8[1] = sPlayer.unk380;
-            D_8009EAB8[2] = sPlayer.unk384;
+            D_8009EAB8[1] = gPlayer.yaw;
+            D_8009EAB8[2] = gPlayer.lean;
             SetCoordRotation((SVECTOR *)D_8009EAB8, D_800D86E0);
-            sPlayer.want[0] = 0;
-            StepAnimation(&sPlayer, 0, 0);
+            gPlayer.motion[0] = 0;
+            StepAnimation(&gPlayer, 0, 0);
             gModeStep++;
             break;
         case 1:
             if (gViewerReplay == 1) {
-                gViewerReplay = StepAnimation(&sPlayer, 0, 0);
+                gViewerReplay = StepAnimation(&gPlayer, 0, 0);
             } else {
-                D_8009EB7E[0] = 0;
+                gPlayer.motion[0] = 0;
             }
             DrawTodObjects();
             SelectViewerMotion();
@@ -353,46 +327,46 @@ void OrbitViewerCamera(void) {
 
 extern u8 D_800760EC[];
 
-u8 StepAnimation(Player *obj, u16 index, s8 arg) {
+u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
     u8 ret;
     s32 seq;
 
     ret = 1;
-    if (obj->want[0] == 1) {
+    if (obj->motion[0] == 1) {
         /* MATCHING: keeps this return from cross-jumping into a later one. */
         __asm__("");
         return 0;
     }
-    if (obj->want[index] != obj->cur[index]) {
-        obj->time[index] = obj->start[obj->want[index]];
-        obj->data[index] = (u8 *)gAnimations[obj->want[index]];
-        obj->cur[index] = obj->want[index];
+    if (obj->motion[index] != obj->curMotion[index]) {
+        obj->motionTime[index] = obj->motionStart[obj->motion[index]];
+        obj->motionData[index] = (u8 *)gAnimations[obj->motion[index]];
+        obj->curMotion[index] = obj->motion[index];
     }
-    seq = obj->cur[index];
-    if (obj->time[index] >= obj->len[seq] + obj->start[seq]) {
+    seq = obj->curMotion[index];
+    if (obj->motionTime[index] >= obj->motionLen[seq] + obj->motionStart[seq]) {
         if (seq < 2) {
             return 0;
         }
         if (seq < 5) {
             ret = 2;
-            obj->time[index] = obj->start[seq];
-            obj->data[index] = (u8 *)gAnimations[obj->cur[index]];
+            obj->motionTime[index] = obj->motionStart[seq];
+            obj->motionData[index] = (u8 *)gAnimations[obj->curMotion[index]];
         } else if ((s16)seq == 26) {
             ret = 2;
-            /* MATCHING: lengthens &obj->start[seq]'s live range (global-alloc). */
+            /* MATCHING: lengthens &obj->motionStart[seq]'s live range (global-alloc). */
             __asm__("");
             __asm__("");
             __asm__("");
-            obj->time[index] = obj->start[seq];
-            obj->data[index] = (u8 *)gAnimations[obj->cur[index]];
+            obj->motionTime[index] = obj->motionStart[seq];
+            obj->motionData[index] = (u8 *)gAnimations[obj->curMotion[index]];
         } else {
             return 0;
         }
     } else {
-        obj->time[index]++;
+        obj->motionTime[index]++;
     }
-    obj->data[index] = SetTodFrame(obj->time[index], obj->data[index], (s32)gTodObjTable,
-                                   (s32)D_800760EC, D_80095904, 0, arg);
+    obj->motionData[index] = SetTodFrame(obj->motionTime[index], obj->motionData[index],
+                                         (s32)gTodObjTable, (s32)D_800760EC, D_80095904, 0, arg);
     return ret;
 }
 
@@ -430,18 +404,6 @@ void InitLights(void) {
     GsSetFogParam(&fog);
 }
 
-/** @brief The game state's fields the model draw reads. */
-typedef struct {
-    u8 unk0[2];     /**< not yet known */
-    u8 unk2;        /**< draw every frame when set */
-    u8 unk3[2];     /**< not yet known */
-    u8 unk5;        /**< the mode; 0 and 0x5E draw only half the frames */
-    u8 unk6[0x3C4]; /**< not yet known */
-    u16 unk3CA;     /**< selects the second ordering tables when set */
-    u8 unk3CC[8];   /**< not yet known */
-    s8 unk3D4;      /**< 1 swaps object 10's model */
-} DrawHead;
-
 /** @brief The model list as the model draw walks it. */
 typedef struct {
     GsDOBJ2 *objs; /**< the models */
@@ -458,8 +420,8 @@ s32 DrawTodObjects(void) {
     GsDOBJ2 *q;
     s32 i;
 
-    if ((*(DrawHead *)gPlayer).unk2 == 0 && (gFrameCount & 3) < 2) {
-        if ((*(DrawHead *)gPlayer).unk5 == 0 || (*(DrawHead *)gPlayer).unk5 == 0x5E) {
+    if (gPlayer.hittable == 0 && (gFrameCount & 3) < 2) {
+        if (gPlayer.action == 0 || gPlayer.action == 0x5E) {
             return;
         }
     }
@@ -472,7 +434,7 @@ s32 DrawTodObjects(void) {
         if (o->tmd != NULL) {
             save = *o;
             q = o;
-            if (o->id == 10 && (*(DrawHead *)gPlayer).unk3D4 == 1) {
+            if (o->id == 10 && gPlayer.unk3D4 == 1) {
                 o->tmd = (unsigned long *)D_800963A0[2];
             }
             GsGetLs(o->coord2, &m);
@@ -480,7 +442,7 @@ s32 DrawTodObjects(void) {
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
             SetSpadStack();
-            if ((*(DrawHead *)gPlayer).unk3CA == 0) {
+            if (gPlayer.unk3CA == 0) {
                 GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             } else {
                 GsSortObject4J(o, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
@@ -622,14 +584,6 @@ void SetCoordRotation(SVECTOR *rot, GsCOORDINATE2 *coord) {
     coord->flg = 0;
 }
 
-/** @brief The head of the game state as this function sees it. */
-typedef struct {
-    u8 unk0[6]; /**< not yet known */
-    u8 unk6;    /**< takes the level value when flag 0x20 is set */
-    u8 unk7;    /**< not yet known */
-    u8 unk8;    /**< set to 0xFF when flag 0x20 is set */
-} LevelHead;
-
 void SelectViewerMotion(void) {
     s32 flags = gPadTrig;
 
@@ -646,9 +600,9 @@ void SelectViewerMotion(void) {
         gViewerMotion = 0x78;
     }
     if (flags & PADRright) {
-        (*(LevelHead *)gPlayer).unk8 = 0xFF;
+        gPlayer.curMotion[0] = 0xFF;
         gViewerReplay = 1;
-        (*(LevelHead *)gPlayer).unk6 = gViewerMotion;
+        gPlayer.motion[0] = gViewerMotion;
     }
 }
 
@@ -698,14 +652,6 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
 }
 
 void func_80018DE8(void) {}
-
-/** @brief The game state's camera target, as the key interpreter reads it. */
-typedef struct {
-    u8 unk0[0x368]; /**< not yet known */
-    s32 unk368;     /**< the target's x */
-    s32 unk36C;     /**< the target's y */
-    s32 unk370;     /**< the target's z */
-} CamHead;
 
 extern s32 D_8009EF00[];
 
@@ -852,8 +798,8 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                             }
                         }
                     } else {
-                        a = ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)gPlayer).unk368,
-                                   D_800D86E0[0].coord.t[2] - (*(CamHead *)gPlayer).unk370);
+                        a = ratan2(D_800D86E0[0].coord.t[0] - gPlayer.unk368,
+                                   D_800D86E0[0].coord.t[2] - gPlayer.unk370);
                         v = D_8009EABA[0];
                         a -= v;
                         a &= 0xFFF;

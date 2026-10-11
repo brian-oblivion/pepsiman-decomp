@@ -23,6 +23,14 @@ typedef struct {
     s16 perUnit;   /**< pixels per VRAM halfword: 4 or 2; not set for 16-bit */
 } TimInfo;
 
+/** @brief Steps one animation channel of @p obj: restarts it when another
+ *         motion is asked for, then advances its TOD sequence.
+ *  @param obj   the animated state (gPlayer or a copy)
+ *  @param index the channel, 0 or 1
+ *  @param arg   SetTodFrame's last argument
+ *  @return 0 once the motion has stopped, 2 at a loop's end, else 1 */
+u8 StepAnimation(PlayerState *obj, u16 index, u8 arg);
+
 /** @brief Rebuilds a coordinate system's matrix from a rotation, keeping
  *         its translation, and marks it changed.
  *  @param rot   the rotation (YXZ order)

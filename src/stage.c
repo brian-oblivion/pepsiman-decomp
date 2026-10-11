@@ -155,14 +155,6 @@ extern GsCOORDINATE2 D_800CDF20[];
 
 /* MATCHING: D_80096008 is the piece table's true start (undefined_syms.*.txt). */
 
-/** @brief The head of the game state as the model loader writes it. */
-typedef struct {
-    u8 unk0[0x20];   /**< not yet known */
-    s32 unk20[100];  /**< first word of each loaded entry */
-    s32 unk1B0[100]; /**< third word of each loaded entry */
-} SeqHead;
-
-#define sSeqHead (*(SeqHead *)gPlayer)
 
 /**
  * @brief Maps the stage TMD and links its objects to the stage object table.
@@ -237,9 +229,9 @@ void LoadAct3Data(s32 *pack) {
     n = *(s32 *)t / 4;
     for (i = 0; i < n; i++) {
         gAnimations[i + 51] = (s32 *)(((s32 *)t)[i] + (s32)t) + 1;
-        sSeqHead.unk20[i + 51] = *gAnimations[i + 51];
+        gPlayer.motionLen[i + 51] = *gAnimations[i + 51];
         gAnimations[i + 51]++;
-        sSeqHead.unk1B0[i + 51] = gAnimations[i + 51][1];
+        gPlayer.motionStart[i + 51] = gAnimations[i + 51][1];
     }
     DefineSprite(0x1E, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
     DefineSprite(0x1F, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);

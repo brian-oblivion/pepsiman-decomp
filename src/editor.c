@@ -169,7 +169,7 @@ extern char D_80095618[]; /**< "SE. " */
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
     u8 unk0[0x38]; /**< not yet known */
-    s32 unk38[3];  /**< a copy of sGameSave.unk348 */
+    s32 unk38[3];  /**< a copy of &gPlayer.x */
     s16 unk44;     /**< a saved halfword of game state */
     u8 unk46[2];   /**< not yet known */
     s32 unk48[6];  /**< six saved words of game state */
@@ -177,16 +177,6 @@ typedef struct {
 
 #define sToolSave (*(ToolSave *)D_80095B28)
 
-/** @brief The game state, seen as the part the tool state saves. */
-typedef struct {
-    u8 unk0[0x348];  /**< not yet known */
-    s32 unk348[3];   /**< saved into sToolSave.unk38 */
-    u8 unk354[0x6C]; /**< not yet known */
-    s32 unk3C0;      /**< handed to the view setup with the position */
-    s32 unk3C4;      /**< a copy of unk348[1] */
-} GameSave;
-
-#define sGameSave (*(GameSave *)gPlayer)
 
 /* MATCHING: also declared in object, which only zeroes it. */
 extern s32 D_80095824;  /**< the current entry of the block, -1 for none */
@@ -687,9 +677,9 @@ s32 UpdateEditor(void) {
                             case 2:
                                 EditorPickRecord();
                                 if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
-                                    sGameSave.unk348[0] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
-                                    sGameSave.unk348[1] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
-                                    sGameSave.unk348[2] = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
+                                    gPlayer.x = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[0];
+                                    gPlayer.y = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[1];
+                                    gPlayer.z = ((Obj48 *)D_800A9008)[sTotals.unk18].unk0[2];
                                     sTotals.unk1C = ((Obj48 *)D_800A9008)[sTotals.unk18].unk38;
                                     gToolMode = 4;
                                     sTotals.unk1E = ((Obj48 *)D_800A9008)[sTotals.unk18].unk34;
@@ -714,9 +704,9 @@ s32 UpdateEditor(void) {
                             case 3:
                                 EditorPickSprite();
                                 if (D_800959D8 == 1 && (gPadTrig & PADRright)) {
-                                    sGameSave.unk348[0] = D_800A7898[sTotals.unk28].unk4[0];
-                                    sGameSave.unk348[1] = D_800A7898[sTotals.unk28].unk4[1];
-                                    sGameSave.unk348[2] = D_800A7898[sTotals.unk28].unk4[2];
+                                    gPlayer.x = D_800A7898[sTotals.unk28].unk4[0];
+                                    gPlayer.y = D_800A7898[sTotals.unk28].unk4[1];
+                                    gPlayer.z = D_800A7898[sTotals.unk28].unk4[2];
                                     sTotals.unk2C = D_800A7898[sTotals.unk28].unk0 - 30;
                                     gToolMode = 5;
                                     sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
@@ -799,9 +789,9 @@ s32 UpdateEditor(void) {
             UpdatePickups(&gSubOt[gActiveBuff]);
             ApplyRecordsToEntries();
             EditorRunSprites();
-            DrawStage(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
+            DrawStage(-gPlayer.x, 0, -gPlayer.z);
             DrawSky();
-            UpdateCamera(sGameSave.unk348[0], sGameSave.unk348[1], sGameSave.unk348[2], sGameSave.unk3C0);
+            UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gPlayer.groundY);
             SetEditorCamera();
             PrintEditorStatus();
             break;
@@ -958,9 +948,9 @@ s32 PrintEditorStatus(void) {
     FntPrint(D_800954F4);
     FntPrint(D_80010B58, sTotals.unk4);
     FntPrint(D_80010B64, D_80095824, gStageObjCount);
-    D_800ACED0.vx = sGameSave.unk348[0];
-    D_800ACED0.vy = sGameSave.unk348[1];
-    D_800ACED0.vz = sGameSave.unk348[2];
+    D_800ACED0.vx = gPlayer.x;
+    D_800ACED0.vy = gPlayer.y;
+    D_800ACED0.vz = gPlayer.z;
     FntPrint(D_80010B7C, D_800ACED0.vx);
     if (sTotals.unk8 == 0) {
         FntPrint(D_800954F4);
@@ -1643,11 +1633,11 @@ s32 UpdateEditorMenu(void) {
                 break;
             case 6:
                 gToolMode = 0;
-                sGameSave.unk348[0] = sRotPos.pos[0];
-                sGameSave.unk348[1] = sRotPos.pos[1];
-                sGameSave.unk348[2] = sRotPos.pos[2];
+                gPlayer.x = sRotPos.pos[0];
+                gPlayer.y = sRotPos.pos[1];
+                gPlayer.z = sRotPos.pos[2];
                 sRotPos.rot.vy = sRotPos.rot.vz;
-                D_800957F4 = FindFloor(sGameSave.unk348);
+                D_800957F4 = FindFloor(&gPlayer.x);
                 gSection = 0;
                 D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                 break;
@@ -1666,10 +1656,10 @@ void SetEditorCamera(void) {
 
     rot = D_800A7680;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
-    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (sGameSave.unk348[1] + sTotals.unkC);
+    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (gPlayer.y + sTotals.unkC);
     gRefView[2] = rcos(rot->vy) * 500 / 4096;
     gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;
-    gRefView[4] = sGameSave.unk348[1];
+    gRefView[4] = gPlayer.y;
     gRefView[5] = rcos(rot->vy - 0x800) * 900 / 4096;
 }
 
@@ -1708,8 +1698,8 @@ s32 EditorFreeMove(void) {
         MoveGamePos(90, sTotals.unk4);
     }
     gWorldShift[1] = 0;
-    gWorldShift[0] = -sGameSave.unk348[0];
-    gWorldShift[2] = -sGameSave.unk348[2];
+    gWorldShift[0] = -gPlayer.x;
+    gWorldShift[2] = -gPlayer.z;
     if (gPad & PADL1) {
         D_800A7680[0].vy -= 11;
     }
@@ -1733,13 +1723,13 @@ s32 EditorFreeMove(void) {
     if (gPadTrig & PADRdown) {
         sTotals.unk8 += sTotals.unk4;
     }
-    sGameSave.unk3C4 = sGameSave.unk348[1];
-    cur = FindFloorNear(sGameSave.unk348, gFloorY, D_800957F4);
+    gPlayer.unk3C4 = gPlayer.y;
+    cur = FindFloorNear(&gPlayer.x, gFloorY, D_800957F4);
     D_80095824 = cur;
     if (cur != -1) {
         D_800957F4 = cur;
     }
-    sGameSave.unk348[1] = gFloorY[0] + sTotals.unk8;
+    gPlayer.y = gFloorY[0] + sTotals.unk8;
     if (D_800958D8 == 0 && (gPadTrig & PADRright) && cur == -1) {
         gToolMode = 7;
     }
@@ -1768,9 +1758,9 @@ void EditorInsertPoint(void) {
             e += D_80095824;
             p = (Pt8 *)sCur.pts;
             dst = p;
-            pos[0] = sGameSave.unk348[0];
-            pos[1] = sGameSave.unk348[1];
-            pos[2] = sGameSave.unk348[2];
+            pos[0] = gPlayer.x;
+            pos[1] = gPlayer.y;
+            pos[2] = gPlayer.z;
             p += 198;
             dst += 199;
             for (i = e->start + e->count; i < 200; i++) {
@@ -1920,9 +1910,9 @@ s32 EditorPlaceBox(void) {
         sTotals.unk12 = i;
     }
     SetBoxCentred(&sRecs5C[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
-    sRecs5C[sTotals.unk12].unk50[0] = sGameSave.unk348[0];
-    sRecs5C[sTotals.unk12].unk50[1] = sGameSave.unk348[1];
-    sRecs5C[sTotals.unk12].unk50[2] = sGameSave.unk348[2];
+    sRecs5C[sTotals.unk12].unk50[0] = gPlayer.x;
+    sRecs5C[sTotals.unk12].unk50[1] = gPlayer.y;
+    sRecs5C[sTotals.unk12].unk50[2] = gPlayer.z;
     sRecs5C[sTotals.unk12].unk0 = -1;
     if (gPadTrig & PADRright) {
         if (D_80095824 == -1) {
@@ -1975,9 +1965,9 @@ s32 EditorPickBox(void) {
                 break;
             }
             best = 25000000;
-            pos.vx = sGameSave.unk348[0];
-            pos.vy = sGameSave.unk348[1];
-            pos.vz = sGameSave.unk348[2];
+            pos.vx = gPlayer.x;
+            pos.vy = gPlayer.y;
+            pos.vz = gPlayer.z;
             /* MATCHING: the record pointer taken inside the body keeps -1
              * rebuilt every pass. */
             for (i = 0; i < 200; i++) {
@@ -2176,18 +2166,18 @@ s32 EditorArrangeRecords(void) {
         case 0:
             D_80096788[0].unk18 = 0;
             D_80096788[0].unk1C = 0;
-            D_80096788[0].unk0[0] = sGameSave.unk348[0];
-            D_80096788[0].unk0[1] = sGameSave.unk348[1];
-            D_80096788[0].unk0[2] = sGameSave.unk348[2];
+            D_80096788[0].unk0[0] = gPlayer.x;
+            D_80096788[0].unk0[1] = gPlayer.y;
+            D_80096788[0].unk0[2] = gPlayer.z;
             D_80096788[0].unk1A = (sTotals.unk20 << 12) / 360;
             D_8009596E = CallStageHook(sTotals.unk1C, D_80096788, D_80096788);
             gSubStep++;
             /* fall through */
         case 1:
             w = D_80096788;
-            w->unk0[0] = sGameSave.unk348[0];
-            w->unk0[1] = sGameSave.unk348[1];
-            w->unk0[2] = sGameSave.unk348[2];
+            w->unk0[0] = gPlayer.x;
+            w->unk0[1] = gPlayer.y;
+            w->unk0[2] = gPlayer.z;
             w->unk1A = (sTotals.unk20 << 12) / 360;
             if (D_80095824 == -1) {
                 gFloorY[1] = 0;
@@ -2247,9 +2237,9 @@ s32 EditorPickRecord(void) {
                 break;
             }
             best = 25000000;
-            pos.vx = sGameSave.unk348[0];
-            pos.vy = sGameSave.unk348[1];
-            pos.vz = sGameSave.unk348[2];
+            pos.vx = gPlayer.x;
+            pos.vy = gPlayer.y;
+            pos.vz = gPlayer.z;
             /* MATCHING: the record pointer taken inside the body keeps -1
              * rebuilt every pass. */
             for (i = 0; i < 200; i++) {
@@ -2402,9 +2392,9 @@ void EditorEditSpriteValues(void) {
     if (sTotals.unk6C != 0) {
         DrawHeadingLine((VECTOR *)D_8009EEC0, sTotals.unk6A);
     }
-    D_800DF818.unk4[0] = sGameSave.unk348[0];
-    D_800DF818.unk4[1] = sGameSave.unk348[1];
-    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    D_800DF818.unk4[0] = gPlayer.x;
+    D_800DF818.unk4[1] = gPlayer.y;
+    D_800DF818.unk4[2] = gPlayer.z;
     GetQuad16(sTotals.unk2C + 30, &e);
     /* MATCHING: each offset in its own s32 local; inline, the sum is
      * narrowed to a halfword add, and one shared local merges the arms. */
@@ -2436,9 +2426,9 @@ s32 EditorPlaceSprite(void) {
 
     /* MATCHING: non-void with no return value; void moves the block order
      * and the delay slots. */
-    D_800DF818.unk4[0] = sGameSave.unk348[0];
-    D_800DF818.unk4[1] = sGameSave.unk348[1];
-    D_800DF818.unk4[2] = sGameSave.unk348[2];
+    D_800DF818.unk4[0] = gPlayer.x;
+    D_800DF818.unk4[1] = gPlayer.y;
+    D_800DF818.unk4[2] = gPlayer.z;
     if (sTotals.unk32 == 0) {
         DrawObjectSprite(sTotals.unk2C + 30, &D_800DF818);
     } else {
@@ -2547,9 +2537,9 @@ s32 EditorPickSprite(void) {
                 break;
             }
             best = 25000000;
-            pos.vx = sGameSave.unk348[0];
-            pos.vy = sGameSave.unk348[1];
-            pos.vz = sGameSave.unk348[2];
+            pos.vx = gPlayer.x;
+            pos.vy = gPlayer.y;
+            pos.vz = gPlayer.z;
             /* MATCHING: the record pointer taken inside the body keeps -1
              * rebuilt every pass. */
             for (i = 0; i < 100; i++) {
@@ -2688,11 +2678,11 @@ s32 UpdateEditorData(void) {
                     break;
                 case 10:
                     if (gPadTrig & (PADRdown | PADRright)) {
-                        sGameSave.unk348[0] = sRotPos.pos[0];
-                        sGameSave.unk348[1] = sRotPos.pos[1];
-                        sGameSave.unk348[2] = sRotPos.pos[2];
+                        gPlayer.x = sRotPos.pos[0];
+                        gPlayer.y = sRotPos.pos[1];
+                        gPlayer.z = sRotPos.pos[2];
                         sRotPos.rot.vy = sRotPos.rot.vz;
-                        D_800957F4 = FindFloor(sGameSave.unk348);
+                        D_800957F4 = FindFloor(&gPlayer.x);
                         gSection = 0;
                         D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
                         SetCurrentBlock((BlockHeader *)0x801FD000);
@@ -3182,9 +3172,9 @@ s32 RunMenu(s16 n) {
 /** @brief Saves three pieces of game state into the tool state block,
  *         then runs a step on the tool buffer. */
 void SaveEditorState(s16 a) {
-    sToolSave.unk38[0] = sGameSave.unk348[0];
-    sToolSave.unk38[1] = sGameSave.unk348[1];
-    sToolSave.unk38[2] = sGameSave.unk348[2];
+    sToolSave.unk38[0] = gPlayer.x;
+    sToolSave.unk38[1] = gPlayer.y;
+    sToolSave.unk38[2] = gPlayer.z;
     sToolSave.unk44 = D_800A7680[0].vy;
     sToolSave.unk48[0] = gRefView[0];
     sToolSave.unk48[1] = gRefView[1];
@@ -3217,9 +3207,9 @@ s32 CheckEditorSlot(s16 i) {
  *         the save step put in the tool state block. */
 void RestoreEditorState(s16 a) {
     LoadEditorSlot(a, (u8 *)0x8016D000);
-    sGameSave.unk348[0] = sToolSave.unk38[0];
-    sGameSave.unk348[1] = sToolSave.unk38[1];
-    sGameSave.unk348[2] = sToolSave.unk38[2];
+    gPlayer.x = sToolSave.unk38[0];
+    gPlayer.y = sToolSave.unk38[1];
+    gPlayer.z = sToolSave.unk38[2];
     D_800A7680[0].vy = sToolSave.unk44;
     gRefView[0] = sToolSave.unk48[0];
     gRefView[1] = sToolSave.unk48[1];
@@ -3334,8 +3324,8 @@ void MoveGamePos(s32 deg, s32 dist) {
 
     rot = D_800A7680;
     ang = (deg << 12) / 360;
-    sGameSave.unk348[0] -= rsin(rot->vy + ang) * dist >> 12;
-    sGameSave.unk348[2] -= rcos(rot->vy + ang) * dist >> 12;
+    gPlayer.x -= rsin(rot->vy + ang) * dist >> 12;
+    gPlayer.z -= rcos(rot->vy + ang) * dist >> 12;
 }
 
 /** @brief Totals unk4 of the current block's entries into sTotals.unk26. */

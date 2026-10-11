@@ -489,7 +489,7 @@ typedef struct {
 } ModelSlot;
 
 /* MATCHING: player has its own view of these slots. */
-extern ModelSlot D_800D8370[];
+extern ModelSlot gModeObjectModels[];
 extern u8 gTodObjs[];        /**< the 20 GsDOBJ2s of gTodObjTable */
 extern u8 gTodCoordParams[]; /**< a GsCOORD2PARAM for each of gTodCoords */
 
@@ -509,13 +509,13 @@ void func_80013CDC(void) {
     GsMapModelingData((unsigned long *)gModelTmd);
     InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
-    InitModel(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
-    InitModel(&D_800D8370[1].m, (unsigned long *)(*p + 0x8014D000), 1);
-    InitModel(&D_800D8370[2].m, (unsigned long *)(*p + 0x8014D000), 2);
-    InitModel(&D_800D8370[3].m, (unsigned long *)(*p + 0x8014D000), 3);
-    InitModel(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
-    InitModel(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
-    InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
+    InitModel(&gModeObjectModels[0].m, (unsigned long *)(*p + 0x8014D000), 0);
+    InitModel(&gModeObjectModels[1].m, (unsigned long *)(*p + 0x8014D000), 1);
+    InitModel(&gModeObjectModels[2].m, (unsigned long *)(*p + 0x8014D000), 2);
+    InitModel(&gModeObjectModels[3].m, (unsigned long *)(*p + 0x8014D000), 3);
+    InitModel(&gModeObjectModels[4].m, (unsigned long *)(*p + 0x8014D000), 4);
+    InitModel(&gModeObjectModels[5].m, (unsigned long *)(*p + 0x8014D000), 5);
+    InitModel(&gModeObjectModels[6].m, (unsigned long *)(*p + 0x8014D000), 6);
     InitTodObjTable(gTodObjTable, gTodObjs, gTodCoords, gTodCoordParams, 20);
     p = (s32 *)0x80123000;
     gLoopI = 0;

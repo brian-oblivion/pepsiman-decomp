@@ -42,10 +42,10 @@ void UpdateMotionViewer(void) {
             gTodCoords[0].coord.t[0] = 0;
             gTodCoords[0].coord.t[1] = 0;
             gTodCoords[0].coord.t[2] = 0;
-            D_8009EAB8[0] = 0;
-            D_8009EAB8[1] = sPlayer.unk380;
-            D_8009EAB8[2] = sPlayer.unk384;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+            gBodyRot[0] = 0;
+            gBodyRot[1] = sPlayer.unk380;
+            gBodyRot[2] = sPlayer.unk384;
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
             sPlayer.want[0] = 0;
             StepAnimation(&sPlayer, 0, 0);
             gModeStep++;
@@ -100,7 +100,7 @@ void UpdateMotionViewer(void) {
   guarded); model includes that header.
 - `gViewerReplay` is now `s8` here (retail loads it `lb`; SelectViewerMotion
   only stores it), and it and `gViewerMotion` moved to the top of the unit.
-- The common.h views fit retail as they are: `D_8009EAB8` (`u16[]`, the
+- The common.h views fit retail as they are: `gBodyRot` (`u16[]`, the
   rotation written as three halfwords and passed as an SVECTOR) and
   `D_8009EB7E` (the player's `want[0]`, which retail reaches through its
   own symbol in state 1 and through the `sPlayer` base in state 0).

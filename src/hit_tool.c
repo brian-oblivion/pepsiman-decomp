@@ -337,14 +337,14 @@ void UpdateTool(void) {
             UpdateToolView();
             if (gToolKind == 1 && gToolQuadStage == 1) {
                 DrawHitQuad(&gToolNewQuad);
-                SetBoxAround(&gToolNewQuad, D_8009EEC0, gToolQuadW, gToolQuadH);
+                SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, gToolQuadW, gToolQuadH);
             }
             if (D_80095A58 == 0) {
                 SelectToolSection();
-                DrawToolPin((VECTOR *)D_8009EEC0);
-                DrawToolPole((VECTOR *)D_8009EEC0);
+                DrawToolPin((VECTOR *)&gPlayer.x);
+                DrawToolPole((VECTOR *)&gPlayer.x);
                 if (gToolKind == 0) {
-                    DrawToolRadius((VECTOR *)D_8009EEC0, (s16)gToolRadius * 10);
+                    DrawToolRadius((VECTOR *)&gPlayer.x, (s16)gToolRadius * 10);
                 }
             }
             break;
@@ -1541,7 +1541,7 @@ void PlaceHitQuad(void) {
             gToolQuadW = 100;
             gToolQuadH = 100;
             gToolNewQuad.unk48 = D_800D8D20[gToolSection].unk10;
-            SetBoxAround(&gToolNewQuad, D_8009EEC0, 100, 100);
+            SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, 100, 100);
             gToolQuadStage = 1;
             break;
         case 1:

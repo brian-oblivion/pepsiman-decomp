@@ -12,16 +12,13 @@
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
-extern s32 D_800D8440[];
 extern u8 D_800D8960[];
-extern s16 D_800D38DE[];
-extern s8 D_8009EF4D[];
 
 extern s32 D_800AC860;
-extern s16 D_800959B2;
+extern s16 sSteerDrift; /**< SteerMode2's drift: +-4 a step while steering, back by 2, within +-10 */
+
 /* MATCHING: cc1 splits this load (its lui sits in a branch delay slot, away
  * from the lw), so it is an array here, though both halves use one register. */
-extern s32 D_8009EF44[];
 
 /** @brief A point of a 21-by-16 grid spanning the 320x240 screen, 16
  *         pixels apart, stored row by row. */
@@ -31,9 +28,9 @@ typedef struct {
     s32 z; /**< always 0 */
 } GridPoint;
 
-extern s32 D_800959A8;
-extern GridPoint D_800DE5E0[];
-extern DVECTOR D_800DE0A0[];
+extern s32 sGridAngle;          /**< UpdateGridTest's angle, moved by L1 and R1 */
+extern GridPoint sGridPoints[]; /**< UpdateGridTest's 21 x 16 grid */
+extern DVECTOR sGridScreen[];   /**< each grid point projected to the screen */
 extern s32 D_800DED50[];
 extern s32 D_800957F8;
 extern s32 D_80095800;
@@ -50,7 +47,6 @@ typedef struct {
 
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)gFlatLights)
-extern s32 D_8009EEF8[];
 
 /** @brief A 72-byte record of the shared slot table, as the item
  *         spawner fills it; collision's Slot48 is the same record. */
@@ -82,27 +78,14 @@ typedef struct {
     u8 pad5C[0x78 - 0x5C];
 } ObjRec;
 
-extern SlotRec D_800D3860[];
+extern SlotRec gModeObjects[]; /**< the mode objects' records, one per gModeObjectModels slot */
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
-extern ObjRec D_800D8370[];
+extern ObjRec gModeObjectModels[];
 /* MATCHING: object types these Rec78 and Rec48; this unit's records are views of them. */
 void DrawObjectModel(Rec78 *rec, Rec48 *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
-extern u8 D_8009EF49[];
-extern s32 D_800D85A8[];
-extern s32 D_800D83C8[];
-extern s32 D_800D8530[];
-extern s32 D_800D8698[];
-extern s32 D_800D84B8[];
-extern s32 D_800D8620[];
 extern u8 D_800D3358[];
-extern s16 D_800D3896[];
-extern s16 D_800D3926[];
-extern s16 D_800D396E[];
-extern s16 D_800D39B6[];
-extern s16 D_800D39FE[];
-extern s16 D_800D3A46[];
 
 void ApplySteer(u8 mode, u16 a, s16 b);
 void SteerPlayer(void);
@@ -132,7 +115,7 @@ typedef struct {
 } HitReaction;
 
 extern HitReaction gHitReactions[];
-extern s8 D_8009575F;
+extern s8 sLastHitMask; /**< the hit flags of gPlayerHits, or-ed, when last reacted to */
 /* Overlay entry points: the stage modes' own code. */
 void func_800F8A58(void);
 void func_800F8B60(void);
@@ -149,19 +132,19 @@ void func_80028500(void);
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void StartRumble(u16 *table, s32 index);
 extern s32 gGamePad;
-extern u16 D_8009587E;
+extern u16 sViewSpeed; /**< follows speed by 1 a frame */
 extern s16 D_800957B0;
-extern s32 D_800956E4;
-extern s32 D_800956E0;
-extern s32 D_800DF5A0[];
-extern s32 D_800DF5B0[];
+extern s32 sJumpPeakY;     /**< the lowest y (highest point) since the jump began */
+extern s32 sJumpDistance;  /**< the distance from sJumpStart to sJumpLanding; 0 until landing */
+extern s32 sJumpStart[];   /**< where the jump began, x y z */
+extern s32 sJumpLanding[]; /**< where the jump landed, x y z */
 
 /** @brief Three words moved as one, for a block copy. */
 typedef struct {
     s32 w[3]; /**< the words */
 } Words3;
 
-extern s32 D_800DF5C0[];
+extern s32 sSavedPos[]; /**< the player's position, saved and held through the miss sequence */
 /* MATCHING: a per-unit view; object declares it the same way, editor
  * as words. */
 extern Rec5C D_800CF080[];
@@ -205,13 +188,13 @@ void DrawPlayerShadow(void) {
 void InitGridTest(void) {
     for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
         for (gLoopI = 0; gLoopI < 21; gLoopI++) {
-            D_800DE5E0[gLoopJ * 21 + gLoopI].x = gLoopI * 16 - 160;
-            D_800DE5E0[gLoopJ * 21 + gLoopI].y = gLoopJ * 16 - 120;
-            D_800DE5E0[gLoopJ * 21 + gLoopI].z = 0;
+            sGridPoints[gLoopJ * 21 + gLoopI].x = gLoopI * 16 - 160;
+            sGridPoints[gLoopJ * 21 + gLoopI].y = gLoopJ * 16 - 120;
+            sGridPoints[gLoopJ * 21 + gLoopI].z = 0;
         }
     }
     gRefView[0] = 0;
-    D_800959A8 = 0;
+    sGridAngle = 0;
     gRefView[1] = 0;
     gRefView[2] = 1000;
     gRefView[3] = 0;
@@ -234,13 +217,13 @@ void UpdateGridTest(void) {
     POLY_F4 *pp;
 
     if (gPadTrig & PADRup) {
-        D_800959A8 = 0;
+        sGridAngle = 0;
     }
     if (gPad & PADL1) {
-        D_800959A8 += 2;
+        sGridAngle += 2;
     }
     if (gPad & PADR1) {
-        D_800959A8 -= 2;
+        sGridAngle -= 2;
     }
     if (gPadTrig & PADstart) {
         gGameMode = GM_OVERLAY0_LOAD;
@@ -261,8 +244,8 @@ void UpdateGridTest(void) {
     line.b = line.g = line.r = 0xFF;
     for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
         for (gLoopI = 0; gLoopI < 21; gLoopI++) {
-            x = D_800DE5E0[gLoopJ * 21 + gLoopI].x;
-            y = D_800DE5E0[gLoopJ * 21 + gLoopI].y;
+            x = sGridPoints[gLoopJ * 21 + gLoopI].x;
+            y = sGridPoints[gLoopJ * 21 + gLoopI].y;
             GsInitCoordinate2(WORLD, &coord);
             coord.coord.t[2] = 0;
             coord.flg = 0;
@@ -271,9 +254,9 @@ void UpdateGridTest(void) {
             GsGetLs(&coord, &ls);
             GsSetLsMatrix(&ls);
             v.vx = v.vy = v.vz = 0;
-            D_800DE5E0[gLoopJ * 21 + gLoopI].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
-            D_800DE0A0[gLoopJ * 21 + gLoopI].vx = line.x0 = line.x1 = sxy.vx;
-            D_800DE0A0[gLoopJ * 21 + gLoopI].vy = line.y0 = line.y1 = sxy.vy;
+            sGridPoints[gLoopJ * 21 + gLoopI].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
+            sGridScreen[gLoopJ * 21 + gLoopI].vx = line.x0 = line.x1 = sxy.vx;
+            sGridScreen[gLoopJ * 21 + gLoopI].vy = line.y0 = line.y1 = sxy.vy;
             GsSortLine(&line, &gOt[gActiveBuff], 0);
         }
     }
@@ -281,14 +264,14 @@ void UpdateGridTest(void) {
     for (gLoopJ = 0; gLoopJ < 15; gLoopJ++) {
         for (gLoopI = 0; gLoopI < 20; gLoopI++) {
             SetPolyF4(pp);
-            pp->x0 = D_800DE0A0[gLoopJ * 21 + gLoopI].vx;
-            pp->y0 = D_800DE0A0[gLoopJ * 21 + gLoopI].vy;
-            pp->x1 = D_800DE0A0[gLoopJ * 21 + (gLoopI + 1)].vx;
-            pp->y1 = D_800DE0A0[gLoopJ * 21 + (gLoopI + 1)].vy;
-            pp->x3 = D_800DE0A0[(gLoopJ + 1) * 21 + (gLoopI + 1)].vx;
-            pp->y3 = D_800DE0A0[(gLoopJ + 1) * 21 + (gLoopI + 1)].vy;
-            pp->x2 = D_800DE0A0[(gLoopJ + 1) * 21 + gLoopI].vx;
-            pp->y2 = D_800DE0A0[(gLoopJ + 1) * 21 + gLoopI].vy;
+            pp->x0 = sGridScreen[gLoopJ * 21 + gLoopI].vx;
+            pp->y0 = sGridScreen[gLoopJ * 21 + gLoopI].vy;
+            pp->x1 = sGridScreen[gLoopJ * 21 + (gLoopI + 1)].vx;
+            pp->y1 = sGridScreen[gLoopJ * 21 + (gLoopI + 1)].vy;
+            pp->x3 = sGridScreen[(gLoopJ + 1) * 21 + (gLoopI + 1)].vx;
+            pp->y3 = sGridScreen[(gLoopJ + 1) * 21 + (gLoopI + 1)].vy;
+            pp->x2 = sGridScreen[(gLoopJ + 1) * 21 + gLoopI].vx;
+            pp->y2 = sGridScreen[(gLoopJ + 1) * 21 + gLoopI].vy;
             y = 1;
             if (gLoopJ & y) {
                 if (gLoopI & y) {
@@ -309,13 +292,13 @@ void UpdateGridTest(void) {
                 pp->g0 = 0x70;
                 pp->b0 = 0x80;
             }
-            GsSortPoly(pp, &gOt[gActiveBuff], D_800DE5E0[gLoopJ * 21 + gLoopI].z >> 6);
+            GsSortPoly(pp, &gOt[gActiveBuff], sGridPoints[gLoopJ * 21 + gLoopI].z >> 6);
         }
     }
-    D_800957F8 = D_800959A8;
+    D_800957F8 = sGridAngle;
     D_80095800 = D_800DED50[0];
-    D_80095804 = D_800DE0A0[0].vx;
-    D_8009580C = D_800DE0A0[0].vy;
+    D_80095804 = sGridScreen[0].vx;
+    D_8009580C = sGridScreen[0].vy;
 }
 
 void func_80022F58(void) {}
@@ -436,33 +419,33 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (gPlayer.y >= gPlayer.groundY) {
-                PolarOffset(gCourse.rot.vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
-                gPlayer.x += D_800D39C8[0];
-                gPlayer.z += D_800D39C8[2];
+                PolarOffset(gCourse.rot.vy * 360 / 4096 - 180, 30, (VECTOR *)gOffsetVec);
+                gPlayer.x += gOffsetVec[0];
+                gPlayer.z += gOffsetVec[2];
             }
             break;
     }
     switch (((u32)D_80095864 >> 20) & 3) {
         case 1:
-            if (D_8009EF20[0] != 0) {
+            if (gPlayer.speed != 0) {
                 t = 30;
             }
             break;
         case 2:
-            if (D_8009EF20[0] != 0) {
+            if (gPlayer.speed != 0) {
                 t = 30;
             }
             break;
         case 3:
             if (gPlayer.y >= gPlayer.groundY) {
-                PolarOffset(gCourse.rot.vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
-                gPlayer.x += D_800D39C8[0];
-                gPlayer.z += D_800D39C8[2];
+                PolarOffset(gCourse.rot.vy * 360 / 4096, 30, (VECTOR *)gOffsetVec);
+                gPlayer.x += gOffsetVec[0];
+                gPlayer.z += gOffsetVec[2];
             }
             break;
     }
     gSpeedFixed = t << 4;
-    switch (D_8009EF48[0] & 0xF) {
+    switch (gPlayer.rideMode & 0xF) {
         case 0:
         case 1:
         case 3:
@@ -479,7 +462,7 @@ void UpdatePlayer(void) {
             gPlayer.z -= gPlayer.stepZ;
             break;
     }
-    switch (D_8009EF48[0] & 0xF) {
+    switch (gPlayer.rideMode & 0xF) {
         case 0:
             SteerPlayer();
             break;
@@ -508,12 +491,12 @@ void UpdatePlayer(void) {
         }
     }
     g->yaw = v;
-    D_8009EAB8[1] = gPlayer.yaw;
-    D_8009EAB8[2] = gPlayer.lean;
+    gBodyRot[1] = gPlayer.yaw;
+    gBodyRot[2] = gPlayer.lean;
     gTodCoords[0].coord.t[0] = gPlayer.drawX;
     gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
     gTodCoords[0].coord.t[2] = gPlayer.drawZ;
-    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+    SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
     gWorldShift[1] = 0;
     gWorldShift[0] = -gPlayer.x;
     gWorldShift[2] = -gPlayer.z;
@@ -548,7 +531,7 @@ void SteerPlayer(void) {
             return;
         }
     }
-    D_8009EEF8[0] = gCourse.rot.vy;
+    gPlayer.yaw = gCourse.rot.vy;
 }
 
 static __inline__ void pushBack(s32 deg, s32 dist) {
@@ -706,8 +689,8 @@ s32 ApplyGravity(void) {
     s32 z;
 
     x = gPlayer.y;
-    if (x < D_800956E4) {
-        D_800956E4 = x;
+    if (x < sJumpPeakY) {
+        sJumpPeakY = x;
     }
     y = gPlayer.y;
     if (y < gPlayer.unk39C) {
@@ -751,11 +734,11 @@ s32 ApplyGravity(void) {
         gPlayer.unk39C = 0;
         gPlayer.unk3BC = 0;
         gPlayer.y = z;
-        if (D_800956E0 == 0) {
-            D_800DF5B0[0] = gPlayer.x;
-            D_800DF5B0[1] = z;
-            D_800DF5B0[2] = gPlayer.z;
-            D_800956E0 = SquareRoot0(DistanceSquared((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+        if (sJumpDistance == 0) {
+            sJumpLanding[0] = gPlayer.x;
+            sJumpLanding[1] = z;
+            sJumpLanding[2] = gPlayer.z;
+            sJumpDistance = SquareRoot0(DistanceSquared((VECTOR *)sJumpStart, (VECTOR *)sJumpLanding));
             if (D_80095900 == 0) {
                 StartRumble(gRumblePatterns, 13);
             }
@@ -864,7 +847,7 @@ void ReactToHits(PlayerState *state) {
                 if (gPlayerHits[i].kind != 0) {
                     EndJump();
                 }
-                D_8009575F = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
+                sLastHitMask = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
                 return;
             case 0:
             default:
@@ -884,18 +867,18 @@ void ReactToHits(PlayerState *state) {
                     gBonusLevel = 0;
                 }
                 if (gHitReactions[gPlayerHits[i].kind].b[7] == 1 &&
-                    (s8)(gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit) != D_8009575F) {
+                    (s8)(gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit) != sLastHitMask) {
                     AddBonusLevel(-1);
                 }
                 state->action = v;
                 if (gPlayerHits[i].kind != 0) {
                     EndJump();
                 }
-                D_8009575F = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
+                sLastHitMask = gPlayerHits[0].hit | gPlayerHits[1].hit | gPlayerHits[2].hit;
                 return;
         }
     }
-    D_8009575F = 0;
+    sLastHitMask = 0;
 }
 
 /* MATCHING: model defines this with s16/u16 parameters and an s16 result; this unit's
@@ -1351,10 +1334,11 @@ top:
                 state->unk38F = 0;
                 state->unk3BC = 0;
                 StartRumble(gRumblePatterns, 13);
-                D_800DF5B0[0] = state->x;
-                D_800DF5B0[1] = state->y;
-                D_800DF5B0[2] = state->z;
-                D_800956E0 = SquareRoot0(DistanceSquared((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+                sJumpLanding[0] = state->x;
+                sJumpLanding[1] = state->y;
+                sJumpLanding[2] = state->z;
+                sJumpDistance =
+                    SquareRoot0(DistanceSquared((VECTOR *)sJumpStart, (VECTOR *)sJumpLanding));
             }
             break;
         case 0xD:
@@ -1405,11 +1389,11 @@ top:
                     }
                 }
             }
-            D_8009EAB8[1] = gPlayer.yaw + gPlayer.unk362;
+            gBodyRot[1] = gPlayer.yaw + gPlayer.unk362;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
             gTodCoords[0].coord.t[2] = gPlayer.drawZ;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
             break;
         case 0x10:
             if (state->unk374 < 10) {
@@ -1568,7 +1552,7 @@ top:
         case 0x1C:
             state->speed -= 2;
             if (state->speed >= 0x15) {
-                ScatterEffect4((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)&gPlayer.x);
             }
             if (state->speed <= 0) {
                 ResetSpeed();
@@ -1615,7 +1599,7 @@ top:
         case 0x20:
             if (state->motionResult[0] == 0) {
                 state->unk374++;
-                ScatterEffect4((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)&gPlayer.x);
                 state->motion[0] = 0x20;
                 state->curMotion[0] = 0xFF;
             }
@@ -1627,7 +1611,7 @@ top:
         case 0x21:
             state->speed -= 1;
             if (state->speed >= 6) {
-                ScatterEffect4((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)&gPlayer.x);
                 StartRumble(gRumblePatterns, 11);
             }
             if (state->speed <= 0) {
@@ -1707,7 +1691,7 @@ top:
                 gTodCoords[0].coord.t[0] = gPlayer.drawX;
                 gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
                 gTodCoords[0].coord.t[2] = gPlayer.drawZ;
-                SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+                SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
                 break;
             }
             state->speed += 4;
@@ -1725,7 +1709,7 @@ top:
                     }
             break;
         case 0x24:
-            ScatterEffect4((VECTOR *)D_8009EEC0);
+            ScatterEffect4((VECTOR *)&gPlayer.x);
             if (state->motionResult[0] == 0) {
                 switch (state->action) {
                     case 0x28:
@@ -1750,7 +1734,7 @@ top:
         case 0x27:
             if (state->motionResult[0] == 0) {
                 state->unk374++;
-                ScatterEffect4((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)&gPlayer.x);
                 state->motion[0] = 0x27;
                 state->curMotion[0] = 0xFF;
             }
@@ -1786,12 +1770,12 @@ top:
         case 0x28:
             switch (state->action) {
                 case 0x51:
-                    D_8009EAB8[1] = gPlayer.unk362 = gCourse.rot.vy + 0x800;
+                    gBodyRot[1] = gPlayer.unk362 = gCourse.rot.vy + 0x800;
                 case 0x55:
                     gTodCoords[0].coord.t[0] = gPlayer.drawX;
                     gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
                     gTodCoords[0].coord.t[2] = gPlayer.drawZ;
-                    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+                    SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
                     if (++state->unk378 < 10) {
                         /* MATCHING: x - (5 - r) keeps the -5 on the loaded word. */
                         gView[0] = gView[0] - (5 - rand() % 10);
@@ -1818,14 +1802,14 @@ top:
                     } else {
                         gPlayer.unk360 = state->unk374 * 0x5000 / 360;
                     }
-                    D_8009EAB8[0] = gPlayer.unk360;
+                    gBodyRot[0] = gPlayer.unk360;
                     gTodCoords[0].coord.t[0] = gPlayer.drawX;
                     gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
                     gTodCoords[0].coord.t[2] = gPlayer.drawZ;
-                    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+                    SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
                     if (state->motionResult[0] == 0) {
                         gPlayer.unk360 = 0;
-                        D_8009EAB8[0] = 0;
+                        gBodyRot[0] = 0;
                         state->motion[0] = 0x29;
                     }
                     break;
@@ -1858,7 +1842,7 @@ top:
                     break;
                 case 0x4B:
                     if (state->speed >= 0x15) {
-                        ScatterEffect4((VECTOR *)D_8009EEC0);
+                        ScatterEffect4((VECTOR *)&gPlayer.x);
                     }
                     state->speed -= 2;
                     if (state->speed <= 0) {
@@ -1913,7 +1897,7 @@ top:
             gTodCoords[0].coord.t[2] = gPlayer.drawZ;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
             gPlayer.drawZ = 0;
             gPlayer.drawX = 0;
         case 0x22:
@@ -1980,11 +1964,11 @@ top:
                     gPlayer.unk362 = state->unk376 = Lerp(state->unk376, 0x5800, state->unk378, 60);
                     break;
             }
-            D_8009EAB8[1] = gPlayer.unk362;
+            gBodyRot[1] = gPlayer.unk362;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
             gTodCoords[0].coord.t[2] = gPlayer.drawZ;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
             break;
         case 0x31:
             if (state->motionResult[0] == 0) {
@@ -2002,7 +1986,7 @@ top:
         case 0x33:
         case 0x34:
         case 0x35:
-            if ((u32)((D_8009EF48[0] & 0xF) - 2) < 2 && state->motionResult[0] == 0) {
+            if ((u32)((gPlayer.rideMode & 0xF) - 2) < 2 && state->motionResult[0] == 0) {
                 state->curMotion[0] = 0xFF;
             }
             break;
@@ -2091,7 +2075,7 @@ s32 UpdateSlideDash(void) {
 }
 
 /* MATCHING: as UpdateJumpMode3 for the switch; the volatile read keeps the unk348 and
- * unk350 loads below the stores to D_800956E0, D_800DF5A0[1] and D_800956E4. */
+ * unk350 loads below the stores to sJumpDistance, sJumpStart[1] and sJumpPeakY. */
 void UpdateJump(void) {
     s16 n;
 
@@ -2099,11 +2083,11 @@ void UpdateJump(void) {
         if ((gGamePadTrig & PADRright) &&
             (gPlayer.y >= gPlayer.groundY || (gPlayer.unk3B8 == 1 && gPlayer.unk3BC == 1)) &&
             gPlayer.jumpState == 0) {
-            D_800956E0 = 0;
-            D_800DF5A0[1] = gPlayer.y;
-            D_800956E4 = gPlayer.y;
-            D_800DF5A0[0] = *(volatile s32 *)&gPlayer.x;
-            D_800DF5A0[2] = gPlayer.z;
+            sJumpDistance = 0;
+            sJumpStart[1] = gPlayer.y;
+            sJumpPeakY = gPlayer.y;
+            sJumpStart[0] = *(volatile s32 *)&gPlayer.x;
+            sJumpStart[2] = gPlayer.z;
             gPlayer.unk38F = 1;
             gPlayer.unk3BC = 0;
             gPlayer.jumpState = 1;
@@ -2163,11 +2147,11 @@ s32 SetPlayerView(void) {
     gRefView[2] = rcos(gCourse.rot.vy) * 400 / 4096;
     gRefView[3] = rsin(gCourse.rot.vy - 0x800) * 900 / 4096;
     gRefView[5] = rcos(gCourse.rot.vy - 0x800) * 900 / 4096;
-    if (D_8009587E < gPlayer.speed) {
-        D_8009587E++;
+    if (sViewSpeed < gPlayer.speed) {
+        sViewSpeed++;
     }
-    if (D_8009587E > gPlayer.speed) {
-        D_8009587E--;
+    if (sViewSpeed > gPlayer.speed) {
+        sViewSpeed--;
     }
 }
 
@@ -2226,10 +2210,10 @@ top:
             if (gBonusLevel <= 0) {
                 gBonusLevel = 0;
             }
-            if (D_8009EF4D[0] == 1) {
+            if (gPlayer.unk3D5 == 1) {
                 gBonusLevel = 0;
             }
-            if (gBonusLevel != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || gSection != 0)) {
+            if (gBonusLevel != 0 && gPlayer.unk3D5 != 1 && (gStage != 4 || gSection != 0)) {
                 gElapsed++;
                 gTimeLeft--;
             }
@@ -2285,12 +2269,12 @@ top:
                 }
                 gFellOff = 0;
                 D_800957D6 = 0;
-                *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
+                *(Words3 *)sSavedPos = *(Words3 *)&gPlayer.x;
             }
             if (gMissTimer >= 10) {
                 gPlayer.speed = 0;
                 gSpeedFixed = 0;
-                *(Words3 *)&gPlayer.x = *(Words3 *)D_800DF5C0;
+                *(Words3 *)&gPlayer.x = *(Words3 *)sSavedPos;
             }
             if (gMissTimer > 100) {
                 t = gMissTimer - 100;
@@ -2314,7 +2298,7 @@ top:
         case 100:
             ClipF = 0;
             if (gRetries == 0) {
-                D_8009EF4A[0] = 0;
+                gPlayer.unk3D2 = 0;
                 gGameMode = GM_MENU_LOAD;
                 gModeStep = 0xFFFF;
             } else {
@@ -2336,44 +2320,48 @@ end:;
 void DrawModeObject(void) {
     switch (gPlayer.rideMode & 0xF) {
         case 1:
-            D_800D3860[0].unk18 = -0x88;
-            D_800D3860[0].unk1A = 0xAA;
-            D_800D3860[0].unk4 = 0;
-            D_800D8370[0].unk58 = (s32)&gTodCoords[16];
-            D_800D3860[0].unk0 = -gWorldShift[0];
-            D_800D3860[0].unk8 = -gWorldShift[2];
-            DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
+            gModeObjects[0].unk18 = -0x88;
+            gModeObjects[0].unk1A = 0xAA;
+            gModeObjects[0].unk4 = 0;
+            gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
+            gModeObjects[0].unk0 = -gWorldShift[0];
+            gModeObjects[0].unk8 = -gWorldShift[2];
+            DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[0].unk36],
+                            (Rec48 *)&gModeObjects[0]);
             break;
         case 4:
-            D_800D3860[5].unk18 = -0x88;
-            D_800D3860[5].unk1C = -0x88;
-            D_800D3860[5].unk1A = 0xAA;
-            D_800D3860[5].unk4 = 0;
-            D_800D8370[5].unk58 = (s32)&gTodCoords[16];
-            D_800D3860[5].unk0 = -gWorldShift[0];
-            D_800D3860[5].unk8 = -gWorldShift[2];
-            DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
+            gModeObjects[5].unk18 = -0x88;
+            gModeObjects[5].unk1C = -0x88;
+            gModeObjects[5].unk1A = 0xAA;
+            gModeObjects[5].unk4 = 0;
+            gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
+            gModeObjects[5].unk0 = -gWorldShift[0];
+            gModeObjects[5].unk8 = -gWorldShift[2];
+            DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[5].unk36],
+                            (Rec48 *)&gModeObjects[5]);
             break;
         case 2:
             switch (gStage) {
                 case 3:
-                    D_800D3860[3].unk4 = 0x3C;
-                    D_800D8370[3].unk58 = (s32)&gTodCoords[0];
-                    D_800D3860[3].unk0 = -gWorldShift[0];
-                    D_800D3860[3].unk8 = -gWorldShift[2];
-                    D_800D3860[3].unk18 += ANGLE_DEG(gPlayer.speed / 2);
-                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
+                    gModeObjects[3].unk4 = 0x3C;
+                    gModeObjectModels[3].unk58 = (s32)&gTodCoords[0];
+                    gModeObjects[3].unk0 = -gWorldShift[0];
+                    gModeObjects[3].unk8 = -gWorldShift[2];
+                    gModeObjects[3].unk18 += ANGLE_DEG(gPlayer.speed / 2);
+                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[3].unk36],
+                                    (Rec48 *)&gModeObjects[3]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
                     break;
                 case 10:
-                    D_800D3860[6].unk4 = 0x32;
-                    D_800D8370[6].unk58 = (s32)&gTodCoords[0];
-                    D_800D3860[6].unk0 = -gWorldShift[0];
-                    D_800D3860[6].unk8 = -gWorldShift[2];
-                    D_800D3860[6].unk18 += ANGLE_DEG(gPlayer.speed / 2);
-                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
+                    gModeObjects[6].unk4 = 0x32;
+                    gModeObjectModels[6].unk58 = (s32)&gTodCoords[0];
+                    gModeObjects[6].unk0 = -gWorldShift[0];
+                    gModeObjects[6].unk8 = -gWorldShift[2];
+                    gModeObjects[6].unk18 += ANGLE_DEG(gPlayer.speed / 2);
+                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[6].unk36],
+                                    (Rec48 *)&gModeObjects[6]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -2383,27 +2371,29 @@ void DrawModeObject(void) {
         case 3:
             switch (gStage) {
                 case 0:
-                    D_800D3860[4].unk4 = 0;
-                    D_800D8370[4].unk58 = (s32)&gTodCoords[1];
-                    D_800D3860[4].unk0 = -gWorldShift[0];
-                    D_800D3860[4].unk8 = -gWorldShift[2];
-                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
+                    gModeObjects[4].unk4 = 0;
+                    gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
+                    gModeObjects[4].unk0 = -gWorldShift[0];
+                    gModeObjects[4].unk8 = -gWorldShift[2];
+                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[4].unk36],
+                                    (Rec48 *)&gModeObjects[4]);
                     break;
                 case 12:
-                    D_800D3860[2].unk4 = 0;
-                    D_800D8370[2].unk58 = (s32)&gTodCoords[1];
-                    D_800D3860[2].unk0 = -gWorldShift[0];
-                    D_800D3860[2].unk8 = -gWorldShift[2];
-                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
+                    gModeObjects[2].unk4 = 0;
+                    gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
+                    gModeObjects[2].unk0 = -gWorldShift[0];
+                    gModeObjects[2].unk8 = -gWorldShift[2];
+                    DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[2].unk36],
+                                    (Rec48 *)&gModeObjects[2]);
                     break;
             }
             break;
     }
-    if ((D_8009EF48[0] >> 4) == 5) {
-        D_800D3860[1].unk4 = 0;
-        D_800D3860[1].unk0 = -gWorldShift[0];
-        D_800D3860[1].unk8 = -gWorldShift[2];
-        DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[1].unk36], (Rec48 *)&D_800D3860[1]);
+    if ((gPlayer.rideMode >> 4) == 5) {
+        gModeObjects[1].unk4 = 0;
+        gModeObjects[1].unk0 = -gWorldShift[0];
+        gModeObjects[1].unk8 = -gWorldShift[2];
+        DrawObjectModel((Rec78 *)&gModeObjectModels[gModeObjects[1].unk36], (Rec48 *)&gModeObjects[1]);
     }
 }
 
@@ -2413,15 +2403,15 @@ s32 AttachModeObject(void) {
         case 1:
             if ((u32)(gPlayer.motion[0] - 0x33) >= 7) {
                 gPlayer.motion[0] = 0x33;
-                D_800D83C8[0] = (s32)&gTodCoords[16];
-                D_800D3896[0] = 0;
+                gModeObjectModels[0].unk58 = (s32)&gTodCoords[16];
+                gModeObjects[0].unk36 = 0;
             }
             break;
         case 4:
             if ((u32)(gPlayer.motion[0] - 0x33) >= 7) {
                 gPlayer.motion[0] = 0x33;
-                D_800D8620[0] = (s32)&gTodCoords[16];
-                D_800D39FE[0] = 5;
+                gModeObjectModels[5].unk58 = (s32)&gTodCoords[16];
+                gModeObjects[5].unk36 = 5;
             }
             break;
         case 2:
@@ -2429,12 +2419,12 @@ s32 AttachModeObject(void) {
                 gPlayer.motion[0] = 0x33;
                 switch (gStage) {
                     case 3:
-                        D_800D8530[0] = (s32)&gTodCoords[0];
-                        D_800D396E[0] = 3;
+                        gModeObjectModels[3].unk58 = (s32)&gTodCoords[0];
+                        gModeObjects[3].unk36 = 3;
                         break;
                     case 10:
-                        D_800D8698[0] = (s32)&gTodCoords[0];
-                        D_800D3A46[0] = 6;
+                        gModeObjectModels[6].unk58 = (s32)&gTodCoords[0];
+                        gModeObjects[6].unk36 = 6;
                         break;
                 }
             }
@@ -2442,12 +2432,12 @@ s32 AttachModeObject(void) {
         case 3:
             switch (gStage) {
                 case 0:
-                    D_800D85A8[0] = (s32)&gTodCoords[1];
-                    D_800D39B6[0] = 4;
+                    gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
+                    gModeObjects[4].unk36 = 4;
                     break;
                 case 12:
-                    D_800D84B8[0] = (s32)&gTodCoords[1];
-                    D_800D3926[0] = 2;
+                    gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
+                    gModeObjects[2].unk36 = 2;
                     break;
             }
             break;
@@ -2471,33 +2461,33 @@ void SpawnModeObject(void) {
     s16 idx;
 
     slot = (SlotRec *)gSlotTable;
-    if (D_8009EF49[0] == 1) {
+    if (gPlayer.unk3D1 == 1) {
         idx = findFreeSlot(slot);
         if (idx != -1) {
             slot += idx;
             switch (gStage) {
                 case 0:
-                    D_800D85A8[0] = 0;
+                    gModeObjectModels[4].unk58 = 0;
                     slot->unk36 = 4;
                     break;
                 case 1:
-                    D_800D83C8[0] = 0;
+                    gModeObjectModels[0].unk58 = 0;
                     slot->unk36 = 0;
                     break;
                 case 3:
-                    D_800D8530[0] = 0;
+                    gModeObjectModels[3].unk58 = 0;
                     slot->unk36 = 3;
                     break;
                 case 10:
-                    D_800D8698[0] = 0;
+                    gModeObjectModels[6].unk58 = 0;
                     slot->unk36 = 6;
                     break;
                 case 12:
-                    D_800D84B8[0] = 0;
+                    gModeObjectModels[2].unk58 = 0;
                     slot->unk36 = 2;
                     break;
                 case 13:
-                    D_800D8620[0] = 0;
+                    gModeObjectModels[5].unk58 = 0;
                     slot->unk36 = 5;
                     break;
             }
@@ -2508,7 +2498,7 @@ void SpawnModeObject(void) {
             slot->unk24 = 0;
             D_800D3358[0] = 1;
         }
-        D_8009EF49[0] = 0;
+        gPlayer.unk3D1 = 0;
     }
 }
 
@@ -2524,17 +2514,17 @@ void SteerMode2(void) {
     if (gPlayer.control != 0) {
         if (gPad & PADLleft) {
             ApplySteer(3, 16, 5);
-            D_800959B2 -= 4;
+            sSteerDrift -= 4;
         } else if (gPad & PADLright) {
             ApplySteer(2, 16, 5);
-            D_800959B2 += 4;
+            sSteerDrift += 4;
         } else {
             gPlayer.action = 0x58;
-            if (D_800959B2 != 0) {
-                if (D_800959B2 < 0) {
-                    D_800959B2 += 2;
+            if (sSteerDrift != 0) {
+                if (sSteerDrift < 0) {
+                    sSteerDrift += 2;
                 } else {
-                    D_800959B2 -= 2;
+                    sSteerDrift -= 2;
                 }
             }
         }
@@ -2546,8 +2536,8 @@ void SteerMode2(void) {
                 gPlayer.y = gPlayer.groundY - 0x50;
                 break;
         }
-        D_800959B2 = D_800959B2 < -10 ? -10 : D_800959B2 > 10 ? 10 : D_800959B2;
-        step = D_800959B2 / 10;
+        sSteerDrift = sSteerDrift < -10 ? -10 : sSteerDrift > 10 ? 10 : sSteerDrift;
+        step = sSteerDrift / 10;
         pushBack(90, step);
         /* MATCHING: as in SteerMode3. */
         __asm__("");
@@ -2589,7 +2579,7 @@ void UpdateSpeedMode2(void) {
         } else {
             gSpeedFixed += 16;
         }
-        D_8009EF20[0] = (s16)gSpeedFixed >> 4;
+        gPlayer.speed = (s16)gSpeedFixed >> 4;
     }
 }
 
@@ -2615,7 +2605,7 @@ void UpdateSpeedMode3(void) {
         } else {
             gSpeedFixed += 16;
         }
-        D_8009EF20[0] = (s16)gSpeedFixed >> 4;
+        gPlayer.speed = (s16)gSpeedFixed >> 4;
     }
 }
 
@@ -2686,22 +2676,22 @@ void SteerMode3(void) {
     if (gPlayer.control != 0) {
         if (gPad & PADLright) {
             ApplySteer(3, 16, 8);
-            D_800959B2 -= 4;
+            sSteerDrift -= 4;
         } else if (gPad & PADLleft) {
             ApplySteer(2, 16, 8);
-            D_800959B2 += 4;
+            sSteerDrift += 4;
         } else if (gPlayer.y >= gPlayer.groundY) {
             gPlayer.action = 0x5E;
-            if (D_800959B2 != 0) {
-                if (D_800959B2 < 0) {
-                    D_800959B2 += 2;
+            if (sSteerDrift != 0) {
+                if (sSteerDrift < 0) {
+                    sSteerDrift += 2;
                 } else {
-                    D_800959B2 -= 2;
+                    sSteerDrift -= 2;
                 }
             }
         }
-        D_800959B2 = D_800959B2 < -7 ? -7 : D_800959B2 > 7 ? 7 : D_800959B2;
-        step = D_800959B2 / 10;
+        sSteerDrift = sSteerDrift < -7 ? -7 : sSteerDrift > 7 ? 7 : sSteerDrift;
+        step = sSteerDrift / 10;
         pushBack(90, step);
         /* MATCHING: the barrier keeps the yaw and unk380 loads below the unk350 store;
          * g keeps the gPlayer base in a register for the store at the join. */
@@ -2726,8 +2716,8 @@ s32 LandPlayer(PlayerState *g) {
 
     ret = 0;
     if (g->unk39C <= g->unk3CC && g->unk3B8 == 1) {
-        if (g->y >= D_8009EF44[0]) {
-            g->y = D_8009EF44[0];
+        if (g->y >= gPlayer.unk3CC) {
+            g->y = gPlayer.unk3CC;
             ret = 2;
             PlaySe(30);
         }
@@ -2754,7 +2744,7 @@ s32 AddBonusLevel(s32 n) {
     if (gBonusLevel <= 0) {
         gBonusLevel = 0;
     }
-    if (D_8009EF4D[0] == 1) {
+    if (gPlayer.unk3D5 == 1) {
         gBonusLevel = 0;
     }
     return gBonusLevel;
@@ -2813,7 +2803,7 @@ void CheckCanBonus(void) {
         } else if (gBonusLevel == 3) {
             goto skip;
         }
-        if (D_8009EF4D[0] != one) {
+        if (gPlayer.unk3D5 != one) {
             PlaySe(34);
         }
     skip:
@@ -2879,19 +2869,19 @@ void SortQuad15(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3,
 }
 
 void ResetSpeed(void) {
-    D_8009EF20[0] = 0;
+    gPlayer.speed = 0;
     gSpeedFixed = 0x280;
 }
 
 void StopSpeed(void) {
-    D_8009EF20[0] = 0;
+    gPlayer.speed = 0;
     gSpeedFixed = 0;
 }
 
 void AttachMode5Object(void) {
-    if ((D_8009EF48[0] >> 4) == 5) {
-        D_800D8440[0] = (s32)D_800D8960;
-        D_800D38DE[0] = 1;
+    if ((gPlayer.rideMode >> 4) == 5) {
+        gModeObjectModels[1].unk58 = (s32)D_800D8960;
+        gModeObjects[1].unk36 = 1;
     }
 }
 

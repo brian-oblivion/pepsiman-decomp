@@ -491,7 +491,7 @@ void DrawHud(void) {
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
     quad[6] = 0;
-    D_80095A84 += D_8009EF20[0];
+    D_80095A84 += gPlayer.speed;
     switch (gBonusLevel) {
         case 1:
             quad[4] = quad[5] = 0x800;

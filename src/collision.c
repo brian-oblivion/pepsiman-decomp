@@ -10,7 +10,6 @@
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
-extern s32 D_8009EF30[];
 
 /** @brief A 72-byte record in the slot table the free-slot search walks;
  *         only the free marker is known. */
@@ -210,7 +209,7 @@ s32 CollidePlayer(Sphere *q) {
     s32 v;
 
     hit = 0;
-    switch (D_8009EF48[0] & 0xF) {
+    switch (gPlayer.rideMode & 0xF) {
         case 0:
             r[0] = 20;
             v = gPlayer.motion[0];
@@ -517,7 +516,7 @@ void ResetPlayerHits(void) {
 }
 
 void func_8002988C(void) {
-    D_8009EF30[0] = 0;
+    gPlayer.unk3B8 = 0;
 }
 
 INCLUDE_RODATA("asm/nonmatchings/collision", gTrapNoFmt);

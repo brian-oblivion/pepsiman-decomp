@@ -3,17 +3,17 @@
 > Renamed from `func_80023D68` on 2026-10-11 (tools/rename.py). Address 0x80023d68.
 
 Unit `src/player.c`. The forward step: tracks the lowest unk34C in
-`D_800956E4` and unk39C, skips modes 8..11 (and 0x38/0x39 unless the stage
+`sJumpPeakY` and unk39C, skips modes 8..11 (and 0x38/0x39 unless the stage
 mode is 3), snaps unk34C to the cap unk3C0 within 50 or advances it by
 5 x unk3A6, then handles the two goal caps: unk3CC under the unk3B8/unk3BC
 flags, or unk3C0. Reaching unk3C0 sets the position to the goal line
-`gFloorY[0]`, records the distance from `D_800DF5A0` once
-(`D_800956E0`, SquareRoot0 of DistanceSquared) and plays a sound unless
+`gFloorY[0]`, records the distance from `sJumpStart` once
+(`sJumpDistance`, SquareRoot0 of DistanceSquared) and plays a sound unless
 `D_80095900` is set.
 
 Round 10's best body: 129/134, `insertions 0 / deletions 0`. It is in src/ under
 `#ifdef NON_MATCHING` and was rebuilt there. Its declarations are in the
-unit already (`D_800956E4`, `D_800956E0`, `D_800DF5A0[]`, `D_800DF5B0[]`,
+unit already (`sJumpPeakY`, `sJumpDistance`, `sJumpStart[]`, `sJumpLanding[]`,
 `s8 D_80095900`, `DistanceSquared`):
 
 ```c
@@ -24,8 +24,8 @@ s32 ApplyGravity(void) {
     s32 y;
 
     x = sGame.unk34C;
-    if (x < D_800956E4) {
-        D_800956E4 = x;
+    if (x < sJumpPeakY) {
+        sJumpPeakY = x;
     }
     if (x < sGame.unk39C) {
         sGame.unk39C = x;
@@ -65,11 +65,11 @@ s32 ApplyGravity(void) {
         sGame.unk39C = 0;
         sGame.unk3BC = 0;
         sGame.unk34C = y;
-        if (D_800956E0 == 0) {
-            D_800DF5B0[0] = sGame.unk348;
-            D_800DF5B0[1] = y;
-            D_800DF5B0[2] = sGame.unk350;
-            D_800956E0 = SquareRoot0(DistanceSquared((VECTOR *)D_800DF5A0, (VECTOR *)D_800DF5B0));
+        if (sJumpDistance == 0) {
+            sJumpLanding[0] = sGame.unk348;
+            sJumpLanding[1] = y;
+            sJumpLanding[2] = sGame.unk350;
+            sJumpDistance = SquareRoot0(DistanceSquared((VECTOR *)sJumpStart, (VECTOR *)sJumpLanding));
             if (D_80095900 == 0) {
                 StartRumble(gRumblePatterns, 13);
             }
@@ -84,7 +84,7 @@ end:;
 
 ## Residue
 
-Retail loads unk34C into `$a2`, tests and stores `D_800956E4` from it,
+Retail loads unk34C into `$a2`, tests and stores `sJumpPeakY` from it,
 then `move a0, a2` (in the load-delay slot after `lw 0x39C`). It uses
 `$a0` for the unk39C test and store and for the `|unk3C0 - x| < 50`
 test, and `$a2` again for `x + unk3A6 * 5`. The base sits in `$a1`. The
@@ -109,7 +109,7 @@ first `bnez`'s `nop` slot: 124 -> 129 (from a `void` body with
 - **Copy placement:** `y = x` with `y` also reused for `gFloorY[0]`
   (118: the copy appears, but in `$a3` with the base in `$a0`, and the
   step reads `y`).
-- **Inline helper:** `static __inline__` for the `D_800956E4` test
+- **Inline helper:** `static __inline__` for the `sJumpPeakY` test
   (129, no change).
 - **Permuter:** 71545 iterations, 900 s bound fired (rc 124),
   `--stack-diffs`, Gate 3 checks: scaffold 1 insertion / 1 deletion + 4
@@ -119,7 +119,7 @@ first `bnez`'s `nop` slot: 124 -> 129 (from a `void` body with
   the unk39C store. Rebuilt in-tree it scores 118, the same as without
   the `do/while`, so the scaffold's 95 is not this function's number.
 
-- **Interface:** the whole tail after the `D_800956E4` test as a
+- **Interface:** the whole tail after the `sJumpPeakY` test as a
   `static __inline__ void stepFwd(s32 v)` called with `x`, with the step
   reading `sGame.unk34C`: 129 as `s32` with no return, 16 as `void`. The
   parameter copy is propagated like a local copy.
@@ -169,7 +169,7 @@ Builds this round: 13. Tried on the way (each from the 129 body):
 | --- | --- |
 | `y = sGame.unk34C;` for the unk39C test and `d`, `y` still reused for `gFloorY` | 118 (copy appears, step reads it) |
 | same, step as `sGame.unk34C += ...` | 118 |
-| copy `y = x` inside a `do { } while (0)` with the `D_800956E4` test | 6 (base copied too) |
+| copy `y = x` inside a `do { } while (0)` with the `sJumpPeakY` test | 6 (base copied too) |
 | `do { } while (0)` around the unk39C test, or around `d` | 117 / 118 |
 | `y = sGame.unk3C0 - y;` (d in `y`) | 116 (step reads `x`, d in `y`'s register) |
 | dead `y = 0;` after `d`, `y` reused for `gFloorY` | 118 (structure exact, registers rotated) |

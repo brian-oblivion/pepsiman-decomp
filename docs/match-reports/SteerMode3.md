@@ -3,7 +3,7 @@
 > Renamed from `func_80028008` on 2026-10-11 (tools/rename.py). Address 0x80028008.
 
 Unit `src/player.c`. While the game runs: pad bits 0x2000/0x8000 call
-`ApplySteer(3|2, 16, 8)` and nudge the lateral speed `D_800959B2` by
+`ApplySteer(3|2, 16, 8)` and nudge the lateral speed `sSteerDrift` by
 -/+4; otherwise, with 0x34C at its cap, byte 5 becomes 0x5E and the speed
 decays by 2 towards 0. The speed is clamped to -7..7, a tenth of it pushes
 the position (0x348/0x350) sideways (PushPlayer's body at 90 degrees),
@@ -32,22 +32,22 @@ void SteerMode3(void) {
     if (sGame.unk0 != 0) {
         if (gPad & 0x2000) {
             ApplySteer(3, 16, 8);
-            D_800959B2 -= 4;
+            sSteerDrift -= 4;
         } else if (gPad & 0x8000) {
             ApplySteer(2, 16, 8);
-            D_800959B2 += 4;
+            sSteerDrift += 4;
         } else if (sGame.unk34C >= sGame.unk3C0) {
             sGame.unk5 = 0x5E;
-            if (D_800959B2 != 0) {
-                if (D_800959B2 < 0) {
-                    D_800959B2 += 2;
+            if (sSteerDrift != 0) {
+                if (sSteerDrift < 0) {
+                    sSteerDrift += 2;
                 } else {
-                    D_800959B2 -= 2;
+                    sSteerDrift -= 2;
                 }
             }
         }
-        D_800959B2 = D_800959B2 < -7 ? -7 : D_800959B2 > 7 ? 7 : D_800959B2;
-        step = D_800959B2 / 10;
+        sSteerDrift = sSteerDrift < -7 ? -7 : sSteerDrift > 7 ? 7 : sSteerDrift;
+        step = sSteerDrift / 10;
         pushBack(90, step);
         /* MATCHING: the barrier keeps the yaw and unk380 loads below the unk350 store;
          * g keeps the sGame base in a register for the store at the join. */
@@ -68,7 +68,7 @@ void SteerMode3(void) {
 }
 ```
 
-`D_800959B2` (`s16`, reached `%gp_rel`) is declared in the `.c`; no
+`sSteerDrift` (`s16`, reached `%gp_rel`) is declared in the `.c`; no
 other unit names it.
 
 ## Path (about 25 builds, one permuter search)

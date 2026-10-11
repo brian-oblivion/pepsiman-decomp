@@ -3,17 +3,17 @@
 > Renamed from `func_80026848` on 2026-10-11 (tools/rename.py). Address 0x80026848.
 
 Unit `src/player.c`. The twin of UpdateJumpMode3 for another mode set:
-on starting the unk390 sequence it also clears `D_800956E0`, records
-unk34C in `D_800956E4` and copies the position words unk348..unk350 into
-`D_800DF5A0`; the sequence ends in mode 9, 0xB or 0xA instead of 8/9.
+on starting the unk390 sequence it also clears `sJumpDistance`, records
+unk34C in `sJumpPeakY` and copies the position words unk348..unk350 into
+`sJumpStart`; the sequence ends in mode 9, 0xB or 0xA instead of 8/9.
 
 ```c
-extern s32 D_800956E4;
-extern s32 D_800956E0;
-extern s32 D_800DF5A0[];
+extern s32 sJumpPeakY;
+extern s32 sJumpDistance;
+extern s32 sJumpStart[];
 
 /* MATCHING: as UpdateJumpMode3 for the switch; the volatile read keeps the unk348 and
- * unk350 loads below the stores to D_800956E0, D_800DF5A0[1] and D_800956E4. */
+ * unk350 loads below the stores to sJumpDistance, sJumpStart[1] and sJumpPeakY. */
 void UpdateJump(void) {
     s16 n;
 
@@ -21,11 +21,11 @@ void UpdateJump(void) {
         if ((gGamePadTrig & 0x20) &&
             (sGame.unk34C >= sGame.unk3C0 || (sGame.unk3B8 == 1 && sGame.unk3BC == 1)) &&
             sGame.unk390 == 0) {
-            D_800956E0 = 0;
-            D_800DF5A0[1] = sGame.unk34C;
-            D_800956E4 = sGame.unk34C;
-            D_800DF5A0[0] = *(volatile s32 *)&sGame.unk348;
-            D_800DF5A0[2] = sGame.unk350;
+            sJumpDistance = 0;
+            sJumpStart[1] = sGame.unk34C;
+            sJumpPeakY = sGame.unk34C;
+            sJumpStart[0] = *(volatile s32 *)&sGame.unk348;
+            sJumpStart[2] = sGame.unk350;
             sGame.unk38F = 1;
             sGame.unk3BC = 0;
             sGame.unk390 = 1;
@@ -80,14 +80,14 @@ void UpdateJump(void) {
 
 - UpdateJumpMode3's body with the constants changed matched everything but
   the first block's schedule: 126/134, three insertions and three deletions.
-  Retail keeps `lw 0x348` / `lw 0x350` below the stores to `D_800956E0`,
-  `D_800DF5A0[1]` and `D_800956E4`; the build hoisted the 0x348 load above
-  them and sank the `D_800956E0` store.
+  Retail keeps `lw 0x348` / `lw 0x350` below the stores to `sJumpDistance`,
+  `sJumpStart[1]` and `sJumpPeakY`; the build hoisted the 0x348 load above
+  them and sank the `sJumpDistance` store.
 - Negatives, all byte-identical at 126: four orders of those five
-  statements; a chained `D_800956E4 = D_800DF5A0[1] = ...`; a three-word
-  struct copy (worse, 23); a `VECTOR *` view of `D_800DF5A0`; a
+  statements; a chained `sJumpPeakY = sJumpStart[1] = ...`; a three-word
+  struct copy (worse, 23); a `VECTOR *` view of `sJumpStart`; a
   `GameState *g` for the two reads (cse folds it); a volatile store to
-  `D_800956E0`. A bare `__asm__("")` after the stores fixed the order but
+  `sJumpDistance`. A bare `__asm__("")` after the stores fixed the order but
   moved the call's `move a0, s0` and the value register.
 - **Lever: `*(volatile s32 *)&sGame.unk348` for the first load.** One
   volatile read is enough; the unk350 load follows it.

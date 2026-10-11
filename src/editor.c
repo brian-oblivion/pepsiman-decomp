@@ -775,8 +775,8 @@ s32 UpdateEditor(void) {
                     break;
             }
             if (D_800958D8 == 0) {
-                DrawPin((VECTOR *)D_8009EEC0);
-                DrawPole((VECTOR *)D_8009EEC0);
+                DrawPin((VECTOR *)&gPlayer.x);
+                DrawPole((VECTOR *)&gPlayer.x);
             }
             UpdatePickups(&gSubOt[gActiveBuff]);
             ApplyRecordsToEntries();
@@ -2382,7 +2382,7 @@ void EditorEditSpriteValues(void) {
         }
     }
     if (sTotals.unk6C != 0) {
-        DrawHeadingLine((VECTOR *)D_8009EEC0, sTotals.unk6A);
+        DrawHeadingLine((VECTOR *)&gPlayer.x, sTotals.unk6A);
     }
     D_800DF818.unk4[0] = gPlayer.x;
     D_800DF818.unk4[1] = gPlayer.y;

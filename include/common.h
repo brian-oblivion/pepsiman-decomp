@@ -196,20 +196,20 @@ typedef struct {
     s16 unk362;               /**< an angle added to yaw for the camera rotation's y */
     s16 unk364;               /**< cleared on a reset */
     u8 pad366[0x368 - 0x366]; /**< not yet known */
-    s32 lookX;  /**< x of the point the models turn to face (gLookYaw*); cleared by player */
-    s32 lookY;  /**< y of that point */
-    s32 lookZ;  /**< z of that point; cleared by player */
-    s16 unk374; /**< cleared when y passes the goal line */
-    s16 unk376; /**< a step counter of the current mode */
-    s16 unk378; /**< a second step counter of the current mode */
-    s16 unk37A; /**< cleared with unk378 */
-    s32 unk37C; /**< set with yaw to the start heading */
-    s32 yaw;    /**< the body heading; follows the course heading in bounded steps */
-    s32 lean;   /**< the body roll while steering, -15..15; decays to 0 */
-    u8 pad388[0x38C - 0x388]; /**< not yet known */
-    s16 unk38C;               /**< cleared whenever slideState changes */
-    u8 slideState;            /**< 0 running, 1 sliding, 2 dashing */
-    u8 unk38F;                /**< 1 also gates a check on jumpPower */
+    s32 lookX;      /**< x of the point the models turn to face (gLookYaw*); cleared by player */
+    s32 lookY;      /**< y of that point */
+    s32 lookZ;      /**< z of that point; cleared by player */
+    s16 unk374;     /**< cleared when y passes the goal line */
+    s16 unk376;     /**< a step counter of the current mode */
+    s16 unk378;     /**< a second step counter of the current mode */
+    s16 unk37A;     /**< cleared with unk378 */
+    s32 unk37C;     /**< set with yaw to the start heading */
+    s32 yaw;        /**< the body heading; follows the course heading in bounded steps */
+    s32 lean;       /**< the body roll while steering, -15..15; decays to 0 */
+    s32 unk388;     /**< object 2's eased turn toward the look point (gLookYawNarrow) */
+    s16 unk38C;     /**< cleared whenever slideState changes */
+    u8 slideState;  /**< 0 running, 1 sliding, 2 dashing */
+    u8 unk38F;      /**< 1 also gates a check on jumpPower */
     u16 jumpState;  /**< 0 on the ground, 1 while the button is held, 2 for one step after */
     s16 jumpTime;   /**< steps the button has been held while jumpState is 1 */
     s32 jumpStartY; /**< y when the jump began */
@@ -235,10 +235,10 @@ typedef struct {
     s32 unk3CC;    /**< with unk39C, picks which cap y gets */
     u8 rideMode;   /**< low nibble: 0 on foot, else the stage's ride (1 to 4) */
     u8 unk3D1;     /**< set to 1 when a stage ends with a mode in rideMode */
-    u8 unk3D2;     /**< set to 1 by one mode */
+    s8 unk3D2;     /**< set to 1 by one mode */
     s8 showShadow; /**< nonzero draws the shadow under the player */
     s8 unk3D4;     /**< 1 while mode 0xF runs; swaps object 10's model */
-    u8 unk3D5;     /**< set to 1 by some pickups */
+    s8 unk3D5;     /**< set to 1 by some pickups */
     u8 pad3D6[0x3D8 - 0x3D6]; /**< not yet known */
 } PlayerState;
 
@@ -364,20 +364,15 @@ extern u16 gRumblePatterns[]; /**< 3 units, 6 functions */
 extern s32 gCdLoadLoc[];      /**< each file's CdlLOC in the current CD load */
 extern s32 gView[];           /**< 4 units, 4 functions */
 extern s32 D_8009676C[];      /**< 2 units, 3 functions */
-extern u16 D_8009EAB8[];      /**< 2 units, 3 functions; never loaded, sign unknown */
-extern s16 D_8009EABA[];      /**< 2 units, 2 functions */
-extern u8 D_8009EEC0[];       /**< an object with a position; passed to
-                          *   distance tests */
-extern s16 D_8009EF20[];      /**< 2 units, 6 functions */
-extern u8 D_8009EF48[];       /**< 4 units, 7 functions */
-extern s8 D_8009EF4A[];       /**< 2 units, 2 functions */
-extern s32 gCdLoadDest[];     /**< each file's load address in the current CD load */
-extern s32 gCdLoadSectors[];  /**< each file's length in sectors, less one */
-extern s32 gWorldShift[];     /**< 5 units, 22 functions */
-extern s32 D_800A9008[];      /**< 3 units, 17 functions */
-extern s16 gFloorY[];         /**< 2 units, 6 functions */
-extern s32 D_800D39C8[];      /**< 2 units, 2 functions */
-extern s32 gTodObjTable[];    /**< 2 units, 5 functions */
+extern u16 gBodyRot[]; /**< the player model's rotation (an SVECTOR: 0, yaw, lean) for gTodCoords[0] */
+extern s16 gBodyYaw[];       /**< gBodyRot[1], read signed */
+extern s32 gCdLoadDest[];    /**< each file's load address in the current CD load */
+extern s32 gCdLoadSectors[]; /**< each file's length in sectors, less one */
+extern s32 gWorldShift[];    /**< 5 units, 22 functions */
+extern s32 D_800A9008[];     /**< 3 units, 17 functions */
+extern s16 gFloorY[];        /**< 2 units, 6 functions */
+extern s32 gOffsetVec[];     /**< PolarOffset's result, x y z */
+extern s32 gTodObjTable[];   /**< 2 units, 5 functions */
 extern s32 gSavedStart[]; /**< the state a stage can resume from (stage_flow's SavedStart); [0] is its valid flag */
 extern s32 gRefView[];    /**< the game's GsRVIEW2, as words */
 extern s32 gFlatLights[]; /**< 3 units, 4 functions */

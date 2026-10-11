@@ -6,10 +6,10 @@ Unit `src/player.c`. Fills the camera offsets in `gRefView`: the
 orbit angle `gViewerAngle` (degrees) gives slots 1 and 2 at radii 500 and
 600, slot 4 takes unk34C, and the yaw `gCourse->vy` gives slots 0/2 at
 radius 400 and 3/5 at 900 from the opposite heading. It then steps
-`D_8009587E` one towards unk3A8.
+`sViewSpeed` one towards unk3A8.
 
 ```c
-extern u16 D_8009587E;
+extern u16 sViewSpeed;
 
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
 s32 SetPlayerView(void) {
@@ -21,11 +21,11 @@ s32 SetPlayerView(void) {
     gRefView[2] = rcos(gCourse->vy) * 400 / 4096;
     gRefView[3] = rsin(gCourse->vy - 0x800) * 900 / 4096;
     gRefView[5] = rcos(gCourse->vy - 0x800) * 900 / 4096;
-    if (D_8009587E < sGame.unk3A8) {
-        D_8009587E++;
+    if (sViewSpeed < sGame.unk3A8) {
+        sViewSpeed++;
     }
-    if (D_8009587E > sGame.unk3A8) {
-        D_8009587E--;
+    if (sViewSpeed > sGame.unk3A8) {
+        sViewSpeed--;
     }
 }
 ```
@@ -38,5 +38,5 @@ s32 SetPlayerView(void) {
   config/typeviews-warnings.txt.
 - `(gViewerAngle << 12) / 360` and `* K / 4096` are model's spelling of
   the same orbit (func at model.c:344); they match unchanged.
-- `D_8009587E` is reached `lui $at` for its stores: a plain extern, not in
+- `sViewSpeed` is reached `lui $at` for its stores: a plain extern, not in
   the unit's gp list.

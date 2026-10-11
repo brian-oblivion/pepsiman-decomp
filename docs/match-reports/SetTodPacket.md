@@ -92,8 +92,8 @@ each closed with one change (whole build `OK` after the third):
 | round-12 body | 460/503 |
 | `flags = 2;` wrapped in two nested `do { } while (0);` | 479 (`$s7`/`$fp` right) |
 | the mask loop writes `rot[k]` in each arm, no `r = &rot[k];` | 500 |
-| `a = ratan2(...); a -= D_8009EABA[0]; a &= 0xFFF;` | 501 |
-| `v = D_8009EABA[0]; a -= v;` | 503 |
+| `a = ratan2(...); a -= gBodyYaw[0]; a &= 0xFFF;` | 501 |
+| `v = gBodyYaw[0]; a -= v;` | 503 |
 
 - **`flags` / object pointer.** `cc1 -dl` / `-dg`: both cross calls and
   take the last two saved registers in global-alloc's order,
@@ -114,7 +114,7 @@ each closed with one change (whole build `OK` after the third):
   has two loop references (5 refs) and ranks first. That is plain
   `rot[k]` in both arms; round 12 measured that at 122 only because the
   other two problems were still open.
-- **The angle.** One expression loads `D_8009EABA` into the difference's
+- **The angle.** One expression loads `gBodyYaw` into the difference's
   register; retail loads it into `$a0` and subtracts into `a`'s `$v1`:
   separate statements, and the load into the existing local `v`.
 
@@ -293,7 +293,7 @@ u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                     } else {
                         a = ratan2(gTodCoords[0].coord.t[0] - (*(CamHead *)gPlayer).unk368,
                                    gTodCoords[0].coord.t[2] - (*(CamHead *)gPlayer).unk370);
-                        v = D_8009EABA[0];
+                        v = gBodyYaw[0];
                         a -= v;
                         a &= 0xFFF;
                         if (id == 2) {

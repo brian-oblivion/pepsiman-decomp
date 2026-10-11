@@ -10,7 +10,7 @@ row of `gHitReactions`. Which byte depends on the player's state
 end the stage. Otherwise the byte sets the stun timer unk3C8 (150 or 18)
 and, through bytes 5..7, a few flags and a rank change
 (AddBonusLevel(-1)). It then calls EndJump and records which slots
-were live in `D_8009575F`.
+were live in `sLastHitMask`.
 
 The signature is the header's, `void ReactToHits(u8 *state)`
 (callers in object and hit_tool). The body reads it as
@@ -34,7 +34,7 @@ typedef struct {
 } PickupKind;
 
 extern PickupKind gHitReactions[];
-extern s8 D_8009575F;
+extern s8 sLastHitMask;
 s32 AddBonusLevel(s32 n);
 void EndJump(void);
 
@@ -136,7 +136,7 @@ void ReactToHits(u8 *state) {
                 if (sPickups[i].unk2 != 0) {
                     EndJump();
                 }
-                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                sLastHitMask = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
                 return;
             case 0:
             default:
@@ -156,18 +156,18 @@ void ReactToHits(u8 *state) {
                     gBonusLevel = 0;
                 }
                 if (gHitReactions[sPickups[i].unk2].b[7] == 1 &&
-                    (s8)(sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) != D_8009575F) {
+                    (s8)(sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) != sLastHitMask) {
                     AddBonusLevel(-1);
                 }
                 ((GameState *)state)->unk5 = v;
                 if (sPickups[i].unk2 != 0) {
                     EndJump();
                 }
-                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                sLastHitMask = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
                 return;
         }
     }
-    D_8009575F = 0;
+    sLastHitMask = 0;
 }
 ```
 
@@ -197,7 +197,7 @@ Eight builds: 8 -> 27 -> 26 -> 30 -> 30 -> 25 -> 129 -> 170 -> 280 -> 308.
   `case 0: default:`. An explicit or missing `case 0` decides whether the
   tree tests `== 0` first or `< 3` first.
 - Each arm of the final dispatch ends with its own `unk5 = v; if
-  (unk2) EndJump(); D_8009575F = ...; return;`. Cross-jumping then
+  (unk2) EndJump(); sLastHitMask = ...; return;`. Cross-jumping then
   merges from the `if` down, as in retail. One shared tail after the
   switch also merges the `unk5` store.
 - The inner jump table (`unk6` 2..51) matched with source order 0x33

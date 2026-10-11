@@ -1080,7 +1080,7 @@ static __inline__ void queryRec(s16 id, Rec3C *r) {
                 r->unk10 = 0;
                 r->unk0++;
                 r->unk26 = (r->unk26 & 0x40) | 3;
-                r->unk14 = ((VECTOR *)D_8009EEC0)->vy;
+                r->unk14 = gPlayer.y;
                 r->unk18 = 0;
             }
         }
@@ -1124,9 +1124,9 @@ s32 StepDrift(Drifter *d) {
     if (d->count < 15) {
         d->count++;
         ret = d->count % 3 != 0;
-        PolarToXZ(20, gCourse.rot.vy * 360 / 4096, (Vec3 *)D_800D39C8);
-        d->x -= ((Vec3 *)D_800D39C8)->x >> 12;
-        d->z -= ((Vec3 *)D_800D39C8)->z >> 12;
+        PolarToXZ(20, gCourse.rot.vy * 360 / 4096, (Vec3 *)gOffsetVec);
+        d->x -= ((Vec3 *)gOffsetVec)->x >> 12;
+        d->z -= ((Vec3 *)gOffsetVec)->z >> 12;
         d->phase = (d->phase + 10) % 360;
         b = rsin(d->phase * 4096 / 360) * 200 >> 12;
         y = d->baseY;
@@ -1333,7 +1333,7 @@ s32 LatchProximity(Rec48 *r, s32 range) {
     ret = 0;
     if (!((r->unk41 >> 1) & 1)) {
         sq = range * range;
-        if (DistanceSquared(D_8009EEC0, r) < sq) {
+        if (DistanceSquared(&gPlayer.x, r) < sq) {
             r->unk41 |= 2;
             ret = 1;
         }

@@ -269,10 +269,10 @@ void UpdateMotionViewer(void) {
             gTodCoords[0].coord.t[0] = 0;
             gTodCoords[0].coord.t[1] = 0;
             gTodCoords[0].coord.t[2] = 0;
-            D_8009EAB8[0] = 0;
-            D_8009EAB8[1] = gPlayer.yaw;
-            D_8009EAB8[2] = gPlayer.lean;
-            SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+            gBodyRot[0] = 0;
+            gBodyRot[1] = gPlayer.yaw;
+            gBodyRot[2] = gPlayer.lean;
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
             gPlayer.motion[0] = 0;
             StepAnimation(&gPlayer, 0, 0);
             gModeStep++;
@@ -653,8 +653,6 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
 
 void func_80018DE8(void) {}
 
-extern s32 D_8009EF00[];
-
 GsDOBJ2 *FindTodObj(TodObjTable *list, s32 key);
 GsDOBJ2 *CreateTodObj(TodObjTable *list, s32 key);
 GsDOBJ2 *RemoveTodObj(TodObjTable *list, s32 key);
@@ -800,7 +798,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                     } else {
                         a = ratan2(gTodCoords[0].coord.t[0] - gPlayer.lookX,
                                    gTodCoords[0].coord.t[2] - gPlayer.lookZ);
-                        v = D_8009EABA[0];
+                        v = gBodyYaw[0];
                         a -= v;
                         a &= 0xFFF;
                         if (id == 2) {
@@ -821,7 +819,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                                 gLookYawNarrow -= 8;
                             }
                             v = gLookYawNarrow;
-                            D_8009EF00[0] = v;
+                            gPlayer.unk388 = v;
                         } else {
                             if (a < 0x800) {
                                 if (a > 0x38E) {
@@ -861,7 +859,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                 prm->scale.vz = ((s16 *)p)[2];
                 p += 8;
             } else {
-                if (D_8009EF4A[0] == 0) {
+                if (gPlayer.unk3D2 == 0) {
                     prm->scale.vx = 0x1000;
                     prm->scale.vy = 0x1000;
                     prm->scale.vz = 0x1000;
@@ -870,7 +868,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                     prm->scale.vy = 0x1000;
                     prm->scale.vz = 0;
                 }
-                if ((D_8009EF48[0] & 0xF) == 3 && (u32)id < 11 && (u32)id >= 2) {
+                if ((gPlayer.rideMode & 0xF) == 3 && (u32)id < 11 && (u32)id >= 2) {
                     prm->scale.vx = 0;
                     prm->scale.vy = 0;
                     prm->scale.vz = 0;

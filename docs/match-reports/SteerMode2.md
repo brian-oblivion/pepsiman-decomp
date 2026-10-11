@@ -4,7 +4,7 @@
 
 Unit `src/player.c`. The twin of SteerMode3 for another mode:
 pad bits 0x8000/0x2000 call `ApplySteer(3|2, 16, 5)` and nudge the
-lateral speed `D_800959B2` by -/+4, otherwise byte 5 becomes 0x58 and the
+lateral speed `sSteerDrift` by -/+4, otherwise byte 5 becomes 0x58 and the
 speed decays by 2; on stages 3 and 10 the value 0x34C is pinned below its
 cap (0x5A and 0x50 under 0x3C0). The speed is clamped to -10..10 and the
 tail is SteerMode3's (push sideways by a tenth of it, clamp the
@@ -21,17 +21,17 @@ void SteerMode2(void) {
     if (sGame.unk0 != 0) {
         if (gPad & 0x8000) {
             ApplySteer(3, 16, 5);
-            D_800959B2 -= 4;
+            sSteerDrift -= 4;
         } else if (gPad & 0x2000) {
             ApplySteer(2, 16, 5);
-            D_800959B2 += 4;
+            sSteerDrift += 4;
         } else {
             sGame.unk5 = 0x58;
-            if (D_800959B2 != 0) {
-                if (D_800959B2 < 0) {
-                    D_800959B2 += 2;
+            if (sSteerDrift != 0) {
+                if (sSteerDrift < 0) {
+                    sSteerDrift += 2;
                 } else {
-                    D_800959B2 -= 2;
+                    sSteerDrift -= 2;
                 }
             }
         }
@@ -43,8 +43,8 @@ void SteerMode2(void) {
                 sGame.unk34C = sGame.unk3C0 - 0x50;
                 break;
         }
-        D_800959B2 = D_800959B2 < -10 ? -10 : D_800959B2 > 10 ? 10 : D_800959B2;
-        step = D_800959B2 / 10;
+        sSteerDrift = sSteerDrift < -10 ? -10 : sSteerDrift > 10 ? 10 : sSteerDrift;
+        step = sSteerDrift / 10;
         pushBack(90, step);
         /* MATCHING: as in SteerMode3. */
         __asm__("");

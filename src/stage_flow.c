@@ -430,7 +430,7 @@ void ResetStage(void) {
     } else {
         gTimeLeft = gTimeLimits[mode][saved] * 30;
     }
-    D_8009EF48[0] = 0;
+    gPlayer.rideMode = 0;
     EndJump();
     StartRumble(gRumblePatterns, 0);
 }

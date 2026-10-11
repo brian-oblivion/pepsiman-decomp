@@ -8,7 +8,7 @@ mode (low nibble of `D_8009EF48[0]`) through three jump tables, sets the
 speed display `gSpeedFixed` from unk3A8 (fixed at 70, 90 or 30 by flags in
 `D_80095864`, which can also push the player along the heading), moves
 the position by the speed along the heading, clamps unk380 to 0x155 of
-the camera yaw and hands the result to the camera (`D_8009EAB8`,
+the camera yaw and hands the result to the camera (`gBodyRot`,
 `gTodCoords[0]`, `gWorldShift`).
 
 ```c
@@ -72,9 +72,9 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (sGame.unk34C >= sGame.unk3C0) {
-                PolarOffset(gCourse->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
-                sGame.unk348 += D_800D39C8[0];
-                sGame.unk350 += D_800D39C8[2];
+                PolarOffset(gCourse->vy * 360 / 4096 - 180, 30, (VECTOR *)gOffsetVec);
+                sGame.unk348 += gOffsetVec[0];
+                sGame.unk350 += gOffsetVec[2];
             }
             break;
     }
@@ -91,9 +91,9 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (sGame.unk34C >= sGame.unk3C0) {
-                PolarOffset(gCourse->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
-                sGame.unk348 += D_800D39C8[0];
-                sGame.unk350 += D_800D39C8[2];
+                PolarOffset(gCourse->vy * 360 / 4096, 30, (VECTOR *)gOffsetVec);
+                sGame.unk348 += gOffsetVec[0];
+                sGame.unk350 += gOffsetVec[2];
             }
             break;
     }
@@ -144,12 +144,12 @@ void UpdatePlayer(void) {
         }
     }
     g->unk380 = v;
-    D_8009EAB8[1] = sGame.unk380;
-    D_8009EAB8[2] = sGame.unk384;
+    gBodyRot[1] = sGame.unk380;
+    gBodyRot[2] = sGame.unk384;
     gTodCoords[0].coord.t[0] = sGame.unk354;
     gTodCoords[0].coord.t[1] = sGame.unk34C + sGame.unk358;
     gTodCoords[0].coord.t[2] = sGame.unk35C;
-    SetCoordRotation((SVECTOR *)D_8009EAB8, gTodCoords);
+    SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
     gWorldShift[1] = 0;
     gWorldShift[0] = -sGame.unk348;
     gWorldShift[2] = -sGame.unk350;

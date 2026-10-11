@@ -12,7 +12,7 @@ position from 10 on, moves to 100 after 160 frames); 2 and 3 are a short
 pause into 100; 100 runs the fade-out `gRetries`; 110 the ending.
 
 ```c
-extern s32 D_800DF5C0[];
+extern s32 sSavedPos[];
 extern s32 gElapsed;
 extern s32 gTimeLeft;
 extern u8 gInEditor;
@@ -120,12 +120,12 @@ top:
                 }
                 gFellOff = 0;
                 D_800957D6 = 0;
-                *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
+                *(Words3 *)sSavedPos = *(Words3 *)D_8009EEC0;
             }
             if (gMissTimer >= 10) {
                 sGame.unk3A8 = 0;
                 gSpeedFixed = 0;
-                *(Words3 *)&sGame.unk348 = *(Words3 *)D_800DF5C0;
+                *(Words3 *)&sGame.unk348 = *(Words3 *)sSavedPos;
             }
             if (gMissTimer > 100) {
                 t = gMissTimer - 100;

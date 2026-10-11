@@ -3,16 +3,16 @@
 > Renamed from `func_80022A74` on 2026-10-11 (tools/rename.py). Address 0x80022a74.
 
 Unit `src/player.c`. The debug grid view: pad bits nudge
-`D_800959A8` and the first two words of `gRefView`. The function
-projects the 21-by-16 grid `D_800DE5E0` (InitGridTest fills it) through
+`sGridAngle` and the first two words of `gRefView`. The function
+projects the 21-by-16 grid `sGridPoints` (InitGridTest fills it) through
 a coordinate system per point, keeps each point's screen position in
-`D_800DE0A0` and its depth in the grid point, and draws a white dot
+`sGridScreen` and its depth in the grid point, and draws a white dot
 there. It then fills the 20-by-15 cells with a checkerboard of flat
 quads, white and grey, sorted by depth, and copies a few values out for
 display.
 
 ```c
-extern DVECTOR D_800DE0A0[];
+extern DVECTOR sGridScreen[];
 extern s32 D_800DED50[];
 extern s32 D_800957F8;
 extern s32 D_80095800;
@@ -34,13 +34,13 @@ void UpdateGridTest(void) {
     POLY_F4 *pp;
 
     if (gPadTrig & 0x10) {
-        D_800959A8 = 0;
+        sGridAngle = 0;
     }
     if (gPad & 4) {
-        D_800959A8 += 2;
+        sGridAngle += 2;
     }
     if (gPad & 8) {
-        D_800959A8 -= 2;
+        sGridAngle -= 2;
     }
     if (gPadTrig & 0x800) {
         gGameMode = 3;
@@ -61,8 +61,8 @@ void UpdateGridTest(void) {
     line.b = line.g = line.r = 0xFF;
     for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
         for (gLoopI = 0; gLoopI < 21; gLoopI++) {
-            x = D_800DE5E0[gLoopJ * 21 + gLoopI].x;
-            y = D_800DE5E0[gLoopJ * 21 + gLoopI].y;
+            x = sGridPoints[gLoopJ * 21 + gLoopI].x;
+            y = sGridPoints[gLoopJ * 21 + gLoopI].y;
             GsInitCoordinate2(WORLD, &coord);
             coord.coord.t[2] = 0;
             coord.flg = 0;
@@ -71,9 +71,9 @@ void UpdateGridTest(void) {
             GsGetLs(&coord, &ls);
             GsSetLsMatrix(&ls);
             v.vx = v.vy = v.vz = 0;
-            D_800DE5E0[gLoopJ * 21 + gLoopI].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
-            D_800DE0A0[gLoopJ * 21 + gLoopI].vx = line.x0 = line.x1 = sxy.vx;
-            D_800DE0A0[gLoopJ * 21 + gLoopI].vy = line.y0 = line.y1 = sxy.vy;
+            sGridPoints[gLoopJ * 21 + gLoopI].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
+            sGridScreen[gLoopJ * 21 + gLoopI].vx = line.x0 = line.x1 = sxy.vx;
+            sGridScreen[gLoopJ * 21 + gLoopI].vy = line.y0 = line.y1 = sxy.vy;
             GsSortLine(&line, &gOt[gActiveBuff], 0);
         }
     }
@@ -81,14 +81,14 @@ void UpdateGridTest(void) {
     for (gLoopJ = 0; gLoopJ < 15; gLoopJ++) {
         for (gLoopI = 0; gLoopI < 20; gLoopI++) {
             SetPolyF4(pp);
-            pp->x0 = D_800DE0A0[gLoopJ * 21 + gLoopI].vx;
-            pp->y0 = D_800DE0A0[gLoopJ * 21 + gLoopI].vy;
-            pp->x1 = D_800DE0A0[gLoopJ * 21 + (gLoopI + 1)].vx;
-            pp->y1 = D_800DE0A0[gLoopJ * 21 + (gLoopI + 1)].vy;
-            pp->x3 = D_800DE0A0[(gLoopJ + 1) * 21 + (gLoopI + 1)].vx;
-            pp->y3 = D_800DE0A0[(gLoopJ + 1) * 21 + (gLoopI + 1)].vy;
-            pp->x2 = D_800DE0A0[(gLoopJ + 1) * 21 + gLoopI].vx;
-            pp->y2 = D_800DE0A0[(gLoopJ + 1) * 21 + gLoopI].vy;
+            pp->x0 = sGridScreen[gLoopJ * 21 + gLoopI].vx;
+            pp->y0 = sGridScreen[gLoopJ * 21 + gLoopI].vy;
+            pp->x1 = sGridScreen[gLoopJ * 21 + (gLoopI + 1)].vx;
+            pp->y1 = sGridScreen[gLoopJ * 21 + (gLoopI + 1)].vy;
+            pp->x3 = sGridScreen[(gLoopJ + 1) * 21 + (gLoopI + 1)].vx;
+            pp->y3 = sGridScreen[(gLoopJ + 1) * 21 + (gLoopI + 1)].vy;
+            pp->x2 = sGridScreen[(gLoopJ + 1) * 21 + gLoopI].vx;
+            pp->y2 = sGridScreen[(gLoopJ + 1) * 21 + gLoopI].vy;
             y = 1;
             if (gLoopJ & y) {
                 if (gLoopI & y) {
@@ -109,13 +109,13 @@ void UpdateGridTest(void) {
                 pp->g0 = 0x70;
                 pp->b0 = 0x80;
             }
-            GsSortPoly(pp, &gOt[gActiveBuff], D_800DE5E0[gLoopJ * 21 + gLoopI].z >> 6);
+            GsSortPoly(pp, &gOt[gActiveBuff], sGridPoints[gLoopJ * 21 + gLoopI].z >> 6);
         }
     }
-    D_800957F8 = D_800959A8;
+    D_800957F8 = sGridAngle;
     D_80095800 = D_800DED50[0];
-    D_80095804 = D_800DE0A0[0].vx;
-    D_8009580C = D_800DE0A0[0].vy;
+    D_80095804 = sGridScreen[0].vx;
+    D_8009580C = sGridScreen[0].vy;
 }
 ```
 
@@ -128,7 +128,7 @@ then 307 on four colour/branch reshapes, then the permuter, then 311 ->
 - Locals in declaration order give retail's frame (sxy 0x10, v 0x18, ls
   0x20, coord 0x40, line 0x90, poly 0xA0, p 0xB8, flag 0xBC). The first
   loop matched at once with chained stores (`line.b = line.g = line.r`,
-  `D_800DE0A0[i].vx = line.x0 = line.x1 = sxy.vx`: stores right to left).
+  `sGridScreen[i].vx = line.x0 = line.x1 = sxy.vx`: stores right to left).
 - `POLY_F4 *pp = &poly;` for the second loop (`$s0`), as SortQuad15.
 - **The column+1 index needs `r * 21 + (c + 1)`.** It gives retail's
   `r*21`, `+ 1`, `+ c` in that operand order. `r * 21 + 1 + c` folds
@@ -136,7 +136,7 @@ then 307 on four colour/branch reshapes, then the permuter, then 311 ->
   `r*21 + c` with the first index; `c + 1 + r * 21` swaps the last
   `addu`; `(&D[r*21 + 1])[c]` scales twice.
 - **The last word: where loop.c hoists the 0xFF.** Retail keeps `li s1,
-  0xFF` in the outer loop's body (beside `&D_800DE5E0`) and moves `li
+  0xFF` in the outer loop's body (beside `&sGridPoints`) and moves `li
   s2, 0x70` out of both loops. Every plain spelling moved both out (307).
   `setRGB0`, an if/else-if arm order, one white and one grey block
   through `goto`, and a ternary condition all scored the same or worse

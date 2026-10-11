@@ -46,12 +46,13 @@ typedef struct {
     s32 z; /**< z */
 } Vec3;
 
-/** @brief The 0x30-byte argument block of a position query. */
+/** @brief The 0x30-byte argument block of a position query: collision's
+ *         Sphere. */
 typedef struct {
     Vec3 pos;       /**< the position asked about */
     u8 unkC[8];     /**< not set by the range-50 caller */
-    s32 unk14;      /**< 50 from the range-50 caller (a range?) */
-    u8 unk18;       /**< 0 from the range-50 caller */
+    s32 radius;     /**< the query's radius, summed with the other's */
+    u8 kind;        /**< the hit kind it reports: a HitReaction row */
     u8 unk19[0x17]; /**< not set by the range-50 caller */
 } Query30;
 
@@ -1073,8 +1074,8 @@ static __inline__ void queryRec(s16 id, StageSprite *r) {
     q.pos.y = r->y - (s16)r->height / 2;
     q.pos.z = r->z;
     r->queried = 1;
-    q.unk18 = 1;
-    q.unk14 = (r->radius < 0 ? -r->radius : r->radius) / 3;
+    q.kind = 1;
+    q.radius = (r->radius < 0 ? -r->radius : r->radius) / 3;
     v = CollidePlayer(&q) & 1;
     r->hit = v;
     if (v) {
@@ -1566,8 +1567,8 @@ s8 ProbePosition(Vec3 *pos) {
     q.pos.x = pos->x;
     q.pos.y = pos->y;
     q.pos.z = pos->z;
-    q.unk18 = 0;
-    q.unk14 = 50;
+    q.kind = 0;
+    q.radius = 50;
     return CollidePlayer(&q);
 }
 

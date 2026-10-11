@@ -1401,7 +1401,7 @@ void DrawToolPole(VECTOR *pos) {
 /** @brief A record of the live buffer the first bank is copied into. */
 typedef struct {
     u8 unk0[0x28]; /**< copied from the bank record */
-    void *unk28;   /**< the owning record's unk10 */
+    void *unk28;   /**< the owning model slot's coord */
 } Live2C;
 
 void *__builtin_memcpy(void *dst, const void *src, u32 n);

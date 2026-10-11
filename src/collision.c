@@ -30,7 +30,7 @@ typedef struct {
     s16 unk10; /**< copied to a hit record */
     u8 pad12[2];
     s32 radius; /**< summed with the other body's radius */
-    u8 unk18;   /**< copied to a hit record */
+    u8 kind;    /**< the hit point's type: its HitReaction row */
     u8 unk19;   /**< copied to a hit record */
     u8 pad1A[0x30 - 0x1A];
 } Sphere;
@@ -244,7 +244,7 @@ s32 CollidePlayer(Sphere *q) {
     b.y = q->y;
     b.z = q->z + gWorldShift[2];
     b.radius = q->radius;
-    b.unk18 = q->unk18;
+    b.kind = q->kind;
     b.unkC = q->unkC;
     b.unkE = q->unkE;
     b.unk10 = q->unk10;
@@ -261,7 +261,7 @@ s32 CollidePlayer(Sphere *q) {
         if (h == 1 && gPlayerHits[i].hit == 0) {
             gPlayerHits[i].point = FindNearestPlayerPoint(i * 6 + 7, (VECTOR *)&b);
             gPlayerHits[i].hit = h;
-            gPlayerHits[i].kind = q->unk18;
+            gPlayerHits[i].kind = q->kind;
             gPlayerHits[i].unk3 = q->unk19;
             gPlayerHits[i].unk4 = q->unkC;
             gPlayerHits[i].unk6 = q->unkE;

@@ -12,6 +12,16 @@
 #include "libgpu.h"
 #include "libgs.h"
 
+/** @brief A sprite colour's first byte (CVECTOR.r): how the sprite blends
+ *         with what is behind it, the GPU's semi-transparency mode. The
+ *         other three bytes (g, b, cd) carry its red, green and blue. */
+enum SpriteBlend {
+    BLEND_OPAQUE = -1, /**< not semi-transparent */
+    BLEND_HALF = 0,    /**< half the sprite plus half the background */
+    BLEND_ADD = 1,     /**< added to the background */
+    BLEND_SUB = 2      /**< subtracted from the background */
+};
+
 extern GsOT gSubOt[]; /**< the ordering tables the sprite drawer is handed */
 extern GsOT gOt[];    /**< a second pair of ordering tables, cleared to depth 300 */
 extern GsOT *gCurOt;  /**< this frame's entry of the second pair (set in main) */

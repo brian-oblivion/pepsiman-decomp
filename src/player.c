@@ -181,7 +181,7 @@ void DrawPlayerShadow(void) {
         GsGetLs(&coord, &ls);
         GsSetLsMatrix(&ls);
         d = (gPlayer.groundY - gPlayer.y) / 10;
-        color.r = 2;
+        color.r = BLEND_SUB;
         size.vx = 100 - d;
         size.vy = size.vx / 2;
         color.g = color.b = color.cd = 0x40 - d;

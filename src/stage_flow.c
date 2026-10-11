@@ -281,7 +281,7 @@ void DrawPausedFrame(void) {
 
     pos.vx = -0x40;
     pos.vy = -0x10;
-    color.r = 1;
+    color.r = BLEND_ADD;
     color.g = color.b = color.cd = 0x80;
     DrawSprite(SPR_PAUSE, &pos, &color, 0, &gSubOt[gActiveBuff]);
     DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);

@@ -449,12 +449,13 @@ void DefineHudSprites(void) {
 
 extern u32 sBonusDist; /**< speed summed each frame; its hundreds pick the bonus sprite's frame */
 
-/** @brief A CVECTOR whose first byte is signed (-1 means "no tint"). */
+/** @brief A sprite colour, a CVECTOR whose first byte is signed: the blend
+ *         mode, then the colour. */
 typedef struct {
-    s8 r;  /**< red, or -1 */
-    u8 g;  /**< green */
-    u8 b;  /**< blue */
-    u8 cd; /**< code byte */
+    s8 r;  /**< a SpriteBlend */
+    u8 g;  /**< red */
+    u8 b;  /**< green */
+    u8 cd; /**< blue */
 } SColor;
 
 /* MATCHING: draw takes a Sprite2D *, a type local to that unit; this
@@ -532,7 +533,7 @@ void DrawHud(void) {
     }
     n = gTimeLeft;
     n /= 30;
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     if (n < 11) {
         color.g = 0x80;
         color.b = color.cd = 0;
@@ -563,7 +564,7 @@ void DrawHud(void) {
             }
         }
     }
-    color.r = 1;
+    color.r = BLEND_ADD;
     color.g = color.b = color.cd = 0x80;
     pos.vx = (gSection * 11 << 15) / ((s32 *)gSectionEdges)[-1] / 4096 + 0x34;
     pos.vy = -0x69;
@@ -589,7 +590,7 @@ void DrawHud(void) {
             pos.vx -= 12;
         }
     }
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
@@ -844,7 +845,7 @@ void DrawFrozenFrame(void) {
     rect.w = 320;
     rect.h = 240;
     MoveImage(&rect, 640, 0);
-    color.r = 0;
+    color.r = BLEND_HALF;
     color.g = color.b = color.cd = 0x80;
     pos.vx = -160;
     pos.vy = -120;
@@ -867,7 +868,7 @@ void DrawFrozenFrameFaded(u8 level) {
     rect.h = 240;
     MoveImage(&rect, 640, 0);
     /* MATCHING: an s8 store gives li -1; a u_char one gives li 0xFF. */
-    *(s8 *)&color.r = -1;
+    *(s8 *)&color.r = BLEND_OPAQUE;
     color.g = color.b = color.cd = level;
     pos.vx = -160;
     pos.vy = -120;
@@ -916,8 +917,8 @@ void DrawResultNumber(SVECTOR *pos, s32 n) {
     u32 x;
 
     x = (s16)n / 10;
-    color.r = 1;
-    shadow.r = 2;
+    color.r = BLEND_ADD;
+    shadow.r = BLEND_SUB;
     shadow.g = shadow.b = shadow.cd = 0x80;
     color.g = color.b = color.cd = 0x80;
     pos->vx -= 16;
@@ -963,8 +964,8 @@ void DrawResultTime(SVECTOR *pos, s32 frames) {
     /* MATCHING: retail fills a second colour at sp+0x20 it never passes. */
     SColor shadow;
 
-    color.r = -1;
-    shadow.r = 2;
+    color.r = BLEND_OPAQUE;
+    shadow.r = BLEND_SUB;
     shadow.g = shadow.b = shadow.cd = 0x80;
     color.g = color.b = color.cd = 0x80;
     n = frames * 100 / 30;
@@ -1035,7 +1036,7 @@ void UpdateActResults(void) {
             }
         }
     }
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     color.g = color.b = color.cd = 0x80;
     switch (gResultsStep) {
         case RES_SLIDE_IN:
@@ -1220,12 +1221,12 @@ void UpdateActResults(void) {
             pos.vx -= 12;
         }
     }
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = -0x58;
     DrawSprite(SPR_LIVES, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     color.g = color.b = 0x80;
     color.cd = 0;
     pos.vy = -16;
@@ -1234,7 +1235,7 @@ void UpdateActResults(void) {
     pos.vy = -16;
     pos.vx = gResultsSlide[7] * 32 - 0x40;
     DrawSprite(SPR_NEW_RECORD, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     color.g = color.b = color.cd = 0x80;
     pos.vx = -0x28;
     pos.vy = gResultsSlide[0] * 4 - 0x48;
@@ -1294,7 +1295,7 @@ void UpdateWorldResults(void) {
             }
         }
     }
-    color.r = -1;
+    color.r = BLEND_OPAQUE;
     color.g = color.b = color.cd = 0x80;
     switch (gResultsStep) {
         case RES_SLIDE_IN:
@@ -1594,7 +1595,7 @@ s32 StepTwinkle(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         /* MATCHING: retail shifts the scaled sine with srl. */
         size.vx = (u32)(rcos((p->frame * 3 << 13) / 360) * 25) >> 9;
         size.vy = (u32)(rsin((p->frame << 15) / 360) * 25) >> 8;
-        color.r = 1;
+        color.r = BLEND_ADD;
         color.g = color.b = color.cd = 0x80;
         DrawStandingBillboard(SPR_BURST + 5, &size, &color, 2, ot);
         return ++p->frame == 15;
@@ -1656,7 +1657,7 @@ s32 StepCanCollect(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         q[4] = q[5] = 0x1000 - (p->frame << 8);
         q[6] = p->frame << 8;
         q[7] = 1;
-        color.r = 0;
+        color.r = BLEND_HALF;
         color.g = color.b = color.cd = ~(p->frame << 4);
         DrawSpriteTransformed(SPR_CAN, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->frame == 8) {
@@ -1693,7 +1694,7 @@ s32 StepFiveCans(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
             q[4] = q[5] = 0x1000 - (p->frame << 8);
             q[6] = -(((p->frame * 20 + i * 72 + 90) << 12) / 360);
             q[7] = 1;
-            color.r = 0;
+            color.r = BLEND_HALF;
             color.g = color.b = color.cd = ~(p->frame << 4);
             DrawSpriteTransformed(SPR_CAN, q, &color, 0, &gSubOt[gActiveBuff]);
         }
@@ -1716,20 +1717,20 @@ s32 StepHurry(Effect *p) {
         if (p->frame < 16) {
             pos.vx = -72 - (16 - p->frame) * 15;
             pos.vy = -12;
-            color.r = -1;
+            color.r = BLEND_OPAQUE;
             color.g = color.b = color.cd = 0x80;
             DrawSprite(SPR_HURRY, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else if (p->frame < 32) {
             pos.vx = -72;
             pos.vy = -12;
-            color.r = -1;
+            color.r = BLEND_OPAQUE;
             color.g = 0x80;
             color.b = color.cd = (8 - (p->frame - 16) % 8) * 16;
             DrawSprite(SPR_HURRY, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else {
             pos.vx = (p->frame - 32) * 15 - 72;
             pos.vy = -12;
-            color.r = -1;
+            color.r = BLEND_OPAQUE;
             color.g = 0x80;
             color.b = color.cd = 0;
             DrawSprite(SPR_HURRY, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
@@ -1780,7 +1781,7 @@ s32 StepSkidDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         setLs(x + p->x, y + p->y, z + p->z);
         size.vx = p->frame * 10 + 100;
         size.vy = p->frame * 10 + 100;
-        color.r = 1;
+        color.r = BLEND_ADD;
         color.g = color.b = color.cd = 0x80 - (p->frame << 2);
         DrawBillboard(SPR_BLOB, &size, &color, 2, ot);
         if (p->param1 != 0) {
@@ -1881,7 +1882,7 @@ s32 StepBurst(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     if (p->delay == 0) {
         setLs(x + p->x, y + p->y, z + p->z);
         size.vy = size.vx = 0x96;
-        color.r = 1;
+        color.r = BLEND_ADD;
         color.g = color.b = color.cd = 0x80;
         DrawBillboard((u16)(p->frame + SPR_BURST), &size, &color, 2, ot);
         return ++p->frame == 8;
@@ -1898,7 +1899,7 @@ s32 StepSmoke(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         setLs(x + p->x, y + p->y, z + p->z);
         size.vx = p->frame + 0x14;
         size.vy = p->frame + 0x14;
-        color.r = 1;
+        color.r = BLEND_ADD;
         color.g = color.b = color.cd = 0x80 - (p->frame << 2);
         DrawBillboard(SPR_BURST + 5, &size, &color, 2, ot);
         p->y -= 4;
@@ -1916,7 +1917,7 @@ s32 StepFlash(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     if (p->delay == 0) {
         setLs(x + p->x, y + p->y, z + p->z);
         size.vy = size.vx = 0x32;
-        color.r = 1;
+        color.r = BLEND_ADD;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
         DrawBillboard(SPR_BURST, &size, &color, 2, ot);
         return ++p->frame == 8;
@@ -1933,7 +1934,7 @@ s32 StepDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         setLs(x + p->x, y + p->y, z + p->z);
         size.vx = p->frame * 10 + 100;
         size.vy = p->frame * 10 + 100;
-        color.r = 1;
+        color.r = BLEND_ADD;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
         DrawBillboard(SPR_BLOB, &size, &color, 2, ot);
         return ++p->frame == 8;
@@ -1950,7 +1951,7 @@ s32 StepDarkDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         setLs(x + p->x, y + p->y, z + p->z);
         size.vx = p->frame * 10 + 100;
         size.vy = p->frame * 10 + 100;
-        color.r = 2;
+        color.r = BLEND_SUB;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
         DrawBillboard(SPR_BLOB, &size, &color, 2, ot);
         return ++p->frame == 8;
@@ -1966,7 +1967,7 @@ s32 StepFloat(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     if (p->delay == 0) {
         setLs(x + p->x, y + p->y + p->param0 * p->frame, z + p->z);
         size.vy = size.vx = 100;
-        color.r = 0;
+        color.r = BLEND_HALF;
         color.g = color.b = color.cd = 0x80;
         DrawBillboard(SPR_FLOAT, &size, &color, 2, ot);
         return ++p->frame * p->param0 >= p->param1;

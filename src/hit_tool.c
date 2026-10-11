@@ -1473,7 +1473,7 @@ void DrawToolRadius(VECTOR *pos, u16 scale) {
     GsGetLs(&coord, &ls);
     GsSetLsMatrix(&ls);
     size.vx = size.vy = scale * 2;
-    color.r = 0;
+    color.r = BLEND_HALF;
     color.g = color.b = color.cd = 0x80;
     DrawBillboard(SPR_MARKER, &size, &color, 2, &gSubOt[gActiveBuff]);
 }

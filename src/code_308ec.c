@@ -86,7 +86,7 @@ typedef struct {
 } StageState;
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
-#define sStage (*(StageState *)D_8009EB78)
+#define sStage (*(StageState *)gPlayer)
 
 /** @brief code_1a098's Rec48 with the halfword this unit clears. */
 typedef struct {
@@ -242,7 +242,7 @@ void UpdateStagePlay(u8 stage) {
         case 4:
             if (gPauseState == 0) {
                 SetTmdSortMode(D_80095758);
-                func_80026D9C();
+                UpdatePlayState();
                 UpdateRumble();
                 switch (stage) {
                     case 0:
@@ -314,7 +314,7 @@ void UpdateStagePlay(u8 stage) {
     }
     D_80095900 = 0;
     if (gPadTrig & 0x800) {
-        if ((u16)(D_80095858 + 1) < 2) {
+        if ((u16)(gMissState + 1) < 2) {
             if (gPauseState == 0) {
                 SetCdVolume(30);
                 gPauseState = 1;
@@ -368,11 +368,11 @@ void RestartStage(u8 stage) {
     }
     sStage.unk3C8 = 0;
     sStage.unk2 = 1;
-    D_800958A8 = 3;
+    gBonusLevel = 3;
     sStage.unk348.vx = D_800A7680.pos.vx;
     sStage.unk348.vy = D_800A7680.pos.vy;
     sStage.unk348.vz = D_800A7680.pos.vz;
-    D_80095858 = 0;
+    gMissState = 0;
     sStage.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
         D_800957F4 = FindFloor(&sStage.unk348);
@@ -426,11 +426,11 @@ void ResetStage(void) {
     gVSyncMode = 2;
     ResetStageOverlay();
     if (D_800958AC == 1) {
-        D_800958A8 = 2;
+        gBonusLevel = 2;
     } else {
-        D_800958A8 = 3;
+        gBonusLevel = 3;
     }
-    D_80095858 = 0;
+    gMissState = 0;
     SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
     sStage.unk6 = 3;
@@ -462,7 +462,7 @@ void ResetStage(void) {
     D_800957A4 = 0;
     ClipF = 0;
     gFogFade = 0;
-    func_800287C0();
+    ResetSpeed();
     if (sSaved.valid != 0) {
         gSection = sSaved.unk10;
         sStage.unk348.vx = sSaved.pos.vx;
@@ -477,7 +477,7 @@ void ResetStage(void) {
         sStage.unk6 = 0x23;
         sStage.unk398 = 0;
         sStage.unk3A8 = 0;
-        D_800957D2 = 0;
+        gSpeedFixed = 0;
         sStage.unk374 = sStage.unk376 = sStage.unk378 = sStage.unk37A = 0;
         sStage.unk0 = 0;
         sStage.unk348.vy = D_800A7680.pos.vy - 1000;
@@ -490,7 +490,7 @@ void ResetStage(void) {
         gTimeLeft = gTimeLimits[mode][saved] * 30;
     }
     D_8009EF48[0] = 0;
-    func_800285B0();
+    EndJump();
     StartRumble(gRumblePatterns, 0);
 }
 

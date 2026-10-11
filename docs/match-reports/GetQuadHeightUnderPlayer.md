@@ -7,9 +7,9 @@ Unit `src/code_1902c.c`. Floor test of a 0x4C-byte quad record (the
 +4), gives up when corner 0 is more than 2000 from the origin in x or z,
 copies the four world corners to `s16` and adds the record's coordinate
 origin. With the debug flag `gInEditor` it projects corners with
-func_800230E0 into a dead debug record and, tested again, draws the
+ProjectToScreen into a dead debug record and, tested again, draws the
 outline with SortSemiQuad. It then tests the player's position
-(`D_8009EB78` + 0x348, shifted by `gWorldShift`) against the four edges
+(`gPlayer` + 0x348, shifted by `gWorldShift`) against the four edges
 0->1, 1->3, 3->2, 2->0 (edge x cross (0, -1, 0), dotted with the offset
 from the edge start; any negative returns), and finally intersects the
 plane through corners 0, 1, 2 to get the height, stored in `out`.
@@ -31,7 +31,7 @@ Levers, in order (367 -> 395 -> 456 -> 462 -> 464):
   negation of `num` (not a folded `t7 - t2`).
 - Permuter (330 iterations, -j 4, rc 0, Gate 3 checks 1-3 passed: scaffold
   score 40 with 0/0 ins/del, same 8 register diffs as the tree) found the
-  last two levers: `num` declared right after `p`, and func_800230E0 seen
+  last two levers: `num` declared right after `p`, and ProjectToScreen seen
   returning `int` (all six calls; done here through the `sProject` cast
   macro, since code_13068 defines it `void`). Its chained `q.p[4].z =
   (w[2] = 0);` was not needed in-tree; the plain order `w[2] = 0;
@@ -71,10 +71,10 @@ typedef struct {
 } GamePos;
 
 /* MATCHING: a struct lvalue keeps the game state's base in a register. */
-#define sGamePos (*(GamePos *)D_8009EB78)
+#define sGamePos (*(GamePos *)gPlayer)
 
-/* MATCHING: code_13068 defines func_800230E0 void; these calls saw an s32 one. */
-#define sProject ((s32 (*)(VECTOR *, SVECTOR *))func_800230E0)
+/* MATCHING: code_13068 defines ProjectToScreen void; these calls saw an s32 one. */
+#define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
 extern Quad8 D_80010AE0;
 extern Point12 D_80010B10;

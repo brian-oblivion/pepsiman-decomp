@@ -7,7 +7,7 @@ StepEffect7 right above it: after the wait, it projects the slot's point
 once (first frame), then each frame draws sprite 0xFA five times, spaced 72
 degrees apart on a circle whose radius shrinks as the group moves toward
 (-136, -88), each rotated to face along the circle and fading out; after 8
-frames it adds 5 to `gCans` and calls func_80028448. First build
+frames it adds 5 to `gCans` and calls CheckCanBonus. First build
 matched.
 
 ```c
@@ -38,7 +38,7 @@ s32 StepEffect8(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         }
         if (++p->unk0 == 8) {
             gCans += 5;
-            func_80028448();
+            CheckCanBonus();
             return 1;
         }
         return 0;

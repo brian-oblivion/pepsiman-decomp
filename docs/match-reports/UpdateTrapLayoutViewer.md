@@ -9,7 +9,7 @@ turns it with the frame counter and has CallStageHook fill the Rec48
 table from it (`D_8009596E` records), then moves to 2; state 2 steps the
 selected entry `D_800958E2` with the pad (back to state 1 when it
 changes), places record 0 on its Rec78 entry and every further record
-relative to it (func_80023194 into `D_8009F268`), draws the axes; every
+relative to it (TransformByCoord into `D_8009F268`), draws the axes; every
 state prints the entry number.
 
 The matched body is live in `src/code_1a098.c`. Earlier title: "STALL: length exact, 219/247 raw, first real diff at 0x8002B438 (register choice from there on) (round 9, charlie)".
@@ -76,7 +76,7 @@ register.
 |---|---|
 | `recs` and `tbl` both the loop body's first statements | head shape right, but cse ties the call's `D_800D8D20[..].unk10` to `tbl` and the `+16` is not hoisted; frame one register short |
 | `tbl` before the loop, `recs` first in the body | 233/247, 3/3: `recs`/`i`/A9008 right, D_800D8D20's base still local (`lui s0; addiu s0, s0`) |
-| `recs` first in the body, `tbl = D_800D8D20;` after the func_80023194 call (or just before the second call) | movables in retail's order (recs, base+16, &D_8009F268, tbl), but global alloc gives the D_800A9008 base (5 refs / 34 insns, priority 0.294) `s0` ahead of the D_800D8D20 base (4 / 28, 0.286); `tbl` then takes the latter's register and its copy vanishes: one word short (151 raw, 1/1) |
+| `recs` first in the body, `tbl = D_800D8D20;` after the TransformByCoord call (or just before the second call) | movables in retail's order (recs, base+16, &D_8009F268, tbl), but global alloc gives the D_800A9008 base (5 refs / 34 insns, priority 0.294) `s0` ahead of the D_800D8D20 base (4 / 28, 0.286); `tbl` then takes the latter's register and its copy vanishes: one word short (151 raw, 1/1) |
 | the head call as an integer sum | no change |
 | `i = 1` after `ResetCollision()` | no change in priority |
 | **`i = 1` as the `for` init** (plus the row above) | sched1's order lengthens the D_800A9008 base to 36 insns (0.278), the D_800D8D20 base goes first into `s0` (shared with the loop's `r`), `tbl` gets `s5` with its copy: **247/247, byte-exact** |

@@ -83,12 +83,12 @@ s32 EditorFreeMove(void) {
         sTotals.unk8 += sTotals.unk4;
     }
     sGameSave.unk3C4 = sGameSave.unk348[1];
-    cur = FindFloorNear(sGameSave.unk348, D_800AC858, D_800957F4);
+    cur = FindFloorNear(sGameSave.unk348, gFloorY, D_800957F4);
     D_80095824 = cur;
     if (cur != -1) {
         D_800957F4 = cur;
     }
-    sGameSave.unk348[1] = D_800AC858[0] + sTotals.unk8;
+    sGameSave.unk348[1] = gFloorY[0] + sTotals.unk8;
     if (D_800958D8 == 0 && (gPadTrig & 0x20) && cur == -1) {
         gToolMode = 7;
     }

@@ -54,7 +54,7 @@ s32 SpawnEffect(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
 
 `common.h`'s `NumberedSlot` knows only byte 0x13, and it is shared, so the
 unit views the records through a local `Slot` and a cast macro (the
-func_800285B0 pattern); no shared struct was edited.
+EndJump pattern); no shared struct was edited.
 
 `gEffectActive` and `gEffectFree` were declared `extern u8` in
 `src/code_308ec.c`. Two units now reach them, both as `%gp_rel` byte

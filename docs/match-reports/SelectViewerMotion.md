@@ -51,7 +51,7 @@ typedef struct {
     u8 unk8;
 } LevelHead;
 
-extern u8 D_8009EB78[];
+extern u8 gPlayer[];
 extern s32 gPadTrig;
 extern s8 gViewerMotion;
 extern u8 gViewerReplay;
@@ -72,9 +72,9 @@ void SelectViewerMotion(void) {
         gViewerMotion = 0x78;
     }
     if (flags & 0x20) {
-        (*(LevelHead *)D_8009EB78).unk8 = 0xFF;
+        (*(LevelHead *)gPlayer).unk8 = 0xFF;
         gViewerReplay = 1;
-        (*(LevelHead *)D_8009EB78).unk6 = gViewerMotion;
+        (*(LevelHead *)gPlayer).unk6 = gViewerMotion;
     }
 }
 #endif
@@ -85,4 +85,4 @@ void SelectViewerMotion(void) {
 The first shape was retail's apart from the gp access (above). The level
 is `s8` (`lb` for the two compares, `lbu` for the increments), the flag
 word a scalar loaded once (`lui $v1` / `lw $v1`), and the head a struct
-lvalue over `D_8009EB78` (base built once with `lui`/`addiu`).
+lvalue over `gPlayer` (base built once with `lui`/`addiu`).

@@ -117,7 +117,7 @@ typedef struct {
 } GameStatePos;
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
-#define sGamePos (*(GameStatePos *)D_8009EB78)
+#define sGamePos (*(GameStatePos *)gPlayer)
 
 extern u8 gToolZoom;
 extern u8 gToolViewStep;
@@ -177,7 +177,7 @@ void DrawPin(VECTOR *pos) {
     bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
     world.vz = pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
     DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
@@ -651,19 +651,19 @@ void DrawHitQuad(Obj48 *obj) {
     tmp.vx = world.vx + pts[0].x;
     tmp.vy = pts[0].y;
     tmp.vz = world.vz + pts[0].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[0]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[0]);
     tmp.vx = world.vx + pts[1].x;
     tmp.vy = pts[1].y;
     tmp.vz = world.vz + pts[1].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[1]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[1]);
     tmp.vx = world.vx + pts[3].x;
     tmp.vy = pts[3].y;
     tmp.vz = world.vz + pts[3].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[2]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[2]);
     tmp.vx = world.vx + pts[2].x;
     tmp.vy = pts[2].y;
     tmp.vz = world.vz + pts[2].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[3]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[3]);
     SortSemiQuad(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y, scr[3].x,
                  scr[3].y, 0x32);
 }
@@ -1359,7 +1359,7 @@ void DrawToolPin(VECTOR *pos) {
     bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
     world.vz = -pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
     DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
@@ -1381,11 +1381,11 @@ void DrawToolPole(VECTOR *pos) {
     world.vx = -pos->vx + gWorldShift[0];
     world.vy = pos->vy;
     world.vz = -pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vy = pos->vy - 200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);
@@ -1609,7 +1609,7 @@ void RefreshToolPreview(void) {
     D_800A9008[11] = 0;
     D_800A9008[12] = 0;
     UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
-    func_80023F80(D_8009EB78);
+    ReactToHits(gPlayer);
     func_80029838();
     D_80095774 = 0;
 }

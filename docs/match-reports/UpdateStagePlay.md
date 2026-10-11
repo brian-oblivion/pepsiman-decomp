@@ -36,7 +36,7 @@ void func_800F809C(void);
 void func_800F8264(void);
 void UpdateActResults(void);
 void DrawScreenWipe(void);
-s32 func_80026D9C(void);
+s32 UpdatePlayState(void);
 s32 UpdateRumble(void);
 void SetPadVibration(s32 offset, u8 a, u8 b);
 void SetCdVolume(s32 vol);
@@ -74,7 +74,7 @@ void UpdateStagePlay(u8 stage) {
         case 4:
             if (gPauseState == 0) {
                 SetTmdSortMode(D_80095758);
-                func_80026D9C();
+                UpdatePlayState();
                 UpdateRumble();
                 switch (stage) {
                     case 0:
@@ -146,7 +146,7 @@ void UpdateStagePlay(u8 stage) {
     }
     D_80095900 = 0;
     if (gPadTrig & 0x800) {
-        if ((u16)(D_80095858 + 1) < 2) {
+        if ((u16)(gMissState + 1) < 2) {
             if (gPauseState == 0) {
                 SetCdVolume(30);
                 gPauseState = 1;
@@ -168,7 +168,7 @@ void UpdateStagePlay(u8 stage) {
 ```
 
 `StageState` gained `u8 unk3D0` (split out of `pad3CC`); retail clears it
-with `sb zero, 0x3D0` off the `D_8009EB78` base.
+with `sb zero, 0x3D0` off the `gPlayer` base.
 
 ## Notes
 
@@ -184,15 +184,15 @@ with `sb zero, 0x3D0` off the `D_8009EB78` base.
 - The parameter is copied to `$s0` at entry and masked (`andi 0xFF`) only at
   the switch: a `u8` parameter on 2.8.1 can look like this; it needed no
   `s32` view.
-- `(u16)(D_80095858 + 1) < 2` gives retail's `addiu 1; andi 0xFFFF; sltiu 2`
-  (D_80095858 is an `s16`: the test is "0 or -1").
+- `(u16)(gMissState + 1) < 2` gives retail's `addiu 1; andi 0xFFFF; sltiu 2`
+  (gMissState is an `s16`: the test is "0 or -1").
 - `gModeStep++` in state 1 reuses the 1 in `$v1` from the compare
   (`addu v0, v0, v1`); no special spelling needed.
 
 ## Declarations
 
 - New prototypes in code_308ec.c for other units' functions
-  (UpdateActResults, DrawScreenWipe, func_80026D9C, UpdateRumble,
+  (UpdateActResults, DrawScreenWipe, UpdatePlayState, UpdateRumble,
   SetPadVibration, SetCdVolume) and `extern s32 D_80095758;` (main.c's);
   declcheck reports them LOCAL (SetPadVibration also MULTI with main.c's
   forward declaration). They stay in the `.c` this round, by the round's

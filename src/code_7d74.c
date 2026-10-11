@@ -77,7 +77,7 @@ typedef struct {
 } Player;
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
-#define sPlayer (*(Player *)D_8009EB78)
+#define sPlayer (*(Player *)gPlayer)
 
 /* MATCHING: each caller declares its own view of the state it passes;
  * this is the defining unit's. */
@@ -457,8 +457,8 @@ s32 DrawTodObjects(void) {
     GsDOBJ2 *q;
     s32 i;
 
-    if ((*(DrawHead *)D_8009EB78).unk2 == 0 && (gFrameCount & 3) < 2) {
-        if ((*(DrawHead *)D_8009EB78).unk5 == 0 || (*(DrawHead *)D_8009EB78).unk5 == 0x5E) {
+    if ((*(DrawHead *)gPlayer).unk2 == 0 && (gFrameCount & 3) < 2) {
+        if ((*(DrawHead *)gPlayer).unk5 == 0 || (*(DrawHead *)gPlayer).unk5 == 0x5E) {
             return;
         }
     }
@@ -471,7 +471,7 @@ s32 DrawTodObjects(void) {
         if (o->tmd != NULL) {
             save = *o;
             q = o;
-            if (o->id == 10 && (*(DrawHead *)D_8009EB78).unk3D4 == 1) {
+            if (o->id == 10 && (*(DrawHead *)gPlayer).unk3D4 == 1) {
                 o->tmd = (unsigned long *)D_800963A0[2];
             }
             GsGetLs(o->coord2, &m);
@@ -479,7 +479,7 @@ s32 DrawTodObjects(void) {
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
             SetSpadStack();
-            if ((*(DrawHead *)D_8009EB78).unk3CA == 0) {
+            if ((*(DrawHead *)gPlayer).unk3CA == 0) {
                 GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             } else {
                 GsSortObject4J(o, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
@@ -645,9 +645,9 @@ void SelectViewerMotion(void) {
         gViewerMotion = 0x78;
     }
     if (flags & 0x20) {
-        (*(LevelHead *)D_8009EB78).unk8 = 0xFF;
+        (*(LevelHead *)gPlayer).unk8 = 0xFF;
         gViewerReplay = 1;
-        (*(LevelHead *)D_8009EB78).unk6 = gViewerMotion;
+        (*(LevelHead *)gPlayer).unk6 = gViewerMotion;
     }
 }
 
@@ -851,8 +851,8 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                             }
                         }
                     } else {
-                        a = ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)D_8009EB78).unk368,
-                                   D_800D86E0[0].coord.t[2] - (*(CamHead *)D_8009EB78).unk370);
+                        a = ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)gPlayer).unk368,
+                                   D_800D86E0[0].coord.t[2] - (*(CamHead *)gPlayer).unk370);
                         v = D_8009EABA[0];
                         a -= v;
                         a &= 0xFFF;

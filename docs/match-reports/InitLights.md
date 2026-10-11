@@ -70,7 +70,7 @@ void InitLights(void) {
 
 ### Proposed learning
 
-- The struct-lvalue lever (func_800285B0) holds for an array of Sony
+- The struct-lvalue lever (EndJump) holds for an array of Sony
   structs too: `(*(Wrapper *)D).l[i].f`, with a one-member `T l[N]`
   wrapper, folds every element's offset onto one base. Pointer arithmetic
   on `(T *)D` lets cc1 keep `&D[i]` as its own register. (InitLights)

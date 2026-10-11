@@ -4,14 +4,14 @@
 
 Unit `src/code_308ec.c`. Stage reset. Calls the set-up routines, copies the
 second display buffer's band down when `gGameMode` is not 0x29, resets
-the game state's head (`D_8009EB78`) and a run of globals, then either
+the game state's head (`gPlayer`) and a run of globals, then either
 restores a saved start (`D_800D86B8`, when its first word is non-zero) or,
 in mode 4, applies that mode's start; finally picks a per-mode value from
 one of two `[][3]` tables (`D_800958AC == 1` picks the second set) times
-30, and calls func_800285B0 and StartRumble.
+30, and calls EndJump and StartRumble.
 
 ```c
-/* Unit-local views: StageState (D_8009EB78's head, widened for this
+/* Unit-local views: StageState (gPlayer's head, widened for this
  * function), SavedStart (D_800D86B8: s32 valid; Pos3 pos; s32 unk10,
  * unk14; u16 unk18, unk1A; pad; s32 unk20), Placement (D_800A7680).
  * Locals: extern s16 D_800E474C; u16 gGameMode, gCameraYaw; u8
@@ -36,11 +36,11 @@ void ResetStage(void) {
     gVSyncMode = 2;
     ResetStageOverlay();
     if (D_800958AC == 1) {
-        D_800958A8 = 2;
+        gBonusLevel = 2;
     } else {
-        D_800958A8 = 3;
+        gBonusLevel = 3;
     }
-    D_80095858 = 0;
+    gMissState = 0;
     SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
     sStage.unk6 = 3;
@@ -72,7 +72,7 @@ void ResetStage(void) {
     D_800957A4 = 0;
     ClipF = 0;
     gFogFade = 0;
-    func_800287C0();
+    ResetSpeed();
     if (sSaved.valid != 0) {
         gSection = sSaved.unk10;
         sStage.unk348.vx = sSaved.pos.vx;
@@ -87,7 +87,7 @@ void ResetStage(void) {
         sStage.unk6 = 0x23;
         sStage.unk398 = 0;
         sStage.unk3A8 = 0;
-        D_800957D2 = 0;
+        gSpeedFixed = 0;
         sStage.unk374 = sStage.unk376 = sStage.unk378 = sStage.unk37A = 0;
         sStage.unk0 = 0;
         sStage.unk348.vy = D_800A7680.pos.vy - 1000;
@@ -100,7 +100,7 @@ void ResetStage(void) {
         gTimeLeft = gTimeLimits[mode][saved] * 30;
     }
     D_8009EF48[0] = 0;
-    func_800285B0();
+    EndJump();
     StartRumble(gRumblePatterns, 0);
 }
 ```
@@ -120,14 +120,14 @@ void ResetStage(void) {
   `addiu t1` base for the eight field loads; the restore is field by field
   (as RestartStage's position copy).
 - The constant 2 that `$s0` carries across `ResetStageOverlay` into the
-  `D_800958A8 = 2` arm needs no local; cc1 keeps it on its own.
+  `gBonusLevel = 2` arm needs no local; cc1 keeps it on its own.
 - `ClipF` is written as a word: retail stores 0 at the address splat names
   after libgte's clipf object. `extern s32 ClipF;` in the unit, with a
   comment.
 
 ## Declarations
 
-- `gVSyncMode` (from main.c), `D_800958AC`, `D_8009599C`, `D_800957D2`
+- `gVSyncMode` (from main.c), `D_800958AC`, `D_8009599C`, `gSpeedFixed`
   (from code_13068.c) moved into `include/common.h` with the same types
   (additive), and `StopCdTrack` (code_7d74) was added there.
 - `StepAnimation` takes `Stepper *` in main.c's view and `StageState *`

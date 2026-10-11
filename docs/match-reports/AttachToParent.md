@@ -18,7 +18,7 @@ void AttachToParent(Rec48 *a, Rec48 *b) {
     D_800957E4.vx = pb->unkC;
     D_800957E4.vy = pb->unk10;
     D_800957E4.vz = pb->unk14;
-    func_80023194((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
+    TransformByCoord((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
     pb->unk0 = D_8009F268.vx;
     pb->unk4 = D_8009F268.vy;
     pb->unk8 = D_8009F268.vz;
@@ -36,7 +36,7 @@ void AttachToParent(Rec48 *a, Rec48 *b) {
   halfwords through `lui $at`. splat names the halfwords D_800957E6 and
   D_800957E8; `%lo(D_800957E4+2)` assembles to the same bytes.
 - `extern VECTOR D_8009F268;`: read `lui` + `%lo` and then off the base.
-- Prototypes for func_80023194 (code_13068) and DrawObjectModel (this unit,
+- Prototypes for TransformByCoord (code_13068) and DrawObjectModel (this unit,
   still asm; `(Rec78 *, Rec48 *)` like UpdateObjectEntry).
 
 ## Observation

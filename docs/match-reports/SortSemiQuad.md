@@ -4,7 +4,7 @@
 
 Unit `src/code_7d74.c`. Draws a semi-transparent flat quad: a stack
 POLY_F4 set from a 15-bit colour and four corners, sorted into
-`gSubOt[gActiveBuff]`. It is code_13068's func_800286B0 plus one
+`gSubOt[gActiveBuff]`. It is code_13068's SortQuad15 plus one
 `SetSemiTrans(p, 1)`, including that function's corner order (the
 arguments named x2/y2 land in x3/y3 and vice versa) and its red-channel
 lever.
@@ -40,13 +40,13 @@ The unit now includes `code_a0bc.h` for `gSubOt`.
 
 ## Attempts (2)
 
-1. func_800286B0's body plus `SetSemiTrans`, the red channel inline:
+1. SortQuad15's body plus `SetSemiTrans`, the red channel inline:
    64/72, only the prologue's argument copies out of order (`col` copied
    last instead of first).
-2. `r = col & 0x1F;` as its own statement (func_800286B0's lever): 72/72.
+2. `r = col & 0x1F;` as its own statement (SortQuad15's lever): 72/72.
 
 ### Proposed learning
 
-- Confirms func_800286B0's lever on a second function: naming the first
+- Confirms SortQuad15's lever on a second function: naming the first
   use of a parameter (`r = col & 0x1F;`) moves its prologue copy first.
   (SortSemiQuad)

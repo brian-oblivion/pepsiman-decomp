@@ -283,7 +283,7 @@ About 30 builds this round.
   Pending the head's ruling on hard rule 7. (PollPads)
 - **A load retail keeps far above its single use: load into a local that
   is set more than once**; sched1 boosts a load that births a single-set
-  pseudo and sinks it to the use. (PollPads, func_80023D68)
+  pseudo and sinks it to the use. (PollPads, ApplyGravity)
 
 ## Round 14 (alpha)
 

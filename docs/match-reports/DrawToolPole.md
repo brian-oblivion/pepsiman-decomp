@@ -25,11 +25,11 @@ void DrawToolPole(VECTOR *pos) {
     world.vx = -pos->vx + gWorldShift[0];
     world.vy = pos->vy;
     world.vz = -pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vy = pos->vy - 200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);

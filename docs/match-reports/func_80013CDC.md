@@ -19,7 +19,7 @@ to `include/common.h` (same type; declcheck's MULTI). main.c now includes
 
 ```c
 /* The stepper's state lives at the head of the game state. */
-#define sStepper (*(Stepper *)D_8009EB78)
+#define sStepper (*(Stepper *)gPlayer)
 
 /** @brief A model object with its own coordinate system (a unit-local
  *         copy of code_1a098's view). */

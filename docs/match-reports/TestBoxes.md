@@ -3,7 +3,7 @@
 > Renamed from `func_8002AA58` on 2026-10-11 (tools/rename.py). Address 0x8002aa58.
 
 Unit `src/code_1a098.c`. Walks the 200 `Rec5C` boxes (`D_800CF080`) that
-are not yet hit (byte 0 clear), unless `D_80095858` is positive. With the
+are not yet hit (byte 0 clear), unless `gMissState` is positive. With the
 mode byte `gInEditor` clear it tests the player's x/z (`sGameHead.unk348`
 / `unk350`, relative to the box) against the four edges of the box's
 corners, each halved, and marks the box 1 when the player is inside all
@@ -50,7 +50,7 @@ s32 TestBoxes(void) {
     s16 px;
     s16 pz;
 
-    if (D_80095858 > 0) {
+    if (gMissState > 0) {
         return;
     }
     i = 0;

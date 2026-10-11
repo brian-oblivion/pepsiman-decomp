@@ -291,8 +291,8 @@ u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                             }
                         }
                     } else {
-                        a = ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)D_8009EB78).unk368,
-                                   D_800D86E0[0].coord.t[2] - (*(CamHead *)D_8009EB78).unk370);
+                        a = ratan2(D_800D86E0[0].coord.t[0] - (*(CamHead *)gPlayer).unk368,
+                                   D_800D86E0[0].coord.t[2] - (*(CamHead *)gPlayer).unk370);
                         v = D_8009EABA[0];
                         a -= v;
                         a &= 0xFFF;

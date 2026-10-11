@@ -5,7 +5,7 @@
 Unit `src/code_24748.c`. Resets part of the play state around the current
 entry: raises `D_80095774` for the duration, calls `ResetCollision`, clears
 words 0, 1, 2, 11, 12 and halfwords 12-14 of `D_800A9008`, then
-`UpdateObjectEntry` on the current `D_800D8D20` record, `func_80023F80` on the
+`UpdateObjectEntry` on the current `D_800D8D20` record, `ReactToHits` on the
 game state and `func_80029838`.
 
 ## Rounds
@@ -36,7 +36,7 @@ void RefreshToolPreview(void) {
     D_800A9008[11] = 0;
     D_800A9008[12] = 0;
     UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
-    func_80023F80(D_8009EB78);
+    ReactToHits(gPlayer);
     func_80029838();
     D_80095774 = 0;
 }

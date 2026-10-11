@@ -139,7 +139,7 @@ extern u16 D_80095768;     /**< 2 units, 2 functions; never loaded, sign unknown
 extern u8 D_800957D5;      /**< 2 units, 2 functions; never loaded, sign unknown */
 extern u8 D_800957D6;      /**< 2 units, 3 functions; never loaded, sign unknown */
 extern u8 D_800958EC;      /**< 2 units, 4 functions; never loaded, sign unknown */
-extern s16 D_80095858;     /**< 2 units; set to 2 at the goal when 0 */
+extern s16 gMissState;     /**< 2 units; set to 2 at the goal when 0 */
 extern s32 D_800958CC;     /**< 2 units, 2 functions; a loop counter kept in a global */
 extern s32 D_800959B4;     /**< 2 units, 2 functions */
 extern s32 D_800959B8;     /**< 2 units, 2 functions */
@@ -195,14 +195,14 @@ extern u8 *D_800959C0;    /**< the bytes after a BlockHeader */
 extern u8 *D_800959C4;    /**< the BlockHeader's second part */
 extern s32 D_800959C8;    /**< the BlockHeader's first word */
 extern s16 gSoundFade;    /**< 2 units, 2 functions */
-extern s32 D_800958A8;    /**< 2 units; 3 when a stage starts */
+extern s32 gBonusLevel;   /**< 2 units; 3 when a stage starts */
 extern s16 D_800957BC;    /**< 2 units; a heading */
 extern u8 *gFogColors;    /**< 2 units; far (fog) colours, four bytes each */
 extern u16 gFogFade;      /**< 2 units; fog fade-in step: 0..31, then 100 */
 extern s32 gVSyncMode;    /**< EndFrame's VSync argument: the frames to wait */
 extern s32 D_800958AC;    /**< 2 units; 1 picks the second set of stage tables */
 extern s8 D_8009599C;     /**< 2 units */
-extern u16 D_800957D2;    /**< 2 units */
+extern u16 gSpeedFixed;   /**< 2 units */
 extern u32 gFrameCount;   /**< frames drawn while not paused */
 extern s32 D_800958D0;    /**< a loop counter or count kept in a global; 2 units */
 extern s16 gSectionCount; /**< number of entries; 2 units */
@@ -225,7 +225,7 @@ extern s32 gView[];           /**< 4 units, 4 functions */
 extern s32 D_8009676C[];      /**< 2 units, 3 functions */
 extern u16 D_8009EAB8[];      /**< 2 units, 3 functions; never loaded, sign unknown */
 extern s16 D_8009EABA[];      /**< 2 units, 2 functions */
-extern u8 D_8009EB78[];       /**< 8 units, 69 functions */
+extern u8 gPlayer[];          /**< 8 units, 69 functions */
 extern u8 D_8009EB7E[];       /**< 2 units, 2 functions */
 extern u8 D_8009EEC0[];       /**< an object with a position; passed to
                           *   distance tests */
@@ -237,7 +237,7 @@ extern u8 gPlayerHits[];      /**< 2 units, 4 functions */
 extern s32 gCdLoadSectors[];  /**< each file's length in sectors, less one */
 extern s32 gWorldShift[];     /**< 5 units, 22 functions */
 extern s32 D_800A9008[];      /**< 3 units, 17 functions */
-extern s16 D_800AC858[];      /**< 2 units, 6 functions */
+extern s16 gFloorY[];         /**< 2 units, 6 functions */
 extern s32 D_800D39C8[];      /**< 2 units, 2 functions */
 extern s32 gTodObjTable[];    /**< 2 units, 5 functions */
 extern s32 D_800D86B8[];      /**< 2 units, 3 functions */
@@ -281,7 +281,7 @@ void PrintTabs(s16 count);
 
 /** @brief Defined in code_13068: on every tenth pickup, plays a cue
  *         (unless the stage forbids it) and updates the pickup display. */
-void func_80028448(void);
+void CheckCanBonus(void);
 
 /** @brief Defined in code_29f54; loads a run of TIM images (each starting
  *         with the word 0x10) into VRAM.
@@ -339,7 +339,7 @@ void ApplyHitQuads(void);
 
 /** @brief Defined in code_13068; called from code_308ec. Resets the
  *         stepped value two mode handlers steer, to 40 whole units. */
-void func_800287C0(void);
+void ResetSpeed(void);
 
 /** @brief Defined in code_1dc24. */
 void PrintYesNo(void);
@@ -403,7 +403,7 @@ void FadeInFog(void);
 void SetSoundFade(u8 mode);
 
 /** @brief Defined in code_13068. */
-void func_800285B0(void);
+void EndJump(void);
 
 /** @brief Defined in code_7d74. */
 void UpdateMotionViewer(void);
@@ -412,10 +412,10 @@ void UpdateMotionViewer(void);
 void InitTmdSortFuncs(void);
 
 /** @brief Defined in code_13068. */
-void func_800229A8(void);
+void InitGridTest(void);
 
 /** @brief Defined in code_13068. */
-void func_80022A74(void);
+void UpdateGridTest(void);
 
 /** @brief Defined in code_1a098. */
 void UpdateTrapViewer(void);
@@ -448,7 +448,7 @@ void UpdateActResults(void);
 
 /** @brief Defined in code_13068.
  *  @return not yet known */
-s32 func_80026D9C(void);
+s32 UpdatePlayState(void);
 
 /** @brief Defined in main.
  *  @return not yet known */

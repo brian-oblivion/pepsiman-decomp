@@ -61,7 +61,7 @@ void DrawPin(VECTOR *pos) {
     bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
     world.vz = pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
     DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);

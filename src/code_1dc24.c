@@ -185,7 +185,7 @@ typedef struct {
     s32 unk3C4;      /**< a copy of unk348[1] */
 } GameSave;
 
-#define sGameSave (*(GameSave *)D_8009EB78)
+#define sGameSave (*(GameSave *)gPlayer)
 
 /* MATCHING: also declared in code_1a098, which only zeroes it. */
 extern s32 D_80095824; /**< the current entry of the block, -1 for none */
@@ -308,7 +308,7 @@ void SetBoxCentred(Rec5Cv *b, s16 w, s16 d);
 u16 CallStageHook(s32 id, Obj48 *a, Obj48 *b);
 
 /* MATCHING: defined in code_13068 and code_24748, which have no header. */
-void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
+void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void DrawPin(VECTOR *pos);
 
 void MoveGamePos(s32 deg, s32 dist);
@@ -1733,12 +1733,12 @@ s32 EditorFreeMove(void) {
         sTotals.unk8 += sTotals.unk4;
     }
     sGameSave.unk3C4 = sGameSave.unk348[1];
-    cur = FindFloorNear(sGameSave.unk348, D_800AC858, D_800957F4);
+    cur = FindFloorNear(sGameSave.unk348, gFloorY, D_800957F4);
     D_80095824 = cur;
     if (cur != -1) {
         D_800957F4 = cur;
     }
-    sGameSave.unk348[1] = D_800AC858[0] + sTotals.unk8;
+    sGameSave.unk348[1] = gFloorY[0] + sTotals.unk8;
     if (D_800958D8 == 0 && (gPadTrig & 0x20) && cur == -1) {
         gToolMode = 7;
     }
@@ -2189,12 +2189,12 @@ s32 EditorArrangeRecords(void) {
             w->unk0[2] = sGameSave.unk348[2];
             w->unk1A = (sTotals.unk20 << 12) / 360;
             if (D_80095824 == -1) {
-                D_800AC858[1] = 0;
-                D_800AC858[2] = -0x1000;
-                D_800AC858[3] = 0;
+                gFloorY[1] = 0;
+                gFloorY[2] = -0x1000;
+                gFloorY[3] = 0;
             }
-            w->unk2C = ratan2(-D_800AC858[3], D_800AC858[2]);
-            w->unk30 = ratan2(-D_800AC858[1], D_800AC858[2]);
+            w->unk2C = ratan2(-gFloorY[3], gFloorY[2]);
+            w->unk30 = ratan2(-gFloorY[1], gFloorY[2]);
             UpdateObjectEntry(&D_800D8D20[w->unk36], (Rec48 *)w);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: an integer sum puts the index first in the addu. */
@@ -2202,7 +2202,7 @@ s32 EditorArrangeRecords(void) {
                 D_800957E4.vx = r->unkC[0];
                 D_800957E4.vy = r->unkC[1];
                 D_800957E4.vz = r->unkC[2];
-                func_80023194((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
+                TransformByCoord((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
                 r->unk0[0] = D_8009F268.vx;
                 r->unk0[1] = D_8009F268.vy;
                 r->unk0[2] = D_8009F268.vz;
@@ -3120,11 +3120,11 @@ void DrawPole(VECTOR *pos) {
     world.vx = pos->vx + gWorldShift[0];
     world.vy = pos->vy;
     world.vz = pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vy = pos->vy - 200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);
@@ -3151,13 +3151,13 @@ void DrawHeadingLine(VECTOR *pos, s16 deg) {
     world.vx = pos->vx + gWorldShift[0];
     world.vy = pos->vy;
     world.vz = pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     ang = deg * 4096 / 360;
     world.vx += rsin(ang) * 100 >> 12;
     world.vz += rcos(ang) * 100 >> 12;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);

@@ -8,7 +8,7 @@ projected to the screen with `RotTransPers` and written back as screen x/y;
 over eight frames it then moves an eighth of the way a frame toward
 (-136, -88), shrinking (`0x1000 - frame*256`) and fading, drawn as sprite 0xFA
 through code_a0bc's DrawSpriteTransformed (still asm). On the eighth frame it counts
-the pickup (`gCans++`), calls func_80028448 and returns 1.
+the pickup (`gCans++`), calls CheckCanBonus and returns 1.
 
 ```c
 /* setLs: the unit's static __inline__ helper (see src/code_29f54.c) */
@@ -36,7 +36,7 @@ s32 StepEffect7(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
         DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->unk0 == 8) {
             gCans++;
-            func_80028448();
+            CheckCanBonus();
             return 1;
         }
         return 0;
@@ -49,13 +49,13 @@ s32 StepEffect7(Slot *p, GsOT *ot, s16 x, s16 y, s16 z) {
 
 - **An 8-byte gap between the caller's locals and the inlined `setLs`
   locals (retail's at 0x38, the build's at 0x30): an unused `s32
-  unused[2];`** after the colour, per LEARNINGS (func_80023194). Everything
+  unused[2];`** after the colour, per LEARNINGS (TransformByCoord). Everything
   else matched on the first build; the warning is baselined in
   `config/typeviews-warnings.txt` (one line added).
 - `~(p->unk0 << 4)` gives retail's `nor` for the fading byte.
 - `q[0] = q[2] = ...` stores `q[2]` first, matching retail's order.
 - **Declarations:** DrawSpriteTransformed (code_a0bc, still `INCLUDE_ASM`) is
   declared in this `.c` with the view this caller needs (`s16 *` quad
-  parameters). func_80028448 (code_13068, plain `void (void)`) got a
+  parameters). CheckCanBonus (code_13068, plain `void (void)`) got a
   prototype ADDED to `include/common.h`, beside the other cross-unit
   `void (void)` prototypes there.

@@ -66,7 +66,7 @@ typedef struct {
     s32 unk1B0[100]; /**< third word of each loaded entry */
 } SeqHead;
 
-#define sSeqHead (*(SeqHead *)D_8009EB78)
+#define sSeqHead (*(SeqHead *)gPlayer)
 
 /**
  * @brief Maps a TMD and links its objects to gStageObjs.

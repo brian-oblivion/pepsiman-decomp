@@ -162,7 +162,7 @@ typedef struct {
     s32 unk1B0[100]; /**< third word of each loaded entry */
 } SeqHead;
 
-#define sSeqHead (*(SeqHead *)D_8009EB78)
+#define sSeqHead (*(SeqHead *)gPlayer)
 
 /**
  * @brief Maps the stage TMD and links its objects to the stage object table.
@@ -500,7 +500,7 @@ void DrawHud(void) {
     quad[7] = 1;
     quad[6] = 0;
     D_80095A84 += D_8009EF20[0];
-    switch (D_800958A8) {
+    switch (gBonusLevel) {
         case 1:
             quad[4] = quad[5] = 0x800;
             if ((gFrameCount >> 1) & 1) {
@@ -1650,7 +1650,7 @@ s32 StepEffect7(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->frame == 8) {
             gCans++;
-            func_80028448();
+            CheckCanBonus();
             return 1;
         }
         return 0;
@@ -1688,7 +1688,7 @@ s32 StepEffect8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         }
         if (++p->frame == 8) {
             gCans += 5;
-            func_80028448();
+            CheckCanBonus();
             return 1;
         }
         return 0;

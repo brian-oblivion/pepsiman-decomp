@@ -13,7 +13,7 @@ moves the model with six button bits. Every frame ends with
 `FntPrint("\n\n\tMOTION %3d", gViewerMotion)`.
 
 ```c
-/* Player: code_7d74's view of the game state's head (D_8009EB78),
+/* Player: code_7d74's view of the game state's head (gPlayer),
  * extended this round with unk340..unk384; sPlayer is its lvalue. */
 void UpdateMotionViewer(void) {
     /* MATCHING: an unused local gives retail's 0x20-byte frame. */

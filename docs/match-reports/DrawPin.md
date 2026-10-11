@@ -5,7 +5,7 @@
 Unit `src/code_24748.c`. Draws a bobbing marker above a world position: the
 position plus the offset in `gWorldShift[0]`/`[2]` and, in y, a sine bob of
 amplitude 10 around -200 (phase `gFrameCount * 10` degrees, converted to
-libgte's 4096-per-turn units), projected by `func_800230E0`, then sprite
+libgte's 4096-per-turn units), projected by `ProjectToScreen`, then sprite
 0x15E drawn at the screen point offset by (-7, -32) through
 `DrawSprite` (handwritten), with the current `gSubOt` entry.
 
@@ -20,7 +20,7 @@ void DrawPin(VECTOR *pos) {
     bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
     world.vz = pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
     DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
@@ -33,7 +33,7 @@ void DrawPin(VECTOR *pos) {
   `/ 360` are unsigned (`srl 3` then `multu` by 0x16C16C17), so `u32`.
 - `gWorldShift`: `s32 []` in `common.h`, split `lui`/`%lo` as retail.
 - Stack: `size` 0x18, `world` 0x20, `screen` 0x30, in declaration order.
-- `func_800230E0` is defined in `code_13068.c` with `VECTOR *`/`SVECTOR *`
+- `ProjectToScreen` is defined in `code_13068.c` with `VECTOR *`/`SVECTOR *`
   parameters. Its prototype cannot go into `include/common.h`, which is
   included before `libgte.h` (VECTOR undefined there: "parse error before
   `*'", tried); it sits in this unit's `.c`, which declcheck reports as
@@ -57,4 +57,4 @@ separate statement keeps cc1 from reassociating the constant onto the load.
 A constant added to a computed term BEFORE that term is added to a loaded
 value, where parenthesising does not hold it: assign the term with its
 constant to a local in its own statement, then add. (DrawPin; contrast
-func_80022F68 where parentheses sufficed)
+ScatterEffect4 where parentheses sufficed)

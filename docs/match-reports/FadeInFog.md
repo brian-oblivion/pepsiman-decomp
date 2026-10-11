@@ -7,7 +7,7 @@ Unit `src/code_308ec.c`. Fog fade-in, one step a frame. While the step
 `POLY_F4` (from the primitive buffer `GsOUT_PACKET_P`) to the current ordering
 table; every step it sets the fog near/far planes and the far colour
 scaled by step/32 (the colour picked by bits 8-9 of `D_80095864`, as
-func_80028650 does at full strength), then advances the step and parks it
+SetStageFog does at full strength), then advances the step and parks it
 at 100 after 32.
 
 ```c
@@ -59,7 +59,7 @@ void FadeInFog(void) {
   0x10000` gives retail's `375 * D << 14` and a signed divide;
   `gFogFade * 8000 * 2048 / 0x10000` folds the whole divide into `D *
   250`. `(gFogFade << 11) * 3000` kept the shift in its own register.
-- The colour index as `gFogColors[i * 4 + k]` (func_80028650's form). A
+- The colour index as `gFogColors[i * 4 + k]` (SetStageFog's form). A
   `u8 *c = &gFogColors[i * 4]` local swaps the operands of the `addu`.
 - `100` lives in `$s1` across the calls with no local: cc1 kept the
   constant from the entry test for the final store on its own.

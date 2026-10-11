@@ -82,7 +82,7 @@ typedef struct {
 } GameState;
 
 /* MATCHING: a struct lvalue keeps the base in a register; array offsets fold into %lo. */
-#define sGame (*(GameState *)D_8009EB78)
+#define sGame (*(GameState *)gPlayer)
 
 /* MATCHING: retail reaches these through a split lui/%lo pair, so each is
  * an array of unknown size here. */
@@ -178,43 +178,43 @@ extern s16 D_800D39B6[];
 extern s16 D_800D39FE[];
 extern s16 D_800D3A46[];
 
-void func_80023834(u8 mode, u16 a, s16 b);
-void func_80023764(void);
-s32 func_80023BFC(void);
-s32 func_80023D68(void);
-s32 func_80026548(void);
-s32 func_8002670C(void);
-void func_80026848(void);
-s32 func_80027714(void);
-void func_800278B0(void);
-void func_80027A00(void);
-void func_80027BEC(void);
-void func_80027D04(void);
-void func_80028008(void);
-s32 func_800283A0(void);
-void func_800285C8(s32 deg, s32 radius, VECTOR *out);
-void func_800287F4(void);
-s32 func_80028508(void);
+void ApplySteer(u8 mode, u16 a, s16 b);
+void SteerPlayer(void);
+s32 CheckFall(void);
+s32 ApplyGravity(void);
+s32 UpdateRunSpeed(void);
+s32 UpdateSlideDash(void);
+void UpdateJump(void);
+s32 AttachModeObject(void);
+void SpawnModeObject(void);
+void SteerMode2(void);
+void UpdateSpeedMode2(void);
+void UpdateSpeedMode3(void);
+void SteerMode3(void);
+s32 UpdateSpeedBand(void);
+void PolarOffset(s32 deg, s32 radius, VECTOR *out);
+void AttachMode5Object(void);
+s32 TrySlide(void);
 /* MATCHING: code_1dc24 stores it as u8; this unit's tests load it lb. */
 extern s8 D_80095962;
 
-/** @brief A 10-byte pickup slot; three live ones are checked each frame. */
+/** @brief One of gPlayerHits' three records; a live one is reacted to. */
 typedef struct {
     s8 unk0; /**< nonzero when the slot is live */
     u8 pad1;
-    u8 unk2; /**< the pickup's kind, a row of the PickupKind table */
+    u8 unk2; /**< what hit, a row of the HitReaction table */
     u8 pad3[7];
-} Pickup;
+} HitSlot;
 
 /* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-#define sPickups ((Pickup *)gPlayerHits)
+#define sHits ((HitSlot *)gPlayerHits)
 
-/** @brief Eight bytes of a pickup kind's effects. */
+/** @brief How the player reacts to one kind of hit: the action per state. */
 typedef struct {
     u8 b[8]; /**< per stage mode and flag */
-} PickupKind;
+} HitReaction;
 
-extern PickupKind D_8007714C[];
+extern HitReaction gHitReactions[];
 extern s8 D_8009575F;
 /* Overlay entry points: the stage modes' own code. */
 void func_800F8A58(void);
@@ -223,8 +223,8 @@ void func_800F6FA0(void);
 void func_800F70A8(void);
 void func_800F8D64(void);
 void func_800F729C(void);
-void func_80023B20(void);
-void func_80028650(void);
+void RecentreSteer(void);
+void SetStageFog(void);
 void func_80028500(void);
 
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
@@ -249,7 +249,7 @@ extern s32 D_800DF5C0[];
  * as words. */
 extern Rec5C D_800CF080[];
 extern u8 D_800959B0;
-extern s16 D_800957DC;
+extern s16 gMissTimer;
 void DrawHud(void);
 /* MATCHING: code_308ec defines this with a u8 parameter; this unit's call passes none. */
 void RestartStage();
@@ -261,7 +261,7 @@ s32 DistanceSquared(VECTOR *a, VECTOR *b);
  * passes the state block in $a0. */
 void func_80018CA4(GameState *g);
 
-void func_80022868(void) {
+void DrawPlayerShadow(void) {
     GsCOORDINATE2 coord;
     MATRIX ls;
     SVECTOR size;
@@ -272,7 +272,7 @@ void func_80022868(void) {
     if (sGame.unk3D3 != 0) {
         GsInitCoordinate2(WORLD, &coord);
         coord.coord.t[0] = sGame.unk348 + sGame.unk354 + gWorldShift[0];
-        coord.coord.t[1] = D_800AC858[0];
+        coord.coord.t[1] = gFloorY[0];
         coord.coord.t[2] = sGame.unk350 + sGame.unk35C + gWorldShift[2];
         GsGetLs(&coord, &ls);
         GsSetLsMatrix(&ls);
@@ -285,7 +285,7 @@ void func_80022868(void) {
     }
 }
 
-void func_800229A8(void) {
+void InitGridTest(void) {
     for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
         for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
             D_800DE5E0[D_800958D0 * 21 + D_800958CC].x = D_800958CC * 16 - 160;
@@ -303,7 +303,7 @@ void func_800229A8(void) {
 }
 
 /* MATCHING: the parity mask through y, the first loop's local, keeps 0xFF out of the preheader. */
-void func_80022A74(void) {
+void UpdateGridTest(void) {
     DVECTOR sxy;
     SVECTOR v;
     MATRIX ls;
@@ -405,12 +405,12 @@ void func_80022F58(void) {}
 
 void func_80022F60(void) {}
 
-void func_80022F68(VECTOR *pos) {
+void ScatterEffect4(VECTOR *pos) {
     SpawnEffect(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                 (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
-void func_80023020(VECTOR *pos) {
+void ScatterEffect6(VECTOR *pos) {
     SpawnEffect(6, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                 (s16)pos->vz + (rand() % 160 - 80), 1);
 }
@@ -418,7 +418,7 @@ void func_80023020(VECTOR *pos) {
 void func_800230D8(void) {}
 
 /* MATCHING: the unused 88 bytes put p and flag at sp+0xE8 and the frame at 0x100. */
-void func_800230E0(VECTOR *pos, SVECTOR *out) {
+void ProjectToScreen(VECTOR *pos, SVECTOR *out) {
     DVECTOR sxy;
     SVECTOR v;
     MATRIX ls;
@@ -443,7 +443,7 @@ void func_800230E0(VECTOR *pos, SVECTOR *out) {
 }
 
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
-void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
+void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     MATRIX world;
     MATRIX local;
     SVECTOR v;
@@ -465,7 +465,7 @@ void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
 
 /* MATCHING: g keeps the sGame base in a register for the clamp's store at the join;
  * cases 1 and 2 of the second switch are separate arms, merged by cross-jumping. */
-void func_80023228(void) {
+void UpdatePlayer(void) {
     s32 t;
     s32 x;
     s32 v;
@@ -473,21 +473,21 @@ void func_80023228(void) {
     GameState *g;
 
     if (D_80095962 != 1) {
-        func_80023BFC();
+        CheckFall();
     }
-    func_800283A0();
-    func_80023D68();
+    UpdateSpeedBand();
+    ApplyGravity();
     if (sGame.unk0 == 1) {
-        func_80027714();
+        AttachModeObject();
     }
-    func_800287F4();
-    func_800278B0();
+    AttachMode5Object();
+    SpawnModeObject();
     switch (sGame.unk3D0 & 0xF) {
         case 0:
-            func_80026548();
-            func_8002670C();
-            func_80026848();
-            func_80028508();
+            UpdateRunSpeed();
+            UpdateSlideDash();
+            UpdateJump();
+            TrySlide();
             break;
         case 1:
             func_800F8A58();
@@ -498,10 +498,10 @@ void func_80023228(void) {
             func_800F70A8();
             break;
         case 2:
-            func_80027BEC();
+            UpdateSpeedMode2();
             break;
         case 3:
-            func_80027D04();
+            UpdateSpeedMode3();
             break;
     }
     sGame.unk344 = (40 - sGame.unk3A8) / 3 + 1;
@@ -519,7 +519,7 @@ void func_80023228(void) {
             break;
         case 3:
             if (sGame.unk34C >= sGame.unk3C0) {
-                func_800285C8(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
+                PolarOffset(D_800A7680->vy * 360 / 4096 - 180, 30, (VECTOR *)D_800D39C8);
                 sGame.unk348 += D_800D39C8[0];
                 sGame.unk350 += D_800D39C8[2];
             }
@@ -538,13 +538,13 @@ void func_80023228(void) {
             break;
         case 3:
             if (sGame.unk34C >= sGame.unk3C0) {
-                func_800285C8(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
+                PolarOffset(D_800A7680->vy * 360 / 4096, 30, (VECTOR *)D_800D39C8);
                 sGame.unk348 += D_800D39C8[0];
                 sGame.unk350 += D_800D39C8[2];
             }
             break;
     }
-    D_800957D2 = t << 4;
+    gSpeedFixed = t << 4;
     switch (D_8009EF48[0] & 0xF) {
         case 0:
         case 1:
@@ -564,7 +564,7 @@ void func_80023228(void) {
     }
     switch (D_8009EF48[0] & 0xF) {
         case 0:
-            func_80023764();
+            SteerPlayer();
             break;
         case 1:
             func_800F8D64();
@@ -573,10 +573,10 @@ void func_80023228(void) {
             func_800F729C();
             break;
         case 2:
-            func_80027A00();
+            SteerMode2();
             break;
         case 3:
-            func_80028008();
+            SteerMode3();
             break;
     }
     g = &sGame;
@@ -602,29 +602,29 @@ void func_80023228(void) {
     gWorldShift[2] = -sGame.unk350;
 }
 
-void func_80023764(void) {
+void SteerPlayer(void) {
     if (sGame.unk0 != 0) {
         switch (gPadType) {
             case 0x73:
                 if (gPad & 0x8000) {
-                    func_80023834(3, 16, 15);
+                    ApplySteer(3, 16, 15);
                 } else if (gPad & 0x2000) {
-                    func_80023834(2, 16, 15);
+                    ApplySteer(2, 16, 15);
                 } else {
-                    func_80023B20();
+                    RecentreSteer();
                 }
                 break;
             case 0x41:
                 if (gPad & 0x8000) {
-                    func_80023834(3, 16, 15);
+                    ApplySteer(3, 16, 15);
                 } else if (gPad & 0x2000) {
-                    func_80023834(2, 16, 15);
+                    ApplySteer(2, 16, 15);
                 } else {
-                    func_80023B20();
+                    RecentreSteer();
                 }
                 break;
             default:
-                func_80023B20();
+                RecentreSteer();
                 break;
         }
         if (sGame.unk0 != 0) {
@@ -645,7 +645,7 @@ static __inline__ void pushBack(s32 deg, s32 dist) {
 }
 
 /* MATCHING: the (u16) read is the separate lhu retail stores when the heading is in range. */
-void func_80023834(u8 mode, u16 a, s16 b) {
+void ApplySteer(u8 mode, u16 a, s16 b) {
     s16 yaw;
     s32 w;
 
@@ -711,7 +711,7 @@ void func_80023834(u8 mode, u16 a, s16 b) {
 
 /* MATCHING: the inline ternary abs (not an if on d) lets the first +56 test reuse the
  * loaded value when it skips the store. */
-void func_80023B20(void) {
+void RecentreSteer(void) {
     u16 i;
     s32 yaw;
     s32 d;
@@ -745,7 +745,7 @@ void func_80023B20(void) {
 }
 
 /* MATCHING: non-void with no return keeps the last beqz delay slot a nop. */
-s32 func_80023BFC(void) {
+s32 CheckFall(void) {
     s32 unused[2];
 
     if ((D_800AC860 & 0x40) && sGame.unk6 != 0xE) {
@@ -755,24 +755,24 @@ s32 func_80023BFC(void) {
                 sGame.unk398 = 20;
                 sGame.unk3D0 &= 0xF0;
             }
-            func_800287C0();
+            ResetSpeed();
             sGame.unk0 = 0;
         }
         sGame.unk3C0 = 30000;
-        if (sGame.unk34C >= D_800AC858[0] + 100) {
-            if (D_80095858 == 0) {
-                D_80095858 = 2;
+        if (sGame.unk34C >= gFloorY[0] + 100) {
+            if (gMissState == 0) {
+                gMissState = 2;
             }
             D_800958EC = 1;
             sGame.unk0 = 0;
             sGame.unk3A6 += 2;
-            func_800287C0();
+            ResetSpeed();
             sGame.unk374 = 0;
-            if (sGame.unk34C > D_800AC858[0] + 0x8C && (sGame.unk3D0 & 0xF) == 3) {
+            if (sGame.unk34C > gFloorY[0] + 0x8C && (sGame.unk3D0 & 0xF) == 3) {
                 sGame.unk3D0 &= 0xF0;
             }
             sGame.unk3CA = 1;
-            if (sGame.unk34C > D_800AC858[0] + 1000) {
+            if (sGame.unk34C > gFloorY[0] + 1000) {
                 sGame.unk6 = 12;
                 sGame.unk3A6 = 0;
                 sGame.unk3D0 &= 0xF0;
@@ -782,7 +782,7 @@ s32 func_80023BFC(void) {
 }
 
 /* MATCHING: y reloaded, reused for unk3CC and killed by the dead y = 0 keeps retail's copy. */
-s32 func_80023D68(void) {
+s32 ApplyGravity(void) {
     s32 x;
     s32 d;
     s32 y;
@@ -829,7 +829,7 @@ s32 func_80023D68(void) {
         goto end;
     }
     if (sGame.unk34C >= sGame.unk3C0) {
-        z = D_800AC858[0];
+        z = gFloorY[0];
         sGame.unk3A6 = 0;
         sGame.unk39C = 0;
         sGame.unk3BC = 0;
@@ -850,11 +850,11 @@ end:;
 }
 
 /* MATCHING: the volatile read keeps the later unk2 reads as reloads, as retail. */
-void func_80023F80(u8 *state) {
+void ReactToHits(u8 *state) {
     u8 v;
     s16 i;
     u8 m;
-    Pickup *p;
+    HitSlot *p;
 
     v = 0;
     if (((GameState *)state)->unk2 == 0) {
@@ -864,7 +864,7 @@ void func_80023F80(u8 *state) {
         return;
     }
     for (i = 0; i < 3; i++) {
-        p = &sPickups[i];
+        p = &sHits[i];
         if (p->unk0 == 0) {
             continue;
         }
@@ -882,28 +882,28 @@ void func_80023F80(u8 *state) {
                         case 2:
                         case 3:
                         case 4:
-                            v = D_8007714C[sPickups[i].unk2].b[0];
+                            v = gHitReactions[sHits[i].unk2].b[0];
                             break;
                         case 8:
                         case 9:
                         case 10:
                         case 11:
-                            v = D_8007714C[sPickups[i].unk2].b[1];
+                            v = gHitReactions[sHits[i].unk2].b[1];
                             break;
                         case 5:
                         case 6:
                         case 7:
-                            v = D_8007714C[sPickups[i].unk2].b[2];
+                            v = gHitReactions[sHits[i].unk2].b[2];
                             break;
                     }
                     break;
                 case 0x39:
                 case 0x3A:
-                    v = D_8007714C[p->unk2].b[3];
+                    v = gHitReactions[p->unk2].b[3];
                     break;
                 case 0x3B:
                 case 0x3C:
-                    v = D_8007714C[p->unk2].b[0];
+                    v = gHitReactions[p->unk2].b[0];
                     break;
                 default:
                     switch (sGame.unk3D0 & 0xF) {
@@ -914,7 +914,7 @@ void func_80023F80(u8 *state) {
                             break;
                         case 3:
                         default:
-                            v = D_8007714C[sPickups[i].unk2].b[4];
+                            v = gHitReactions[sHits[i].unk2].b[4];
                             break;
                     }
                     break;
@@ -927,7 +927,7 @@ void func_80023F80(u8 *state) {
                     break;
             }
         } else {
-            v = D_8007714C[p->unk2].b[2 - i];
+            v = gHitReactions[p->unk2].b[2 - i];
             if (sGame.unk3D0 & 0xF) {
                 v = 0x42;
             }
@@ -938,23 +938,23 @@ void func_80023F80(u8 *state) {
             case 4:
                 sGame.unk3D1 = 1;
                 sGame.unk3D5 = 1;
-                D_800958A8 = 0;
+                gBonusLevel = 0;
                 sGame.unk3D0 &= 0xF0;
                 ((GameState *)state)->unk2 = 0;
                 D_8009599C = 1;
                 ((GameState *)state)->unk3C8 = 750;
                 ((GameState *)state)->unk5 = v;
-                if (sPickups[i].unk2 != 0) {
-                    func_800285B0();
+                if (sHits[i].unk2 != 0) {
+                    EndJump();
                 }
-                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                D_8009575F = sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0;
                 return;
             case 0:
             default:
                 if (v == 0) {
                     continue;
                 }
-                if (D_8007714C[sPickups[i].unk2].b[5] == 1) {
+                if (gHitReactions[sHits[i].unk2].b[5] == 1) {
                     ((GameState *)state)->unk2 = 0;
                     ((GameState *)state)->unk3C8 = 150;
                     D_8009599C = 1;
@@ -962,19 +962,19 @@ void func_80023F80(u8 *state) {
                     ((GameState *)state)->unk2 = 0;
                     ((GameState *)state)->unk3C8 = 18;
                 }
-                if (D_8007714C[sPickups[i].unk2].b[6] == 1) {
+                if (gHitReactions[sHits[i].unk2].b[6] == 1) {
                     sGame.unk3D5 = 1;
-                    D_800958A8 = 0;
+                    gBonusLevel = 0;
                 }
-                if (D_8007714C[sPickups[i].unk2].b[7] == 1 &&
-                    (s8)(sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) != D_8009575F) {
-                    func_80028260(-1);
+                if (gHitReactions[sHits[i].unk2].b[7] == 1 &&
+                    (s8)(sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0) != D_8009575F) {
+                    AddBonusLevel(-1);
                 }
                 ((GameState *)state)->unk5 = v;
-                if (sPickups[i].unk2 != 0) {
-                    func_800285B0();
+                if (sHits[i].unk2 != 0) {
+                    EndJump();
                 }
-                D_8009575F = sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0;
+                D_8009575F = sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0;
                 return;
         }
     }
@@ -989,12 +989,12 @@ s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 /* MATCHING: empty void(void) in code_7d74; unprototyped here, called with two args and one. */
 void func_80018CAC();
 
-s32 func_800281B8(GameState *g);
-void func_800283E4(void);
+s32 LandPlayer(GameState *g);
+void ResetPlayerAction(void);
 
 /* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for
  * every step so global-alloc gives it $a1, the step's argument register. */
-s32 func_80024450(GameState *state) {
+s32 UpdatePlayerAction(GameState *state) {
     u8 m;
     s16 t;
     s32 v;
@@ -1007,7 +1007,7 @@ s32 func_80024450(GameState *state) {
         sGame.unk3C8 = 0;
         sGame.unk2 = 1;
     } else {
-        if (sPickups[0].unk0 | sPickups[1].unk0 | sPickups[2].unk0) {
+        if (sHits[0].unk0 | sHits[1].unk0 | sHits[2].unk0) {
             if (t == 1) {
                 sGame.unk3C8 = 2;
             }
@@ -1138,13 +1138,13 @@ top:
         case 0x3A:
             if (state->unk376 < 5) {
                 DrawFrozenFrame();
-                D_800957D2 = 0x5A0;
+                gSpeedFixed = 0x5A0;
             } else {
-                D_800957D2 = 0x460;
+                gSpeedFixed = 0x460;
             }
             state->unk376++;
-            state->unk3A8 = (s16)D_800957D2 >> 4;
-            func_80022F68((VECTOR *)&state->unk348);
+            state->unk3A8 = (s16)gSpeedFixed >> 4;
+            ScatterEffect4((VECTOR *)&state->unk348);
             if (state->unk376 >= 30) {
                 state->unk5 = 0;
                 if (sGame.unk34C >= sGame.unk3C0 && (u32)(sGame.unk6 - 5) >= 3) {
@@ -1163,22 +1163,22 @@ top:
             state->unk3AA = state->unk3A8;
             StartRumble(gRumblePatterns, 12);
         case 0x3C:
-            D_800957D2 -= 0x20;
-            if (++state->unk378 >= 16 || (s16)D_800957D2 < 0) {
-                D_800957D2 = 0;
+            gSpeedFixed -= 0x20;
+            if (++state->unk378 >= 16 || (s16)gSpeedFixed < 0) {
+                gSpeedFixed = 0;
                 state->unk5 = 0x3D;
                 state->unk6 = 0x19;
                 state->unk0 = 1;
             }
-            state->unk3A8 = (s16)D_800957D2 >> 4;
-            func_80022F68((VECTOR *)&state->unk348);
+            state->unk3A8 = (s16)gSpeedFixed >> 4;
+            ScatterEffect4((VECTOR *)&state->unk348);
             break;
         case 0x3D:
             if (state->unk340 == 1) {
                 state->unk6 = 4;
                 state->unk5 = 0;
                 state->unk38E = 0;
-                D_800957D2 = 0x320;
+                gSpeedFixed = 0x320;
             }
             break;
         case 0x3E:
@@ -1225,7 +1225,7 @@ top:
         case 0x46:
             state->unk5 = 0x47;
             state->unk6 = 0x28;
-            func_800287C0();
+            ResetSpeed();
             state->unk374 = 10;
             state->unk376 = 0;
             state->unk0 = 0;
@@ -1237,12 +1237,12 @@ top:
             state->unk376 = 0;
             state->unk374 = 0;
             state->unk0 = 0;
-            if (func_80028260(0) <= 0) {
+            if (AddBonusLevel(0) <= 0) {
                 state->unk5 = 0x42;
                 goto top;
             }
             StartRumble(gRumblePatterns, 4);
-            func_800287C0();
+            ResetSpeed();
             break;
         case 0x4A:
             state->unk5 = 0x4B;
@@ -1255,14 +1255,14 @@ top:
         case 0x4C:
             state->unk5 = 0x4D;
             state->unk6 = 0x2F;
-            func_800287C0();
+            ResetSpeed();
             state->unk0 = 0;
             StartRumble(gRumblePatterns, 4);
             break;
         case 0x4E:
             state->unk5 = 0x4F;
             state->unk6 = 0x30;
-            func_800287C0();
+            ResetSpeed();
             state->unk37A = 0;
             state->unk378 = 0;
             state->unk376 = 0;
@@ -1278,7 +1278,7 @@ top:
                 state->unk5 = 0x55;
                 state->unk6 = 0x23;
             }
-            func_800287C0();
+            ResetSpeed();
             state->unk37A = 0;
             state->unk378 = 0;
             state->unk376 = 0;
@@ -1292,7 +1292,7 @@ top:
             state->unk5 = 0x53;
             state->unk6 = 0x32;
             state->unk3D2 = 1;
-            func_800287C0();
+            ResetSpeed();
             state->unk37A = 0;
             state->unk378 = 0;
             state->unk376 = 0;
@@ -1301,10 +1301,10 @@ top:
             StartRumble(gRumblePatterns, 9);
             break;
         case 0x56:
-            D_80095858 = -1;
+            gMissState = -1;
             state->unk5 = 0x57;
             state->unk6 = 0x23;
-            func_800287C0();
+            ResetSpeed();
             state->unk398 = 300;
             /* MATCHING: a bare barrier keeps the call's arguments below this store. */
             __asm__("");
@@ -1415,13 +1415,13 @@ top:
                             state->unk6 = 0x1A;
                             break;
                     }
-                    func_80022F68((VECTOR *)&state->unk348);
+                    ScatterEffect4((VECTOR *)&state->unk348);
                     state->unk38F = 0;
                     state->unk3BC = 1;
                     StartRumble(gRumblePatterns, 13);
                 }
             } else if (state->unk34C >= state->unk3C0) {
-                state->unk34C = D_800AC858[0];
+                state->unk34C = gFloorY[0];
                 func_80018CAC(&sGame);
                 switch ((s8)sGame.unk38E) {
                     case 0:
@@ -1432,7 +1432,7 @@ top:
                         state->unk6 = 0x1A;
                         break;
                 }
-                func_80022F68((VECTOR *)&state->unk348);
+                ScatterEffect4((VECTOR *)&state->unk348);
                 state->unk38F = 0;
                 state->unk3BC = 0;
                 StartRumble(gRumblePatterns, 13);
@@ -1445,13 +1445,13 @@ top:
         case 0xD:
             state->unk3A8 -= 2;
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
             }
             /* MATCHING: cases 7, 0x1F and 0x26 branch here; their own calls would be the copies
              * cross-jumping keeps. */
             if (state->unk340 == 0 && (state->unk5 == 8 || state->unk5 == 0xA)) {
             reset:
-                func_800283E4();
+                ResetPlayerAction();
             }
             break;
         case 0x15:
@@ -1459,7 +1459,7 @@ top:
         case 0x17:
             state->unk3A8 -= 4;
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
             }
             if (sGame.unk374 == 0) {
                 PlaySe(0x1A);
@@ -1477,14 +1477,13 @@ top:
                 }
                 v = rsin(ANGLE_DEG(sGame.unk376));
                 /* MATCHING: one expression, so the table's %hi is built before the abs. */
-                sGame.unk34C =
-                    D_800AC858[0] - ((v * 100 >> 12) >= 0 ? (v * 100 >> 12) : -(v * 100 >> 12));
+                sGame.unk34C = gFloorY[0] - ((v * 100 >> 12) >= 0 ? (v * 100 >> 12) : -(v * 100 >> 12));
 
                 if (sGame.unk374 >= 30) {
                     state->unk362 = 0;
-                    func_800287C0();
-                    if (func_80028260(0) != 0) {
-                        func_800283E4();
+                    ResetSpeed();
+                    if (AddBonusLevel(0) != 0) {
+                        ResetPlayerAction();
                     } else {
                         sGame.unk374 = 0;
                         state->unk6 = 0x31;
@@ -1597,13 +1596,13 @@ top:
                 }
             }
             if (sGame.unk34C == sGame.unk3C0) {
-                func_80022F68((VECTOR *)&state->unk348);
+                ScatterEffect4((VECTOR *)&state->unk348);
             }
             StartRumble(gRumblePatterns, 14);
             break;
         case 6:
             if (gFrameCount % 3 == 0) {
-                func_80022F68((VECTOR *)&state->unk348);
+                ScatterEffect4((VECTOR *)&state->unk348);
             }
             if (state->unk3A4 == 0) {
                 state->unk6 = 7;
@@ -1613,14 +1612,14 @@ top:
         case 0x14:
             state->unk3A8 -= 4;
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
             }
             if (state->unk398 > 0) {
                 state->unk398 -= 7;
                 d = state->unk398;
                 state->unk34C -= d;
             }
-            r = func_800281B8(state);
+            r = LandPlayer(state);
             /* MATCHING: three nested tests; one condition folds into a range check. */
             if (r != 0)
                 if (r >= 0)
@@ -1631,12 +1630,12 @@ top:
         case 0x1B:
             state->unk3A8 -= 2;
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
             }
             state->unk398 -= 7;
             d = state->unk398;
             state->unk34C -= d;
-            r = func_800281B8(state);
+            r = LandPlayer(state);
             if (r != 0)
                 if (r >= 0)
                     if (r < 3) {
@@ -1654,10 +1653,10 @@ top:
         case 0x1C:
             state->unk3A8 -= 2;
             if (state->unk3A8 >= 0x15) {
-                func_80022F68((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)D_8009EEC0);
             }
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
                 if (++state->unk374 >= 16) {
                     state->unk374 = 0;
                     state->unk6 = 0x1D;
@@ -1667,7 +1666,7 @@ top:
         case 0x1D:
             state->unk374++;
             if (state->unk340 == 0) {
-                if (func_80028260(0) != 0) {
+                if (AddBonusLevel(0) != 0) {
                     state->unk376 = 0;
                     state->unk6 = 0x1F;
                 } else {
@@ -1675,7 +1674,7 @@ top:
                         PlaySe(0x34);
                     }
                     if (state->unk374 >= 61) {
-                        D_80095858 = 100;
+                        gMissState = 100;
                     }
                 }
             }
@@ -1701,7 +1700,7 @@ top:
         case 0x20:
             if (state->unk340 == 0) {
                 state->unk374++;
-                func_80022F68((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)D_8009EEC0);
                 state->unk6 = 0x20;
                 state->unk8 = 0xFF;
             }
@@ -1713,15 +1712,15 @@ top:
         case 0x21:
             state->unk3A8 -= 1;
             if (state->unk3A8 >= 6) {
-                func_80022F68((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)D_8009EEC0);
                 StartRumble(gRumblePatterns, 11);
             }
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
                 if (++state->unk374 >= 16) {
                     switch (state->unk5) {
                         default:
-                            if (func_80028260(0) != 0) {
+                            if (AddBonusLevel(0) != 0) {
                                 state->unk374 = 0;
                                 state->unk376 = 0;
                                 state->unk6 = 0x1F;
@@ -1730,12 +1729,12 @@ top:
                                     PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
-                                    D_80095858 = 100;
+                                    gMissState = 100;
                                 }
                             }
                             break;
                         case 0x49:
-                            if (func_80028260(0) != 0) {
+                            if (AddBonusLevel(0) != 0) {
                                 state->unk376 = 0;
                                 state->unk6 = 0x2D;
                             } else {
@@ -1743,30 +1742,30 @@ top:
                                     PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
-                                    D_80095858 = 100;
+                                    gMissState = 100;
                                 }
                             }
                             break;
                         case 0x4F:
-                            if (func_80028260(0) != 0) {
+                            if (AddBonusLevel(0) != 0) {
                                 state->unk6 = 0x22;
                             } else {
                                 if (state->unk374 == 30) {
                                     PlaySe(0x34);
                                 }
                                 if (state->unk374 >= 61) {
-                                    D_80095858 = 100;
+                                    gMissState = 100;
                                 }
                             }
                             break;
                         case 0x57:
-                            D_80095858 = -1;
+                            gMissState = -1;
                             if (state->unk374 >= 61) {
                                 if (gStage == 4 && gSection == 0) {
                                     state->unk6 = 0x22;
-                                    D_80095858 = 0;
+                                    gMissState = 0;
                                 } else {
-                                    D_80095858 = 100;
+                                    gMissState = 100;
                                 }
                             }
                             if ((gStage != 4 || gSection != 0) && state->unk374 == 30) {
@@ -1798,12 +1797,12 @@ top:
             }
             state->unk3A8 += 4;
             if (state->unk3A8 >= 0) {
-                func_800287C0();
+                ResetSpeed();
             }
             state->unk398 -= 7;
             d = state->unk398;
             state->unk34C -= d;
-            r = func_800281B8(state);
+            r = LandPlayer(state);
             if (r != 0)
                 if (r >= 0)
                     if (r < 3) {
@@ -1811,7 +1810,7 @@ top:
                     }
             break;
         case 0x24:
-            func_80022F68((VECTOR *)D_8009EEC0);
+            ScatterEffect4((VECTOR *)D_8009EEC0);
             if (state->unk340 == 0) {
                 switch (state->unk5) {
                     case 0x28:
@@ -1836,13 +1835,13 @@ top:
         case 0x27:
             if (state->unk340 == 0) {
                 state->unk374++;
-                func_80022F68((VECTOR *)D_8009EEC0);
+                ScatterEffect4((VECTOR *)D_8009EEC0);
                 state->unk6 = 0x27;
                 state->unk8 = 0xFF;
             }
             state->unk376++;
             if (state->unk374 >= 2) {
-                if (func_80028260(0) > 0) {
+                if (AddBonusLevel(0) > 0) {
                     switch (state->unk5) {
                         case 0x45:
                             state->unk374 = 0;
@@ -1864,7 +1863,7 @@ top:
                         PlaySe(0x34);
                     }
                     if (state->unk376 >= 61) {
-                        D_80095858 = 100;
+                        gMissState = 100;
                     }
                 }
             }
@@ -1888,9 +1887,9 @@ top:
                     if (state->unk378 >= 31) {
                         sGame.unk358 += 2;
                     }
-                    D_80095858 = -1;
+                    gMissState = -1;
                     if (state->unk378 >= 121) {
-                        D_80095858 = 100;
+                        gMissState = 100;
                     }
                     break;
                 default:
@@ -1930,42 +1929,42 @@ top:
             switch (state->unk5) {
                 default:
                     if (state->unk340 == 0 && ++state->unk374 >= 16) {
-                        if (func_80028260(0) != 0) {
+                        if (AddBonusLevel(0) != 0) {
                             state->unk6 = 0x2B;
                         } else {
                             if (state->unk374 == 30) {
                                 PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
-                                D_80095858 = 100;
+                                gMissState = 100;
                             }
                         }
                     }
                     break;
                 case 0x4B:
                     if (state->unk3A8 >= 0x15) {
-                        func_80022F68((VECTOR *)D_8009EEC0);
+                        ScatterEffect4((VECTOR *)D_8009EEC0);
                     }
                     state->unk3A8 -= 2;
                     if (state->unk3A8 <= 0) {
-                        func_800287C0();
+                        ResetSpeed();
                     }
                     if (state->unk340 == 0 && state->unk3A8 == 0 && ++state->unk374 >= 16) {
-                        if (func_80028260(0) != 0) {
+                        if (AddBonusLevel(0) != 0) {
                             state->unk6 = 0x2B;
                         } else {
                             if (state->unk374 == 30) {
                                 PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
-                                D_80095858 = 100;
+                                gMissState = 100;
                             }
                         }
                     }
                     break;
                 case 0x4D:
                     if (state->unk340 == 0 && ++state->unk374 >= 16) {
-                        if (func_80028260(0) != 0) {
+                        if (AddBonusLevel(0) != 0) {
                             state->unk376 = 0;
                             state->unk6 = 0x26;
                             state->unk374 = 0;
@@ -1974,7 +1973,7 @@ top:
                                 PlaySe(0x34);
                             }
                             if (state->unk374 >= 61) {
-                                D_80095858 = 100;
+                                gMissState = 100;
                             }
                         }
                     }
@@ -2014,7 +2013,7 @@ top:
         case 0x2E:
             state->unk3A8 -= 2;
             if (state->unk3A8 <= 0) {
-                func_800287C0();
+                ResetSpeed();
             }
             if (state->unk340 == 0) {
                 state->unk6 = 0x2A;
@@ -2022,7 +2021,7 @@ top:
             break;
         case 0x2F:
             if (state->unk340 == 0) {
-                r = func_800281B8(state);
+                r = LandPlayer(state);
                 if (r != 0)
                     if (r >= 0)
                         if (r < 3) {
@@ -2080,9 +2079,9 @@ top:
             }
             break;
         case 0x32:
-            D_80095858 = -1;
+            gMissState = -1;
             if (++state->unk374 >= 91) {
-                D_80095858 = 100;
+                gMissState = 100;
             }
             break;
         case 0x33:
@@ -2096,30 +2095,30 @@ top:
 }
 
 /* MATCHING: non-void with no return keeps two bnez delay slots nops. */
-s32 func_80026548(void) {
+s32 UpdateRunSpeed(void) {
     s16 v;
 
     if (sGame.unk0 != 0 && (u32)(sGame.unk6 - 8) >= 4) {
         if (sGame.unk5 != 0x3A) {
             v = sGame.unk3A8;
             if (v < 40) {
-                D_800957D2 += 16;
+                gSpeedFixed += 16;
             } else if (gPad & 0x1000) {
-                D_800957D2 += 32;
-                if ((s16)D_800957D2 >> 4 > 40) {
-                    D_800957D2 = 640;
+                gSpeedFixed += 32;
+                if ((s16)gSpeedFixed >> 4 > 40) {
+                    gSpeedFixed = 640;
                 }
             } else if (gPad & 0x4000) {
-                D_800957D2 -= 32;
-                if ((s16)D_800957D2 >> 4 < 40) {
-                    D_800957D2 = 640;
+                gSpeedFixed -= 32;
+                if ((s16)gSpeedFixed >> 4 < 40) {
+                    gSpeedFixed = 640;
                 }
             } else if (v > 40) {
-                D_800957D2 -= 16;
+                gSpeedFixed -= 16;
             } else {
-                D_800957D2 += 16;
+                gSpeedFixed += 16;
             }
-            sGame.unk3A8 = (s16)D_800957D2 >> 4;
+            sGame.unk3A8 = (s16)gSpeedFixed >> 4;
             if (sGame.unk3AC == 2 && sGame.unk340 == 2) {
                 sGame.unk6 = 4;
             }
@@ -2130,14 +2129,14 @@ s32 func_80026548(void) {
                 sGame.unk6 = 2;
             }
         } else {
-            D_800957D2 = 0x460;
+            gSpeedFixed = 0x460;
             sGame.unk3A8 = 0x46;
         }
     }
 }
 
 /* MATCHING: non-void with no return keeps li 0x71 first in the call block. */
-s32 func_8002670C(void) {
+s32 UpdateSlideDash(void) {
     s32 btn;
 
     if (sGame.unk0 != 0) {
@@ -2175,9 +2174,9 @@ s32 func_8002670C(void) {
     }
 }
 
-/* MATCHING: as func_80027E14 for the switch; the volatile read keeps the unk348 and
+/* MATCHING: as UpdateJumpMode3 for the switch; the volatile read keeps the unk348 and
  * unk350 loads below the stores to D_800956E0, D_800DF5A0[1] and D_800956E4. */
-void func_80026848(void) {
+void UpdateJump(void) {
     s16 n;
 
     if (sGame.unk0 != 0) {
@@ -2198,7 +2197,7 @@ void func_80026848(void) {
             sGame.unk6 = 8;
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;
-            func_80022F68((VECTOR *)&sGame.unk348);
+            ScatterEffect4((VECTOR *)&sGame.unk348);
             PlaySe(0x17);
         }
         if (sGame.unk390 == 1) {
@@ -2239,7 +2238,7 @@ void func_80026848(void) {
 }
 
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
-s32 func_80026A60(void) {
+s32 SetPlayerView(void) {
     gRefView[0] = 0;
     gRefView[1] = rsin((gViewerAngle << 12) / 360) * 500 / 4096 + sGame.unk3C0;
     gRefView[2] = rcos((gViewerAngle << 12) / 360) * 600 / 4096;
@@ -2257,7 +2256,7 @@ s32 func_80026A60(void) {
 }
 
 /* MATCHING: the index-first integer sum gives retail's addu operand order. */
-void func_80026C70(void) {
+void UpdateStageLights(void) {
     u8 *c;
 
     c = (u8 *)((((u32)D_80095864 >> 12) & 3) * 4 + (s32)D_80095790);
@@ -2277,13 +2276,13 @@ void func_80026C70(void) {
     sLights.l[2].vz = -50;
     GsSetFlatLight(2, &sLights.l[2]);
     if (gFogFade == 100 || gStage % 3 == 2) {
-        func_80028650();
+        SetStageFog();
     }
 }
 
 /* MATCHING: the empty case -2 sets the switch's compare tree; non-void with no return keeps
  * the guards' delay slots nops; the unused words give retail's frame. */
-s32 func_80026D9C(void) {
+s32 UpdatePlayState(void) {
     s32 unused[4];
     u16 i;
     s32 x;
@@ -2293,28 +2292,28 @@ s32 func_80026D9C(void) {
         goto end;
     }
 top:
-    switch (D_80095858) {
+    switch (gMissState) {
         case -2:
             break;
         case -1:
             DrawHud();
             break;
         case 0:
-            x = D_800958A8;
+            x = gBonusLevel;
             if (D_800958AC == 1) {
                 if (x >= 2) {
-                    D_800958A8 = 2;
+                    gBonusLevel = 2;
                 }
             } else if (x >= 3) {
-                D_800958A8 = 3;
+                gBonusLevel = 3;
             }
-            if (D_800958A8 <= 0) {
-                D_800958A8 = 0;
+            if (gBonusLevel <= 0) {
+                gBonusLevel = 0;
             }
             if (D_8009EF4D[0] == 1) {
-                D_800958A8 = 0;
+                gBonusLevel = 0;
             }
-            if (D_800958A8 != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || gSection != 0)) {
+            if (gBonusLevel != 0 && D_8009EF4D[0] != 1 && (gStage != 4 || gSection != 0)) {
                 gElapsed++;
                 gTimeLeft--;
             }
@@ -2349,22 +2348,22 @@ top:
                 break;
             }
             if (sGame.unk5 == 0 || sGame.unk5 == 0x3A || sGame.unk5 == 0x3C) {
-                if ((s16)D_800957D2 >> 4 < 15) {
-                    D_800957D2 = 0xF0;
+                if ((s16)gSpeedFixed >> 4 < 15) {
+                    gSpeedFixed = 0xF0;
                 }
                 sGame.unk5 = 0x23;
-                D_80095858 = 1;
+                gMissState = 1;
                 D_800959B0 = 0;
-                D_800957DC = 0;
-                sGame.unk3A8 = (s16)D_800957D2 >> 4;
+                gMissTimer = 0;
+                sGame.unk3A8 = (s16)gSpeedFixed >> 4;
                 SetSoundFade(4);
                 goto top;
             }
             break;
         case 1:
-            D_800957DC++;
+            gMissTimer++;
             DrawFrozenFrame();
-            if (D_800957DC == 10) {
+            if (gMissTimer == 10) {
                 for (i = 0; i < 200; i++) {
                     D_800CF080[i].unk0 = 2;
                 }
@@ -2372,28 +2371,28 @@ top:
                 D_800957D6 = 0;
                 *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
             }
-            if (D_800957DC >= 10) {
+            if (gMissTimer >= 10) {
                 sGame.unk3A8 = 0;
-                D_800957D2 = 0;
+                gSpeedFixed = 0;
                 *(Words3 *)&sGame.unk348 = *(Words3 *)D_800DF5C0;
             }
-            if (D_800957DC > 100) {
-                t = D_800957DC - 100;
+            if (gMissTimer > 100) {
+                t = gMissTimer - 100;
                 if (t > 60) {
-                    D_80095858 = 100;
+                    gMissState = 100;
                 }
             }
             break;
         case 2:
             StopCdTrack();
             PlaySe(0x1B);
-            D_800957DC = 0;
-            D_80095858 = 3;
+            gMissTimer = 0;
+            gMissState = 3;
             break;
         case 3:
-            t = ++D_800957DC;
+            t = ++gMissTimer;
             if (t > 60) {
-                D_80095858 = 100;
+                gMissState = 100;
             }
             break;
         case 100:
@@ -2408,7 +2407,7 @@ top:
             }
             break;
         case 110:
-            t = ++D_800957DC;
+            t = ++gMissTimer;
             func_8003E360(t);
             if (t == 0x180) {
                 gGameMode = 6;
@@ -2418,7 +2417,7 @@ top:
 end:;
 }
 
-void func_800272D4(void) {
+void DrawModeObject(void) {
     switch (sGame.unk3D0 & 0xF) {
         case 1:
             D_800D3860[0].unk18 = -0x88;
@@ -2493,7 +2492,7 @@ void func_800272D4(void) {
 }
 
 /* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
-s32 func_80027714(void) {
+s32 AttachModeObject(void) {
     switch (sGame.unk3D0 & 0xF) {
         case 1:
             if ((u32)(sGame.unk6 - 0x33) >= 7) {
@@ -2551,7 +2550,7 @@ static __inline__ s16 findFreeSlot(SlotRec *slot) {
     return -1;
 }
 
-void func_800278B0(void) {
+void SpawnModeObject(void) {
     SlotRec *slot;
     s16 idx;
 
@@ -2597,9 +2596,9 @@ void func_800278B0(void) {
     }
 }
 
-/* MATCHING: func_800282F0's body as an inline helper; calling it with the s16 step
+/* MATCHING: PushPlayer's body as an inline helper; calling it with the s16 step
  * keeps the step's sign extension ahead of the rsin call. */
-void func_80027A00(void) {
+void SteerMode2(void) {
     s16 step;
     s32 v;
     s32 x;
@@ -2608,10 +2607,10 @@ void func_80027A00(void) {
 
     if (sGame.unk0 != 0) {
         if (gPad & 0x8000) {
-            func_80023834(3, 16, 5);
+            ApplySteer(3, 16, 5);
             D_800959B2 -= 4;
         } else if (gPad & 0x2000) {
-            func_80023834(2, 16, 5);
+            ApplySteer(2, 16, 5);
             D_800959B2 += 4;
         } else {
             sGame.unk5 = 0x58;
@@ -2634,7 +2633,7 @@ void func_80027A00(void) {
         D_800959B2 = D_800959B2 < -10 ? -10 : D_800959B2 > 10 ? 10 : D_800959B2;
         step = D_800959B2 / 10;
         pushBack(90, step);
-        /* MATCHING: as in func_80028008. */
+        /* MATCHING: as in SteerMode3. */
         __asm__("");
         g = &sGame;
         x = g->unk380;
@@ -2652,60 +2651,60 @@ void func_80027A00(void) {
 }
 
 /* MATCHING: the unsigned range test is the single subtract-and-compare retail does. */
-void func_80027BEC(void) {
+void UpdateSpeedMode2(void) {
     s16 v;
 
     if (sGame.unk0 != 0 && (u32)(sGame.unk6 - 0x33) < 3) {
         v = sGame.unk3A8;
         if (v < 35) {
-            D_800957D2 += 16;
+            gSpeedFixed += 16;
         } else if (gPad & 0x1000) {
-            D_800957D2 += 32;
-            if ((s16)D_800957D2 >> 4 > 35) {
-                D_800957D2 = 560;
+            gSpeedFixed += 32;
+            if ((s16)gSpeedFixed >> 4 > 35) {
+                gSpeedFixed = 560;
             }
         } else if (gPad & 0x4000) {
-            D_800957D2 -= 32;
-            if ((s16)D_800957D2 >> 4 < 35) {
-                D_800957D2 = 560;
+            gSpeedFixed -= 32;
+            if ((s16)gSpeedFixed >> 4 < 35) {
+                gSpeedFixed = 560;
             }
         } else if (v > 35) {
-            D_800957D2 -= 16;
+            gSpeedFixed -= 16;
         } else {
-            D_800957D2 += 16;
+            gSpeedFixed += 16;
         }
-        D_8009EF20[0] = (s16)D_800957D2 >> 4;
+        D_8009EF20[0] = (s16)gSpeedFixed >> 4;
     }
 }
 
-void func_80027D04(void) {
+void UpdateSpeedMode3(void) {
     s16 v;
 
     if (sGame.unk0 != 0 && sGame.unk6 == 0x33) {
         v = sGame.unk3A8;
         if (v < 30) {
-            D_800957D2 += 16;
+            gSpeedFixed += 16;
         } else if (gPad & 0x1000) {
-            D_800957D2 += 32;
-            if ((s16)D_800957D2 >> 4 > 30) {
-                D_800957D2 = 480;
+            gSpeedFixed += 32;
+            if ((s16)gSpeedFixed >> 4 > 30) {
+                gSpeedFixed = 480;
             }
         } else if (gPad & 0x4000) {
-            D_800957D2 -= 32;
-            if ((s16)D_800957D2 >> 4 < 30) {
-                D_800957D2 = 480;
+            gSpeedFixed -= 32;
+            if ((s16)gSpeedFixed >> 4 < 30) {
+                gSpeedFixed = 480;
             }
         } else if (v > 30) {
-            D_800957D2 -= 16;
+            gSpeedFixed -= 16;
         } else {
-            D_800957D2 += 16;
+            gSpeedFixed += 16;
         }
-        D_8009EF20[0] = (s16)D_800957D2 >> 4;
+        D_8009EF20[0] = (s16)gSpeedFixed >> 4;
     }
 }
 
 /* MATCHING: the switch lays the default arm out last, after its own base reload, as retail. */
-void func_80027E14(void) {
+void UpdateJumpMode3(void) {
     s16 n;
 
     if (sGame.unk0 != 0) {
@@ -2721,7 +2720,7 @@ void func_80027E14(void) {
             sGame.unk6 = 8;
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;
-            func_80022F68((VECTOR *)&sGame.unk348);
+            ScatterEffect4((VECTOR *)&sGame.unk348);
             PlaySe(0x17);
         }
         if (sGame.unk390 == 1) {
@@ -2761,7 +2760,7 @@ void func_80027E14(void) {
     }
 }
 
-void func_80028008(void) {
+void SteerMode3(void) {
     s16 step;
     s32 v;
     s32 x;
@@ -2770,10 +2769,10 @@ void func_80028008(void) {
 
     if (sGame.unk0 != 0) {
         if (gPad & 0x2000) {
-            func_80023834(3, 16, 8);
+            ApplySteer(3, 16, 8);
             D_800959B2 -= 4;
         } else if (gPad & 0x8000) {
-            func_80023834(2, 16, 8);
+            ApplySteer(2, 16, 8);
             D_800959B2 += 4;
         } else if (sGame.unk34C >= sGame.unk3C0) {
             sGame.unk5 = 0x5E;
@@ -2806,7 +2805,7 @@ void func_80028008(void) {
     }
 }
 
-s32 func_800281B8(GameState *g) {
+s32 LandPlayer(GameState *g) {
     s32 ret;
 
     ret = 0;
@@ -2827,26 +2826,26 @@ s32 func_800281B8(GameState *g) {
     return ret;
 }
 
-s32 func_80028260(s32 n) {
-    D_800958A8 += n;
+s32 AddBonusLevel(s32 n) {
+    gBonusLevel += n;
     if (D_800958AC == 1) {
-        if (D_800958A8 >= 2) {
-            D_800958A8 = 2;
+        if (gBonusLevel >= 2) {
+            gBonusLevel = 2;
         }
-    } else if (D_800958A8 >= 3) {
-        D_800958A8 = 3;
+    } else if (gBonusLevel >= 3) {
+        gBonusLevel = 3;
     }
-    if (D_800958A8 <= 0) {
-        D_800958A8 = 0;
+    if (gBonusLevel <= 0) {
+        gBonusLevel = 0;
     }
     if (D_8009EF4D[0] == 1) {
-        D_800958A8 = 0;
+        gBonusLevel = 0;
     }
-    return D_800958A8;
+    return gBonusLevel;
 }
 
 /* MATCHING: the local pointer lets angle and the sGame base share $s0. */
-void func_800282F0(s32 deg, s32 dist) {
+void PushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
@@ -2857,7 +2856,7 @@ void func_800282F0(s32 deg, s32 dist) {
 }
 
 /* MATCHING: non-void with no return keeps the first delay slot a nop. */
-s32 func_800283A0(void) {
+s32 UpdateSpeedBand(void) {
     s16 v;
 
     v = sGame.unk3A8;
@@ -2870,7 +2869,7 @@ s32 func_800283A0(void) {
     }
 }
 
-void func_800283E4(void) {
+void ResetPlayerAction(void) {
     sGame.unk6 = 2;
     sGame.unk5 = 0;
     sGame.unk0 = 1;
@@ -2886,23 +2885,23 @@ void func_800283E4(void) {
 }
 
 /* MATCHING: `one` is the 1 retail keeps in $a0 for both compares. */
-void func_80028448(void) {
+void CheckCanBonus(void) {
     s32 one;
 
     if (gCans != 0 && gCans % 10 == 0) {
         one = 1;
         if (D_800958AC == one) {
-            if (D_800958A8 == 2) {
+            if (gBonusLevel == 2) {
                 goto skip;
             }
-        } else if (D_800958A8 == 3) {
+        } else if (gBonusLevel == 3) {
             goto skip;
         }
         if (D_8009EF4D[0] != one) {
             PlaySe(34);
         }
     skip:
-        func_80028260(1);
+        AddBonusLevel(1);
     }
 }
 
@@ -2911,7 +2910,7 @@ void func_800284F8(void) {}
 void func_80028500(void) {}
 
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
-s32 func_80028508(void) {
+s32 TrySlide(void) {
     if (sGame.unk0 != 0 && (sGame.unk6 < 5 || sGame.unk6 >= 8) &&
         (sGame.unk38F != 1 || sGame.unk398 < 6) && !(gPad & 0x1000) && (gGamePadTrig & 0x40)) {
         PlaySe(22);
@@ -2919,12 +2918,12 @@ s32 func_80028508(void) {
     }
 }
 
-void func_800285B0(void) {
+void EndJump(void) {
     sGame.unk398 = 0;
     sGame.unk390 = 2;
 }
 
-void func_800285C8(s32 deg, s32 radius, VECTOR *out) {
+void PolarOffset(s32 deg, s32 radius, VECTOR *out) {
     s32 angle;
 
     angle = ANGLE_DEG(deg);
@@ -2932,7 +2931,7 @@ void func_800285C8(s32 deg, s32 radius, VECTOR *out) {
     out->vz = rcos(angle) * radius >> FIX12_SHIFT;
 }
 
-void func_80028650(void) {
+void SetStageFog(void) {
     s32 i;
 
     i = ((u32)D_80095864 >> 8) & 3;
@@ -2941,7 +2940,7 @@ void func_80028650(void) {
 }
 
 /* MATCHING: the red channel through its own local moves the spill to y2, as retail. */
-void func_800286B0(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
+void SortQuad15(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
     POLY_F4 poly;
     POLY_F4 *p;
     s32 r;
@@ -2963,17 +2962,17 @@ void func_800286B0(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 
     GsSortPoly(p, &gSubOt[gActiveBuff], pri);
 }
 
-void func_800287C0(void) {
+void ResetSpeed(void) {
     D_8009EF20[0] = 0;
-    D_800957D2 = 0x280;
+    gSpeedFixed = 0x280;
 }
 
-void func_800287DC(void) {
+void StopSpeed(void) {
     D_8009EF20[0] = 0;
-    D_800957D2 = 0;
+    gSpeedFixed = 0;
 }
 
-void func_800287F4(void) {
+void AttachMode5Object(void) {
     if ((D_8009EF48[0] >> 4) == 5) {
         D_800D8440[0] = (s32)D_800D8960;
         D_800D38DE[0] = 1;

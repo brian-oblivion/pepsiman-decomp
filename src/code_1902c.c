@@ -131,10 +131,10 @@ typedef struct {
 } GamePos;
 
 /* MATCHING: a struct lvalue keeps the game state's base in a register. */
-#define sGamePos (*(GamePos *)D_8009EB78)
+#define sGamePos (*(GamePos *)gPlayer)
 
-/* MATCHING: code_13068 defines func_800230E0 void; these calls saw an s32 one. */
-#define sProject ((s32 (*)(VECTOR *, SVECTOR *))func_800230E0)
+/* MATCHING: code_13068 defines ProjectToScreen void; these calls saw an s32 one. */
+#define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
 extern Quad8 D_80010AE0;
 extern Point12 D_80010B10;
@@ -521,13 +521,13 @@ s32 DistanceSquared(VECTOR *a, VECTOR *b) {
 }
 
 void ResetCollision(void) {
-    D_8009EB78[1] = 0;
+    gPlayer[1] = 0;
     ResetPlayerHits();
     func_8002988C();
 }
 
 void func_80029838(void) {
-    s32 *p = (s32 *)D_8009EB78;
+    s32 *p = (s32 *)gPlayer;
 
     if (p[0x3B8 / 4] == 0) {
         p[0x3BC / 4] = 0;

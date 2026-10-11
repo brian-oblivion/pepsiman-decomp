@@ -8,10 +8,10 @@ sets its position (the game position) and heading
 (`sTotals.unk20 * 4096 / 360`), fetches the waiting records through
 `CallStageHook` into `D_8009596E`, and falls into state 1. State 1 sets
 the first record's position and heading again, defaults the light vector
-`D_800AC858[1..3]` when no entry is current, stores two `ratan2` angles,
+`gFloorY[1..3]` when no entry is current, stores two `ratan2` angles,
 updates its Rec78 via `UpdateObjectEntry`, then places every later record:
 its offset (`unkC`) transformed through the first record's coordinate
-(`func_80023194`) becomes its position, its heading is the first one's
+(`TransformByCoord`) becomes its position, its heading is the first one's
 plus its own `unk20`, it copies the two angles, and its Rec78 is updated.
 Sixth build matched.
 
@@ -35,7 +35,7 @@ Sixth build matched.
 - `Obj48` (unit-local) gains `unk18`, `unk1A`, `unk1C`, `unk20`,
   `unk2C`, `unk30`.
 - New in the `.c`: prototypes of `CallStageHook` (per-unit view, MATCHING
-  note) and `func_80023194` (as code_13068 defines it).
+  note) and `TransformByCoord` (as code_13068 defines it).
 - `D_800957E4` (`SVECTOR`) and `D_8009F268` (`VECTOR`) moved from
   code_1a098.c into include/code_1a098.h, types unchanged (declcheck LOCAL
   once a second unit uses them). Deletes two lines in code_1a098.c.
@@ -67,12 +67,12 @@ s32 EditorArrangeRecords(void) {
             w->unk0[2] = sGameSave.unk348[2];
             w->unk1A = (sTotals.unk20 << 12) / 360;
             if (D_80095824 == -1) {
-                D_800AC858[1] = 0;
-                D_800AC858[2] = -0x1000;
-                D_800AC858[3] = 0;
+                gFloorY[1] = 0;
+                gFloorY[2] = -0x1000;
+                gFloorY[3] = 0;
             }
-            w->unk2C = ratan2(-D_800AC858[3], D_800AC858[2]);
-            w->unk30 = ratan2(-D_800AC858[1], D_800AC858[2]);
+            w->unk2C = ratan2(-gFloorY[3], gFloorY[2]);
+            w->unk30 = ratan2(-gFloorY[1], gFloorY[2]);
             UpdateObjectEntry(&D_800D8D20[w->unk36], (Rec48 *)w);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: an integer sum puts the index first in the addu. */
@@ -80,7 +80,7 @@ s32 EditorArrangeRecords(void) {
                 D_800957E4.vx = r->unkC[0];
                 D_800957E4.vy = r->unkC[1];
                 D_800957E4.vz = r->unkC[2];
-                func_80023194((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
+                TransformByCoord((GsCOORDINATE2 *)D_800D8D20[w->unk36].unk10, &D_800957E4, &D_8009F268);
                 r->unk0[0] = D_8009F268.vx;
                 r->unk0[1] = D_8009F268.vy;
                 r->unk0[2] = D_8009F268.vz;

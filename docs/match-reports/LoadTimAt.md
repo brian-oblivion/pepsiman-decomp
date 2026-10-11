@@ -77,7 +77,7 @@ in code_7d74 from this function.
 
 ### Proposed learning
 
-- **The no-return `s32` lever (ClearFlags128, func_800283A0) also covers a
+- **The no-return `s32` lever (ClearFlags128, UpdateSpeedBand) also covers a
   `void`-looking function with an early bare `return;`**: forward-branch
   delay slots left as `nop` where your build fills them with a `$v0`
   write. (LoadTimAt)

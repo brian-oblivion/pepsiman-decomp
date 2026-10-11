@@ -7,13 +7,13 @@ Unit `src/code_1a098.c`. A trap-viewer frame: fixed reference view
 and 1 step the selected Rec78 entry `D_800958E2`, clamped to `0 ..
 gSectionCount - 1` with one nested-ternary store; then ResetCollision, a
 zeroed Rec48 at `D_800A9008` turning with the frame counter, UpdateObjectEntry
-on the selected entry, func_80023F80, func_80029838, the axes
+on the selected entry, ReactToHits, func_80029838, the axes
 (DrawAxes) and `FntPrint("TRAP NO  (%2d / %2d)", ...)`.
 
 ```c
 extern s16 D_800958E2;    /**< the selected Rec78 entry */
 extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
-void func_80023F80(u8 *state);
+void ReactToHits(u8 *state);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected
  *         Rec78 entry with the pad, places and draws it on a turning
@@ -48,7 +48,7 @@ void UpdateTrapViewer(void) {
     ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
     UpdateObjectEntry(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
-    func_80023F80(D_8009EB78);
+    ReactToHits(gPlayer);
     func_80029838();
     DrawAxes();
     FntPrint(D_80010B34, D_800958E2, gSectionCount);
@@ -57,7 +57,7 @@ void UpdateTrapViewer(void) {
 First build. The clamp is SelectToolSection's (LEARNINGS, "a clamp whose one
 store of the global sits at a join").
 
-Declarations: `func_80023F80` (code_13068, still asm) is prototyped in this
+Declarations: `ReactToHits` (code_13068, still asm) is prototyped in this
 unit as code_24748 prototypes it; declcheck lists both as MULTI/LOCAL
 until a merge moves one copy to `include/code_13068.h`.
 

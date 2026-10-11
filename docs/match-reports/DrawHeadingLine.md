@@ -35,13 +35,13 @@ void DrawHeadingLine(VECTOR *pos, s16 deg) {
     world.vx = pos->vx + gWorldShift[0];
     world.vy = pos->vy;
     world.vz = pos->vz + gWorldShift[2];
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     ang = deg * 4096 / 360;
     world.vx += rsin(ang) * 100 >> 12;
     world.vz += rcos(ang) * 100 >> 12;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);

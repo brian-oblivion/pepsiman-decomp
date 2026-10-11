@@ -4,7 +4,7 @@
 
 Unit `src/code_1dc24.c`. The inverse of SaveEditorState: runs
 `LoadEditorSlot(a, 0x8016D000)`, then copies the three words at 0x38 of the
-tool state block `D_80095B28` back to 0x348 of `D_8009EB78`, the halfword
+tool state block `D_80095B28` back to 0x348 of `gPlayer`, the halfword
 at 0x44 to `D_800A7680[0].vy`, and the six words at 0x48 to `gRefView[0..5]`.
 
 ```c

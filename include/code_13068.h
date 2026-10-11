@@ -12,16 +12,16 @@
 /** @brief Projects a world position to the screen.
  *  @param pos the world position
  *  @param out the screen position */
-void func_800230E0(VECTOR *pos, SVECTOR *out);
+void ProjectToScreen(VECTOR *pos, SVECTOR *out);
 
 /** @brief Defined in code_13068; takes the game state block.
  *  @param state the state block */
-void func_80023F80(u8 *state);
+void ReactToHits(u8 *state);
 
 /** @brief Defined in code_13068.
  *  @param n not yet known
  *  @return not yet known */
-s32 func_80028260(s32 n);
+s32 AddBonusLevel(s32 n);
 
 extern SVECTOR D_800A7680[]; /**< rotations; [0].vy is a yaw (heading) */
 

@@ -48,7 +48,7 @@ void BeginLoadScreenModel(void) {
     pos.vx = 0;
     pos.vy = -120;
     DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    gLoadScreenModel = *(StateCopy *)D_8009EB78;
+    gLoadScreenModel = *(StateCopy *)gPlayer;
     gLoadScreenModel.unk380 = 0x800;
     gLoadScreenModel.unk6 = 3;
     gLoadScreenModel.unk348 = 0;

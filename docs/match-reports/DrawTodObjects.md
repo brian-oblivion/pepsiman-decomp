@@ -103,8 +103,8 @@ s32 DrawTodObjects(void) {
     GsDOBJ2 *q;
     s32 i;
 
-    if ((*(DrawHead *)D_8009EB78).unk2 == 0 && (gFrameCount & 3) < 2) {
-        if ((*(DrawHead *)D_8009EB78).unk5 == 0 || (*(DrawHead *)D_8009EB78).unk5 == 0x5E) {
+    if ((*(DrawHead *)gPlayer).unk2 == 0 && (gFrameCount & 3) < 2) {
+        if ((*(DrawHead *)gPlayer).unk5 == 0 || (*(DrawHead *)gPlayer).unk5 == 0x5E) {
             return;
         }
     }
@@ -117,7 +117,7 @@ s32 DrawTodObjects(void) {
         if (o->tmd != NULL) {
             save = *o;
             q = o;
-            if (o->id == 10 && (*(DrawHead *)D_8009EB78).unk3D4 == 1) {
+            if (o->id == 10 && (*(DrawHead *)gPlayer).unk3D4 == 1) {
                 o->tmd = (unsigned long *)D_800963A0[2];
             }
             GsGetLs(o->coord2, &m);
@@ -125,7 +125,7 @@ s32 DrawTodObjects(void) {
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
             SetSpadStack();
-            if ((*(DrawHead *)D_8009EB78).unk3CA == 0) {
+            if ((*(DrawHead *)gPlayer).unk3CA == 0) {
                 GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             } else {
                 GsSortObject4J(o, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);

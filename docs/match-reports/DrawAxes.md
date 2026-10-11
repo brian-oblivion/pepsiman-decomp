@@ -3,7 +3,7 @@
 > Renamed from `func_8002B5FC` on 2026-10-11 (tools/rename.py). Address 0x8002b5fc.
 
 Unit `src/code_1a098.c`. Debug axes: projects (0, ±200, 0), (±200, 0, 0)
-and (0, 0, ±200) through func_800230E0 and sorts a white `GsLINE` between
+and (0, 0, ±200) through ProjectToScreen and sorts a white `GsLINE` between
 each pair into `gSubOt[gActiveBuff]`, at priority 50, 50 and `world.vz
 >> 2` (the third reads `vz` back from the stack after the call).
 
@@ -22,39 +22,39 @@ void DrawAxes(void) {
     world.vx = 0;
     world.vy = -200;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vx = 0;
     world.vy = 200;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = -200;
     world.vy = 0;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vx = 200;
     world.vy = 0;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = 0;
     world.vy = 0;
     world.vz = -200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vx = 0;
     world.vy = 0;
     world.vz = 200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], world.vz >> 2);

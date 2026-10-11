@@ -31,7 +31,7 @@ void UpdatePlacedPos(Placed2C *p) {
 }
 ```
 
-First build. The body is code_13068's func_80023194 with the record as
+First build. The body is code_13068's TransformByCoord with the record as
 source and destination, including its `s32 unused[2]` (flag at sp+0x70,
 frame 0x88). The word fields copied into the SVECTOR come out as `lhu`
 loads, so s32 members are right. The unit now includes `libgpu.h` and

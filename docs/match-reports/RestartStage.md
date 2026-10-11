@@ -4,7 +4,7 @@
 
 Unit `src/code_308ec.c`. Stage start. Raises `D_80095900`; when the
 argument's remainder by 3 is 2 it only sets `gModeStep` to 2. Otherwise it
-resets the head of the game state (`D_8009EB78`), copies the start position
+resets the head of the game state (`gPlayer`), copies the start position
 from `D_800A7680`, looks up a per-stage value when the stage's flag in
 `D_8007AD58` is 1, derives the camera height (`D_8009676C`) and the start
 heading (from `D_80095840`), runs the stage set-up calls and clears a
@@ -13,14 +13,14 @@ halfword in each of the 200 Rec48 records.
 ```c
 /* Unit-local views (all in src/code_308ec.c):
  *   Pos3       { s32 vx, vy, vz; }
- *   StageState  D_8009EB78's head: u8 unk0, unk2, unk6; Pos3 unk348 at
+ *   StageState  gPlayer's head: u8 unk0, unk2, unk6; Pos3 unk348 at
  *               0x348; s32 unk37C, unk380; s16 unk3C8, unk3CA
  *   Rec48Clear  code_1a098's Rec48 with s16 unk26
  *   Placement   { SVECTOR rot; Pos3 pos; }  (D_800A7680)
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
- * extern u8 D_80095900, gInEditor; extern s16 gModeStep, D_80095858,
+ * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
- * common.h: D_800958A8 (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
+ * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
  * D_800957D6, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
  * PlayStageMusic(u8) and func_80041118(u8). */
@@ -36,11 +36,11 @@ void RestartStage(u8 arg0) {
     }
     sStage.unk3C8 = 0;
     sStage.unk2 = 1;
-    D_800958A8 = 3;
+    gBonusLevel = 3;
     sStage.unk348.vx = D_800A7680.pos.vx;
     sStage.unk348.vy = D_800A7680.pos.vy;
     sStage.unk348.vz = D_800A7680.pos.vz;
-    D_80095858 = 0;
+    gMissState = 0;
     sStage.unk3CA = 0;
     if (D_8007AD58[gStage] == 1) {
         D_800957F4 = FindFloor(&sStage.unk348);
@@ -104,7 +104,7 @@ void RestartStage(u8 arg0) {
 
 ## Declarations
 
-- `D_800958A8` (`s32`) and `D_800957BC` (`s16`) are now in
+- `gBonusLevel` (`s32`) and `D_800957BC` (`s16`) are now in
   `include/common.h` (additive); their copies in `src/code_13068.c` were
   deleted (same types).
 - `D_800A7680` is an `SVECTOR[]` in code_13068 and a `Placement` here;

@@ -52,7 +52,7 @@ void ResetTool(void) {
   address, `*(s32 *)0x8016D000 = 80;`, while the same constant as an
   argument is `lui`/`ori`. The bytes are identical; no extern is declared.
 - `gHitPointSections`, `gHitQuadSections`: `lui $at` stores, plain `s32` outside `$gp`.
-- `D_8009EB78` is `u8 []` in `common.h`; retail builds its address once and
+- `gPlayer` is `u8 []` in `common.h`; retail builds its address once and
   stores at 0x348/0x34C/0x350, so a struct lvalue through a unit-local view
   (`GameStatePos`, `#define sGamePos`). `code_13068.c` has the full
   `GameState` with the same three fields; the two views could become one
@@ -62,4 +62,4 @@ void ResetTool(void) {
   `lhu` gave it.
 
 The constant 80 kept in `$s0` across the calls came from cc1's CSE of the
-literal, no local needed (contrast func_80028448's across-blocks case).
+literal, no local needed (contrast CheckCanBonus's across-blocks case).

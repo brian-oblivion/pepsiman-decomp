@@ -19,10 +19,10 @@ function's match report, not here.
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
   load. cc1's split of an array puts the address and the value in different
   registers (`lui $v0` / `lbu $v1`). Check every retail load before declaring.
-  (func_800414EC, `u8 gStage`; func_80028650, `s32 D_80095864`)
+  (func_800414EC, `u8 gStage`; SetStageFog, `s32 D_80095864`)
   Only when the two are ADJACENT: a `lui` in a delay slot with another load
   before its `lw` is cc1's array split (`extern s32 D_8009EF44[];`,
-  func_800281B8).
+  LandPlayer).
 - **An ADDRESS built in one register, `lui $X` / `addiu $X, $X, %lo(sym)`:
   cc1's `la` of an object of known size at most 8**, e.g. `extern s8
   gResultsSlide[8];` or `extern CdlLOC gCdTrackLoc;`. Declared `[]`, cc1 splits
@@ -69,7 +69,7 @@ function's match report, not here.
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
-  with a `MATCHING:` note. (InterpFromZero, InterpRange; func_80028260's
+  with a `MATCHING:` note. (InterpFromZero, InterpRange; AddBonusLevel's
   calls to SpawnEffect)
 - **A `u8` parameter that is only ever stored with `sb` may be `s32`**; the
   narrower type reorders the argument copies. (SpawnEffect)
@@ -77,7 +77,7 @@ function's match report, not here.
   `off($reg)`: the source used a struct lvalue or a local pointer.** Byte
   arithmetic on the array, `*(s16 *)(D + 0x398)`, folds the offset into
   `%hi/%lo(sym+0x398)`. A unit-local typedef and `#define sX (*(T *)D)`
-  works without a shared-header change. (func_800285B0, func_800283E4)
+  works without a shared-header change. (EndJump, ResetPlayerAction)
 - **A trailing array's offset added to the base early, the scaled index
   last: the array base went into its own local**, `T *recs = p->recs; return
   &recs[i];`. `&p->recs[i]` folds the offset into the final add.
@@ -137,7 +137,7 @@ function's match report, not here.
   `config/undefined_syms.slps01762.pepsiman.txt` and index from it.
   (LoadAct3Data, StepEffect11)
 - **A call whose argument moves lose to a boosted load: the callee is
-  unprototyped and one call site passes fewer arguments.** (func_80024450)
+  unprototyped and one call site passes fewer arguments.** (UpdatePlayerAction)
 
 ## Types
 
@@ -274,10 +274,10 @@ function's match report, not here.
   (InitGraphics, DrawStepper)
 - **A row offset built as `row*21` then plus the column: a flat index**,
   `tbl[row*21 + col]`; `T t[][21]` scales the row by the row size.
-  (func_800229A8)
+  (InitGridTest)
 - **`addu d, shift, base` (index first): an integer sum**, `(T *)(i * 8 +
   (s32)D)`. Pointer arithmetic always puts the pointer first.
-  (UpdateSection, func_80026C70)
+  (UpdateSection, UpdateStageLights)
 - **A count-down `bgez` loop: write it counting down.** 2.8.1 did not
   reverse a short `s32` count-up here. (code_29f54, round 5)
 - **A loop compared on a pointer with signed `slt`: an `s32` counter cc1
@@ -318,7 +318,7 @@ function's match report, not here.
   baselined likewise. (ClearFlags128; PromoteMarks and MarkByGroup show the
   same slot) The same holds for a forward branch: the first `beqz` of an
   if/else-if chain keeps its `nop` slot only as `s32` with no return.
-  (func_800283A0)
+  (UpdateSpeedBand)
 - **A clamp whose one store of the global sits at a join every path reaches,
   the unchanged path included: one assignment of a nested ternary**, `x = x <
   0 ? 0 : x > n - 1 ? n - 1 : x;`. An if/else-if clamp stores per branch.
@@ -337,27 +337,27 @@ function's match report, not here.
   delay slot and reused: separate guards**, `if (!A) return -1; if (!B)
   return -1; return 0;`. (CheckEditorSlot)
 - **Case bodies are laid out in source order, not compare order.**
-  (func_80023764)
+  (SteerPlayer)
 - **`addiu -K; sltiu N`: `(u32)(x - K) < N`.** `x >= K && x < K+N` stays two
-  compares. (func_80027BEC)
+  compares. (UpdateSpeedMode2)
 - **`beq K` / `slti K+1` / `beq K+1`: a switch with an empty `case K-1:
   break;`.** (ProbeCard)
 - **A NULL return as the last block: `if (found) { ...; return p; } return
   NULL;`.** (RemoveTodObj)
 - **An `abs` that must not move a later branch target: write it inline**,
-  `(d < 0 ? -d : d) > 56`, not as a statement. (func_80023B20)
+  `(d < 0 ? -d : d) > 56`, not as a statement. (RecentreSteer)
 - **A parameter copied out of its register at entry (`move a3, a1`): the
   source duplicated the tail that uses it**; cross-jumping merged the copies.
   (CreateTodObj)
 - **A constant kept in one register across basic blocks: a local**, `s32 one
   = 1;`. Literals are rematerialised per block. A global reloaded in each arm
-  with one shared branch is two compares that `goto` one label. (func_80028448)
+  with one shared branch is two compares that `goto` one label. (CheckCanBonus)
 - **The value in a branch's delay slot follows the early return**: `if (x >=
   4) return -1; return 0;` gives `beqz` with -1 in the slot; the inverted form
   gives `bnez` with 0. (CheckSave2Space)
 - **A non-leaf frame whose locals all sit N bytes high: an unused `s32
   unused[N/4];` declared at that point.** Locals are laid out from `sp+0x10`
-  in declaration order. (func_80023194, 8 bytes; func_800230E0, 88)
+  in declaration order. (TransformByCoord, 8 bytes; ProjectToScreen, 88)
 - **`== 1`, then `slti < 2`, then `== 0` on a byte: nested `if`s on an `s32`
   copy.** A `u8` copy gives `sltu`; a `switch` on {0, 1} and an `&&` chain
   both fold to one `bnez`, so the empty-case lever above does not apply.
@@ -393,9 +393,9 @@ function's match report, not here.
   break;` outside the visible range.** gcc 2.8 splits n nodes after node
   (n+1)/2. Listing `case 0:` or not flips a small tree between `== 0` first
   and `< 3` first; identical arms retail tests separately are two arms, not
-  `case 1: case 2:`. (func_80026D9C, func_80023F80, func_80023228)
+  `case 1: case 2:`. (UpdatePlayState, ReactToHits, UpdatePlayer)
 - **`switch` with the default arm last, not `if/else`**, keeps the default's
-  tail from cross-jumping into a sibling. (func_80027E14)
+  tail from cross-jumping into a sibling. (UpdateJumpMode3)
 - **Menu answers whose case tails cross-jump: switch on an `s16`**; as `s32`
   the tails stay separate. (UpdateEditorData)
 - **`s32` with no return also frees a forward branch's delay slot** for a
@@ -442,10 +442,10 @@ function's match report, not here.
   (ProbePosition)
 - **A constant folded onto the wrong operand: parenthesise where retail adds
   it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
-  the `rand()` result. (func_80022F68) If cc1 still moves it, give it its own
+  the `rand()` result. (ScatterEffect4) If cc1 still moves it, give it its own
   statement: `bob = (...) - 200; y = pos->vy + bob;`. (DrawPin)
 - **Operand order sets load order.** `a <= b` and `a - b` load `a` first; a
-  `subu` whose subtrahend loads first was `-b + a`. (func_800281B8,
+  `subu` whose subtrahend loads first was `-b + a`. (LandPlayer,
   DrawToolPin)
 - **Chained assignment stores right to left**: `a.x = a.y = v` stores `y`
   first. (DrawMarker, DrawToolRadius)
@@ -473,14 +473,14 @@ function's match report, not here.
   (SortTmdFastF3, SortTmdFastF4)
 - **A near-miss that differs only in delay slots: try `s32` with no return
   first.** It closed four of round 7's code_13068 functions; the permuter
-  finds it as `volatile int`. (func_8002670C, func_80027714)
+  finds it as `volatile int`. (UpdateSlideDash, AttachModeObject)
 - **A clamp bound computed into a scratch register in a delay slot, then
   copied: `if (x <= hi) v = x; else v = hi;`.** (code_13068, round 7)
 - **An inlined search whose hit path moves the counter to `$v0` and whose
-  join sign-extends it: an inlined `s16` helper.** (func_800278B0)
+  join sign-extends it: an inlined `s16` helper.** (SpawnModeObject)
 - **A load that must stay below a store to another global, with no C
   spelling found: a bare `__asm__("")` barrier**, noted `MATCHING:`.
-  (func_80028008, func_80027A00)
+  (SteerMode3, SteerMode2)
 - **The stack moved to the scratchpad around a call: `SetSpadStack()` /
   `ResetSpadStack()` from include/spad.h.** (DrawStepper)
 - **Jump tables 4 bytes off in a whole unit: its rodata starts earlier than
@@ -489,7 +489,7 @@ function's match report, not here.
   `p = a->data; G1 = (s32)p; p = b->data; G2 = (s32)p;`. (SetHitBanks)
 - **A register parameter spilled where retail spills a stack one: name an
   unrelated early subexpression** (`r = col & 0x1F;`) to flip global-alloc.
-  (func_800286B0)
+  (SortQuad15)
 - **A store retail keeps above a branch that the build moves into the
   delay slot: a volatile store**, `((volatile T *)p)->code = K;`.
   (DrawStandingBillboardFog)
@@ -523,7 +523,7 @@ function's match report, not here.
 - **A struct load retail keeps below stores to unrelated globals, every
   statement order identical: make the first read volatile**, `*(volatile
   s32 *)&sGame.f`. A field re-loaded at every use after one test was read
-  through `*(volatile u8 *)&p->f`. (func_80026848, func_80023F80)
+  through `*(volatile u8 *)&p->f`. (UpdateJump, ReactToHits)
 - **`lw x; move y, x; sltu y` with x stored afterwards: the source read the
   member twice**, `G = p->f; if (p->f >= L)`. (GetNextMovieFrame)
 - **A dead `lhu` of a field just before a store to its neighbour: a
@@ -537,7 +537,7 @@ function's match report, not here.
 - **Interleaved stores `A[0], B[0], A[1], B[1]` were written in that order.**
   (LoadSoundData)
 - **A pointer parameter in the wrong saved register: drop the typed local
-  copy and cast the parameter at each use.** (func_80023F80)
+  copy and cast the parameter at each use.** (ReactToHits)
 - **The order of stores inside switch cases decides which ORs `loop.c`
   hoists**, and so the length: it hoists invariants in instruction order and
   lowers its threshold by 3 per move. `cc1 -dL` shows each candidate.
@@ -571,7 +571,7 @@ function's match report, not here.
   equivalence and the later literal rebuilds its own `lui/ori`. (LoadVab)
 - **sched1 boosts a load into a pseudo set only once, and sinks it to its
   single use. To keep a load early, load into a local set more than once.**
-  `cc1 -dS` prints the ready lists. (func_80023D68, func_80024450)
+  `cc1 -dS` prints the ready lists. (ApplyGravity, UpdatePlayerAction)
 - **Register-allocation ties between saved registers move with refs and live
   length, which C can change without code:** an empty `__asm__("")` lengthens
   every live range across it; `do { stmt; } while (0)` adds loop-depth refs to

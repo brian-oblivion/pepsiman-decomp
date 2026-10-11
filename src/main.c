@@ -222,14 +222,14 @@ int main(void) {
                 break;
             case 15:
                 gGameMode = 16;
-                func_800229A8();
+                InitGridTest();
                 gClearB = 0;
                 gClearG = 0;
                 gClearR = 0;
                 gVSyncMode = 2;
                 break;
             case 16:
-                func_80022A74();
+                UpdateGridTest();
                 break;
             case 17:
                 gVSyncMode = 2;
@@ -489,7 +489,7 @@ typedef struct {
 } Stepper;
 
 /* The stepper's state lives at the head of the game state. */
-#define sStepper (*(Stepper *)D_8009EB78)
+#define sStepper (*(Stepper *)gPlayer)
 
 /** @brief A model object with its own coordinate system (a unit-local
  *         copy of code_1a098's view). */
@@ -1254,7 +1254,7 @@ void BeginLoadScreenModel(void) {
     pos.vx = 0;
     pos.vy = -120;
     DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
-    gLoadScreenModel = *(StateCopy *)D_8009EB78;
+    gLoadScreenModel = *(StateCopy *)gPlayer;
     gLoadScreenModel.unk380 = 0x800;
     gLoadScreenModel.unk6 = 3;
     gLoadScreenModel.unk348 = 0;

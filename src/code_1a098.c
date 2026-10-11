@@ -231,7 +231,7 @@ extern u8 D_800959D8;         /**< zeroed by the full reset */
 /* The unpacked header of the last TIM loaded; common.h declares a word. */
 #define sTim ((TimInfo *)gTimInfo)
 /* MATCHING: a struct lvalue keeps the base in a register. */
-#define sGameHead (*(GameHead *)D_8009EB78)
+#define sGameHead (*(GameHead *)gPlayer)
 /* The Rec48 table; common.h declares it as words. */
 #define sRecs48 ((Rec48 *)D_800A9008)
 /* The progress block; code_1dc24 views the same bytes as other records. */
@@ -252,7 +252,7 @@ s32 DistanceSquared(void *a, void *b);
 /* MATCHING: code_29f54 defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
-void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
+void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
 void DrawObjectModel(Rec78 *rec, Rec48 *r);
 void DrawObjectSprite(u16 id, Rec3C *r);
 s32 StepDrift(Drifter *d);
@@ -532,7 +532,7 @@ s32 func_8002A558(void) {
      * slot a nop. */
     if ((((u32)D_80095864 >> 4) & 3) == 1 && sGameHead.unk5 != 0x43) {
         sGameHead.unk5 = 0x42;
-        func_80028260(-1);
+        AddBonusLevel(-1);
     }
 }
 
@@ -678,7 +678,7 @@ s32 TestBoxes(void) {
     s16 px;
     s16 pz;
 
-    if (D_80095858 > 0) {
+    if (gMissState > 0) {
         return;
     }
     i = 0;
@@ -837,7 +837,7 @@ void UpdateTrapViewer(void) {
     ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
     UpdateObjectEntry(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
-    func_80023F80(D_8009EB78);
+    ReactToHits(gPlayer);
     func_80029838();
     DrawAxes();
     FntPrint(D_80010B34, D_800958E2, gSectionCount);
@@ -919,7 +919,7 @@ void UpdateTrapLayoutViewer(void) {
                 D_800957E4.vx = r->o.unkC;
                 D_800957E4.vy = r->o.unk10;
                 D_800957E4.vz = r->o.unk14;
-                func_80023194((GsCOORDINATE2 *)D_800D8D20[recs->unk36].unk10, &D_800957E4, &D_8009F268);
+                TransformByCoord((GsCOORDINATE2 *)D_800D8D20[recs->unk36].unk10, &D_800957E4, &D_8009F268);
                 r->o.unk0 = D_8009F268.vx;
                 r->o.unk4 = D_8009F268.vy;
                 r->o.unk8 = D_8009F268.vz;
@@ -927,7 +927,7 @@ void UpdateTrapLayoutViewer(void) {
                 tbl = D_800D8D20;
                 UpdateObjectEntry((Rec78 *)(r->unk36 * 120 + (u32)tbl), (Rec48 *)r);
             }
-            func_80023F80(D_8009EB78);
+            ReactToHits(gPlayer);
             func_80029838();
             DrawAxes();
             break;
@@ -949,39 +949,39 @@ void DrawAxes(void) {
     world.vx = 0;
     world.vy = -200;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vx = 0;
     world.vy = 200;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = -200;
     world.vy = 0;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vx = 200;
     world.vy = 0;
     world.vz = 0;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], 50);
     world.vx = 0;
     world.vy = 0;
     world.vz = -200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
     world.vx = 0;
     world.vy = 0;
     world.vz = 200;
-    func_800230E0(&world, &screen);
+    ProjectToScreen(&world, &screen);
     line.x1 = screen.vx;
     line.y1 = screen.vy;
     GsSortLine(&line, &gSubOt[gActiveBuff], world.vz >> 2);
@@ -1373,7 +1373,7 @@ void AttachToParent(Rec48 *a, Rec48 *b) {
     D_800957E4.vx = pb->unkC;
     D_800957E4.vy = pb->unk10;
     D_800957E4.vz = pb->unk14;
-    func_80023194((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
+    TransformByCoord((GsCOORDINATE2 *)D_800D8D20[a->unk36].unk10, &D_800957E4, &D_8009F268);
     pb->unk0 = D_8009F268.vx;
     pb->unk4 = D_8009F268.vy;
     pb->unk8 = D_8009F268.vz;

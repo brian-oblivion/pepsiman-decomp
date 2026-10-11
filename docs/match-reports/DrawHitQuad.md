@@ -5,7 +5,7 @@
 Unit `src/code_24748.c`. Draws the dispatch object's box (called by
 UpdateTool with `&gToolNewQuad`): `PlaceCollisionQuad(obj)`, then the owner's
 position (through `obj->unk48`) plus the world offset, four corner offsets
-from `obj->unk18[]` projected with `func_800230E0`, and one
+from `obj->unk18[]` projected with `ProjectToScreen`, and one
 `SortSemiQuad` quad (colour 0x3E0, priority 0x32) through corners
 0, 1, 3, 2.
 
@@ -34,19 +34,19 @@ void DrawHitQuad(Obj48 *obj) {
     tmp.vx = world.vx + pts[0].x;
     tmp.vy = pts[0].y;
     tmp.vz = world.vz + pts[0].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[0]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[0]);
     tmp.vx = world.vx + pts[1].x;
     tmp.vy = pts[1].y;
     tmp.vz = world.vz + pts[1].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[1]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[1]);
     tmp.vx = world.vx + pts[3].x;
     tmp.vy = pts[3].y;
     tmp.vz = world.vz + pts[3].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[2]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[2]);
     tmp.vx = world.vx + pts[2].x;
     tmp.vy = pts[2].y;
     tmp.vz = world.vz + pts[2].z;
-    func_800230E0(&tmp, (SVECTOR *)&scr[3]);
+    ProjectToScreen(&tmp, (SVECTOR *)&scr[3]);
     SortSemiQuad(0x3E0, scr[0].x, scr[0].y, scr[1].x, scr[1].y, scr[2].x, scr[2].y, scr[3].x,
                   scr[3].y, 0x32);
 }

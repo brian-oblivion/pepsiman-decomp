@@ -186,51 +186,51 @@ void UpdateStagePlay(u8 stage) {
                 UpdatePlayState();
                 UpdateRumble();
                 switch (stage) {
-                    case 0:
+                    case STAGE_1_1:
                         func_800F809C();
                         break;
-                    case 1:
+                    case STAGE_1_2:
                         func_800F7A9C();
                         break;
-                    case 2:
+                    case STAGE_1_3:
                         func_800F4794();
                         break;
-                    case 3:
+                    case STAGE_2_1:
                         func_800F8264();
                         break;
-                    case 4:
+                    case STAGE_2_2:
                         func_800F7F40();
                         break;
-                    case 5:
+                    case STAGE_2_3:
                         func_800F4758();
                         break;
-                    case 6:
+                    case STAGE_3_1:
                         func_800F00A0();
                         break;
-                    case 7:
+                    case STAGE_3_2:
                         /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
                         func_800F00A0();
                         __asm__("");
                         break;
-                    case 8:
+                    case STAGE_3_3:
                         func_800F42E8();
                         break;
-                    case 9:
+                    case STAGE_4_1:
                         func_800F72B8();
                         break;
-                    case 10:
+                    case STAGE_4_2:
                         func_800F7844();
                         break;
-                    case 11:
+                    case STAGE_4_3:
                         func_800F1654();
                         break;
-                    case 12:
+                    case STAGE_5_1:
                         func_800F7724();
                         break;
-                    case 13:
+                    case STAGE_5_2:
                         func_800F5E80();
                         break;
-                    case 14:
+                    case STAGE_5_3:
                         func_800F17B0();
                         break;
                 }
@@ -413,7 +413,7 @@ void ResetStage(void) {
         gCameraYaw = sSaved.unk18;
         gCans = sSaved.unk1A;
         gView[1] = sSaved.unk20;
-    } else if (gStage == 4) {
+    } else if (gStage == STAGE_2_2) {
         gPlayer.action = ACT_BLOWN_AWAY;
         gPlayer.motion[0] = MOT_THROWN_BACK;
         gPlayer.jumpPower = 0;
@@ -441,49 +441,49 @@ s16 InitStageOverlay(u8 stage) {
     s32 ret;
 
     switch (stage) {
-        case 0:
+        case STAGE_1_1:
             ret = func_800FA6C8();
             break;
-        case 1:
+        case STAGE_1_2:
             ret = func_800FA804();
             break;
-        case 2:
+        case STAGE_1_3:
             ret = func_800F6CE4();
             break;
-        case 3:
+        case STAGE_2_1:
             ret = func_800FA3EC();
             break;
-        case 4:
+        case STAGE_2_2:
             ret = func_800FA1C0();
             break;
-        case 5:
+        case STAGE_2_3:
             ret = func_800F6AC8();
             break;
-        case 6:
+        case STAGE_3_1:
             ret = func_800F1080();
             break;
-        case 7:
+        case STAGE_3_2:
             ret = func_800F1080();
             break;
-        case 8:
+        case STAGE_3_3:
             ret = func_800F64B0();
             break;
-        case 9:
+        case STAGE_4_1:
             ret = func_800F9618();
             break;
-        case 10:
+        case STAGE_4_2:
             ret = func_800F98E4();
             break;
-        case 11:
+        case STAGE_4_3:
             ret = func_800F475C();
             break;
-        case 12:
+        case STAGE_5_1:
             ret = func_800F9BC0();
             break;
-        case 13:
+        case STAGE_5_2:
             ret = func_800F8D34();
             break;
-        case 14:
+        case STAGE_5_3:
             ret = func_800F3800();
             break;
     }
@@ -496,34 +496,34 @@ u16 CallStageHook(s16 id, s32 a, s32 b) {
     u16 ret = 1;
 
     switch (gStage) {
-        case 0:
+        case STAGE_1_1:
             ret = func_800FAD08(id, a, b);
             break;
-        case 1:
+        case STAGE_1_2:
             ret = func_800FAD04(id, a, b);
             break;
-        case 3:
+        case STAGE_2_1:
             ret = func_800FA894(id, a, b);
             break;
-        case 4:
+        case STAGE_2_2:
             ret = func_800FA580(id, a, b);
             break;
-        case 6:
+        case STAGE_3_1:
             ret = func_800F1A48(id, a, b);
             break;
-        case 7:
+        case STAGE_3_2:
             ret = func_800F1A48(id, a, b);
             break;
-        case 9:
+        case STAGE_4_1:
             ret = func_800F9ABC(id, a, b);
             break;
-        case 10:
+        case STAGE_4_2:
             ret = func_800F9CA4(id, a, b);
             break;
-        case 12:
+        case STAGE_5_1:
             ret = func_800FA060(id, a, b);
             break;
-        case 13:
+        case STAGE_5_2:
             ret = func_800F922C(id, a, b);
             break;
     }

@@ -170,12 +170,12 @@ extern ObjectModel gObjectModels[]; /**< the 80 object model slots */
  *         (RIDE_ITEM_MASK) is RIDE_ITEM while ACT_STOP_ITEM's object shows. */
 enum RideMode {
     RIDE_NONE = 0,        /**< on foot */
-    RIDE_BOARD = 1,       /**< stage 1: a board at the feet; the legs cannot be hit */
-    RIDE_ROLLER = 2,      /**< stages 3 and 10: an object turning with the speed, with a
+    RIDE_BOARD = 1,       /**< STAGE_1_2: a board at the feet; the legs cannot be hit */
+    RIDE_ROLLER = 2,      /**< STAGE_2_1 and STAGE_4_2: an object turning with the speed, with a
                         *   rolling sound; steered by heading, a wide hit at the legs */
-    RIDE_COVER = 3,       /**< stages 0 and 12: on the body, hiding most of it; lost on
+    RIDE_COVER = 3,       /**< STAGE_1_1 and STAGE_5_1: on the body, hiding most of it; lost on
                         *   a high fall, and hits react as on foot */
-    RIDE_BOARD_2 = 4,     /**< stage 13: a second board, with its own overlay code */
+    RIDE_BOARD_2 = 4,     /**< STAGE_5_2: a second board, with its own overlay code */
     RIDE_ITEM = 5,        /**< in the high nibble: the held object is drawn */
     RIDE_MASK = 0x0F,     /**< the ride */
     RIDE_ITEM_MASK = 0xF0 /**< the held object */
@@ -313,7 +313,7 @@ enum PlayerAction {
     ACT_FLATTENED = 0x53,                /**< drawn flat; MISS_RETRY after 90 frames */
     ACT_SCREEN_HIT_FLY = 0x55,           /**< flies straight at the camera and hits the screen */
     ACT_BLOWN_AWAY_START = 0x56,         /**< a miss: thrown high */
-    ACT_BLOWN_AWAY = 0x57,               /**< falls, lies still, MISS_RETRY; stage 4 drops
+    ACT_BLOWN_AWAY = 0x57,               /**< falls, lies still, MISS_RETRY; STAGE_2_2 drops
                                       *   the player in with it and recovers */
     ACT_ROLL_STRAIGHT = 0x58,            /**< ride mode 2 with no steering */
     ACT_RIDE_LEAN_A_IN = 0x5A,           /**< holds the first lean's motion */
@@ -437,6 +437,29 @@ typedef struct {
 
 extern PlayerHit gPlayerHits[3]; /**< one per point group */
 
+/** @brief A stage, gStage: STAGE_<world>_<act>, counted from 1; the world
+ *         is stage / 3 and the act stage % 3. */
+enum Stage {
+    STAGE_1_1,
+    STAGE_1_2,
+    STAGE_1_3,
+    STAGE_2_1,
+    STAGE_2_2,
+    STAGE_2_3,
+    STAGE_3_1,
+    STAGE_3_2,
+    STAGE_3_3,
+    STAGE_4_1,
+    STAGE_4_2,
+    STAGE_4_3,
+    STAGE_5_1,
+    STAGE_5_2,
+    STAGE_5_3
+};
+
+/** @brief A world, gStage / 3. */
+enum World { WORLD_1, WORLD_2, WORLD_3, WORLD_4, WORLD_5 };
+
 /* Small: a plain extern. */
 extern s32 gTimInfo;        /**< 2 units, 4 functions */
 extern u8 gClearB;          /**< the screen clear and fog colour, blue */
@@ -502,14 +525,14 @@ extern s32 gHitPoints;        /**< 2 units, 7 functions */
 extern s32 gHitPointSections; /**< entry count of the first record bank; 2 units */
 extern s32 gHitQuadSections;  /**< entry count of the second record bank; 2 units */
 extern u16 gVabLoadStep;      /**< 2 units, 3 functions */
-extern u8 gStage;          /**< the stage being played: stage / 3 is the world, stage % 3 the act */
-extern s32 gStageParams;   /**< 2-bit stage settings, read at bits 4, 8, 12, 20 and 22 */
-extern u8 gEffectActive;   /**< 2 units, 2 functions */
-extern u8 gEffectFree;     /**< 2 units, 2 functions */
-extern u16 gCans;          /**< 5 units, 7 functions */
-extern s16 gEditMax;       /**< limit of the value being edited */
-extern s16 gMenuLineCount; /**< the count a menu line wraps at */
-extern s32 gPadTrig;       /**< port 1's newly pressed buttons this frame, auto-repeat included */
+extern u8 gStage;             /**< the stage being played, a Stage */
+extern s32 gStageParams;      /**< 2-bit stage settings, read at bits 4, 8, 12, 20 and 22 */
+extern u8 gEffectActive;      /**< 2 units, 2 functions */
+extern u8 gEffectFree;        /**< 2 units, 2 functions */
+extern u16 gCans;             /**< 5 units, 7 functions */
+extern s16 gEditMax;          /**< limit of the value being edited */
+extern s16 gMenuLineCount;    /**< the count a menu line wraps at */
+extern s32 gPadTrig;  /**< port 1's newly pressed buttons this frame, auto-repeat included */
 extern u8 *gCanSpans; /**< each stage block's cans: first point and count (after the BlockHeader) */
 extern u8 *gCanPoints;     /**< the cans: x, y, z and group, eight bytes each */
 extern s32 gCanSpanCount;  /**< how many blocks have a span (the BlockHeader's first word) */

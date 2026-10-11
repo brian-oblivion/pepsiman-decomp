@@ -47,49 +47,49 @@ void LoadStageOverlay(u16 stage) {
     s32 id;
 
     switch (stage) {
-        case 0:
+        case STAGE_1_1:
             id = 3;
             break;
-        case 1:
+        case STAGE_1_2:
             id = 4;
             break;
-        case 2:
+        case STAGE_1_3:
             id = 5;
             break;
-        case 3:
+        case STAGE_2_1:
             id = 6;
             break;
-        case 4:
+        case STAGE_2_2:
             id = 7;
             break;
-        case 5:
+        case STAGE_2_3:
             id = 8;
             break;
-        case 6:
+        case STAGE_3_1:
             id = 9;
             break;
-        case 7:
+        case STAGE_3_2:
             id = 10;
             break;
-        case 8:
+        case STAGE_3_3:
             id = 11;
             break;
-        case 9:
+        case STAGE_4_1:
             id = 12;
             break;
-        case 10:
+        case STAGE_4_2:
             id = 13;
             break;
-        case 11:
+        case STAGE_4_3:
             id = 14;
             break;
-        case 12:
+        case STAGE_5_1:
             id = 15;
             break;
-        case 13:
+        case STAGE_5_2:
             id = 16;
             break;
-        case 14:
+        case STAGE_5_3:
             id = 17;
             break;
         default:
@@ -100,36 +100,36 @@ void LoadStageOverlay(u16 stage) {
 
 void StartStageOverlay(void) {
     switch (gStage) {
-        case 0:
+        case STAGE_1_1:
             func_800FAB9C();
             break;
-        case 1:
+        case STAGE_1_2:
             func_800FAE44();
             break;
-        case 3:
+        case STAGE_2_1:
             func_800FA9D4();
             break;
-        case 4:
+        case STAGE_2_2:
             func_800FA800();
             break;
-        case 6:
+        case STAGE_3_1:
             func_800F1BA4();
             break;
-        case 7:
+        case STAGE_3_2:
             /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
             func_800F1BA4();
             __asm__("");
             break;
-        case 9:
+        case STAGE_4_1:
             func_800F9BFC();
             break;
-        case 10:
+        case STAGE_4_2:
             func_800FA058();
             break;
-        case 12:
+        case STAGE_5_1:
             func_800FA1A0();
             break;
-        case 13:
+        case STAGE_5_2:
             func_800F936C();
             break;
     }
@@ -137,51 +137,51 @@ void StartStageOverlay(void) {
 
 void ResetStageOverlay(void) {
     switch (gStage) {
-        case 0:
+        case STAGE_1_1:
             func_800FAA30();
             break;
-        case 1:
+        case STAGE_1_2:
             func_800FABC4();
             break;
-        case 2:
+        case STAGE_1_3:
             func_800F6F0C();
             break;
-        case 3:
+        case STAGE_2_1:
             func_800FA754();
             break;
-        case 4:
+        case STAGE_2_2:
             func_800FA6C0();
             break;
-        case 5:
+        case STAGE_2_3:
             func_800F6CF0();
             break;
-        case 6:
+        case STAGE_3_1:
             func_800F1908();
             break;
-        case 7:
+        case STAGE_3_2:
             /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
             func_800F1908();
             __asm__("");
             break;
-        case 8:
+        case STAGE_3_3:
             func_800F66BC();
             break;
-        case 9:
+        case STAGE_4_1:
             func_800F9980();
             break;
-        case 10:
+        case STAGE_4_2:
             func_800F9F18();
             break;
-        case 11:
+        case STAGE_4_3:
             func_800F4984();
             break;
-        case 12:
+        case STAGE_5_1:
             func_800F9F28();
             break;
-        case 13:
+        case STAGE_5_2:
             func_800F90F4();
             break;
-        case 14:
+        case STAGE_5_3:
             func_800F3A28();
             break;
     }

@@ -1665,14 +1665,14 @@ top:
                         case ACT_BLOWN_AWAY:
                             gMissState = MISS_DYING;
                             if (state->unk374 >= 61) {
-                                if (gStage == 4 && gSection == 0) {
+                                if (gStage == STAGE_2_2 && gSection == 0) {
                                     state->motion[0] = MOT_GET_UP_2;
                                     gMissState = MISS_NONE;
                                 } else {
                                     gMissState = MISS_RETRY;
                                 }
                             }
-                            if ((gStage != 4 || gSection != 0) && state->unk374 == 30) {
+                            if ((gStage != STAGE_2_2 || gSection != 0) && state->unk374 == 30) {
                                 PlaySe(0x34);
                             }
                             break;
@@ -2218,7 +2218,7 @@ top:
             if (gPlayer.unk3D5 == 1) {
                 gBonusLevel = 0;
             }
-            if (gBonusLevel != 0 && gPlayer.unk3D5 != 1 && (gStage != 4 || gSection != 0)) {
+            if (gBonusLevel != 0 && gPlayer.unk3D5 != 1 && (gStage != STAGE_2_2 || gSection != 0)) {
                 gElapsed++;
                 gTimeLeft--;
             }
@@ -2347,7 +2347,7 @@ void DrawModeObject(void) {
             break;
         case RIDE_ROLLER:
             switch (gStage) {
-                case 3:
+                case STAGE_2_1:
                     gModeObjects[3].unk4 = 0x3C;
                     gModeObjectModels[3].unk58 = (s32)&gTodCoords[0];
                     gModeObjects[3].unk0 = -gWorldShift[0];
@@ -2359,7 +2359,7 @@ void DrawModeObject(void) {
                         PlaySe(0x81);
                     }
                     break;
-                case 10:
+                case STAGE_4_2:
                     gModeObjects[6].unk4 = 0x32;
                     gModeObjectModels[6].unk58 = (s32)&gTodCoords[0];
                     gModeObjects[6].unk0 = -gWorldShift[0];
@@ -2375,7 +2375,7 @@ void DrawModeObject(void) {
             break;
         case RIDE_COVER:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gModeObjects[4].unk4 = 0;
                     gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[4].unk0 = -gWorldShift[0];
@@ -2383,7 +2383,7 @@ void DrawModeObject(void) {
                     DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[4].unk36],
                                     (Trap *)&gModeObjects[4]);
                     break;
-                case 12:
+                case STAGE_5_1:
                     gModeObjects[2].unk4 = 0;
                     gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[2].unk0 = -gWorldShift[0];
@@ -2424,11 +2424,11 @@ s32 AttachModeObject(void) {
             if ((u32)(gPlayer.motion[0] - MOT_RIDE) >= 3) {
                 gPlayer.motion[0] = MOT_RIDE;
                 switch (gStage) {
-                    case 3:
+                    case STAGE_2_1:
                         gModeObjectModels[3].unk58 = (s32)&gTodCoords[0];
                         gModeObjects[3].unk36 = 3;
                         break;
-                    case 10:
+                    case STAGE_4_2:
                         gModeObjectModels[6].unk58 = (s32)&gTodCoords[0];
                         gModeObjects[6].unk36 = 6;
                         break;
@@ -2437,11 +2437,11 @@ s32 AttachModeObject(void) {
             break;
         case RIDE_COVER:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gModeObjectModels[4].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[4].unk36 = 4;
                     break;
-                case 12:
+                case STAGE_5_1:
                     gModeObjectModels[2].unk58 = (s32)&gTodCoords[1];
                     gModeObjects[2].unk36 = 2;
                     break;
@@ -2472,27 +2472,27 @@ void SpawnModeObject(void) {
         if (idx != -1) {
             slot += idx;
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gModeObjectModels[4].unk58 = 0;
                     slot->unk36 = 4;
                     break;
-                case 1:
+                case STAGE_1_2:
                     gModeObjectModels[0].unk58 = 0;
                     slot->unk36 = 0;
                     break;
-                case 3:
+                case STAGE_2_1:
                     gModeObjectModels[3].unk58 = 0;
                     slot->unk36 = 3;
                     break;
-                case 10:
+                case STAGE_4_2:
                     gModeObjectModels[6].unk58 = 0;
                     slot->unk36 = 6;
                     break;
-                case 12:
+                case STAGE_5_1:
                     gModeObjectModels[2].unk58 = 0;
                     slot->unk36 = 2;
                     break;
-                case 13:
+                case STAGE_5_2:
                     gModeObjectModels[5].unk58 = 0;
                     slot->unk36 = 5;
                     break;
@@ -2535,10 +2535,10 @@ void SteerRoller(void) {
             }
         }
         switch (gStage) {
-            case 3:
+            case STAGE_2_1:
                 gPlayer.y = gPlayer.groundY - 0x5A;
                 break;
-            case 10:
+            case STAGE_4_2:
                 gPlayer.y = gPlayer.groundY - 0x50;
                 break;
         }

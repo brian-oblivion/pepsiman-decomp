@@ -183,21 +183,21 @@ int main(void) {
                 break;
             case GM_WORLD_INTRO:
                 switch ((u8)(gStage / 3)) {
-                    case 0:
+                    case WORLD_1:
                         func_800F03BC();
                         break;
-                    case 1:
+                    case WORLD_2:
                         func_800F03B4();
                         break;
-                    case 2:
+                    case WORLD_3:
                         func_800F0480();
                         break;
-                    case 3:
+                    case WORLD_4:
                         /* MATCHING: keeps cross-jumping off case 0's call. */
                         func_800F03BC();
                         __asm__("");
                         break;
-                    case 4:
+                    case WORLD_5:
                         func_800F0414();
                         break;
                 }
@@ -370,23 +370,23 @@ int main(void) {
                 break;
             case GM_MOVIE:
                 switch ((u8)(gStage / 3)) {
-                    case 0:
+                    case WORLD_1:
                         PlayMovie("\\MOVIE1.STR;1", NULL, 0xBC, 0xF0, 1);
                         gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
-                    case 1:
+                    case WORLD_2:
                         PlayMovie("\\MOVIE2.STR;1", NULL, 0x166, 0xF0, 1);
                         gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
-                    case 2:
+                    case WORLD_3:
                         PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
                         gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
-                    case 3:
+                    case WORLD_4:
                         PlayMovie("\\MOVIE3.STR;1", NULL, 0x12A, 0xF0, 1);
                         gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
-                    case 4:
+                    case WORLD_5:
                         PlayMovie("\\MOVIE4.STR;1", NULL, 0x184, 0xF0, 1);
                         gGameMode = GM_WORLD_INTRO_LOAD;
                         break;
@@ -1299,19 +1299,19 @@ void LoadAct3Stage(void) {
             break;
         case 1:
             switch (gStage) {
-                case 2:
+                case STAGE_1_3:
                     bank = 2;
                     break;
-                case 5:
+                case STAGE_2_3:
                     bank = 3;
                     break;
-                case 8:
+                case STAGE_3_3:
                     bank = 4;
                     break;
-                case 11:
+                case STAGE_4_3:
                     bank = 5;
                     break;
-                case 14:
+                case STAGE_5_3:
                     bank = 6;
                     break;
             }
@@ -1331,23 +1331,23 @@ void LoadAct3Stage(void) {
         case 4:
             func_80018DE8(0);
             switch (gStage) {
-                case 2:
+                case STAGE_1_3:
                     gCdLoadLoc[0] = (s32)&sStage02FileLoc[0];
                     gCdLoadSectors[0] = sStage02FileSectors[0];
                     break;
-                case 5:
+                case STAGE_2_3:
                     gCdLoadLoc[0] = (s32)&sStage05FileLoc[0];
                     gCdLoadSectors[0] = sStage05FileSectors[0];
                     break;
-                case 8:
+                case STAGE_3_3:
                     gCdLoadLoc[0] = (s32)&sStage08FileLoc[0];
                     gCdLoadSectors[0] = sStage08FileSectors[0];
                     break;
-                case 11:
+                case STAGE_4_3:
                     gCdLoadLoc[0] = (s32)&sStage11FileLoc[0];
                     gCdLoadSectors[0] = sStage11FileSectors[0];
                     break;
-                case 14:
+                case STAGE_5_3:
                     gCdLoadLoc[0] = (s32)&sStage14FileLoc[0];
                     gCdLoadSectors[0] = sStage14FileSectors[0];
                     break;
@@ -1365,23 +1365,23 @@ void LoadAct3Stage(void) {
             break;
         case 6:
             switch (gStage) {
-                case 2:
+                case STAGE_1_3:
                     gCdLoadLoc[0] = (s32)&sStage02FileLoc[1];
                     gCdLoadSectors[0] = sStage02FileSectors[1];
                     break;
-                case 5:
+                case STAGE_2_3:
                     gCdLoadLoc[0] = (s32)&sStage05FileLoc[1];
                     gCdLoadSectors[0] = sStage05FileSectors[1];
                     break;
-                case 8:
+                case STAGE_3_3:
                     gCdLoadLoc[0] = (s32)&sStage08FileLoc[1];
                     gCdLoadSectors[0] = sStage08FileSectors[1];
                     break;
-                case 11:
+                case STAGE_4_3:
                     gCdLoadLoc[0] = (s32)&sStage11FileLoc[1];
                     gCdLoadSectors[0] = sStage11FileSectors[1];
                     break;
-                case 14:
+                case STAGE_5_3:
                     gCdLoadLoc[0] = (s32)&sStage14FileLoc[1];
                     gCdLoadSectors[0] = sStage14FileSectors[1];
                     break;
@@ -1395,19 +1395,19 @@ void LoadAct3Stage(void) {
             if (gCdLoadState == CD_LOAD_DONE) {
                 LoadAct3Data((unsigned long *)0x8019D000);
                 switch (gStage) {
-                    case 2:
+                    case STAGE_1_3:
                         func_800F6C60();
                         break;
-                    case 5:
+                    case STAGE_2_3:
                         func_800F6A44();
                         break;
-                    case 8:
+                    case STAGE_3_3:
                         func_800F642C();
                         break;
-                    case 11:
+                    case STAGE_4_3:
                         func_800F46D8();
                         break;
-                    case 14:
+                    case STAGE_5_3:
                         func_800F377C();
                         break;
                 }
@@ -1474,43 +1474,43 @@ void LoadStage(void) {
         case 4:
             func_80018DE8(0);
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gCdLoadLoc[0] = (s32)&sStage00FileLoc[0];
                     gCdLoadSectors[0] = sStage00FileSectors[1];
                     break;
-                case 1:
+                case STAGE_1_2:
                     gCdLoadLoc[0] = (s32)&sStage01FileLoc[0];
                     gCdLoadSectors[0] = sStage01FileSectors[1];
                     break;
-                case 3:
+                case STAGE_2_1:
                     gCdLoadLoc[0] = (s32)&sStage03FileLoc[0];
                     gCdLoadSectors[0] = sStage03FileSectors[1];
                     break;
-                case 4:
+                case STAGE_2_2:
                     gCdLoadLoc[0] = (s32)&sStage04FileLoc[0];
                     gCdLoadSectors[0] = sStage04FileSectors[1];
                     break;
-                case 6:
+                case STAGE_3_1:
                     gCdLoadLoc[0] = (s32)&sStage06FileLoc[0];
                     gCdLoadSectors[0] = sStage06FileSectors[1];
                     break;
-                case 7:
+                case STAGE_3_2:
                     gCdLoadLoc[0] = (s32)&sStage07FileLoc[0];
                     gCdLoadSectors[0] = sStage07FileSectors[1];
                     break;
-                case 9:
+                case STAGE_4_1:
                     gCdLoadLoc[0] = (s32)&sStage09FileLoc[0];
                     gCdLoadSectors[0] = sStage09FileSectors[1];
                     break;
-                case 10:
+                case STAGE_4_2:
                     gCdLoadLoc[0] = (s32)&sStage10FileLoc[0];
                     gCdLoadSectors[0] = sStage10FileSectors[1];
                     break;
-                case 12:
+                case STAGE_5_1:
                     gCdLoadLoc[0] = (s32)&sStage12FileLoc[0];
                     gCdLoadSectors[0] = sStage12FileSectors[1];
                     break;
-                case 13:
+                case STAGE_5_2:
                     gCdLoadLoc[0] = (s32)&sStage13FileLoc[0];
                     gCdLoadSectors[0] = sStage13FileSectors[1];
                     break;
@@ -1528,43 +1528,43 @@ void LoadStage(void) {
             break;
         case 6:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gCdLoadLoc[0] = (s32)&sStage00FileLoc[1];
                     gCdLoadSectors[0] = sStage00FileSectors[2];
                     break;
-                case 1:
+                case STAGE_1_2:
                     gCdLoadLoc[0] = (s32)&sStage01FileLoc[1];
                     gCdLoadSectors[0] = sStage01FileSectors[2];
                     break;
-                case 3:
+                case STAGE_2_1:
                     gCdLoadLoc[0] = (s32)&sStage03FileLoc[1];
                     gCdLoadSectors[0] = sStage03FileSectors[2];
                     break;
-                case 4:
+                case STAGE_2_2:
                     gCdLoadLoc[0] = (s32)&sStage04FileLoc[1];
                     gCdLoadSectors[0] = sStage04FileSectors[2];
                     break;
-                case 6:
+                case STAGE_3_1:
                     gCdLoadLoc[0] = (s32)&sStage06FileLoc[1];
                     gCdLoadSectors[0] = sStage06FileSectors[2];
                     break;
-                case 7:
+                case STAGE_3_2:
                     gCdLoadLoc[0] = (s32)&sStage07FileLoc[1];
                     gCdLoadSectors[0] = sStage07FileSectors[2];
                     break;
-                case 9:
+                case STAGE_4_1:
                     gCdLoadLoc[0] = (s32)&sStage09FileLoc[1];
                     gCdLoadSectors[0] = sStage09FileSectors[2];
                     break;
-                case 10:
+                case STAGE_4_2:
                     gCdLoadLoc[0] = (s32)&sStage10FileLoc[1];
                     gCdLoadSectors[0] = sStage10FileSectors[2];
                     break;
-                case 12:
+                case STAGE_5_1:
                     gCdLoadLoc[0] = (s32)&sStage12FileLoc[1];
                     gCdLoadSectors[0] = sStage12FileSectors[2];
                     break;
-                case 13:
+                case STAGE_5_2:
                     gCdLoadLoc[0] = (s32)&sStage13FileLoc[1];
                     gCdLoadSectors[0] = sStage13FileSectors[2];
                     break;
@@ -1582,61 +1582,61 @@ void LoadStage(void) {
             break;
         case 8:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gCdLoadLoc[0] = (s32)&sStage00FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage00FileLoc[3];
                     gCdLoadSectors[0] = sStage00FileSectors[3];
                     gCdLoadSectors[1] = sStage00FileSectors[4];
                     break;
-                case 1:
+                case STAGE_1_2:
                     gCdLoadLoc[0] = (s32)&sStage01FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage01FileLoc[3];
                     gCdLoadSectors[0] = sStage01FileSectors[3];
                     gCdLoadSectors[1] = sStage01FileSectors[4];
                     break;
-                case 3:
+                case STAGE_2_1:
                     gCdLoadLoc[0] = (s32)&sStage03FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage03FileLoc[3];
                     gCdLoadSectors[0] = sStage03FileSectors[3];
                     gCdLoadSectors[1] = sStage03FileSectors[4];
                     break;
-                case 4:
+                case STAGE_2_2:
                     gCdLoadLoc[0] = (s32)&sStage04FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage04FileLoc[3];
                     gCdLoadSectors[0] = sStage04FileSectors[3];
                     gCdLoadSectors[1] = sStage04FileSectors[4];
                     break;
-                case 6:
+                case STAGE_3_1:
                     gCdLoadLoc[0] = (s32)&sStage06FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage06FileLoc[3];
                     gCdLoadSectors[0] = sStage06FileSectors[3];
                     gCdLoadSectors[1] = sStage06FileSectors[4];
                     break;
-                case 7:
+                case STAGE_3_2:
                     gCdLoadLoc[0] = (s32)&sStage07FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage07FileLoc[3];
                     gCdLoadSectors[0] = sStage07FileSectors[3];
                     gCdLoadSectors[1] = sStage07FileSectors[4];
                     break;
-                case 9:
+                case STAGE_4_1:
                     gCdLoadLoc[0] = (s32)&sStage09FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage09FileLoc[3];
                     gCdLoadSectors[0] = sStage09FileSectors[3];
                     gCdLoadSectors[1] = sStage09FileSectors[4];
                     break;
-                case 10:
+                case STAGE_4_2:
                     gCdLoadLoc[0] = (s32)&sStage10FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage10FileLoc[3];
                     gCdLoadSectors[0] = sStage10FileSectors[3];
                     gCdLoadSectors[1] = sStage10FileSectors[4];
                     break;
-                case 12:
+                case STAGE_5_1:
                     gCdLoadLoc[0] = (s32)&sStage12FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage12FileLoc[3];
                     gCdLoadSectors[0] = sStage12FileSectors[3];
                     gCdLoadSectors[1] = sStage12FileSectors[4];
                     break;
-                case 13:
+                case STAGE_5_2:
                     gCdLoadLoc[0] = (s32)&sStage13FileLoc[2];
                     gCdLoadLoc[1] = (s32)&sStage13FileLoc[3];
                     gCdLoadSectors[0] = sStage13FileSectors[3];
@@ -1657,43 +1657,43 @@ void LoadStage(void) {
             break;
         case 10:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gCdLoadLoc[0] = (s32)&sStage00FileLoc[4];
                     gCdLoadSectors[0] = sStage00FileSectors[5];
                     break;
-                case 1:
+                case STAGE_1_2:
                     gCdLoadLoc[0] = (s32)&sStage01FileLoc[4];
                     gCdLoadSectors[0] = sStage01FileSectors[5];
                     break;
-                case 3:
+                case STAGE_2_1:
                     gCdLoadLoc[0] = (s32)&sStage03FileLoc[4];
                     gCdLoadSectors[0] = sStage03FileSectors[5];
                     break;
-                case 4:
+                case STAGE_2_2:
                     gCdLoadLoc[0] = (s32)&sStage04FileLoc[4];
                     gCdLoadSectors[0] = sStage04FileSectors[5];
                     break;
-                case 6:
+                case STAGE_3_1:
                     gCdLoadLoc[0] = (s32)&sStage06FileLoc[4];
                     gCdLoadSectors[0] = sStage06FileSectors[5];
                     break;
-                case 7:
+                case STAGE_3_2:
                     gCdLoadLoc[0] = (s32)&sStage07FileLoc[4];
                     gCdLoadSectors[0] = sStage07FileSectors[5];
                     break;
-                case 9:
+                case STAGE_4_1:
                     gCdLoadLoc[0] = (s32)&sStage09FileLoc[4];
                     gCdLoadSectors[0] = sStage09FileSectors[5];
                     break;
-                case 10:
+                case STAGE_4_2:
                     gCdLoadLoc[0] = (s32)&sStage10FileLoc[4];
                     gCdLoadSectors[0] = sStage10FileSectors[5];
                     break;
-                case 12:
+                case STAGE_5_1:
                     gCdLoadLoc[0] = (s32)&sStage12FileLoc[4];
                     gCdLoadSectors[0] = sStage12FileSectors[5];
                     break;
-                case 13:
+                case STAGE_5_2:
                     gCdLoadLoc[0] = (s32)&sStage13FileLoc[4];
                     gCdLoadSectors[0] = sStage13FileSectors[5];
                     break;
@@ -1715,43 +1715,43 @@ void LoadStage(void) {
             break;
         case 13:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     gCdLoadLoc[0] = (s32)&sStage00FileLoc[5];
                     gCdLoadSectors[0] = sStage00FileSectors[6];
                     break;
-                case 1:
+                case STAGE_1_2:
                     gCdLoadLoc[0] = (s32)&sStage01FileLoc[5];
                     gCdLoadSectors[0] = sStage01FileSectors[6];
                     break;
-                case 3:
+                case STAGE_2_1:
                     gCdLoadLoc[0] = (s32)&sStage03FileLoc[5];
                     gCdLoadSectors[0] = sStage03FileSectors[6];
                     break;
-                case 4:
+                case STAGE_2_2:
                     gCdLoadLoc[0] = (s32)&sStage04FileLoc[5];
                     gCdLoadSectors[0] = sStage04FileSectors[6];
                     break;
-                case 6:
+                case STAGE_3_1:
                     gCdLoadLoc[0] = (s32)&sStage06FileLoc[5];
                     gCdLoadSectors[0] = sStage06FileSectors[6];
                     break;
-                case 7:
+                case STAGE_3_2:
                     gCdLoadLoc[0] = (s32)&sStage07FileLoc[5];
                     gCdLoadSectors[0] = sStage07FileSectors[6];
                     break;
-                case 9:
+                case STAGE_4_1:
                     gCdLoadLoc[0] = (s32)&sStage09FileLoc[5];
                     gCdLoadSectors[0] = sStage09FileSectors[6];
                     break;
-                case 10:
+                case STAGE_4_2:
                     gCdLoadLoc[0] = (s32)&sStage10FileLoc[5];
                     gCdLoadSectors[0] = sStage10FileSectors[6];
                     break;
-                case 12:
+                case STAGE_5_1:
                     gCdLoadLoc[0] = (s32)&sStage12FileLoc[5];
                     gCdLoadSectors[0] = sStage12FileSectors[6];
                     break;
-                case 13:
+                case STAGE_5_2:
                     gCdLoadLoc[0] = (s32)&sStage13FileLoc[5];
                     gCdLoadSectors[0] = sStage13FileSectors[6];
                     break;
@@ -1772,23 +1772,23 @@ void LoadStage(void) {
         case 15:
             if ((u8)(gStage % 3) == 1) {
                 switch (gStage) {
-                    case 1:
+                    case STAGE_1_2:
                         gCdLoadLoc[0] = (s32)&sStage01FileLoc[6];
                         gCdLoadSectors[0] = sStage01FileSectors[7];
                         break;
-                    case 4:
+                    case STAGE_2_2:
                         gCdLoadLoc[0] = (s32)&sStage04FileLoc[6];
                         gCdLoadSectors[0] = sStage04FileSectors[7];
                         break;
-                    case 7:
+                    case STAGE_3_2:
                         gCdLoadLoc[0] = (s32)&sStage07FileLoc[6];
                         gCdLoadSectors[0] = sStage07FileSectors[7];
                         break;
-                    case 10:
+                    case STAGE_4_2:
                         gCdLoadLoc[0] = (s32)&sStage10FileLoc[6];
                         gCdLoadSectors[0] = sStage10FileSectors[7];
                         break;
-                    case 13:
+                    case STAGE_5_2:
                         gCdLoadLoc[0] = (s32)&sStage13FileLoc[6];
                         gCdLoadSectors[0] = sStage13FileSectors[7];
                         break;

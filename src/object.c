@@ -1531,13 +1531,13 @@ void UpdatePickups(void) {
                             break;
                         case 1:
                         default:
-                            PlaySe(0x35);
+                            PlaySe(SE_CAN);
                             SpawnEffect(7, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
                                         ((CanPoint *)(k * 8 + (u32)gCanPoints))->y - 50,
                                         (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->z, 0);
                             break;
                         case 2:
-                            PlaySe(0x35);
+                            PlaySe(SE_CAN);
                             SpawnEffect(8, ((CanPoint *)(k * 8 + (u32)gCanPoints))->x,
                                         ((CanPoint *)(k * 8 + (u32)gCanPoints))->y - 50,
                                         (s16)((CanPoint *)(k * 8 + (u32)gCanPoints))->z, 0);

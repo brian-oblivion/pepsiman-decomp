@@ -587,6 +587,54 @@ extern s32 *gAnimations[]; /**< per-sequence data pointers; 2 units */
  *          returned (callers ignore the result) */
 s32 PlaySe(s32 id);
 
+/** @brief PlaySe's ids, the sound effects. The game names none; these say
+ *         where each is played. Ids below 70 are in the common VAB bank;
+ *         from 70 on, sSeVabBanks picks a stage's own. */
+enum SoundEffect {
+    SE_STEP = 0x13,  /**< every 8 frames of MOT_RUN_SLOW */
+    SE_SLIDE = 0x16, /**< a slide or a brake starts */
+    SE_JUMP = 0x17,  /**< leaving the ground */
+    SE_WIPE = 0x19,  /**< StartScreenWipe */
+    SE_SPIN = 0x1A,  /**< the spin's first frame */
+    SE_FALL = 0x1B,  /**< falling off the course (MISS_FELL) */
+    SE_LAND = 0x1E,  /**< LandPlayer: down on the ground or a ride quad */
+    SE_POWER_UP = 0x22, /**< a retry won on the results screen, or every tenth can raising the bonus level */
+    SE_NEW_RECORD = 0x25, /**< the results screen beats a best can count or time */
+    SE_HURRY = 0x28,      /**< 11 seconds left */
+    SE_TALLY = 0x2A,      /**< every tenth can counted on the results screen */
+    SE_ITEM_TICK = 0x2B,  /**< ACT_STOP_ITEM's three repeated sounds */
+    SE_ALL_CANS = 0x2F,   /**< the results screen counts all 100 cans */
+    SE_ITEM_1 = 0x30,     /**< ACT_STOP_ITEM, frame 13 */
+    SE_ITEM_2 = 0x31,     /**< ACT_STOP_ITEM, frame 20 */
+    SE_MISS = 0x34,       /**< lying down with no bonus level left: the miss */
+    SE_CAN = 0x35,        /**< a can collected */
+    SE_LAUNCH = 0x3C,     /**< ACT_LAUNCH starts */
+    SE_GET_UP = 0x50,     /**< getting up after a fall */
+    SE_DASH = 0x71,       /**< the dash starts */
+    SE_ROLLER = 0x81      /**< every 20 frames of STAGE_2_1's roller */
+};
+
+/** @brief StartRumble's patterns: each a single RumbleStep of
+ *         gRumblePatterns. The game names none; these follow the action
+ *         that starts each (several share one). */
+enum RumblePattern {
+    RUMBLE_NONE = 0,       /**< all zero: stops the motors */
+    RUMBLE_TRIP = 1,       /**< large motor 170, 10 frames */
+    RUMBLE_KNOCKDOWN = 2,  /**< both motors, 10 frames: a hard trip or a knockdown */
+    RUMBLE_BOUNCE = 3,     /**< large 200, three 5-frame pulses: a bounce */
+    RUMBLE_HIT = 4,        /**< both motors, 10 frames: thrown back, a head hit, a fall */
+    RUMBLE_REEL = 5,       /**< both motors, four 5-frame pulses */
+    RUMBLE_HARD_LAND = 6,  /**< large 255, 10 frames: LandPlayer, or the skid after a throw */
+    RUMBLE_SPIN = 7,       /**< large 255, three times */
+    RUMBLE_TWIRL = 8,      /**< large 130, four 5-frame pulses */
+    RUMBLE_FLATTENED = 9,  /**< both motors, weak, 15 frames */
+    RUMBLE_DASH = 10,      /**< both motors, weak, 30 frames */
+    RUMBLE_SKID = 11,      /**< the small motor alone, 5 frames */
+    RUMBLE_BRAKE = 12,     /**< both motors, four 5-frame pulses */
+    RUMBLE_JUMP_LAND = 13, /**< large 130, 10 frames: landing from a jump */
+    RUMBLE_SLIDE = 14      /**< both motors, faint, 20 frames */
+};
+
 /** @brief Defined in sound; called from main. */
 void InitSound(void);
 

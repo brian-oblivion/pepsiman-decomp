@@ -261,7 +261,7 @@ void UpdateStagePlay(u8 stage) {
                 gPauseState = 1;
             } else {
                 if (gPad & PADselect) {
-                    StartRumble(gRumblePatterns, 0);
+                    StartRumble(gRumblePatterns, RUMBLE_NONE);
                     gGameMode = GM_MENU_LOAD;
                     gModeStep = 0;
                     StopCdTrack();
@@ -432,7 +432,7 @@ void ResetStage(void) {
     }
     gPlayer.rideMode = RIDE_NONE;
     EndJump();
-    StartRumble(gRumblePatterns, 0);
+    StartRumble(gRumblePatterns, RUMBLE_NONE);
 }
 
 /* MATCHING: ret has no default; out-of-range numbers return whatever $a1

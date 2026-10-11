@@ -747,7 +747,7 @@ s32 ApplyGravity(void) {
             sJumpLanding[2] = gPlayer.z;
             sJumpDistance = SquareRoot0(DistanceSquared((VECTOR *)sJumpStart, (VECTOR *)sJumpLanding));
             if (gSkipLandRumble == 0) {
-                StartRumble(gRumblePatterns, 13);
+                StartRumble(gRumblePatterns, RUMBLE_JUMP_LAND);
             }
         }
     } else {
@@ -931,7 +931,7 @@ top:
             state->action = ACT_TRIP;
             state->motion[0] = MOT_TRIP;
             state->control = 0;
-            StartRumble(gRumblePatterns, 1);
+            StartRumble(gRumblePatterns, RUMBLE_TRIP);
             break;
         case ACT_TRIP_HARD_START:
             state->action = ACT_TRIP_HARD;
@@ -939,7 +939,7 @@ top:
             state->control = 0;
             state->actTimer2 = 0;
             state->actTimer = 0;
-            StartRumble(gRumblePatterns, 2);
+            StartRumble(gRumblePatterns, RUMBLE_KNOCKDOWN);
             break;
         case ACT_TOD_FILTER_START:
             state->action = ACT_TOD_FILTER;
@@ -970,7 +970,7 @@ top:
             state->control = 0;
             state->actTimer2 = 0;
             state->actTimer = 0;
-            StartRumble(gRumblePatterns, 7);
+            StartRumble(gRumblePatterns, RUMBLE_SPIN);
             break;
         case ACT_STOP_START:
             if ((u8)(m - MOT_RUN_SLOW) < 3) {
@@ -1026,7 +1026,7 @@ top:
             }
             break;
         case ACT_LAUNCH_START:
-            PlaySe(0x3C);
+            PlaySe(SE_LAUNCH);
             state->action = ACT_LAUNCH;
             state->motion[0] = MOT_LAUNCH;
             state->jumpPower = 70;
@@ -1039,7 +1039,7 @@ top:
             state->motion[0] = MOT_DASH;
             state->actTimer2 = 0;
             state->startSpeed = state->speed;
-            StartRumble(gRumblePatterns, 10);
+            StartRumble(gRumblePatterns, RUMBLE_DASH);
         case ACT_DASH:
             if (state->actTimer2 < 5) {
                 DrawFrozenFrame();
@@ -1058,7 +1058,7 @@ top:
             }
             break;
         case ACT_BRAKE_START:
-            PlaySe(0x16);
+            PlaySe(SE_SLIDE);
             state->action = ACT_BRAKE;
             state->control = 0;
             state->motion[0] = MOT_BRAKE;
@@ -1066,7 +1066,7 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->startSpeed = state->speed;
-            StartRumble(gRumblePatterns, 12);
+            StartRumble(gRumblePatterns, RUMBLE_BRAKE);
         case ACT_BRAKE:
             gSpeedFixed -= 0x20;
             if (++state->actTimer3 >= 16 || (s16)gSpeedFixed < 0) {
@@ -1093,7 +1093,7 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 2);
+            StartRumble(gRumblePatterns, RUMBLE_KNOCKDOWN);
             break;
         case ACT_KNOCKDOWN_BOUNCE_START:
             state->action = ACT_KNOCKDOWN_BOUNCE;
@@ -1102,7 +1102,7 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 2);
+            StartRumble(gRumblePatterns, RUMBLE_KNOCKDOWN);
             break;
         case ACT_THROWN_BACK_START:
             state->action = ACT_THROWN_BACK;
@@ -1114,7 +1114,7 @@ top:
             state->jumpPower = state->speed;
             /* MATCHING: *= -1 reloads the halfword with lh. */
             state->speed *= -1;
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             break;
         case ACT_THROWN_BACK_BOUNCE_START:
             state->action = ACT_THROWN_BACK_BOUNCE;
@@ -1125,7 +1125,7 @@ top:
             state->control = 0;
             state->jumpPower = state->speed;
             state->speed *= -1;
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             break;
         case ACT_REEL_START:
             state->action = ACT_REEL;
@@ -1134,7 +1134,7 @@ top:
             state->actTimer = 10;
             state->actTimer2 = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 5);
+            StartRumble(gRumblePatterns, RUMBLE_REEL);
             break;
         case ACT_HEAD_HIT_START:
             state->action = ACT_HEAD_HIT;
@@ -1146,7 +1146,7 @@ top:
                 state->action = ACT_THROWN_BACK_START;
                 goto top;
             }
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             ResetSpeed();
             break;
         case ACT_FALL_SKID_START:
@@ -1155,14 +1155,14 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             break;
         case ACT_FALL_FLAT_START:
             state->action = ACT_FALL_FLAT;
             state->motion[0] = MOT_FALL_FLAT;
             ResetSpeed();
             state->control = 0;
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             break;
         case ACT_TWIRL_START:
             state->action = ACT_TWIRL;
@@ -1173,7 +1173,7 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 8);
+            StartRumble(gRumblePatterns, RUMBLE_TWIRL);
             break;
         case ACT_SCREEN_HIT_START:
             if (rand() & 1) {
@@ -1191,7 +1191,7 @@ top:
             state->control = 0;
             state->hittable = 0;
             state->invulnTimer = 150;
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             break;
         case ACT_FLATTENED_START:
             state->action = ACT_FLATTENED;
@@ -1203,7 +1203,7 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 9);
+            StartRumble(gRumblePatterns, RUMBLE_FLATTENED);
             break;
         case ACT_BLOWN_AWAY_START:
             gMissState = MISS_DYING;
@@ -1218,7 +1218,7 @@ top:
             state->actTimer2 = 0;
             state->actTimer = 0;
             state->control = 0;
-            StartRumble(gRumblePatterns, 4);
+            StartRumble(gRumblePatterns, RUMBLE_HIT);
             break;
         case ACT_RIDE_CENTRE_START:
             switch (state->motion[0]) {
@@ -1284,17 +1284,17 @@ top:
     switch (state->motion[0]) {
         case MOT_RUN_SLOW:
             if (gGameMode == GM_STAGE && gLoading == 0 && (gFrameCount & 7) == 0) {
-                PlaySe(0x13);
+                PlaySe(SE_STEP);
             }
             break;
         case MOT_RUN:
             if (gGameMode == GM_STAGE && gLoading == 0 && gFrameCount % 6 == 0) {
-                PlaySe(0x13);
+                PlaySe(SE_STEP);
             }
             break;
         case MOT_RUN_FAST:
             if (gGameMode == GM_STAGE && gLoading == 0 && (gFrameCount & 3) == 0) {
-                PlaySe(0x13);
+                PlaySe(SE_STEP);
             }
             break;
         case MOT_JUMP:
@@ -1323,7 +1323,7 @@ top:
                     ScatterEffect4((VECTOR *)&state->x);
                     state->airborne = 0;
                     state->onQuadTop = 1;
-                    StartRumble(gRumblePatterns, 13);
+                    StartRumble(gRumblePatterns, RUMBLE_JUMP_LAND);
                 }
             } else if (state->y >= state->groundY) {
                 state->y = gFloorY[0];
@@ -1340,7 +1340,7 @@ top:
                 ScatterEffect4((VECTOR *)&state->x);
                 state->airborne = 0;
                 state->onQuadTop = 0;
-                StartRumble(gRumblePatterns, 13);
+                StartRumble(gRumblePatterns, RUMBLE_JUMP_LAND);
                 sJumpLanding[0] = state->x;
                 sJumpLanding[1] = state->y;
                 sJumpLanding[2] = state->z;
@@ -1369,7 +1369,7 @@ top:
                 ResetSpeed();
             }
             if (gPlayer.actTimer == 0) {
-                PlaySe(0x1A);
+                PlaySe(SE_SPIN);
             }
             state->control = 0;
             gPlayer.actTimer++;
@@ -1452,22 +1452,22 @@ top:
             break;
         case MOT_STOP_ITEM:
             if (++state->actTimer == 13) {
-                PlaySe(0x30);
+                PlaySe(SE_ITEM_1);
             }
             if (state->actTimer == 20) {
-                PlaySe(0x31);
+                PlaySe(SE_ITEM_2);
             }
             if (state->actTimer == 40) {
                 state->rideMode = (state->rideMode & RIDE_MASK) | (RIDE_ITEM << 4);
             }
             if (state->actTimer == 90) {
-                PlaySe(0x2B);
+                PlaySe(SE_ITEM_TICK);
             }
             if (state->actTimer == 110) {
-                PlaySe(0x2B);
+                PlaySe(SE_ITEM_TICK);
             }
             if (state->actTimer == 130) {
-                PlaySe(0x2B);
+                PlaySe(SE_ITEM_TICK);
             }
             if (state->actTimer == 90) {
                 state->twoTracks = 1;
@@ -1505,7 +1505,7 @@ top:
             if (gPlayer.y == gPlayer.groundY) {
                 ScatterEffect4((VECTOR *)&state->x);
             }
-            StartRumble(gRumblePatterns, 14);
+            StartRumble(gRumblePatterns, RUMBLE_SLIDE);
             break;
         case MOT_SLIDE:
             if (gFrameCount % 3 == 0) {
@@ -1548,7 +1548,7 @@ top:
                     if (r < 3) {
                         switch (state->action) {
                             case ACT_KNOCKDOWN_BOUNCE:
-                                StartRumble(gRumblePatterns, 3);
+                                StartRumble(gRumblePatterns, RUMBLE_BOUNCE);
                                 state->motion[0] = MOT_BOUNCE;
                                 break;
                             case ACT_KNOCKDOWN:
@@ -1578,7 +1578,7 @@ top:
                     state->motion[0] = MOT_GET_UP;
                 } else {
                     if (state->actTimer == 30) {
-                        PlaySe(0x34);
+                        PlaySe(SE_MISS);
                     }
                     if (state->actTimer >= 61) {
                         gMissState = MISS_RETRY;
@@ -1620,7 +1620,7 @@ top:
             state->speed -= 1;
             if (state->speed >= 6) {
                 ScatterEffect4((VECTOR *)&gPlayer.x);
-                StartRumble(gRumblePatterns, 11);
+                StartRumble(gRumblePatterns, RUMBLE_SKID);
             }
             if (state->speed <= 0) {
                 ResetSpeed();
@@ -1633,7 +1633,7 @@ top:
                                 state->motion[0] = MOT_GET_UP;
                             } else {
                                 if (state->actTimer == 30) {
-                                    PlaySe(0x34);
+                                    PlaySe(SE_MISS);
                                 }
                                 if (state->actTimer >= 61) {
                                     gMissState = MISS_RETRY;
@@ -1646,7 +1646,7 @@ top:
                                 state->motion[0] = MOT_STAGGER;
                             } else {
                                 if (state->actTimer == 30) {
-                                    PlaySe(0x34);
+                                    PlaySe(SE_MISS);
                                 }
                                 if (state->actTimer >= 61) {
                                     gMissState = MISS_RETRY;
@@ -1658,7 +1658,7 @@ top:
                                 state->motion[0] = MOT_GET_UP_2;
                             } else {
                                 if (state->actTimer == 30) {
-                                    PlaySe(0x34);
+                                    PlaySe(SE_MISS);
                                 }
                                 if (state->actTimer >= 61) {
                                     gMissState = MISS_RETRY;
@@ -1676,7 +1676,7 @@ top:
                                 }
                             }
                             if ((gStage != STAGE_2_2 || gSection != 0) && state->actTimer == 30) {
-                                PlaySe(0x34);
+                                PlaySe(SE_MISS);
                             }
                             break;
                     }
@@ -1689,7 +1689,7 @@ top:
                 gPlayer.drawY = Lerp(0, -50, state->actTimer3, 5);
                 gPlayer.drawZ = Lerp(0, gView[2], state->actTimer3, 5);
                 if (++state->actTimer3 >= 5) {
-                    StartRumble(gRumblePatterns, 5);
+                    StartRumble(gRumblePatterns, RUMBLE_REEL);
                     state->motion[0] = MOT_REEL;
                     state->actTimer4 = 0;
                     state->actTimer3 = 0;
@@ -1726,7 +1726,7 @@ top:
                         state->motion[0] = MOT_THROWN_LAND_END;
                         break;
                     case ACT_THROWN_BACK_BOUNCE:
-                        StartRumble(gRumblePatterns, 3);
+                        StartRumble(gRumblePatterns, RUMBLE_BOUNCE);
                         state->motion[0] = MOT_BOUNCE_BACK;
                         break;
                 }
@@ -1763,11 +1763,11 @@ top:
                             break;
                     }
                 } else {
-                    StartRumble(gRumblePatterns, 6);
+                    StartRumble(gRumblePatterns, RUMBLE_HARD_LAND);
                     state->motion[0] = MOT_SKID;
                     state->actTimer = 0;
                     if (state->actTimer2 == 30) {
-                        PlaySe(0x34);
+                        PlaySe(SE_MISS);
                     }
                     if (state->actTimer2 >= 61) {
                         gMissState = MISS_RETRY;
@@ -1828,7 +1828,7 @@ top:
                 state->actTimer = 0;
                 state->actTimer2 = 0;
                 state->speed = -5;
-                StartRumble(gRumblePatterns, 3);
+                StartRumble(gRumblePatterns, RUMBLE_BOUNCE);
                 state->motion[0] = MOT_BOUNCE_BACK;
             }
             break;
@@ -1840,7 +1840,7 @@ top:
                             state->motion[0] = MOT_FALL_RISE;
                         } else {
                             if (state->actTimer == 30) {
-                                PlaySe(0x34);
+                                PlaySe(SE_MISS);
                             }
                             if (state->actTimer >= 61) {
                                 gMissState = MISS_RETRY;
@@ -1861,7 +1861,7 @@ top:
                             state->motion[0] = MOT_FALL_RISE;
                         } else {
                             if (state->actTimer == 30) {
-                                PlaySe(0x34);
+                                PlaySe(SE_MISS);
                             }
                             if (state->actTimer >= 61) {
                                 gMissState = MISS_RETRY;
@@ -1877,7 +1877,7 @@ top:
                             state->actTimer = 0;
                         } else {
                             if (state->actTimer == 30) {
-                                PlaySe(0x34);
+                                PlaySe(SE_MISS);
                             }
                             if (state->actTimer >= 61) {
                                 gMissState = MISS_RETRY;
@@ -1910,7 +1910,7 @@ top:
             gPlayer.drawX = 0;
         case MOT_GET_UP_2:
             if (++state->actTimer2 == 1) {
-                PlaySe(0x50);
+                PlaySe(SE_GET_UP);
             }
         case MOT_SLIDE_END:
             if (state->motionResult[0] == 0) {
@@ -1939,7 +1939,7 @@ top:
         case MOT_GET_UP:
         case MOT_GET_UP_3:
             if (++state->actTimer2 == 1) {
-                PlaySe(0x50);
+                PlaySe(SE_GET_UP);
             }
             if (state->motionResult[0] == 0 && ++state->actTimer >= 16) {
                 goto reset;
@@ -1956,7 +1956,7 @@ top:
                     gPlayer.drawZ = Lerp(0, gView[2], state->actTimer3, 15);
                     state->actTimer++;
                     if (++state->actTimer3 >= 14) {
-                        StartRumble(gRumblePatterns, 5);
+                        StartRumble(gRumblePatterns, RUMBLE_REEL);
                         state->motion[0] = MOT_REEL;
                         state->actTimer4 = 0;
                         state->actTimer3 = 0;
@@ -1982,7 +1982,7 @@ top:
             break;
         case MOT_TWIRL_FALL:
             if (state->motionResult[0] == 0) {
-                StartRumble(gRumblePatterns, 6);
+                StartRumble(gRumblePatterns, RUMBLE_HARD_LAND);
                 state->actTimer = 0;
                 state->motion[0] = MOT_SKID;
             }
@@ -2065,7 +2065,7 @@ s32 UpdateSlideDash(void) {
                         if ((u32)((u16)gPlayer.speed - 0x26) < 5) {
                             gPlayer.slideState = SLIDE_DASHING;
                             gPlayer.action = ACT_DASH_START;
-                            PlaySe(0x71);
+                            PlaySe(SE_DASH);
                             gPlayer.unk38C = 0;
                         }
                     }
@@ -2108,7 +2108,7 @@ void UpdateJump(void) {
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
             ScatterEffect4((VECTOR *)&gPlayer.x);
-            PlaySe(0x17);
+            PlaySe(SE_JUMP);
         }
         if (gPlayer.jumpState == JUMP_RISING) {
             n = ++gPlayer.jumpTime;
@@ -2295,7 +2295,7 @@ top:
             break;
         case MISS_FELL:
             StopCdTrack();
-            PlaySe(0x1B);
+            PlaySe(SE_FALL);
             gMissTimer = 0;
             gMissState = MISS_FELL_WAIT;
             break;
@@ -2361,7 +2361,7 @@ void DrawModeObject(void) {
                     DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[3].model],
                                     (Trap *)&gModeObjects[3]);
                     if (gFrameCount % 20 == 0) {
-                        PlaySe(0x81);
+                        PlaySe(SE_ROLLER);
                     }
                     break;
                 case STAGE_4_2:
@@ -2373,7 +2373,7 @@ void DrawModeObject(void) {
                     DrawObjectModel((ObjectModel *)&gModeObjectModels[gModeObjects[6].model],
                                     (Trap *)&gModeObjects[6]);
                     if (gFrameCount % 20 == 0) {
-                        PlaySe(0x81);
+                        PlaySe(SE_ROLLER);
                     }
                     break;
             }
@@ -2638,7 +2638,7 @@ void UpdateCoverJump(void) {
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
             ScatterEffect4((VECTOR *)&gPlayer.x);
-            PlaySe(0x17);
+            PlaySe(SE_JUMP);
         }
         if (gPlayer.jumpState == JUMP_RISING) {
             n = ++gPlayer.jumpTime;
@@ -2730,15 +2730,15 @@ s32 LandPlayer(PlayerState *g) {
         if (g->y >= gPlayer.rideQuadY) {
             g->y = gPlayer.rideQuadY;
             ret = 2;
-            PlaySe(30);
+            PlaySe(SE_LAND);
         }
     } else if (g->y >= g->groundY) {
         g->y = g->groundY;
         ret = 1;
-        PlaySe(30);
+        PlaySe(SE_LAND);
     }
     if (ret != 0) {
-        StartRumble(gRumblePatterns, 6);
+        StartRumble(gRumblePatterns, RUMBLE_HARD_LAND);
     }
     return ret;
 }
@@ -2815,7 +2815,7 @@ void CheckCanBonus(void) {
             goto skip;
         }
         if (gPlayer.bonusLocked != one) {
-            PlaySe(34);
+            PlaySe(SE_POWER_UP);
         }
     skip:
         AddBonusLevel(1);
@@ -2833,7 +2833,7 @@ s32 TrySlide(void) {
     if (gPlayer.control != 0 && (gPlayer.motion[0] < MOT_SLIDE_START || gPlayer.motion[0] >= MOT_JUMP) &&
         (gPlayer.airborne != 1 || gPlayer.jumpPower < 6) && !(gPad & PADLup) &&
         (gGamePadTrig & PADRdown)) {
-        PlaySe(22);
+        PlaySe(SE_SLIDE);
         gPlayer.motion[0] = MOT_SLIDE_START;
     }
 }

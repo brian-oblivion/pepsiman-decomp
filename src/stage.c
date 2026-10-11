@@ -524,7 +524,7 @@ void DrawHud(void) {
             break;
     }
     if (gTimeLeft == 0x14A) {
-        PlaySe(0x28);
+        PlaySe(SE_HURRY);
         SpawnEffect(10, 0, 0, 0, 0);
     }
     n = gTimeLeft;
@@ -1060,17 +1060,17 @@ void UpdateActResults(void) {
         case RES_TALLY_CANS:
             if (gTallyCans < gCans) {
                 if (gTallyCans % 10 == 0) {
-                    PlaySe(0x2A);
+                    PlaySe(SE_TALLY);
                 }
                 gTallyCans++;
                 if (gTallyCans != 0 && gTallyCans % 25 == 0) {
                     gRetries++;
-                    PlaySe(0x22);
+                    PlaySe(SE_POWER_UP);
                 }
             }
             if (gTallyCans == gCans) {
                 if (gTallyCans == 100) {
-                    PlaySe(0x2F);
+                    PlaySe(SE_ALL_CANS);
                     tile[1] = 0x1FB;
                     tile[2] = 0x10;
                     tile[3] = 1;
@@ -1079,7 +1079,7 @@ void UpdateActResults(void) {
                     gResultsTimer = 0;
                     gResultsStep = RES_ALL_CANS;
                 } else if (gBestCans[rank / 3][rank % 3] < gTallyCans) {
-                    PlaySe(0x25);
+                    PlaySe(SE_NEW_RECORD);
                     gResultsSlide[7] = -9;
                     gResultsTimer = 0;
                     gResultsStep = RES_BEST_CANS;
@@ -1099,12 +1099,12 @@ void UpdateActResults(void) {
                 }
                 if (++gResultsTimer == 60) {
                     gRetries++;
-                    PlaySe(0x22);
+                    PlaySe(SE_POWER_UP);
                     gResultsSlide[6] = 1;
                 }
             } else if (++gResultsSlide[6] == 9) {
                 if (gTallyCans > gBestCans[rank / 3][rank % 3]) {
-                    PlaySe(0x25);
+                    PlaySe(SE_NEW_RECORD);
                     gResultsSlide[7] = -9;
                     gResultsTimer = 0;
                     gResultsStep = RES_BEST_CANS;
@@ -1145,7 +1145,7 @@ void UpdateActResults(void) {
             break;
         case RES_CHECK_TIME:
             if (gElapsed < gBestTimes[rank / 3][rank % 3]) {
-                PlaySe(0x25);
+                PlaySe(SE_NEW_RECORD);
                 gResultsSlide[7] = -9;
                 gResultsTimer = 0;
                 gResultsStep = RES_BEST_TIME;
@@ -1519,7 +1519,7 @@ void StepQuitEffect(s32 level) {
 void StartScreenWipe(void) {
     gWipeFrame = 0;
     gWipeActive = 1;
-    PlaySe(0x19);
+    PlaySe(SE_WIPE);
 }
 
 s32 IsScreenWipeActive(void) {

@@ -3,7 +3,7 @@
 > Renamed from `func_80037AE4` on 2026-10-10 (tools/rename.py). Address 0x80037ae4.
 
 Unit `src/card.c`. Creates the first save file `"bu10:BISLPS-12345PEPTOOL"`
-(`D_80011998`) with `open(name, 0xF0200)` (O_CREAT, 15 blocks), closes it,
+(`sToolCardFile`) with `open(name, 0xF0200)` (O_CREAT, 15 blocks), closes it,
 reopens it for writing (`open(name, 2)`), and writes 0x1E000 bytes from
 `gSaveBuf`; each step is tried up to ten times. A failed step stores 8, 9
 or 10 in `gCardError` and returns -1; success returns 0. Twin of
@@ -18,7 +18,7 @@ s32 CreateSave1(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 0xF0200);
+        fd = open(sToolCardFile, 0xF0200);
         if (fd != -1) {
             goto created;
         }
@@ -30,7 +30,7 @@ s32 CreateSave1(void) {
 created:
     close(fd);
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 2);
+        fd = open(sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }

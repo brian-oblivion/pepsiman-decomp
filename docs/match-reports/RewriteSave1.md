@@ -3,7 +3,7 @@
 > Renamed from `func_8003796C` on 2026-10-10 (tools/rename.py). Address 0x8003796c.
 
 Unit `src/card.c`. Rewrites the first save file `"bu10:BISLPS-12345PEPTOOL"`
-(`D_80011998`) in place: `open(name, 2)`, `lseek(fd, 0, 0)`, then
+(`sToolCardFile`) in place: `open(name, 2)`, `lseek(fd, 0, 0)`, then
 `write(fd, gSaveBuf, 0x1E000)`; after a short write it seeks back to 0 and
 retries. Each step up to ten tries. Failure codes in `gCardError`: 5 (open),
 6 (seek), 7 (write). Twin of RewriteSave2.
@@ -21,7 +21,7 @@ s32 RewriteSave1(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 2);
+        fd = open(sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }

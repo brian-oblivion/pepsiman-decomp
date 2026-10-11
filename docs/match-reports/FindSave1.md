@@ -27,7 +27,7 @@ s16 FindSave1(void) {
 - **The string is a literal.** `D_800119B4` lived only in this function's
   own `.s` (splat migrated it there), so the literal is now its definition,
   as in `WaitMovieFrameDecoded`. cc1 puts it in `.rodata` at the function's place,
-  right after `INCLUDE_RODATA(D_80011998)`, and the whole image verifies.
+  right after `INCLUDE_RODATA(sToolCardFile)`, and the whole image verifies.
 - **The callee's return type was `s32`** (first build 20/38, one word long):
   with `s16 CompareBytes(...)` cc1 sign-extends the result (`sll 16`)
   before the `bnez`. Retail tests `$v0` directly. `CompareBytes` is defined

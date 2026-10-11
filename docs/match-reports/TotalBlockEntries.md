@@ -34,7 +34,7 @@ Retail reads `D_800959C0` and `D_800959C8` as `lui $aN` / `lw $aN,
 The split is by address, not by function shape: everything up to
 `ResetGameState` uses gp, everything from `PrintEditorCaption` on does not. That
 is a translation-unit boundary inside splat's `object` (the rodata block
-`D_80010B7C..D_800112CC` before `UpdateEditor` is the likely seam): the
+`sEdPositionFmt..sEdDataFilePath2` before `UpdateEditor` is the likely seam): the
 later source file's assembler did not consider the symbols small data.
 
 maspsx decides gp per symbol, globally, from `config/gp-symbols.txt`. Its

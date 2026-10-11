@@ -39,16 +39,16 @@ referenced by symbol).
 
 ```c
         case 2:
-            FntPrint(D_80010FFC, sTotals.unk18);
+            FntPrint(sEdInfoTrapNoFmt, sTotals.unk18);
             if (((Obj48 *)D_800A9008)[sTotals.unk18].unk38 != -1) {
-                FntPrint(D_80011010, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
+                FntPrint(sEdInfoTrapModelFmt, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
             } else {
-                FntPrint(D_80011020);
+                FntPrint(sEdOptionsText);
             }
             r = (Obj48 *)D_800A9008;
-            FntPrint(D_8001102C, r[sTotals.unk18].unk34);
-            FntPrint(D_8001103C, r[sTotals.unk18].unk42);
-            FntPrint(D_80011048, r[sTotals.unk18].unk43);
+            FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.unk18].unk34);
+            FntPrint(sEdInfoTypeFmt, r[sTotals.unk18].unk42);
+            FntPrint(sEdInfoActFmt, r[sTotals.unk18].unk43);
             break;
 ```
 

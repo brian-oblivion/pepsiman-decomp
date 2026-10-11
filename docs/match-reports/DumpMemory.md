@@ -8,11 +8,11 @@ and each row ended by a newline and a tab. `D_80095788` (an offset, cleared
 on entry) is added to the base.
 
 ```c
-extern char D_800954C8[];
-extern char D_800954CC[];
-extern char D_800954D0[];
-extern char D_800954D8[];
-extern char D_800954DC[];
+extern char sNewline[];
+extern char sTab[];
+extern char sWhiteLineText[];
+extern char sHexAddrFmt[];
+extern char sHexByteFmt[];
 extern s32 D_80095788;
 
 void DumpMemory(u8 *base) {
@@ -23,26 +23,26 @@ void DumpMemory(u8 *base) {
     s16 j;
 
     D_80095788 = 0;
-    FntPrint(D_800954D0);
+    FntPrint(sWhiteLineText);
     p = base + D_80095788;
-    FntPrint(D_800954D8, p);
+    FntPrint(sHexAddrFmt, p);
     for (i = 0; i < 1; i++) {
-        FntPrint(D_800954CC);
+        FntPrint(sTab);
     }
     for (row = 0; row < 16; row++) {
         for (col = 0; col < 8; col++) {
-            FntPrint(D_800954DC, *p);
+            FntPrint(sHexByteFmt, *p);
             p++;
         }
-        FntPrint(D_800954C8);
+        FntPrint(sNewline);
         for (j = 0; j < 1; j++) {
-            FntPrint(D_800954CC);
+            FntPrint(sTab);
         }
     }
 }
 ```
 
-Third build. The two one-pass `s16` loops printing `D_800954CC` are
+Third build. The two one-pass `s16` loops printing `sTab` are
 `PrintTabs(1)` written out (same `sll 16` / `blez` test); a call would
 be a `jal`. The strings are `.sdata` reached `lui`/`addiu`, so `[]`.
 
@@ -51,7 +51,7 @@ be a `jal`. The strings are `.sdata` reached `lui`/`addiu`, so `[]`.
   `row`, and `$s0` between the second's and `col`: two separate counters
   (`i`, `j`) let the allocator pair each with a variable whose life does
   not overlap. 59/62.
-- Build 2, `FntPrint(D_800954DC, *p++)`: the load and increment come before
+- Build 2, `FntPrint(sHexByteFmt, *p++)`: the load and increment come before
   the format's `addiu`. Retail builds the format first; the increment as
   its own statement after the call gives that. 62/62.
 

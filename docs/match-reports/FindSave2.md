@@ -22,7 +22,7 @@ s16 FindSave2(void) {
 ```
 
 Matched on the first build once `CompareBytes` returned `s32` (see
-`FindSave1.md`). The literal lands after `INCLUDE_RODATA(D_80011C24)`,
+`FindSave1.md`). The literal lands after `INCLUDE_RODATA(sHitCardFile)`,
 where retail has it.
 
 `Rec18` became the file name plus a `BlockCount` union in round 5 (see

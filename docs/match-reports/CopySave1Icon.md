@@ -3,8 +3,8 @@
 > Renamed from `func_80037CF0` on 2026-10-10 (tools/rename.py). Address 0x80037cf0.
 
 Unit `src/card.c`. Builds the first save file's icon: copies three
-0xC0-byte 16x16 4-bit TIMs from rodata (`D_800119E4`, `D_80011AA4`,
-`D_80011B64`) to a stack array, then copies the first TIM's CLUT (0x20 bytes
+0xC0-byte 16x16 4-bit TIMs from rodata (`sToolCardIcon0`, `sToolCardIcon1`,
+`sToolCardIcon2`) to a stack array, then copies the first TIM's CLUT (0x20 bytes
 at TIM + 0x14) to the card header's CLUT at `D_800DF630` (header + 0x60) and
 each TIM's pixels (0x80 bytes at TIM + 0x40) to the header's three icon
 frames (`D_800DF630 + 0x20`, `D_800DF6D0`, `D_800DF750`). Called by
@@ -30,9 +30,9 @@ typedef struct {
     IconBits bits;  /**< the pixels */
 } IconTim;
 
-extern u8 D_800119E4[];
-extern u8 D_80011AA4[];
-extern u8 D_80011B64[];
+extern u8 sToolCardIcon0[];
+extern u8 sToolCardIcon1[];
+extern u8 sToolCardIcon2[];
 extern u8 D_800DF630[];
 extern u8 D_800DF6D0[];
 extern u8 D_800DF750[];
@@ -41,9 +41,9 @@ extern u8 D_800DF750[];
 void CopySave1Icon(void) {
     IconTim tim[3];
 
-    tim[0] = *(IconTim *)D_800119E4;
-    tim[1] = *(IconTim *)D_80011AA4;
-    tim[2] = *(IconTim *)D_80011B64;
+    tim[0] = *(IconTim *)sToolCardIcon0;
+    tim[1] = *(IconTim *)sToolCardIcon1;
+    tim[2] = *(IconTim *)sToolCardIcon2;
     *(IconClut *)D_800DF630 = tim[0].clut;
     *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
     *(IconBits *)D_800DF6D0 = tim[1].bits;

@@ -26,96 +26,96 @@ First build matched.
 ```c
 void PrintEditorData(void) {
     PrintTabs(5);
-    FntPrint(D_800110F8);
-    FntPrint(D_80095528);
+    FntPrint(sEdDataModeText);
+    FntPrint(sEdNewlines3);
     switch (gToolCardStep) {
         case 0:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(4);
-            FntPrint(D_80095620);
+            FntPrint(sEdCheckText);
             break;
         case 1:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011104);
+            FntPrint(sEdModeSelectText);
             PrintSaveLoad();
             break;
         case 2:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011114);
+            FntPrint(sEdBufferSelectText);
             PrintEditorSlots();
             break;
         case 16:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011124);
+            FntPrint(sEdCreateFileText);
             break;
         case 17:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011134);
+            FntPrint(sEdCardFormatText);
             break;
         case 4:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011144, gToolSlot + 1);
+            FntPrint(sEdSaveToDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_80011158);
+            FntPrint(sEdOverwriteOkText);
             PrintYesNo();
             break;
         case 8:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011168);
+            FntPrint(sEdDataWritingText);
             break;
         case 6:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011178, gToolSlot + 1);
+            FntPrint(sEdLoadFromDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_8001118C);
+            FntPrint(sEdLoadOkText);
             PrintYesNo();
             break;
         case 7:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_8001119C, gToolSlot + 1);
+            FntPrint(sEdCantOpenDataFmt, gToolSlot + 1);
             break;
         case 10:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_800111B4);
+            FntPrint(sEdCompleteText);
             break;
         case 11:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_800111C0);
+            FntPrint(sEdErrorText);
             break;
         case 12:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_800111D4);
+            FntPrint(sEdNotEnoughMemoryText);
             break;
         case 13:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_800111EC);
+            FntPrint(sEdNoCardText);
             break;
         case 14:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(4);
-            FntPrint(D_800111FC);
+            FntPrint(sEdNoFileText);
             PrintTabs(3);
-            FntPrint(D_80011208);
+            FntPrint(sEdCreateNewFileText);
             PrintYesNo();
             break;
         case 15:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_8001121C);
+            FntPrint(sEdUnformattedText);
             PrintTabs(3);
-            FntPrint(D_8001122C);
+            FntPrint(sEdFormatOkText);
             PrintYesNo();
             break;
     }

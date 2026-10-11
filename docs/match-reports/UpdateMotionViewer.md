@@ -79,7 +79,7 @@ void UpdateMotionViewer(void) {
             }
             break;
     }
-    FntPrint(D_80010404, gViewerMotion);
+    FntPrint(gMotionFmt, gViewerMotion);
 }
 ```
 

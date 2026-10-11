@@ -4,8 +4,8 @@
 
 Unit `src/hit_tool.c`. Saves the three hit-data files: for each of
 `HITDATA0.T1D`, `HITDATA1.T1D` and `HITDATA2.T1D` under
-`sim:\PS\PEPSI\DATA\TOOL1\` (rodata `D_8001178C`, `D_800117B4`,
-`D_800117DC`), opens it for create/write and writes two blocks of 0x4744 and
+`sim:\PS\PEPSI\DATA\TOOL1\` (rodata `sHitDataFilePath0`, `sHitDataFilePath1`,
+`sHitDataFilePath2`), opens it for create/write and writes two blocks of 0x4744 and
 0x2034 bytes from a fixed buffer at 0x8018D200 (each file's pair follows the
 previous one, 0x6778 bytes per file). Any failed write closes the file and
 returns -1; success returns 0.
@@ -14,7 +14,7 @@ returns -1; success returns 0.
 s32 WriteHitDataFiles(void) {
     s32 fd;
 
-    fd = open(D_8001178C, O_CREAT | O_WRONLY);
+    fd = open(sHitDataFilePath0, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x8018D200, 0x4744) == -1) {
         goto fail;
     }
@@ -22,8 +22,8 @@ s32 WriteHitDataFiles(void) {
         goto fail;
     }
     close(fd);
-    /* ... the same for D_800117B4 at 0x80193978 / 0x801980BC
-     * and D_800117DC at 0x8019A0F0 / 0x8019E834 ... */
+    /* ... the same for sHitDataFilePath1 at 0x80193978 / 0x801980BC
+     * and sHitDataFilePath2 at 0x8019A0F0 / 0x8019E834 ... */
     close(fd);
     return 0;
 fail:
@@ -35,7 +35,7 @@ fail:
 ## Externs
 
 The three path strings are rodata of this unit, declared `extern char []`
-(reached `lui`/`addiu`), like `D_80011768` for `WriteToolFile`.
+(reached `lui`/`addiu`), like `sHitTmpFilePath` for `WriteToolFile`.
 
 ## Levers
 

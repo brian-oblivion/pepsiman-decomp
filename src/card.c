@@ -27,12 +27,12 @@ typedef struct {
 
 extern CardFile gCardFiles[];
 extern u16 gCardStatus;
-extern s32 gCardFileCount;  /**< number of records in use */
-extern s16 gCardError;      /**< 11 after a failed format, 12 after a failed erase */
-extern char *gCardFileName; /**< name of the file last erased */
-extern char D_800956A8[];   /**< "bu10:" */
-extern char D_80011998[];   /**< "bu10:BISLPS-12345PEPTOOL" */
-extern char D_80011C24[];   /**< "bu10:BISLPS-67890PEPTOOL" */
+extern s32 gCardFileCount;   /**< number of records in use */
+extern s16 gCardError;       /**< 11 after a failed format, 12 after a failed erase */
+extern char *gCardFileName;  /**< name of the file last erased */
+extern char sCardDevice[];   /**< "bu10:" */
+extern char sToolCardFile[]; /**< "bu10:BISLPS-12345PEPTOOL" */
+extern char sHitCardFile[];  /**< "bu10:BISLPS-67890PEPTOOL" */
 
 /** @brief A loaded record bank file: a count word, then the bank. */
 typedef struct {
@@ -72,14 +72,14 @@ typedef struct {
 } CardHeader;
 
 extern CardHeader gCardHeader;
-extern u8 D_800119C8[]; /**< title of the first save file */
-extern u8 D_80011C54[]; /**< title of the second save file */
-extern u8 D_800119E4[]; /**< first save file's icon frames, three TIMs */
-extern u8 D_80011AA4[];
-extern u8 D_80011B64[];
-extern u8 D_80011C70[]; /**< second save file's icon frames, three TIMs */
-extern u8 D_80011D30[];
-extern u8 D_80011DF0[];
+extern u8 sToolCardTitle[]; /**< title of the first save file */
+extern u8 sHitCardTitle[];  /**< title of the second save file */
+extern u8 sToolCardIcon0[]; /**< first save file's icon frames, three TIMs */
+extern u8 sToolCardIcon1[];
+extern u8 sToolCardIcon2[];
+extern u8 sHitCardIcon0[]; /**< second save file's icon frames, three TIMs */
+extern u8 sHitCardIcon1[];
+extern u8 sHitCardIcon2[];
 extern u8 D_800DF630[]; /**< the card header's icon CLUT and first frame */
 extern u8 D_800DF6D0[]; /**< the card header's second icon frame */
 extern u8 D_800DF750[]; /**< the card header's third icon frame */
@@ -267,7 +267,7 @@ s32 ReadSave1(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 1);
+        fd = open(sToolCardFile, 1);
         if (fd != -1) {
             goto opened;
         }
@@ -321,7 +321,7 @@ s32 RewriteSave1(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 2);
+        fd = open(sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -374,7 +374,7 @@ s32 CreateSave1(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 0xF0200);
+        fd = open(sToolCardFile, 0xF0200);
         if (fd != -1) {
             goto created;
         }
@@ -386,7 +386,7 @@ s32 CreateSave1(void) {
 created:
     close(fd);
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 2);
+        fd = open(sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -417,7 +417,7 @@ s32 ScanCardFiles(void) {
 
     i = 0;
     gCardFileCount = 0;
-    if (firstfile(D_800956A8, &de) == NULL) {
+    if (firstfile(sCardDevice, &de) == NULL) {
         gCardStatus = 0xFFFF;
         return 0xFFFF;
     }
@@ -445,9 +445,9 @@ loop:
 void CopySave1Icon(void) {
     IconTim tim[3];
 
-    tim[0] = *(IconTim *)D_800119E4;
-    tim[1] = *(IconTim *)D_80011AA4;
-    tim[2] = *(IconTim *)D_80011B64;
+    tim[0] = *(IconTim *)sToolCardIcon0;
+    tim[1] = *(IconTim *)sToolCardIcon1;
+    tim[2] = *(IconTim *)sToolCardIcon2;
     *(IconClut *)D_800DF630 = tim[0].clut;
     *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
     *(IconBits *)D_800DF6D0 = tim[1].bits;
@@ -552,7 +552,7 @@ s32 FormatCard(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        if (format(D_800956A8) != 0) {
+        if (format(sCardDevice) != 0) {
             return ret;
         }
     }
@@ -565,7 +565,7 @@ s32 EraseSave1(void) {
     s16 i;
 
     ret = 0;
-    gCardFileName = D_80011998;
+    gCardFileName = sToolCardFile;
     for (i = 0; i < 10; i++) {
         if (erase(gCardFileName) != 0) {
             return ret;
@@ -575,7 +575,7 @@ s32 EraseSave1(void) {
     return -1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011998);
+INCLUDE_RODATA("asm/nonmatchings/card", sToolCardFile);
 
 s32 FindSave1(void) {
     s16 i;
@@ -608,7 +608,7 @@ void BuildSave1Header(void) {
     gCardHeader.magic[1] = 'C';
     gCardHeader.iconFlag = 0x13;
     gCardHeader.blocks = 15;
-    gCardHeader.title = *(CardTitle *)D_800119C8;
+    gCardHeader.title = *(CardTitle *)sToolCardTitle;
     CopySave1Icon();
 }
 
@@ -799,7 +799,7 @@ s32 ReadSave2(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011C24, 1);
+        fd = open(sHitCardFile, 1);
         if (fd != -1) {
             goto opened;
         }
@@ -853,7 +853,7 @@ s32 RewriteSave2(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011C24, 2);
+        fd = open(sHitCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -906,7 +906,7 @@ s32 CreateSave2(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011C24, 0xC0200);
+        fd = open(sHitCardFile, 0xC0200);
         if (fd != -1) {
             goto created;
         }
@@ -918,7 +918,7 @@ s32 CreateSave2(void) {
 created:
     close(fd);
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011C24, 2);
+        fd = open(sHitCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -946,9 +946,9 @@ end:
 void CopySave2Icon(void) {
     IconTim tim[3];
 
-    tim[0] = *(IconTim *)D_80011C70;
-    tim[1] = *(IconTim *)D_80011D30;
-    tim[2] = *(IconTim *)D_80011DF0;
+    tim[0] = *(IconTim *)sHitCardIcon0;
+    tim[1] = *(IconTim *)sHitCardIcon1;
+    tim[2] = *(IconTim *)sHitCardIcon2;
     *(IconClut *)D_800DF630 = tim[0].clut;
     *(IconBits *)(D_800DF630 + 0x20) = tim[0].bits;
     *(IconBits *)D_800DF6D0 = tim[1].bits;
@@ -965,7 +965,7 @@ s32 EraseSave2(void) {
     s16 i;
 
     ret = 0;
-    gCardFileName = D_80011C24;
+    gCardFileName = sHitCardFile;
     for (i = 0; i < 10; i++) {
         if (erase(gCardFileName) != 0) {
             return ret;
@@ -975,15 +975,15 @@ s32 EraseSave2(void) {
     return -1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_800119C8);
+INCLUDE_RODATA("asm/nonmatchings/card", sToolCardTitle);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_800119E4);
+INCLUDE_RODATA("asm/nonmatchings/card", sToolCardIcon0);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011AA4);
+INCLUDE_RODATA("asm/nonmatchings/card", sToolCardIcon1);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011B64);
+INCLUDE_RODATA("asm/nonmatchings/card", sToolCardIcon2);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011C24);
+INCLUDE_RODATA("asm/nonmatchings/card", sHitCardFile);
 
 s32 FindSave2(void) {
     s16 i;
@@ -1016,16 +1016,16 @@ void BuildSave2Header(void) {
     gCardHeader.magic[1] = 'C';
     gCardHeader.iconFlag = 0x13;
     gCardHeader.blocks = 12;
-    gCardHeader.title = *(CardTitle *)D_80011C54;
+    gCardHeader.title = *(CardTitle *)sHitCardTitle;
     CopySave2Icon();
 }
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011C54);
+INCLUDE_RODATA("asm/nonmatchings/card", sHitCardTitle);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011C70);
+INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon0);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011D30);
+INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon1);
 
-INCLUDE_RODATA("asm/nonmatchings/card", D_80011DF0);
+INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon2);
 
 INCLUDE_RODATA("asm/nonmatchings/card", D_80011EB0);

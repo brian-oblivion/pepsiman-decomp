@@ -118,53 +118,53 @@ typedef struct {
 
 /* MATCHING: D_800A7898 and D_80095B28 are also declared in object, each
  * unit through its own view (Rec3C, Totals28 here; Rec3C, Progress6E there). */
-extern u16 D_80095B4C[];   /**< first of a run of halfwords */
-extern Rec3C D_800A7898[]; /**< 100 Rec3C records */
-extern u8 D_80095B28[];    /**< a Totals28 */
-extern char D_80011260[];  /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
+extern u16 D_80095B4C[];      /**< first of a run of halfwords */
+extern Rec3C D_800A7898[];    /**< 100 Rec3C records */
+extern u8 D_80095B28[];       /**< a Totals28 */
+extern char sEdTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
 #define sTotals (*(Totals28 *)D_80095B28)
-extern char D_800955DC[]; /**< "\n\n" */
-extern char D_800954F4[]; /**< colour code of a highlighted menu line */
-extern char D_8009550C[]; /**< colour code of a plain menu line */
-extern char D_80095628[]; /**< "  YES\n" */
-extern char D_80095630[]; /**< "  NO" */
-extern char D_80095638[]; /**< "  SAVE\n" */
-extern char D_80095640[]; /**< "  LOAD\n" */
-extern char D_8001123C[]; /**< "DATA:%d " */
-extern char D_80011248[]; /**< "STAGE %d-" */
-extern char D_80011254[]; /**< "NO DATA\n" */
-extern char D_80095648[]; /**< "1" */
-extern char D_8009564C[]; /**< "2" */
-extern char D_80095650[]; /**< "BOSS" */
-extern char D_80095524[]; /**< "\n" */
-extern char D_80010FCC[]; /**< "\n\nCAN NO.  %d\n" */
-extern char D_80010FDC[]; /**< "CAN NUM. %d\n" */
-extern char D_80010FEC[]; /**< "\n\nSWITCH NO.%d\n" */
-extern char D_80010FFC[]; /**< "\n\nTRAP NO. %d / " */
-extern char D_80011010[]; /**< "MODEL.%2d / " */
-extern char D_80011020[]; /**< "OPTIONS  / " */
-extern char D_8001102C[]; /**< "SWITCH NO.%d\n" */
-extern char D_8001103C[]; /**< "TYPE. %d / " */
-extern char D_80011048[]; /**< "ACT. %d\n" */
-extern char D_80011054[]; /**< "\n\nSPRITE. %d / " */
-extern char D_80011064[]; /**< "MODEL. %d / " */
-extern char D_80011074[]; /**< "SWITCH. %d\n" */
-extern char D_80011080[]; /**< "NO ACT  / " */
-extern char D_8001108C[]; /**< "NEAR ACT/ " */
-extern char D_80011098[]; /**< "HIT ACT / " */
-extern char D_800110A4[]; /**< "TYPE %d\n" */
-extern char D_800110B0[]; /**< "NO SE / " */
-extern char D_800110BC[]; /**< "MAN   / " */
-extern char D_800110C8[]; /**< "WOMAN / " */
-extern char D_800110D4[]; /**< "CHILD / " */
-extern char D_800110E0[]; /**< "DOG   / " */
-extern char D_800955E8[]; /**< "HIT. " */
-extern char D_800955F0[]; /**< " OFF / " */
-extern char D_800955F8[]; /**< " ON  / " */
-extern char D_80095600[]; /**< "ACT. " */
-extern char D_80095608[]; /**< "WALK." */
-extern char D_80095610[]; /**< " OFF\n" */
-extern char D_80095618[]; /**< "SE. " */
+extern char sEdNewlines2[];           /**< "\n\n" */
+extern char sEdColorWhite[];          /**< colour code of a highlighted menu line, "~c888" */
+extern char sEdColorBlue[];           /**< colour code of a plain menu line, "~c008" */
+extern char sEdYesText[];             /**< "  YES\n" */
+extern char sEdNoText[];              /**< "  NO" */
+extern char sEdSaveText[];            /**< "  SAVE\n" */
+extern char sEdLoadText[];            /**< "  LOAD\n" */
+extern char sEdDataNoFmt[];           /**< "DATA:%d " */
+extern char sEdStageFmt[];            /**< "STAGE %d-" */
+extern char sEdNoDataText[];          /**< "NO DATA\n" */
+extern char sEdArea1Text[];           /**< "1" */
+extern char sEdArea2Text[];           /**< "2" */
+extern char sEdBossText[];            /**< "BOSS" */
+extern char sEdNewline[];             /**< "\n" */
+extern char sEdCanNoFmt[];            /**< "\n\nCAN NO.  %d\n" */
+extern char sEdCanNumFmt[];           /**< "CAN NUM. %d\n" */
+extern char sEdInfoSwitchNoFmt[];     /**< "\n\nSWITCH NO.%d\n" */
+extern char sEdInfoTrapNoFmt[];       /**< "\n\nTRAP NO. %d / " */
+extern char sEdInfoTrapModelFmt[];    /**< "MODEL.%2d / " */
+extern char sEdOptionsText[];         /**< "OPTIONS  / " */
+extern char sEdInfoTrapSwitchFmt[];   /**< "SWITCH NO.%d\n" */
+extern char sEdInfoTypeFmt[];         /**< "TYPE. %d / " */
+extern char sEdInfoActFmt[];          /**< "ACT. %d\n" */
+extern char sEdInfoSpriteFmt[];       /**< "\n\nSPRITE. %d / " */
+extern char sEdInfoSpriteModelFmt[];  /**< "MODEL. %d / " */
+extern char sEdInfoSpriteSwitchFmt[]; /**< "SWITCH. %d\n" */
+extern char sEdNoActText[];           /**< "NO ACT  / " */
+extern char sEdInfoNearActText[];     /**< "NEAR ACT/ " */
+extern char sEdInfoHitActText[];      /**< "HIT ACT / " */
+extern char sEdInfoWalkTypeFmt[];     /**< "TYPE %d\n" */
+extern char sEdNoSeText[];            /**< "NO SE / " */
+extern char sEdManText[];             /**< "MAN   / " */
+extern char sEdWomanText[];           /**< "WOMAN / " */
+extern char sEdChildText[];           /**< "CHILD / " */
+extern char sEdDogText[];             /**< "DOG   / " */
+extern char sEdInfoHitLabel[];        /**< "HIT. " */
+extern char sEdInfoOffText[];         /**< " OFF / " */
+extern char sEdInfoOnText[];          /**< " ON  / " */
+extern char sEdInfoActLabel[];        /**< "ACT. " */
+extern char sEdInfoWalkLabel[];       /**< "WALK." */
+extern char sEdInfoOffLine[];         /**< " OFF\n" */
+extern char sEdInfoSeLabel[];         /**< "SE. " */
 
 /** @brief The tool state block, seen as the save area past its totals. */
 typedef struct {
@@ -305,27 +305,27 @@ void DrawPin(VECTOR *pos);
 void MoveGamePos(s32 deg, s32 dist);
 
 void PrintEditorSlots(void);
-extern char D_80095528[]; /**< "\n\n\n" */
-extern char D_80095620[]; /**< "CHECK" */
-extern char D_800110F8[]; /**< "DATA MODE" */
-extern char D_80011104[]; /**< "  MODE SELECT\n\n" */
-extern char D_80011114[]; /**< "BUFFER SELECT\n\n" */
-extern char D_80011124[]; /**< "  CREATE FILE" */
-extern char D_80011134[]; /**< "  CARD FORMAT" */
-extern char D_80011144[]; /**< "SAVE TO DATA %d\n\n" */
-extern char D_80011158[]; /**< "OVER WRITE OK ?" */
-extern char D_80011168[]; /**< "DATA WRITING..." */
-extern char D_80011178[]; /**< "LOAD TO DATA %d\n\n" */
-extern char D_8001118C[]; /**< "    LOAD OK ?" */
-extern char D_8001119C[]; /**< "CAN NOT OPEN DATA %d" */
-extern char D_800111B4[]; /**< "   COMPLATE" */
-extern char D_800111C0[]; /**< "    !!!! ERROR!!!!" */
-extern char D_800111D4[]; /**< "   NOT ENOUGH MEMORY" */
-extern char D_800111EC[]; /**< "NO CONNECT CARD" */
-extern char D_800111FC[]; /**< "NO FILE\n\n" */
-extern char D_80011208[]; /**< "CREATE NEW FILE ?" */
-extern char D_8001121C[]; /**< "    UN FORMAT\n\n" */
-extern char D_8001122C[]; /**< "   FORMAT OK ?" */
+extern char sEdNewlines3[];           /**< "\n\n\n" */
+extern char sEdCheckText[];           /**< "CHECK" */
+extern char sEdDataModeText[];        /**< "DATA MODE" */
+extern char sEdModeSelectText[];      /**< "  MODE SELECT\n\n" */
+extern char sEdBufferSelectText[];    /**< "BUFFER SELECT\n\n" */
+extern char sEdCreateFileText[];      /**< "  CREATE FILE" */
+extern char sEdCardFormatText[];      /**< "  CARD FORMAT" */
+extern char sEdSaveToDataFmt[];       /**< "SAVE TO DATA %d\n\n" */
+extern char sEdOverwriteOkText[];     /**< "OVER WRITE OK ?" */
+extern char sEdDataWritingText[];     /**< "DATA WRITING..." */
+extern char sEdLoadFromDataFmt[];     /**< "LOAD TO DATA %d\n\n" */
+extern char sEdLoadOkText[];          /**< "    LOAD OK ?" */
+extern char sEdCantOpenDataFmt[];     /**< "CAN NOT OPEN DATA %d" */
+extern char sEdCompleteText[];        /**< "   COMPLATE" */
+extern char sEdErrorText[];           /**< "    !!!! ERROR!!!!" */
+extern char sEdNotEnoughMemoryText[]; /**< "   NOT ENOUGH MEMORY" */
+extern char sEdNoCardText[];          /**< "NO CONNECT CARD" */
+extern char sEdNoFileText[];          /**< "NO FILE\n\n" */
+extern char sEdCreateNewFileText[];   /**< "CREATE NEW FILE ?" */
+extern char sEdUnformattedText[];     /**< "    UN FORMAT\n\n" */
+extern char sEdFormatOkText[];        /**< "   FORMAT OK ?" */
 
 /* Defined in other units, without a header. */
 /* MATCHING: object defines it with no parameter; called with an OT. */
@@ -387,235 +387,235 @@ void RestoreEditorState(s16 a);
 s32 WriteEditorFile(void);
 s32 ReadEditorFile(void);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010B7C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPositionFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010B8C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BA4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BB8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BCC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdItemText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BD8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BE4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BF0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010BFC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C08);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C14);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDeleteText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C20);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdMoveModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C2C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdMenuModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C38);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiSelModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C48);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNewlines9);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C54);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiTypeSelText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C68);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiTypeRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C78);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchSelModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C88);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNewlines8);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010C94);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchSelText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CA4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchNoRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CB0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchTypeRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CC4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapSelModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CD4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapSelText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CE4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapNoRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010CF0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapModelRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D04);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdUseBufferFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D18);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapSwitchRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D24);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapTypeRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D30);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapActRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D3C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdAngleRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D54);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSelModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D64);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSelText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D74);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteNoRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D84);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteModelRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010D9C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSwitchRangeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DAC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSizeRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DC4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdHitLabel);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DD0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdFlipLabel);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DDC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdActLabel);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DE8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNearActText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010DF4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdHitActText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E00);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdWalkLabel);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E0C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSeLabel);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E18);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdWarningText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E28);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCansTrapsLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E3C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchesCantPlaceLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E50);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdGroundHitLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E60);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdUntakeableHereLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E74);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPushCrossText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010E8C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdBufferMaxLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EA4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdReachedNoMoreLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EBC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCantPlaceLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EC8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdAskMiyagoeLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EE0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPleaseLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010EEC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchesDeleteLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F00);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCannotLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F0C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdBufferZeroLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F24);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCantDeleteLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F38);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdAreaDeleteLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F50);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDeletableLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F60);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdThereAreNoneLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F6C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapsSwitchesLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F80);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNotNearbyLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010F98);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdWhatToEraseLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FAC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdMoveNearLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FBC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdPleaseDoLine);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FCC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCanNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FDC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCanNumFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FEC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSwitchNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80010FFC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTrapNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011010);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTrapModelFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011020);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdOptionsText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001102C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTrapSwitchFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001103C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTypeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011048);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoActFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011054);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSpriteFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011064);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSpriteModelFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011074);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSpriteSwitchFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011080);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoActText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001108C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoNearActText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011098);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoHitActText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110A4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoWalkTypeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110B0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoSeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110BC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdManText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110C8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdWomanText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110D4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdChildText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110E0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDogText);
 
 INCLUDE_RODATA("asm/nonmatchings/editor", D_800110EC);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800110F8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011104);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdModeSelectText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011114);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdBufferSelectText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011124);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCreateFileText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011134);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCardFormatText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011144);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdSaveToDataFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011158);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdOverwriteOkText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011168);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataWritingText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011178);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdLoadFromDataFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001118C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdLoadOkText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001119C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCantOpenDataFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800111B4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCompleteText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800111C0);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdErrorText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800111D4);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNotEnoughMemoryText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800111EC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoCardText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800111FC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoFileText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011208);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdCreateNewFileText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001121C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdUnformattedText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001122C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdFormatOkText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_8001123C);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011248);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdStageFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011254);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoDataText);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011260);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdTmpFilePath);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_80011284);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath0);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800112A8);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath1);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", D_800112CC);
+INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath2);
 
 /** @brief The tool's main step: sets the tool up on the first pass;
  *         then runs the current tool mode's editor, the camera and the
@@ -823,105 +823,105 @@ s32 UpdateEditor(void) {
     }
 }
 
-extern char D_80010B4C[]; /**< "SYNC %3d" */
-extern char D_80010B58[]; /**< " GRID %4d" */
-extern char D_80010B64[]; /**< " NOW BLOCK (%2d/%2d)" */
-extern char D_80010B7C[]; /**< "\nPOSITION X %d " */
-extern char D_80010B8C[]; /**< "\nSWITCH NO(%2d/ %2d)" */
-extern char D_80010BA4[]; /**< " TRAP NO(%3d/ %3d)" */
-extern char D_80010BB8[]; /**< "\nPEPSI NO(%3d/ %3d)" */
-extern char D_80010BCC[]; /**< " ITEM : " */
-extern char D_80010BD8[]; /**< "PEPSI %2d" */
-extern char D_80010BE4[]; /**< "SWITCH %2d" */
-extern char D_80010BF0[]; /**< "TRAP %2d" */
-extern char D_80010BFC[]; /**< "SPRITE %2d" */
-extern char D_80010C08[]; /**< "INFO    " */
-extern char D_80010C14[]; /**< "DELETE  " */
-extern char D_80010C20[]; /**< "MOVE MODE" */
-extern char D_80010C2C[]; /**< "MENU MODE" */
-extern char D_80010C38[]; /**< "PEPSI SEL MODE" */
-extern char D_80010C48[]; /**< nine newlines */
-extern char D_80010C54[]; /**< "PEPSI TYPE SEL\n\n" */
-extern char D_80010C68[]; /**< "   1<-%2d->200" */
-extern char D_80010C78[]; /**< "SWITCH SEL MODE" */
-extern char D_80010C88[]; /**< eight newlines */
-extern char D_80010C94[]; /**< "  SWITCH SEL\n\n" */
-extern char D_80010CA4[]; /**< "NO.  0<-" */
-extern char D_80010CB0[]; /**< "TYPE. 0<-%1d->%d" */
-extern char D_80010CC4[]; /**< "TRAP SEL MODE" */
-extern char D_80010CD4[]; /**< "   TRAP  SEL\n\n" */
-extern char D_80010CE4[]; /**< "NO.    0<-" */
-extern char D_80010CF0[]; /**< "MODEL. 0<-%2d->%2d\n" */
-extern char D_80010D04[]; /**< "   USE BUFFER %d\n" */
-extern char D_80010D18[]; /**< "SWITCH.0<-" */
-extern char D_80010D24[]; /**< "TYPENO.0<-" */
-extern char D_80010D30[]; /**< "ACT NO.0<-" */
-extern char D_80010D3C[]; /**< "  L1 0<-%3d->360 R1\n" */
-extern char D_80010D54[]; /**< "SPR SEL MODE" */
-extern char D_80010D64[]; /**< "   SPRITE SEL\n\n" */
-extern char D_80010D74[]; /**< "  NO.    0<-" */
-extern char D_80010D84[]; /**< "  MODEL. 0<-%3d->%3d\n" */
-extern char D_80010D9C[]; /**< "  SWITCH.0<-" */
-extern char D_80010DAC[]; /**< "  SIZE. 0<-%3d->%3d\n" */
-extern char D_80010DC4[]; /**< "  HIT.  " */
-extern char D_80010DD0[]; /**< "  FLIP.  " */
-extern char D_80010DDC[]; /**< "  ACT.   " */
-extern char D_80010DE8[]; /**< "NEAR ACT\n" */
-extern char D_80010DF4[]; /**< "HIT ACT\n" */
-extern char D_80010E00[]; /**< "  WALK.  " */
-extern char D_80010E0C[]; /**< "  SE.    " */
-extern char D_80010E18[]; /**< "!!! WARNING !!!" */
-extern char D_80010E28[]; /**< "PEPSICAN TO TRAP TO" */
-extern char D_80010E3C[]; /**< "SWITCH GA OKEMASEN." */
-extern char D_80010E50[]; /**< "JIMEN NO HIT GA" */
-extern char D_80010E60[]; /**< "TORENAI BASHO NI" */
-extern char D_80010E74[]; /**< "            PUSH BATU" */
-extern char D_80010E8C[]; /**< "BAFFER GA MAX NI NARI" */
-extern char D_80010EA4[]; /**< "MASITA. KORE IJYOU HA" */
-extern char D_80010EBC[]; /**< "OKEMASEN." */
-extern char D_80010EC8[]; /**< "MIYAGOE SAMA NI KIITE" */
-extern char D_80010EE0[]; /**< "KUDASAI." */
-extern char D_80010EEC[]; /**< "SWITCH GA SAKUJYO" */
-extern char D_80010F00[]; /**< "DEKIMASEN." */
-extern char D_80010F0C[]; /**< "BAFFER GA ZERO NI NARI" */
-extern char D_80010F24[]; /**< "SAKUJYO DEKIMASEN." */
-extern char D_80010F38[]; /**< "KONO AREA NI SAKUJYO" */
-extern char D_80010F50[]; /**< "DEKIRU MONO HA" */
-extern char D_80010F60[]; /**< "ARIMASEN." */
-extern char D_80010F6C[]; /**< "TRAP TO SWITCH GA" */
-extern char D_80010F80[]; /**< "CHIKAKU NI ARIMASEN." */
-extern char D_80010F98[]; /**< "KESITAI MONO NO " */
-extern char D_80010FAC[]; /**< "CHIKAKU NI IDOU" */
-extern char D_80010FBC[]; /**< "SITEKUDASAI." */
-extern char D_800954FC[]; /**< "~c088" */
-extern char D_80095504[]; /**< "~c800" */
-extern char D_80095514[]; /**< "Y %d " */
-extern char D_8009551C[]; /**< "Z %d" */
-extern char D_8009552C[]; /**< "PEPSI\n" */
-extern char D_80095534[]; /**< "SWITCH\n" */
-extern char D_8009553C[]; /**< "TRAP\n" */
-extern char D_80095544[]; /**< "SPRITE\n" */
-extern char D_8009554C[]; /**< "DELETE\n" */
-extern char D_80095554[]; /**< "INFO\n" */
-extern char D_8009555C[]; /**< "DEFPOS\n" */
-extern char D_80095564[]; /**< "DATA\n" */
-extern char D_8009556C[]; /**< "~c444" */
-extern char D_80095574[]; /**< "%2d" */
-extern char D_80095578[]; /**< "->%d\n\n" */
-extern char D_80095580[]; /**< "\n\n\n\n" */
-extern char D_80095588[]; /**< "->%d\n" */
-extern char D_80095590[]; /**< "->%2d\n" */
-extern char D_80095598[]; /**< "\n\n\n\n\n" */
-extern char D_800955A0[]; /**< "OFF\n" */
-extern char D_800955A8[]; /**< "ON\n" */
-extern char D_800955AC[]; /**< "NO ACT\n" */
-extern char D_800955B4[]; /**< "NO %3d\n" */
-extern char D_800955BC[]; /**< "MAN\n" */
-extern char D_800955C4[]; /**< "WOMAN\n" */
-extern char D_800955CC[]; /**< "CHILD\n" */
-extern char D_800955D4[]; /**< "DOG\n" */
-extern char D_800955E0[]; /**< "IMASU." */
-extern VECTOR D_800ACED0; /**< the position printed on the status panel */
+extern char gSyncFmt[];                 /**< "SYNC %3d" */
+extern char gGridFmt[];                 /**< " GRID %4d" */
+extern char gNowBlockFmt[];             /**< " NOW BLOCK (%2d/%2d)" */
+extern char sEdPositionFmt[];           /**< "\nPOSITION X %d " */
+extern char sEdSwitchNoFmt[];           /**< "\nSWITCH NO(%2d/ %2d)" */
+extern char sEdTrapNoFmt[];             /**< " TRAP NO(%3d/ %3d)" */
+extern char sEdPepsiNoFmt[];            /**< "\nPEPSI NO(%3d/ %3d)" */
+extern char sEdItemText[];              /**< " ITEM : " */
+extern char sEdPepsiFmt[];              /**< "PEPSI %2d" */
+extern char sEdSwitchFmt[];             /**< "SWITCH %2d" */
+extern char sEdTrapFmt[];               /**< "TRAP %2d" */
+extern char sEdSpriteFmt[];             /**< "SPRITE %2d" */
+extern char sEdInfoText[];              /**< "INFO    " */
+extern char sEdDeleteText[];            /**< "DELETE  " */
+extern char sEdMoveModeText[];          /**< "MOVE MODE" */
+extern char sEdMenuModeText[];          /**< "MENU MODE" */
+extern char sEdPepsiSelModeText[];      /**< "PEPSI SEL MODE" */
+extern char sEdNewlines9[];             /**< nine newlines */
+extern char sEdPepsiTypeSelText[];      /**< "PEPSI TYPE SEL\n\n" */
+extern char sEdPepsiTypeRangeFmt[];     /**< "   1<-%2d->200" */
+extern char sEdSwitchSelModeText[];     /**< "SWITCH SEL MODE" */
+extern char sEdNewlines8[];             /**< eight newlines */
+extern char sEdSwitchSelText[];         /**< "  SWITCH SEL\n\n" */
+extern char sEdSwitchNoRangeText[];     /**< "NO.  0<-" */
+extern char sEdSwitchTypeRangeFmt[];    /**< "TYPE. 0<-%1d->%d" */
+extern char sEdTrapSelModeText[];       /**< "TRAP SEL MODE" */
+extern char sEdTrapSelText[];           /**< "   TRAP  SEL\n\n" */
+extern char sEdTrapNoRangeText[];       /**< "NO.    0<-" */
+extern char sEdTrapModelRangeFmt[];     /**< "MODEL. 0<-%2d->%2d\n" */
+extern char sEdUseBufferFmt[];          /**< "   USE BUFFER %d\n" */
+extern char sEdTrapSwitchRangeText[];   /**< "SWITCH.0<-" */
+extern char sEdTrapTypeRangeText[];     /**< "TYPENO.0<-" */
+extern char sEdTrapActRangeText[];      /**< "ACT NO.0<-" */
+extern char sEdAngleRangeFmt[];         /**< "  L1 0<-%3d->360 R1\n" */
+extern char sEdSpriteSelModeText[];     /**< "SPR SEL MODE" */
+extern char sEdSpriteSelText[];         /**< "   SPRITE SEL\n\n" */
+extern char sEdSpriteNoRangeText[];     /**< "  NO.    0<-" */
+extern char sEdSpriteModelRangeFmt[];   /**< "  MODEL. 0<-%3d->%3d\n" */
+extern char sEdSpriteSwitchRangeText[]; /**< "  SWITCH.0<-" */
+extern char sEdSpriteSizeRangeFmt[];    /**< "  SIZE. 0<-%3d->%3d\n" */
+extern char sEdHitLabel[];              /**< "  HIT.  " */
+extern char sEdFlipLabel[];             /**< "  FLIP.  " */
+extern char sEdActLabel[];              /**< "  ACT.   " */
+extern char sEdNearActText[];           /**< "NEAR ACT\n" */
+extern char sEdHitActText[];            /**< "HIT ACT\n" */
+extern char sEdWalkLabel[];             /**< "  WALK.  " */
+extern char sEdSeLabel[];               /**< "  SE.    " */
+extern char sEdWarningText[];           /**< "!!! WARNING !!!" */
+extern char sEdCansTrapsLine[];         /**< "PEPSICAN TO TRAP TO" */
+extern char sEdSwitchesCantPlaceLine[]; /**< "SWITCH GA OKEMASEN." */
+extern char sEdGroundHitLine[];         /**< "JIMEN NO HIT GA" */
+extern char sEdUntakeableHereLine[];    /**< "TORENAI BASHO NI" */
+extern char sEdPushCrossText[];         /**< "            PUSH BATU" */
+extern char sEdBufferMaxLine[];         /**< "BAFFER GA MAX NI NARI" */
+extern char sEdReachedNoMoreLine[];     /**< "MASITA. KORE IJYOU HA" */
+extern char sEdCantPlaceLine[];         /**< "OKEMASEN." */
+extern char sEdAskMiyagoeLine[];        /**< "MIYAGOE SAMA NI KIITE" */
+extern char sEdPleaseLine[];            /**< "KUDASAI." */
+extern char sEdSwitchesDeleteLine[];    /**< "SWITCH GA SAKUJYO" */
+extern char sEdCannotLine[];            /**< "DEKIMASEN." */
+extern char sEdBufferZeroLine[];        /**< "BAFFER GA ZERO NI NARI" */
+extern char sEdCantDeleteLine[];        /**< "SAKUJYO DEKIMASEN." */
+extern char sEdAreaDeleteLine[];        /**< "KONO AREA NI SAKUJYO" */
+extern char sEdDeletableLine[];         /**< "DEKIRU MONO HA" */
+extern char sEdThereAreNoneLine[];      /**< "ARIMASEN." */
+extern char sEdTrapsSwitchesLine[];     /**< "TRAP TO SWITCH GA" */
+extern char sEdNotNearbyLine[];         /**< "CHIKAKU NI ARIMASEN." */
+extern char sEdWhatToEraseLine[];       /**< "KESITAI MONO NO " */
+extern char sEdMoveNearLine[];          /**< "CHIKAKU NI IDOU" */
+extern char sEdPleaseDoLine[];          /**< "SITEKUDASAI." */
+extern char sEdColorCyan[];             /**< "~c088" */
+extern char sEdColorRed[];              /**< "~c800" */
+extern char sEdPosYFmt[];               /**< "Y %d " */
+extern char sEdPosZFmt[];               /**< "Z %d" */
+extern char sEdMenuPepsiText[];         /**< "PEPSI\n" */
+extern char sEdMenuSwitchText[];        /**< "SWITCH\n" */
+extern char sEdMenuTrapText[];          /**< "TRAP\n" */
+extern char sEdMenuSpriteText[];        /**< "SPRITE\n" */
+extern char sEdMenuDeleteText[];        /**< "DELETE\n" */
+extern char sEdMenuInfoText[];          /**< "INFO\n" */
+extern char sEdMenuDefPosText[];        /**< "DEFPOS\n" */
+extern char sEdMenuDataText[];          /**< "DATA\n" */
+extern char sEdColorGrey[];             /**< "~c444" */
+extern char sEdNum2Fmt[];               /**< "%2d" */
+extern char sEdRangeEndBlankFmt[];      /**< "->%d\n\n" */
+extern char sEdNewlines4[];             /**< "\n\n\n\n" */
+extern char sEdRangeEndFmt[];           /**< "->%d\n" */
+extern char sEdRangeEnd2Fmt[];          /**< "->%2d\n" */
+extern char sEdNewlines5[];             /**< "\n\n\n\n\n" */
+extern char sEdOffLine[];               /**< "OFF\n" */
+extern char sEdOnLine[];                /**< "ON\n" */
+extern char sEdNoActLine[];             /**< "NO ACT\n" */
+extern char sEdSeNoFmt[];               /**< "NO %3d\n" */
+extern char sEdManLine[];               /**< "MAN\n" */
+extern char sEdWomanLine[];             /**< "WOMAN\n" */
+extern char sEdChildLine[];             /**< "CHILD\n" */
+extern char sEdDogLine[];               /**< "DOG\n" */
+extern char sEdYouAreLine[];            /**< "IMASU." */
+extern VECTOR D_800ACED0;               /**< the position printed on the status panel */
 
 void PrintEditorCaption(void);
 void PrintEditorData(void);
@@ -937,542 +937,542 @@ s32 PrintEditorStatus(void) {
     Rec5Cv *recs;
     Obj48 *objs;
 
-    FntPrint(D_800954F4);
+    FntPrint(sEdColorWhite);
     if (gVSyncTime > 400) {
-        FntPrint(D_800954FC);
+        FntPrint(sEdColorCyan);
     }
     if (gVSyncTime > 450) {
-        FntPrint(D_80095504);
+        FntPrint(sEdColorRed);
     }
-    FntPrint(D_80010B4C, gVSyncTime);
-    FntPrint(D_800954F4);
-    FntPrint(D_80010B58, sTotals.unk4);
-    FntPrint(D_80010B64, D_80095824, gStageObjCount);
+    FntPrint(gSyncFmt, gVSyncTime);
+    FntPrint(sEdColorWhite);
+    FntPrint(gGridFmt, sTotals.unk4);
+    FntPrint(gNowBlockFmt, D_80095824, gStageObjCount);
     D_800ACED0.vx = gPlayer.x;
     D_800ACED0.vy = gPlayer.y;
     D_800ACED0.vz = gPlayer.z;
-    FntPrint(D_80010B7C, D_800ACED0.vx);
+    FntPrint(sEdPositionFmt, D_800ACED0.vx);
     if (sTotals.unk8 == 0) {
-        FntPrint(D_800954F4);
+        FntPrint(sEdColorWhite);
     } else if (sTotals.unk8 < 0) {
-        FntPrint(D_8009550C);
+        FntPrint(sEdColorBlue);
     } else {
-        FntPrint(D_80095504);
+        FntPrint(sEdColorRed);
     }
-    FntPrint(D_80095514, D_800ACED0.vy);
-    FntPrint(D_800954F4);
-    FntPrint(D_8009551C, D_800ACED0.vz);
+    FntPrint(sEdPosYFmt, D_800ACED0.vy);
+    FntPrint(sEdColorWhite);
+    FntPrint(sEdPosZFmt, D_800ACED0.vz);
     if (D_80095824 != -1) {
-        FntPrint(D_800954F4);
+        FntPrint(sEdColorWhite);
     } else {
-        FntPrint(D_80095504);
+        FntPrint(sEdColorRed);
     }
-    FntPrint(D_80010B8C, sTotals.unk16, 200);
-    FntPrint(D_80010BA4, sTotals.unk1A, 200);
-    FntPrint(D_80010BB8, sTotals.unk26, 200);
-    FntPrint(D_80010BCC);
+    FntPrint(sEdSwitchNoFmt, sTotals.unk16, 200);
+    FntPrint(sEdTrapNoFmt, sTotals.unk1A, 200);
+    FntPrint(sEdPepsiNoFmt, sTotals.unk26, 200);
+    FntPrint(sEdItemText);
     switch (sTotals.unk3) {
         case 0:
-            FntPrint(D_80010BD8, sTotals.unk24 + 1);
+            FntPrint(sEdPepsiFmt, sTotals.unk24 + 1);
             break;
         case 1:
-            FntPrint(D_80010BE4, sTotals.unk12);
+            FntPrint(sEdSwitchFmt, sTotals.unk12);
             break;
         case 2:
-            FntPrint(D_80010BF0, sTotals.unk18);
+            FntPrint(sEdTrapFmt, sTotals.unk18);
             break;
         case 3:
-            FntPrint(D_80010BFC, sTotals.unk28);
+            FntPrint(sEdSpriteFmt, sTotals.unk28);
             break;
     }
-    FntPrint(D_800954F4);
+    FntPrint(sEdColorWhite);
     SortSemiQuad(0x421, -160, -120, 160, -120, 160, -70, -160, -70, 0);
-    FntPrint(D_80095524);
+    FntPrint(sEdNewline);
     if (D_800959D8 == 1) {
-        FntPrint(D_80010C08);
+        FntPrint(sEdInfoText);
     } else if (D_800958D8 == 1) {
         if ((gFrameCount & 0xF) < 8) {
-            FntPrint(D_800954F4);
+            FntPrint(sEdColorWhite);
         } else {
-            FntPrint(D_80095504);
+            FntPrint(sEdColorRed);
         }
-        FntPrint(D_80010C14);
+        FntPrint(sEdDeleteText);
     } else {
         PrintTabs(2);
     }
-    FntPrint(D_800954F4);
+    FntPrint(sEdColorWhite);
     switch ((u16)gToolMode) {
         case 0:
             PrintTabs(5);
-            FntPrint(D_80010C20);
+            FntPrint(sEdMoveModeText);
             PrintEditorCaption();
             break;
         case 1:
             D_800958B0 = 1;
             D_800958B2 = 8;
             PrintTabs(5);
-            FntPrint(D_80010C2C);
-            FntPrint(D_80095528);
+            FntPrint(sEdMenuModeText);
+            FntPrint(sEdNewlines3);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_8009552C);
+            FntPrint(sEdMenuPepsiText);
             if (D_8009574A == 1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095534);
+            FntPrint(sEdMenuSwitchText);
             if (D_8009574A == 2) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_8009553C);
+            FntPrint(sEdMenuTrapText);
             if (D_8009574A == 3) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095544);
+            FntPrint(sEdMenuSpriteText);
             if (D_8009574A == 4) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_8009554C);
+            FntPrint(sEdMenuDeleteText);
             if (D_8009574A == 5) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095554);
+            FntPrint(sEdMenuInfoText);
             if (D_8009574A == 6) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_8009555C);
+            FntPrint(sEdMenuDefPosText);
             if (D_8009574A == 7) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095564);
+            FntPrint(sEdMenuDataText);
             SortSemiQuad(0x421, 60, -68, 130, -68, 130, 12, 60, 12, 0);
             break;
         case 2:
             PrintTabs(4);
-            FntPrint(D_80010C38);
-            FntPrint(D_80010C48);
+            FntPrint(sEdPepsiSelModeText);
+            FntPrint(sEdNewlines9);
             PrintTabs(3);
-            FntPrint(D_80010C54);
+            FntPrint(sEdPepsiTypeSelText);
             PrintTabs(3);
-            FntPrint(D_80010C68, D_80095B4C[0] + 1);
+            FntPrint(sEdPepsiTypeRangeFmt, D_80095B4C[0] + 1);
             SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case 3:
             PrintTabs(4);
-            FntPrint(D_80010C78);
-            FntPrint(D_80010C88);
+            FntPrint(sEdSwitchSelModeText);
+            FntPrint(sEdNewlines8);
             PrintTabs(3);
-            FntPrint(D_80010C94);
+            FntPrint(sEdSwitchSelText);
             PrintTabs(3);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010CA4);
+            FntPrint(sEdSwitchNoRangeText);
             recs = sRecs5C;
             if (recs[sTotals.unk12].unk0 == -1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009556C);
+                FntPrint(sEdColorGrey);
             }
-            FntPrint(D_80095574, sTotals.unk12);
+            FntPrint(sEdNum2Fmt, sTotals.unk12);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80095578, 199);
+            FntPrint(sEdRangeEndBlankFmt, 199);
             PrintTabs(3);
             if (D_8009574A == 1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010CB0, sTotals.unk14, 2);
+            FntPrint(sEdSwitchTypeRangeFmt, sTotals.unk14, 2);
             SortSemiQuad(0x421, -60, -30, 60, -30, 60, 30, -60, 30, 0);
             break;
         case 4:
             PrintTabs(4);
-            FntPrint(D_80010CC4);
+            FntPrint(sEdTrapSelModeText);
             if (D_800959D8 == 0) {
-                FntPrint(D_80095580);
+                FntPrint(sEdNewlines4);
             }
             PrintEditorCaption();
-            FntPrint(D_80095580);
+            FntPrint(sEdNewlines4);
             PrintTabs(3);
-            FntPrint(D_80010CD4);
+            FntPrint(sEdTrapSelText);
             PrintTabs(3);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010CE4);
+            FntPrint(sEdTrapNoRangeText);
             objs = (Obj48 *)D_800A9008;
             if (objs[sTotals.unk18].unk36 == -1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009556C);
+                FntPrint(sEdColorGrey);
             }
-            FntPrint(D_80095574, sTotals.unk18);
+            FntPrint(sEdNum2Fmt, sTotals.unk18);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80095588, 199);
+            FntPrint(sEdRangeEndFmt, 199);
             PrintTabs(3);
             if (D_8009574A == 1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010CF0, sTotals.unk1C, gSectionCount);
+            FntPrint(sEdTrapModelRangeFmt, sTotals.unk1C, gSectionCount);
             PrintTabs(3);
-            FntPrint(D_80010D04, D_8009596E);
+            FntPrint(sEdUseBufferFmt, D_8009596E);
             PrintTabs(3);
             if (D_8009574A == 2) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010D18);
+            FntPrint(sEdTrapSwitchRangeText);
             recs = sRecs5C;
             if (recs[sTotals.unk1E].unk0 != -1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009556C);
+                FntPrint(sEdColorGrey);
             }
-            FntPrint(D_80095574, sTotals.unk1E);
+            FntPrint(sEdNum2Fmt, sTotals.unk1E);
             if (D_8009574A == 2) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80095590, 199);
+            FntPrint(sEdRangeEnd2Fmt, 199);
             PrintTabs(3);
             if (D_8009574A == 3) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010D24);
-            FntPrint(D_80095574, sTotals.unk68);
-            FntPrint(D_80095590, 255);
+            FntPrint(sEdTrapTypeRangeText);
+            FntPrint(sEdNum2Fmt, sTotals.unk68);
+            FntPrint(sEdRangeEnd2Fmt, 255);
             PrintTabs(3);
             if (D_8009574A == 4) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010D30);
-            FntPrint(D_80095574, sTotals.unk69);
-            FntPrint(D_80095590, 255);
-            FntPrint(D_800954F4);
+            FntPrint(sEdTrapActRangeText);
+            FntPrint(sEdNum2Fmt, sTotals.unk69);
+            FntPrint(sEdRangeEnd2Fmt, 255);
+            FntPrint(sEdColorWhite);
             PrintTabs(2);
-            FntPrint(D_80010D3C, sTotals.unk20);
+            FntPrint(sEdAngleRangeFmt, sTotals.unk20);
             SortSemiQuad(0x421, -100, -30, 100, -30, 100, 56, -100, 56, 0);
             break;
         case 5:
             PrintTabs(4);
-            FntPrint(D_80010D54);
-            FntPrint(D_80095598);
+            FntPrint(sEdSpriteSelModeText);
+            FntPrint(sEdNewlines5);
             PrintTabs(3);
-            FntPrint(D_80010D64);
+            FntPrint(sEdSpriteSelText);
             PrintTabs(2);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010D74);
+            FntPrint(sEdSpriteNoRangeText);
             if (D_800A7898[sTotals.unk28].unk0 == -1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009556C);
+                FntPrint(sEdColorGrey);
             }
-            FntPrint(D_80095574, sTotals.unk28);
+            FntPrint(sEdNum2Fmt, sTotals.unk28);
             if (D_8009574A == 0) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80095588, 99);
+            FntPrint(sEdRangeEndFmt, 99);
             PrintTabs(2);
             if (D_8009574A == 1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010D84, sTotals.unk2C, 512);
+            FntPrint(sEdSpriteModelRangeFmt, sTotals.unk2C, 512);
             PrintTabs(2);
             if (D_8009574A == 2) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010D9C);
+            FntPrint(sEdSpriteSwitchRangeText);
             recs = sRecs5C;
             if (recs[sTotals.unk2A].unk0 != -1) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009556C);
+                FntPrint(sEdColorGrey);
             }
-            FntPrint(D_80095574, sTotals.unk2A);
+            FntPrint(sEdNum2Fmt, sTotals.unk2A);
             if (D_8009574A == 2) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80095590, 199);
+            FntPrint(sEdRangeEnd2Fmt, 199);
             PrintTabs(2);
             if (D_8009574A == 3) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010DAC, (s16)sTotals.unk2E - 500, 999);
+            FntPrint(sEdSpriteSizeRangeFmt, (s16)sTotals.unk2E - 500, 999);
             PrintTabs(2);
             if (D_8009574A == 4) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
-            FntPrint(D_80010DC4);
+            FntPrint(sEdHitLabel);
             if (sTotals.unk32 == 0) {
-                FntPrint(D_800955A0);
+                FntPrint(sEdOffLine);
             } else {
-                FntPrint(D_800955A8);
+                FntPrint(sEdOnLine);
             }
             if (D_8009574A == 5) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(2);
-            FntPrint(D_80010DD0);
+            FntPrint(sEdFlipLabel);
             if (sTotals.unk34 == 0) {
-                FntPrint(D_800955A0);
+                FntPrint(sEdOffLine);
             } else {
-                FntPrint(D_800955A8);
+                FntPrint(sEdOnLine);
             }
             if (D_8009574A == 6) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(2);
-            FntPrint(D_80010DDC);
+            FntPrint(sEdActLabel);
             switch (D_800959E2) {
                 case 0:
-                    FntPrint(D_800955AC);
+                    FntPrint(sEdNoActLine);
                     break;
                 case 1:
-                    FntPrint(D_80010DE8);
+                    FntPrint(sEdNearActText);
                     break;
                 case 2:
-                    FntPrint(D_80010DF4);
+                    FntPrint(sEdHitActText);
                     break;
             }
             if (D_8009574A == 7) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(2);
-            FntPrint(D_80010E00);
+            FntPrint(sEdWalkLabel);
             if (sTotals.unk6C == 0) {
-                FntPrint(D_800955A0);
+                FntPrint(sEdOffLine);
             } else {
-                FntPrint(D_800955B4, sTotals.unk6C);
+                FntPrint(sEdSeNoFmt, sTotals.unk6C);
             }
             if (D_8009574A == 8) {
-                FntPrint(D_800954F4);
+                FntPrint(sEdColorWhite);
             } else {
-                FntPrint(D_8009550C);
+                FntPrint(sEdColorBlue);
             }
             PrintTabs(2);
-            FntPrint(D_80010E0C);
+            FntPrint(sEdSeLabel);
             switch (sTotals.unk6D) {
                 case 0:
-                    FntPrint(D_800955A0);
+                    FntPrint(sEdOffLine);
                     break;
                 case 1:
-                    FntPrint(D_800955BC);
+                    FntPrint(sEdManLine);
                     break;
                 case 2:
-                    FntPrint(D_800955C4);
+                    FntPrint(sEdWomanLine);
                     break;
                 case 3:
-                    FntPrint(D_800955CC);
+                    FntPrint(sEdChildLine);
                     break;
                 case 4:
-                    FntPrint(D_800955D4);
+                    FntPrint(sEdDogLine);
                     break;
             }
-            FntPrint(D_800954F4);
+            FntPrint(sEdColorWhite);
             PrintTabs(2);
-            FntPrint(D_80010D3C, sTotals.unk6A);
+            FntPrint(sEdAngleRangeFmt, sTotals.unk6A);
             SortSemiQuad(0x421, -100, -54, 100, -54, 100, 60, -100, 60, 0);
             break;
         case 6:
             PrintEditorData();
             break;
         case 7:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80010E18);
-            FntPrint(D_80095528);
+            FntPrint(sEdWarningText);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_80010E28);
-            FntPrint(D_80095524);
+            FntPrint(sEdCansTrapsLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010E3C);
-            FntPrint(D_800955DC);
+            FntPrint(sEdSwitchesCantPlaceLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010E50);
-            FntPrint(D_80095524);
+            FntPrint(sEdGroundHitLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010E60);
-            FntPrint(D_80095524);
+            FntPrint(sEdUntakeableHereLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_800955E0);
-            FntPrint(D_80095524);
+            FntPrint(sEdYouAreLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010E74);
+            FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 8:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80010E18);
-            FntPrint(D_80095528);
+            FntPrint(sEdWarningText);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_80010E28);
-            FntPrint(D_80095524);
+            FntPrint(sEdCansTrapsLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010E3C);
-            FntPrint(D_800955DC);
+            FntPrint(sEdSwitchesCantPlaceLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010E8C);
-            FntPrint(D_80095524);
+            FntPrint(sEdBufferMaxLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EA4);
-            FntPrint(D_80095524);
+            FntPrint(sEdReachedNoMoreLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EBC);
-            FntPrint(D_80095524);
+            FntPrint(sEdCantPlaceLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EC8);
-            FntPrint(D_80095524);
+            FntPrint(sEdAskMiyagoeLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EE0);
-            FntPrint(D_800955DC);
+            FntPrint(sEdPleaseLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010E74);
+            FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 9:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80010E18);
-            FntPrint(D_80095528);
+            FntPrint(sEdWarningText);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_80010E28);
-            FntPrint(D_80095524);
+            FntPrint(sEdCansTrapsLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EEC);
-            FntPrint(D_80095524);
+            FntPrint(sEdSwitchesDeleteLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010F00);
-            FntPrint(D_800955DC);
+            FntPrint(sEdCannotLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010F0C);
-            FntPrint(D_80095524);
+            FntPrint(sEdBufferZeroLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EA4);
-            FntPrint(D_80095524);
+            FntPrint(sEdReachedNoMoreLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010F24);
-            FntPrint(D_800955DC);
+            FntPrint(sEdCantDeleteLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010E74);
+            FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 10:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80010E18);
-            FntPrint(D_80095528);
+            FntPrint(sEdWarningText);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_80010E28);
-            FntPrint(D_80095524);
+            FntPrint(sEdCansTrapsLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010EEC);
-            FntPrint(D_80095524);
+            FntPrint(sEdSwitchesDeleteLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010F00);
-            FntPrint(D_800955DC);
+            FntPrint(sEdCannotLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010F38);
-            FntPrint(D_80095524);
+            FntPrint(sEdAreaDeleteLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010F50);
-            FntPrint(D_80095524);
+            FntPrint(sEdDeletableLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010F60);
-            FntPrint(D_800955DC);
+            FntPrint(sEdThereAreNoneLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010E74);
+            FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
         case 11:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80010E18);
-            FntPrint(D_80095528);
+            FntPrint(sEdWarningText);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_80010F6C);
-            FntPrint(D_80095524);
+            FntPrint(sEdTrapsSwitchesLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010F80);
-            FntPrint(D_800955DC);
+            FntPrint(sEdNotNearbyLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010F98);
-            FntPrint(D_80095524);
+            FntPrint(sEdWhatToEraseLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010FAC);
-            FntPrint(D_80095524);
+            FntPrint(sEdMoveNearLine);
+            FntPrint(sEdNewline);
             PrintTabs(2);
-            FntPrint(D_80010FBC);
-            FntPrint(D_800955DC);
+            FntPrint(sEdPleaseDoLine);
+            FntPrint(sEdNewlines2);
             PrintTabs(2);
-            FntPrint(D_80010E74);
+            FntPrint(sEdPushCrossText);
             SortSemiQuad(0x42F, -100, -62, 100, -62, 100, 80, -100, 80, 0);
             break;
     }
@@ -1495,74 +1495,74 @@ void PrintEditorCaption(void) {
         case 0:
             e = (Span8 *)D_800959C0;
             e += D_80095824;
-            FntPrint(D_80010FCC, sTotals.unk22);
-            FntPrint(D_80010FDC, e->count);
+            FntPrint(sEdCanNoFmt, sTotals.unk22);
+            FntPrint(sEdCanNumFmt, e->count);
             break;
         case 1:
-            FntPrint(D_80010FEC, sTotals.unk12);
+            FntPrint(sEdInfoSwitchNoFmt, sTotals.unk12);
             break;
         case 2:
-            FntPrint(D_80010FFC, sTotals.unk18);
+            FntPrint(sEdInfoTrapNoFmt, sTotals.unk18);
             if (((Obj48 *)D_800A9008)[sTotals.unk18].unk38 != -1) {
-                FntPrint(D_80011010, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
+                FntPrint(sEdInfoTrapModelFmt, ((Obj48 *)D_800A9008)[sTotals.unk18].unk38);
             } else {
-                FntPrint(D_80011020);
+                FntPrint(sEdOptionsText);
             }
             /* MATCHING: the table base in a pointer local after the join
              * takes $s1, the totals' base $s0. */
             r = (Obj48 *)D_800A9008;
-            FntPrint(D_8001102C, r[sTotals.unk18].unk34);
-            FntPrint(D_8001103C, r[sTotals.unk18].unk42);
-            FntPrint(D_80011048, r[sTotals.unk18].unk43);
+            FntPrint(sEdInfoTrapSwitchFmt, r[sTotals.unk18].unk34);
+            FntPrint(sEdInfoTypeFmt, r[sTotals.unk18].unk42);
+            FntPrint(sEdInfoActFmt, r[sTotals.unk18].unk43);
             break;
         case 3:
-            FntPrint(D_80011054, sTotals.unk28);
-            FntPrint(D_80011064, D_800A7898[sTotals.unk28].unk0 - 30);
-            FntPrint(D_80011074, D_800A7898[sTotals.unk28].unk2C);
-            FntPrint(D_800955E8);
+            FntPrint(sEdInfoSpriteFmt, sTotals.unk28);
+            FntPrint(sEdInfoSpriteModelFmt, D_800A7898[sTotals.unk28].unk0 - 30);
+            FntPrint(sEdInfoSpriteSwitchFmt, D_800A7898[sTotals.unk28].unk2C);
+            FntPrint(sEdInfoHitLabel);
             /* MATCHING: the clear-bit arm first, as retail's bnez. */
             if (!(D_800A7898[sTotals.unk28].unk26 & 0x80)) {
-                FntPrint(D_800955F0);
+                FntPrint(sEdInfoOffText);
             } else {
-                FntPrint(D_800955F8);
+                FntPrint(sEdInfoOnText);
             }
-            FntPrint(D_80095600);
+            FntPrint(sEdInfoActLabel);
             switch (D_800A7898[sTotals.unk28].unk26 & 0x3F) {
                 case 0:
-                    FntPrint(D_80011080);
+                    FntPrint(sEdNoActText);
                     break;
                 case 1:
-                    FntPrint(D_8001108C);
+                    FntPrint(sEdInfoNearActText);
                     break;
                 case 2:
-                    FntPrint(D_80011098);
+                    FntPrint(sEdInfoHitActText);
                     break;
             }
-            FntPrint(D_80095608);
+            FntPrint(sEdInfoWalkLabel);
             if (D_800A7898[sTotals.unk28].unk27 == 0) {
-                FntPrint(D_80095610);
+                FntPrint(sEdInfoOffLine);
             } else {
-                FntPrint(D_800110A4, D_800A7898[sTotals.unk28].unk27);
+                FntPrint(sEdInfoWalkTypeFmt, D_800A7898[sTotals.unk28].unk27);
             }
-            FntPrint(D_80095618);
+            FntPrint(sEdInfoSeLabel);
             switch (D_800A7898[sTotals.unk28].unk28) {
                 case 0:
-                    FntPrint(D_800110B0);
+                    FntPrint(sEdNoSeText);
                     break;
                 case 1:
-                    FntPrint(D_800110BC);
+                    FntPrint(sEdManText);
                     break;
                 case 2:
-                    FntPrint(D_800110C8);
+                    FntPrint(sEdWomanText);
                     break;
                 case 3:
-                    FntPrint(D_800110D4);
+                    FntPrint(sEdChildText);
                     break;
                 case 4:
-                    FntPrint(D_800110E0);
+                    FntPrint(sEdDogText);
                     break;
             }
-            FntPrint(D_80095524);
+            FntPrint(sEdNewline);
             break;
     }
     SortSemiQuad(0x7C21, -160, -70, 160, -70, 160, -44, -160, -44, 0);
@@ -2822,96 +2822,96 @@ s32 UpdateEditorData(void) {
  *         asks for one, then draws the frame around it. */
 void PrintEditorData(void) {
     PrintTabs(5);
-    FntPrint(D_800110F8);
-    FntPrint(D_80095528);
+    FntPrint(sEdDataModeText);
+    FntPrint(sEdNewlines3);
     switch (gToolCardStep) {
         case 0:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(4);
-            FntPrint(D_80095620);
+            FntPrint(sEdCheckText);
             break;
         case 1:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011104);
+            FntPrint(sEdModeSelectText);
             PrintSaveLoad();
             break;
         case 2:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011114);
+            FntPrint(sEdBufferSelectText);
             PrintEditorSlots();
             break;
         case 16:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011124);
+            FntPrint(sEdCreateFileText);
             break;
         case 17:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011134);
+            FntPrint(sEdCardFormatText);
             break;
         case 4:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011144, gToolSlot + 1);
+            FntPrint(sEdSaveToDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_80011158);
+            FntPrint(sEdOverwriteOkText);
             PrintYesNo();
             break;
         case 8:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011168);
+            FntPrint(sEdDataWritingText);
             break;
         case 6:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011178, gToolSlot + 1);
+            FntPrint(sEdLoadFromDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_8001118C);
+            FntPrint(sEdLoadOkText);
             PrintYesNo();
             break;
         case 7:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_8001119C, gToolSlot + 1);
+            FntPrint(sEdCantOpenDataFmt, gToolSlot + 1);
             break;
         case 10:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_800111B4);
+            FntPrint(sEdCompleteText);
             break;
         case 11:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_800111C0);
+            FntPrint(sEdErrorText);
             break;
         case 12:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(2);
-            FntPrint(D_800111D4);
+            FntPrint(sEdNotEnoughMemoryText);
             break;
         case 13:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_800111EC);
+            FntPrint(sEdNoCardText);
             break;
         case 14:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(4);
-            FntPrint(D_800111FC);
+            FntPrint(sEdNoFileText);
             PrintTabs(3);
-            FntPrint(D_80011208);
+            FntPrint(sEdCreateNewFileText);
             PrintYesNo();
             break;
         case 15:
-            FntPrint(D_80095528);
+            FntPrint(sEdNewlines3);
             PrintTabs(3);
-            FntPrint(D_8001121C);
+            FntPrint(sEdUnformattedText);
             PrintTabs(3);
-            FntPrint(D_8001122C);
+            FntPrint(sEdFormatOkText);
             PrintYesNo();
             break;
     }
@@ -2929,35 +2929,35 @@ void PrintEditorSlots(void) {
     u16 v;
 
     slots = (SaveSlot *)0x8016D000;
-    FntPrint(D_800955DC);
+    FntPrint(sEdNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(3);
         if (D_8009574A == i) {
-            FntPrint(D_800954F4);
+            FntPrint(sEdColorWhite);
         } else {
-            FntPrint(D_8009550C);
+            FntPrint(sEdColorBlue);
         }
         slot = &slots[i];
         if (slot->unk200 == 0x38) {
-            FntPrint(D_8001123C, i + 1);
+            FntPrint(sEdDataNoFmt, i + 1);
             v = slot->unk202;
             stage = v / 3;
-            FntPrint(D_80011248, stage + 1);
+            FntPrint(sEdStageFmt, stage + 1);
             part = v % 3;
             switch (part) {
                 case 0:
-                    FntPrint(D_80095648);
+                    FntPrint(sEdArea1Text);
                     break;
                 case 1:
-                    FntPrint(D_8009564C);
+                    FntPrint(sEdArea2Text);
                     break;
                 case 2:
-                    FntPrint(D_80095650);
+                    FntPrint(sEdBossText);
                     break;
             }
-            FntPrint(D_80095524);
+            FntPrint(sEdNewline);
         } else {
-            FntPrint(D_80011254);
+            FntPrint(sEdNoDataText);
         }
     }
 }
@@ -2984,9 +2984,9 @@ void LoadEditorSlot(s16 a, u8 *buf) {
     *(TotalsCopy *)D_80095B28 = *(TotalsCopy *)&((SaveSlot *)buf)[a].unk200;
 }
 
-extern char D_80011284[]; /**< path of slot 0's file on the host */
-extern char D_800112A8[]; /**< path of slot 1's file on the host */
-extern char D_800112CC[]; /**< path of slot 2's file on the host */
+extern char sEdDataFilePath0[]; /**< path of slot 0's file on the host */
+extern char sEdDataFilePath1[]; /**< path of slot 1's file on the host */
+extern char sEdDataFilePath2[]; /**< path of slot 2's file on the host */
 
 /** @brief Writes the four data blocks of each save slot of the tool buffer
  *         to its file on the host.
@@ -2997,7 +2997,7 @@ s32 WriteEditorSlotFiles(void) {
     SaveSlot *s;
 
     s = (SaveSlot *)0x8016D000;
-    fd = open(D_80011284, O_CREAT | O_WRONLY);
+    fd = open(sEdDataFilePath0, O_CREAT | O_WRONLY);
     if (write(fd, &s[0].unk274, 0x3840) == -1) {
         close(fd);
         return -1;
@@ -3015,7 +3015,7 @@ s32 WriteEditorSlotFiles(void) {
         return -1;
     }
     close(fd);
-    fd = open(D_800112A8, O_CREAT | O_WRONLY);
+    fd = open(sEdDataFilePath1, O_CREAT | O_WRONLY);
     if (write(fd, &s[1].unk274, 0x3840) == -1) {
         close(fd);
         return -1;
@@ -3035,7 +3035,7 @@ s32 WriteEditorSlotFiles(void) {
         return -1;
     }
     close(fd);
-    fd = open(D_800112CC, O_CREAT | O_WRONLY);
+    fd = open(sEdDataFilePath2, O_CREAT | O_WRONLY);
     if (write(fd, &s[2].unk274, 0x3840) == -1) {
         close(fd);
         return -1;
@@ -3396,41 +3396,41 @@ void ApplyRecordsToEntries(void) {
 /** @brief Prints a two-line YES/NO menu, highlighting the line
  *         the menu cursor selects. */
 void PrintYesNo(void) {
-    FntPrint(D_800955DC);
+    FntPrint(sEdNewlines2);
     PrintTabs(4);
     if (D_8009574A == 0) {
-        FntPrint(D_800954F4);
+        FntPrint(sEdColorWhite);
     } else {
-        FntPrint(D_8009550C);
+        FntPrint(sEdColorBlue);
     }
-    FntPrint(D_80095628);
+    FntPrint(sEdYesText);
     PrintTabs(4);
     if (D_8009574A == 1) {
-        FntPrint(D_800954F4);
+        FntPrint(sEdColorWhite);
     } else {
-        FntPrint(D_8009550C);
+        FntPrint(sEdColorBlue);
     }
-    FntPrint(D_80095630);
+    FntPrint(sEdNoText);
 }
 
 /** @brief Prints a two-line SAVE/LOAD menu, highlighting the line
  *         the menu cursor selects. */
 void PrintSaveLoad(void) {
-    FntPrint(D_800955DC);
+    FntPrint(sEdNewlines2);
     PrintTabs(4);
     if (D_8009574A == 0) {
-        FntPrint(D_800954F4);
+        FntPrint(sEdColorWhite);
     } else {
-        FntPrint(D_8009550C);
+        FntPrint(sEdColorBlue);
     }
-    FntPrint(D_80095638);
+    FntPrint(sEdSaveText);
     PrintTabs(4);
     if (D_8009574A == 1) {
-        FntPrint(D_800954F4);
+        FntPrint(sEdColorWhite);
     } else {
-        FntPrint(D_8009550C);
+        FntPrint(sEdColorBlue);
     }
-    FntPrint(D_80095640);
+    FntPrint(sEdLoadText);
 }
 
 /** @brief Writes the tool buffer to the tool file on the host.
@@ -3439,7 +3439,7 @@ s32 WriteEditorFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(D_80011260, O_CREAT | O_WRONLY);
+    fd = open(sEdTmpFilePath, O_CREAT | O_WRONLY);
     n = write(fd, (void *)0x8016D000, 0x2285C);
     close(fd);
     return n;
@@ -3451,7 +3451,7 @@ s32 ReadEditorFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(D_80011260, O_RDONLY);
+    fd = open(sEdTmpFilePath, O_RDONLY);
     n = read(fd, (void *)0x8016D000, 0x2285C);
     close(fd);
     return n;

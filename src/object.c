@@ -780,7 +780,7 @@ s16 GetPathDirection(PathUser *u) {
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 
-extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
+extern char gTrapNoFmt[]; /**< "TRAP NO  (%2d / %2d)" */
 void DrawAxes(void);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected
@@ -821,7 +821,7 @@ void UpdateTrapViewer(void) {
     ReactToHits(&gPlayer);
     func_80029838();
     DrawAxes();
-    FntPrint(D_80010B34, D_800958E2, gSectionCount);
+    FntPrint(gTrapNoFmt, D_800958E2, gSectionCount);
 }
 
 /** @brief A Rec48 record seen as an Obj34 followed by its indices. */
@@ -913,7 +913,7 @@ void UpdateTrapLayoutViewer(void) {
             DrawAxes();
             break;
     }
-    FntPrint(D_80010B34, D_800958E2, gSectionCount);
+    FntPrint(gTrapNoFmt, D_800958E2, gSectionCount);
 }
 
 /** @brief Sorts three white lines 400 units long through the origin, one

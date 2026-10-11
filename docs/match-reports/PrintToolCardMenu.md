@@ -10,27 +10,27 @@ past 17 print nothing) one or two prompt lines, some with the 1-based
 `SortSemiQuad`.
 
 ```c
-extern char D_80095698[]; /**< a line prefix */
-extern char D_8009569C[]; /**< not yet known */
-extern char D_80011618[];
-extern char D_80011624[];
-extern char D_80011634[];
-extern char D_80011644[];
-extern char D_80011654[];
-extern char D_80011664[];
-extern char D_80011678[];
-extern char D_80011688[];
-extern char D_80011698[];
-extern char D_800116AC[];
-extern char D_800116BC[];
-extern char D_800116D4[];
-extern char D_800116E0[];
-extern char D_800116F4[];
-extern char D_8001170C[];
-extern char D_8001171C[];
-extern char D_80011728[];
-extern char D_8001173C[];
-extern char D_8001174C[];
+extern char sHitNewlines3[]; /**< a line prefix */
+extern char sHitCheckText[]; /**< not yet known */
+extern char sHitDataModeText[];
+extern char sHitModeSelectText[];
+extern char sHitBufferSelectText[];
+extern char sHitCreateFileText[];
+extern char sHitCardFormatText[];
+extern char sHitSaveToDataFmt[];
+extern char sHitOverwriteOkText[];
+extern char sHitDataWritingText[];
+extern char sHitLoadFromDataFmt[];
+extern char sHitLoadOkText[];
+extern char sHitCantOpenDataFmt[];
+extern char sHitCompleteText[];
+extern char sHitErrorText[];
+extern char sHitNotEnoughMemoryText[];
+extern char sHitNoCardText[];
+extern char sHitNoFileText[];
+extern char sHitCreateNewFileText[];
+extern char sHitUnformattedText[];
+extern char sHitFormatOkText[];
 
 /* Defined by editor, which has no header. */
 void PrintYesNo(void);
@@ -38,96 +38,96 @@ void PrintSaveLoad(void);
 
 void PrintToolCardMenu(void) {
     PrintTabs(5);
-    FntPrint(D_80011618);
-    FntPrint(D_80095698);
+    FntPrint(sHitDataModeText);
+    FntPrint(sHitNewlines3);
     switch (gToolCardStep) {
         case 0:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(4);
-            FntPrint(D_8009569C);
+            FntPrint(sHitCheckText);
             break;
         case 1:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011624);
+            FntPrint(sHitModeSelectText);
             PrintSaveLoad();
             break;
         case 2:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011634);
+            FntPrint(sHitBufferSelectText);
             PrintToolSlots();
             break;
         case 16:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011644);
+            FntPrint(sHitCreateFileText);
             break;
         case 17:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011654);
+            FntPrint(sHitCardFormatText);
             break;
         case 4:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011664, gToolSlot + 1);
+            FntPrint(sHitSaveToDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_80011678);
+            FntPrint(sHitOverwriteOkText);
             PrintYesNo();
             break;
         case 8:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011688);
+            FntPrint(sHitDataWritingText);
             break;
         case 6:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011698, gToolSlot + 1);
+            FntPrint(sHitLoadFromDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_800116AC);
+            FntPrint(sHitLoadOkText);
             PrintYesNo();
             break;
         case 7:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(2);
-            FntPrint(D_800116BC, gToolSlot + 1);
+            FntPrint(sHitCantOpenDataFmt, gToolSlot + 1);
             break;
         case 10:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_800116D4);
+            FntPrint(sHitCompleteText);
             break;
         case 11:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(2);
-            FntPrint(D_800116E0);
+            FntPrint(sHitErrorText);
             break;
         case 12:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(2);
-            FntPrint(D_800116F4);
+            FntPrint(sHitNotEnoughMemoryText);
             break;
         case 13:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_8001170C);
+            FntPrint(sHitNoCardText);
             break;
         case 14:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(4);
-            FntPrint(D_8001171C);
+            FntPrint(sHitNoFileText);
             PrintTabs(3);
-            FntPrint(D_80011728);
+            FntPrint(sHitCreateNewFileText);
             PrintYesNo();
             break;
         case 15:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_8001173C);
+            FntPrint(sHitUnformattedText);
             PrintTabs(3);
-            FntPrint(D_8001174C);
+            FntPrint(sHitFormatOkText);
             PrintYesNo();
             break;
     }

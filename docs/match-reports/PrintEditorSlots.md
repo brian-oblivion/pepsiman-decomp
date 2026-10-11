@@ -19,8 +19,8 @@ matched.
   remainder from the shared quotient. `part = v - stage * 3` multiplies the
   masked value.
 - The slot owner byte `unk202` is the stage and part, `stage * 3 + part`.
-- The strings are `.rodata` (`D_8001123C`, `D_80011248`, `D_80011254`)
-  and `.sdata` (`D_80095648`, `D_8009564C`, `D_80095650`, `D_80095524`)
+- The strings are `.rodata` (`sEdDataNoFmt`, `sEdStageFmt`, `sEdNoDataText`)
+  and `.sdata` (`sEdArea1Text`, `sEdArea2Text`, `sEdBossText`, `sEdNewline`)
   symbols, declared `extern char []`.
 
 ```c
@@ -33,35 +33,35 @@ void PrintEditorSlots(void) {
     u16 v;
 
     slots = (SaveSlot *)0x8016D000;
-    FntPrint(D_800955DC);
+    FntPrint(sEdNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(3);
         if (D_8009574A == i) {
-            FntPrint(D_800954F4);
+            FntPrint(sEdColorWhite);
         } else {
-            FntPrint(D_8009550C);
+            FntPrint(sEdColorBlue);
         }
         slot = &slots[i];
         if (slot->unk200 == 0x38) {
-            FntPrint(D_8001123C, i + 1);
+            FntPrint(sEdDataNoFmt, i + 1);
             v = slot->unk202;
             stage = v / 3;
-            FntPrint(D_80011248, stage + 1);
+            FntPrint(sEdStageFmt, stage + 1);
             part = v % 3;
             switch (part) {
                 case 0:
-                    FntPrint(D_80095648);
+                    FntPrint(sEdArea1Text);
                     break;
                 case 1:
-                    FntPrint(D_8009564C);
+                    FntPrint(sEdArea2Text);
                     break;
                 case 2:
-                    FntPrint(D_80095650);
+                    FntPrint(sEdBossText);
                     break;
             }
-            FntPrint(D_80095524);
+            FntPrint(sEdNewline);
         } else {
-            FntPrint(D_80011254);
+            FntPrint(sEdNoDataText);
         }
     }
 }

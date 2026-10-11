@@ -39,7 +39,7 @@ typedef struct {
 
 extern s8 gViewerReplay;  /**< set to 1 when the level is applied */
 extern s16 D_80095918;    /**< cleared when the viewer starts */
-extern char D_80010404[]; /**< the motion-number format */
+extern char gMotionFmt[]; /**< the motion-number format */
 /* MATCHING: a per-unit view; object defines it on its own floor
  * types, and this unit passes gFloorData's word as the data. */
 s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
@@ -306,7 +306,7 @@ void UpdateMotionViewer(void) {
             }
             break;
     }
-    FntPrint(D_80010404, gViewerMotion);
+    FntPrint(gMotionFmt, gViewerMotion);
 }
 
 void OrbitViewerCamera(void) {

@@ -34,7 +34,7 @@ extern s32 D_80095984;
 extern s32 D_80095998;
 extern u16 gRumbleSmall;
 extern u16 gRumbleLarge;
-extern char D_800954C8[];
+extern char sNewline[]; /**< "\n" */
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
 void func_80018DE8(s32 arg);
@@ -105,7 +105,7 @@ int main(void) {
     gInEditor = 0;
     gCdTrackPlaying = 0;
     for (;;) {
-        FntPrint(D_800954C8);
+        FntPrint(sNewline);
         if (gLoading == 1) {
             ResetClearColor();
         }
@@ -713,10 +713,10 @@ void AdjustScreenPosition(void) {
     WaitFrames(5);
 }
 
-extern char D_800954CC[];
-extern char D_800954D0[];
-extern char D_800954D8[];
-extern char D_800954DC[];
+extern char sTab[];           /**< "\t" */
+extern char sWhiteLineText[]; /**< "~c888\n" */
+extern char sHexAddrFmt[];    /**< "%x\n" */
+extern char sHexByteFmt[];    /**< " %2x" */
 extern s32 D_80095788;
 
 void DumpMemory(u8 *base) {
@@ -727,20 +727,20 @@ void DumpMemory(u8 *base) {
     s16 j;
 
     D_80095788 = 0;
-    FntPrint(D_800954D0);
+    FntPrint(sWhiteLineText);
     p = base + D_80095788;
-    FntPrint(D_800954D8, p);
+    FntPrint(sHexAddrFmt, p);
     for (i = 0; i < 1; i++) {
-        FntPrint(D_800954CC);
+        FntPrint(sTab);
     }
     for (row = 0; row < 16; row++) {
         for (col = 0; col < 8; col++) {
-            FntPrint(D_800954DC, *p);
+            FntPrint(sHexByteFmt, *p);
             p++;
         }
-        FntPrint(D_800954C8);
+        FntPrint(sNewline);
         for (j = 0; j < 1; j++) {
-            FntPrint(D_800954CC);
+            FntPrint(sTab);
         }
     }
 }
@@ -787,7 +787,7 @@ void PrintTabs(s16 count) {
     s16 i;
 
     for (i = 0; i < count; i++) {
-        FntPrint(D_800954CC);
+        FntPrint(sTab);
     }
 }
 
@@ -1114,7 +1114,7 @@ void StartPads(u8 *a, u8 *b) {
     PadStartCom();
 }
 
-INCLUDE_RODATA("asm/nonmatchings/main", D_80010148);
+INCLUDE_RODATA("asm/nonmatchings/main", sCantOpenFmt);
 
 extern s16 gCdLoadIndex;
 extern s32 gCdLoadReadSectors;
@@ -1168,7 +1168,7 @@ s8 UpdateCdLoad(void) {
     return gCdLoadState;
 }
 
-extern char D_80010148[];
+extern char sCantOpenFmt[]; /**< "Can't open %s\n" */
 
 void LoadFile(char *name, void *buf) {
     s32 fd;
@@ -1177,7 +1177,7 @@ void LoadFile(char *name, void *buf) {
     if (fd == -1) {
         for (;;) {
             GsSwapDispBuff();
-            FntPrint(D_80010148, name);
+            FntPrint(sCantOpenFmt, name);
             FntFlush(-1);
         }
     }
@@ -1992,4 +1992,4 @@ void PlayCdTrack(s32 track, s32 loop) {
     gCdTrackPlaying = 1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/main", D_80010404);
+INCLUDE_RODATA("asm/nonmatchings/main", gMotionFmt);

@@ -3,7 +3,7 @@
 > Renamed from `func_80038F70` on 2026-10-10 (tools/rename.py). Address 0x80038f70.
 
 Unit `src/card.c`. Twin of CreateSave1 for the second save file
-`"bu10:BISLPS-67890PEPTOOL"` (`D_80011C24`): `open(name, 0xC0200)` (O_CREAT,
+`"bu10:BISLPS-67890PEPTOOL"` (`sHitCardFile`): `open(name, 0xC0200)` (O_CREAT,
 12 blocks), then a write of 0x18000 bytes from `gSaveBuf`. Same failure
 codes 8, 9, 10 in `gCardError`.
 
@@ -21,7 +21,7 @@ s32 CreateSave2(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011C24, 0xC0200);
+        fd = open(sHitCardFile, 0xC0200);
         if (fd != -1) {
             goto created;
         }
@@ -32,7 +32,7 @@ s32 CreateSave2(void) {
 created:
     close(fd);
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011C24, 2);
+        fd = open(sHitCardFile, 2);
         if (fd != -1) {
             goto opened;
         }

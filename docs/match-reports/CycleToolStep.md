@@ -66,7 +66,7 @@ tables (0x80011804, 0x80011824, 0x8001183C, 0x8001188C, 0x800118AC,
 each one by 4.
 
 The real start is 0x800114DC (file offset 0x1CDC): the five strings
-`D_800114DC`, `D_800114E8`, `D_800114F4`, `D_80011500` and `D_8001151C` that
+`sHitSyncFmt`, `sHitTrapFmt`, `sHitGridFmt`, `sHitPosFmt` and `sHitItemText` that
 splat placed at the end of editor (right after its last jump table,
 `jtbl_80011494`, which ends at 0x800114DC) are referenced only by
 hit_tool's `PrintToolStatus`. From 0x800114DC every hit_tool jump table is

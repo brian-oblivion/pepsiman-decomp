@@ -3,7 +3,7 @@
 > Renamed from `func_80037C2C` on 2026-10-10 (tools/rename.py). Address 0x80037c2c.
 
 Unit `src/code_27bc8.c`. Scans the memory card directory `"bu10:"`
-(`D_800956A8`) with libapi's `firstfile`/`nextfile`, copying each file's
+(`sCardDevice`) with libapi's `firstfile`/`nextfile`, copying each file's
 name and its size in 8 KiB blocks into the 0x18-byte records of
 `gCardFiles` and counting them in `gCardFileCount`. Stores 0xFFFF in
 `gCardStatus` and returns 0xFFFF when the card has no file; stores 0 and
@@ -30,7 +30,7 @@ typedef struct {
 extern Rec18 gCardFiles[];
 extern s32 gCardFileCount;
 extern u16 gCardStatus;    /* only sh: stored 0xFFFF / 0 */
-extern char D_800956A8[]; /* "bu10:" */
+extern char sCardDevice[]; /* "bu10:" */
 
 s32 ScanCardFiles(void) {
     struct DIRENTRY de;
@@ -39,7 +39,7 @@ s32 ScanCardFiles(void) {
 
     i = 0;
     gCardFileCount = 0;
-    if (firstfile(D_800956A8, &de) == NULL) {
+    if (firstfile(sCardDevice, &de) == NULL) {
         gCardStatus = 0xFFFF;
         return 0xFFFF;
     }

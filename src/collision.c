@@ -520,10 +520,10 @@ void func_8002988C(void) {
     D_8009EF30[0] = 0;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B34);
+INCLUDE_RODATA("asm/nonmatchings/collision", gTrapNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B4C);
+INCLUDE_RODATA("asm/nonmatchings/collision", gSyncFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B58);
+INCLUDE_RODATA("asm/nonmatchings/collision", gGridFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/collision", D_80010B64);
+INCLUDE_RODATA("asm/nonmatchings/collision", gNowBlockFmt);

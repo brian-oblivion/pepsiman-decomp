@@ -12,7 +12,7 @@ on the selected entry, ReactToHits, func_80029838, the axes
 
 ```c
 extern s16 D_800958E2;    /**< the selected Rec78 entry */
-extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
+extern char gTrapNoFmt[]; /**< "TRAP NO  (%2d / %2d)" */
 void ReactToHits(u8 *state);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected
@@ -51,7 +51,7 @@ void UpdateTrapViewer(void) {
     ReactToHits(gPlayer);
     func_80029838();
     DrawAxes();
-    FntPrint(D_80010B34, D_800958E2, gSectionCount);
+    FntPrint(gTrapNoFmt, D_800958E2, gSectionCount);
 }```
 
 First build. The clamp is SelectToolSection's (LEARNINGS, "a clamp whose one

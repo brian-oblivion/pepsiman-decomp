@@ -4,7 +4,7 @@
 
 Unit `src/card.c`. `BuildSave1Header` for the second save file: header
 `"SC"`, icon flag 0x13, 12 blocks, the 27-byte title from rodata
-`D_80011C54`, then `CopySave2Icon`. Types as in `BuildSave1Header.md`.
+`sHitCardTitle`, then `CopySave2Icon`. Types as in `BuildSave1Header.md`.
 
 ```c
 void BuildSave2Header(void) {
@@ -12,7 +12,7 @@ void BuildSave2Header(void) {
     gCardHeader.magic[1] = 'C';
     gCardHeader.iconFlag = 0x13;
     gCardHeader.blocks = 12;
-    gCardHeader.title = *(CardTitle *)D_80011C54;
+    gCardHeader.title = *(CardTitle *)sHitCardTitle;
     CopySave2Icon();
 }
 ```

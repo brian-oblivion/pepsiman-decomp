@@ -5,18 +5,18 @@
 Prints `count` tabs to the debug font stream.
 
 ```c
-extern char D_800954CC[];
+extern char sTab[];
 
 void PrintTabs(s16 count) {
     s16 i;
 
     for (i = 0; i < count; i++) {
-        FntPrint(D_800954CC);
+        FntPrint(sTab);
     }
 }
 ```
 
-First attempt. `D_800954CC` is the string `"\t"` in `.sdata`, but retail
+First attempt. `sTab` is the string `"\t"` in `.sdata`, but retail
 reaches it with `lui $s2` / `addiu %lo`, hoisted out of the loop: an
 `extern char[]` of unknown size gives exactly that (it is not in
 `config/gp-symbols.txt`). Same `s16` loop shape as `WaitFrames`.

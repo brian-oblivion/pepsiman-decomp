@@ -5,21 +5,21 @@
 Unit `src/hit_tool.c`. Prints a three-line debug menu with `FntPrint`: a
 title, then for each line a spacer (`PrintTabs(4)`), a marker string
 that depends on whether the line is the highlighted one (`D_8009574A`), and
-the line's number from the format at `D_8001175C`.
+the line's number from the format at `sHitDataNoFmt`.
 
 ```c
 void PrintToolSlots(void) {
     s16 i;
 
-    FntPrint(D_800956A4);
+    FntPrint(sHitNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(4);
         if (D_8009574A == i) {
-            FntPrint(D_80095668);
+            FntPrint(sHitColorWhite);
         } else {
-            FntPrint(D_80095670);
+            FntPrint(sHitColorBlue);
         }
-        FntPrint(D_8001175C, i + 1);
+        FntPrint(sHitDataNoFmt, i + 1);
     }
 }
 ```
@@ -28,10 +28,10 @@ void PrintToolSlots(void) {
 
 - `D_8009574A`: `lui $v1` / `lh $v1, %lo` (same register), a plain `s16`
   scalar outside `$gp`.
-- `D_800956A4`, `D_80095668`, `D_80095670`: `.sdata` strings reached
+- `sHitNewlines2`, `sHitColorWhite`, `sHitColorBlue`: `.sdata` strings reached
   `lui`/`addiu`, declared `char []`. Declaring the two markers `char [8]`
   (cc1's single-insn `la`) scored 1/38 to 4/38: the address is computed
-  before the compare and overwritten, and `D_8001175C`'s address is hoisted
+  before the compare and overwritten, and `sHitDataNoFmt`'s address is hoisted
   into `$s2`.
 - `PrintTabs` is defined in `main.c`; its prototype went into
   `include/common.h` (additive, same type as the definition) because

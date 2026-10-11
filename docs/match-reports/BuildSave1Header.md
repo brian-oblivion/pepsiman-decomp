@@ -4,8 +4,8 @@
 
 Unit `src/code_27bc8.c`. Fills the start of a memory card file header at
 `gCardHeader`: magic `"SC"`, icon flag 0x13, 15 blocks, and the 27-byte
-Shift-JIS title from rodata `D_800119C8`; then calls `CopySave1Icon`.
-`BuildSave2Header` is the same with 12 blocks, title `D_80011C54` and
+Shift-JIS title from rodata `sToolCardTitle`; then calls `CopySave1Icon`.
+`BuildSave2Header` is the same with 12 blocks, title `sHitCardTitle` and
 `CopySave2Icon`.
 
 ```c
@@ -21,7 +21,7 @@ typedef struct {
 } CardHeader;
 
 extern CardHeader gCardHeader;
-extern u8 D_800119C8[];
+extern u8 sToolCardTitle[];
 
 void CopySave1Icon(void);
 
@@ -30,7 +30,7 @@ void BuildSave1Header(void) {
     gCardHeader.magic[1] = 'C';
     gCardHeader.iconFlag = 0x13;
     gCardHeader.blocks = 15;
-    gCardHeader.title = *(CardTitle *)D_800119C8;
+    gCardHeader.title = *(CardTitle *)sToolCardTitle;
     CopySave1Icon();
 }
 ```

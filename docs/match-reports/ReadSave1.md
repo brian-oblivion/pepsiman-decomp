@@ -3,7 +3,7 @@
 > Renamed from `func_800377E8` on 2026-10-10 (tools/rename.py). Address 0x800377e8.
 
 Unit `src/card.c`. Reads the first save file `"bu10:BISLPS-12345PEPTOOL"`
-(`D_80011998`) into `gSaveBuf`: `open(name, 1)`, `lseek(fd, 0, 0)`, then
+(`sToolCardFile`) into `gSaveBuf`: `open(name, 1)`, `lseek(fd, 0, 0)`, then
 `read(fd, buf, 0x1E000)`, seeking back after a short read. Each step up to
 ten tries. Failure codes in `gCardError`: 1 (open), 2 (seek), 3 (read).
 Twin of ReadSave2.
@@ -21,7 +21,7 @@ s32 ReadSave1(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        fd = open(D_80011998, 1);
+        fd = open(sToolCardFile, 1);
         if (fd != -1) {
             goto opened;
         }

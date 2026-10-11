@@ -2,7 +2,7 @@
 
 > Renamed from `func_800383F8` on 2026-10-10 (tools/rename.py). Address 0x800383f8.
 
-Unit `src/code_27bc8.c`. Formats the memory card `"bu10:"` (`D_800956A8`, a `.sdata` string reached `lui`/`addiu`, so `extern char D_800956A8[]`) with libapi's `format`, up to ten tries. Returns 0 on the first success; after ten failures it stores 11 in the halfword `gCardError` and returns -1.
+Unit `src/code_27bc8.c`. Formats the memory card `"bu10:"` (`sCardDevice`, a `.sdata` string reached `lui`/`addiu`, so `extern char sCardDevice[]`) with libapi's `format`, up to ten tries. Returns 0 on the first success; after ten failures it stores 11 in the halfword `gCardError` and returns -1.
 
 ```c
 s32 FormatCard(void) {
@@ -11,7 +11,7 @@ s32 FormatCard(void) {
 
     ret = 0;
     for (i = 0; i < 10; i++) {
-        if (format(D_800956A8) != 0) {
+        if (format(sCardDevice) != 0) {
             return ret;
         }
     }

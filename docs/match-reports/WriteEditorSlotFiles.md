@@ -12,9 +12,9 @@ Round 8 (bravo) left it as a stall, 12 words short, 3/124, with a draft
 that sent every failure to one `goto fail` label.
 
 ```c
-extern char D_80011284[]; /**< path of slot 0's file on the host */
-extern char D_800112A8[]; /**< path of slot 1's file on the host */
-extern char D_800112CC[]; /**< path of slot 2's file on the host */
+extern char sEdDataFilePath0[]; /**< path of slot 0's file on the host */
+extern char sEdDataFilePath1[]; /**< path of slot 1's file on the host */
+extern char sEdDataFilePath2[]; /**< path of slot 2's file on the host */
 
 /** @brief Writes the four data blocks of each save slot of the tool buffer
  *         to its file on the host.
@@ -25,7 +25,7 @@ s32 WriteEditorSlotFiles(void) {
     SaveSlot *s;
 
     s = (SaveSlot *)0x8016D000;
-    fd = open(D_80011284, O_CREAT | O_WRONLY);
+    fd = open(sEdDataFilePath0, O_CREAT | O_WRONLY);
     if (write(fd, &s[0].unk274, 0x3840) == -1) {
         close(fd);
         return -1;
@@ -43,7 +43,7 @@ s32 WriteEditorSlotFiles(void) {
         return -1;
     }
     close(fd);
-    fd = open(D_800112A8, O_CREAT | O_WRONLY);
+    fd = open(sEdDataFilePath1, O_CREAT | O_WRONLY);
     if (write(fd, &s[1].unk274, 0x3840) == -1) {
         close(fd);
         return -1;
@@ -63,7 +63,7 @@ s32 WriteEditorSlotFiles(void) {
         return -1;
     }
     close(fd);
-    fd = open(D_800112CC, O_CREAT | O_WRONLY);
+    fd = open(sEdDataFilePath2, O_CREAT | O_WRONLY);
     if (write(fd, &s[2].unk274, 0x3840) == -1) {
         close(fd);
         return -1;

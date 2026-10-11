@@ -13,7 +13,7 @@ s32 WriteToolFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(D_80011768, O_CREAT | O_WRONLY);
+    fd = open(sHitTmpFilePath, O_CREAT | O_WRONLY);
     n = write(fd, (void *)0x8018D000, 0x13868);
     close(fd);
     return n;
@@ -24,8 +24,8 @@ s32 WriteToolFile(void) {
 
 `open`, `write`, `close` from Sony's `libapi.h`; `O_CREAT`/`O_WRONLY` from
 Sony's `sys/file.h` (0x200 | 2 = retail's 0x202). The path is the rodata
-string `D_80011768`, kept as `INCLUDE_RODATA` and declared
-`extern char D_80011768[];` (`open` takes a non-const `char *`).
+string `sHitTmpFilePath`, kept as `INCLUDE_RODATA` and declared
+`extern char sHitTmpFilePath[];` (`open` takes a non-const `char *`).
 
 ## Levers
 

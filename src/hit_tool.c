@@ -100,10 +100,10 @@ void InsertHitQuad(void);
  * s16, s16), a box's corners around a position. */
 void SetBoxAround(Obj48 *obj, u8 *p, s32 a, s32 b);
 
-extern char D_800956A4[]; /**< the menu's title */
-extern char D_80095668[]; /**< marker of the highlighted line */
-extern char D_80095670[]; /**< marker of the other lines */
-extern char D_8001175C[]; /**< format of one numbered line */
+extern char sHitNewlines2[];  /**< the menu's title, "\n\n" */
+extern char sHitColorWhite[]; /**< marker of the highlighted line, "~c888" */
+extern char sHitColorBlue[];  /**< marker of the other lines, "~c008" */
+extern char sHitDataNoFmt[];  /**< format of one numbered line */
 
 
 extern u16 gToolRadius; /**< saved value of menu line 0 */
@@ -127,10 +127,10 @@ void ClearHitQuads(void);
 
 extern u8 D_80095774; /**< set while the reset below runs */
 
-extern char D_80011768[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
-extern char D_8001178C[]; /**< path of the first hit-data file, HITDATA0.T1D */
-extern char D_800117B4[]; /**< path of the second hit-data file, HITDATA1.T1D */
-extern char D_800117DC[]; /**< path of the third hit-data file, HITDATA2.T1D */
+extern char sHitTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
+extern char sHitDataFilePath0[]; /**< path of the first hit-data file, HITDATA0.T1D */
+extern char sHitDataFilePath1[]; /**< path of the second hit-data file, HITDATA1.T1D */
+extern char sHitDataFilePath2[]; /**< path of the third hit-data file, HITDATA2.T1D */
 
 void MoveToolCursor(void);
 void UpdateToolMenu(void);
@@ -174,89 +174,89 @@ void DrawPin(VECTOR *pos) {
     DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800114DC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSyncFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800114E8);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTrapFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800114F4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitGridFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011500);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitPosFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001151C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitItemText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011528);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitBallHitText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011534);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitRideHitText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011540);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001154C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDeleteNowText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011564);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoTypeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011570);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoPosFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011588);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNoSupportText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011594);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoNormHitText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115A0);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoRideHitText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115AC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitHitSelText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115BC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSizeRangeFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115D0);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTypeFmt);
 
 INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800115DC);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011618);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataModeText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011624);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitModeSelectText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011634);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitBufferSelectText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011644);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCreateFileText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011654);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCardFormatText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011664);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSaveToDataFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011678);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitOverwriteOkText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011688);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataWritingText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011698);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitLoadFromDataFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116AC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitLoadOkText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116BC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCantOpenDataFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116D4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCompleteText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116E0);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitErrorText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800116F4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNotEnoughMemoryText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001170C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNoCardText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001171C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNoFileText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011728);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCreateNewFileText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001173C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitUnformattedText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001174C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitFormatOkText);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001175C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataNoFmt);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_80011768);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTmpFilePath);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_8001178C);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataFilePath0);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800117B4);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataFilePath1);
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", D_800117DC);
+INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataFilePath2);
 
 void UpdateTool(void) {
     switch (gModeStep) {
@@ -450,59 +450,59 @@ void UpdateToolMenu(void) {
     }
 }
 
-extern char D_800114DC[];
-extern char D_800114E8[];
-extern char D_800114F4[];
-extern char D_80011500[];
-extern char D_8001151C[];
-extern char D_80011528[];
-extern char D_80011534[];
-extern char D_80011540[];
-extern char D_8001154C[];
-extern char D_80011564[];
-extern char D_80011570[];
-extern char D_80011588[];
-extern char D_80011594[];
-extern char D_800115A0[];
-extern char D_800115AC[];
-extern char D_800115BC[];
-extern char D_800115D0[];
-extern char D_80095658[];
-extern char D_80095660[];
-extern char D_80095678[];
-extern char D_80095680[];
-extern char D_80095688[];
-extern char D_80095690[];
+extern char sHitSyncFmt[];         /**< "SYNC %3d" */
+extern char sHitTrapFmt[];         /**< " TRAP %2d" */
+extern char sHitGridFmt[];         /**< " GRID %2d" */
+extern char sHitPosFmt[];          /**< "\nPOS X %3d  Y %3d  Z %3d" */
+extern char sHitItemText[];        /**< "\nITEM : " */
+extern char sHitBallHitText[];     /**< "BALL HIT" */
+extern char sHitRideHitText[];     /**< "RIDE HIT" */
+extern char sHitInfoText[];        /**< " <<< INFO" */
+extern char sHitDeleteNowText[];   /**< " <<< !!! DELETE NOW !!!" */
+extern char sHitInfoTypeFmt[];     /**< "TYPE:%d\n" */
+extern char sHitInfoPosFmt[];      /**< "POS:X %d  Y %d  Z %d\n" */
+extern char sHitNoSupportText[];   /**< "NO SUPORT\n" */
+extern char sHitInfoNormHitText[]; /**< "NORM HIT\n" */
+extern char sHitInfoRideHitText[]; /**< "RIDE HIT\n" */
+extern char sHitHitSelText[];      /**< "   HIT  SEL\n\n" */
+extern char sHitSizeRangeFmt[];    /**< "SIZE 0<-%3d->500\n" */
+extern char sHitTypeFmt[];         /**< "TYPE. %d " */
+extern char sHitNewlines6[];       /**< "\n\n\n\n\n\n" */
+extern char sHitRadiusFmt[];       /**< "R:%d\n" */
+extern char sHitMenuDeleteText[];  /**< "DELETE\n" */
+extern char sHitMenuInfoText[];    /**< "INFO\n" */
+extern char sHitMenuDataText[];    /**< "DATA\n" */
+extern char sHitNewlines5[];       /**< "\n\n\n\n\n" */
 
 void PrintToolStatus(void) {
-    FntPrint(D_800114DC, gVSyncTime);
-    FntPrint(D_800114E8, gToolSection);
-    FntPrint(D_800114F4, gToolStep);
-    FntPrint(D_80011500, gPlayer.x, gPlayer.y, gPlayer.z);
-    FntPrint(D_8001151C);
+    FntPrint(sHitSyncFmt, gVSyncTime);
+    FntPrint(sHitTrapFmt, gToolSection);
+    FntPrint(sHitGridFmt, gToolStep);
+    FntPrint(sHitPosFmt, gPlayer.x, gPlayer.y, gPlayer.z);
+    FntPrint(sHitItemText);
     switch (gToolKind) {
         case 0:
-            FntPrint(D_80011528);
+            FntPrint(sHitBallHitText);
             break;
         case 1:
-            FntPrint(D_80011534);
+            FntPrint(sHitRideHitText);
             break;
     }
     if (D_80095A28 == 1) {
-        FntPrint(D_80011540);
+        FntPrint(sHitInfoText);
     } else if (D_80095A58 == 1) {
-        FntPrint(D_8001154C);
+        FntPrint(sHitDeleteNowText);
     }
-    FntPrint(D_80095658);
+    FntPrint(sHitNewlines6);
     if (D_80095A28 == 1) {
         switch (gToolKind) {
             case 0:
-                FntPrint(D_80095660, gToolPoint->radius);
-                FntPrint(D_80011564, gToolPoint->type);
-                FntPrint(D_80011570, -gToolPoint->x, gToolPoint->y, -gToolPoint->z);
+                FntPrint(sHitRadiusFmt, gToolPoint->radius);
+                FntPrint(sHitInfoTypeFmt, gToolPoint->type);
+                FntPrint(sHitInfoPosFmt, -gToolPoint->x, gToolPoint->y, -gToolPoint->z);
                 break;
             case 1:
-                FntPrint(D_80011588);
+                FntPrint(sHitNoSupportText);
                 break;
         }
     }
@@ -511,60 +511,60 @@ void PrintToolStatus(void) {
             D_80095A58 = 0;
             D_80095A28 = 0;
             if (D_8009574A == 0) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80011594);
+            FntPrint(sHitInfoNormHitText);
             if (D_8009574A == 1) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_800115A0);
+            FntPrint(sHitInfoRideHitText);
             if (D_8009574A == 2) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095678);
+            FntPrint(sHitMenuDeleteText);
             if (D_8009574A == 3) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095680);
+            FntPrint(sHitMenuInfoText);
             if (D_8009574A == 4) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
-            FntPrint(D_80095688);
+            FntPrint(sHitMenuDataText);
             SortSemiQuad(0x2821, 60, -68, 140, -68, 140, 12, 60, 12, 0);
             break;
         case 2:
-            FntPrint(D_80095690);
+            FntPrint(sHitNewlines5);
             PrintTabs(3);
-            FntPrint(D_800115AC);
+            FntPrint(sHitHitSelText);
             PrintTabs(3);
             if (D_8009574A == 0) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
-            FntPrint(D_800115BC, (s16)gToolRadius * 10);
+            FntPrint(sHitSizeRangeFmt, (s16)gToolRadius * 10);
             PrintTabs(3);
             if (D_8009574A == 1) {
-                FntPrint(D_80095668);
+                FntPrint(sHitColorWhite);
             } else {
-                FntPrint(D_80095670);
+                FntPrint(sHitColorBlue);
             }
-            FntPrint(D_800115D0, gToolType);
+            FntPrint(sHitTypeFmt, gToolType);
             SortSemiQuad(0x2821, -80, -30, 80, -30, 80, 30, -80, 30, 0);
             break;
         case 7:
@@ -1157,120 +1157,120 @@ s32 UpdateToolCard(void) {
     }
 }
 
-extern char D_80095698[]; /**< a line prefix */
-extern char D_8009569C[]; /**< not yet known */
-extern char D_80011618[];
-extern char D_80011624[];
-extern char D_80011634[];
-extern char D_80011644[];
-extern char D_80011654[];
-extern char D_80011664[];
-extern char D_80011678[];
-extern char D_80011688[];
-extern char D_80011698[];
-extern char D_800116AC[];
-extern char D_800116BC[];
-extern char D_800116D4[];
-extern char D_800116E0[];
-extern char D_800116F4[];
-extern char D_8001170C[];
-extern char D_8001171C[];
-extern char D_80011728[];
-extern char D_8001173C[];
-extern char D_8001174C[];
+extern char sHitNewlines3[];           /**< a line prefix, "\n\n\n" */
+extern char sHitCheckText[];           /**< not yet known, "CHECK" */
+extern char sHitDataModeText[];        /**< "DATA MODE" */
+extern char sHitModeSelectText[];      /**< "  MODE SELECT\n\n" */
+extern char sHitBufferSelectText[];    /**< "BUFFER SELECT\n\n" */
+extern char sHitCreateFileText[];      /**< "  CREATE FILE" */
+extern char sHitCardFormatText[];      /**< "  CARD FORMAT" */
+extern char sHitSaveToDataFmt[];       /**< "SAVE TO DATA %d\n\n" */
+extern char sHitOverwriteOkText[];     /**< "OVER WRITE OK ?" */
+extern char sHitDataWritingText[];     /**< "DATA WRITING..." */
+extern char sHitLoadFromDataFmt[];     /**< "LOAD TO DATA %d\n\n" */
+extern char sHitLoadOkText[];          /**< "    LOAD OK ?" */
+extern char sHitCantOpenDataFmt[];     /**< "CAN NOT OPEN DATA %d" */
+extern char sHitCompleteText[];        /**< "   COMPLATE" */
+extern char sHitErrorText[];           /**< "    !!!! ERROR!!!!" */
+extern char sHitNotEnoughMemoryText[]; /**< "   NOT ENOUGH MEMORY" */
+extern char sHitNoCardText[];          /**< "NO CONNECT CARD" */
+extern char sHitNoFileText[];          /**< "NO FILE\n\n" */
+extern char sHitCreateNewFileText[];   /**< "CREATE NEW FILE ?" */
+extern char sHitUnformattedText[];     /**< "    UN FORMAT\n\n" */
+extern char sHitFormatOkText[];        /**< "   FORMAT OK ?" */
 
 void PrintToolCardMenu(void) {
     PrintTabs(5);
-    FntPrint(D_80011618);
-    FntPrint(D_80095698);
+    FntPrint(sHitDataModeText);
+    FntPrint(sHitNewlines3);
     switch (gToolCardStep) {
         case 0:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(4);
-            FntPrint(D_8009569C);
+            FntPrint(sHitCheckText);
             break;
         case 1:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011624);
+            FntPrint(sHitModeSelectText);
             PrintSaveLoad();
             break;
         case 2:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011634);
+            FntPrint(sHitBufferSelectText);
             PrintToolSlots();
             break;
         case 16:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011644);
+            FntPrint(sHitCreateFileText);
             break;
         case 17:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011654);
+            FntPrint(sHitCardFormatText);
             break;
         case 4:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011664, gToolSlot + 1);
+            FntPrint(sHitSaveToDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_80011678);
+            FntPrint(sHitOverwriteOkText);
             PrintYesNo();
             break;
         case 8:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011688);
+            FntPrint(sHitDataWritingText);
             break;
         case 6:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_80011698, gToolSlot + 1);
+            FntPrint(sHitLoadFromDataFmt, gToolSlot + 1);
             PrintTabs(3);
-            FntPrint(D_800116AC);
+            FntPrint(sHitLoadOkText);
             PrintYesNo();
             break;
         case 7:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(2);
-            FntPrint(D_800116BC, gToolSlot + 1);
+            FntPrint(sHitCantOpenDataFmt, gToolSlot + 1);
             break;
         case 10:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_800116D4);
+            FntPrint(sHitCompleteText);
             break;
         case 11:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(2);
-            FntPrint(D_800116E0);
+            FntPrint(sHitErrorText);
             break;
         case 12:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(2);
-            FntPrint(D_800116F4);
+            FntPrint(sHitNotEnoughMemoryText);
             break;
         case 13:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_8001170C);
+            FntPrint(sHitNoCardText);
             break;
         case 14:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(4);
-            FntPrint(D_8001171C);
+            FntPrint(sHitNoFileText);
             PrintTabs(3);
-            FntPrint(D_80011728);
+            FntPrint(sHitCreateNewFileText);
             PrintYesNo();
             break;
         case 15:
-            FntPrint(D_80095698);
+            FntPrint(sHitNewlines3);
             PrintTabs(3);
-            FntPrint(D_8001173C);
+            FntPrint(sHitUnformattedText);
             PrintTabs(3);
-            FntPrint(D_8001174C);
+            FntPrint(sHitFormatOkText);
             PrintYesNo();
             break;
     }
@@ -1309,7 +1309,7 @@ void StoreHitSlot(s16 n) {
 s32 WriteHitDataFiles(void) {
     s32 fd;
 
-    fd = open(D_8001178C, O_CREAT | O_WRONLY);
+    fd = open(sHitDataFilePath0, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x8018D200, 0x4744) == -1) {
         goto fail;
     }
@@ -1317,7 +1317,7 @@ s32 WriteHitDataFiles(void) {
         goto fail;
     }
     close(fd);
-    fd = open(D_800117B4, O_CREAT | O_WRONLY);
+    fd = open(sHitDataFilePath1, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x80193978, 0x4744) == -1) {
         goto fail;
     }
@@ -1325,7 +1325,7 @@ s32 WriteHitDataFiles(void) {
         goto fail;
     }
     close(fd);
-    fd = open(D_800117DC, O_CREAT | O_WRONLY);
+    fd = open(sHitDataFilePath2, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x8019A0F0, 0x4744) == -1) {
         goto fail;
     }
@@ -1641,15 +1641,15 @@ void EditToolValues(void) {
 void PrintToolSlots(void) {
     s16 i;
 
-    FntPrint(D_800956A4);
+    FntPrint(sHitNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(4);
         if (D_8009574A == i) {
-            FntPrint(D_80095668);
+            FntPrint(sHitColorWhite);
         } else {
-            FntPrint(D_80095670);
+            FntPrint(sHitColorBlue);
         }
-        FntPrint(D_8001175C, i + 1);
+        FntPrint(sHitDataNoFmt, i + 1);
     }
 }
 
@@ -1657,7 +1657,7 @@ s32 WriteToolFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(D_80011768, O_CREAT | O_WRONLY);
+    fd = open(sHitTmpFilePath, O_CREAT | O_WRONLY);
     n = write(fd, (void *)0x8018D000, 0x13868);
     close(fd);
     return n;
@@ -1667,7 +1667,7 @@ s32 ReadToolFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(D_80011768, O_RDONLY);
+    fd = open(sHitTmpFilePath, O_RDONLY);
     n = read(fd, (void *)0x8018D000, 0x13868);
     close(fd);
     return n;

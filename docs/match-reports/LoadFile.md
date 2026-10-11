@@ -7,7 +7,7 @@ Unit `src/main.c`. Loads a whole file into a buffer: `open` for reading,
 swapping display buffers and printing "Can't open %s" with the name.
 
 ```c
-extern char D_80010148[]; /* "Can't open %s\n" */
+extern char sCantOpenFmt[]; /* "Can't open %s\n" */
 
 void LoadFile(char *name, void *buf) {
     s32 fd;
@@ -16,7 +16,7 @@ void LoadFile(char *name, void *buf) {
     if (fd == -1) {
         for (;;) {
             GsSwapDispBuff();
-            FntPrint(D_80010148, name);
+            FntPrint(sCantOpenFmt, name);
             FntFlush(-1);
         }
     }
@@ -25,7 +25,7 @@ void LoadFile(char *name, void *buf) {
 }
 ```
 
-First build. The format string is the unit's own rodata `D_80010148`,
+First build. The format string is the unit's own rodata `sCantOpenFmt`,
 declared `[]` so its `%hi` is hoisted into `$s0` out of the endless loop and
 each pass adds `%lo` into `$a0`, as retail does. `open`, `read` and `close`
 come from `libapi.h` and `GsSwapDispBuff` from `libgs.h`; main.c now

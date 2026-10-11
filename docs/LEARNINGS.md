@@ -13,7 +13,7 @@ function's match report, not here.
   worth knowing"). Confirmed across round 1: `%gp_rel` and `lui $at` are a
   plain extern; `lui <reg>` + `%lo(sym)(<reg>)` is an array of unknown size,
   including a `.sdata` string reached `lui`/`addiu` (`extern char
-  D_800954CC[];`, PrintTabs) and a halfword table head stored through
+  sTab[];`, PrintTabs) and a halfword table head stored through
   `lui $v0` (`extern u16 D_80095B4C[];`, ResetRec48Upper).
 - **A LOAD whose `lui` and destination are the same register is a scalar**,
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic

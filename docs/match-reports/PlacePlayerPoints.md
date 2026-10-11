@@ -70,7 +70,7 @@ extern Bytes3 sPointGroupStarts[];
 void PlacePlayerPoints(void);
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
 void ResetPlayerHits(void);
-void func_8002988C(void);
+void ClearRideQuad(void);
 
 s16 FindFreeSlot48(void) {
     Slot48 *slot = (Slot48 *)gSlotTable;

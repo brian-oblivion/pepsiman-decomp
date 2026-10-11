@@ -129,7 +129,7 @@ void func_800F8D64(void);
 void func_800F729C(void);
 void RecentreSteer(void);
 void SetStageFog(void);
-void func_80028500(void);
+void UpdateBrake(void);
 
 /* MATCHING: stage defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
@@ -157,13 +157,13 @@ extern s16 gMissTimer;
 void DrawHud(void);
 /* MATCHING: stage_flow defines this with a u8 parameter; this unit's call passes none. */
 void RestartStage();
-void func_8003E360(s32 level);
+void StepQuitEffect(s32 level);
 /* MATCHING: stage_flow stores this as u8; this unit's test loads it lb. */
 extern s8 gSkipLandRumble; /**< 1 after a start or restart: the next landing does not rumble */
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
 /* MATCHING: model defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
-void func_80018CA4(PlayerState *g);
+void OnJumpStart(PlayerState *g);
 
 void DrawPlayerShadow(void) {
     GsCOORDINATE2 coord;
@@ -305,9 +305,11 @@ void UpdateGridTest(void) {
     D_8009580C = sGridScreen[0].vy;
 }
 
-void func_80022F58(void) {}
+/** @brief Empty and never called. */
+void UnusedHook1(void) {}
 
-void func_80022F60(void) {}
+/** @brief Empty and never called. */
+void UnusedHook2(void) {}
 
 void ScatterEffect4(VECTOR *pos) {
     SpawnEffect(4, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
@@ -319,7 +321,8 @@ void ScatterEffect6(VECTOR *pos) {
                 (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
-void func_800230D8(void) {}
+/** @brief Empty and never called. */
+void UnusedHook3(void) {}
 
 /* MATCHING: the unused 88 bytes put p and flag at sp+0xE8 and the frame at 0x100. */
 void ProjectToScreen(VECTOR *pos, SVECTOR *out) {
@@ -889,7 +892,7 @@ void ReactToHits(PlayerState *state) {
  * calls pass halfwords unextended and store the result as a word. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 /* MATCHING: empty void(void) in model; unprototyped here, called with two args and one. */
-void func_80018CAC();
+void OnJumpLand();
 
 s32 LandPlayer(PlayerState *g);
 void ResetPlayerAction(void);
@@ -1306,7 +1309,7 @@ top:
             if (state->peakY <= gPlayer.rideQuadY && state->onRideQuad == 1) {
                 if (state->y >= gPlayer.rideQuadY) {
                     state->y = gPlayer.rideQuadY;
-                    func_80018CAC(&gPlayer, d);
+                    OnJumpLand(&gPlayer, d);
                     /* MATCHING: case 0 shares the default body, which the compare tree reaches first. */
                     switch ((s8)gPlayer.slideState) {
                         case SLIDE_NONE:
@@ -1324,7 +1327,7 @@ top:
                 }
             } else if (state->y >= state->groundY) {
                 state->y = gFloorY[0];
-                func_80018CAC(&gPlayer);
+                OnJumpLand(&gPlayer);
                 switch ((s8)gPlayer.slideState) {
                     case SLIDE_NONE:
                     default:
@@ -2069,7 +2072,7 @@ s32 UpdateSlideDash(void) {
                 }
                 break;
             case SLIDE_BRAKING:
-                func_80028500();
+                UpdateBrake();
                 break;
             case SLIDE_DASHING:
                 if (gPlayer.action == ACT_RUN) {
@@ -2100,7 +2103,7 @@ void UpdateJump(void) {
             gPlayer.jumpState = JUMP_RISING;
             gPlayer.jumpTime = 0;
             gPlayer.peakY = 0;
-            func_80018CA4(&gPlayer);
+            OnJumpStart(&gPlayer);
             gPlayer.motion[0] = MOT_JUMP;
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
@@ -2315,7 +2318,7 @@ top:
             break;
         case MISS_TO_MENU:
             t = ++gMissTimer;
-            func_8003E360(t);
+            StepQuitEffect(t);
             if (t == 0x180) {
                 gGameMode = GM_MENU_LOAD;
             }
@@ -2630,7 +2633,7 @@ void UpdateCoverJump(void) {
             gPlayer.jumpState = JUMP_RISING;
             gPlayer.jumpTime = 0;
             gPlayer.peakY = 0;
-            func_80018CA4(&gPlayer);
+            OnJumpStart(&gPlayer);
             gPlayer.motion[0] = MOT_JUMP;
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
@@ -2819,9 +2822,11 @@ void CheckCanBonus(void) {
     }
 }
 
-void func_800284F8(void) {}
+/** @brief Empty and never called. */
+void UnusedHook4(void) {}
 
-void func_80028500(void) {}
+/** @brief Empty; runs every frame of SLIDE_BRAKING. */
+void UpdateBrake(void) {}
 
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
 s32 TrySlide(void) {

@@ -1,4 +1,6 @@
-# func_80033B08 — MATCHED 11/11 (round 1, alpha)
+# EditPepsiGroup — MATCHED 11/11 (round 1, alpha)
+
+> Renamed from `func_80033B08` on 2026-10-11 (tools/rename.py). Address 0x80033b08.
 
 Unit `src/editor.c`. Calls `StepMenuCursor`, then copies the halfword
 `gEditValue` into the first halfword of `D_80095B4C`. First build matched.
@@ -8,7 +10,7 @@ extern u16 gEditValue;
 extern u16 D_80095B4C[];
 void StepMenuCursor(void);
 
-void func_80033B08(void) {
+void EditPepsiGroup(void) {
     StepMenuCursor();
     D_80095B4C[0] = gEditValue;
 }

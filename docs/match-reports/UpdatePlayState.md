@@ -25,7 +25,7 @@ void FadeInFog(void);
 void SetSoundFade(u8 value);
 void DrawFrozenFrame(void);
 void RestartStage(); /* stage_flow defines it with a u8 parameter */
-void func_8003E360(s32 level);
+void StepQuitEffect(s32 level);
 
 typedef struct {
     s32 w[3];
@@ -159,7 +159,7 @@ top:
             break;
         case 110:
             t = ++gMissTimer;
-            func_8003E360(t);
+            StepQuitEffect(t);
             if (t == 0x180) {
                 gGameMode = 6;
             }

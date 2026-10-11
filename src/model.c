@@ -606,9 +606,11 @@ void SelectViewerMotion(void) {
     }
 }
 
-void func_80018CA4(void) {}
+/** @brief Empty; called with the player when a jump starts. */
+void OnJumpStart(void) {}
 
-void func_80018CAC(void) {}
+/** @brief Empty; called with the player when a jump lands. */
+void OnJumpLand(void) {}
 
 void InitView(void) {
     GsSetProjection(250);
@@ -651,7 +653,9 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     return cur;
 }
 
-void func_80018DE8(void) {}
+/** @brief Empty; called with 0 when the boot files are read and 1 once their
+ *         models are set up. */
+void SetBootReady(void) {}
 
 GsDOBJ2 *FindTodObj(TodObjTable *list, s32 key);
 GsDOBJ2 *CreateTodObj(TodObjTable *list, s32 key);

@@ -12,7 +12,7 @@
 
 /** @brief Hands an index to stage 0's overlay; other stages ignore it.
  *  @param index passed through unchanged */
-void func_800414EC(s16 index);
+void OnCanCollected(s16 index);
 
 /** @brief Plays a streamed movie to its end, or until START skips it.
  *  @param name      the movie file's name; empty to play from @p loc

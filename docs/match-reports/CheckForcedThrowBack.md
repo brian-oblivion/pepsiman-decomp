@@ -1,11 +1,13 @@
-# func_8002A558 — MATCHED 22/22 (round 4, alpha)
+# CheckForcedThrowBack — MATCHED 22/22 (round 4, alpha)
+
+> Renamed from `func_8002A558` on 2026-10-11 (tools/rename.py). Address 0x8002a558.
 
 Unit `src/object.c`. When bits 4-5 of `gStageParams` read 1 and byte 5 of
 the game state `gPlayer` is not 0x43, sets that byte to 0x42 and calls
 `AddBonusLevel(-1)` (defined in `player`).
 
 ```c
-s32 func_8002A558(void) {
+s32 CheckForcedThrowBack(void) {
     if ((((u32)gStageParams >> 4) & 3) == 1 && sGameHead.unk5 != 0x43) {
         sGameHead.unk5 = 0x42;
         AddBonusLevel(-1);

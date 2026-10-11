@@ -19,7 +19,7 @@ function's match report, not here.
   `lui $v1` / `lbu $v1, %lo(sym)($v1)`: the assembler expanding a symbolic
   load. cc1's split of an array puts the address and the value in different
   registers (`lui $v0` / `lbu $v1`). Check every retail load before declaring.
-  (func_800414EC, `u8 gStage`; SetStageFog, `s32 gStageParams`)
+  (OnCanCollected, `u8 gStage`; SetStageFog, `s32 gStageParams`)
   Only when the two are ADJACENT: a `lui` in a delay slot with another load
   before its `lw` is cc1's array split (`extern s32 D_8009EF44[];`,
   LandPlayer).
@@ -361,7 +361,7 @@ function's match report, not here.
 - **`== 1`, then `slti < 2`, then `== 0` on a byte: nested `if`s on an `s32`
   copy.** A `u8` copy gives `sltu`; a `switch` on {0, 1} and an `&&` chain
   both fold to one `bnez`, so the empty-case lever above does not apply.
-  (func_800414EC)
+  (OnCanCollected)
 - **Two identical blocks retail keeps apart: one call per branch**, not one
   after the chain; cross-jumping folds the calls and leaves the blocks.
   (StepMenuCursor, DrawScreenWipe) Every switch arm jumping to one shared store
@@ -460,7 +460,7 @@ function's match report, not here.
   statements**, `v = (a - b) << 16; v /= n; v *= k; v /= 0x10000;`.
   (Lerp)
 - **An induction expression cc1 reassociates: put the induction part in its
-  own local**, `base = i*3 + 0x40; v = base - level;`. (func_8003E360)
+  own local**, `base = i*3 + 0x40; v = base - level;`. (StepQuitEffect)
 - **Retail rebuilding local addresses before every call, with those locals
   after the caller's own in the frame: an inlined helper**, `static
   __inline__ setLs(x, y, z)` holding the shared body. (StepEffect0,

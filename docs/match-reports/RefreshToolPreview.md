@@ -6,7 +6,7 @@ Unit `src/hit_tool.c`. Resets part of the play state around the current
 entry: raises `sPreviewing` for the duration, calls `ResetCollision`, clears
 words 0, 1, 2, 11, 12 and halfwords 12-14 of `gTraps`, then
 `UpdateObjectEntry` on the current `gObjectModels` record, `ReactToHits` on the
-game state and `func_80029838`.
+game state and `LeaveQuadTop`.
 
 ## Rounds
 
@@ -37,7 +37,7 @@ void RefreshToolPreview(void) {
     gTraps[12] = 0;
     UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);
     ReactToHits(gPlayer);
-    func_80029838();
+    LeaveQuadTop();
     sPreviewing = 0;
 }
 ```

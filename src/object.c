@@ -477,7 +477,7 @@ s32 QueryWall(s32 zone, VECTOR *pos, FloorHdr *hdr) {
  * unextended. */
 void UpdateSection(s32 *index, s32 x, s32 y);
 
-s32 func_8002A558(void);
+s32 CheckForcedThrowBack(void);
 
 /** @brief Probes 50 units ahead of the player, 45 degrees either side of
  *         the heading; each probe that hits pushes the player 25 units
@@ -504,14 +504,14 @@ void PushPlayerFromWalls(void) {
         gPlayer.x -= rsin(gCourse.rot.vy - 0x400) * 25 >> 12;
         gPlayer.z -= rcos(gCourse.rot.vy - 0x400) * 25 >> 12;
     }
-    func_8002A558();
+    CheckForcedThrowBack();
 }
 
 /** @brief Throws the player back (ACT_THROWN_BACK_START) and takes a
  *         bonus level, when the stage parameter's bits 4-5 are 1 and the
  *         player is not already thrown back.
  *  @return nothing; the value is undefined. */
-s32 func_8002A558(void) {
+s32 CheckForcedThrowBack(void) {
     /* MATCHING: non-void with no return keeps the second branch's delay
      * slot a nop. */
     if ((((u32)gStageParams >> 4) & 3) == 1 && gPlayer.action != ACT_THROWN_BACK) {
@@ -822,7 +822,7 @@ void UpdateTrapViewer(void) {
     ((s16 *)gTraps)[14] = 0;
     UpdateObjectEntry(&gObjectModels[gSelectedSection], (Trap *)gTraps);
     ReactToHits(&gPlayer);
-    func_80029838();
+    LeaveQuadTop();
     DrawAxes();
     FntPrint(gTrapNoFmt, gSelectedSection, gSectionCount);
 }
@@ -913,7 +913,7 @@ void UpdateTrapLayoutViewer(void) {
                 UpdateObjectEntry((ObjectModel *)(r->model * 120 + (u32)tbl), (Trap *)r);
             }
             ReactToHits(&gPlayer);
-            func_80029838();
+            LeaveQuadTop();
             DrawAxes();
             break;
     }
@@ -1525,7 +1525,7 @@ void UpdatePickups(void) {
                 pos.z = coord.coord.t[2] - gWorldShift[2];
                 if (ProbePosition(&pos)) {
                     m = n;
-                    func_800414EC(m);
+                    OnCanCollected(m);
                     switch (m) {
                         case 0:
                             break;

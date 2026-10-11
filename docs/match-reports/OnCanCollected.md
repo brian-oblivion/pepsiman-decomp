@@ -1,4 +1,6 @@
-# func_800414EC — MATCHED (18/18) after a header retype (round 2, bravo)
+# OnCanCollected — MATCHED (18/18) after a header retype (round 2, bravo)
+
+> Renamed from `func_800414EC` on 2026-10-11 (tools/rename.py). Address 0x800414ec.
 
 **Resolved by the head after merge (round 2):** `gStage` is now `extern u8 gStage;`
 in `include/common.h` (all 57 retail loads are the scalar `lui $X` / `lbu $X` form), and the
@@ -18,7 +20,7 @@ are additive only). Posted to the broadcast for the head.
 extern u8 gStage[]; /* include/common.h */
 void func_800FA610(s16 arg0);
 
-void func_800414EC(s16 arg0) {
+void OnCanCollected(s16 arg0) {
     s32 mode = gStage[0];
 
     if (mode != 1) {
@@ -72,4 +74,4 @@ cases 0 and 1 the switch is folded.
   expanded by the assembler; an array of unknown size gives cc1's split
   into two registers wherever the allocator separates them.
 - **A literal `== 1`, `< 2`, `== 0` chain on a byte: nested `if`s on an
-  `s32` copy.** The `switch` and the `&&` forms fold. (func_800414EC)
+  `s32` copy.** The `switch` and the `&&` forms fold. (OnCanCollected)

@@ -6,7 +6,7 @@ Unit `src/player.c`. A three-state machine on game-state byte 0x38E
 (read signed): state 0 resets the 0x38C timer and, in modes 2..4 with 0x34C
 at its cap and pad-edge bit 0x40, moves to state 1 on button 0x4000 or to
 state 2 (sound 0x71) on button 0x1000 when the count at 0x3A8 is 38..42;
-state 1 calls `func_80028500`; state 2 returns to 0 once byte 5 clears.
+state 1 calls `UpdateBrake`; state 2 returns to 0 once byte 5 clears.
 
 ```c
 /* MATCHING: non-void with no return keeps li 0x71 first in the call block. */
@@ -36,7 +36,7 @@ s32 UpdateSlideDash(void) {
                 }
                 break;
             case 1:
-                func_80028500();
+                UpdateBrake();
                 break;
             case 2:
                 if (sGame.unk5 == 0) {
@@ -49,7 +49,7 @@ s32 UpdateSlideDash(void) {
 }
 ```
 
-GameState gained `unk38C` (s16). `func_80028500` (defined later in the
+GameState gained `unk38C` (s16). `UpdateBrake` (defined later in the
 unit) got a prototype in the `.c`.
 
 ## Path

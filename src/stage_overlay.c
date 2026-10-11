@@ -25,11 +25,11 @@ void func_800FAB9C(void);
 void func_800FABC4(void);
 void func_800FAE44(void);
 
-extern u16 D_8007B0EC[];
+extern u16 sNextStage[];     /**< each stage's successor: stage + 1 */
 extern u16 sStageVabBanks[]; /**< each stage's VAB bank */
 
-u16 func_80041158(u16 i) {
-    return D_8007B0EC[i];
+u16 GetNextStage(u16 i) {
+    return sNextStage[i];
 }
 
 s32 GetStageVabBank(u16 stage) {

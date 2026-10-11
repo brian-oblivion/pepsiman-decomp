@@ -1,9 +1,11 @@
-# func_8002988C — MATCHED 3/3 (round 4, bravo)
+# ClearRideQuad — MATCHED 3/3 (round 4, bravo)
+
+> Renamed from `func_8002988C` on 2026-10-11 (tools/rename.py). Address 0x8002988c.
 
 Unit `src/collision.c`. Clears the word `D_8009EF30`.
 
 ```c
-void func_8002988C(void) {
+void ClearRideQuad(void) {
     D_8009EF30[0] = 0;
 }
 ```

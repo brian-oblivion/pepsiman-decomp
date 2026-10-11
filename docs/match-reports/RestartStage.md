@@ -23,7 +23,7 @@ halfword in each of the 200 Trap records.
  * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
  * D_800957D6, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
- * PlayStageMusic(u8) and func_80041118(u8). */
+ * PlayStageMusic(u8) and OnStageRestart(u8). */
 void RestartStage(u8 arg0) {
     s32 unused[2];
     s16 yaw;
@@ -60,7 +60,7 @@ void RestartStage(u8 arg0) {
         RestoreToolBuffer();
     }
     ResetStageObjects();
-    func_80041118(gStage);
+    OnStageRestart(gStage);
     sStage.unk6 = 2;
     sStage.unk0 = 1;
     gFellOff = 0;

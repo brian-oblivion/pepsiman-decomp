@@ -1485,7 +1485,9 @@ void MarkCpuTime(s32 a, s32 b, s32 c) {
     }
 }
 
-void func_8003E360(s32 level) {
+/** @brief MISS_TO_MENU's step: computes nine values from `level` and keeps
+ *         none of them. */
+void StepQuitEffect(s32 level) {
     s32 i;
     s32 v;
     s32 base;

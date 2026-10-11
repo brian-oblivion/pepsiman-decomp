@@ -9,7 +9,7 @@ each group of the zone (`gStageRuns[gSection]`, group list
 non-zero and not yet done (bit 15): places a 75x75 sprite 0xFA at the
 entry relative to the player, sorts it near or far as DrawObjectSprite does,
 and when ProbePosition reports the player 50 units above it, runs
-func_800414EC, plays 0x35 and SpawnEffect (7, or 8 for state 2, none
+OnCanCollected, plays 0x35 and SpawnEffect (7, or 8 for state 2, none
 for 0), and sets bit 15.
 
 ## Round 11 (echo): matched
@@ -38,7 +38,7 @@ change).
 Declarations left in the unit for the head (declcheck LOCAL/MULTI):
 `gStageRuns` and `gStageRunObjs` (stage.c declares both too, with its
 own `Run` type for the first), `DrawStandingBillboardFog` (defined in draw,
-not in `draw.h`) and `func_800414EC` (defined in sound).
+not in `draw.h`) and `OnCanCollected` (defined in sound).
 
 The round 9 body follows as it was preserved.
 
@@ -64,7 +64,7 @@ typedef struct {
 
 extern Zone4 *gStageRuns; /**< the zones */
 extern s8 *gStageRunObjs;    /**< the group list the zones index */
-void func_800414EC(s16 n);
+void OnCanCollected(s16 n);
 s8 ProbePosition(Vec3 *pos);
 
 static __inline__ s32 absInt(s32 x) {
@@ -119,7 +119,7 @@ void UpdatePickups(void) {
                 pos.z = coord.coord.t[2] - gWorldShift[2];
                 if (ProbePosition(&pos)) {
                     m = n;
-                    func_800414EC(m);
+                    OnCanCollected(m);
                     switch (m) {
                         case 0:
                             break;

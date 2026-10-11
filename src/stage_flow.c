@@ -74,7 +74,7 @@ void RestoreToolBuffer(void);
 void PlayStageMusic(u8 idx);
 void ResetStage(void);
 void StartStageOverlay(void);
-void func_80041118(u8 stage);
+void OnStageRestart(u8 stage);
 
 /** @brief The saved state a stage can resume from. */
 typedef struct {
@@ -333,7 +333,7 @@ void RestartStage(u8 stage) {
         RestoreToolBuffer();
     }
     ResetStageObjects();
-    func_80041118(gStage);
+    OnStageRestart(gStage);
     gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gFellOff = 0;
@@ -556,7 +556,8 @@ void FadeInFog(void) {
     }
 }
 
-void func_80041118(u8 stage) {
+/** @brief Runs the stage overlay's restart hook; only STAGE_1_1 has one. */
+void OnStageRestart(u8 stage) {
     s32 mode = stage;
 
     if (mode != 1) {

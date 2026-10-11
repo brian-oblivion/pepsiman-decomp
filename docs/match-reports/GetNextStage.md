@@ -1,15 +1,17 @@
-# func_80041158 — MATCHED 8/8 (round 12, alpha)
+# GetNextStage — MATCHED 8/8 (round 12, alpha)
+
+> Renamed from `func_80041158` on 2026-10-11 (tools/rename.py). Address 0x80041158.
 
 Unit `src/stage_overlay.c`. Returns entry `i` of the halfword table
-`D_8007B0EC`. No caller in C yet.
+`sNextStage`. No caller in C yet.
 
 Matched on the first build.
 
 ```c
-extern u16 D_8007B0EC[];
+extern u16 sNextStage[];
 
-u16 func_80041158(u16 i) {
-    return D_8007B0EC[i];
+u16 GetNextStage(u16 i) {
+    return sNextStage[i];
 }
 ```
 

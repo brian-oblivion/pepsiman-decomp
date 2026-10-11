@@ -662,7 +662,7 @@ void RemapButtons(void);
 void ResetCollision(void);
 
 /** @brief Defined in collision. */
-void func_80029838(void);
+void LeaveQuadTop(void);
 
 /** @brief Defined in hit_tool; called from card. */
 void ApplyHitPoints(void);

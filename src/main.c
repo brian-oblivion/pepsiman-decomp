@@ -37,7 +37,7 @@ extern u16 gRumbleLarge;
 extern char sNewline[]; /**< "\n" */
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
-void func_80018DE8(s32 arg);
+void SetBootReady(s32 arg);
 s8 LoadBootData(void);
 s32 LoadSoundData(void);
 void InitSystem(void);
@@ -68,7 +68,7 @@ int main(void) {
 
     InitSystem();
     InitTmdSortFuncs();
-    func_80018DE8(1);
+    SetBootReady(1);
     InitView();
     InitLights();
     SetFogNearFar(3000, 8000, 250);
@@ -414,7 +414,7 @@ int main(void) {
 
 extern s32 sBootFileLoc[];
 extern s32 sBootFileSectors[];
-void func_80013CDC(void);
+void LoadCommonModels(void);
 
 /* MATCHING: model types the pack as its own PackEntry. */
 void LoadTimPack(void *pack);
@@ -447,17 +447,17 @@ s8 LoadBootData(void) {
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
-                func_80018DE8(0);
+                SetBootReady(0);
                 gSubStep++;
             }
             break;
         case 2:
             ret = 1;
-            func_80013CDC();
+            LoadCommonModels();
             LoadTimPack((void *)0x8018D000);
             LoadTimList((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
             DefineHudSprites();
-            func_80018DE8(1);
+            SetBootReady(1);
             break;
     }
     return ret;
@@ -498,7 +498,10 @@ void InitModel(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: model types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 
-void func_80013CDC(void) {
+/** @brief Sets up the models every stage shares: the player's model, the
+ *         seven mode objects, the TOD objects and the animations; then
+ *         starts the player's motion. */
+void LoadCommonModels(void) {
     /* MATCHING: one pointer reused for the pack, its second word and the
      * directory, so all three share a saved register. */
     s32 *p;
@@ -1329,7 +1332,7 @@ void LoadAct3Stage(void) {
             }
             break;
         case 4:
-            func_80018DE8(0);
+            SetBootReady(0);
             switch (gStage) {
                 case STAGE_1_3:
                     gCdLoadLoc[0] = (s32)&sStage02FileLoc[0];
@@ -1472,7 +1475,7 @@ void LoadStage(void) {
             }
             break;
         case 4:
-            func_80018DE8(0);
+            SetBootReady(0);
             switch (gStage) {
                 case STAGE_1_1:
                     gCdLoadLoc[0] = (s32)&sStage00FileLoc[0];
@@ -1803,7 +1806,7 @@ void LoadStage(void) {
             if (gCdLoadState == CD_LOAD_DONE) {
                 ResetStageObjects();
                 StartStageOverlay();
-                func_80018DE8(1);
+                SetBootReady(1);
                 gSavedStart[0] = 0;
                 ResetStage();
                 gSubStep = 100;

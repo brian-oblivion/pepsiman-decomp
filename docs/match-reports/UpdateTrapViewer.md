@@ -7,7 +7,7 @@ Unit `src/object.c`. A trap-viewer frame: fixed reference view
 and 1 step the selected ObjectModel entry `gSelectedSection`, clamped to `0 ..
 gSectionCount - 1` with one nested-ternary store; then ResetCollision, a
 zeroed Trap at `gTraps` turning with the frame counter, UpdateObjectEntry
-on the selected entry, ReactToHits, func_80029838, the axes
+on the selected entry, ReactToHits, LeaveQuadTop, the axes
 (DrawAxes) and `FntPrint("TRAP NO  (%2d / %2d)", ...)`.
 
 ```c
@@ -49,7 +49,7 @@ void UpdateTrapViewer(void) {
     ((s16 *)gTraps)[14] = 0;
     UpdateObjectEntry(&gObjectModels[gSelectedSection], (Trap *)gTraps);
     ReactToHits(gPlayer);
-    func_80029838();
+    LeaveQuadTop();
     DrawAxes();
     FntPrint(gTrapNoFmt, gSelectedSection, gSectionCount);
 }```

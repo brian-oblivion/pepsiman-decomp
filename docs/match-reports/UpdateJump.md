@@ -31,7 +31,7 @@ void UpdateJump(void) {
             sGame.unk390 = 1;
             sGame.unk392 = 0;
             sGame.unk39C = 0;
-            func_80018CA4(&sGame);
+            OnJumpStart(&sGame);
             sGame.unk6 = 8;
             sGame.unk398 = 0x23;
             sGame.unk394 = sGame.unk34C;

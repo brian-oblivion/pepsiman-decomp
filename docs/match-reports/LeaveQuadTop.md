@@ -1,10 +1,12 @@
-# func_80029838 — MATCHED 9/9 (round 4, bravo)
+# LeaveQuadTop — MATCHED 9/9 (round 4, bravo)
+
+> Renamed from `func_80029838` on 2026-10-11 (tools/rename.py). Address 0x80029838.
 
 Unit `src/collision.c`. When the word at `gPlayer + 0x3B8` is zero,
 clears the word at `+ 0x3BC`.
 
 ```c
-void func_80029838(void) {
+void LeaveQuadTop(void) {
     s32 *p = (s32 *)gPlayer;
 
     if (p[0x3B8 / 4] == 0) {

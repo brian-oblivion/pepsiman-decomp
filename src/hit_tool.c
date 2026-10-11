@@ -1618,7 +1618,7 @@ void RefreshToolPreview(void) {
     gTraps[12] = 0;
     UpdateObjectEntry(&gObjectModels[gToolSection], (Trap *)gTraps);
     ReactToHits(&gPlayer);
-    func_80029838();
+    LeaveQuadTop();
     sPreviewing = 0;
 }
 

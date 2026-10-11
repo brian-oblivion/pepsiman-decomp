@@ -373,7 +373,7 @@ s32 UpdateEditorData(void);
 void DrawPole(VECTOR *pos);
 void BackupToolBuffer(void);
 void TotalBlockEntries(void);
-void func_80033B08(void);
+void EditPepsiGroup(void);
 void RunValueMenu(void);
 void ApplyRecordsToEntries(void);
 s32 PrintEditorStatus(void);
@@ -759,7 +759,7 @@ s32 UpdateEditor(void) {
                     }
                     break;
                 case ED_PEPSI_SEL:
-                    func_80033B08();
+                    EditPepsiGroup();
                     if (gPadTrig & PADRdown) {
                         gToolMode = ED_MOVE;
                     }
@@ -3369,9 +3369,9 @@ void TotalBlockEntries(void) {
     }
 }
 
-/** @brief Runs an update, then latches a halfword into the first slot of a
- *         halfword run. */
-void func_80033B08(void) {
+/** @brief ED_PEPSI_SEL's step: moves the cursor and keeps the edited value
+ *         as the group the next can gets. */
+void EditPepsiGroup(void) {
     StepMenuCursor();
     sTotals.canGroup = gEditValue;
 }

@@ -1,4 +1,6 @@
-# func_8003E360 — MATCHED 43/43 (round 5, bravo)
+# StepQuitEffect — MATCHED 43/43 (round 5, bravo)
+
+> Renamed from `func_8003E360` on 2026-10-11 (tools/rename.py). Address 0x8003e360.
 
 Unit `src/stage.c`. A leaf that clamps `level` to 0x80, then nine
 times (i = 8 down to 0) fills a 0x14-byte stack block: two `SVECTOR`s and a
@@ -9,7 +11,7 @@ the body of a draw call that was compiled out (2.8.1 keeps dead stores to a
 stack aggregate).
 
 ```c
-void func_8003E360(s32 level) {
+void StepQuitEffect(s32 level) {
     s32 i;
     s32 v;
     s32 base;
@@ -66,7 +68,7 @@ The chained stores follow the round-4 rule (right to left): retail's
   base - level;`. Written in one expression, fold-const turns it into
   `i * 3 - (level - C)` (a hoisted `addiu x, -C`, giv started without C);
   a hand-made biv puts its init before the loop's hoisted constants
-  instead of after. (func_8003E360)
+  instead of after. (StepQuitEffect)
 - `for (i = 0; i < N; i++)` with an `s32` `i` used only in the test was not
   reversed here; a count-down `bgez` loop can simply be a count-down source
   loop.

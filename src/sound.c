@@ -46,7 +46,9 @@ extern s16 gMovieDisplayHeight;
 void func_800FA610(s16 index);
 void StartMovieRead(CdlLOC *loc);
 
-void func_800414EC(s16 index) {
+/** @brief Runs the stage overlay's hook for a collected can of group
+ *         `index`; only STAGE_1_1 has one. */
+void OnCanCollected(s16 index) {
     s32 mode = gStage;
 
     if (mode != 1) {

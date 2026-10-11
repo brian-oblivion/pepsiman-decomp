@@ -2,7 +2,7 @@
 
 Unit `src/main.c`. The game's entry, called from SN's crt0
 (`__SN_ENTRY_POINT`). It initialises the system (InitSystem,
-InitTmdSortFuncs, func_80018DE8(1), InitView, InitLights, fog),
+InitTmdSortFuncs, SetBootReady(1), InitView, InitLights, fog),
 sets the start-up globals, fills two four-entry tables (clears
 `gBestCans`, copies `gTargetTimes` into `gBestTimes`), then loops forever:
 `FntPrint`, the 45-state top-level `switch (gGameMode)` (boot, title,

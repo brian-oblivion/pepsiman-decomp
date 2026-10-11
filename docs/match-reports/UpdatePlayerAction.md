@@ -50,11 +50,11 @@ become ready first, and `adjust_priority` boosts both to
 and the `&sGame` pair sank below them; sched2 then breaks its ties by
 LUID and gives the build's order.
 
-Retail's second goal path passes ONE argument. `func_80018CAC` (empty in
+Retail's second goal path passes ONE argument. `OnJumpLand` (empty in
 model) is declared unprototyped in this unit, `void
-func_80018CAC();`; the first path calls `func_80018CAC(&sGame, d)` (that
+OnJumpLand();`; the first path calls `OnJumpLand(&sGame, d)` (that
 call is still what gives `d` its `$a1` preference) and the second
-`func_80018CAC(&sGame)`. With no `$a1` copy the `$a0` copy is scheduled
+`OnJumpLand(&sGame)`. With no `$a1` copy the `$a0` copy is scheduled
 right after the `sw`, and both schedulers reproduce retail. 2108 -> 2110,
 build `OK`, in 4 builds.
 
@@ -91,7 +91,7 @@ Levers tried this round before it:
   `state->unk398 -= 5 / 7` feeding `state->unk34C -= step` is
   sign-extended into `` at all four sites in retail. One local `d`
   (`state->unk398 -= 7; d = state->unk398; state->unk34C -= d;`) and
-  case 8 passing it as `func_80018CAC(&sGame, d)` (an empty function in
+  case 8 passing it as `OnJumpLand(&sGame, d)` (an empty function in
   model; retail's `` is set there) gives global-alloc a hard-reg
   preference for `` for the whole pseudo. An `s16` local
   re-extends at the call; the `d = (s16)(x - 7); x = d;` order stores
@@ -121,7 +121,7 @@ Levers tried this round before it:
 ## Axes tried on the residue (about 20 builds, one permuter search)
 
 - Store/call spellings: `*gFloorY`, `(GameState *)gPlayer`, a
-  `GameState *g` local for the call and the switch, `func_80018CAC(&sGame,
+  `GameState *g` local for the call and the switch, `OnJumpLand(&sGame,
   state->unk398)`, the load through `t`/`v`/`r` locals, volatile store,
   volatile load, barriers after the call and between store and call:
   2108 or worse.
@@ -133,7 +133,7 @@ Levers tried this round before it:
   never change); (2) scaffold 0 ins / 0 del, 1 reordering; (3) in-tree
   funcdiff 1/1 for the same swap: AGREE. `timeout 1800`, rc 124,
   85239 iterations (under load, other runners active). Best 100:
-  `d = gFloorY[0]; state->unk34C = d; func_80018CAC(&sGame, d);`
+  `d = gFloorY[0]; state->unk34C = d; OnJumpLand(&sGame, d);`
   fixes the order but loads into `` (2108 in-tree, two other words).
   Not closed.
 

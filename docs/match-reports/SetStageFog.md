@@ -30,7 +30,7 @@ The other 23 words are the same. With a local experiment changing
 common.h's line to `extern s32 gStageParams;` (and `(u32)gStageParams`) the
 whole image matches: `OK: build matches retail`, 24/24. Every retail access
 to `gStageParams` in all three units (UpdatePlayer twice, UpdateStageLights,
-func_8002A558, FadeInFog, this one) is a `lw` with the `%hi` in the
+CheckForcedThrowBack, FadeInFog, this one) is a `lw` with the `%hi` in the
 destination register, so the scalar declaration fits every one. No unit in
 `src/` references it yet. The edit is not additive, so it is left to the
 head: change common.h's array to `extern s32 gStageParams;` (move it from

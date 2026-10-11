@@ -6,7 +6,7 @@ Unit `src/object.c`. Two wall probes: a point 50 units from the
 player (`sGameHead` 0x348/0x34C/0x350) at the heading `gCourse[0].vy`
 plus and minus 0x200 (45 degrees); UpdateSection finds the path segment
 from `gFloorIndex`, and when QueryWall reports a hit the player moves
-25 units back along heading ±0x400. Then func_8002A558.
+25 units back along heading ±0x400. Then CheckForcedThrowBack.
 
 ```c
 /* MATCHING: stage defines x and y as s16; this unit passes them
@@ -14,7 +14,7 @@ from `gFloorIndex`, and when QueryWall reports a hit the player moves
 void UpdateSection(s32 *index, s32 x, s32 y);
 
 s32 QueryWall(s32 index, VECTOR *pos, u8 *data);
-s32 func_8002A558(void);
+s32 CheckForcedThrowBack(void);
 extern s32 gFloorIndex; /**< a path index the probe starts from */
 extern s32 gFloorData; /**< the address of the data the probe tests */
 
@@ -43,7 +43,7 @@ void PushPlayerFromWalls(void) {
         sGameHead.unk348 -= rsin(gCourse[0].vy - 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(gCourse[0].vy - 0x400) * 25 >> 12;
     }
-    func_8002A558();
+    CheckForcedThrowBack();
 }```
 
 First build. `GameHead` (unit-local) gained `unk348`, `unk34C`, `unk350`;

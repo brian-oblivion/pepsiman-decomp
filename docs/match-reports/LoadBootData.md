@@ -6,7 +6,7 @@ A three-step loader state machine on `gSubStep`: step 0 fills the
 pointer tables `gCdLoadLoc` (entries of `sBootFileLoc`), `gCdLoadDest` (five
 fixed RAM load addresses) and `gCdLoadSectors` (a copy of `sBootFileSectors`), sets
 `gCdLoadCount = 5`, `gCdLoadState = 1` and moves to step 1; step 1 waits for
-`gCdLoadState == 6`; step 2 sets up the loaded data (`func_80013CDC`, the
+`gCdLoadState == 6`; step 2 sets up the loaded data (`LoadCommonModels`, the
 pack at 0x8018D000, the TIM run at 0x8016D000, `DefineHudSprites`) and
 returns 1. `main` tests the result as a signed byte.
 
@@ -14,13 +14,13 @@ returns 1. `main` tests the result as a signed byte.
 extern u16 gSubStep;
 extern s32 sBootFileLoc[];
 extern s32 sBootFileSectors[];
-s32 func_80013CDC(void);
+s32 LoadCommonModels(void);
 
 /* MATCHING: model types the pack as its own PackEntry. */
 void LoadTimPack(void *pack);
 
 /* MATCHING: arity-ok, retail passes an argument the empty definition ignores. */
-void func_80018DE8(s32 arg);
+void SetBootReady(s32 arg);
 
 s8 LoadBootData(void) {
     /* MATCHING: a byte, so the later constant 1 is not copied from it. */
@@ -50,17 +50,17 @@ s8 LoadBootData(void) {
             break;
         case 1:
             if (gCdLoadState == 6) {
-                func_80018DE8(0);
+                SetBootReady(0);
                 gSubStep++;
             }
             break;
         case 2:
             ret = 1;
-            func_80013CDC();
+            LoadCommonModels();
             LoadTimPack((void *)0x8018D000);
             LoadTimList((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
             DefineHudSprites();
-            func_80018DE8(1);
+            SetBootReady(1);
             break;
     }
     return ret;
@@ -73,7 +73,7 @@ s8 LoadBootData(void) {
    argument of the last call: retail `li $a0, 1`, the build `move $a0, $s0`,
    because `ret` already holds 1 in `$s0` and the post-reload CSE reuses it.
 2. `ret = 1` moved after the calls: still 104/105 (the copy is still made).
-3. `func_80018DE8`'s parameter as `u8`, then `s16`: still 104/105.
+3. `SetBootReady`'s parameter as `u8`, then `s16`: still 104/105.
 4. `ret` as `u8` or `s16` (with an `s32` or matching return type): 105/105
    in every combination. A narrower register mode is not reused for an
    `SImode` constant.
@@ -91,7 +91,7 @@ The five-word copy into `gCdLoadSectors` is five separate assignments
   `include/common.h` (additive).
 - Per-unit views in `src/main.c` with `MATCHING:` notes:
   `LoadTimPack(void *)` (model types it with its local `PackEntry`)
-  and `func_80018DE8(s32)` (an empty definition retail calls with one
+  and `SetBootReady(s32)` (an empty definition retail calls with one
   argument).
 
 ### Proposed learning

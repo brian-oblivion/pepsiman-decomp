@@ -119,7 +119,7 @@ void PlacePlayerPoints(void);
 s32 SpheresOverlap(Sphere *a, Sphere *b);
 u8 FindNearestPlayerPoint(u16 start, VECTOR *pos);
 void ResetPlayerHits(void);
-void func_8002988C(void);
+void ClearRideQuad(void);
 
 s16 FindFreeSlot48(void) {
     Slot48 *slot = (Slot48 *)gSlotTable;
@@ -499,10 +499,11 @@ s32 DistanceSquared(VECTOR *a, VECTOR *b) {
 void ResetCollision(void) {
     gPlayer.lastSteer = 0;
     ResetPlayerHits();
-    func_8002988C();
+    ClearRideQuad();
 }
 
-void func_80029838(void) {
+/** @brief Clears onQuadTop when the player is no longer over a ride-hit quad. */
+void LeaveQuadTop(void) {
     if (gPlayer.onRideQuad == 0) {
         gPlayer.onQuadTop = 0;
     }
@@ -515,7 +516,8 @@ void ResetPlayerHits(void) {
     PlacePlayerPoints();
 }
 
-void func_8002988C(void) {
+/** @brief Clears onRideQuad before the quads are tested again. */
+void ClearRideQuad(void) {
     gPlayer.onRideQuad = 0;
 }
 

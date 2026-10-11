@@ -3010,37 +3010,37 @@ s32 WriteEditorSlotFiles(void) {
 
     s = (SaveSlot *)0x8016D000;
     fd = open(sEdDataFilePath0, O_CREAT | O_WRONLY);
-    if (write(fd, &s[0].traps, 0x3840) == -1) {
+    if (write(fd, &s[0].traps, sizeof(TrapTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[0].switches, 0x47E0) == -1) {
+    if (write(fd, &s[0].switches, sizeof(SwitchTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[0].sprites, 0x1770) == -1) {
+    if (write(fd, &s[0].sprites, sizeof(SpriteTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, (u8 *)&s[0] + 0xB174, 0x800) == -1) {
+    if (write(fd, (u8 *)&s[0] + 0xB174, sizeof(BlockAreaCopy)) == -1) {
         close(fd);
         return -1;
     }
     close(fd);
     fd = open(sEdDataFilePath1, O_CREAT | O_WRONLY);
-    if (write(fd, &s[1].traps, 0x3840) == -1) {
+    if (write(fd, &s[1].traps, sizeof(TrapTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[1].switches, 0x47E0) == -1) {
+    if (write(fd, &s[1].switches, sizeof(SwitchTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[1].sprites, 0x1770) == -1) {
+    if (write(fd, &s[1].sprites, sizeof(SpriteTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, (u8 *)&s[1] + 0xB174, 0x800) == -1) {
+    if (write(fd, (u8 *)&s[1] + 0xB174, sizeof(BlockAreaCopy)) == -1) {
         /* MATCHING: the copy ranks n above fd in global alloc (permuter). */
         n = fd;
         close(n);
@@ -3048,19 +3048,19 @@ s32 WriteEditorSlotFiles(void) {
     }
     close(fd);
     fd = open(sEdDataFilePath2, O_CREAT | O_WRONLY);
-    if (write(fd, &s[2].traps, 0x3840) == -1) {
+    if (write(fd, &s[2].traps, sizeof(TrapTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[2].switches, 0x47E0) == -1) {
+    if (write(fd, &s[2].switches, sizeof(SwitchTable)) == -1) {
         close(fd);
         return -1;
     }
-    if (write(fd, &s[2].sprites, 0x1770) == -1) {
+    if (write(fd, &s[2].sprites, sizeof(SpriteTable)) == -1) {
         close(fd);
         return -1;
     }
-    n = write(fd, (u8 *)&s[2] + 0xB174, 0x800);
+    n = write(fd, (u8 *)&s[2] + 0xB174, sizeof(BlockAreaCopy));
     if (n == -1) {
         close(fd);
         return n;

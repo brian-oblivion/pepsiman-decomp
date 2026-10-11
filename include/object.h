@@ -70,11 +70,11 @@ typedef struct {
     u8 unk42[6];   /**< not yet known */
 } Trap;
 
-/** @brief The header of a block whose second part starts at a byte offset
- *         the header gives. */
+/** @brief The header of a stage block: its can spans follow it, and its
+ *         can points start at a byte offset it gives. */
 typedef struct {
-    s32 unk0;   /**< not yet known; kept in a global */
-    s32 offset; /**< byte offset of the second part from the header */
+    s32 spanCount; /**< how many can spans follow, gCanSpanCount */
+    s32 offset;    /**< byte offset of the can points (gCanPoints) from the header */
 } BlockHeader;
 
 /** @brief CanPoint.group's bit for a can already collected. */

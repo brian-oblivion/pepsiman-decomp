@@ -1552,8 +1552,8 @@ void UpdatePickups(void) {
 
 /** @brief Points the current-block globals at the block `hdr` heads. */
 void SetCurrentBlock(BlockHeader *hdr) {
-    gCanSpans = (u8 *)hdr + 8;
-    gCanSpanCount = hdr->unk0;
+    gCanSpans = (u8 *)(hdr + 1);
+    gCanSpanCount = hdr->spanCount;
     /* MATCHING: offset read through a byte pointer, not hdr->offset: the
      * member access lets the load rise above the gCanSpanCount store. */
     gCanPoints = (u8 *)hdr + *(s32 *)((u8 *)hdr + 4);

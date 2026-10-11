@@ -163,6 +163,70 @@ typedef struct {
 
 extern ObjectModel gObjectModels[]; /**< the 80 object model slots */
 
+/** @brief PlayerState.motion: the TOD motion a channel plays. The game
+ *         names none; these follow the PlayerAction that asks for each. */
+enum PlayerMotion {
+    MOT_DEFAULT = 0x00,         /**< the motion viewer's first */
+    MOT_NONE = 0x01,            /**< StepAnimation does nothing */
+    MOT_RUN_SLOW = 0x02,        /**< speed band 0 */
+    MOT_RUN = 0x03,             /**< speed band 1 */
+    MOT_RUN_FAST = 0x04,        /**< speed band 2 */
+    MOT_SLIDE_START = 0x05,     /**< the slide: its length set by the speed */
+    MOT_SLIDE = 0x06,           /**< sliding, raising dust */
+    MOT_SLIDE_END = 0x07,       /**< back to the run when it ends */
+    MOT_JUMP = 0x08,            /**< rising while the button is held */
+    MOT_JUMP_HIGH = 0x09,       /**< the fall after a full-height jump */
+    MOT_JUMP_MID = 0x0A,        /**< the fall after a mid-height jump */
+    MOT_JUMP_LOW = 0x0B,        /**< the fall after a short jump */
+    MOT_FALL_OFF = 0x0C,        /**< far below the course after falling off */
+    MOT_TRIP = 0x0D,            /**< ACT_TRIP */
+    MOT_TIME_UP = 0x0E,         /**< ACT_TIME_UP: slows to a halt */
+    MOT_STOP_WAIT = 0x0F,       /**< ACT_STOP_WAIT's wait */
+    MOT_STOP = 0x10,            /**< slows to a halt over 10 frames */
+    MOT_STOP_ITEM = 0x11,       /**< ACT_STOP_ITEM's object and sounds */
+    MOT_STOP_POSE = 0x12,       /**< ACT_STOP_POSE's pose */
+    MOT_STAND = 0x13,           /**< standing still, out of control */
+    MOT_LAUNCH = 0x14,          /**< ACT_LAUNCH in the air */
+    MOT_SPIN = 0x15,            /**< ACT_SPIN, first phase */
+    MOT_SPIN_2 = 0x16,          /**< second phase */
+    MOT_SPIN_3 = 0x17,          /**< third phase */
+    MOT_BRAKE = 0x18,           /**< ACT_BRAKE */
+    MOT_BRAKE_RISE = 0x19,      /**< ACT_BRAKE_RISE */
+    MOT_DASH = 0x1A,            /**< ACT_DASH, and the landing while dashing */
+    MOT_KNOCKDOWN = 0x1B,       /**< thrown up and forward */
+    MOT_KNOCKDOWN_SKID = 0x1C,  /**< skids to a halt */
+    MOT_KNOCKDOWN_LIE = 0x1D,   /**< lies still: up or a miss */
+    MOT_DOWN = 0x1E,            /**< lies still; then a get-up chosen by the action */
+    MOT_GET_UP = 0x1F,          /**< gets up, then ACT_RUN */
+    MOT_BOUNCE = 0x20,          /**< two bounces on landing */
+    MOT_SKID = 0x21,            /**< skids to a halt and lies still: up or a miss */
+    MOT_GET_UP_2 = 0x22,        /**< gets up another way, then ACT_RUN */
+    MOT_THROWN_BACK = 0x23,     /**< flies back (or, for ACT_SCREEN_HIT_FLY, at the camera) */
+    MOT_THROWN_LAND = 0x24,     /**< lands from a throw */
+    MOT_THROWN_LAND_END = 0x25, /**< then MOT_SKID */
+    MOT_GET_UP_3 = 0x26,        /**< gets up a third way, then ACT_RUN */
+    MOT_BOUNCE_BACK = 0x27,     /**< bounces back: up or a miss */
+    MOT_REEL = 0x28,            /**< rocks from side to side; also the screen hit's impact */
+    MOT_REEL_END = 0x29,        /**< then MOT_BOUNCE_BACK */
+    MOT_FALL_LIE = 0x2A,        /**< lies after a fall: up or a miss */
+    MOT_FALL_RISE = 0x2B,       /**< then MOT_GET_UP */
+    MOT_HEAD_HIT = 0x2C,        /**< ACT_HEAD_HIT */
+    MOT_STAGGER = 0x2D,         /**< staggers sideways, then ACT_RUN */
+    MOT_FALL_SKID = 0x2E,       /**< ACT_FALL_SKID's fall */
+    MOT_FALL_FLAT = 0x2F,       /**< ACT_FALL_FLAT's fall */
+    MOT_TWIRL = 0x30,           /**< turning, or turning toward the camera */
+    MOT_TWIRL_FALL = 0x31,      /**< falls after a twirl or a spin, then MOT_SKID */
+    MOT_FLATTENED = 0x32,       /**< ACT_FLATTENED */
+    MOT_RIDE = 0x33,            /**< on a ride, centred */
+    MOT_RIDE_LEAN_A_IN = 0x34,  /**< leans one way */
+    MOT_RIDE_LEAN_A_OUT = 0x35, /**< back from it */
+    MOT_RIDE_LEAN_B_IN = 0x36,  /**< leans the other way */
+    MOT_RIDE_LEAN_B_OUT = 0x37, /**< back from it */
+    MOT_RIDE_JUMP = 0x38,       /**< a ride in the air */
+    MOT_RIDE_JUMP_2 = 0x39,     /**< a ride in the air, second */
+    MOT_OFF = 0xFF              /**< no motion; as curMotion, restarts the one asked for */
+};
+
 /** @brief PlayerState.action, what UpdatePlayerAction runs. Most come in
  *         pairs: a request (`_START`), which sets the motion and the
  *         rumble, then the state it runs in. A hit picks its action from
@@ -273,9 +337,8 @@ typedef struct {
     u8 twoTracks;         /**< nonzero steps both animation channels instead of one */
     u8 unk4;              /**< SetTodFrame's last argument for a single-channel step */
     u8 action;            /**< what UpdatePlayerAction runs, a PlayerAction */
-    u8 motion[2];         /**< the motion each channel is asked to play; for channel 0,
-                               *   2 to 4 are the run bands, 8 to 11 the jump */
-    u8 curMotion[2];      /**< the motion each channel is playing; 0xFF forces a restart */
+    u8 motion[2];         /**< the PlayerMotion each channel is asked to play */
+    u8 curMotion[2];      /**< the PlayerMotion each channel is playing; MOT_OFF forces a restart */
     s16 motionTime[2];    /**< each channel's clock */
     u8 padE[0x18 - 0xE];  /**< not yet known */
     u8 *motionData[2];    /**< each channel's position in its sequence */

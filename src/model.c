@@ -273,7 +273,7 @@ void UpdateMotionViewer(void) {
             gBodyRot[1] = gPlayer.yaw;
             gBodyRot[2] = gPlayer.lean;
             SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
-            gPlayer.motion[0] = 0;
+            gPlayer.motion[0] = MOT_DEFAULT;
             StepAnimation(&gPlayer, 0, 0);
             gModeStep++;
             break;
@@ -281,7 +281,7 @@ void UpdateMotionViewer(void) {
             if (gViewerReplay == 1) {
                 gViewerReplay = StepAnimation(&gPlayer, 0, 0);
             } else {
-                gPlayer.motion[0] = 0;
+                gPlayer.motion[0] = MOT_DEFAULT;
             }
             DrawTodObjects();
             SelectViewerMotion();
@@ -332,7 +332,7 @@ u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
     s32 seq;
 
     ret = 1;
-    if (obj->motion[0] == 1) {
+    if (obj->motion[0] == MOT_NONE) {
         /* MATCHING: keeps this return from cross-jumping into a later one. */
         __asm__("");
         return 0;
@@ -600,7 +600,7 @@ void SelectViewerMotion(void) {
         gViewerMotion = 0x78;
     }
     if (flags & PADRright) {
-        gPlayer.curMotion[0] = 0xFF;
+        gPlayer.curMotion[0] = MOT_OFF;
         gViewerReplay = 1;
         gPlayer.motion[0] = gViewerMotion;
     }

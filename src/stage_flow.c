@@ -334,7 +334,7 @@ void RestartStage(u8 stage) {
     }
     ResetStageObjects();
     func_80041118(gStage);
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gFellOff = 0;
     D_800957D6 = 1;
@@ -374,12 +374,12 @@ void ResetStage(void) {
     gMissState = MISS_NONE;
     SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
-    gPlayer.motion[0] = 3;
+    gPlayer.motion[0] = MOT_RUN;
     gPlayer.unk3CA = 0;
     gPlayer.twoTracks = 0;
     gPlayer.unk4 = 0;
     gPlayer.action = ACT_RUN;
-    gPlayer.curMotion[0] = 0xFF;
+    gPlayer.curMotion[0] = MOT_OFF;
     StepAnimation(&gPlayer, 0, 0);
     gPlayer.speed = 50;
     gPlayer.slideState = SLIDE_NONE;
@@ -415,7 +415,7 @@ void ResetStage(void) {
         gView[1] = sSaved.unk20;
     } else if (gStage == 4) {
         gPlayer.action = ACT_BLOWN_AWAY;
-        gPlayer.motion[0] = 0x23;
+        gPlayer.motion[0] = MOT_THROWN_BACK;
         gPlayer.jumpPower = 0;
         gPlayer.speed = 0;
         gSpeedFixed = 0;

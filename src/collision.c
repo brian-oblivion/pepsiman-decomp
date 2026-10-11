@@ -215,11 +215,11 @@ s32 CollidePlayer(Sphere *q) {
             v = gPlayer.motion[0];
             r[1] = 35;
             r[2] = 35;
-            if (v < 5) {
-            } else if (v < 8) {
-                r[0] = 0;
-            } else if (v < 12) {
-                r[2] = 0;
+            if (v < MOT_SLIDE_START) {
+            } else if (v < MOT_JUMP) {
+                r[0] = 0; /* sliding: no head */
+            } else if (v <= MOT_JUMP_LOW) {
+                r[2] = 0; /* jumping: no legs */
             }
             break;
         case 3:

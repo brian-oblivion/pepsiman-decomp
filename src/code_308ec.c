@@ -124,8 +124,8 @@ extern StartRec *D_80095840;
 
 /* MATCHING: code_1a098 hands it a Rec48; here it gets a position. */
 s32 FindFloor(Pos3 *pos);
-void func_8002C2B4(void);
-void func_8002C47C(void);
+void RestoreStageObjects(void);
+void ResetStageObjects(void);
 void func_8003399C(void);
 void PlayStageMusic(u8 idx);
 void ResetStage(void);
@@ -387,11 +387,11 @@ void RestartStage(u8 stage) {
     D_800957BC = yaw;
     D_800957B0 = yaw;
     if (D_800958F8 != 1) {
-        func_8002C2B4();
+        RestoreStageObjects();
     } else {
         func_8003399C();
     }
-    func_8002C47C();
+    ResetStageObjects();
     func_80041118(gStage);
     sStage.unk6 = 2;
     sStage.unk0 = 1;
@@ -431,7 +431,7 @@ void ResetStage(void) {
         D_800958A8 = 3;
     }
     D_80095858 = 0;
-    func_8002D0C4((BlockHeader *)0x801FD000);
+    SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
     sStage.unk6 = 3;
     sStage.unk3CA = 0;

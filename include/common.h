@@ -418,10 +418,10 @@ void func_800229A8(void);
 void func_80022A74(void);
 
 /** @brief Defined in code_1a098. */
-void func_8002B04C(void);
+void UpdateTrapViewer(void);
 
 /** @brief Defined in code_1a098. */
-void func_8002CC24(void);
+void InitEntryModels(void);
 
 /** @brief Defined in code_24748. */
 void UpdateTool(void);

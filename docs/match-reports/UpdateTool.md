@@ -88,7 +88,7 @@ void UpdateTool(void) {
             UpdateToolView();
             if (gToolKind == 1 && gToolQuadStage == 1) {
                 DrawHitQuad(&gToolNewQuad);
-                func_8002A98C(&gToolNewQuad, D_8009EEC0, gToolQuadW, gToolQuadH);
+                SetBoxAround(&gToolNewQuad, D_8009EEC0, gToolQuadW, gToolQuadH);
             }
             if (D_80095A58 == 0) {
                 SelectToolSection();

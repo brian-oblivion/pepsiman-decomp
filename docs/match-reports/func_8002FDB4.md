@@ -7,7 +7,7 @@ Unit `src/code_1dc24.c`. On flag bit 5: error 8 in `gToolMode` when
 game position (`sGameSave.unk348`, as halfwords) and `D_80095B4C[0] + 1`
 as the new point, bumps the entry's count and the start of every later
 entry (`D_800959C0`, `gStageObjCount` entries), and rebuilds the block header
-with `func_8002D0C4(0x801FD000)`.
+with `SetCurrentBlock(0x801FD000)`.
 
 ## How it closed
 
@@ -101,7 +101,7 @@ void func_8002FDB4(void) {
                 e->start++;
                 e++;
             }
-            func_8002D0C4((BlockHeader *)0x801FD000);
+            SetCurrentBlock((BlockHeader *)0x801FD000);
         }
     }
 }

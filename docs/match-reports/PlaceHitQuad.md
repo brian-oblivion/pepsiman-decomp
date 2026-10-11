@@ -5,7 +5,7 @@
 Unit `src/code_24748.c`. State 1 of the two-state dispatch in
 `ToolPlace`, itself a two-state machine on `gToolQuadStage`: state 0 sets two
 halfwords to 100, points field 0x48 of `gToolNewQuad` at byte 0x10 of the
-current `D_800D8D20` record, calls `func_8002A98C` and moves to state 1;
+current `D_800D8D20` record, calls `SetBoxAround` and moves to state 1;
 state 1 calls `InsertHitQuad` and goes back to 0. First build matched.
 
 ```c
@@ -15,7 +15,7 @@ void PlaceHitQuad(void) {
             gToolQuadW = 100;
             gToolQuadH = 100;
             gToolNewQuad.unk48 = D_800D8D20[gToolSection].unk10;
-            func_8002A98C(&gToolNewQuad, D_8009EEC0, 100, 100);
+            SetBoxAround(&gToolNewQuad, D_8009EEC0, 100, 100);
             gToolQuadStage = 1;
             break;
         case 1:

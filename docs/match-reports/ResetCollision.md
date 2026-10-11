@@ -15,4 +15,4 @@ void ResetCollision(void) {
 
 First try. Retail names the store target `D_8009EB79`; `D_8009EB78[1]` folds
 to the same `%hi/%lo` pair and the same bytes. Callers (RefreshToolPreview,
-func_8002B220, func_8002B04C) ignore `$v0`: `void`.
+UpdateTrapLayoutViewer, UpdateTrapViewer) ignore `$v0`: `void`.

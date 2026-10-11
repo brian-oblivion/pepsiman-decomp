@@ -41,7 +41,7 @@ extern s16 D_80095918;    /**< cleared when the viewer starts */
 extern char D_80010404[]; /**< the motion-number format */
 /* MATCHING: a per-unit view; code_1a098 defines it on its own floor
  * types, and this unit passes gFloorData's word as the data. */
-s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
+s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit passes the coordinates unextended, so it saw s32
  * parameters (code_29f54 defines them as s16). */
 void UpdateSection(s32 *index, s32 x, s32 y);
@@ -524,7 +524,7 @@ s32 FindFloor(Vec3i *pos) {
         if ((d < 0 ? -d : d) > 100000000) {
             continue;
         }
-        if (func_800299D8(out, i, &p, gFloorData) != 0x7FFF) {
+        if (QueryFloor(out, i, &p, gFloorData) != 0x7FFF) {
             found = i;
             break;
         }
@@ -690,7 +690,7 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     p.y = ((Vec3i *)pos)->y;
     p.z = ((Vec3i *)pos)->z;
     UpdateSection(&cur, p.x, p.z);
-    if (func_800299D8(arg, cur, &p, gFloorData) == 0x7FFF) {
+    if (QueryFloor(arg, cur, &p, gFloorData) == 0x7FFF) {
         return -1;
     }
     return cur;

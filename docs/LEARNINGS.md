@@ -41,7 +41,7 @@ function's match report, not here.
 - **A word store through a pointer that keeps a later global reload below it:
   a plain `*(s32 *)p` store, not `p->member`.** A member store is assumed not
   to alias a fixed global, so the reload is dropped. The store-side twin of
-  func_8002D0C4's byte-pointer read. (func_800337E4)
+  SetCurrentBlock's byte-pointer read. (func_800337E4)
 - **A callee result tested with no `sll`/`sra`: the callee is `s32` in this
   unit's view**; a definition that returns only constants can simply be
   `s32`. (FindSave1, FindSave2)
@@ -69,7 +69,7 @@ function's match report, not here.
 - **A callee's prototype is a per-unit view.** A caller that stores an `s16`
   result with no re-extension saw it as `s32`; a caller passing arguments
   unextended saw `s32` parameters. Declare that view in the caller's `.c`
-  with a `MATCHING:` note. (func_8002CAA4, func_8002CAE4; func_80028260's
+  with a `MATCHING:` note. (InterpFromZero, InterpRange; func_80028260's
   calls to SpawnEffect)
 - **A `u8` parameter that is only ever stored with `sb` may be `s32`**; the
   narrower type reorders the argument copies. (SpawnEffect)
@@ -88,12 +88,12 @@ function's match report, not here.
   it. (ClearVram, InitDebugFont)
 - **A redundant `lbu; andi 0xFF` / `lhu; andi 0xFFFF` on a value: the narrow
   parameter of an inlined `static __inline__` helper.** Locals and casts
-  never keep the mask. (func_8002CC24, UpdateRumble)
+  never keep the mask. (InitEntryModels, UpdateRumble)
 - **A global reloaded below pointer stores that the build hoists: read it as
   a member of a struct at a fixed address**, `((VECTOR *)D)->vy` or a unit
-  view `#define sCur (*(BlockCur *)&D)`. (func_8002C894, func_8002FDB4)
+  view `#define sCur (*(BlockCur *)&D)`. (StepSprite, func_8002FDB4)
 - **An argument passed unextended though the callee narrows it: an `s32`
-  parameter in the caller's view.** (func_8002BEC0, func_8002CB24)
+  parameter in the caller's view.** (StepDrift, InterpOvershoot)
 - **An `(s8)` cast on a `u8` global under `== 0` folds to `lbu`; retail's
   `lb` needs the global declared `s8`.** (code main, round 8)
 - **An `s8` -1 byte store retail keeps above a later load: a local struct
@@ -111,7 +111,7 @@ function's match report, not here.
   Name that address `__main`; the C does not call it. (main)
 - **An address computed by indexing a real array, `D[i].v[j]`, adds the
   offsets before the symbol**; a cast view `((T *)D)[i]` adds `D + i*SIZE`
-  first and CSE shares it with a record pointer. (func_8002AA58)
+  first and CSE shares it with a record pointer. (TestBoxes)
 - **A stack area block-copied from a constant at entry: an aggregate
   initialiser** (cc1 `$LC`); when the constant sits outside the unit's
   rodata, copy from an extern, declared `[]` when 8 bytes or less.
@@ -158,24 +158,24 @@ function's match report, not here.
   ret = 0;` local in an `s32` function.** An `s16` one adds `sra`.
   (FormatCard, EraseSave1, EraseSave2)
 - **`andi 0xFFFF` / `sltiu` on the counter with `sll`/`sra 16` on the index:
-  a `u16` counter indexed through `(s16)i`.** (func_8002C650)
+  a `u16` counter indexed through `(s16)i`.** (ClearObjectHits)
 - **A parameter masked once in the prologue: `mode &= 1;` at the top**, not
   at its use. (SetPadMainMode)
 - **A test result copied to a saved register (`sltu a0; move s3, a0`): the
-  result variable is `u8` or `s16`.** (func_8002BEC0)
+  result variable is `u8` or `s16`.** (StepDrift)
 - **`s16 % 64` gives `sll/sra 16` around a halfword remainder on 2.8.1;
   retail's code is `x - x / 64 * 64`.** (LoadSpritePack)
 - **`srl` on a product stored to an `s16`: `(u32)(x * 25) >> 9`.**
   (code_29f54, round 8)
 - **A block move with a dead `lwl`/`lwr` path jumped over: the source pointer
   is a local whose alignment cc1 cannot see**; plain `lw`/`sw` is an
-  `s32 w[N/4]` wrapper. (func_8002C2B4)
+  `s32 w[N/4]` wrapper. (RestoreStageObjects)
 
 - **A parameter copied to another register at entry, extended in place at
   its first use and re-extended from the copy at each later use: an `s16`
   parameter**, not `s32` plus casts. (func_80032C28, func_80032964)
 - **`x *= -1` on an `s16` member loads it `lh`; `x = -x` loads it `lhu`.**
-  (func_8002B8F8, round 9; the function is still a stall)
+  (DrawObjectSprite, round 9; the function is still a stall)
 - **An `lhu` switch on an `s16` global: `switch ((u16)g)`.** (UpdateTool)
 - **An offset above 0x7FFF built whole (`lui`/`ori`, `addu`) comes from byte
   arithmetic or an offset in a local**, `(u8 *)p + 0x8294`, or `off =
@@ -205,7 +205,7 @@ function's match report, not here.
 
 - **A callee's return type can decide a register tie**: a `void` callee
   that leaves `$v0` set, declared `s32`, closed 8 register diffs in two
-  functions (permuter finds). (func_8002AA58, GetQuadHeightUnderPlayer)
+  functions (permuter finds). (TestBoxes, GetQuadHeightUnderPlayer)
 - **`bltz` on an `lbu`-loaded `u8`: copied into an `s32` local and tested
   `>= 0`.** (code_29f54, round 11)
 - **An `andi 0xFF` on an argument the prototype types `s32`: a `(u8)` cast
@@ -224,7 +224,7 @@ function's match report, not here.
   pointee types, not the size. (ApplyHitPoints)
 - **abs as one instruction with no label: `x >= 0 ? x : -x`** (the `abssi2`
   pattern). `if (x < 0) x = -x;` makes a CODE_LABEL that stops reorg filling
-  later delay slots. (func_8002A5B0, func_8002B8F8)
+  later delay slots. (DrawObjectModel, DrawObjectSprite)
 
 ## Loops
 
@@ -247,7 +247,7 @@ function's match report, not here.
   Testing the member in the `for` reloads it every pass. (LoadTimPack)
 - **The index added into the table base's register (`addu $v0, $a0, $v0`):
   the base went into a local and was advanced**, `src = tbl; src += i;`.
-  Every indexed spelling puts the sum in the index register. (func_8002C85C)
+  Every indexed spelling puts the sum in the index register. (GetQuad16)
 - **An element address kept in a saved register across a call: a local
   pointer**, `seq = &tbl[i];`. (StopFinishedSe)
 - **Two one-pass loops whose registers pair with different variables: one
@@ -258,7 +258,7 @@ function's match report, not here.
   constant every pass: `r = &tbl[i];` inside the body.** `r++` biases the
   pointer and hoists the constant. (func_80033BF8, func_80031A48)
 - **A parameter advanced in steps pairs saved registers like retail**:
-  `tmd++; f(tmd); tmd += 2; g(tmd);`, not `tmd + 2`. (func_8002C20C)
+  `tmd++; f(tmd); tmd += 2; g(tmd);`, not `tmd + 2`. (InitModel)
 - **`addPrim(ot, p); p++; G = (u8 *)p;`**, not `G = (u8 *)(p + 1);`, for a
   primitive-buffer bump. libgpu's macros match unchanged. (FadeInFog)
 - **A loop that jumps to its test at the bottom with no guard: `goto test;
@@ -315,7 +315,7 @@ function's match report, not here.
   the loop target with an instruction writing `$v0`: the function is non-void
   with no `return`** (likely K&R implicit int). The live return register
   blocks the fill. Triggers "control reaches end of non-void function",
-  baselined likewise. (func_8002D140; func_8002D16C and func_8002D1CC show the
+  baselined likewise. (ClearFlags128; PromoteMarks and MarkByGroup show the
   same slot) The same holds for a forward branch: the first `beqz` of an
   if/else-if chain keeps its `nop` slot only as `s32` with no return.
   (func_800283A0)
@@ -387,7 +387,7 @@ function's match report, not here.
   >= 0 ? v : -v` gives it.** `v < 0 ? -v : v` and `if (v < 0) v = -v;` give
   a branch with a filled slot. (LineCircleIntersect)
 - **A body repeating another function of the unit: a `static __inline__`
-  helper with both functions as callers.** (func_8002BD00, func_8002C894)
+  helper with both functions as callers.** (UpdateActiveSprites, StepSprite)
 
 - **A compare tree split one case lower than expected: an empty `case -2:
   break;` outside the visible range.** gcc 2.8 splits n nodes after node
@@ -433,13 +433,13 @@ function's match report, not here.
   `((s32 *)p)[1]`) lets the load rise above the stores. Once the load is in
   place, the order of the global stores decides the rest. Why the second form
   rises is not understood; treat the alias explanation as a hypothesis.
-  (func_8002D0C4) Confirmed: member reads through a pointer rise above
+  (SetCurrentBlock) Confirmed: member reads through a pointer rise above
   stores to fixed scalar globals; byte-pointer reads stay. (StartRumble)
 - **Independent stores to a local struct come out in source order.** Retail
   writing `val3`..`val0` of a `CdlATV` means the source assigned them in that
   order. (StopXa, SetCdVolume)
   The same holds for a field-by-field copy into a local struct.
-  (func_8002D0F0)
+  (ProbePosition)
 - **A constant folded onto the wrong operand: parenthesise where retail adds
   it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
   the `rand()` result. (func_80022F68) If cc1 still moves it, give it its own
@@ -467,7 +467,7 @@ function's match report, not here.
   StepEffect2, StepEffect3, StepEffect4, StepEffect6, StepEffect9)
 - **A jump table whose bound check's delay slot holds the index `sll`, not
   the table's `lui`: non-void with no return.** (SetTmdSortMode)
-- **`A[g] = (p = expr) + 1;` loads `g` before `expr`.** (func_8002C044)
+- **`A[g] = (p = expr) + 1;` loads `g` before `expr`.** (LoadStageSprites)
 - **Asm splat calls handwritten, with `cfc2 $t4, $31` / `mtc2 x, $8`:
   compiled C using `gte_stflg` / `gte_lddp`** (include/gte.h).
   (SortTmdFastF3, SortTmdFastF4)
@@ -516,7 +516,7 @@ function's match report, not here.
   (UpdateToolMenu)
 - **Retail builds a vertex address in the register that held its index:
   drop the per-vertex pointer locals and spell each read
-  `((T *)(i * 8 + (s32)base))->x`.** (func_800299D8)
+  `((T *)(i * 8 + (s32)base))->x`.** (QueryFloor)
 - **A load-delay `nop` missing right after inline asm: name the register in
   the asm the way cc1 does (`$sp`, not `$29`).** maspsx compares register
   names as text. (DrawStage)
@@ -551,7 +551,7 @@ function's match report, not here.
 - **Two strength-reduced loop registers swapped: reverse the ternary that
   selects between them.** (code_29f54, round 11)
 - **Two pointers stepping by one stride where one is only copied on a hit:
-  one pointer plus `best = f;`**; cc1 makes the second. (func_80029E74)
+  one pointer plus `best = f;`**; cc1 makes the second. (QueryWall)
 - **Two saved registers swapped between a long-lived, much-used variable
   and a short-lived one: one more reference to the short one** (`n = fd;
   close(n);` in a block cross-jumping deletes). Global alloc ranks by
@@ -578,12 +578,12 @@ function's match report, not here.
   what `stmt` touches; an array indexed in both arms of an `if` instead of a
   pointer taken before it doubles the base's refs. Compute
   `floor_log2(refs) * refs / live_length` from `cc1 -dl`.
-  (StepAnimation, SetTodPacket, func_8002B220)
+  (StepAnimation, SetTodPacket, UpdateTrapLayoutViewer)
 - **`do { i++; } while (0)` keeps an independent instruction from being
   hoisted** inside its block (loop notes split cse1 paths; cse2 ignores
   them). (ScanCardFiles)
 - **Copies `move sN, sM` after a loop guard: assign the loop's pointer locals
-  inside the loop body**, not before it. (func_8002B220)
+  inside the loop body**, not before it. (UpdateTrapLayoutViewer)
 - **A redundant `andi 0xFFFF` after `xori 0xFFFF` of two shifted bytes, which
   combine would drop: build the value in one local over three statements**,
   `b = D[k + 2] << 8; b |= D[k + 3]; b ^= 0xFFFF;`. A narrowed copy reused in

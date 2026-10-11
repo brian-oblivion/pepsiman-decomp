@@ -41,7 +41,7 @@ void ResetStage(void) {
         D_800958A8 = 3;
     }
     D_80095858 = 0;
-    func_8002D0C4((BlockHeader *)0x801FD000);
+    SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
     sStage.unk6 = 3;
     sStage.unk3CA = 0;

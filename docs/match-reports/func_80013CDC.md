@@ -2,10 +2,10 @@
 
 Unit `src/main.c`. Loads the stage's model data: maps the TMD pack at
 0x8014D000 (`GsMapModelingData`, address kept in `D_80095904`), sets up the
-model `D_800963A0` and seven model slots from it (`func_8002C20C`), builds
+model `D_800963A0` and seven model slots from it (`InitModel`), builds
 the slot list (`InitTodObjTable`), registers the entries of the directory at
 0x80123000 into `gAnimations` and the stepper's two word tables (the same
-loop as code_1a098's func_8002C044, from slot 0), then resets the stepper
+loop as code_1a098's LoadStageSprites, from slot 0), then resets the stepper
 (bytes 5..9) and runs its first step.
 
 Declaration changes: the `Stepper` typedef moved up to here and its
@@ -50,7 +50,7 @@ extern u8 D_8009EF50[];
 extern u8 D_80096418[];
 
 /* MATCHING: code_1a098 defines it on its own Model70 view. */
-void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n);
+void InitModel(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: code_7d74 types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 /* MATCHING: code_308ec passes the game state's head in its own view. */
@@ -65,21 +65,21 @@ void func_80013CDC(void) {
     p = (s32 *)0x8014D000;
     D_80095904 = (s32)((unsigned long *)((u8 *)p + *p) + 1);
     GsMapModelingData((unsigned long *)D_80095904);
-    func_8002C20C(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
+    InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
-    func_8002C20C(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
-    func_8002C20C(&D_800D8370[1].m, (unsigned long *)(*p + 0x8014D000), 1);
-    func_8002C20C(&D_800D8370[2].m, (unsigned long *)(*p + 0x8014D000), 2);
-    func_8002C20C(&D_800D8370[3].m, (unsigned long *)(*p + 0x8014D000), 3);
-    func_8002C20C(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
-    func_8002C20C(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
-    func_8002C20C(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
+    InitModel(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
+    InitModel(&D_800D8370[1].m, (unsigned long *)(*p + 0x8014D000), 1);
+    InitModel(&D_800D8370[2].m, (unsigned long *)(*p + 0x8014D000), 2);
+    InitModel(&D_800D8370[3].m, (unsigned long *)(*p + 0x8014D000), 3);
+    InitModel(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
+    InitModel(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
+    InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
     InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
     p = (s32 *)0x80123000;
     D_800958CC = 0;
     D_800958D0 = ((DirEnt16 *)p)->count;
     for (; D_800958CC < D_800958D0; D_800958CC++) {
-        /* MATCHING: assigned inside the store, as in func_8002C044. */
+        /* MATCHING: assigned inside the store, as in LoadStageSprites. */
         gAnimations[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
         p += 4;
         sStepper.unk20[D_800958CC] = *gAnimations[D_800958CC];
@@ -110,7 +110,7 @@ Seven builds. Points:
   (after it).
 - `(u8 *)p + *p` then `(unsigned long *)... + 1` keeps the `+ 4` as its own
   `addiu`; `*p + 0x8014D000 + 4` folds it into the constant.
-- The loop needs func_8002C044's `(q = base + off) + 1` store, which keeps
+- The loop needs LoadStageSprites's `(q = base + off) + 1` store, which keeps
   the record pointer in its own register before the `+ 4`.
 - The tail stores byte 8 before byte 7 in retail; source order follows.
 

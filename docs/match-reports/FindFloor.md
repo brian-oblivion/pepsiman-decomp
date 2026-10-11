@@ -5,7 +5,7 @@
 Unit `src/code_7d74.c`. Walks the `gStageObjCount` entries of the data blob
 at `gFloorData`; for each, finds the entry's vertex (entry halfword +4
 indexes the blob's 8-byte vertex table), and when its squared XZ distance
-to `pos` is at most 100000000 asks `func_800299D8(out, i, &pos, blob)`.
+to `pos` is at most 100000000 asks `QueryFloor(out, i, &pos, blob)`.
 Returns the first index for which that does not give 0x7FFF, else -1.
 
 ```c
@@ -17,7 +17,7 @@ typedef struct {
 
 extern u32 gStageObjCount; /* common.h */
 extern s32 gFloorData;
-s32 func_800299D8(s32 *out, s32 index, Vec3i *pos, s32 data);
+s32 QueryFloor(s32 *out, s32 index, Vec3i *pos, s32 data);
 
 s32 FindFloor(Vec3i *pos) {
     Vec3i p;
@@ -47,7 +47,7 @@ s32 FindFloor(Vec3i *pos) {
         if ((d < 0 ? -d : d) > 100000000) {
             continue;
         }
-        if (func_800299D8(out, i, &p, gFloorData) != 0x7FFF) {
+        if (QueryFloor(out, i, &p, gFloorData) != 0x7FFF) {
             found = i;
             break;
         }
@@ -56,7 +56,7 @@ s32 FindFloor(Vec3i *pos) {
 }
 ```
 
-`gFloorData` and `func_800299D8` were declared nowhere; both are local to
+`gFloorData` and `QueryFloor` were declared nowhere; both are local to
 this `.c` (no other unit references them; FindFloorNear in this unit
 will use the same declarations).
 

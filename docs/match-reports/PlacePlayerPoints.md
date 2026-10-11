@@ -31,7 +31,7 @@ Levers:
 - Swapping the two copy statements is worse (59/88).
 - The frame has 24 unreferenced bytes at sp+0x10 and 8 between the
   `VECTOR` and the byte copy: `s32 unused0[6];` and `s32 unused[2];` (the
-  same 8-byte gap as func_80029930 in code_1a098).
+  same 8-byte gap as LocalToWorld in code_1a098).
 
 `D_800D86E0` comes from `include/code_1a098.h`, which this unit now
 includes.

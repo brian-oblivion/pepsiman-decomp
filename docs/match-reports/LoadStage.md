@@ -34,8 +34,8 @@ One build: 779/779.
 ## Declarations left for the head
 
 declcheck LOCAL: the new prototypes for other units' functions
-(GetStageVabBank, LoadStageData, LoadSpritePack, func_8002CC24,
-SetHitBanks, func_8002C2B4, func_8002C044, func_8002C47C,
+(GetStageVabBank, LoadStageData, LoadSpritePack, InitEntryModels,
+SetHitBanks, RestoreStageObjects, LoadStageSprites, ResetStageObjects,
 StartStageOverlay). SetHitBanks is declared with `void *` parameters
 (code_1dc24 types them as its own `BankFile *`).
 

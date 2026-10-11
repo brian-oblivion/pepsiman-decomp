@@ -5,7 +5,7 @@
 Unit `src/code_24748.c`. Resets part of the play state around the current
 entry: raises `D_80095774` for the duration, calls `ResetCollision`, clears
 words 0, 1, 2, 11, 12 and halfwords 12-14 of `D_800A9008`, then
-`func_8002A7D8` on the current `D_800D8D20` record, `func_80023F80` on the
+`UpdateObjectEntry` on the current `D_800D8D20` record, `func_80023F80` on the
 game state and `func_80029838`.
 
 ## Rounds
@@ -13,15 +13,15 @@ game state and `func_80029838`.
 - Round 4 (charlie): STALL, length exact, 25/35, first diff 0x80037130.
   Register only: retail kept `D_800A9008`'s base in `$a1`, the build in
   `$v0`; one permuter search (110646 iterations, rc 124) found nothing.
-- Round 6: matching func_8002BC4C (code_1a098) gave `func_8002A7D8` its
-  real prototype, `s32 func_8002A7D8(Rec78 *rec, Rec48 *r)`, and the
+- Round 6: matching UpdateActiveEntries (code_1a098) gave `UpdateObjectEntry` its
+  real prototype, `s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r)`, and the
   `#ifdef NON_MATCHING` body in this unit was updated to pass
   `(Rec48 *)D_800A9008` as the second argument. Nobody rebuilt it live.
 - Round 12 (charlie): the body as it stood under `#ifdef NON_MATCHING`,
   built live, is **35/35, `insertions 0 / deletions 0`, `OK: build matches
   retail`** with no edit to its statements. The `$a1` was the call's second
   argument: cc1 builds the base in `$a1` from the start because it is
-  passed to `func_8002A7D8`. Only the wrapper was removed.
+  passed to `UpdateObjectEntry`. Only the wrapper was removed.
 
 ```c
 void RefreshToolPreview(void) {
@@ -35,7 +35,7 @@ void RefreshToolPreview(void) {
     ((s16 *)D_800A9008)[14] = 0;
     D_800A9008[11] = 0;
     D_800A9008[12] = 0;
-    func_8002A7D8(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
+    UpdateObjectEntry(&D_800D8D20[gToolSection], (Rec48 *)D_800A9008);
     func_80023F80(D_8009EB78);
     func_80029838();
     D_80095774 = 0;
@@ -52,5 +52,5 @@ Builds: 2 this round.
   the round 4 prototype did not have. (RefreshToolPreview)
 - **A preserved `NON_MATCHING` body can match after a header change
   elsewhere.** A round that changes a prototype should rebuild live every
-  stalled caller of that function. (RefreshToolPreview, via func_8002BC4C's
+  stalled caller of that function. (RefreshToolPreview, via UpdateActiveEntries's
   round 6 prototype)

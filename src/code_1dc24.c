@@ -257,8 +257,8 @@ void func_80032964(s16 a, u8 *buf);
 void func_80032C28(s16 a, u8 *buf);
 void func_800337E4(u8 *buf);
 void func_8003390C(Rec3C *recs);
-void func_8002C894(s32 id, Rec3C *r);
-void func_8002B8F8(s32 id, Rec3C *r);
+void StepSprite(s32 id, Rec3C *r);
+void DrawObjectSprite(s32 id, Rec3C *r);
 
 /** @brief A rotation followed by a position (code_13068.h declares the
  *         record as an SVECTOR array). */
@@ -301,7 +301,7 @@ typedef struct {
 extern Sizes3 D_800110EC; /**< the three box sizes, 2000, 1000 and 4000 */
 
 /* MATCHING: code_1a098 defines it on its Box4. */
-void func_8002C540(Rec5Cv *b, s16 w, s16 d);
+void SetBoxCentred(Rec5Cv *b, s16 w, s16 d);
 
 /* MATCHING: code_308ec defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
@@ -338,8 +338,8 @@ extern char D_8001122C[]; /**< "   FORMAT OK ?" */
 
 /* Defined in other units, without a header. */
 /* MATCHING: code_1a098 defines it with no parameter; called with an OT. */
-void func_8002CCEC(GsOT *ot);
-void func_8002C47C(void);
+void UpdatePickups(GsOT *ot);
+void ResetStageObjects(void);
 void DrawSky(void);
 void DrawStage(s16 x, s16 y, s16 z);
 void UpdateCamera(s16 x, s16 y, s16 z, s16 w);
@@ -380,7 +380,7 @@ typedef struct {
 
 /* MATCHING: code_1a098 defines it as (u16, Quad16 *); this unit passes the
  * index unextended. */
-void func_8002C85C(s32 i, Bytes8 *out);
+void GetQuad16(s32 i, Bytes8 *out);
 void func_80033388(VECTOR *pos, s16 deg);
 
 /* MATCHING: defined in code_1902c, which has no header. */
@@ -641,7 +641,7 @@ s32 func_8002D424(void) {
      * delay slot for the constant 100. */
     switch (gModeStep) {
         case 0:
-            func_8002D2C0((Rec48 *)0x8016D000);
+            ResetGameState((Rec48 *)0x8016D000);
             gToolMode = 0;
             ResetStageOverlay();
             D_800956F7 = 1;
@@ -652,7 +652,7 @@ s32 func_8002D424(void) {
             for (i = 1; i < 128; i++) {
                 D_800A74D0[i] = 1;
             }
-            func_8002D16C();
+            PromoteMarks();
             /* MATCHING: the s16 error code switched as u16 (lhu). */
             switch ((u16)gToolMode) {
                 case 0:
@@ -664,7 +664,7 @@ s32 func_8002D424(void) {
                                 break;
                             case 1:
                                 func_80030278();
-                                func_8002AA58();
+                                TestBoxes();
                                 break;
                             case 2:
                                 func_80030984();
@@ -681,7 +681,7 @@ s32 func_8002D424(void) {
                                 break;
                             case 1:
                                 func_80030548();
-                                func_8002AA58();
+                                TestBoxes();
                                 break;
                             case 2:
                                 func_80031064();
@@ -795,7 +795,7 @@ s32 func_8002D424(void) {
                 DrawPin((VECTOR *)D_8009EEC0);
                 func_80033224((VECTOR *)D_8009EEC0);
             }
-            func_8002CCEC(&gSubOt[gActiveBuff]);
+            UpdatePickups(&gSubOt[gActiveBuff]);
             func_80033BF8();
             func_80031A48();
             DrawStage(-sGameSave.unk348[0], 0, -sGameSave.unk348[2]);
@@ -810,7 +810,7 @@ s32 func_8002D424(void) {
         func_80033930();
         gRetries = 0xFF;
         D_80095962 = 1;
-        func_8002C47C();
+        ResetStageObjects();
         gModeStep = 3;
         gGameMode = 14;
     }
@@ -1793,7 +1793,7 @@ void func_8002FDB4(void) {
                 e->start++;
                 e++;
             }
-            func_8002D0C4((BlockHeader *)0x801FD000);
+            SetCurrentBlock((BlockHeader *)0x801FD000);
         }
     }
 }
@@ -1918,7 +1918,7 @@ s32 func_80030278(void) {
         }
         sTotals.unk12 = i;
     }
-    func_8002C540(&sRecs5C[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
+    SetBoxCentred(&sRecs5C[sTotals.unk12], sizes.s[sTotals.unk14].w, sizes.s[sTotals.unk14].d);
     sRecs5C[sTotals.unk12].unk50[0] = sGameSave.unk348[0];
     sRecs5C[sTotals.unk12].unk50[1] = sGameSave.unk348[1];
     sRecs5C[sTotals.unk12].unk50[2] = sGameSave.unk348[2];
@@ -2195,7 +2195,7 @@ s32 func_80030DA0(void) {
             }
             w->unk2C = ratan2(-D_800AC858[3], D_800AC858[2]);
             w->unk30 = ratan2(-D_800AC858[1], D_800AC858[2]);
-            func_8002A7D8(&D_800D8D20[w->unk36], (Rec48 *)w);
+            UpdateObjectEntry(&D_800D8D20[w->unk36], (Rec48 *)w);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: an integer sum puts the index first in the addu. */
                 r = (Obj48 *)(i * sizeof(Obj48) + (u32)w);
@@ -2209,7 +2209,7 @@ s32 func_80030DA0(void) {
                 r->unk1A = w->unk1A + r->unk20;
                 r->unk2C = w->unk2C;
                 r->unk30 = w->unk30;
-                func_8002A7D8(&D_800D8D20[r->unk36], (Rec48 *)r);
+                UpdateObjectEntry(&D_800D8D20[r->unk36], (Rec48 *)r);
             }
             break;
     }
@@ -2404,7 +2404,7 @@ void func_8003146C(void) {
     D_800DF818.unk4[0] = sGameSave.unk348[0];
     D_800DF818.unk4[1] = sGameSave.unk348[1];
     D_800DF818.unk4[2] = sGameSave.unk348[2];
-    func_8002C85C(sTotals.unk2C + 30, &e);
+    GetQuad16(sTotals.unk2C + 30, &e);
     /* MATCHING: each offset in its own s32 local; inline, the sum is
      * narrowed to a halfword add, and one shared local merges the arms. */
     if (sTotals.unk34 == 0) {
@@ -2418,9 +2418,9 @@ void func_8003146C(void) {
     D_800DF818.unk1E = sTotals.unk2E + h2;
     D_800DF818.unk20 = D_800DF818.unk1C;
     if (sTotals.unk32 == 0) {
-        func_8002B8F8(sTotals.unk2C + 30, &D_800DF818);
+        DrawObjectSprite(sTotals.unk2C + 30, &D_800DF818);
     } else {
-        func_8002C894(sTotals.unk2C + 30, &D_800DF818);
+        StepSprite(sTotals.unk2C + 30, &D_800DF818);
     }
 }
 
@@ -2439,9 +2439,9 @@ s32 func_800317D0(void) {
     D_800DF818.unk4[1] = sGameSave.unk348[1];
     D_800DF818.unk4[2] = sGameSave.unk348[2];
     if (sTotals.unk32 == 0) {
-        func_8002B8F8(sTotals.unk2C + 30, &D_800DF818);
+        DrawObjectSprite(sTotals.unk2C + 30, &D_800DF818);
     } else {
-        func_8002C894(sTotals.unk2C + 30, &D_800DF818);
+        StepSprite(sTotals.unk2C + 30, &D_800DF818);
     }
     /* MATCHING: the counter is cleared before the store, so each arm above
      * ends with it (one in a jump's delay slot). */
@@ -2506,9 +2506,9 @@ void func_80031A48(void) {
         r = &D_800A7898[i];
         if (r->unk0 != -1 && sTotals.unk2A == r->unk2C) {
             if (r->unk26 & 0x80) {
-                func_8002C894(r->unk0, r);
+                StepSprite(r->unk0, r);
             } else {
-                func_8002B8F8(r->unk0, r);
+                DrawObjectSprite(r->unk0, r);
             }
         }
     }
@@ -2694,7 +2694,7 @@ s32 func_80031EF4(void) {
                         D_800957F4 = FindFloor(sGameSave.unk348);
                         gSection = 0;
                         D_8009676C[0] = (s16)(sRotPos.pos[1] - 500);
-                        func_8002D0C4((BlockHeader *)0x801FD000);
+                        SetCurrentBlock((BlockHeader *)0x801FD000);
                         gToolCardStep = 1;
                     }
                     break;
@@ -3242,7 +3242,7 @@ void func_80033790(void) {
 void func_800337E4(u8 *buf) {
     s32 n;
 
-    func_8002D0C4((BlockHeader *)buf);
+    SetCurrentBlock((BlockHeader *)buf);
     n = gStageObjCount;
     D_800959C0 = buf + 8;
     D_800959C8 = n;
@@ -3397,7 +3397,7 @@ void func_80033BF8(void) {
     for (i = 0; i < 200; i++) {
         r = &((Rec48 *)D_800A9008)[i];
         if (r->unk36 != -1 && sTotals.unk1E == r->unk34) {
-            func_8002A7D8(&D_800D8D20[r->unk36], r);
+            UpdateObjectEntry(&D_800D8D20[r->unk36], r);
         }
     }
 }

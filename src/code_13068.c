@@ -160,7 +160,7 @@ extern SlotRec D_800D3860[];
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
 extern ObjRec D_800D8370[];
 /* MATCHING: code_1a098 types these Rec78 and Rec48; this unit's records are views of them. */
-void func_8002A5B0(Rec78 *rec, Rec48 *r);
+void DrawObjectModel(Rec78 *rec, Rec48 *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
 extern u8 D_8009EF49[];
@@ -2427,7 +2427,7 @@ void func_800272D4(void) {
             D_800D8370[0].unk58 = (s32)&D_800D86E0[16];
             D_800D3860[0].unk0 = -gWorldShift[0];
             D_800D3860[0].unk8 = -gWorldShift[2];
-            func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
+            DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[0].unk36], (Rec48 *)&D_800D3860[0]);
             break;
         case 4:
             D_800D3860[5].unk18 = -0x88;
@@ -2437,7 +2437,7 @@ void func_800272D4(void) {
             D_800D8370[5].unk58 = (s32)&D_800D86E0[16];
             D_800D3860[5].unk0 = -gWorldShift[0];
             D_800D3860[5].unk8 = -gWorldShift[2];
-            func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
+            DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[5].unk36], (Rec48 *)&D_800D3860[5]);
             break;
         case 2:
             switch (gStage) {
@@ -2447,7 +2447,7 @@ void func_800272D4(void) {
                     D_800D3860[3].unk0 = -gWorldShift[0];
                     D_800D3860[3].unk8 = -gWorldShift[2];
                     D_800D3860[3].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
-                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
+                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[3].unk36], (Rec48 *)&D_800D3860[3]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -2458,7 +2458,7 @@ void func_800272D4(void) {
                     D_800D3860[6].unk0 = -gWorldShift[0];
                     D_800D3860[6].unk8 = -gWorldShift[2];
                     D_800D3860[6].unk18 += ANGLE_DEG(sGame.unk3A8 / 2);
-                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
+                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[6].unk36], (Rec48 *)&D_800D3860[6]);
                     if (gFrameCount % 20 == 0) {
                         PlaySe(0x81);
                     }
@@ -2472,14 +2472,14 @@ void func_800272D4(void) {
                     D_800D8370[4].unk58 = (s32)&D_800D86E0[1];
                     D_800D3860[4].unk0 = -gWorldShift[0];
                     D_800D3860[4].unk8 = -gWorldShift[2];
-                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
+                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[4].unk36], (Rec48 *)&D_800D3860[4]);
                     break;
                 case 12:
                     D_800D3860[2].unk4 = 0;
                     D_800D8370[2].unk58 = (s32)&D_800D86E0[1];
                     D_800D3860[2].unk0 = -gWorldShift[0];
                     D_800D3860[2].unk8 = -gWorldShift[2];
-                    func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
+                    DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[2].unk36], (Rec48 *)&D_800D3860[2]);
                     break;
             }
             break;
@@ -2488,7 +2488,7 @@ void func_800272D4(void) {
         D_800D3860[1].unk4 = 0;
         D_800D3860[1].unk0 = -gWorldShift[0];
         D_800D3860[1].unk8 = -gWorldShift[2];
-        func_8002A5B0((Rec78 *)&D_800D8370[D_800D3860[1].unk36], (Rec48 *)&D_800D3860[1]);
+        DrawObjectModel((Rec78 *)&D_800D8370[D_800D3860[1].unk36], (Rec48 *)&D_800D3860[1]);
     }
 }
 

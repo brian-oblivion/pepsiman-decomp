@@ -5,7 +5,7 @@
 Unit `src/code_7d74.c`. Round 3 (runner charlie) skipped it at the
 budget, 1 word short, 3/30; round 7 matched it. Copies a 3-word position
 to the stack, lets `UpdateSection` update `cur` through its address from
-the position's x and z, then asks `func_800299D8(arg, cur, &pos,
+the position's x and z, then asks `QueryFloor(arg, cur, &pos,
 gFloorData)`; returns -1 when that gives 0x7FFF, else the updated `cur`.
 
 ```c
@@ -16,7 +16,7 @@ typedef struct {
 } Vec3i;
 
 extern s32 gFloorData;
-s32 func_800299D8(void *out, s32 index, Vec3i *pos, s32 data);
+s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit's view; code_29f54 defines the coordinates s16. */
 void UpdateSection(s32 *index, s32 x, s32 y);
 
@@ -27,7 +27,7 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     p.y = ((Vec3i *)pos)->y;
     p.z = ((Vec3i *)pos)->z;
     UpdateSection(&cur, p.x, p.z);
-    if (func_800299D8(arg, cur, &p, gFloorData) == 0x7FFF) {
+    if (QueryFloor(arg, cur, &p, gFloorData) == 0x7FFF) {
         return -1;
     }
     return cur;
@@ -53,7 +53,7 @@ passed. Round 3 called `UpdateSection(&arg2)` with one argument.
 
 - `FindFloorNear`'s prototype moved from code_1a098.c into
   `include/common.h` (additive); code_1a098.c's local copy is deleted.
-- `func_800299D8`'s first parameter is now `void *` in this unit (both
+- `QueryFloor`'s first parameter is now `void *` in this unit (both
   callers here pass different buffers).
 
 ### Proposed learning

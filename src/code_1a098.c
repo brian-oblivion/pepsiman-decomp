@@ -243,9 +243,9 @@ s32 CollidePlayer(Query30 *q);
 /* MATCHING: all s32 where the callee has s16: retail neither re-extends
  * the result nor extends the a and b it passes. */
 s32 Lerp(s32 a, s32 b, u16 t, u16 n);
-void func_8002C4D8(void);
+void RefreshAllZones(void);
 s32 FindFloor(Rec48 *r);
-s32 func_8002C650(void);
+s32 ClearObjectHits(void);
 /* MATCHING: a per-unit view of the squared-distance helper; it takes two
  * VECTOR pointers. */
 s32 DistanceSquared(void *a, void *b);
@@ -253,10 +253,10 @@ s32 DistanceSquared(void *a, void *b);
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 void func_80023194(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
-void func_8002A5B0(Rec78 *rec, Rec48 *r);
-void func_8002B8F8(u16 id, Rec3C *r);
-s32 func_8002BEC0(Drifter *d);
-void func_8002C188(s32 r, s32 deg, Vec3 *out);
+void DrawObjectModel(Rec78 *rec, Rec48 *r);
+void DrawObjectSprite(u16 id, Rec3C *r);
+s32 StepDrift(Drifter *d);
+void PolarToXZ(s32 r, s32 deg, Vec3 *out);
 /* MATCHING: code_1dc24's resets, declared per unit: Rec3C is local to each
  * unit until a shared header holds it. */
 void func_800337E4(u8 *buf);
@@ -266,7 +266,7 @@ void func_8003390C(Rec3C *recs);
 
 /** @brief Sets `p->pos` to the world position of its local position. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
-void func_80029898(Placed2C *p) {
+void UpdatePlacedPos(Placed2C *p) {
     MATRIX world;
     MATRIX local;
     SVECTOR v;
@@ -288,7 +288,7 @@ void func_80029898(Placed2C *p) {
 
 /** @brief Sets `out` to the world position of the local position `lp`. */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
-void func_80029930(LocalPos *lp, VECTOR *out) {
+void LocalToWorld(LocalPos *lp, VECTOR *out) {
     MATRIX world;
     MATRIX local;
     SVECTOR v;
@@ -351,7 +351,7 @@ typedef struct {
  *  @return the height, 0 for a vertical face, 0x7FFF when no face is
  *          under `pos` */
 /* MATCHING: every vertex read spelled out; pointer locals move registers. */
-s32 func_800299D8(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
+s32 QueryFloor(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
     VECTOR a;
     VECTOR b;
     VECTOR n;
@@ -431,7 +431,7 @@ s32 func_800299D8(FloorHit *out, s32 zone, VECTOR *pos, FloorHdr *hdr) {
 /** @brief Finds the face of zone `zone` of the wall data `hdr` whose centre
  *         is nearest `pos` and tells which side of it `pos` is on.
  *  @return -1 behind the nearest face, 0 in front of it or with no face */
-s32 func_80029E74(s32 zone, VECTOR *pos, FloorHdr *hdr) {
+s32 QueryWall(s32 zone, VECTOR *pos, FloorHdr *hdr) {
     VECTOR a;
     VECTOR b;
     VECTOR n;
@@ -499,7 +499,7 @@ s32 func_8002A558(void);
 /** @brief Probes 50 units ahead of the player, 45 degrees either side of
  *         the heading; each probe that hits pushes the player 25 units
  *         back from that side. Then runs the mode check. */
-void func_8002A328(void) {
+void PushPlayerFromWalls(void) {
     VECTOR pos;
     s32 idx;
 
@@ -508,7 +508,7 @@ void func_8002A328(void) {
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy + 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (FloorHdr *)gFloorData)) {
+    if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy + 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy + 0x400) * 25 >> 12;
     }
@@ -517,7 +517,7 @@ void func_8002A328(void) {
     pos.vz = sGameHead.unk350 + (rcos(D_800A7680[0].vy - 0x200) * 50 >> 12);
     idx = D_800957F4;
     UpdateSection(&idx, pos.vx, pos.vz);
-    if (func_80029E74(idx, &pos, (FloorHdr *)gFloorData)) {
+    if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
         sGameHead.unk348 -= rsin(D_800A7680[0].vy - 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(D_800A7680[0].vy - 0x400) * 25 >> 12;
     }
@@ -546,7 +546,7 @@ static __inline__ s32 absInt(s32 x) {
  *         plus the world offset, rotation from the record's angles, light
  *         and scale; sorted far (GsSortObject4J) when x or z is beyond 700,
  *         and the offset taken off again afterwards. */
-void func_8002A5B0(Rec78 *rec, Rec48 *r) {
+void DrawObjectModel(Rec78 *rec, Rec48 *r) {
     GsCOORD2PARAM param;
     MATRIX mat;
     Model70 *m;
@@ -600,21 +600,21 @@ s32 GetQuadHeightUnderPlayer(void *rec, s8 *out);
  *  @return nothing; the value is undefined. */
 /* MATCHING: non-void with no return keeps two delay slots nops (the
  * unk2 test and the second loop's back branch). */
-s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
+s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r) {
     s16 i;
     s16 start;
     s16 n;
     Placed2C *p;
     u8 *q;
 
-    func_8002A5B0(rec, r);
+    DrawObjectModel(rec, r);
     start = rec->unk72;
     n = rec->unk74;
     r->unk40 = 0;
     if (n != -1) {
         for (i = start; i < start + n; i++) {
             p = &((Placed2C *)gLivePoints)[i];
-            func_80029898(p);
+            UpdatePlacedPos(p);
             r->unk40 |= CollidePlayer((Query30 *)p) & 1;
         }
     }
@@ -637,7 +637,7 @@ s32 func_8002A7D8(Rec78 *rec, Rec48 *r) {
 
 /** @brief Sets the four corners of a box `w` wide and `d` deep around the
  *         position `c`, at its height, relative to it. */
-void func_8002A98C(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
+void SetBoxAround(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
     s16 x;
     s16 z;
 
@@ -663,7 +663,7 @@ void func_8002A98C(s16 (*v)[3], VECTOR *c, s16 w, s16 d) {
  *         record test decides.
  *  @return nothing; the value is undefined. */
 /* MATCHING: non-void with no return keeps two delay slots nops. */
-s32 func_8002AA58(void) {
+s32 TestBoxes(void) {
     MATRIX world;
     MATRIX local;
     SVECTOR sv;
@@ -747,7 +747,7 @@ s32 func_8002AA58(void) {
  *         passed the next point or not yet reached its own.
  *  @return the new segment */
 /* MATCHING: the unused pair gives the leaf its 8-byte frame. */
-s32 func_8002AEB8(PathUser *u) {
+s32 UpdatePathSegment(PathUser *u) {
     s32 unused[2];
     s32 i;
     s32 d;
@@ -776,7 +776,7 @@ s32 func_8002AEB8(PathUser *u) {
  *  @return the direction of that segment, from ratan2 */
 /* MATCHING: the unused pair gives the frame its 0x20 bytes; a third point
  * local for the last segment, where reusing either colours $a0 differently. */
-s16 func_8002AF6C(PathUser *u) {
+s16 GetPathDirection(PathUser *u) {
     s32 unused[2];
     s32 i;
     s32 d;
@@ -800,12 +800,12 @@ s16 func_8002AF6C(PathUser *u) {
 }
 
 extern char D_80010B34[]; /**< "TRAP NO  (%2d / %2d)" */
-void func_8002B5FC(void);
+void DrawAxes(void);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected
  *         Rec78 entry with the pad, places and draws it on a turning
  *         record, draws the axes and prints the entry number. */
-void func_8002B04C(void) {
+void UpdateTrapViewer(void) {
     s32 flags;
 
     gWorldShift[0] = 0;
@@ -836,10 +836,10 @@ void func_8002B04C(void) {
     ((s16 *)D_800A9008)[12] = 0;
     ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
-    func_8002A7D8(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
+    UpdateObjectEntry(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
     func_80023F80(D_8009EB78);
     func_80029838();
-    func_8002B5FC();
+    DrawAxes();
     FntPrint(D_80010B34, D_800958E2, gSectionCount);
 }
 
@@ -860,7 +860,7 @@ u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2);
  *         fills the Rec48 table from a turning start record, state 2 steps
  *         the selected entry with the pad and places every record
  *         relative to record 0; every state prints the entry number. */
-void func_8002B220(void) {
+void UpdateTrapLayoutViewer(void) {
     s32 unused[18];
     s32 flags;
     s16 old;
@@ -911,7 +911,7 @@ void func_8002B220(void) {
             }
             ResetCollision();
             ((Rec48v *)D_800A9008)->o.unk1A = gFrameCount % 360 * 4096 / 360;
-            func_8002A7D8(&D_800D8D20[((Rec48v *)D_800A9008)->unk36], (Rec48 *)D_800A9008);
+            UpdateObjectEntry(&D_800D8D20[((Rec48v *)D_800A9008)->unk36], (Rec48 *)D_800A9008);
             for (i = 1; i < D_8009596E; i++) {
                 /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
                 recs = (Rec48v *)D_800A9008;
@@ -925,11 +925,11 @@ void func_8002B220(void) {
                 r->o.unk8 = D_8009F268.vz;
                 r->o.unk1A = recs->o.unk1A + r->o.unk20;
                 tbl = D_800D8D20;
-                func_8002A7D8((Rec78 *)(r->unk36 * 120 + (u32)tbl), (Rec48 *)r);
+                UpdateObjectEntry((Rec78 *)(r->unk36 * 120 + (u32)tbl), (Rec48 *)r);
             }
             func_80023F80(D_8009EB78);
             func_80029838();
-            func_8002B5FC();
+            DrawAxes();
             break;
     }
     FntPrint(D_80010B34, D_800958E2, gSectionCount);
@@ -937,7 +937,7 @@ void func_8002B220(void) {
 
 /** @brief Sorts three white lines 400 units long through the origin, one
  *         along each axis, into the current ordering table. */
-void func_8002B5FC(void) {
+void DrawAxes(void) {
     VECTOR world;
     SVECTOR screen;
     GsLINE line;
@@ -1019,7 +1019,7 @@ extern u8 D_800A7618[]; /**< a sprite shape per id, from id 30 on */
  *         in state 1 within 600 units (and the mode is not 0x20), a size
  *         from its width and height by the id's shape, mirrored by flag
  *         bit 6, sorted near within 700 units and far beyond. */
-void func_8002B8F8(u16 id, Rec3C *r) {
+void DrawObjectSprite(u16 id, Rec3C *r) {
     GsCOORDINATE2 coord;
     MATRIX mat;
     SVECTOR size;
@@ -1067,12 +1067,12 @@ void func_8002B8F8(u16 id, Rec3C *r) {
 
 /** @brief Updates the Rec78 entry of every live Rec48 record whose Rec5C
  *         record is marked 1. */
-void func_8002BC4C(void) {
+void UpdateActiveEntries(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
         if (sRecs48[i].unk36 != -1 && D_800CF080[sRecs48[i].unk34].unk0 == 1) {
-            func_8002A7D8(&D_800D8D20[sRecs48[i].unk36], &sRecs48[i]);
+            UpdateObjectEntry(&D_800D8D20[sRecs48[i].unk36], &sRecs48[i]);
         }
     }
 }
@@ -1084,7 +1084,7 @@ static __inline__ void queryRec(s16 id, Rec3C *r) {
     Query30 q;
     s32 v;
 
-    func_8002B8F8(id, r);
+    DrawObjectSprite(id, r);
     q.pos.x = r->unk4;
     q.pos.y = r->unk8 - (s16)r->unk1E / 2;
     q.pos.z = r->unkC;
@@ -1110,7 +1110,7 @@ static __inline__ void queryRec(s16 id, Rec3C *r) {
  *         a flagged one is updated and queried, a state-3 one drifts and is
  *         updated on a drift step, any other one is updated. */
 /* MATCHING: the record pointer is taken inside the body. */
-void func_8002BD00(void) {
+void UpdateActiveSprites(void) {
     u32 i;
     Rec3C *r;
     s8 k;
@@ -1122,8 +1122,8 @@ void func_8002BD00(void) {
             if (k == 1) {
                 if (r->unk26 & 0x80) {
                     queryRec(r->unk0, r);
-                } else if ((r->unk26 & 0x3F) != 3 || (s8)func_8002BEC0((Drifter *)r) == 1) {
-                    func_8002B8F8(r->unk0, r);
+                } else if ((r->unk26 & 0x3F) != 3 || (s8)StepDrift((Drifter *)r) == 1) {
+                    DrawObjectSprite(r->unk0, r);
                 }
             }
         }
@@ -1135,7 +1135,7 @@ void func_8002BD00(void) {
  *  @return 1 on two steps of every three, 0 on the third and once done */
 /* MATCHING: a u8 result copies the test into its register; a base local
  * keeps baseY's load above the abs. */
-s32 func_8002BEC0(Drifter *d) {
+s32 StepDrift(Drifter *d) {
     s32 b;
     u8 ret;
     s32 y;
@@ -1143,7 +1143,7 @@ s32 func_8002BEC0(Drifter *d) {
     if (d->count < 15) {
         d->count++;
         ret = d->count % 3 != 0;
-        func_8002C188(20, D_800A7680[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
+        PolarToXZ(20, D_800A7680[0].vy * 360 / 4096, (Vec3 *)D_800D39C8);
         d->x -= ((Vec3 *)D_800D39C8)->x >> 12;
         d->z -= ((Vec3 *)D_800D39C8)->z >> 12;
         d->phase = (d->phase + 10) % 360;
@@ -1162,7 +1162,7 @@ s32 func_8002BEC0(Drifter *d) {
 /** @brief Registers the entries of the directory loaded at a fixed address
  *         from slot 0x33 on.
  *  @return nothing; the value is undefined. */
-s32 func_8002C044(void) {
+s32 LoadStageSprites(void) {
     DirEnt16 *e;
     s32 *p;
 
@@ -1183,7 +1183,7 @@ s32 func_8002C044(void) {
 /** @brief Looks up the height under `p`; on success sets its current and
  *         stored y and two angles from the result.
  *  @return the lookup's result, -1 when it failed */
-s32 func_8002C0EC(Obj34 *p) {
+s32 SnapToFloor(Obj34 *p) {
     s32 v;
 
     v = FindFloorNear(p, D_80096738, p->unk28);
@@ -1197,10 +1197,10 @@ s32 func_8002C0EC(Obj34 *p) {
 }
 
 /** @brief Sets x and z of `out` to the point `r` away at `deg` degrees. */
-void func_8002C188(s32 r, s32 deg, Vec3 *out) {
+void PolarToXZ(s32 r, s32 deg, Vec3 *out) {
     s32 a;
 
-    /* MATCHING: deg is s32, narrowed here; func_8002BEC0 passes it unextended. */
+    /* MATCHING: deg is s32, narrowed here; StepDrift passes it unextended. */
     a = (s16)deg * 4096 / 360;
     out->x = rsin(a) * r;
     out->z = rcos(a) * r;
@@ -1208,7 +1208,7 @@ void func_8002C188(s32 r, s32 deg, Vec3 *out) {
 
 /** @brief Sets up `m` to draw object `n` of the TMD file at `tmd`, with an
  *         identity transform, and counts it. */
-void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
+void InitModel(Model70 *m, unsigned long *tmd, u8 n) {
     GsInitCoordinate2(WORLD, &m->coord);
     m->obj.coord2 = &m->coord;
     /* MATCHING: the parameter is advanced in two steps; offsets from one
@@ -1232,7 +1232,7 @@ void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n) {
  *         the restored header. */
 /* MATCHING: word-typed table copies; the byte-typed header copy keeps the
  * runtime alignment test. */
-void func_8002C2B4(void) {
+void RestoreStageObjects(void) {
     SavedTables *s;
 
     s = (SavedTables *)0x80173778;
@@ -1240,11 +1240,11 @@ void func_8002C2B4(void) {
     *(Recs5CCopy *)D_800CF080 = s->recs5C;
     *(Recs3CCopy *)D_800A7898 = s->recs3C;
     *(BlockCopy *)0x801FD000 = s->block;
-    func_8002D0C4((BlockHeader *)0x801FD000);
+    SetCurrentBlock((BlockHeader *)0x801FD000);
 }
 
 /** @brief Updates `p->unk28` from a lookup unless the lookup fails (-1). */
-void func_8002C438(Obj2C *p) {
+void RefreshZone(Obj2C *p) {
     s32 v;
 
     v = FindFloorNear(p, D_80096738, p->unk28);
@@ -1255,7 +1255,7 @@ void func_8002C438(Obj2C *p) {
 
 /** @brief Clears every used Rec5C record, then refreshes the Rec48 table
  *         and clears its records. */
-void func_8002C47C(void) {
+void ResetStageObjects(void) {
     u32 i;
 
     for (i = 0; i < 200; i++) {
@@ -1263,12 +1263,12 @@ void func_8002C47C(void) {
             D_800CF080[i].unk0 = 0;
         }
     }
-    func_8002C4D8();
-    func_8002C650();
+    RefreshAllZones();
+    ClearObjectHits();
 }
 
 /** @brief Refreshes unk28 of every live record of the 200-entry table. */
-void func_8002C4D8(void) {
+void RefreshAllZones(void) {
     u32 i;
 
     /* MATCHING: indexed; a walking Rec48 pointer is biased to unk28. */
@@ -1281,7 +1281,7 @@ void func_8002C4D8(void) {
 
 /** @brief Sets the four corners of a box `w` wide and `d` deep, centred on
  *         the origin at height 0. */
-void func_8002C540(Box4 *b, s16 w, s16 d) {
+void SetBoxCentred(Box4 *b, s16 w, s16 d) {
     s16 x;
     s16 z;
 
@@ -1302,7 +1302,7 @@ void func_8002C540(Box4 *b, s16 w, s16 d) {
 }
 
 /** @brief Clears byte 0 of the first `count` records of a Rec5C table. */
-void func_8002C5A4(Rec5C *recs, u16 count) {
+void ClearMarks(Rec5C *recs, u16 count) {
     u16 i;
 
     for (i = 0; i < count; i++) {
@@ -1314,7 +1314,7 @@ void func_8002C5A4(Rec5C *recs, u16 count) {
 /** @brief For each odd-numbered Rec5C record whose byte 0 is 1, sets byte 0
  *         of it and of the record before it to 2.
  *  @return nothing; the value is undefined. */
-s32 func_8002C5D0(void) {
+s32 PairMarks(void) {
     u16 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
@@ -1329,7 +1329,7 @@ s32 func_8002C5D0(void) {
 /** @brief Clears unk40 and unk24 of all 200 Rec48 records and all but bit 0
  *         of unk41.
  *  @return nothing; the value is undefined. */
-s32 func_8002C650(void) {
+s32 ClearObjectHits(void) {
     u16 i;
     Rec48 *r;
 
@@ -1345,7 +1345,7 @@ s32 func_8002C650(void) {
 /** @brief Latches bit 1 of `r->unk41` once the record comes within `range`
  *         of a fixed object.
  *  @return 1 when the bit was set by this call, else 0. */
-s32 func_8002C6A4(Rec48 *r, s32 range) {
+s32 LatchProximity(Rec48 *r, s32 range) {
     s32 ret;
     s32 sq;
 
@@ -1364,7 +1364,7 @@ s32 func_8002C6A4(Rec48 *r, s32 range) {
  *         `a`'s Rec78 entry, takes `a`'s angles, adds `a`'s heading to its
  *         own, and updates `b`'s Rec78 entry from it. */
 /* MATCHING: the Rec48s' first 0x34 bytes read through the Obj34 view. */
-void func_8002C724(Rec48 *a, Rec48 *b) {
+void AttachToParent(Rec48 *a, Rec48 *b) {
     Obj34 *pa;
     Obj34 *pb;
 
@@ -1380,11 +1380,11 @@ void func_8002C724(Rec48 *a, Rec48 *b) {
     pb->unk2C = pa->unk2C;
     pb->unk30 = pa->unk30;
     pb->unk1A = pa->unk1A + pb->unk20;
-    func_8002A5B0(&D_800D8D20[b->unk36], b);
+    DrawObjectModel(&D_800D8D20[b->unk36], b);
 }
 
 /** @brief Resets an object's current values from its stored copy. */
-void func_8002C820(Obj34 *p) {
+void ResetObj34(Obj34 *p) {
     p->unk2C = 0;
     p->unk30 = 0;
     p->unk0 = p->unkC;
@@ -1396,7 +1396,7 @@ void func_8002C820(Obj34 *p) {
 }
 
 /** @brief Copies entry `i` of the eight-byte table to `out`. */
-void func_8002C85C(u16 i, Quad16 *out) {
+void GetQuad16(u16 i, Quad16 *out) {
     Quad16 *src;
 
     /* MATCHING: the base in its own local, then advanced by i; indexing
@@ -1410,33 +1410,33 @@ void func_8002C85C(u16 i, Quad16 *out) {
  *  while flagged in state 2, moves it to state 3 and resets its motion. */
 /* MATCHING: the fixed object's y read as a VECTOR member; a plain word
  * read lets the scheduler hoist the r->unk18 store above it. */
-void func_8002C894(s16 id, Rec3C *r) {
+void StepSprite(s16 id, Rec3C *r) {
     queryRec(id, r);
 }
 
 /** @brief Interpolates three angles by `t`/`n` into `out`: out[1] is `r`
  *         times the sine of 0..180 degrees, out[0] -60..60 degrees and
  *         out[2] 0..20 degrees, in 4096ths of a turn. */
-void func_8002C994(s16 r, u16 t, u16 n, s32 *out) {
+void InterpSwing(s16 r, u16 t, u16 n, s32 *out) {
     out[1] = rsin((s16)Lerp(0, 180, t, n) * 4096 / 360) * r;
     out[0] = (s16)Lerp(-60, 60, t, n) * 4096 / 360;
     out[2] = (s16)Lerp(0, 20, t, n) * 4096 / 360;
 }
 
 /** @brief Interpolates from 0 towards `b` by `t`/`n`, into out[1]. */
-void func_8002CAA4(s16 b, u16 t, u16 n, s32 *out) {
+void InterpFromZero(s16 b, u16 t, u16 n, s32 *out) {
     out[1] = Lerp(0, b, t, n);
 }
 
 /** @brief Interpolates from `a` towards `b` by `t`/`n`, into out[1]. */
-void func_8002CAE4(s16 a, s16 b, u16 t, u16 n, s32 *out) {
+void InterpRange(s16 a, s16 b, u16 t, u16 n, s32 *out) {
     out[1] = Lerp(a, b, t, n);
 }
 
 /** @brief Interpolates by `t`/`n` into out[1]: from 0 towards twice `b`
  *         in the first 80 percent of `n`, else from four times `b` towards
  *         `b`. */
-void func_8002CB24(s16 b, u16 t, u16 n, s32 *out) {
+void InterpOvershoot(s16 b, u16 t, u16 n, s32 *out) {
     if ((double)(t * 4096 / 100) < (double)(n * 4096 / 100) * 0.8) {
         out[1] = Lerp(0, b * 2, t, n);
     } else {
@@ -1465,7 +1465,7 @@ static __inline__ void setupModel(Model70 *m, unsigned long *tmd, u8 n) {
 
 /** @brief Sets up all 80 Rec78 records as objects of the TMD file at a
  *         fixed address, record i drawing object i, and counts them. */
-void func_8002CC24(void) {
+void InitEntryModels(void) {
     u32 i;
 
     gSectionCount = 0;
@@ -1489,13 +1489,13 @@ typedef struct {
 /* MATCHING: a per-unit view; code_29f54 types the same list as Run. */
 extern Zone4 *gStageRuns; /**< the zones */
 
-s8 func_8002D0F0(Vec3 *pos);
+s8 ProbePosition(Vec3 *pos);
 
 /** @brief Draws the markers of the current zone: each block entry marked 2
  *         whose flag is set and not yet collected gets a sprite, near or
  *         far by its distance, and when the player is over it it is
  *         collected (its effect, a sound, bit 15 of its flag index). */
-void func_8002CCEC(void) {
+void UpdatePickups(void) {
     GsCOORDINATE2 coord;
     MATRIX mat;
     SVECTOR size;
@@ -1537,7 +1537,7 @@ void func_8002CCEC(void) {
                 pos.x = coord.coord.t[0] - gWorldShift[0];
                 pos.y = coord.coord.t[1] - 50;
                 pos.z = coord.coord.t[2] - gWorldShift[2];
-                if (func_8002D0F0(&pos)) {
+                if (ProbePosition(&pos)) {
                     m = n;
                     func_800414EC(m);
                     switch (m) {
@@ -1565,7 +1565,7 @@ void func_8002CCEC(void) {
 }
 
 /** @brief Points the current-block globals at the block `hdr` heads. */
-void func_8002D0C4(BlockHeader *hdr) {
+void SetCurrentBlock(BlockHeader *hdr) {
     D_800959C0 = (u8 *)hdr + 8;
     D_800959C8 = hdr->unk0;
     /* MATCHING: offset read through a byte pointer, not hdr->offset: the
@@ -1575,7 +1575,7 @@ void func_8002D0C4(BlockHeader *hdr) {
 }
 
 /** @brief Runs the position query for `pos` with a range of 50. */
-s8 func_8002D0F0(Vec3 *pos) {
+s8 ProbePosition(Vec3 *pos) {
     Query30 q;
 
     q.pos.x = pos->x;
@@ -1588,7 +1588,7 @@ s8 func_8002D0F0(Vec3 *pos) {
 
 /** @brief Clears a 128-byte table of flags.
  *  @return nothing; the value is undefined. */
-s32 func_8002D140(void) {
+s32 ClearFlags128(void) {
     u32 i;
 
     /* MATCHING: non-void with no return; it keeps $v0 live at the exit, so
@@ -1600,7 +1600,7 @@ s32 func_8002D140(void) {
 
 /** @brief Marks with 2 every block entry whose flag is 1.
  *  @return nothing; the value is undefined. */
-s32 func_8002D16C(void) {
+s32 PromoteMarks(void) {
     u32 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
@@ -1614,7 +1614,7 @@ s32 func_8002D16C(void) {
 /** @brief Flags n, then marks with 1 every block entry whose unk6 is n.
  *  @param n the flag to set and the value to look for
  *  @return nothing; the value is undefined. */
-s32 func_8002D1CC(s16 n) {
+s32 MarkByGroup(s16 n) {
     u32 i;
 
     /* MATCHING: non-void with no return keeps the loop's delay slot a nop. */
@@ -1628,7 +1628,7 @@ s32 func_8002D1CC(s16 n) {
 
 /** @brief On even frames, launches effect 4 at the first block entry marked
  *         1 and marks it 2. */
-void func_8002D230(void) {
+void LaunchMarkedEffect(void) {
     u32 i;
     Ent8 *e;
 
@@ -1650,7 +1650,7 @@ void func_8002D230(void) {
  *         and frees its 200 Rec48 records, clears and resets the block
  *         header, the Rec5C, Rec48 and Rec3C tables, and the progress
  *         block. */
-void func_8002D2C0(Rec48 *recs) {
+void ResetGameState(Rec48 *recs) {
     u32 i;
 
     bzero((u8 *)recs, 0x30000);

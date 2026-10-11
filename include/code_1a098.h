@@ -60,13 +60,13 @@ extern GsCOORDINATE2 D_800D86E0[]; /**< coordinate systems; code_13068 points re
 
 /** @brief Points the current-block globals at the block `hdr` heads.
  *  @param hdr the header */
-void func_8002D0C4(BlockHeader *hdr);
+void SetCurrentBlock(BlockHeader *hdr);
 
 /** @brief Updates a Rec78 entry and the Rec48 record it belongs to.
  *  @param rec the Rec78 entry
  *  @param r the Rec48 record; its byte at 0x40 collects a result bit
  *  @return nothing; the value is undefined (non-void for the match) */
-s32 func_8002A7D8(Rec78 *rec, Rec48 *r);
+s32 UpdateObjectEntry(Rec78 *rec, Rec48 *r);
 
 extern SVECTOR D_800957E4; /**< a local position to transform to world */
 extern VECTOR D_8009F268;  /**< the world position of that local one */
@@ -74,15 +74,15 @@ extern u8 D_800A74D0[];    /**< 128 byte flags; cleared together */
 
 /** @brief Marks with 2 every block entry whose flag is 1.
  *  @return nothing; the value is undefined. */
-s32 func_8002D16C(void);
+s32 PromoteMarks(void);
 
 /** @brief Resets the game state: clears the 0x30000-byte block at `recs`
  *         and frees its 200 Rec48 records, and resets the tables.
  *  @param recs the block */
-void func_8002D2C0(Rec48 *recs);
+void ResetGameState(Rec48 *recs);
 
 /** @brief Defined in code_1a098.
  *  @return not yet known */
-s32 func_8002AA58(void);
+s32 TestBoxes(void);
 
 #endif

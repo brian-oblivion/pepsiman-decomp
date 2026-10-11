@@ -47,7 +47,7 @@ void EndFrame(void);
 void UpdateLoadScreenModel(void);
 void UpdateLoadScreen(void);
 void UpdateAct3LoadScreen(void);
-void func_8002B220(void);
+void UpdateTrapLayoutViewer(void);
 void func_800F026C(void);
 void func_800F6670(void);
 void func_800F03B4(void);
@@ -263,7 +263,7 @@ int main(void) {
                 }
                 break;
             case 23:
-                func_8002B04C();
+                UpdateTrapViewer();
                 break;
             case 24:
                 gClearB = 0;
@@ -289,7 +289,7 @@ int main(void) {
                 }
                 break;
             case 27:
-                func_8002B220();
+                UpdateTrapLayoutViewer();
                 break;
             case 28:
                 D_800958F8 = 1;
@@ -522,7 +522,7 @@ extern u8 D_8009EF50[];
 extern u8 D_80096418[];
 
 /* MATCHING: code_1a098 defines it on its own Model70 view. */
-void func_8002C20C(Model70 *m, unsigned long *tmd, u8 n);
+void InitModel(Model70 *m, unsigned long *tmd, u8 n);
 /* MATCHING: code_7d74 types the list, slots and data as its own records. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 /* MATCHING: code_308ec passes the game state's head in its own view. */
@@ -537,21 +537,21 @@ void func_80013CDC(void) {
     p = (s32 *)0x8014D000;
     D_80095904 = (s32)((unsigned long *)((u8 *)p + *p) + 1);
     GsMapModelingData((unsigned long *)D_80095904);
-    func_8002C20C(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
+    InitModel(&D_800963A0, (unsigned long *)((u8 *)p + *p), 16);
     p = (s32 *)0x8014D010;
-    func_8002C20C(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
-    func_8002C20C(&D_800D8370[1].m, (unsigned long *)(*p + 0x8014D000), 1);
-    func_8002C20C(&D_800D8370[2].m, (unsigned long *)(*p + 0x8014D000), 2);
-    func_8002C20C(&D_800D8370[3].m, (unsigned long *)(*p + 0x8014D000), 3);
-    func_8002C20C(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
-    func_8002C20C(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
-    func_8002C20C(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
+    InitModel(&D_800D8370[0].m, (unsigned long *)(*p + 0x8014D000), 0);
+    InitModel(&D_800D8370[1].m, (unsigned long *)(*p + 0x8014D000), 1);
+    InitModel(&D_800D8370[2].m, (unsigned long *)(*p + 0x8014D000), 2);
+    InitModel(&D_800D8370[3].m, (unsigned long *)(*p + 0x8014D000), 3);
+    InitModel(&D_800D8370[4].m, (unsigned long *)(*p + 0x8014D000), 4);
+    InitModel(&D_800D8370[5].m, (unsigned long *)(*p + 0x8014D000), 5);
+    InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
     InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
     p = (s32 *)0x80123000;
     D_800958CC = 0;
     D_800958D0 = ((DirEnt16 *)p)->count;
     for (; D_800958CC < D_800958D0; D_800958CC++) {
-        /* MATCHING: assigned inside the store, as in func_8002C044. */
+        /* MATCHING: assigned inside the store, as in LoadStageSprites. */
         gAnimations[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
         p += 4;
         sStepper.unk20[D_800958CC] = *gAnimations[D_800958CC];
@@ -1497,9 +1497,9 @@ void LoadStageData(unsigned long *p);
 void LoadSpritePack(DirEnt16 *dir, u16 id);
 /* MATCHING: code_1dc24 types both as its own BankFile. */
 void SetHitBanks(void *a, void *b);
-void func_8002C2B4(void);
-s32 func_8002C044(void);
-void func_8002C47C(void);
+void RestoreStageObjects(void);
+s32 LoadStageSprites(void);
+void ResetStageObjects(void);
 void StartStageOverlay(void);
 
 void LoadStage(void) {
@@ -1760,7 +1760,7 @@ void LoadStage(void) {
             }
             break;
         case 12:
-            func_8002CC24();
+            InitEntryModels();
             gSubStep++;
             break;
         case 13:
@@ -1814,8 +1814,8 @@ void LoadStage(void) {
         case 14:
             if (gCdLoadState == 6) {
                 SetHitBanks((void *)0x8016D000, (void *)0x80171744);
-                func_8002C2B4();
-                func_8002C044();
+                RestoreStageObjects();
+                LoadStageSprites();
                 gSubStep++;
             }
             break;
@@ -1851,7 +1851,7 @@ void LoadStage(void) {
             break;
         case 16:
             if (gCdLoadState == 6) {
-                func_8002C47C();
+                ResetStageObjects();
                 StartStageOverlay();
                 func_80018DE8(1);
                 D_800D86B8[0] = 0;

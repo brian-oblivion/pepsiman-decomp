@@ -17,5 +17,5 @@ s32 DistanceSquared(VECTOR *a, VECTOR *b) {
 
 First try. The 16-byte frame with stores to 0, 4 and 8 is a local `VECTOR`
 that is written and never read back. Callers (func_80031064,
-func_80031AEC, func_80030548, func_8002C6A4, FindNearestPlayerPoint) compare the
+func_80031AEC, func_80030548, LatchProximity, FindNearestPlayerPoint) compare the
 result with `slt`: signed `s32`.

@@ -55,11 +55,11 @@ void RestartStage(u8 arg0) {
     D_800957BC = yaw;
     D_800957B0 = yaw;
     if (D_800958F8 != 1) {
-        func_8002C2B4();
+        RestoreStageObjects();
     } else {
         func_8003399C();
     }
-    func_8002C47C();
+    ResetStageObjects();
     func_80041118(gStage);
     sStage.unk6 = 2;
     sStage.unk0 = 1;
@@ -99,7 +99,7 @@ void RestartStage(u8 arg0) {
   `((s16 *)&sRecs48[i])[0x13]`, folds 0x26 into the loop pointer (`sh
   zero, 0(a1)`); `*(s16 *)sRecs48[i].unk26` on code_1a098's `u8 unk26[2]`
   did the same.
-- `if (D_800958F8 != 1) func_8002C2B4(); else func_8003399C();` gives
+- `if (D_800958F8 != 1) RestoreStageObjects(); else func_8003399C();` gives
   retail's `beq` to the second call.
 
 ## Declarations

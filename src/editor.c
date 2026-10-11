@@ -1743,7 +1743,7 @@ s32 EditorFreeMove(void) {
     if (gPadTrig & PADRdown) {
         sTotals.height += sTotals.grid;
     }
-    gPlayer.unk3C4 = gPlayer.y;
+    gPlayer.editorY = gPlayer.y;
     cur = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
     gCurBlock = cur;
     if (cur != -1) {

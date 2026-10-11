@@ -442,7 +442,7 @@ s32 DrawTodObjects(void) {
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
             SetSpadStack();
-            if (gPlayer.unk3CA == 0) {
+            if (gPlayer.falling == 0) {
                 GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             } else {
                 GsSortObject4J(o, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
@@ -819,7 +819,7 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                                 gLookYawNarrow -= 8;
                             }
                             v = gLookYawNarrow;
-                            gPlayer.unk388 = v;
+                            gPlayer.lookYaw = v;
                         } else {
                             if (a < 0x800) {
                                 if (a > 0x38E) {

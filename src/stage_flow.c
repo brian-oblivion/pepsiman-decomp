@@ -78,14 +78,14 @@ void func_80041118(u8 stage);
 
 /** @brief The saved state a stage can resume from. */
 typedef struct {
-    s32 valid;   /**< non-zero when there is one */
-    Pos3 pos;    /**< the position */
-    s32 unk10;   /**< restored into a global word */
-    s32 unk14;   /**< restored into a second global word */
-    u16 unk18;   /**< restored into a global halfword */
-    u16 unk1A;   /**< restored into a second global halfword */
-    u8 pad1C[4]; /**< not yet known */
-    s32 unk20;   /**< restored into a word of a global table */
+    s32 valid;      /**< non-zero when there is one */
+    Pos3 pos;       /**< the position */
+    s32 section;    /**< gSection */
+    s32 floorIndex; /**< gFloorIndex */
+    u16 cameraYaw;  /**< gCameraYaw */
+    u16 cans;       /**< gCans */
+    u8 pad1C[4];    /**< not yet known */
+    s32 viewY;      /**< gView[1], the camera height */
 } SavedStart;
 
 /* MATCHING: a struct lvalue keeps the base in a register. */
@@ -171,11 +171,11 @@ void UpdateStagePlay(u8 stage) {
         case 3:
             sSaved.valid = 0;
             gRetries = 50;
-            sSaved.unk10 = gSection;
+            sSaved.section = gSection;
             sSaved.pos.vx = gCourse.x;
             sSaved.pos.vy = gCourse.y;
             sSaved.pos.vz = gCourse.z;
-            sSaved.unk14 = gFloorIndex;
+            sSaved.floorIndex = gFloorIndex;
             ResetStage();
             gSkipLandRumble = 1;
             gModeStep = 4;
@@ -314,7 +314,7 @@ void RestartStage(u8 stage) {
     gPlayer.y = gCourse.y;
     gPlayer.z = gCourse.z;
     gMissState = MISS_NONE;
-    gPlayer.unk3CA = 0;
+    gPlayer.falling = 0;
     if (sStageFindsFloor[gStage] == 1) {
         gFloorIndex = FindFloor((Pos3 *)&gPlayer.x);
     } else {
@@ -324,7 +324,7 @@ void RestartStage(u8 stage) {
     yaw = -gStageStart->unk6;
     gView[1] = (s16)(gCourse.y - 500);
     gCourse.rot.vy = yaw;
-    gPlayer.unk37C = gPlayer.yaw = yaw;
+    gPlayer.startYaw = gPlayer.yaw = yaw;
     D_800957BC = yaw;
     D_800957B0 = yaw;
     if (gInEditor != 1) {
@@ -375,9 +375,9 @@ void ResetStage(void) {
     SetCurrentBlock((BlockHeader *)0x801FD000);
     D_80095768 = 0;
     gPlayer.motion[0] = MOT_RUN;
-    gPlayer.unk3CA = 0;
+    gPlayer.falling = 0;
     gPlayer.twoTracks = 0;
-    gPlayer.unk4 = 0;
+    gPlayer.animFilter = 0;
     gPlayer.action = ACT_RUN;
     gPlayer.curMotion[0] = MOT_OFF;
     StepAnimation(&gPlayer, 0, 0);
@@ -405,14 +405,14 @@ void ResetStage(void) {
     gFogFade = 0;
     ResetSpeed();
     if (sSaved.valid != 0) {
-        gSection = sSaved.unk10;
+        gSection = sSaved.section;
         gPlayer.x = sSaved.pos.vx;
         gPlayer.y = sSaved.pos.vy;
         gPlayer.z = sSaved.pos.vz;
-        gFloorIndex = sSaved.unk14;
-        gCameraYaw = sSaved.unk18;
-        gCans = sSaved.unk1A;
-        gView[1] = sSaved.unk20;
+        gFloorIndex = sSaved.floorIndex;
+        gCameraYaw = sSaved.cameraYaw;
+        gCans = sSaved.cans;
+        gView[1] = sSaved.viewY;
     } else if (gStage == STAGE_2_2) {
         gPlayer.action = ACT_BLOWN_AWAY;
         gPlayer.motion[0] = MOT_THROWN_BACK;

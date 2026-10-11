@@ -497,7 +497,7 @@ s32 DistanceSquared(VECTOR *a, VECTOR *b) {
 }
 
 void ResetCollision(void) {
-    gPlayer.unk1 = 0;
+    gPlayer.lastSteer = 0;
     ResetPlayerHits();
     func_8002988C();
 }

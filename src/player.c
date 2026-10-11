@@ -553,7 +553,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
     s16 yaw;
     s32 w;
 
-    if (gPlayer.unk1 != mode) {
+    if (gPlayer.lastSteer != mode) {
         switch (mode) {
             case 3:
                 yaw = gCourse.rot.vy;
@@ -575,7 +575,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                     w = 15;
                 }
                 gPlayer.lean = w;
-                gPlayer.unk3B4 -= 50;
+                gPlayer.steerSum -= 50;
                 pushBack(-90, b);
                 break;
             case 2:
@@ -598,7 +598,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                     w = -15;
                 }
                 gPlayer.lean = w;
-                gPlayer.unk3B4 += 50;
+                gPlayer.steerSum += 50;
                 pushBack(90, b);
                 break;
         }
@@ -654,7 +654,7 @@ s32 CheckFall(void) {
 
     if ((D_800AC860 & 0x40) && gPlayer.motion[0] != MOT_TIME_UP) {
         if (gPlayer.rideMode & RIDE_MASK) {
-            gPlayer.unk3CA = 1;
+            gPlayer.falling = 1;
             if ((gPlayer.rideMode & RIDE_MASK) != RIDE_COVER) {
                 gPlayer.jumpPower = 20;
                 gPlayer.rideMode &= RIDE_ITEM_MASK;
@@ -675,7 +675,7 @@ s32 CheckFall(void) {
             if (gPlayer.y > gFloorY[0] + 0x8C && (gPlayer.rideMode & RIDE_MASK) == RIDE_COVER) {
                 gPlayer.rideMode &= RIDE_ITEM_MASK;
             }
-            gPlayer.unk3CA = 1;
+            gPlayer.falling = 1;
             if (gPlayer.y > gFloorY[0] + 1000) {
                 gPlayer.motion[0] = MOT_FALL_OFF;
                 gPlayer.fallSpeed = 0;
@@ -917,7 +917,7 @@ s32 UpdatePlayerAction(PlayerState *state) {
         gPlayer.hittable = 0;
     }
     if (state->twoTracks == 0) {
-        state->motionResult[0] = StepAnimation(state, 0, state->unk4);
+        state->motionResult[0] = StepAnimation(state, 0, state->animFilter);
     } else {
         state->motionResult[0] = StepAnimation(state, 0, 1);
         state->motionResult[1] = StepAnimation(state, 1, 2);
@@ -940,7 +940,7 @@ top:
             break;
         case ACT_TOD_FILTER_START:
             state->action = ACT_TOD_FILTER;
-            state->unk4 = 0x80;
+            state->animFilter = 0x80;
             break;
         case ACT_LOOK_RESET_START:
             state->action = ACT_LOOK_RESET;
@@ -957,7 +957,7 @@ top:
             gLookYawWide = Lerp(gLookYawWide, 0, *(s16 *)((u8 *)state + 0x374), 60);
 
             if (gLookYawNarrow == 0) {
-                state->unk4 = 0;
+                state->animFilter = 0;
                 state->action = ACT_RUN;
             }
             break;

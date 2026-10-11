@@ -348,14 +348,14 @@ enum PadType {
  *         for a motion (a TOD sequence) and playing one. The load screen
  *         keeps a whole copy as its turning model (gLoadScreenModel). */
 typedef struct {
-    u8 control;           /**< 1 while the pad steers the player; cleared by a miss or the goal */
-    u8 unk1;              /**< the steering mode last applied; a repeat only resets yaw */
-    u8 hittable;          /**< 1 when a hit can be reacted to; 0 while invulnTimer runs,
+    u8 control;    /**< 1 while the pad steers the player; cleared by a miss or the goal */
+    u8 lastSteer;  /**< the steering mode last applied; a repeat only resets yaw */
+    u8 hittable;   /**< 1 when a hit can be reacted to; 0 while invulnTimer runs,
                                *   when the player is drawn every other frame pair */
-    u8 twoTracks;         /**< nonzero steps both animation channels instead of one */
-    u8 unk4;              /**< SetTodFrame's last argument for a single-channel step */
-    u8 action;            /**< what UpdatePlayerAction runs, a PlayerAction */
-    u8 motion[2];         /**< the PlayerMotion each channel is asked to play */
+    u8 twoTracks;  /**< nonzero steps both animation channels instead of one */
+    u8 animFilter; /**< StepAnimation's last argument for channel 0: SetTodFrame's packet filter; 0x80 in ACT_TOD_FILTER */
+    u8 action;     /**< what UpdatePlayerAction runs, a PlayerAction */
+    u8 motion[2];  /**< the PlayerMotion each channel is asked to play */
     u8 curMotion[2];      /**< the PlayerMotion each channel is playing; MOT_OFF forces a restart */
     s16 motionTime[2];    /**< each channel's clock */
     u8 padE[0x18 - 0xE];  /**< not yet known */
@@ -382,10 +382,10 @@ typedef struct {
     s16 actTimer2;  /**< the current action's second counter */
     s16 actTimer3;  /**< the current action's third counter */
     s16 actTimer4;  /**< the current action's fourth counter */
-    s32 unk37C;     /**< set with yaw to the start heading */
+    s32 startYaw;   /**< the start heading, set with yaw */
     s32 yaw;        /**< the body heading; follows the course heading in bounded steps */
     s32 lean;       /**< the body roll while steering, -15..15; decays to 0 */
-    s32 unk388;     /**< object 2's eased turn toward the look point (gLookYawNarrow) */
+    s32 lookYaw;    /**< object 2's eased turn toward the look point (gLookYawNarrow) */
     s16 unk38C;     /**< cleared whenever slideState changes */
     u8 slideState;  /**< a SlideState */
     u8 airborne;    /**< 1 from a jump's start to its landing */
@@ -404,20 +404,20 @@ typedef struct {
     s16 stepX;                /**< speed along the sine of the heading: this step's x move */
     s16 stepZ;                /**< speed along the cosine of the heading: this step's z move */
     u8 pad3B2[0x3B4 - 0x3B2]; /**< not yet known */
-    s32 unk3B4;               /**< moved by 50 a step while steering */
+    s32 steerSum;             /**< moved by 50 a step while steering */
     s32 onRideQuad;           /**< 1 while over a ride-hit quad */
     s32 onQuadTop;            /**< 1 while standing on it */
     s32 groundY;              /**< the ground height under the player */
-    s32 unk3C4;               /**< the editor keeps y here before snapping to the floor */
+    s32 editorY;              /**< the editor keeps y here before snapping to the floor */
     s16 invulnTimer;          /**< counts down after a hit; the player is hittable again at 0 */
-    u16 unk3CA;     /**< set to 1 when the stage ends; selects the second ordering tables */
-    s32 rideQuadY;  /**< that quad's top */
-    u8 rideMode;    /**< the ride and the held object, RideMode values */
-    u8 dropRide;    /**< 1 leaves the ride behind as a stage object */
-    s8 flattened;   /**< 1 draws the player with no depth (ACT_FLATTENED) */
-    s8 showShadow;  /**< nonzero draws the shadow under the player */
-    s8 altModel;    /**< 1 while MOT_STOP_WAIT runs: object 10 draws its other model */
-    s8 bonusLocked; /**< 1 holds the bonus level at 0 and stops the clock */
+    u16 falling;   /**< 1 once CheckFall finds the player falling off: drawn into gOt, not gSubOt */
+    s32 rideQuadY; /**< that quad's top */
+    u8 rideMode;   /**< the ride and the held object, RideMode values */
+    u8 dropRide;   /**< 1 leaves the ride behind as a stage object */
+    s8 flattened;  /**< 1 draws the player with no depth (ACT_FLATTENED) */
+    s8 showShadow; /**< nonzero draws the shadow under the player */
+    s8 altModel;   /**< 1 while MOT_STOP_WAIT runs: object 10 draws its other model */
+    s8 bonusLocked;           /**< 1 holds the bonus level at 0 and stops the clock */
     u8 pad3D6[0x3D8 - 0x3D6]; /**< not yet known */
 } PlayerState;
 

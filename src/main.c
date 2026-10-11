@@ -1830,7 +1830,7 @@ static __inline__ void stepObj(PlayerState *obj) {
     /* MATCHING: signed, so the zero test is `sll 24`, not `andi 0xFF`. */
     s8 result;
 
-    result = StepAnimation(obj, 0, obj->unk4);
+    result = StepAnimation(obj, 0, obj->animFilter);
     obj->motionResult[0] = result;
     switch (obj->action) {
         case ACT_MODEL_ONCE:

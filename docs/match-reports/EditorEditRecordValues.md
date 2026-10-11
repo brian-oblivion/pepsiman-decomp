@@ -3,18 +3,18 @@
 > Renamed from `func_80030B6C` on 2026-10-11 (tools/rename.py). Address 0x80030b6c.
 
 Unit `src/code_1dc24.c`. The tool's menu editor: saves the highlighted line
-(`D_8009574A`) and the edited value (`D_80095748`), runs
+(`gMenuLine`) and the edited value (`gEditValue`), runs
 `StepMenuCursor`, clears `gSubStep` when line 1's value changed, then
-either loads the new line's value and limit (`D_800958B0`) from the tool
+either loads the new line's value and limit (`gEditMax`) from the tool
 block after a line change, or stores the edited value back into the line's
 field. Finally steps the angle `sTotals.unk20` up on flag bit 3 and down on
 bit 2 of `gPad`, wrapping at 0..359. Second build matched.
 
 ## Shapes read from retail
 
-- Two jump tables of five cases: `switch (D_8009574A)` after a change,
+- Two jump tables of five cases: `switch (gMenuLine)` after a change,
   `switch (line)` (the saved `s16`) otherwise. Cases 3 and 4 move bytes
-  (`lbu` of the low byte of `D_80095748`, `sb`).
+  (`lbu` of the low byte of `gEditValue`, `sb`).
 - `sTotals.unk20` reached through `lui`/`addiu` of `D_80095B28` and
   `0x20($v1)`: the struct lvalue through the unit's `sTotals` macro, as
   the learning predicts.
@@ -37,51 +37,51 @@ s32 EditorEditRecordValues(void) {
 
     /* MATCHING: non-void with no return keeps the last two branches' delay
      * slots nops. */
-    line = D_8009574A;
-    val = D_80095748;
+    line = gMenuLine;
+    val = gEditValue;
     StepMenuCursor();
-    if (D_8009574A == 1 && val != (s16)D_80095748) {
+    if (gMenuLine == 1 && val != (s16)gEditValue) {
         gSubStep = 0;
     }
-    if (line != D_8009574A) {
-        switch (D_8009574A) {
+    if (line != gMenuLine) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 200;
-                D_80095748 = sTotals.unk18;
+                gEditMax = 200;
+                gEditValue = sTotals.unk18;
                 break;
             case 1:
-                D_800958B0 = gSectionCount;
-                D_80095748 = sTotals.unk1C;
+                gEditMax = gSectionCount;
+                gEditValue = sTotals.unk1C;
                 break;
             case 2:
-                D_800958B0 = 200;
-                D_80095748 = sTotals.unk1E;
+                gEditMax = 200;
+                gEditValue = sTotals.unk1E;
                 break;
             case 3:
-                D_800958B0 = 0x100;
-                D_80095748 = sTotals.unk68;
+                gEditMax = 0x100;
+                gEditValue = sTotals.unk68;
                 break;
             case 4:
-                D_800958B0 = 0x100;
-                D_80095748 = sTotals.unk69;
+                gEditMax = 0x100;
+                gEditValue = sTotals.unk69;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                sTotals.unk18 = D_80095748;
+                sTotals.unk18 = gEditValue;
                 break;
             case 1:
-                sTotals.unk1C = D_80095748;
+                sTotals.unk1C = gEditValue;
                 break;
             case 2:
-                sTotals.unk1E = D_80095748;
+                sTotals.unk1E = gEditValue;
                 break;
             case 3:
-                sTotals.unk68 = D_80095748;
+                sTotals.unk68 = gEditValue;
                 break;
             case 4:
-                sTotals.unk69 = D_80095748;
+                sTotals.unk69 = gEditValue;
                 break;
         }
     }

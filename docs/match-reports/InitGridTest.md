@@ -5,7 +5,7 @@
 Unit `src/player.c`. Lays out a 21-by-16 grid of points 16 pixels
 apart centred on a 320x240 screen (x from -160, y from -120, z 0) into
 `D_800DE5E0`, row by row, using two globals as the loop counters
-(`D_800958D0` rows, `D_800958CC` columns). Then resets the first six words
+(`gLoopJ` rows, `gLoopI` columns). Then resets the first six words
 of `gRefView` (the view record model hands to `GsSetRefView2`) with
 1000 in the third, and clears `D_800959A8`.
 
@@ -16,18 +16,18 @@ typedef struct {
     s32 z;
 } GridPoint;
 
-extern s32 D_800958D0;
-extern s32 D_800958CC;      /* moved to common.h */
+extern s32 gLoopJ;
+extern s32 gLoopI;      /* moved to common.h */
 extern s32 D_800959A8;
 extern GridPoint D_800DE5E0[];
 extern s32 gRefView[];    /* common.h */
 
 void InitGridTest(void) {
-    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
-        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].x = D_800958CC * 16 - 160;
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].y = D_800958D0 * 16 - 120;
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = 0;
+    for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
+        for (gLoopI = 0; gLoopI < 21; gLoopI++) {
+            D_800DE5E0[gLoopJ * 21 + gLoopI].x = gLoopI * 16 - 160;
+            D_800DE5E0[gLoopJ * 21 + gLoopI].y = gLoopJ * 16 - 120;
+            D_800DE5E0[gLoopJ * 21 + gLoopI].z = 0;
         }
     }
     gRefView[0] = 0;
@@ -52,7 +52,7 @@ void InitGridTest(void) {
 
 ## Declarations
 
-- `D_800958CC` was a local extern in `src/main.c` (SetPadMainMode also uses
+- `gLoopI` was a local extern in `src/main.c` (SetPadMainMode also uses
   it as a loop counter). Now two units use it, so it moved to
   `include/common.h` (additive line) and the local extern in `main.c` was
   deleted (main.c is not one of this round's units).

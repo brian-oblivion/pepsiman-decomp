@@ -802,14 +802,14 @@ void UpdateTrapViewer(void) {
     gClearG = 0;
     gClearR = 0;
     if (flags & PADR2) {
-        D_800958E2++;
+        gSelectedSection++;
     }
     if (flags & PADL2) {
-        D_800958E2--;
+        gSelectedSection--;
     }
-    D_800958E2 = D_800958E2 < 0                   ? 0
-                 : D_800958E2 > gSectionCount - 1 ? gSectionCount - 1
-                                                  : D_800958E2;
+    gSelectedSection = gSelectedSection < 0                   ? 0
+                       : gSelectedSection > gSectionCount - 1 ? gSectionCount - 1
+                                                              : gSelectedSection;
     ResetCollision();
     D_800A9008[0] = 0;
     D_800A9008[1] = 0;
@@ -817,11 +817,11 @@ void UpdateTrapViewer(void) {
     ((s16 *)D_800A9008)[12] = 0;
     ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
-    UpdateObjectEntry(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
+    UpdateObjectEntry(&D_800D8D20[gSelectedSection], (Rec48 *)D_800A9008);
     ReactToHits(&gPlayer);
     func_80029838();
     DrawAxes();
-    FntPrint(gTrapNoFmt, D_800958E2, gSectionCount);
+    FntPrint(gTrapNoFmt, gSelectedSection, gSectionCount);
 }
 
 /** @brief A Rec48 record seen as an Obj34 followed by its indices. */
@@ -872,22 +872,22 @@ void UpdateTrapLayoutViewer(void) {
             D_80096788.unk18 = 0;
             D_80096788.unk1A = gFrameCount % 360 * 4096 / 360;
             D_80096788.unk1C = 0;
-            D_8009596E = CallStageHook(D_800958E2, (s32)&D_80096788, (s32)D_800A9008);
+            D_8009596E = CallStageHook(gSelectedSection, (s32)&D_80096788, (s32)D_800A9008);
             gModeStep++;
             break;
         case 2:
             flags = gPadTrig;
-            old = D_800958E2;
+            old = gSelectedSection;
             if (flags & PADR2) {
-                D_800958E2++;
+                gSelectedSection++;
             }
             if (flags & PADL2) {
-                D_800958E2--;
+                gSelectedSection--;
             }
-            D_800958E2 = D_800958E2 < 0                   ? 0
-                         : D_800958E2 > gSectionCount - 1 ? gSectionCount - 1
-                                                          : D_800958E2;
-            if (D_800958E2 != old) {
+            gSelectedSection = gSelectedSection < 0                   ? 0
+                               : gSelectedSection > gSectionCount - 1 ? gSectionCount - 1
+                                                                      : gSelectedSection;
+            if (gSelectedSection != old) {
                 gModeStep = 1;
             }
             ResetCollision();
@@ -913,7 +913,7 @@ void UpdateTrapLayoutViewer(void) {
             DrawAxes();
             break;
     }
-    FntPrint(gTrapNoFmt, D_800958E2, gSectionCount);
+    FntPrint(gTrapNoFmt, gSelectedSection, gSectionCount);
 }
 
 /** @brief Sorts three white lines 400 units long through the origin, one
@@ -1150,14 +1150,14 @@ s32 LoadStageSprites(void) {
     /* MATCHING: non-void with no return orders the loop preheader; the
      * pointer is assigned inside the store so the index loads first. */
     e = (DirEnt16 *)0x8017D708;
-    D_800958CC = 0x33;
-    D_800958D0 = e->count;
-    for (; D_800958CC < D_800958D0 + 0x33; D_800958CC++) {
-        gAnimations[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
+    gLoopI = 0x33;
+    gLoopJ = e->count;
+    for (; gLoopI < gLoopJ + 0x33; gLoopI++) {
+        gAnimations[gLoopI] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
         e++;
-        gPlayer.motionLen[D_800958CC] = *gAnimations[D_800958CC];
-        gAnimations[D_800958CC]++;
-        gPlayer.motionStart[D_800958CC] = gAnimations[D_800958CC][1];
+        gPlayer.motionLen[gLoopI] = *gAnimations[gLoopI];
+        gAnimations[gLoopI]++;
+        gPlayer.motionStart[gLoopI] = gAnimations[gLoopI][1];
     }
 }
 

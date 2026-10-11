@@ -20,8 +20,8 @@ one gets a scratch `GsDOBJ2`, matrix and `GsCOORD2PARAM` on the stack).
 - Type 1 (unless flag 1): flag 2 sets the rotation, either three words
   (degrees x 4096, divided by 360) or the packed 16-bit form shifted up
   12; for objects 2 and 10 with `arg5 & 0x80` the y rotation instead turns
-  toward the camera target, clamped and eased into `D_80095740` (by 8,
-  copied to `D_8009EF00`) or `D_80095744` (by 50). Flag 4 sets the scale
+  toward the camera target, clamped and eased into `gLookYawNarrow` (by 8,
+  copied to `D_8009EF00`) or `gLookYawWide` (by 50). Flag 4 sets the scale
   from three halfwords, otherwise 4096 (z 0 when `D_8009EF4A`), and 0 for
   objects 2..10 when `D_8009EF48 & 0xF` is 3. Then `RotMatrix`,
   `ScaleMatrix`, and with flag 8 the translation (words / 5) and
@@ -65,7 +65,7 @@ about 170,000 iterations under load (load average about 15), best 805:
   blocks out as retail.
 - **The clamp in place, then `v = a;`** gives retail's `li $v1, K; move
   $a0, $v1` (constant into the clamped variable, one copy at the join).
-- **`v = D_80095740; D_8009EF00[0] = v;` then a shared `rot[1] = v * 360;`**,
+- **`v = gLookYawNarrow; D_8009EF00[0] = v;` then a shared `rot[1] = v * 360;`**,
   with `D_8009EF00` declared `[]` (retail stores through `lui $v0`).
 - **The mask loop indexes `rot` through `r = &rot[k];` before the `if`**
   (retail computes `k * 4` once, in the branch's delay slot): 122 -> 367.
@@ -118,7 +118,7 @@ each closed with one change (whole build `OK` after the third):
   register; retail loads it into `$a0` and subtracts into `a`'s `$v1`:
   separate statements, and the load into the existing local `v`.
 
-Lint needed `D_80095740` / `D_80095744` in one place once this body was
+Lint needed `gLookYawNarrow` / `gLookYawWide` in one place once this body was
 live: both are now in `include/common.h`, and the two `extern` lines in
 `src/player.c` (which used them only under `NON_MATCHING`) are gone.
 This commit also gives `SetTodFrame` a prototype in the unit (round
@@ -308,12 +308,12 @@ u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                             if (v > 0x800) {
                                 v -= 0x1000;
                             }
-                            if (D_80095740 < v) {
-                                D_80095740 += 8;
-                            } else if (v < D_80095740) {
-                                D_80095740 -= 8;
+                            if (gLookYawNarrow < v) {
+                                gLookYawNarrow += 8;
+                            } else if (v < gLookYawNarrow) {
+                                gLookYawNarrow -= 8;
                             }
-                            v = D_80095740;
+                            v = gLookYawNarrow;
                             D_8009EF00[0] = v;
                         } else {
                             if (a < 0x800) {
@@ -327,12 +327,12 @@ u8 *SetTodPacket(u8 *data, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s8 arg5) {
                             if (v > 0x800) {
                                 v -= 0x1000;
                             }
-                            if (D_80095744 < v) {
-                                D_80095744 += 50;
-                            } else if (v < D_80095744) {
-                                D_80095744 -= 50;
+                            if (gLookYawWide < v) {
+                                gLookYawWide += 50;
+                            } else if (v < gLookYawWide) {
+                                gLookYawWide -= 50;
                             }
-                            v = D_80095744;
+                            v = gLookYawWide;
                         }
                         rot[1] = v * 360;
                     }

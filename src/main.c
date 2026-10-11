@@ -85,12 +85,12 @@ int main(void) {
     D_800958AC = -1;
     D_80095984 = 0;
     D_80095998 = 0;
-    for (D_800958CC = 0; D_800958CC < 4; D_800958CC++) {
-        gBestCans[D_800958CC].a = 0;
-        gBestCans[D_800958CC].b = 0;
-        dst = &gBestTimes[D_800958CC];
-        a = gTargetTimes[D_800958CC].a;
-        b = gTargetTimes[D_800958CC].b;
+    for (gLoopI = 0; gLoopI < 4; gLoopI++) {
+        gBestCans[gLoopI].a = 0;
+        gBestCans[gLoopI].b = 0;
+        dst = &gBestTimes[gLoopI];
+        a = gTargetTimes[gLoopI].a;
+        b = gTargetTimes[gLoopI].b;
         dst->a = a;
         dst->b = b;
     }
@@ -247,7 +247,7 @@ int main(void) {
                 gLoading = 1;
                 gGameMode = GM_TRAP_VIEWER_WAIT;
                 gSubStep = 0;
-                D_800958E2 = 0;
+                gSelectedSection = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 0;
                 break;
@@ -272,7 +272,7 @@ int main(void) {
                 gLoading = 1;
                 gGameMode = GM_TRAP_LAYOUT_WAIT;
                 gSubStep = 0;
-                D_800958E2 = 0;
+                gSelectedSection = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 0;
                 break;
@@ -299,7 +299,7 @@ int main(void) {
                 gLoading = 1;
                 gGameMode = GM_EDITOR_WAIT;
                 gSubStep = 0;
-                D_800958E2 = 0;
+                gSelectedSection = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 2;
                 break;
@@ -333,7 +333,7 @@ int main(void) {
                 gLoading = 1;
                 gGameMode = GM_HIT_TOOL_WAIT;
                 gSubStep = 0;
-                D_800958E2 = 0;
+                gSelectedSection = 0;
                 LoadStageOverlay(gStage);
                 gVSyncMode = 2;
                 break;
@@ -518,15 +518,15 @@ void func_80013CDC(void) {
     InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
     InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
     p = (s32 *)0x80123000;
-    D_800958CC = 0;
-    D_800958D0 = ((DirEnt16 *)p)->count;
-    for (; D_800958CC < D_800958D0; D_800958CC++) {
+    gLoopI = 0;
+    gLoopJ = ((DirEnt16 *)p)->count;
+    for (; gLoopI < gLoopJ; gLoopI++) {
         /* MATCHING: assigned inside the store, as in LoadStageSprites. */
-        gAnimations[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
+        gAnimations[gLoopI] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
         p += 4;
-        gPlayer.motionLen[D_800958CC] = *gAnimations[D_800958CC];
-        gAnimations[D_800958CC]++;
-        gPlayer.motionStart[D_800958CC] = gAnimations[D_800958CC][1];
+        gPlayer.motionLen[gLoopI] = *gAnimations[gLoopI];
+        gAnimations[gLoopI]++;
+        gPlayer.motionStart[gLoopI] = gAnimations[gLoopI][1];
     }
     GsInitCoordinate2(WORLD, &D_800D86E0[0]);
     gPlayer.action = 0;
@@ -653,7 +653,7 @@ void ReadPad(s32 port) {
     gRepeatSpeed = 4;
     PollPads();
     if (gPadType == 0x41) {
-        D_800957C0 = D_800957C8 = 0x80;
+        gStickRawX = gStickRawY = 0x80;
     }
     /* MATCHING: this order builds gPadPressed's address first, as retail;
      * the stores still come out gPad first. */
@@ -994,8 +994,8 @@ void PollPads(void) {
             gStickX = 0;
         }
         gStickTrigX = gStickX & m;
-        D_800957C0 = gPadBuf[6];
-        D_800957C8 = gPadBuf[7];
+        gStickRawX = gPadBuf[6];
+        gStickRawY = gPadBuf[7];
     }
 }
 
@@ -1061,15 +1061,15 @@ void InitPads(void) {
 
 void SetPadMainMode(s32 mode) {
     mode &= 1;
-    D_800958CC = 0;
+    gLoopI = 0;
     do {
         VSync(0);
         if (PadGetState(0) == 6) {
             PadSetMainMode(0, mode, 0);
             return;
         }
-        D_800958CC++;
-    } while (D_800958CC < 10);
+        gLoopI++;
+    } while (gLoopI < 10);
 }
 
 void StartRumble(RumbleStep *tbl, u16 index) {

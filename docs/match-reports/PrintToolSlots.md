@@ -4,7 +4,7 @@
 
 Unit `src/hit_tool.c`. Prints a three-line debug menu with `FntPrint`: a
 title, then for each line a spacer (`PrintTabs(4)`), a marker string
-that depends on whether the line is the highlighted one (`D_8009574A`), and
+that depends on whether the line is the highlighted one (`gMenuLine`), and
 the line's number from the format at `sHitDataNoFmt`.
 
 ```c
@@ -14,7 +14,7 @@ void PrintToolSlots(void) {
     FntPrint(sHitNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(4);
-        if (D_8009574A == i) {
+        if (gMenuLine == i) {
             FntPrint(sHitColorWhite);
         } else {
             FntPrint(sHitColorBlue);
@@ -26,7 +26,7 @@ void PrintToolSlots(void) {
 
 ## Externs
 
-- `D_8009574A`: `lui $v1` / `lh $v1, %lo` (same register), a plain `s16`
+- `gMenuLine`: `lui $v1` / `lh $v1, %lo` (same register), a plain `s16`
   scalar outside `$gp`.
 - `sHitNewlines2`, `sHitColorWhite`, `sHitColorBlue`: `.sdata` strings reached
   `lui`/`addiu`, declared `char []`. Declaring the two markers `char [8]`
@@ -41,7 +41,7 @@ void PrintToolSlots(void) {
 
 | C | result |
 | --- | --- |
-| `for`, `FntPrint(D_8009574A == i ? A : B)` | 1/38 + drift: the shared `%hi` of the two markers hoisted out of the loop into `$s1` (extra saved register, 2 words long) |
+| `for`, `FntPrint(gMenuLine == i ? A : B)` | 1/38 + drift: the shared `%hi` of the two markers hoisted out of the loop into `$s1` (extra saved register, 2 words long) |
 | same as `do`/`while` | 1/38, same hoist |
 | same with a `goto` loop (no loop notes, so no invariant motion) | 32/38: right length, the shared `%hi` in `$v0` instead of `$a0` |
 | `char *s` set in `if`/`else`, one call, `goto` loop | 32/38, same |

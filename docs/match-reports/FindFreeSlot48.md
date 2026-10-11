@@ -3,7 +3,7 @@
 > Renamed from `func_8002882C` on 2026-10-10 (tools/rename.py). Address 0x8002882c.
 
 Unit `src/collision.c`. Searches the table of 72-byte records that
-`D_800959B8` points to (`D_800959B4` bytes long) for the first one whose
+`gSlotTable` points to (`gSlotTableSize` bytes long) for the first one whose
 halfword at 0x36 is -1, and returns its index, or -1.
 
 ```c
@@ -14,10 +14,10 @@ typedef struct {
 } Slot48;
 
 s16 FindFreeSlot48(void) {
-    Slot48 *slot = (Slot48 *)D_800959B8;
+    Slot48 *slot = (Slot48 *)gSlotTable;
     u32 i;
 
-    for (i = 0; i < D_800959B4 / sizeof(Slot48); i++) {
+    for (i = 0; i < gSlotTableSize / sizeof(Slot48); i++) {
         if (slot->unk36 == -1) {
             return i;
         }
@@ -28,8 +28,8 @@ s16 FindFreeSlot48(void) {
 ```
 
 First try. The `multu` by 0x38E38E39 and `srl 4` is an unsigned divide by
-72: `D_800959B4` (shared `s32`) divided by `sizeof`, which promotes it to
+72: `gSlotTableSize` (shared `s32`) divided by `sizeof`, which promotes it to
 unsigned. The `sltu` loop test is LEARNINGS' `u32` counter; the `sll`/`sra`
 on the found index is the `s16` return. No direct caller in the asm
-(probably reached through a pointer). `D_800959B8` stays the shared `s32`
+(probably reached through a pointer). `gSlotTable` stays the shared `s32`
 and is cast here.

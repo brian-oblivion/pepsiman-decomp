@@ -2,16 +2,16 @@
 
 > Renamed from `func_8003356C` on 2026-10-11 (tools/rename.py). Address 0x8003356c.
 
-Unit `src/editor.c`. Clears `D_80095748`, stores `n` in `D_800958B2`, 1
-in `D_800958B0`, wraps `D_8009574A` modulo `n`, calls `StepMenuCursor`, and
-returns `D_8009574A` when bit 5 of `gPadTrig` is set, else -1.
+Unit `src/editor.c`. Clears `gEditValue`, stores `n` in `gMenuLineCount`, 1
+in `gEditMax`, wraps `gMenuLine` modulo `n`, calls `StepMenuCursor`, and
+returns `gMenuLine` when bit 5 of `gPadTrig` is set, else -1.
 
 Matched on the first build, in source order. The `div` has no divide-by-zero
 trap here, and cc1 + maspsx emit none either; the `%` is plain.
 
-Declarations: `D_8009574A`, `D_800958B0` and `gPadTrig` were declared
+Declarations: `gMenuLine`, `gEditMax` and `gPadTrig` were declared
 locally in `src/hit_tool.c`; they moved to `include/common.h` (additive)
 and the local copies were deleted (hit_tool is not one of round 5's
-units). `D_800958B2` (also reached by hit_tool's asm) was added to
+units). `gMenuLineCount` (also reached by hit_tool's asm) was added to
 `include/common.h` too. All four are reached `lui` (not in the gp list),
 as plain externs.

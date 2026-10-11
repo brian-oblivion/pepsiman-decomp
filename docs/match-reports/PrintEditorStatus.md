@@ -8,7 +8,7 @@ step, the block, the position (copied into `D_800ACED0`), the record counts
 and the current item, a frame around it, the INFO / DELETE line, then one
 panel per `gToolMode` (a jump table over 0..11): move mode, the menu, the
 pepsi, switch, trap and sprite selectors with their highlighted line
-(`D_8009574A`), PrintEditorData's data panel, and five warnings. Every
+(`gMenuLine`), PrintEditorData's data panel, and five warnings. Every
 "highlighted or plain" pair is `if (c) FntPrint(A); else FntPrint(B);`;
 cross-jumping merges the calls, and the warnings and frame calls share
 their tails the same way.
@@ -199,61 +199,61 @@ s32 PrintEditorStatus(void) {
             PrintEditorCaption();
             break;
         case 1:
-            D_800958B0 = 1;
-            D_800958B2 = 8;
+            gEditMax = 1;
+            gMenuLineCount = 8;
             PrintTabs(5);
             FntPrint(sEdMenuModeText);
             FntPrint(sEdNewlines3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuPepsiText);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuSwitchText);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuTrapText);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuSpriteText);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuDeleteText);
-            if (D_8009574A == 5) {
+            if (gMenuLine == 5) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuInfoText);
-            if (D_8009574A == 6) {
+            if (gMenuLine == 6) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuDefPosText);
-            if (D_8009574A == 7) {
+            if (gMenuLine == 7) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -279,7 +279,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdSwitchSelText);
             PrintTabs(3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -292,14 +292,14 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk12);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEndBlankFmt, 199);
             PrintTabs(3);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -318,7 +318,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdTrapSelText);
             PrintTabs(3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -331,14 +331,14 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk18);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEndFmt, 199);
             PrintTabs(3);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -347,7 +347,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdUseBufferFmt, D_8009596E);
             PrintTabs(3);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -360,14 +360,14 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk1E);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEnd2Fmt, 199);
             PrintTabs(3);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -376,7 +376,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdNum2Fmt, sTotals.unk68);
             FntPrint(sEdRangeEnd2Fmt, 255);
             PrintTabs(3);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -396,7 +396,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdSpriteSelText);
             PrintTabs(2);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -408,21 +408,21 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk28);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEndFmt, 99);
             PrintTabs(2);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteModelRangeFmt, sTotals.unk2C, 512);
             PrintTabs(2);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -435,21 +435,21 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk2A);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEnd2Fmt, 199);
             PrintTabs(2);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteSizeRangeFmt, (s16)sTotals.unk2E - 500, 999);
             PrintTabs(2);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -460,7 +460,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdOnLine);
             }
-            if (D_8009574A == 5) {
+            if (gMenuLine == 5) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -472,7 +472,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdOnLine);
             }
-            if (D_8009574A == 6) {
+            if (gMenuLine == 6) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -490,7 +490,7 @@ s32 PrintEditorStatus(void) {
                     FntPrint(sEdHitActText);
                     break;
             }
-            if (D_8009574A == 7) {
+            if (gMenuLine == 7) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -502,7 +502,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdSeNoFmt, sTotals.unk6C);
             }
-            if (D_8009574A == 8) {
+            if (gMenuLine == 8) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);

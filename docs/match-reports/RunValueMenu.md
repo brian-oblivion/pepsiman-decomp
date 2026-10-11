@@ -3,8 +3,8 @@
 > Renamed from `func_80033B34` on 2026-10-11 (tools/rename.py). Address 0x80033b34.
 
 Unit `src/editor.c`. Runs `StepMenuCursor` (the menu update); if the
-highlighted line `D_8009574A` changed, loads the edited value `D_80095748`
-and its limit `D_800958B0` for the new line (line 0: limit 200, value from
+highlighted line `gMenuLine` changed, loads the edited value `gEditValue`
+and its limit `gEditMax` for the new line (line 0: limit 200, value from
 `sTotals.unk12`; line 1: limit 3, value from `sTotals.unk14`), otherwise
 saves the edited value back into the current line's slot. First build
 matched.
@@ -24,26 +24,26 @@ matched.
 void RunValueMenu(void) {
     s16 old;
 
-    old = D_8009574A;
+    old = gMenuLine;
     StepMenuCursor();
-    if (old != D_8009574A) {
-        switch (D_8009574A) {
+    if (old != gMenuLine) {
+        switch (gMenuLine) {
         case 0:
-            D_800958B0 = 200;
-            D_80095748 = sTotals.unk12;
+            gEditMax = 200;
+            gEditValue = sTotals.unk12;
             break;
         case 1:
-            D_800958B0 = 3;
-            D_80095748 = sTotals.unk14;
+            gEditMax = 3;
+            gEditValue = sTotals.unk14;
             break;
         }
     } else {
         switch (old) {
         case 0:
-            sTotals.unk12 = D_80095748;
+            sTotals.unk12 = gEditValue;
             break;
         case 1:
-            sTotals.unk14 = D_80095748;
+            sTotals.unk14 = gEditValue;
             break;
         }
     }

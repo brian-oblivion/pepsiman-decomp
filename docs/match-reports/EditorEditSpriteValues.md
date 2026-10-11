@@ -5,7 +5,7 @@
 Unit `src/code_1dc24.c`. The Rec3C template's menu editor, the nine-line
 sibling of EditorEditRecordValues: saves the highlighted line, runs
 `StepMenuCursor`, then after a line change loads the new line's value
-(`D_80095748`) and limit (`D_800958B0`) from the tool block, otherwise
+(`gEditValue`) and limit (`gEditMax`) from the tool block, otherwise
 stores the edited value back. Steps the angle `sTotals.unk6A` on flag bits
 3 and 2 of `gPad` (wrapping 0..359), turns `D_8009EEC0` to it when
 `sTotals.unk6C` is set, then rebuilds the template `D_800DF818` at the game
@@ -15,9 +15,9 @@ matched.
 
 ## Shapes read from retail
 
-- Two nine-case jump tables, `switch (D_8009574A)` after a change and
+- Two nine-case jump tables, `switch (gMenuLine)` after a change and
   `switch (line)` otherwise; EditorEditRecordValues's layout unchanged. Case 6 moves
-  the low byte of `D_80095748` to `D_800959E2` (`$gp`).
+  the low byte of `gEditValue` to `D_800959E2` (`$gp`).
 - The angle is read `lh` for the call and compared after `sll`/`sra`: an
   `s16` field.
 - `lbu 0x16($sp)` / `lbu 0x17($sp)` after `GetQuad16(.., $sp+0x10)`:
@@ -54,10 +54,10 @@ void EditorEditSpriteValues(void) {
     s32 h1;
     s32 h2;
 
-    line = D_8009574A;
+    line = gMenuLine;
     StepMenuCursor();
-    if (line != D_8009574A) {
-        switch (D_8009574A) { /* nine cases: limit, then value */ }
+    if (line != gMenuLine) {
+        switch (gMenuLine) { /* nine cases: limit, then value */ }
     } else {
         switch (line) { /* nine cases: store back */ }
     }

@@ -10,14 +10,14 @@ two-line menu with the labels `sEdSaveText` ("  SAVE\n") and `sEdLoadText`
 void PrintSaveLoad(void) {
     FntPrint(sEdNewlines2);
     PrintTabs(4);
-    if (D_8009574A == 0) {
+    if (gMenuLine == 0) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);
     }
     FntPrint(sEdSaveText);
     PrintTabs(4);
-    if (D_8009574A == 1) {
+    if (gMenuLine == 1) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);

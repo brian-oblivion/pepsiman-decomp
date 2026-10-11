@@ -3,8 +3,8 @@
 > Renamed from `func_800278B0` on 2026-10-11 (tools/rename.py). Address 0x800278b0.
 
 Unit `src/player.c`. When request byte `D_8009EF49[0]` is 1, takes
-the first free 72-byte record of the slot table (`D_800959B8`, size in
-bytes `D_800959B4`), clears a per-stage counter and sets the record's
+the first free 72-byte record of the slot table (`gSlotTable`, size in
+bytes `gSlotTableSize`), clears a per-stage counter and sets the record's
 kind from the stage number `gStage` (jump table `jtbl_80010918`),
 initialises the record, sets `D_800D3358[0]` and clears the request.
 
@@ -12,7 +12,7 @@ initialises the record, sets `D_800D3358[0]` and clears the request.
 static __inline__ s16 findFreeSlot(SlotRec *slot) {
     u32 i;
 
-    for (i = 0; i < D_800959B4 / sizeof(SlotRec); i++) {
+    for (i = 0; i < gSlotTableSize / sizeof(SlotRec); i++) {
         if (slot->unk36 == -1) {
             return i;
         }
@@ -25,7 +25,7 @@ void SpawnModeObject(void) {
     SlotRec *slot;
     s16 idx;
 
-    slot = (SlotRec *)D_800959B8;
+    slot = (SlotRec *)gSlotTable;
     if (D_8009EF49[0] == 1) {
         idx = findFreeSlot(slot);
         if (idx != -1) {

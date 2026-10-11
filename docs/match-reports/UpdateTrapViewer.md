@@ -4,14 +4,14 @@
 
 Unit `src/object.c`. A trap-viewer frame: fixed reference view
 (`gRefView` = 100, -200, 1000, 0, 0, 0), fog colour cleared, pad bits 2
-and 1 step the selected Rec78 entry `D_800958E2`, clamped to `0 ..
+and 1 step the selected Rec78 entry `gSelectedSection`, clamped to `0 ..
 gSectionCount - 1` with one nested-ternary store; then ResetCollision, a
 zeroed Rec48 at `D_800A9008` turning with the frame counter, UpdateObjectEntry
 on the selected entry, ReactToHits, func_80029838, the axes
 (DrawAxes) and `FntPrint("TRAP NO  (%2d / %2d)", ...)`.
 
 ```c
-extern s16 D_800958E2;    /**< the selected Rec78 entry */
+extern s16 gSelectedSection;    /**< the selected Rec78 entry */
 extern char gTrapNoFmt[]; /**< "TRAP NO  (%2d / %2d)" */
 void ReactToHits(u8 *state);
 
@@ -34,12 +34,12 @@ void UpdateTrapViewer(void) {
     gClearG = 0;
     gClearR = 0;
     if (flags & 2) {
-        D_800958E2++;
+        gSelectedSection++;
     }
     if (flags & 1) {
-        D_800958E2--;
+        gSelectedSection--;
     }
-    D_800958E2 = D_800958E2 < 0 ? 0 : D_800958E2 > gSectionCount - 1 ? gSectionCount - 1 : D_800958E2;
+    gSelectedSection = gSelectedSection < 0 ? 0 : gSelectedSection > gSectionCount - 1 ? gSectionCount - 1 : gSelectedSection;
     ResetCollision();
     D_800A9008[0] = 0;
     D_800A9008[1] = 0;
@@ -47,11 +47,11 @@ void UpdateTrapViewer(void) {
     ((s16 *)D_800A9008)[12] = 0;
     ((s16 *)D_800A9008)[13] = gFrameCount % 360 * 4096 / 360;
     ((s16 *)D_800A9008)[14] = 0;
-    UpdateObjectEntry(&D_800D8D20[D_800958E2], (Rec48 *)D_800A9008);
+    UpdateObjectEntry(&D_800D8D20[gSelectedSection], (Rec48 *)D_800A9008);
     ReactToHits(gPlayer);
     func_80029838();
     DrawAxes();
-    FntPrint(gTrapNoFmt, D_800958E2, gSectionCount);
+    FntPrint(gTrapNoFmt, gSelectedSection, gSectionCount);
 }```
 
 First build. The clamp is SelectToolSection's (LEARNINGS, "a clamp whose one

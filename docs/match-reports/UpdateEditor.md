@@ -28,7 +28,7 @@ other to 50). About 20 builds.
   globals sit between the record reads; the source order that matched is
   retail's store order (`gToolMode = 4;` before `sTotals.unk1E = ...`;
   for the Rec3C one: unk2C, `gToolMode = 5`, unk2A, unk6D, unk6C,
-  `D_800958B0`, `D_800958D8`, `D_800958B2`, `D_80095748`, `D_8009574A`,
+  `gEditMax`, `D_800958D8`, `gMenuLineCount`, `gEditValue`, `gMenuLine`,
   `gSubStep`, unk6A).
 - **`li a1, 100` in the delay slot of the `& 0x100` test, a `nop` left in
   the load delay below: `s32` with no return.** Void let reorg fill the

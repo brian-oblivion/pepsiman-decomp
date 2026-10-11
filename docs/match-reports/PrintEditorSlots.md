@@ -36,7 +36,7 @@ void PrintEditorSlots(void) {
     FntPrint(sEdNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(3);
-        if (D_8009574A == i) {
+        if (gMenuLine == i) {
             FntPrint(sEdColorWhite);
         } else {
             FntPrint(sEdColorBlue);

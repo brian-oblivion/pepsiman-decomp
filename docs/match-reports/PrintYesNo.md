@@ -5,21 +5,21 @@
 Unit `src/editor.c`. Prints a two-line YES/NO menu with `FntPrint`:
 a blank-line header (`sEdNewlines2`), then for each line an indent
 (`PrintTabs(4)`), the highlight colour code `sEdColorWhite` when the
-cursor `D_8009574A` is on that line or the plain one `sEdColorBlue`
+cursor `gMenuLine` is on that line or the plain one `sEdColorBlue`
 otherwise, and the label (`sEdYesText` "  YES\n", `sEdNoText` "  NO").
 
 ```c
 void PrintYesNo(void) {
     FntPrint(sEdNewlines2);
     PrintTabs(4);
-    if (D_8009574A == 0) {
+    if (gMenuLine == 0) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);
     }
     FntPrint(sEdYesText);
     PrintTabs(4);
-    if (D_8009574A == 1) {
+    if (gMenuLine == 1) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);

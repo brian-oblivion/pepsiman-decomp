@@ -118,7 +118,7 @@ top:
                 for (i = 0; i < 200; i++) {
                     D_800CF080[i].unk0 = 2;
                 }
-                D_800958EC = 0;
+                gFellOff = 0;
                 D_800957D6 = 0;
                 *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
             }

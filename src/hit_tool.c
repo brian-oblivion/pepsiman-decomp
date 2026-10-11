@@ -292,8 +292,8 @@ void UpdateTool(void) {
             D_80095A58 = 0;
             D_80095A28 = 0;
             gToolMode = 0;
-            D_8009574A = 0;
-            D_80095748 = 0;
+            gMenuLine = 0;
+            gEditValue = 0;
             gRepeatButtonsOn = 1;
             gModeStep++;
             break;
@@ -397,25 +397,25 @@ void MoveToolCursor(void) {
 }
 
 void UpdateToolMenu(void) {
-    D_800958B0 = 1;
-    D_800958B2 = 5;
+    gEditMax = 1;
+    gMenuLineCount = 5;
     StepMenuCursor();
     if (gPadTrig & PADRright) {
-        switch (D_8009574A) {
+        switch (gMenuLine) {
             case 0:
-                gToolKind = D_8009574A;
-                D_800958B0 = 0x33;
-                D_800958B2 = 2;
-                D_8009574A = 0;
+                gToolKind = gMenuLine;
+                gEditMax = 0x33;
+                gMenuLineCount = 2;
+                gMenuLine = 0;
                 gToolMode = 2;
                 D_80095A58 = 0;
                 D_80095A28 = 0;
-                D_80095748 = gToolRadius;
+                gEditValue = gToolRadius;
                 break;
             case 1:
-                gToolKind = D_8009574A;
-                D_8009574A = 0;
-                D_80095748 = 0;
+                gToolKind = gMenuLine;
+                gMenuLine = 0;
+                gEditValue = 0;
                 gToolMode = 4;
                 D_80095A58 = 0;
                 D_80095A28 = 0;
@@ -424,7 +424,7 @@ void UpdateToolMenu(void) {
                 D_80095A28 = 0;
                 D_80095A58 ^= 1;
             case 3:
-                if (D_8009574A == 3) {
+                if (gMenuLine == 3) {
                     D_80095A58 = D_80095A28 = D_80095A28 ^ 1;
                 }
                 gSubStep = 0;
@@ -510,35 +510,35 @@ void PrintToolStatus(void) {
         case 1:
             D_80095A58 = 0;
             D_80095A28 = 0;
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitInfoNormHitText);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitInfoRideHitText);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitMenuDeleteText);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitMenuInfoText);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
@@ -552,14 +552,14 @@ void PrintToolStatus(void) {
             PrintTabs(3);
             FntPrint(sHitHitSelText);
             PrintTabs(3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             FntPrint(sHitSizeRangeFmt, (s16)gToolRadius * 10);
             PrintTabs(3);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
@@ -967,8 +967,8 @@ s32 UpdateToolCard(void) {
         case 0:
             OpenCardEvents();
             gToolCardStep = 0;
-            D_8009574A = 0;
-            D_80095748 = 0;
+            gMenuLine = 0;
+            gEditValue = 0;
             gSubStep++;
             break;
         case 1:
@@ -985,8 +985,8 @@ s32 UpdateToolCard(void) {
                         gToolCardStep = 18;
                         break;
                     }
-                    D_800959E0 = RunMenu(2);
-                    switch (D_800959E0) {
+                    gMenuChoice = RunMenu(2);
+                    switch (gMenuChoice) {
                         case 2:
                             if (WriteToolFile() == -1) {
                                 gToolCardStep = 11;
@@ -1000,14 +1000,14 @@ s32 UpdateToolCard(void) {
                             if (ReadToolFile() == -1) {
                                 gToolCardStep = 11;
                             } else {
-                                D_800959E0 = 1;
+                                gMenuChoice = 1;
                                 gToolCardStep = 2;
                             }
                             break;
                         case -1:
                             break;
                         default:
-                            D_8009574A = 0;
+                            gMenuLine = 0;
                             gToolCardStep = 2;
                             break;
                     }
@@ -1021,7 +1021,7 @@ s32 UpdateToolCard(void) {
                     if (gToolSlot == -1) {
                         break;
                     }
-                    switch (D_800959E0) {
+                    switch (gMenuChoice) {
                         case 0:
                             gToolCardStep = 3;
                             break;
@@ -1059,7 +1059,7 @@ s32 UpdateToolCard(void) {
                     break;
                 case 5:
                     gToolCardStep = 6;
-                    D_8009574A = 0;
+                    gMenuLine = 0;
                     break;
                 case 6:
                     r = RunMenu(2);
@@ -1608,27 +1608,27 @@ void RefreshToolPreview(void) {
 /* MATCHING: the unused 8 bytes give the 0x20-byte frame. */
 void EditToolValues(void) {
     s32 unused[2];
-    s16 line = D_8009574A;
+    s16 line = gMenuLine;
 
     StepMenuCursor();
-    if (line != D_8009574A) {
-        switch (D_8009574A) {
+    if (line != gMenuLine) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 0x33;
-                D_80095748 = gToolRadius;
+                gEditMax = 0x33;
+                gEditValue = gToolRadius;
                 break;
             case 1:
-                D_800958B0 = 0x100;
-                D_80095748 = gToolType;
+                gEditMax = 0x100;
+                gEditValue = gToolType;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                gToolRadius = D_80095748;
+                gToolRadius = gEditValue;
                 break;
             case 1:
-                gToolType = D_80095748;
+                gToolType = gEditValue;
                 break;
         }
     }
@@ -1644,7 +1644,7 @@ void PrintToolSlots(void) {
     FntPrint(sHitNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(4);
-        if (D_8009574A == i) {
+        if (gMenuLine == i) {
             FntPrint(sHitColorWhite);
         } else {
             FntPrint(sHitColorBlue);

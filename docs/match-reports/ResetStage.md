@@ -65,7 +65,7 @@ void ResetStage(void) {
     sStage.unk3A6 = 0;
     gView[6] = 0;
     sStage.unk0 = 1;
-    D_800958EC = 0;
+    gFellOff = 0;
     D_800957D6 = 1;
     gSection = 0;
     gPauseState = 0;

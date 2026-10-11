@@ -43,7 +43,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 
 ## Declarations left for the head
 
-declcheck MULTI: `gViewerMotion` (model), `D_800958E2` (object),
+declcheck MULTI: `gViewerMotion` (model), `gSelectedSection` (object),
 `gButtonConfig` and `gCpuMarkCount` (stage) are now declared in main.c as
 well. LOCAL: prototypes for other units' functions (UpdateMotionViewer,
 InitTmdSortFuncs, InitGridTest, UpdateGridTest, UpdateTrapViewer,

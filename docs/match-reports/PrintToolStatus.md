@@ -102,35 +102,35 @@ void PrintToolStatus(void) {
         case 1:
             D_80095A58 = 0;
             D_80095A28 = 0;
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitInfoNormHitText);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitInfoRideHitText);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitMenuDeleteText);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             PrintTabs(7);
             FntPrint(sHitMenuInfoText);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
@@ -144,14 +144,14 @@ void PrintToolStatus(void) {
             PrintTabs(3);
             FntPrint(sHitHitSelText);
             PrintTabs(3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);
             }
             FntPrint(sHitSizeRangeFmt, (s16)gToolRadius * 10);
             PrintTabs(3);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sHitColorWhite);
             } else {
                 FntPrint(sHitColorBlue);

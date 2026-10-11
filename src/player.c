@@ -203,11 +203,11 @@ void DrawPlayerShadow(void) {
 }
 
 void InitGridTest(void) {
-    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
-        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].x = D_800958CC * 16 - 160;
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].y = D_800958D0 * 16 - 120;
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = 0;
+    for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
+        for (gLoopI = 0; gLoopI < 21; gLoopI++) {
+            D_800DE5E0[gLoopJ * 21 + gLoopI].x = gLoopI * 16 - 160;
+            D_800DE5E0[gLoopJ * 21 + gLoopI].y = gLoopJ * 16 - 120;
+            D_800DE5E0[gLoopJ * 21 + gLoopI].z = 0;
         }
     }
     gRefView[0] = 0;
@@ -259,10 +259,10 @@ void UpdateGridTest(void) {
     }
     line.attribute = 0;
     line.b = line.g = line.r = 0xFF;
-    for (D_800958D0 = 0; D_800958D0 < 16; D_800958D0++) {
-        for (D_800958CC = 0; D_800958CC < 21; D_800958CC++) {
-            x = D_800DE5E0[D_800958D0 * 21 + D_800958CC].x;
-            y = D_800DE5E0[D_800958D0 * 21 + D_800958CC].y;
+    for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
+        for (gLoopI = 0; gLoopI < 21; gLoopI++) {
+            x = D_800DE5E0[gLoopJ * 21 + gLoopI].x;
+            y = D_800DE5E0[gLoopJ * 21 + gLoopI].y;
             GsInitCoordinate2(WORLD, &coord);
             coord.coord.t[2] = 0;
             coord.flg = 0;
@@ -271,27 +271,27 @@ void UpdateGridTest(void) {
             GsGetLs(&coord, &ls);
             GsSetLsMatrix(&ls);
             v.vx = v.vy = v.vz = 0;
-            D_800DE5E0[D_800958D0 * 21 + D_800958CC].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
-            D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx = line.x0 = line.x1 = sxy.vx;
-            D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy = line.y0 = line.y1 = sxy.vy;
+            D_800DE5E0[gLoopJ * 21 + gLoopI].z = RotTransPers(&v, (long *)&sxy, &p, &flag);
+            D_800DE0A0[gLoopJ * 21 + gLoopI].vx = line.x0 = line.x1 = sxy.vx;
+            D_800DE0A0[gLoopJ * 21 + gLoopI].vy = line.y0 = line.y1 = sxy.vy;
             GsSortLine(&line, &gOt[gActiveBuff], 0);
         }
     }
     pp = &poly;
-    for (D_800958D0 = 0; D_800958D0 < 15; D_800958D0++) {
-        for (D_800958CC = 0; D_800958CC < 20; D_800958CC++) {
+    for (gLoopJ = 0; gLoopJ < 15; gLoopJ++) {
+        for (gLoopI = 0; gLoopI < 20; gLoopI++) {
             SetPolyF4(pp);
-            pp->x0 = D_800DE0A0[D_800958D0 * 21 + D_800958CC].vx;
-            pp->y0 = D_800DE0A0[D_800958D0 * 21 + D_800958CC].vy;
-            pp->x1 = D_800DE0A0[D_800958D0 * 21 + (D_800958CC + 1)].vx;
-            pp->y1 = D_800DE0A0[D_800958D0 * 21 + (D_800958CC + 1)].vy;
-            pp->x3 = D_800DE0A0[(D_800958D0 + 1) * 21 + (D_800958CC + 1)].vx;
-            pp->y3 = D_800DE0A0[(D_800958D0 + 1) * 21 + (D_800958CC + 1)].vy;
-            pp->x2 = D_800DE0A0[(D_800958D0 + 1) * 21 + D_800958CC].vx;
-            pp->y2 = D_800DE0A0[(D_800958D0 + 1) * 21 + D_800958CC].vy;
+            pp->x0 = D_800DE0A0[gLoopJ * 21 + gLoopI].vx;
+            pp->y0 = D_800DE0A0[gLoopJ * 21 + gLoopI].vy;
+            pp->x1 = D_800DE0A0[gLoopJ * 21 + (gLoopI + 1)].vx;
+            pp->y1 = D_800DE0A0[gLoopJ * 21 + (gLoopI + 1)].vy;
+            pp->x3 = D_800DE0A0[(gLoopJ + 1) * 21 + (gLoopI + 1)].vx;
+            pp->y3 = D_800DE0A0[(gLoopJ + 1) * 21 + (gLoopI + 1)].vy;
+            pp->x2 = D_800DE0A0[(gLoopJ + 1) * 21 + gLoopI].vx;
+            pp->y2 = D_800DE0A0[(gLoopJ + 1) * 21 + gLoopI].vy;
             y = 1;
-            if (D_800958D0 & y) {
-                if (D_800958CC & y) {
+            if (gLoopJ & y) {
+                if (gLoopI & y) {
                     pp->r0 = 0x70;
                     pp->g0 = 0x70;
                     pp->b0 = 0x80;
@@ -300,7 +300,7 @@ void UpdateGridTest(void) {
                     pp->g0 = 0xFF;
                     pp->b0 = 0xFF;
                 }
-            } else if (D_800958CC & 1) {
+            } else if (gLoopI & 1) {
                 pp->r0 = 0xFF;
                 pp->g0 = 0xFF;
                 pp->b0 = 0xFF;
@@ -309,7 +309,7 @@ void UpdateGridTest(void) {
                 pp->g0 = 0x70;
                 pp->b0 = 0x80;
             }
-            GsSortPoly(pp, &gOt[gActiveBuff], D_800DE5E0[D_800958D0 * 21 + D_800958CC].z >> 6);
+            GsSortPoly(pp, &gOt[gActiveBuff], D_800DE5E0[gLoopJ * 21 + gLoopI].z >> 6);
         }
     }
     D_800957F8 = D_800959A8;
@@ -680,7 +680,7 @@ s32 CheckFall(void) {
             if (gMissState == 0) {
                 gMissState = 2;
             }
-            D_800958EC = 1;
+            gFellOff = 1;
             gPlayer.control = 0;
             gPlayer.fallSpeed += 2;
             ResetSpeed();
@@ -958,18 +958,18 @@ top:
         case 0x11:
             state->action = 0x12;
             state->unk374 = 0;
-            state->unk368 = 0;
-            state->unk370 = 0;
+            state->lookX = 0;
+            state->lookZ = 0;
             break;
         case 0x12:
             if (state->unk374 < 60) {
                 state->unk374++;
             }
-            D_80095740 = Lerp(D_80095740, 0, state->unk374, 60);
-            /* MATCHING: a byte-pointer read keeps the load below the store to D_80095740. */
-            D_80095744 = Lerp(D_80095744, 0, *(s16 *)((u8 *)state + 0x374), 60);
+            gLookYawNarrow = Lerp(gLookYawNarrow, 0, state->unk374, 60);
+            /* MATCHING: a byte-pointer read keeps the load below the store to gLookYawNarrow. */
+            gLookYawWide = Lerp(gLookYawWide, 0, *(s16 *)((u8 *)state + 0x374), 60);
 
-            if (D_80095740 == 0) {
+            if (gLookYawNarrow == 0) {
                 state->unk4 = 0;
                 state->action = 0;
             }
@@ -2283,7 +2283,7 @@ top:
                 for (i = 0; i < 200; i++) {
                     D_800CF080[i].unk0 = 2;
                 }
-                D_800958EC = 0;
+                gFellOff = 0;
                 D_800957D6 = 0;
                 *(Words3 *)D_800DF5C0 = *(Words3 *)D_8009EEC0;
             }
@@ -2457,7 +2457,7 @@ s32 AttachModeObject(void) {
 static __inline__ s16 findFreeSlot(SlotRec *slot) {
     u32 i;
 
-    for (i = 0; i < D_800959B4 / sizeof(SlotRec); i++) {
+    for (i = 0; i < gSlotTableSize / sizeof(SlotRec); i++) {
         if (slot->unk36 == -1) {
             return i;
         }
@@ -2470,7 +2470,7 @@ void SpawnModeObject(void) {
     SlotRec *slot;
     s16 idx;
 
-    slot = (SlotRec *)D_800959B8;
+    slot = (SlotRec *)gSlotTable;
     if (D_8009EF49[0] == 1) {
         idx = findFreeSlot(slot);
         if (idx != -1) {

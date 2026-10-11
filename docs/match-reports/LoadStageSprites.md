@@ -5,7 +5,7 @@
 Unit `src/object.c`. Walks the 16-byte directory loaded at the fixed
 address 0x8017D708 (entry count in the first entry's halfword at 0xE) and,
 for slots 0x33 to 0x33 + count - 1, kept in the global counter
-`D_800958CC`, stores a pointer to each entry's data (directory + offset +
+`gLoopI`, stores a pointer to each entry's data (directory + offset +
 4) in `gAnimations[slot]`, copies the data's first word into the game
 state's word table at 0x20, advances the pointer by one word and copies
 the word after it into the table at 0x1B0.
@@ -18,20 +18,20 @@ s32 LoadStageSprites(void) {
     s32 *p;
 
     e = (DirEnt16 *)0x8017D708;
-    D_800958CC = 0x33;
-    D_800958D0 = e->count;
-    for (; D_800958CC < D_800958D0 + 0x33; D_800958CC++) {
-        gAnimations[D_800958CC] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
+    gLoopI = 0x33;
+    gLoopJ = e->count;
+    for (; gLoopI < gLoopJ + 0x33; gLoopI++) {
+        gAnimations[gLoopI] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
         e++;
-        sGameHead.unk20[D_800958CC] = *gAnimations[D_800958CC];
-        gAnimations[D_800958CC]++;
-        sGameHead.unk1B0[D_800958CC] = gAnimations[D_800958CC][1];
+        sGameHead.unk20[gLoopI] = *gAnimations[gLoopI];
+        gAnimations[gLoopI]++;
+        sGameHead.unk1B0[gLoopI] = gAnimations[gLoopI][1];
     }
 }
 ```
 
 Views: `GameHead` (unit-local) grew two `s32[100]` tables at 0x20 and
-0x1B0; `DirEnt16` is new. `D_800958D0` was a local extern in player.c;
+0x1B0; `DirEnt16` is new. `gLoopJ` was a local extern in player.c;
 it moved to `include/common.h` (additive) and the local copy was deleted.
 
 About 20 builds plus one permuter search.

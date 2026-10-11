@@ -43,8 +43,8 @@ void UpdateTool(void) {
             D_80095A58 = 0;
             D_80095A28 = 0;
             gToolMode = 0;
-            D_8009574A = 0;
-            D_80095748 = 0;
+            gMenuLine = 0;
+            gEditValue = 0;
             gRepeatButtonsOn = 1;
             gModeStep++;
             break;

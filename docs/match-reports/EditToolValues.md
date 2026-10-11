@@ -11,27 +11,27 @@ edited value back. Bit 6 of the flag word clears `gToolMode`.
 ```c
 void EditToolValues(void) {
     s32 unused[2];
-    s16 line = D_8009574A;
+    s16 line = gMenuLine;
 
     StepMenuCursor();
-    if (line != D_8009574A) {
-        switch (D_8009574A) {
+    if (line != gMenuLine) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 0x33;
-                D_80095748 = gToolRadius;
+                gEditMax = 0x33;
+                gEditValue = gToolRadius;
                 break;
             case 1:
-                D_800958B0 = 0x100;
-                D_80095748 = gToolType;
+                gEditMax = 0x100;
+                gEditValue = gToolType;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                gToolRadius = D_80095748;
+                gToolRadius = gEditValue;
                 break;
             case 1:
-                gToolType = D_80095748;
+                gToolType = gEditValue;
                 break;
         }
     }
@@ -44,10 +44,10 @@ void EditToolValues(void) {
 ## Externs
 
 - `gToolRadius` (`u16`, `lhu`) and `gToolType` (`u8`, `lbu`): `%gp_rel`.
-- `D_80095748`: `u16`, the type `object` already gave it; the `u8`
+- `gEditValue`: `u16`, the type `object` already gave it; the `u8`
   store reads it with `lbu` (cc1 narrows the load). Now used by two units,
   so it moved to `include/common.h` (additive). `object.c` still carries
-  its own identical `extern u16 D_80095748;` (line 89), which declcheck now
+  its own identical `extern u16 gEditValue;` (line 89), which declcheck now
   reports as MULTI/LOCAL; that unit is alpha's this round, so the two-line
   deletion is left to the merge.
 - `StepMenuCursor` (an `INCLUDE_ASM` of `object`): prototype added to

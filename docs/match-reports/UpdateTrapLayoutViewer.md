@@ -7,7 +7,7 @@ sibling with a state `gModeStep`: state 0 sets the fixed view, clears
 the fog and moves to 1; state 1 zeroes the start record `D_80096788`,
 turns it with the frame counter and has CallStageHook fill the Rec48
 table from it (`D_8009596E` records), then moves to 2; state 2 steps the
-selected entry `D_800958E2` with the pad (back to state 1 when it
+selected entry `gSelectedSection` with the pad (back to state 1 when it
 changes), places record 0 on its Rec78 entry and every further record
 relative to it (TransformByCoord into `D_8009F268`), draws the axes; every
 state prints the entry number.

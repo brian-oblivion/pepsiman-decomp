@@ -4,7 +4,7 @@
 
 Unit `src/code_1dc24.c`. Runs the menu editor (`StepMenuCursor`), then on
 flag bit 5 of `gPadTrig` enters the tool mode of the highlighted line
-`D_8009574A` (an eight-case jump table): lines 0..3 set the value limit
+`gMenuLine` (an eight-case jump table): lines 0..3 set the value limit
 and line count, save the line in `sTotals.unk3`, load the edited value
 from the tool block and set mode 2..5 in `gToolMode`; 4 and 5 set flags;
 6 copies the start position into the game state and recomputes
@@ -41,46 +41,46 @@ s32 UpdateEditorMenu(void) {
      * check's delay slot. */
     StepMenuCursor();
     if (gPadTrig & 0x20) {
-        switch (D_8009574A) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 200;
-                D_800958B2 = 1;
+                gEditMax = 200;
+                gMenuLineCount = 1;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk24;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk24;
+                gMenuLine = 0;
                 gToolMode = 2;
                 break;
             case 1:
-                D_800958B0 = 200;
-                D_800958B2 = 2;
+                gEditMax = 200;
+                gMenuLineCount = 2;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk12;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk12;
+                gMenuLine = 0;
                 gToolMode = 3;
                 break;
             case 2:
-                D_800958B0 = 200;
-                D_800958B2 = 5;
+                gEditMax = 200;
+                gMenuLineCount = 5;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk18;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk18;
+                gMenuLine = 0;
                 gSubStep = 0;
                 gToolMode = 4;
                 break;
             case 3:
-                D_800958B0 = 100;
-                D_800958B2 = 9;
+                gEditMax = 100;
+                gMenuLineCount = 9;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk28;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk28;
+                gMenuLine = 0;
                 gSubStep = 0;
                 gToolMode = 5;
                 break;

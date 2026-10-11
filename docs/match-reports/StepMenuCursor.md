@@ -3,8 +3,8 @@
 > Renamed from `func_800330D4` on 2026-10-11 (tools/rename.py). Address 0x800330d4.
 
 Unit `src/editor.c`. The menu update: steps the edited value
-`D_80095748` (pad bits 0x2000 up, 0x8000 down) or the highlighted line
-`D_8009574A` (0x4000 up, 0x1000 down) from the pad word `gPadTrig`, else
+`gEditValue` (pad bits 0x2000 up, 0x8000 down) or the highlighted line
+`gMenuLine` (0x4000 up, 0x1000 down) from the pad word `gPadTrig`, else
 from `gStickTrigX` (value) and `gStickTrigY` (line), then wraps both with
 `WrapMenuValues`. Returns 0. Fourth build matched.
 
@@ -12,10 +12,10 @@ from `gStickTrigX` (value) and `gStickTrigY` (line), then wraps both with
 
 - **The call is written in every branch, not once after the chain.** With one
   call after an if/else-if chain (`else return 0;`), the eight step blocks
-  jump to one label and cross-jumping merges the identical `D_80095748`
+  jump to one label and cross-jumping merges the identical `gEditValue`
   blocks of the two pad groups (69 words, 15 short). With `f()` in each
   branch, the calls are tail-merged back into one, and only the
-  `D_8009574A` blocks share code (their store, and the whole `--` block),
+  `gMenuLine` blocks share code (their store, and the whole `--` block),
   exactly as retail.
 - A final `else { return 0; }` before `return 0;` gives the early
   `beqz ..., epilogue` with `v0 = 0` in its slot; without it the two
@@ -33,28 +33,28 @@ s32 WrapMenuValues(void);
 
 s32 StepMenuCursor(void) {
     if (gPadTrig & 0x2000) {
-        D_80095748++;
+        gEditValue++;
         WrapMenuValues();
     } else if (gPadTrig & 0x8000) {
-        D_80095748--;
+        gEditValue--;
         WrapMenuValues();
     } else if (gPadTrig & 0x4000) {
-        D_8009574A++;
+        gMenuLine++;
         WrapMenuValues();
     } else if (gPadTrig & 0x1000) {
-        D_8009574A--;
+        gMenuLine--;
         WrapMenuValues();
     } else if (gStickTrigX & 0x2000) {
-        D_80095748++;
+        gEditValue++;
         WrapMenuValues();
     } else if (gStickTrigX & 0x8000) {
-        D_80095748--;
+        gEditValue--;
         WrapMenuValues();
     } else if (gStickTrigY & 0x4000) {
-        D_8009574A++;
+        gMenuLine++;
         WrapMenuValues();
     } else if (gStickTrigY & 0x1000) {
-        D_8009574A--;
+        gMenuLine--;
         WrapMenuValues();
     } else {
         return 0;

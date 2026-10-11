@@ -693,12 +693,12 @@ s32 UpdateEditor(void) {
                                         r = (Obj48 *)D_800A9008;
                                         r[sTotals.unk18 + i].unk36 = -1;
                                     }
-                                    D_800958B0 = 200;
+                                    gEditMax = 200;
                                     D_800958D8 = 0;
-                                    D_800958B2 = 5;
-                                    D_8009574A = 0;
+                                    gMenuLineCount = 5;
+                                    gMenuLine = 0;
                                     gSubStep = 0;
-                                    D_80095748 = sTotals.unk18;
+                                    gEditValue = sTotals.unk18;
                                 }
                                 break;
                             case 3:
@@ -712,11 +712,11 @@ s32 UpdateEditor(void) {
                                     sTotals.unk2A = D_800A7898[sTotals.unk28].unk2C;
                                     sTotals.unk6D = D_800A7898[sTotals.unk28].unk28;
                                     sTotals.unk6C = D_800A7898[sTotals.unk28].unk27;
-                                    D_800958B0 = 100;
+                                    gEditMax = 100;
                                     D_800958D8 = 0;
-                                    D_800958B2 = 9;
-                                    D_80095748 = sTotals.unk28;
-                                    D_8009574A = 0;
+                                    gMenuLineCount = 9;
+                                    gEditValue = sTotals.unk28;
+                                    gMenuLine = 0;
                                     gSubStep = 0;
                                     sTotals.unk6A = D_800A7898[sTotals.unk28].unk2A;
                                 }
@@ -725,14 +725,14 @@ s32 UpdateEditor(void) {
                     }
                     if (gPadTrig & PADRup) {
                         gToolMode = 1;
-                        D_80095748 = 0;
-                        D_8009574A = 0;
+                        gEditValue = 0;
+                        gMenuLine = 0;
                     }
                     break;
                 case 1:
                     UpdateEditorMenu();
                     if (gPadTrig & PADRdown) {
-                        if (D_8009574A == 2) {
+                        if (gMenuLine == 2) {
                             gSubStep = 0;
                         }
                         gToolMode = 0;
@@ -1008,61 +1008,61 @@ s32 PrintEditorStatus(void) {
             PrintEditorCaption();
             break;
         case 1:
-            D_800958B0 = 1;
-            D_800958B2 = 8;
+            gEditMax = 1;
+            gMenuLineCount = 8;
             PrintTabs(5);
             FntPrint(sEdMenuModeText);
             FntPrint(sEdNewlines3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuPepsiText);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuSwitchText);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuTrapText);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuSpriteText);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuDeleteText);
-            if (D_8009574A == 5) {
+            if (gMenuLine == 5) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuInfoText);
-            if (D_8009574A == 6) {
+            if (gMenuLine == 6) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             PrintTabs(7);
             FntPrint(sEdMenuDefPosText);
-            if (D_8009574A == 7) {
+            if (gMenuLine == 7) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1088,7 +1088,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdSwitchSelText);
             PrintTabs(3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1101,14 +1101,14 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk12);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEndBlankFmt, 199);
             PrintTabs(3);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1127,7 +1127,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdTrapSelText);
             PrintTabs(3);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1140,14 +1140,14 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk18);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEndFmt, 199);
             PrintTabs(3);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1156,7 +1156,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdUseBufferFmt, D_8009596E);
             PrintTabs(3);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1169,14 +1169,14 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk1E);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEnd2Fmt, 199);
             PrintTabs(3);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1185,7 +1185,7 @@ s32 PrintEditorStatus(void) {
             FntPrint(sEdNum2Fmt, sTotals.unk68);
             FntPrint(sEdRangeEnd2Fmt, 255);
             PrintTabs(3);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1205,7 +1205,7 @@ s32 PrintEditorStatus(void) {
             PrintTabs(3);
             FntPrint(sEdSpriteSelText);
             PrintTabs(2);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1217,21 +1217,21 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk28);
-            if (D_8009574A == 0) {
+            if (gMenuLine == 0) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEndFmt, 99);
             PrintTabs(2);
-            if (D_8009574A == 1) {
+            if (gMenuLine == 1) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteModelRangeFmt, sTotals.unk2C, 512);
             PrintTabs(2);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1244,21 +1244,21 @@ s32 PrintEditorStatus(void) {
                 FntPrint(sEdColorGrey);
             }
             FntPrint(sEdNum2Fmt, sTotals.unk2A);
-            if (D_8009574A == 2) {
+            if (gMenuLine == 2) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdRangeEnd2Fmt, 199);
             PrintTabs(2);
-            if (D_8009574A == 3) {
+            if (gMenuLine == 3) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
             }
             FntPrint(sEdSpriteSizeRangeFmt, (s16)sTotals.unk2E - 500, 999);
             PrintTabs(2);
-            if (D_8009574A == 4) {
+            if (gMenuLine == 4) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1269,7 +1269,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdOnLine);
             }
-            if (D_8009574A == 5) {
+            if (gMenuLine == 5) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1281,7 +1281,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdOnLine);
             }
-            if (D_8009574A == 6) {
+            if (gMenuLine == 6) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1299,7 +1299,7 @@ s32 PrintEditorStatus(void) {
                     FntPrint(sEdHitActText);
                     break;
             }
-            if (D_8009574A == 7) {
+            if (gMenuLine == 7) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1311,7 +1311,7 @@ s32 PrintEditorStatus(void) {
             } else {
                 FntPrint(sEdSeNoFmt, sTotals.unk6C);
             }
-            if (D_8009574A == 8) {
+            if (gMenuLine == 8) {
                 FntPrint(sEdColorWhite);
             } else {
                 FntPrint(sEdColorBlue);
@@ -1576,46 +1576,46 @@ s32 UpdateEditorMenu(void) {
      * check's delay slot. */
     StepMenuCursor();
     if (gPadTrig & PADRright) {
-        switch (D_8009574A) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 200;
-                D_800958B2 = 1;
+                gEditMax = 200;
+                gMenuLineCount = 1;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk24;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk24;
+                gMenuLine = 0;
                 gToolMode = 2;
                 break;
             case 1:
-                D_800958B0 = 200;
-                D_800958B2 = 2;
+                gEditMax = 200;
+                gMenuLineCount = 2;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk12;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk12;
+                gMenuLine = 0;
                 gToolMode = 3;
                 break;
             case 2:
-                D_800958B0 = 200;
-                D_800958B2 = 5;
+                gEditMax = 200;
+                gMenuLineCount = 5;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk18;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk18;
+                gMenuLine = 0;
                 gSubStep = 0;
                 gToolMode = 4;
                 break;
             case 3:
-                D_800958B0 = 100;
-                D_800958B2 = 9;
+                gEditMax = 100;
+                gMenuLineCount = 9;
                 D_800958D8 = 0;
                 D_800959D8 = 0;
-                sTotals.unk3 = D_8009574A;
-                D_80095748 = sTotals.unk28;
-                D_8009574A = 0;
+                sTotals.unk3 = gMenuLine;
+                gEditValue = sTotals.unk28;
+                gMenuLine = 0;
                 gSubStep = 0;
                 gToolMode = 5;
                 break;
@@ -1685,16 +1685,16 @@ s32 EditorFreeMove(void) {
     if (gPadTrig & PADLright) {
         MoveGamePos(90, sTotals.unk4);
     }
-    if (D_800957C8 < 0x60) {
+    if (gStickRawY < 0x60) {
         MoveGamePos(0, sTotals.unk4);
     }
-    if (D_800957C8 > 0xA0) {
+    if (gStickRawY > 0xA0) {
         MoveGamePos(180, sTotals.unk4);
     }
-    if (D_800957C0 < 0x60) {
+    if (gStickRawX < 0x60) {
         MoveGamePos(-90, sTotals.unk4);
     }
-    if (D_800957C0 > 0xA0) {
+    if (gStickRawX > 0xA0) {
         MoveGamePos(90, sTotals.unk4);
     }
     gWorldShift[1] = 0;
@@ -2090,51 +2090,51 @@ s32 EditorEditRecordValues(void) {
 
     /* MATCHING: non-void with no return keeps the last two branches' delay
      * slots nops. */
-    line = D_8009574A;
-    val = D_80095748;
+    line = gMenuLine;
+    val = gEditValue;
     StepMenuCursor();
-    if (D_8009574A == 1 && val != (s16)D_80095748) {
+    if (gMenuLine == 1 && val != (s16)gEditValue) {
         gSubStep = 0;
     }
-    if (line != D_8009574A) {
-        switch (D_8009574A) {
+    if (line != gMenuLine) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 200;
-                D_80095748 = sTotals.unk18;
+                gEditMax = 200;
+                gEditValue = sTotals.unk18;
                 break;
             case 1:
-                D_800958B0 = gSectionCount;
-                D_80095748 = sTotals.unk1C;
+                gEditMax = gSectionCount;
+                gEditValue = sTotals.unk1C;
                 break;
             case 2:
-                D_800958B0 = 200;
-                D_80095748 = sTotals.unk1E;
+                gEditMax = 200;
+                gEditValue = sTotals.unk1E;
                 break;
             case 3:
-                D_800958B0 = 0x100;
-                D_80095748 = sTotals.unk68;
+                gEditMax = 0x100;
+                gEditValue = sTotals.unk68;
                 break;
             case 4:
-                D_800958B0 = 0x100;
-                D_80095748 = sTotals.unk69;
+                gEditMax = 0x100;
+                gEditValue = sTotals.unk69;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                sTotals.unk18 = D_80095748;
+                sTotals.unk18 = gEditValue;
                 break;
             case 1:
-                sTotals.unk1C = D_80095748;
+                sTotals.unk1C = gEditValue;
                 break;
             case 2:
-                sTotals.unk1E = D_80095748;
+                sTotals.unk1E = gEditValue;
                 break;
             case 3:
-                sTotals.unk68 = D_80095748;
+                sTotals.unk68 = gEditValue;
                 break;
             case 4:
-                sTotals.unk69 = D_80095748;
+                sTotals.unk69 = gEditValue;
                 break;
         }
     }
@@ -2307,75 +2307,75 @@ void EditorEditSpriteValues(void) {
     s32 h1;
     s32 h2;
 
-    line = D_8009574A;
+    line = gMenuLine;
     StepMenuCursor();
-    if (line != D_8009574A) {
-        switch (D_8009574A) {
+    if (line != gMenuLine) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 100;
-                D_80095748 = sTotals.unk28;
+                gEditMax = 100;
+                gEditValue = sTotals.unk28;
                 break;
             case 1:
-                D_800958B0 = 0x200;
-                D_80095748 = sTotals.unk2C;
+                gEditMax = 0x200;
+                gEditValue = sTotals.unk2C;
                 break;
             case 2:
-                D_800958B0 = 200;
-                D_80095748 = sTotals.unk2A;
+                gEditMax = 200;
+                gEditValue = sTotals.unk2A;
                 break;
             case 3:
-                D_800958B0 = 1000;
-                D_80095748 = sTotals.unk2E;
+                gEditMax = 1000;
+                gEditValue = sTotals.unk2E;
                 break;
             case 4:
-                D_800958B0 = 2;
-                D_80095748 = sTotals.unk32;
+                gEditMax = 2;
+                gEditValue = sTotals.unk32;
                 break;
             case 5:
-                D_800958B0 = 2;
-                D_80095748 = sTotals.unk34;
+                gEditMax = 2;
+                gEditValue = sTotals.unk34;
                 break;
             case 6:
-                D_800958B0 = 3;
-                D_80095748 = D_800959E2;
+                gEditMax = 3;
+                gEditValue = D_800959E2;
                 break;
             case 7:
-                D_800958B0 = 2;
-                D_80095748 = sTotals.unk6C;
+                gEditMax = 2;
+                gEditValue = sTotals.unk6C;
                 break;
             case 8:
-                D_800958B0 = 5;
-                D_80095748 = sTotals.unk6D;
+                gEditMax = 5;
+                gEditValue = sTotals.unk6D;
                 break;
         }
     } else {
         switch (line) {
             case 0:
-                sTotals.unk28 = D_80095748;
+                sTotals.unk28 = gEditValue;
                 break;
             case 1:
-                sTotals.unk2C = D_80095748;
+                sTotals.unk2C = gEditValue;
                 break;
             case 2:
-                sTotals.unk2A = D_80095748;
+                sTotals.unk2A = gEditValue;
                 break;
             case 3:
-                sTotals.unk2E = D_80095748;
+                sTotals.unk2E = gEditValue;
                 break;
             case 4:
-                sTotals.unk32 = D_80095748;
+                sTotals.unk32 = gEditValue;
                 break;
             case 5:
-                sTotals.unk34 = D_80095748;
+                sTotals.unk34 = gEditValue;
                 break;
             case 6:
-                D_800959E2 = D_80095748;
+                D_800959E2 = gEditValue;
                 break;
             case 7:
-                sTotals.unk6C = D_80095748;
+                sTotals.unk6C = gEditValue;
                 break;
             case 8:
-                sTotals.unk6D = D_80095748;
+                sTotals.unk6D = gEditValue;
                 break;
         }
     }
@@ -2614,8 +2614,8 @@ s32 UpdateEditorData(void) {
         case 0:
             OpenCardEvents();
             gToolCardStep = 0;
-            D_8009574A = 0;
-            D_80095748 = 0;
+            gMenuLine = 0;
+            gEditValue = 0;
             gSubStep++;
             break;
         case 1:
@@ -2632,8 +2632,8 @@ s32 UpdateEditorData(void) {
                         gToolCardStep = 18;
                         break;
                     }
-                    D_800959E0 = RunMenu(2);
-                    switch (D_800959E0) {
+                    gMenuChoice = RunMenu(2);
+                    switch (gMenuChoice) {
                         case 2:
                             if (WriteEditorFile() == -1) {
                                 gToolCardStep = 11;
@@ -2647,7 +2647,7 @@ s32 UpdateEditorData(void) {
                             if (ReadEditorFile() == -1) {
                                 gToolCardStep = 11;
                             } else {
-                                D_800959E0 = 1;
+                                gMenuChoice = 1;
                                 gToolCardStep = 2;
                             }
                             break;
@@ -2667,7 +2667,7 @@ s32 UpdateEditorData(void) {
                     if (gToolSlot == -1) {
                         break;
                     }
-                    switch (D_800959E0) {
+                    switch (gMenuChoice) {
                         case 0:
                             gToolCardStep = 3;
                             break;
@@ -2694,7 +2694,7 @@ s32 UpdateEditorData(void) {
                         gToolCardStep = 8;
                     } else {
                         gToolCardStep = 4;
-                        D_8009574A = 0;
+                        gMenuLine = 0;
                     }
                     break;
                 case 4:
@@ -2720,7 +2720,7 @@ s32 UpdateEditorData(void) {
                         gToolCardStep = 7;
                     } else {
                         gToolCardStep = 6;
-                        D_8009574A = 0;
+                        gMenuLine = 0;
                     }
                     break;
                 case 6:
@@ -2932,7 +2932,7 @@ void PrintEditorSlots(void) {
     FntPrint(sEdNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(3);
-        if (D_8009574A == i) {
+        if (gMenuLine == i) {
             FntPrint(sEdColorWhite);
         } else {
             FntPrint(sEdColorBlue);
@@ -3063,28 +3063,28 @@ s32 WriteEditorSlotFiles(void) {
  *  @return 0. */
 s32 StepMenuCursor(void) {
     if (gPadTrig & PADLright) {
-        D_80095748++;
+        gEditValue++;
         WrapMenuValues();
     } else if (gPadTrig & PADLleft) {
-        D_80095748--;
+        gEditValue--;
         WrapMenuValues();
     } else if (gPadTrig & PADLdown) {
-        D_8009574A++;
+        gMenuLine++;
         WrapMenuValues();
     } else if (gPadTrig & PADLup) {
-        D_8009574A--;
+        gMenuLine--;
         WrapMenuValues();
     } else if (gStickTrigX & PADLright) {
-        D_80095748++;
+        gEditValue++;
         WrapMenuValues();
     } else if (gStickTrigX & PADLleft) {
-        D_80095748--;
+        gEditValue--;
         WrapMenuValues();
     } else if (gStickTrigY & PADLdown) {
-        D_8009574A++;
+        gMenuLine++;
         WrapMenuValues();
     } else if (gStickTrigY & PADLup) {
-        D_8009574A--;
+        gMenuLine--;
         WrapMenuValues();
     } else {
         return 0;
@@ -3158,13 +3158,13 @@ void DrawHeadingLine(VECTOR *pos, s16 deg) {
  *         and runs an update.
  *  @return the highlighted line when flag bit 5 is set, else -1. */
 s32 RunMenu(s16 n) {
-    D_80095748 = 0;
-    D_800958B2 = n;
-    D_800958B0 = 1;
-    D_8009574A = D_8009574A % n;
+    gEditValue = 0;
+    gMenuLineCount = n;
+    gEditMax = 1;
+    gMenuLine = gMenuLine % n;
     StepMenuCursor();
     if (gPadTrig & PADRright) {
-        return D_8009574A;
+        return gMenuLine;
     }
     return -1;
 }
@@ -3345,7 +3345,7 @@ void TotalBlockEntries(void) {
  *         halfword run. */
 void func_80033B08(void) {
     StepMenuCursor();
-    D_80095B4C[0] = D_80095748;
+    D_80095B4C[0] = gEditValue;
 }
 
 /** @brief Runs an update; when the highlighted line moved, loads the
@@ -3354,26 +3354,26 @@ void func_80033B08(void) {
 void RunValueMenu(void) {
     s16 old;
 
-    old = D_8009574A;
+    old = gMenuLine;
     StepMenuCursor();
-    if (old != D_8009574A) {
-        switch (D_8009574A) {
+    if (old != gMenuLine) {
+        switch (gMenuLine) {
             case 0:
-                D_800958B0 = 200;
-                D_80095748 = sTotals.unk12;
+                gEditMax = 200;
+                gEditValue = sTotals.unk12;
                 break;
             case 1:
-                D_800958B0 = 3;
-                D_80095748 = sTotals.unk14;
+                gEditMax = 3;
+                gEditValue = sTotals.unk14;
                 break;
         }
     } else {
         switch (old) {
             case 0:
-                sTotals.unk12 = D_80095748;
+                sTotals.unk12 = gEditValue;
                 break;
             case 1:
-                sTotals.unk14 = D_80095748;
+                sTotals.unk14 = gEditValue;
                 break;
         }
     }
@@ -3398,14 +3398,14 @@ void ApplyRecordsToEntries(void) {
 void PrintYesNo(void) {
     FntPrint(sEdNewlines2);
     PrintTabs(4);
-    if (D_8009574A == 0) {
+    if (gMenuLine == 0) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);
     }
     FntPrint(sEdYesText);
     PrintTabs(4);
-    if (D_8009574A == 1) {
+    if (gMenuLine == 1) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);
@@ -3418,14 +3418,14 @@ void PrintYesNo(void) {
 void PrintSaveLoad(void) {
     FntPrint(sEdNewlines2);
     PrintTabs(4);
-    if (D_8009574A == 0) {
+    if (gMenuLine == 0) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);
     }
     FntPrint(sEdSaveText);
     PrintTabs(4);
-    if (D_8009574A == 1) {
+    if (gMenuLine == 1) {
         FntPrint(sEdColorWhite);
     } else {
         FntPrint(sEdColorBlue);
@@ -3463,17 +3463,17 @@ s32 ReadEditorFile(void) {
 s32 WrapMenuValues(void) {
     /* MATCHING: retail reads the edited value signed (lh); common.h's
      * declaration is u16. */
-    if ((s16)D_80095748 < 0) {
-        D_80095748 = D_800958B0 - 1;
+    if ((s16)gEditValue < 0) {
+        gEditValue = gEditMax - 1;
     }
-    if ((s16)D_80095748 >= D_800958B0) {
-        D_80095748 = 0;
+    if ((s16)gEditValue >= gEditMax) {
+        gEditValue = 0;
     }
-    if (D_8009574A < 0) {
-        D_8009574A = D_800958B2 - 1;
+    if (gMenuLine < 0) {
+        gMenuLine = gMenuLineCount - 1;
     }
-    if (D_8009574A >= D_800958B2) {
-        D_8009574A = 0;
+    if (gMenuLine >= gMenuLineCount) {
+        gMenuLine = 0;
     }
     return 0;
 }

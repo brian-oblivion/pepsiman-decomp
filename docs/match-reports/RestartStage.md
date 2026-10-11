@@ -20,7 +20,7 @@ halfword in each of the 200 Rec48 records.
  *   StartRec    { u8 unk0[6]; s16 unk6; }   (*D_80095840)
  * extern u8 D_80095900, gInEditor; extern s16 gModeStep, gMissState,
  * D_800957B0; extern s8 D_8007AD58[]; extern s32 D_800957F4, gSection;
- * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], D_800958EC,
+ * common.h: gBonusLevel (s32), D_800957BC (s16), D_8009676C[], gFellOff,
  * D_800957D6, gStage.
  * s32 FindFloor(Pos3 *pos); the rest void (void) except
  * PlayStageMusic(u8) and func_80041118(u8). */
@@ -63,7 +63,7 @@ void RestartStage(u8 arg0) {
     func_80041118(gStage);
     sStage.unk6 = 2;
     sStage.unk0 = 1;
-    D_800958EC = 0;
+    gFellOff = 0;
     D_800957D6 = 1;
     for (i = 0; i < 200; i++) {
         sRecs48[i].unk26 = 0;

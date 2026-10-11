@@ -5,7 +5,7 @@
 Unit `src/player.c`. On flag 0x40 of `D_800AC860` (outside mode
 0xE): ends a pending low-nibble state of 0x3D0, sets the cap 0x3C0 to
 30000, and once 0x34C reaches `gFloorY[0] + 100` (a goal line) runs
-the goal: `gMissState` to 2 if clear, `D_800958EC = 1`, 0x3A6 += 2, and
+the goal: `gMissState` to 2 if clear, `gFellOff = 1`, 0x3A6 += 2, and
 past +1000 mode 12.
 
 ```c
@@ -28,7 +28,7 @@ s32 CheckFall(void) {
             if (gMissState == 0) {
                 gMissState = 2;
             }
-            D_800958EC = 1;
+            gFellOff = 1;
             sGame.unk0 = 0;
             sGame.unk3A6 += 2;
             ResetSpeed();

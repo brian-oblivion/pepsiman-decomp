@@ -798,8 +798,8 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                             }
                         }
                     } else {
-                        a = ratan2(D_800D86E0[0].coord.t[0] - gPlayer.unk368,
-                                   D_800D86E0[0].coord.t[2] - gPlayer.unk370);
+                        a = ratan2(D_800D86E0[0].coord.t[0] - gPlayer.lookX,
+                                   D_800D86E0[0].coord.t[2] - gPlayer.lookZ);
                         v = D_8009EABA[0];
                         a -= v;
                         a &= 0xFFF;
@@ -815,12 +815,12 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                             if (v > 0x800) {
                                 v -= 0x1000;
                             }
-                            if (D_80095740 < v) {
-                                D_80095740 += 8;
-                            } else if (v < D_80095740) {
-                                D_80095740 -= 8;
+                            if (gLookYawNarrow < v) {
+                                gLookYawNarrow += 8;
+                            } else if (v < gLookYawNarrow) {
+                                gLookYawNarrow -= 8;
                             }
-                            v = D_80095740;
+                            v = gLookYawNarrow;
                             D_8009EF00[0] = v;
                         } else {
                             if (a < 0x800) {
@@ -834,12 +834,12 @@ u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 
                             if (v > 0x800) {
                                 v -= 0x1000;
                             }
-                            if (D_80095744 < v) {
-                                D_80095744 += 50;
-                            } else if (v < D_80095744) {
-                                D_80095744 -= 50;
+                            if (gLookYawWide < v) {
+                                gLookYawWide += 50;
+                            } else if (v < gLookYawWide) {
+                                gLookYawWide -= 50;
                             }
-                            v = D_80095744;
+                            v = gLookYawWide;
                         }
                         rot[1] = v * 360;
                     }

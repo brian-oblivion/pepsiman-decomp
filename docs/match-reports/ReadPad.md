@@ -27,7 +27,7 @@ Four builds: 362 -> 369 -> 363 (do/while macro) -> 369.
   only residue was the two loads' registers).
 - **The repeat macro is a bare `{ }` block.** Wrapping it in
   `do { } while (0)` changes the branch layout (369 -> 363).
-- `D_800957C0 = D_800957C8 = 0x80;` stores C8 first, as retail
+- `gStickRawX = gStickRawY = 0x80;` stores C8 first, as retail
   (LEARNINGS, chained assignment stores right to left).
 - The first expansion reuses the pressed word still in `$a1` for
   `|= 0x1000`; plain C gives it.
@@ -35,8 +35,8 @@ Four builds: 362 -> 369 -> 363 (do/while macro) -> 369.
 ## Declarations left for the head
 
 declcheck flags three globals this unit now shares with another unit's
-local declaration: `gPadType` (`u8`, player.c), `D_800957C8` and
-`D_800957C0` (`u32`, editor.c). They belong in common.h.
+local declaration: `gPadType` (`u8`, player.c), `gStickRawY` and
+`gStickRawX` (`u32`, editor.c). They belong in common.h.
 
 ### Proposed learning
 

@@ -97,7 +97,7 @@ Levers tried this round before it:
   re-extends at the call; the `d = (s16)(x - 7); x = d;` order stores
   the extended register.
 - **Byte-pointer read** for the second `Lerp` call's
-  `state->unk374` keeps its `lh` below the store to `D_80095740`
+  `state->unk374` keeps its `lh` below the store to `gLookYawNarrow`
   (CLAUDE.md's MEM_IN_STRUCT rule, LEARNINGS "A field loaded after
   earlier global stores").
 - **`x - (5 - rand() % 10)`** keeps the `addiu -5` on the loaded

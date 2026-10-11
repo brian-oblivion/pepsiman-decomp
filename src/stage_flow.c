@@ -345,7 +345,7 @@ void RestartStage(u8 stage) {
     func_80041118(gStage);
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
-    D_800958EC = 0;
+    gFellOff = 0;
     D_800957D6 = 1;
     for (i = 0; i < 200; i++) {
         sRecs48[i].unk26 = 0;
@@ -405,7 +405,7 @@ void ResetStage(void) {
     gPlayer.fallSpeed = 0;
     gView[6] = 0;
     gPlayer.control = 1;
-    D_800958EC = 0;
+    gFellOff = 0;
     D_800957D6 = 1;
     gSection = 0;
     gPauseState = 0;

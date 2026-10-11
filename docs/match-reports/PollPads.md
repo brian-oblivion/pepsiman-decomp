@@ -14,7 +14,7 @@ stores port 0's id byte in `gPadType`, builds each port's buttons
 ones into `gPadPressed[i]`, and for an analog pad (id 0x73) turns the
 stick's extremes into direction bits (`gStickY`/`gStickX`, pressed
 edges in `gStickTrigY`/`gStickTrigX`) and keeps the raw axes in
-`D_800957C0`/`D_800957C8`.
+`gStickRawX`/`gStickRawY`.
 
 Best body (spliced in and built this session: `insertions 5 / deletions
 5`, 117 words against 118; the 14/118 raw figure is low because every
@@ -34,8 +34,8 @@ extern s32 gStickY;
 extern s32 gStickX;
 extern s32 gStickTrigY;
 extern s32 gStickTrigX;
-extern s32 D_800957C0;
-extern s32 D_800957C8;
+extern s32 gStickRawX;
+extern s32 gStickRawY;
 
 extern s32 D_80095854;
 extern s32 D_8009584C;
@@ -84,8 +84,8 @@ void PollPads(void) {
             gStickX = 0;
         }
         gStickTrigX = gStickX & m;
-        D_800957C0 = gPadBuf[6];
-        D_800957C8 = gPadBuf[7];
+        gStickRawX = gPadBuf[6];
+        gStickRawY = gPadBuf[7];
     }
 }
 #endif
@@ -153,7 +153,7 @@ word short (as recorded). This round: 117 -> 118 words, 14 -> 101/118.
 
 Declarations `gPadPrev[2]`, `gPadPressed[2]`, `gPadHeld[2]` (main.c,
 above PollPads's prototype) and `gPadType`, `gStickTrigY`,
-`D_800957C0`, `D_800957C8` (common.h) already exist. Splicing it in also
+`gStickRawX`, `gStickRawY` (common.h) already exist. Splicing it in also
 means deleting main.c's later `extern u8 gPadBuf[];` (above
 InitPads) and giving `gStickTrigX` a `MATCHING:` note in one of its
 two units for declcheck (editor declares it too). Splice-tested in
@@ -214,8 +214,8 @@ void PollPads(void) {
             gStickX = 0;
         }
         gStickTrigX = gStickX & m;
-        D_800957C0 = gPadBuf[6];
-        D_800957C8 = gPadBuf[7];
+        gStickRawX = gPadBuf[6];
+        gStickRawY = gPadBuf[7];
     }
 }
 #endif
@@ -265,7 +265,7 @@ allows it** (posted on the broadcast). It is also a sched barrier.
   "birthing" single-set load sinks to its use), and the load stays early
   like retail. Its residue is global-alloc: `m1` avoids `$a0` because the
   D_80072F44 base (pseudo 89) prefers `$a0` and conflicts with it
-  (global.c's "someone prefers" rule). Reusing `m1` for `D_800957C0`'s
+  (global.c's "someone prefers" rule). Reusing `m1` for `gStickRawX`'s
   byte instead: 93.
 
 Permuter: one run on the 96 body (Gate 3: scaffold builds, base 835;

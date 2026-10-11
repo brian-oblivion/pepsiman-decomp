@@ -123,10 +123,10 @@ void ResetPlayerHits(void);
 void func_8002988C(void);
 
 s16 FindFreeSlot48(void) {
-    Slot48 *slot = (Slot48 *)D_800959B8;
+    Slot48 *slot = (Slot48 *)gSlotTable;
     u32 i;
 
-    for (i = 0; i < D_800959B4 / sizeof(Slot48); i++) {
+    for (i = 0; i < gSlotTableSize / sizeof(Slot48); i++) {
         if (slot->unk36 == -1) {
             return i;
         }

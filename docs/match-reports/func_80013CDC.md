@@ -76,15 +76,15 @@ void func_80013CDC(void) {
     InitModel(&D_800D8370[6].m, (unsigned long *)(*p + 0x8014D000), 6);
     InitTodObjTable(gTodObjTable, D_8009EF50, D_800D86E0, D_80096418, 20);
     p = (s32 *)0x80123000;
-    D_800958CC = 0;
-    D_800958D0 = ((DirEnt16 *)p)->count;
-    for (; D_800958CC < D_800958D0; D_800958CC++) {
+    gLoopI = 0;
+    gLoopJ = ((DirEnt16 *)p)->count;
+    for (; gLoopI < gLoopJ; gLoopI++) {
         /* MATCHING: assigned inside the store, as in LoadStageSprites. */
-        gAnimations[D_800958CC] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
+        gAnimations[gLoopI] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
         p += 4;
-        sStepper.unk20[D_800958CC] = *gAnimations[D_800958CC];
-        gAnimations[D_800958CC]++;
-        sStepper.unk1B0[D_800958CC] = gAnimations[D_800958CC][1];
+        sStepper.unk20[gLoopI] = *gAnimations[gLoopI];
+        gAnimations[gLoopI]++;
+        sStepper.unk1B0[gLoopI] = gAnimations[gLoopI][1];
     }
     GsInitCoordinate2(WORLD, &D_800D86E0[0]);
     sStepper.unk5 = 0;

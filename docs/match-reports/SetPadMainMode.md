@@ -3,27 +3,27 @@
 > Renamed from `func_800153CC` on 2026-10-10 (tools/rename.py). Address 0x800153cc.
 
 Unit `src/main.c`. Waits up to ten frames for pad 0 to report state 6
-(`PadGetState`), counting in `D_800958CC`; once it does, sets the pad's main
+(`PadGetState`), counting in `gLoopI`; once it does, sets the pad's main
 mode to the low bit of the argument and returns.
 
 ```c
-extern s32 D_800958CC;
+extern s32 gLoopI;
 
 void SetPadMainMode(s32 mode) {
     mode &= 1;
-    D_800958CC = 0;
+    gLoopI = 0;
     do {
         VSync(0);
         if (PadGetState(0) == 6) {
             PadSetMainMode(0, mode, 0);
             return;
         }
-        D_800958CC++;
-    } while (D_800958CC < 10);
+        gLoopI++;
+    } while (gLoopI < 10);
 }
 ```
 
-Second build. `D_800958CC` is a plain scalar (its load is `lui $v0` / `lw
+Second build. `gLoopI` is a plain scalar (its load is `lui $v0` / `lw
 $v0`, the same register). The first build passed `mode & 1` in the call:
 cc1 kept `mode` in `$s1` and did the `andi` at the call. Retail does the
 `andi` into `$s0` in the prologue, before `$s1` is saved, so the mask is a

@@ -188,7 +188,7 @@ void DrawPin(VECTOR *pos) {
     ProjectToScreen(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
-    DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_POINTER, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
 INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSyncFmt);
@@ -1369,7 +1369,7 @@ void DrawToolPin(VECTOR *pos) {
     ProjectToScreen(&world, &screen);
     size.vx = screen.vx - 7;
     size.vy = screen.vy - 32;
-    DrawSprite(0x15E, &size, 0, 5, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_POINTER, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: an s16 colour local keeps 0xFF loaded after the sine. */
@@ -1475,7 +1475,7 @@ void DrawToolRadius(VECTOR *pos, u16 scale) {
     size.vx = size.vy = scale * 2;
     color.r = 0;
     color.g = color.b = color.cd = 0x80;
-    DrawBillboard(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_MARKER, &size, &color, 2, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: (&slot)->b puts the second address sum offset-first. */

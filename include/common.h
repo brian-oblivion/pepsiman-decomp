@@ -698,6 +698,48 @@ void OnCdTrackReady(u8 mode);
  *  @param clutY stored from bit 6 of the second halfword */
 void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clutX, s32 clutY);
 
+/** @brief Sprite ids, the records DefineSprite fills and the Draw* calls
+ *         draw. The game names none; these say where each is drawn. A
+ *         run of frames or glyphs is named by its first id. */
+enum SpriteId {
+    SPR_STAGE = 0x1E,  /**< the first of a stage's own sprites (LoadSpritePack); act 3
+                                  *   puts four 255x64 strips here */
+    SPR_CAN = 0xFA,    /**< the can: the HUD icon, the billboard, the collected can */
+    SPR_RUNNER = 0xFB, /**< 10 frames of a running figure: the bonus level, the loading screen */
+    SPR_DIGIT = 0x105, /**< 10 16x16 digits: the cans and retries counts */
+    SPR_SMALL_DIGIT = 0x10F,     /**< 10 8x8 digits: the HUD time */
+    SPR_SMALL_COLON = 0x119,     /**< the HUD time's separator */
+    SPR_BURST = 0x11A,           /**< 8 frames of a burst; frame 5 is also a puff of its own */
+    SPR_HUD_TIME = 0x122,        /**< the HUD time's label */
+    SPR_BIG_DIGIT = 0x123,       /**< 10 32x32 digits: the seconds left */
+    SPR_BLOB = 0x12D,            /**< a soft round blob: the player's shadow, dust */
+    SPR_PROGRESS_BAR = 0x12E,    /**< the course progress bar */
+    SPR_PROGRESS_MARK = 0x12F,   /**< 4 frames of the marker on it */
+    SPR_UNDRAWN = 0x133,         /**< 88x40, defined but not drawn by this executable */
+    SPR_DRIFT = 0x134,           /**< StepEffect9's billboard, drifting up or down */
+    SPR_LIVES = 0x135,           /**< the icon beside the retries count */
+    SPR_HURRY = 0x136,           /**< the banner that slides across with 11 seconds left */
+    SPR_RESULT_DIGIT = 0x137,    /**< 10 results-screen digits */
+    SPR_RESULT_COLON = 0x141,    /**< the results time's separator */
+    SPR_RESULT_SLASH = 0x142,    /**< the slash of "n/100" */
+    SPR_RESULT_SHADOW = 0x143,   /**< the 12 glyphs above again, drawn as their shadow */
+    SPR_ACT_LABEL = 0x14F,       /**< one label per act, by rank % 3 */
+    SPR_RESULT_BANNER = 0x151,   /**< the act results' banner, zoomed in */
+    SPR_WORLD_LABEL = 0x152,     /**< the world results' title */
+    SPR_WORLD_DIGIT = 0x153,     /**< 4 world numbers, by rank / 3 */
+    SPR_CANS_LABEL = 0x157,      /**< results: the cans row */
+    SPR_BEST_CANS_LABEL = 0x158, /**< results: the best cans row */
+    SPR_TIME_LABEL = 0x159,      /**< results: the time row */
+    SPR_BEST_TIME_LABEL = 0x15A, /**< results: the best time row */
+    SPR_ALL_CANS = 0x15B,        /**< slides in when all 100 cans are counted */
+    SPR_NEW_RECORD = 0x15C,      /**< slides in for a new best */
+    SPR_MARKER = 0x15D,          /**< the tools' point marker billboard */
+    SPR_POINTER = 0x15E,         /**< the hit tool's bobbing pointer */
+    SPR_PAUSE = 0x15F,           /**< the pause screen's caption */
+    SPR_SCREEN_LEFT = 0x1FE,     /**< the left half of a frozen frame in VRAM */
+    SPR_SCREEN_RIGHT = 0x1FF     /**< its right half */
+};
+
 /** @brief Defined in editor.
  *  @return 0. */
 s32 StepMenuCursor(void);

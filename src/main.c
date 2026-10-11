@@ -1194,8 +1194,8 @@ void BeginLoadScreenModel(void) {
     SVECTOR pos;
     RECT rect;
 
-    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_RIGHT, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = PSDIDX * 240;
     rect.w = 320;
@@ -1203,10 +1203,10 @@ void BeginLoadScreenModel(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gLoadScreenModel = gPlayer;
     gLoadScreenModel.yaw = 0x800;
     gLoadScreenModel.motion[0] = MOT_RUN;
@@ -1230,8 +1230,8 @@ void BeginLoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
-    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_RIGHT, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = PSDIDX * 240;
     rect.w = 320;
@@ -1239,10 +1239,10 @@ void BeginLoadScreen(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
     gGameMode = GM_LOAD_SCREEN;
 }
@@ -1251,8 +1251,8 @@ void BeginAct3LoadScreen(void) {
     SVECTOR pos;
     RECT rect;
 
-    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_RIGHT, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = PSDIDX * 240;
     rect.w = 320;
@@ -1260,10 +1260,10 @@ void BeginAct3LoadScreen(void) {
     MoveImage(&rect, 640, 0);
     pos.vx = -160;
     pos.vy = -120;
-    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gSubStep = 0;
     gGameMode = GM_LOAD_SCREEN_ACT3;
 }
@@ -1708,7 +1708,7 @@ void LoadStage(void) {
             break;
         case 11:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadSpritePack((DirEnt16 *)0x8016D000, 30);
+                LoadSpritePack((DirEnt16 *)0x8016D000, SPR_STAGE);
                 gSubStep++;
             }
             break;
@@ -1908,13 +1908,13 @@ void UpdateLoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    DrawSprite(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + SPR_RUNNER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     LoadStage();
     if (gSubStep == 100) {
         gModeStep = 4;
@@ -1932,13 +1932,13 @@ void UpdateAct3LoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    DrawSprite(gFrameCount % 10 + 0xFB, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + SPR_RUNNER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    DrawSprite(0x1FE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    DrawSprite(0x1FF, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     LoadAct3Stage();
     if (gSubStep == 100) {
         gModeStep = 4;

@@ -283,16 +283,16 @@ void DrawPausedFrame(void) {
     pos.vy = -0x10;
     color.r = 1;
     color.g = color.b = color.cd = 0x80;
-    DrawSprite(0x15F, &pos, &color, 0, &gSubOt[gActiveBuff]);
-    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DrawSprite(SPR_PAUSE, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_RIGHT, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     color.g = color.b = color.cd = 0x40;
     pos.vx = -0xA0;
     pos.vy = -0x78;
-    DrawSprite(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -0x78;
-    DrawSprite(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: an unused 8-byte local gives retail's 0x20 frame; the start

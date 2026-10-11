@@ -997,7 +997,7 @@ void LoadSpritePack(DirEnt16 *dir, u16 id) {
     }
 }
 
-extern u8 sSpriteShapes[]; /**< a sprite shape per id, from id 30 on */
+extern u8 sSpriteShapes[]; /**< a sprite shape per id, from SPR_STAGE on */
 
 /** @brief Draws the sprite of record `r` with id `id` at the record's
  *         position plus the world offset: the next id when the record is
@@ -1022,7 +1022,7 @@ void DrawObjectSprite(u16 id, StageSprite *r) {
         absInt(r->x + gWorldShift[0]) < 600 && absInt(r->z + gWorldShift[2]) < 600) {
         k = id + 1;
     }
-    switch (sSpriteShapes[k - 30]) {
+    switch (sSpriteShapes[k - SPR_STAGE]) {
         case 0:
             size.vx = (s16)r->width / 2 + (s16)r->width / 3;
             size.vy = (s16)r->height / 2 + (s16)r->height / 4;
@@ -1516,9 +1516,9 @@ void UpdatePickups(void) {
                 size.vy = 75;
                 size.vx = 75;
                 if (absInt(coord.coord.t[0]) > 700 || absInt(coord.coord.t[2]) > 700) {
-                    DrawStandingBillboardFog(0xFA, &size, NULL, 2, &gOt[gActiveBuff]);
+                    DrawStandingBillboardFog(SPR_CAN, &size, NULL, 2, &gOt[gActiveBuff]);
                 } else {
-                    DrawStandingBillboard(0xFA, &size, NULL, 2, &gSubOt[gActiveBuff]);
+                    DrawStandingBillboard(SPR_CAN, &size, NULL, 2, &gSubOt[gActiveBuff]);
                 }
                 pos.x = coord.coord.t[0] - gWorldShift[0];
                 pos.y = coord.coord.t[1] - 50;

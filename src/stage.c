@@ -246,10 +246,10 @@ void LoadAct3Data(s32 *pack) {
         gAnimations[i + 51]++;
         gPlayer.motionStart[i + 51] = gAnimations[i + 51][1];
     }
-    DefineSprite(0x1E, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
-    DefineSprite(0x1F, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);
-    DefineSprite(0x20, 0, 0xFF, 0x40, 0x1C, 0, 0x80, 0, 0x1FE);
-    DefineSprite(0x21, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
+    DefineSprite(SPR_STAGE, 0, 0xFF, 0x40, 0x1C, 0, 0, 0, 0x1FE);
+    DefineSprite(SPR_STAGE + 1, 0, 0xFF, 0x40, 0x1C, 0, 0x40, 0, 0x1FE);
+    DefineSprite(SPR_STAGE + 2, 0, 0xFF, 0x40, 0x1C, 0, 0x80, 0, 0x1FE);
+    DefineSprite(SPR_STAGE + 3, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
 }
 
 void DrawStage(s16 x, s16 y, s16 z) {
@@ -367,24 +367,24 @@ void DrawHudTime(SVECTOR *pos, s32 frames) {
      * different register. */
     d = n;
     d /= 10;
-    putDigit(pos, n % 10 + 0x10F);
-    putDigit(pos, d % 10 + 0x10F);
-    putDigit(pos, 0x119);
+    putDigit(pos, n % 10 + SPR_SMALL_DIGIT);
+    putDigit(pos, d % 10 + SPR_SMALL_DIGIT);
+    putDigit(pos, SPR_SMALL_COLON);
     sec = frames / 30;
     m = sec / 60;
     n = sec % 60;
     k = 1;
     d = n;
     d /= 10;
-    putDigit(pos, n % 10 + 0x10F);
-    putDigit(pos, d % 10 + 0x10F);
+    putDigit(pos, n % 10 + SPR_SMALL_DIGIT);
+    putDigit(pos, d % 10 + SPR_SMALL_DIGIT);
     /* MATCHING: the minutes move into n between the digit and the colon. */
     n = m;
-    putDigit(pos, 0x119);
+    putDigit(pos, SPR_SMALL_COLON);
     for (; k < 11; k *= 10) {
         t = n / k;
         if (t != 0 || (k == 1 && n == 0)) {
-            putDigit(pos, t % 10 + 0x10F);
+            putDigit(pos, t % 10 + SPR_SMALL_DIGIT);
         }
     }
 }
@@ -392,59 +392,59 @@ void DrawHudTime(SVECTOR *pos, s32 frames) {
 void DefineHudSprites(void) {
     s32 i;
 
-    DefineSprite(0xFA, 0, 0x40, 0x40, 0x1E, 0, 0, 0, 0x1F9);
+    DefineSprite(SPR_CAN, 0, 0x40, 0x40, 0x1E, 0, 0, 0, 0x1F9);
     /* MATCHING: the u ternary tests i >= 6 first; i < 6 swaps the two
      * strength-reduced registers. */
     for (i = 0; i < 10; i++) {
-        DefineSprite(i + 0xFB, 0, 0x20, 0x20, 0x1E, (u8)(i >= 6 ? i * 32 - 0x80 : i * 32 + 0x40),
-                     i < 6 ? 0 : 0x20, 0x10, 0x1F9);
+        DefineSprite(i + SPR_RUNNER, 0, 0x20, 0x20, 0x1E,
+                     (u8)(i >= 6 ? i * 32 - 0x80 : i * 32 + 0x40), i < 6 ? 0 : 0x20, 0x10, 0x1F9);
     }
     for (i = 0; i < 10; i++) {
-        DefineSprite(i + 0x105, 0, 0x10, 0x10, 0x1E, (u8)(i * 16), 0x40, 0x20, 0x1F9);
+        DefineSprite(i + SPR_DIGIT, 0, 0x10, 0x10, 0x1E, (u8)(i * 16), 0x40, 0x20, 0x1F9);
     }
     for (i = 0; i < 11; i++) {
-        DefineSprite(i + 0x10F, 0, 8, 8, 0x1E, (u8)(i * 8), 0x58, 0x30, 0x1F9);
+        DefineSprite(i + SPR_SMALL_DIGIT, 0, 8, 8, 0x1E, (u8)(i * 8), 0x58, 0x30, 0x1F9);
     }
     for (i = 0; i < 8; i++) {
-        DefineSprite(i + 0x11A, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x60, 0x40, 0x1F9);
+        DefineSprite(i + SPR_BURST, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x60, 0x40, 0x1F9);
     }
-    DefineSprite(0x12D, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
-    DefineSprite(0x133, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
-    DefineSprite(0x134, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
-    DefineSprite(0x135, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
-    DefineSprite(0x136, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
-    DefineSprite(0x122, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
+    DefineSprite(SPR_BLOB, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
+    DefineSprite(SPR_UNDRAWN, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
+    DefineSprite(SPR_DRIFT, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
+    DefineSprite(SPR_LIVES, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
+    DefineSprite(SPR_HURRY, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
+    DefineSprite(SPR_HUD_TIME, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
     for (i = 0; i < 8; i++) {
-        DefineSprite(i + 0x123, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x80, 0x80, 0x1F9);
+        DefineSprite(i + SPR_BIG_DIGIT, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x80, 0x80, 0x1F9);
     }
     for (i = 0; i < 2; i++) {
-        DefineSprite(i + 0x12B, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0xA0, 0x80, 0x1F9);
+        DefineSprite(i + SPR_BIG_DIGIT + 8, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0xA0, 0x80, 0x1F9);
     }
-    DefineSprite(0x12E, 0, 0x60, 0x10, 0x1E, 0x60, 0xE0, 0xA0, 0x1F9);
+    DefineSprite(SPR_PROGRESS_BAR, 0, 0x60, 0x10, 0x1E, 0x60, 0xE0, 0xA0, 0x1F9);
     for (i = 0; i < 4; i++) {
-        DefineSprite(i + 0x12F, 0, 8, 0x10, 0x1E, (u8)(i * 8 - 0x40), 0xE0, 0xA0, 0x1F9);
+        DefineSprite(i + SPR_PROGRESS_MARK, 0, 8, 0x10, 0x1E, (u8)(i * 8 - 0x40), 0xE0, 0xA0, 0x1F9);
     }
     for (i = 0; i < 12; i++) {
-        DefineSprite(i + 0x137, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xB0, 0x2D0, 0x1CA);
+        DefineSprite(i + SPR_RESULT_DIGIT, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xB0, 0x2D0, 0x1CA);
     }
     for (i = 0; i < 12; i++) {
-        DefineSprite(i + 0x143, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xA0, 0x2D0, 0x1CA);
+        DefineSprite(i + SPR_RESULT_SHADOW, 0, 0x10, 0x10, 0x1E, (u8)(i * 16 + 0x40), 0xA0, 0x2D0, 0x1CA);
     }
-    DefineSprite(0x14F, 0, 0x50, 0x10, 0x1B, 0x80, 0xC0, 0x2D0, 0x1C9);
-    DefineSprite(0x150, 0, 0x50, 0x10, 0x1B, 0x80, 0xD0, 0x2D0, 0x1C9);
-    DefineSprite(0x151, 0, 0x80, 0x20, 0x1B, 0x80, 0xE0, 0x2D0, 0x1C9);
-    DefineSprite(0x152, 0, 0x80, 0x20, 0x1C, 0x80, 0xC0, 0x2D0, 0x1C9);
+    DefineSprite(SPR_ACT_LABEL, 0, 0x50, 0x10, 0x1B, 0x80, 0xC0, 0x2D0, 0x1C9);
+    DefineSprite(SPR_ACT_LABEL + 1, 0, 0x50, 0x10, 0x1B, 0x80, 0xD0, 0x2D0, 0x1C9);
+    DefineSprite(SPR_RESULT_BANNER, 0, 0x80, 0x20, 0x1B, 0x80, 0xE0, 0x2D0, 0x1C9);
+    DefineSprite(SPR_WORLD_LABEL, 0, 0x80, 0x20, 0x1C, 0x80, 0xC0, 0x2D0, 0x1C9);
     for (i = 0; i < 4; i++) {
-        DefineSprite(i + 0x153, 0, 0x20, 0x20, 0x1C, (u8)(i * 32 - 0x80), 0xE0, 0x2D0, 0x1C9);
+        DefineSprite(i + SPR_WORLD_DIGIT, 0, 0x20, 0x20, 0x1C, (u8)(i * 32 - 0x80), 0xE0, 0x2D0, 0x1C9);
     }
     for (i = 0; i < 4; i++) {
-        DefineSprite(i + 0x157, 0, 0x80, 0x10, 0x1C, 0, (u8)(i * 16 - 0x40), 0x2D0, 0x1C9);
+        DefineSprite(i + SPR_CANS_LABEL, 0, 0x80, 0x10, 0x1C, 0, (u8)(i * 16 - 0x40), 0x2D0, 0x1C9);
     }
-    DefineSprite(0x15B, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
-    DefineSprite(0x15C, 0, 0x80, 0x10, 0x1E, 0, 0xF0, 0xC0, 0x1F9);
-    DefineSprite(0x15D, 0, 0x10, 0x10, 0x0F, 0, 0xC0, 0x3C0, 0xFF);
-    DefineSprite(0x15E, 0, 0x20, 0x20, 0x0F, 0, 0xD0, 0x3D0, 0xFF);
-    DefineSprite(0x15F, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
+    DefineSprite(SPR_ALL_CANS, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
+    DefineSprite(SPR_NEW_RECORD, 0, 0x80, 0x10, 0x1E, 0, 0xF0, 0xC0, 0x1F9);
+    DefineSprite(SPR_MARKER, 0, 0x10, 0x10, 0x0F, 0, 0xC0, 0x3C0, 0xFF);
+    DefineSprite(SPR_POINTER, 0, 0x20, 0x20, 0x0F, 0, 0xD0, 0x3D0, 0xFF);
+    DefineSprite(SPR_PAUSE, 0, 0x80, 0x20, 0x0F, 0x20, 0xC0, 0x3E0, 0xFF);
 }
 
 extern u32 sBonusDist; /**< speed summed each frame; its hundreds pick the bonus sprite's frame */
@@ -482,7 +482,7 @@ void DrawHud(void) {
     if (n == 0) {
         pos.vx = -120;
         pos.vy = -96;
-        DrawSprite(0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(SPR_DIGIT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     }
     k = 1;
     pos.vx = (digits - 1) * 12 - 120;
@@ -490,7 +490,7 @@ void DrawHud(void) {
     for (; k < 101; k *= 10) {
         q = n / k;
         if (q != 0) {
-            DrawSprite(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(q % 10 + SPR_DIGIT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -499,7 +499,7 @@ void DrawHud(void) {
     quad[4] = quad[5] = 0x800;
     quad[6] = 0;
     quad[7] = 0;
-    DrawSpriteTransformed(0xFA, quad, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSpriteTransformed(SPR_CAN, quad, NULL, 0, &gSubOt[gActiveBuff]);
     quad[0] = quad[2] = -0x40;
     quad[1] = quad[3] = -0x58;
     quad[7] = 1;
@@ -509,18 +509,21 @@ void DrawHud(void) {
         case 1:
             quad[4] = quad[5] = 0x800;
             if ((gFrameCount >> 1) & 1) {
-                DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+                DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_RUNNER, quad, NULL, 0,
+                                      &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_RUNNER, quad, NULL, 0,
+                                  &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            DrawSpriteTransformed(sBonusDist / 100 % 10 + 0xFB, quad, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_RUNNER, quad, NULL, 0,
+                                  &gSubOt[gActiveBuff]);
             break;
     }
     if (gTimeLeft == 0x14A) {
@@ -547,7 +550,7 @@ void DrawHud(void) {
         if (n == 0) {
             pos.vx = 4;
             pos.vy = -0x68;
-            DrawSprite(0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_BIG_DIGIT, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         k = 1;
         pos.vx = 4;
@@ -555,7 +558,7 @@ void DrawHud(void) {
         for (; k < 101; k *= 10) {
             q = n / k;
             if (q != 0) {
-                DrawSprite(q % 10 + 0x123, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(q % 10 + SPR_BIG_DIGIT, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
                 pos.vx -= 18;
             }
         }
@@ -564,14 +567,15 @@ void DrawHud(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = (gSection * 11 << 15) / ((s32 *)gSectionEdges)[-1] / 4096 + 0x34;
     pos.vy = -0x69;
-    DrawSprite(((gFrameCount >> 2) & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(((gFrameCount >> 2) & 3) + SPR_PROGRESS_MARK, &pos, (CVECTOR *)&color, 0,
+               &gSubOt[gActiveBuff]);
     k = 1;
     pos.vx = 0x34;
     pos.vy = -0x64;
-    DrawSprite(0x12E, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_PROGRESS_BAR, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x34;
     pos.vy = -0x54;
-    DrawSprite(0x122, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_HUD_TIME, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x90;
     pos.vy = -0x54;
     DrawHudTime(&pos, gElapsed);
@@ -581,7 +585,7 @@ void DrawHud(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            DrawSprite(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(q % 10 + SPR_DIGIT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -589,7 +593,7 @@ void DrawHud(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
-    DrawSprite(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_LIVES, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
 }
 
 /**
@@ -833,8 +837,8 @@ void DrawFrozenFrame(void) {
     SVECTOR pos;
     CVECTOR color;
 
-    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_RIGHT, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = PSDIDX * 240;
     rect.w = 320;
@@ -844,10 +848,10 @@ void DrawFrozenFrame(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = -160;
     pos.vy = -120;
-    DrawSprite(0x1FE, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, &color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    DrawSprite(0x1FF, &pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
 void DrawFrozenFrameFaded(u8 level) {
@@ -855,8 +859,8 @@ void DrawFrozenFrameFaded(u8 level) {
     SVECTOR pos;
     CVECTOR color;
 
-    DefineSprite(0x1FE, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
-    DefineSprite(0x1FF, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_LEFT, 2, 0xA0, 0xF0, 10, 0, 0, 0, 0);
+    DefineSprite(SPR_SCREEN_RIGHT, 2, 0xA0, 0xF0, 12, 0x20, 0, 0, 0);
     rect.x = 0;
     rect.y = PSDIDX * 240;
     rect.w = 320;
@@ -867,10 +871,10 @@ void DrawFrozenFrameFaded(u8 level) {
     color.g = color.b = color.cd = level;
     pos.vx = -160;
     pos.vy = -120;
-    DrawSprite(0x1FE, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_LEFT, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
     pos.vx = 0;
     pos.vy = -120;
-    DrawSprite(0x1FF, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
+    DrawSprite(SPR_SCREEN_RIGHT, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
 }
 
 void DrawScreenWipe(void) {
@@ -917,34 +921,34 @@ void DrawResultNumber(SVECTOR *pos, s32 n) {
     shadow.g = shadow.b = shadow.cd = 0x80;
     color.g = color.b = color.cd = 0x80;
     pos->vx -= 16;
-    DrawSprite(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-    DrawSprite(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_DIGIT, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_SHADOW, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    DrawSprite(0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-    DrawSprite(0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_DIGIT, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_SHADOW, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    DrawSprite(0x138, pos, &color, 0, &gSubOt[gActiveBuff]);
-    DrawSprite(0x144, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_DIGIT + 1, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_SHADOW + 1, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    DrawSprite(0x142, pos, &color, 0, &gSubOt[gActiveBuff]);
-    DrawSprite(0x14E, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_SLASH, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_SHADOW + 11, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
     t = n / 10;
     x = (u32)n / 100;
     d = n % 10;
-    DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-    DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d + SPR_RESULT_DIGIT, pos, &color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d + SPR_RESULT_SHADOW, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     if (t != 0) {
         pos->vx -= 12;
         d = t % 10;
-        DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-        DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + SPR_RESULT_DIGIT, pos, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + SPR_RESULT_SHADOW, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     }
     if (n / 100 != 0) {
         pos->vx -= 12;
         d = n / 100 % 10;
-        DrawSprite(d + 0x137, pos, &color, 0, &gSubOt[gActiveBuff]);
-        DrawSprite(d + 0x143, pos, &shadow, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + SPR_RESULT_DIGIT, pos, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(d + SPR_RESULT_SHADOW, pos, &shadow, 0, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -968,11 +972,11 @@ void DrawResultTime(SVECTOR *pos, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 16;
-    DrawSprite(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + SPR_RESULT_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    DrawSprite(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d % 10 + SPR_RESULT_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    DrawSprite(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_COLON, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     sec = frames / 30;
     m = sec / 60;
     n = sec % 60;
@@ -980,17 +984,17 @@ void DrawResultTime(SVECTOR *pos, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 12;
-    DrawSprite(n % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + SPR_RESULT_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 12;
-    DrawSprite(d % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d % 10 + SPR_RESULT_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     n = m;
     pos->vx -= 12;
-    DrawSprite(0x141, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RESULT_COLON, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     for (; k < 11; k *= 10) {
         t = n / k;
         if (t != 0 || (k == 1 && n == 0)) {
             pos->vx -= 12;
-            DrawSprite(t % 10 + 0x137, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(t % 10 + SPR_RESULT_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
     }
 }
@@ -1212,7 +1216,7 @@ void UpdateActResults(void) {
     for (; k < 10001; k *= 10) {
         q = n / k;
         if (q != 0) {
-            DrawSprite(q % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(q % 10 + SPR_DIGIT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 12;
         }
     }
@@ -1220,21 +1224,21 @@ void UpdateActResults(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = -0x58;
-    DrawSprite(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_LIVES, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = 0x80;
     color.cd = 0;
     pos.vy = -16;
     pos.vx = gResultsSlide[6] * 32 - 0x34;
-    DrawSprite(0x15B, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_ALL_CANS, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -16;
     pos.vx = gResultsSlide[7] * 32 - 0x40;
-    DrawSprite(0x15C, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_NEW_RECORD, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
     pos.vx = -0x28;
     pos.vy = gResultsSlide[0] * 4 - 0x48;
-    DrawSprite(rank % 3 + 0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(rank % 3 + SPR_ACT_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     if (gResultsSlide[1] != -25) {
         quad[1] = -0x20;
         quad[3] = -0x40;
@@ -1243,26 +1247,26 @@ void UpdateActResults(void) {
         quad[2] = 0;
         quad[6] = 0;
         quad[7] = 1;
-        DrawSpriteTransformed(0x151, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        DrawSpriteTransformed(SPR_RESULT_BANNER, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     pos.vy = 0;
     pos.vx = gResultsSlide[2] * 32 - 0x80;
-    DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_CANS_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[2] * 32 + 0x80;
     DrawResultNumber(&pos, gTallyCans);
     pos.vy = 0x18;
     pos.vx = gResultsSlide[3] * 32 - 0x80;
-    DrawSprite(0x158, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_BEST_CANS_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[3] * 32 + 0x80;
     DrawResultNumber(&pos, gBestCans[rank / 3][rank % 3]);
     pos.vy = 0x38;
     pos.vx = gResultsSlide[4] * 32 - 0x80;
-    DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_TIME_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[4] * 32 + 0x80;
     DrawResultTime(&pos, gElapsed);
     pos.vy = 0x50;
     pos.vx = gResultsSlide[5] * 32 - 0x80;
-    DrawSprite(0x15A, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_BEST_TIME_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[5] * 32 + 0x80;
     DrawResultTime(&pos, gBestTimes[rank / 3][rank % 3]);
 }
@@ -1337,33 +1341,33 @@ void UpdateWorldResults(void) {
     }
     pos.vx = -80;
     pos.vy = gResultsSlide[0] * 4 - 88;
-    DrawSprite(0x152, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_WORLD_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = 48;
-    DrawSprite(rank / 3 + 0x153, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(rank / 3 + SPR_WORLD_DIGIT, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -48;
     pos.vx = gResultsSlide[1] * 32 - 40;
-    DrawSprite(0x14F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_ACT_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -24;
     pos.vx = gResultsSlide[2] * 32 - 128;
-    DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_CANS_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[2] * 32 + 128;
     DrawResultNumber(&pos, gActCans[0]);
     pos.vy = 0;
     pos.vx = gResultsSlide[3] * 32 - 128;
-    DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_TIME_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[3] * 32 + 128;
     DrawResultTime(&pos, gActTimes[0]);
     pos.vy = 24;
     pos.vx = gResultsSlide[4] * 32 - 40;
-    DrawSprite(0x150, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_ACT_LABEL + 1, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = 48;
     pos.vx = gResultsSlide[5] * 32 - 128;
-    DrawSprite(0x157, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_CANS_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[5] * 32 + 128;
     DrawResultNumber(&pos, gWorldCans);
     pos.vy = 72;
     pos.vx = gResultsSlide[6] * 32 - 128;
-    DrawSprite(0x159, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_TIME_LABEL, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vx = gResultsSlide[6] * 32 + 128;
     DrawResultTime(&pos, gWorldTime);
 }
@@ -1592,7 +1596,7 @@ s32 StepEffect1(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = (u32)(rsin((p->frame << 15) / 360) * 25) >> 8;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
-        DrawStandingBillboard(0x11F, &size, &color, 2, ot);
+        DrawStandingBillboard(SPR_BURST + 5, &size, &color, 2, ot);
         return ++p->frame == 15;
     }
     p->delay--;
@@ -1654,7 +1658,7 @@ s32 StepEffect7(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         q[7] = 1;
         color.r = 0;
         color.g = color.b = color.cd = ~(p->frame << 4);
-        DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
+        DrawSpriteTransformed(SPR_CAN, q, &color, 0, &gSubOt[gActiveBuff]);
         if (++p->frame == 8) {
             gCans++;
             CheckCanBonus();
@@ -1691,7 +1695,7 @@ s32 StepEffect8(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
             q[7] = 1;
             color.r = 0;
             color.g = color.b = color.cd = ~(p->frame << 4);
-            DrawSpriteTransformed(0xFA, q, &color, 0, &gSubOt[gActiveBuff]);
+            DrawSpriteTransformed(SPR_CAN, q, &color, 0, &gSubOt[gActiveBuff]);
         }
         if (++p->frame == 8) {
             gCans += 5;
@@ -1714,21 +1718,21 @@ s32 StepEffect10(Effect *p) {
             pos.vy = -12;
             color.r = -1;
             color.g = color.b = color.cd = 0x80;
-            DrawSprite(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_HURRY, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else if (p->frame < 32) {
             pos.vx = -72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = (8 - (p->frame - 16) % 8) * 16;
-            DrawSprite(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_HURRY, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         } else {
             pos.vx = (p->frame - 32) * 15 - 72;
             pos.vy = -12;
             color.r = -1;
             color.g = 0x80;
             color.b = color.cd = 0;
-            DrawSprite(0x136, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_HURRY, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         return ++p->frame == 48;
     }
@@ -1777,7 +1781,7 @@ s32 StepEffect12(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame * 10 + 100;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 2);
-        DrawBillboard(0x12D, &size, &color, 2, ot);
+        DrawBillboard(SPR_BLOB, &size, &color, 2, ot);
         if (p->param1 != 0) {
             p->param1--;
         }
@@ -1878,7 +1882,7 @@ s32 StepEffect0(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 0x96;
         color.r = 1;
         color.g = color.b = color.cd = 0x80;
-        DrawBillboard((u16)(p->frame + 0x11A), &size, &color, 2, ot);
+        DrawBillboard((u16)(p->frame + SPR_BURST), &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1895,7 +1899,7 @@ s32 StepEffect2(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame + 0x14;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 2);
-        DrawBillboard(0x11F, &size, &color, 2, ot);
+        DrawBillboard(SPR_BURST + 5, &size, &color, 2, ot);
         p->y -= 4;
         p->z += p->frame >> 2;
         return ++p->frame == 0x20;
@@ -1913,7 +1917,7 @@ s32 StepEffect3(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 0x32;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
-        DrawBillboard(0x11A, &size, &color, 2, ot);
+        DrawBillboard(SPR_BURST, &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1930,7 +1934,7 @@ s32 StepEffect4(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame * 10 + 100;
         color.r = 1;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
-        DrawBillboard(0x12D, &size, &color, 2, ot);
+        DrawBillboard(SPR_BLOB, &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1947,7 +1951,7 @@ s32 StepEffect6(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = p->frame * 10 + 100;
         color.r = 2;
         color.g = color.b = color.cd = 0x80 - (p->frame << 4);
-        DrawBillboard(0x12D, &size, &color, 2, ot);
+        DrawBillboard(SPR_BLOB, &size, &color, 2, ot);
         return ++p->frame == 8;
     }
     p->delay--;
@@ -1963,7 +1967,7 @@ s32 StepEffect9(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 100;
         color.r = 0;
         color.g = color.b = color.cd = 0x80;
-        DrawBillboard(0x134, &size, &color, 2, ot);
+        DrawBillboard(SPR_DRIFT, &size, &color, 2, ot);
         return ++p->frame * p->param0 >= p->param1;
     }
     p->delay--;

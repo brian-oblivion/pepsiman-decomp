@@ -472,7 +472,7 @@ void DrawMarker(VECTOR *pos, u16 scale) {
     size.vx = size.vy = scale * 2;
     color.r = 0;
     color.g = color.b = color.cd = 0x80;
-    DrawBillboard(0x15D, &size, &color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_MARKER, &size, &color, 2, &gSubOt[gActiveBuff]);
 }
 
 s32 SpheresOverlap(Sphere *a, Sphere *b) {

@@ -4,6 +4,7 @@
     python3 tools/rename.py OLD NEW              # do it
     python3 tools/rename.py OLD NEW --dry-run    # show what would change
     python3 tools/rename.py OLD NEW --no-build   # edit only (batching renames)
+    python3 tools/rename.py OLD NEW --ovl ovl19  # a symbol of one overlay
 
 WHY THIS EXISTS. A symbol name lives in five places that nothing keeps in
 step: the splat symbols file (which decides what `make extract` writes into
@@ -34,6 +35,16 @@ WHAT IT DOES, in order:
      data symbol. A rename changes ZERO bytes, so a red build means the rename
      is wrong; the tool prints the revert commands and exits 1.
 
+OVERLAYS (--ovl <ovl>). An overlay is its own image with its own symbols
+file, config/ovl/symbols.<ovl>.txt, and a name means something only inside
+it: the same placeholder in two overlays is two objects. With --ovl the
+rename reads and writes that symbols file, rewrites only src/ovl/<ovl>.c,
+checks the address against the overlay's own range, refuses a NEW the
+executable's symbols file already names (the overlay links against every
+executable symbol), and skips the Sony checks and match reports, which are
+the executable's. A name shared by several overlays is renamed once per
+overlay; a shared include that already uses NEW is not a collision.
+
 WHAT IT DOES NOT DO. It does not judge the name. The naming rules (what the
 code does, not what you guess it is for; tiers; conventions) are in
 FINISHING-PLAN.md track 3, and the evidence for a name goes in the match
@@ -58,6 +69,23 @@ SYMLINE = re.compile(r"^(\w+)\s*=\s*(0x[0-9A-Fa-f]+)\s*;(.*)$")
 # The whole of PS1 main RAM. The old bound was the end of the FILE image, and
 # bss lives past it: round 51 was refused `D_8008E248 -> gShadeTex`.
 VRAM_LO, VRAM_HI = 0x80010000, 0x80200000
+EXE_SYMBOLS = SYMBOLS
+# Set by --ovl: the overlay whose symbols file and unit a rename works on.
+OVL = None
+OVL_BASE = 0x800F0000
+
+
+def use_overlay(ovl):
+    """Point the rename at one overlay's symbols file, map and range."""
+    global SYMBOLS, OVL, VRAM_LO, VRAM_HI
+    sym = ROOT / "config/ovl" / f"symbols.{ovl}.txt"
+    if not sym.exists():
+        sys.exit(f"FATAL: no {sym.relative_to(ROOT)}; is {ovl!r} an overlay?")
+    binf = ROOT / "disk/ovl" / f"{ovl}.bin"
+    if not binf.exists():
+        sys.exit(f"FATAL: no {binf.relative_to(ROOT)} (tools/extract_overlays.py writes it)")
+    SYMBOLS, OVL = sym, ovl
+    VRAM_LO, VRAM_HI = OVL_BASE, OVL_BASE + binf.stat().st_size
 
 
 HEADING = re.compile(r"^(#+)\s")
@@ -117,6 +145,8 @@ def is_code(path):
 
 def text_files():
     """Every file a symbol name may appear in, excluding generated and archive."""
+    if OVL:
+        return [ROOT / "src/ovl" / f"{OVL}.c"]
     out = []
     for pat in ("src/**/*.c", "src/**/*_tables.inc", "include/*.h", "include/*.inc",
                 "docs/*.md", "docs/match-reports/*.md", "docs/research/*.md",
@@ -155,7 +185,7 @@ def symbol_address(name):
 
 def linked_address(name):
     """NEW's address in the last link's map (build/pepsiman.map), or None."""
-    mp = ROOT / "build/pepsiman.map"
+    mp = ROOT / ("build/ovl/" + OVL + ".map" if OVL else "build/pepsiman.map")
     if not mp.exists():
         return None
     m = re.search(rf"^\s+0x([0-9a-f]{{8}})\s+{re.escape(name)}$", mp.read_text(), re.M)
@@ -171,7 +201,10 @@ def name_in_use(name):
     on six such files) and is reported as a warning, not a refusal."""
     pat = re.compile(rf"\b{re.escape(name)}\b")
     code, prose = [], []
-    for p in text_files():
+    files = text_files()
+    if OVL:
+        files = files + sorted(ROOT.glob("include/*.h"))
+    for p in files:
         text = p.read_text(errors="replace")
         rel = str(p.relative_to(ROOT))
         is_code = rel.startswith(("src/", "include/", "config/"))
@@ -187,9 +220,12 @@ def name_in_use(name):
             prose.append(rel)
     # An ENTRY, not a mention: a comment naming NEW as the identification
     # being applied blocked round 71's track-2 renames again and again.
-    if re.search(rf"^\s*{re.escape(name)}\s*=", SYMBOLS.read_text(), re.M):
-        code.append(str(SYMBOLS.relative_to(ROOT)))
-    for p in ROOT.glob("asm/**/*.s"):
+    for sf in {SYMBOLS, EXE_SYMBOLS}:
+        if re.search(rf"^\s*{re.escape(name)}\s*=", sf.read_text(), re.M):
+            code.append(str(sf.relative_to(ROOT)))
+    for p in ROOT.glob(f"asm/ovl/{OVL}/**/*.s" if OVL else "asm/**/*.s"):
+        if not OVL and p.relative_to(ROOT).parts[1:2] == ("ovl",):
+            continue
         if re.search(rf"^glabel {re.escape(name)}$|^dlabel {re.escape(name)}$",
                      p.read_text(errors="replace"), re.M):
             code.append(str(p.relative_to(ROOT)))
@@ -204,6 +240,8 @@ def is_text_symbol(name, addr):
     function there), and a wrong `type:func` in the symbols file would make
     splat disassemble a table as code."""
     esc = re.escape(name)
+    if OVL:
+        return overlay_is_text(name, esc)
     for p in ROOT.glob("asm/data/*.s"):
         if re.search(rf"^dlabel {esc}$", p.read_text(errors="replace"), re.M):
             return False
@@ -228,6 +266,24 @@ def is_text_symbol(name, addr):
         parts = line.split()
         if len(parts) == 3 and int(parts[0], 16) == addr and parts[2] == name:
             return parts[1] in ("T", "t")
+    return None
+
+
+def overlay_is_text(name, esc):
+    """is_text_symbol for one overlay: its own asm, unit and ELF."""
+    a = ROOT / "asm/ovl" / OVL
+    for p in a.glob("data/*.s"):
+        if re.search(rf"^dlabel {esc}$", p.read_text(errors="replace"), re.M):
+            return False
+    for p in a.glob("nonmatchings/**/*.s"):
+        if re.search(rf"^glabel {esc}$", p.read_text(errors="replace"), re.M):
+            return True
+    for p in text_files():
+        if re.search(rf"^\w[^;=]*?\b{esc}\s*\([^;{{]*\)\s*\{{", p.read_text(errors="replace"), re.M):
+            return True
+    for line in SYMBOLS.read_text().splitlines():
+        if re.match(rf"^\s*{esc}\s*=", line) and "type:func" in line:
+            return True
     return None
 
 
@@ -326,8 +382,12 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--no-build", action="store_true",
                     help="edit files only; you run extract + verify yourself")
+    ap.add_argument("--ovl", metavar="OVL",
+                    help="rename inside one overlay (config/ovl/symbols.OVL.txt, src/ovl/OVL.c)")
     a = ap.parse_args()
     os.chdir(ROOT)
+    if a.ovl:
+        use_overlay(a.ovl)
 
     old, new = a.old, a.new
     if not IDENT.match(new):
@@ -344,7 +404,7 @@ def main():
         sys.exit(f"FATAL: {old!r} is neither a placeholder nor in {SYMBOLS.name}")
     if not (VRAM_LO <= addr < VRAM_HI):
         sys.exit(f"FATAL: {old!r} resolves to {addr:#x}, outside the image")
-    owner = sony_data_owner(addr)
+    owner = None if OVL else sony_data_owner(addr)
     if owner and not (owner[1] == addr and new == owner[0]):
         pin, pa, size = owner
         where = "is" if pa == addr else f"lies at +{addr - pa:#x} inside"
@@ -394,12 +454,15 @@ def main():
     touched = [p for p in text_files() if pat.search(p.read_text(errors="replace"))]
     report_old = REPORTS / f"{old}.md"
     report_new = REPORTS / f"{new}.md"
+    if OVL:
+        # The match reports are the executable's; an overlay name is not one.
+        report_old = report_new = ROOT / "build/no-overlay-report.md"
     if report_new.exists():
         sys.exit(f"FATAL: {report_new.relative_to(ROOT)} already exists")
 
     is_text = is_text_symbol(old, addr)
     kind = "func" if is_text else ("data" if is_text is False else "unknown")
-    if kind != "func" and GAME_STYLE.match(new):
+    if kind != "func" and GAME_STYLE.match(new) and not OVL:
         lib = sony_only_accessors(old)
         if lib:
             sys.exit(f"FATAL: every function that reads {old} is Sony library code "
@@ -417,7 +480,7 @@ def main():
         print(f"  report: {report_old.relative_to(ROOT)} -> {report_new.name}")
     if not touched and symline is None and not report_old.exists() and not registering:
         sys.exit("FATAL: nothing references the old name; is it spelled right?")
-    for rel in sorted(RULE_DOCS):
+    for rel in ([] if OVL else sorted(RULE_DOCS)):
         rp = ROOT / rel
         if rp.exists():
             for i, line in enumerate(rp.read_text(errors="replace").split("\n"), 1):
@@ -507,7 +570,7 @@ def main():
     if r.returncode != 0:
         print((r.stdout + r.stderr)[-3000:])
         fail(old, new, touched, report_old.exists())
-    if kind == "data":
+    if kind == "data" and not OVL:
         r = subprocess.run([sys.executable, "tools/gpsyms.py", "--check"])
         if r.returncode != 0:
             print("gp-symbols.txt is stale: run python3 tools/gpsyms.py and re-verify")

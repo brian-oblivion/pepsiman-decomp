@@ -79,7 +79,7 @@ def targets():
     for o in overlays():
         out.append(Target(o, f"disk/ovl/{o}.bin", f"build/ovl/{o}.bin",
                           f"build/ovl/{o}.elf", 0x800F0000, 0, f"asm/ovl/{o}",
-                          (f"src/ovl/{o}.c", "include/**/*.h", "include/*.inc",
+                          (f"src/ovl/{o}.c", "src/ovl/*.inc", "include/**/*.h", "include/*.inc",
                            f"asm/ovl/{o}/**/*.s", f"config/ovl/gp.{o}.txt"),
                           [ROOT / f"src/ovl/{o}.c"]))
     return out

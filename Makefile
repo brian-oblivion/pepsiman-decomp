@@ -141,7 +141,8 @@ $(ELF): $(O_FILES) $(GAME).ld $(CONFIG)/psyq-objects.ld \
 #
 # One C unit per overlay so far, named after it: src/ovl/<ovl>.c, with its asm
 # under asm/ovl/<ovl>/. An overlay split into several units needs OVL_OBJS to
-# learn them.
+# learn them. Code several overlays share word for word lives in an include
+# beside them (src/ovl/world_intro.inc), which every overlay unit depends on.
 OVERLAYS  := ovl18 ovl19 ovl20 ovl21 ovl22
 # -G0, not the executable's -G8: retail overlay code reaches every global,
 # a scalar like gActiveBuff included, by cc1's own %hi/%lo split over two
@@ -219,7 +220,7 @@ HEADERS := $(wildcard include/*.h include/*.inc include/psyq/*.h \
 # hand from the overlay's own code until tools/gpsyms.py learns overlays) and
 # its INCLUDE_ASMs from asm/ovl/<ovl>/nonmatchings/<unit>/. This rule's stem is
 # shorter than the generic one's, so make prefers it for src/ovl/.
-$(BUILD_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
+$(BUILD_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) $(wildcard src/ovl/*.inc) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(OVL_CC_FLAGS) | \
 		$(MASPSX) $(MASPSX_FLAGS) --gp-symbols=config/ovl/gp.$*.txt | \
@@ -243,7 +244,7 @@ NM_OBJS  := $(foreach f,$(C_FILES),$(NM_DIR)/$(f).o)
 .PHONY: nonmatching
 nonmatching: $(NM_OBJS)
 
-$(NM_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
+$(NM_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) $(wildcard src/ovl/*.inc) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPP_FLAGS) -DNON_MATCHING $< | $(CC1) $(OVL_CC_FLAGS) | \
 		$(MASPSX) $(MASPSX_FLAGS) --gp-symbols=config/ovl/gp.$*.txt | \
@@ -281,9 +282,9 @@ clean:
 	rm -f $(CONFIG)/ovl/undefined_syms_auto.*.txt $(CONFIG)/ovl/undefined_funcs_auto.*.txt
 
 format:
-	clang-format -i $$(find src include -name '*.c' -o -name '*.h' -o -name '*_tables.inc' | grep -v -e include/psyq -e include/include_asm.h)
+	clang-format -i $$(find src include -name '*.c' -o -name '*.h' -o -name '*_tables.inc' -o -path 'src/ovl/*.inc' | grep -v -e include/psyq -e include/include_asm.h)
 	@# clang-format never touches comment text (ReflowComments: Never), so a tab there survives it
-	@! grep -nP '\t' $$(find src include -name '*.c' -o -name '*.h' -o -name '*_tables.inc' | grep -v -e include/psyq -e include/include_asm.h) \
+	@! grep -nP '\t' $$(find src include -name '*.c' -o -name '*.h' -o -name '*_tables.inc' -o -path 'src/ovl/*.inc' | grep -v -e include/psyq -e include/include_asm.h) \
 		|| { echo "format: tab characters above (clang-format cannot fix tabs inside comments)"; exit 1; }
 
 expected: check

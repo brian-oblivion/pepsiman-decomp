@@ -410,6 +410,19 @@ def overlay_text_symbols(ovl):
     return info, hi - lo
 
 
+LOCAL_INCLUDE_RE = re.compile(r'^[ \t]*#[ \t]*include[ \t]+"([^"]+\.inc)"', re.M)
+
+
+def with_local_includes(path):
+    """A unit's text with each `#include "x.inc"` beside it spliced in, so
+    the functions an overlay takes from a shared include count as its own.
+    Headers are left out: they define no functions."""
+    def splice(m):
+        f = path.parent / m.group(1)
+        return f.read_text() if f.exists() else m.group(0)
+    return LOCAL_INCLUDE_RE.sub(splice, path.read_text())
+
+
 def overlay_progress(reports):
     """Per built overlay: functions and code bytes matched and queued, from
     its own unit and its own ELF. A name means something only inside its
@@ -418,7 +431,7 @@ def overlay_progress(reports):
     for ovl in built_overlays():
         c = ROOT / "src/ovl" / f"{ovl}.c"
         info, text_b = overlay_text_symbols(ovl)
-        text = c.read_text() if c.exists() else ""
+        text = with_local_includes(c) if c.exists() else ""
         code = strip_dead_code(text)
         inc = INCLUDE_RE.findall(code)
         defs = [d for d in DEF_RE.findall(code) if d in info]

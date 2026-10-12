@@ -1,1 +1,22 @@
 // Overlay 22 (world 5 intro): names for addresses inside the overlay.
+sCaptionTimes = 0x800F0000;
+sIntroPackLoc = 0x800F150C;
+sIntroPackSectors = 0x800F155C;
+sXaLoc = 0x800F1998;
+sIntroFrame = 0x800F1F00;
+sScriptPaused = 0x800F1F04;
+sPropCoord = 0x800F1F08;
+sPartner = 0x800F1F58;
+sPartnerSlots = 0x800F2330;
+sPartnerTmd = 0x800F2470;
+sPartnerObjs = 0x800F2478;
+sPartnerCoords = 0x800F2488;
+sProp = 0x800F2AC8;
+sPropPos = 0x800F2AD8;
+sPropRot = 0x800F2AE8;
+sPartnerData = 0x800F2AF0;
+StepIntroMotion = 0x800F00C8; // type:func
+LoadIntroPack = 0x800F01C0; // type:func
+StepWorldIntro = 0x800F0414; // type:func
+DrawCaptions = 0x800F1240; // type:func
+DrawIntroProp = 0x800F1390; // type:func

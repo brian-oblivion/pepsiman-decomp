@@ -1,1 +1,22 @@
 // Overlay 21 (world 4 intro): names for addresses inside the overlay.
+sCaptionTimes = 0x800F0000;
+sIntroPackLoc = 0x800F1494;
+sIntroPackSectors = 0x800F14E4;
+sXaLoc = 0x800F1928;
+sIntroFrame = 0x800F1E90;
+sScriptPaused = 0x800F1E94;
+sPropCoord = 0x800F1E98;
+sPartner = 0x800F1EE8;
+sPartnerSlots = 0x800F22C0;
+sPartnerTmd = 0x800F2400;
+sPartnerObjs = 0x800F2408;
+sPartnerCoords = 0x800F2418;
+sProp = 0x800F2A58;
+sPropPos = 0x800F2A68;
+sPropRot = 0x800F2A78;
+sPartnerData = 0x800F2A80;
+StepIntroMotion = 0x800F00C0; // type:func
+LoadIntroPack = 0x800F01B8; // type:func
+StepWorldIntro = 0x800F03BC; // type:func
+DrawCaptions = 0x800F11DC; // type:func
+DrawIntroProp = 0x800F1320; // type:func

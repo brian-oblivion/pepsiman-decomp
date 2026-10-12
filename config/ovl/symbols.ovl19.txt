@@ -1,1 +1,22 @@
 // Overlay 19 (world 2 intro): names for addresses inside the overlay.
+sCaptionTimes = 0x800F0000;
+sIntroPackLoc = 0x800F147C;
+sIntroPackSectors = 0x800F14CC;
+sXaLoc = 0x800F1920;
+sIntroFrame = 0x800F1E88;
+sScriptPaused = 0x800F1E8C;
+sPropCoord = 0x800F1E90;
+sPartner = 0x800F1EE0;
+sPartnerSlots = 0x800F22B8;
+sPartnerTmd = 0x800F23F8;
+sPartnerObjs = 0x800F2400;
+sPartnerCoords = 0x800F2410;
+sProp = 0x800F2A50;
+sPropPos = 0x800F2A60;
+sPropRot = 0x800F2A70;
+sPartnerData = 0x800F2A78;
+StepIntroMotion = 0x800F00B8; // type:func
+LoadIntroPack = 0x800F01B0; // type:func
+StepWorldIntro = 0x800F03B4; // type:func
+DrawCaptions = 0x800F11D4; // type:func
+DrawIntroProp = 0x800F1318; // type:func

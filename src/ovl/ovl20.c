@@ -28,18 +28,18 @@ s32 LoadVabBank(s32 bank);
  * and stored whole. */
 s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 
-extern CdlLOC D_800F1368[];
-extern s32 D_800F13B8[];
-extern GsCOORDINATE2 D_800F1D70;
-extern PlayerState D_800F1DC0;
-extern u8 D_800F2198[];
-extern s32 D_800F22D8;
-extern s32 D_800F22E0[];
-extern GsCOORDINATE2 D_800F22F0[];
-extern GsDOBJ2 D_800F2930;
-extern VECTOR D_800F2940;
-extern SVECTOR D_800F2950;
-extern u8 D_800F2958[];
+extern CdlLOC sIntroPackLoc[];
+extern s32 sIntroPackSectors[];
+extern GsCOORDINATE2 sPropCoord;
+extern PlayerState sPartner;
+extern u8 sPartnerSlots[];
+extern s32 sPartnerTmd;
+extern s32 sPartnerObjs[];
+extern GsCOORDINATE2 sPartnerCoords[];
+extern GsDOBJ2 sProp;
+extern VECTOR sPropPos;
+extern SVECTOR sPropRot;
+extern u8 sPartnerData[];
 
 /* The camera script's step. */
 /* MATCHING: kept in the fog fade's word, reached as its own symbol. */
@@ -53,7 +53,7 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)gFlatLights)
 
-u8 func_800F0068(PlayerState *obj, u16 index, s32 objTable, s32 tmdTable) {
+u8 StepIntroMotion(PlayerState *obj, u16 index, s32 objTable, s32 tmdTable) {
     if (obj->motion[index] != obj->curMotion[index]) {
         obj->motionTime[index] = obj->motionStart[obj->motion[index]];
         obj->motionData[index] = (u8 *)gAnimations[obj->motion[index]];
@@ -69,21 +69,21 @@ u8 func_800F0068(PlayerState *obj, u16 index, s32 objTable, s32 tmdTable) {
     return 1;
 }
 
-void func_800F0160(s32 *pack) {
+void LoadIntroPack(s32 *pack) {
     s32 *dir;
     s32 i;
     s32 n;
 
     dir = (s32 *)(pack[0] + (s32)pack);
-    D_800F22D8 = dir[0] + (s32)dir + 4;
-    GsMapModelingData((unsigned long *)D_800F22D8);
-    InitTodObjTable(D_800F22E0, D_800F2198, D_800F22F0, D_800F2958, 20);
-    GsInitCoordinate2(WORLD, D_800F22F0);
+    sPartnerTmd = dir[0] + (s32)dir + 4;
+    GsMapModelingData((unsigned long *)sPartnerTmd);
+    InitTodObjTable(sPartnerObjs, sPartnerSlots, sPartnerCoords, sPartnerData, 20);
+    GsInitCoordinate2(WORLD, sPartnerCoords);
     GsMapModelingData((unsigned long *)(dir[1] + (s32)dir + 4));
-    GsLinkObject4((unsigned long)(dir[1] + (s32)dir + 12), &D_800F2930, 0);
-    D_800F2930.coord2 = &D_800F1D70;
-    D_800F2930.attribute = 0;
-    GsInitCoordinate2(WORLD, &D_800F1D70);
+    GsLinkObject4((unsigned long)(dir[1] + (s32)dir + 12), &sProp, 0);
+    sProp.coord2 = &sPropCoord;
+    sProp.attribute = 0;
+    GsInitCoordinate2(WORLD, &sPropCoord);
     dir = (s32 *)(pack[1] + (s32)pack);
     n = dir[0] / 4;
     for (i = 0; i < n; i++) {
@@ -101,18 +101,18 @@ void func_800F0160(s32 *pack) {
 
 /* MATCHING: inline, so that the intro's frame step expands it and the
  * compiler writes this copy after it. */
-inline void func_800F11FC(void) {
+inline void DrawIntroProp(void) {
     MATRIX m;
 
-    D_800F1D70.coord.t[0] = D_800F2940.vx;
-    D_800F1D70.coord.t[1] = D_800F2940.vy;
-    D_800F1D70.coord.t[2] = D_800F2940.vz;
-    SetCoordRotation(&D_800F2950, &D_800F1D70);
-    GsGetLs(D_800F2930.coord2, &m);
+    sPropCoord.coord.t[0] = sPropPos.vx;
+    sPropCoord.coord.t[1] = sPropPos.vy;
+    sPropCoord.coord.t[2] = sPropPos.vz;
+    SetCoordRotation(&sPropRot, &sPropCoord);
+    GsGetLs(sProp.coord2, &m);
     GsSetLsMatrix(&m);
-    GsGetLw(D_800F2930.coord2, &m);
+    GsGetLw(sProp.coord2, &m);
     GsSetLightMatrix(&m);
-    GsSortObject4(&D_800F2930, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4(&sProp, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
 }
 
 /* Draws a model's objects at its position and yaw. It counts the player's
@@ -154,7 +154,7 @@ static inline void DrawIntroModel(PlayerState *p, s32 *list) {
 static inline void DrawIntroPlayer(void) {
     s8 r;
 
-    gPlayer.motionResult[0] = r = func_800F0068(&gPlayer, 0, (s32)gTodObjTable, gModelTmd);
+    gPlayer.motionResult[0] = r = StepIntroMotion(&gPlayer, 0, (s32)gTodObjTable, gModelTmd);
     switch (gPlayer.action) {
         case ACT_MODEL_ONCE:
             break;
@@ -171,22 +171,22 @@ static inline void DrawIntroPlayer(void) {
 static inline void DrawIntroPartner(void) {
     s8 r;
 
-    D_800F1DC0.motionResult[0] = r = func_800F0068(&D_800F1DC0, 0, (s32)D_800F22E0, D_800F22D8);
-    switch (D_800F1DC0.action) {
+    sPartner.motionResult[0] = r = StepIntroMotion(&sPartner, 0, (s32)sPartnerObjs, sPartnerTmd);
+    switch (sPartner.action) {
         case ACT_MODEL_ONCE:
             break;
         case ACT_MODEL_LOOP:
             if (r == 0) {
-                D_800F1DC0.curMotion[0] = MOT_OFF;
+                sPartner.curMotion[0] = MOT_OFF;
             }
             break;
     }
-    DrawIntroModel(&D_800F1DC0, D_800F22E0);
+    DrawIntroModel(&sPartner, sPartnerObjs);
 }
 
 /* Draws the scrolling text: fifteen lines that rise with @p time, fading
  * in near the bottom of the screen and out near the top. */
-void func_800F0364(s32 time) {
+void DrawRisingText(s32 time) {
     SVECTOR pos;
     SColor color;
     s32 i;
@@ -212,22 +212,22 @@ void func_800F0364(s32 time) {
 }
 
 /* MATCHING: non-void with no return keeps step 2's delay slot a nop. */
-s32 func_800F0480(void) {
+s32 StepWorldIntro(void) {
     SVECTOR pos;
     POLY_F4 *p;
 
     switch (gWorldIntroStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)D_800F1368;
+            gCdLoadLoc[0] = (s32)sIntroPackLoc;
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gWorldIntroStep = 1;
-            gCdLoadSectors[0] = D_800F13B8[0];
+            gCdLoadSectors[0] = sIntroPackSectors[0];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
-                func_800F0160((s32 *)0x8019D000);
+                LoadIntroPack((s32 *)0x8019D000);
                 gVabLoadStep = 0;
                 gWorldIntroStep = 2;
             }
@@ -239,12 +239,12 @@ s32 func_800F0480(void) {
             }
             break;
         case 3:
-            D_800F1DC0 = gPlayer;
-            D_800F1DC0.motion[0] = 0x38;
-            D_800F1DC0.curMotion[0] = MOT_OFF;
-            D_800F1DC0.motion[1] = 0x38;
-            D_800F1DC0.curMotion[1] = MOT_OFF;
-            func_800F0068(&D_800F1DC0, 0, (s32)D_800F22E0, D_800F22D8);
+            sPartner = gPlayer;
+            sPartner.motion[0] = 0x38;
+            sPartner.curMotion[0] = MOT_OFF;
+            sPartner.motion[1] = 0x38;
+            sPartner.curMotion[1] = MOT_OFF;
+            StepIntroMotion(&sPartner, 0, (s32)sPartnerObjs, sPartnerTmd);
             sLights.l[0].r = 0xFF;
             sLights.l[0].g = 0xFF;
             sLights.l[0].b = 0xFF;
@@ -272,18 +272,18 @@ s32 func_800F0480(void) {
             gPlayer.x = 0;
             gPlayer.y = 0;
             gPlayer.action = ACT_MODEL_LOOP;
-            D_800F1DC0.x = -100;
-            D_800F1DC0.yaw = -0x200;
-            D_800F1DC0.motion[0] = 0x39;
-            D_800F1DC0.y = 0;
-            D_800F1DC0.z = 100;
-            D_800F1DC0.action = ACT_MODEL_LOOP;
-            D_800F2950.vx = 0;
-            D_800F2950.vy = 0;
-            D_800F2950.vz = 0;
-            D_800F2940.vx = -250;
-            D_800F2940.vy = 0;
-            D_800F2940.vz = 250;
+            sPartner.x = -100;
+            sPartner.yaw = -0x200;
+            sPartner.motion[0] = 0x39;
+            sPartner.y = 0;
+            sPartner.z = 100;
+            sPartner.action = ACT_MODEL_LOOP;
+            sPropRot.vx = 0;
+            sPropRot.vy = 0;
+            sPropRot.vz = 0;
+            sPropPos.vx = -250;
+            sPropPos.vy = 0;
+            sPropPos.vz = 250;
             sView.vpx = 0;
             sView.vpy = -200;
             sView.vpz = -0x17D4;
@@ -340,8 +340,8 @@ s32 func_800F0480(void) {
                         gPlayer.motion[0] = 0x34;
                         gPlayer.action = ACT_MODEL_ONCE;
                         gPlayer.yaw = 0x600;
-                        D_800F1DC0.motion[0] = 0x3A;
-                        D_800F1DC0.action = ACT_MODEL_ONCE;
+                        sPartner.motion[0] = 0x3A;
+                        sPartner.action = ACT_MODEL_ONCE;
                         D_800D39D8.timer = 0;
                         sSubStep = 5;
                     }
@@ -361,12 +361,12 @@ s32 func_800F0480(void) {
                     }
                     break;
                 case 10:
-                    if (D_800F1DC0.motionResult[0] == 0) {
-                        D_800F1DC0.motion[0] = rand() % 2 + 0x3A;
-                        D_800F1DC0.curMotion[0] = MOT_OFF;
-                        D_800F1DC0.action = 0;
+                    if (sPartner.motionResult[0] == 0) {
+                        sPartner.motion[0] = rand() % 2 + 0x3A;
+                        sPartner.curMotion[0] = MOT_OFF;
+                        sPartner.action = 0;
                     }
-                    func_800F0364(D_800D39D8.timer);
+                    DrawRisingText(D_800D39D8.timer);
                     if (++D_800D39D8.timer == 0x260) {
                         D_800D39D8.timer = 0;
                         sSubStep = 15;
@@ -385,9 +385,9 @@ s32 func_800F0480(void) {
                         gPlayer.motion[0] = 0x37;
                         gPlayer.curMotion[0] = MOT_OFF;
                         gPlayer.action = 0;
-                        D_800F1DC0.motion[0] = 0x3C;
-                        D_800F1DC0.curMotion[0] = MOT_OFF;
-                        D_800F1DC0.action = 0;
+                        sPartner.motion[0] = 0x3C;
+                        sPartner.curMotion[0] = MOT_OFF;
+                        sPartner.action = 0;
                         D_800D39D8.timer = 0;
                         sSubStep = 25;
                     }
@@ -399,10 +399,10 @@ s32 func_800F0480(void) {
                         gPlayer.curMotion[0] = MOT_OFF;
                         gPlayer.action = 1;
                     }
-                    if (D_800F1DC0.motionResult[0] == 0) {
-                        D_800F1DC0.motion[0] = 0x3D;
-                        D_800F1DC0.curMotion[0] = MOT_OFF;
-                        D_800F1DC0.action = 1;
+                    if (sPartner.motionResult[0] == 0) {
+                        sPartner.motion[0] = 0x3D;
+                        sPartner.curMotion[0] = MOT_OFF;
+                        sPartner.action = 1;
                     }
                     if (gPlayer.action == 1) {
                         gPlayer.z += 30;
@@ -417,7 +417,7 @@ s32 func_800F0480(void) {
             }
             DrawIntroPlayer();
             DrawIntroPartner();
-            func_800F11FC();
+            DrawIntroProp();
             break;
         case 100:
             pos.vx = -0x80;

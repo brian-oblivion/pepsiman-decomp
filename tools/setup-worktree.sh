@@ -39,6 +39,7 @@ OPTIONAL="decomp-permuter psyq-obj-parser"
 
 missing=""
 [ -e "$MAIN/disk/SLPS_017.62" ] || missing="$missing disk/SLPS_017.62"
+[ -e "$MAIN/disk/ovl" ]         || missing="$missing disk/ovl (run tools/extract_overlays.py)"
 [ -e "$MAIN/.venv" ]            || missing="$missing .venv"
 # lib/ holds the Sony objects the link needs (splat `o` segments); a worktree
 # cannot regenerate them any more than it can build binutils.
@@ -57,6 +58,7 @@ git worktree add -b "$branch" "$dest" main
 
 mkdir -p "$dest/disk"
 ln -s "$MAIN/disk/SLPS_017.62" "$dest/disk/SLPS_017.62"
+ln -s "$MAIN/disk/ovl" "$dest/disk/ovl"
 ln -s "$MAIN/.venv" "$dest/.venv"
 ln -s "$MAIN/lib" "$dest/lib"
 ln -s "$MAIN/include/psyq" "$dest/include/psyq"

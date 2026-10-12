@@ -28,6 +28,8 @@ expected/
 !config/psyq-objects.ld
 config/undefined_funcs_auto.*.txt
 config/undefined_syms_auto.*.txt
+config/ovl/undefined_funcs_auto.*.txt
+config/ovl/undefined_syms_auto.*.txt
 ctx.c
 ctx.c.m2c
 

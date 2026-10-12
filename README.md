@@ -43,6 +43,7 @@ own copies, and the build reads them from directories git ignores:
 | you provide | where | what the build does with it |
 | --- | --- | --- |
 | the game executable `SLPS_017.62` (or the disc image it comes from) | `disk/` | disassembles it (`asm/`, generated), and checks the rebuilt image against it |
+| the code overlays, from the same disc image | `disk/ovl/` | the same, one image per overlay |
 | Sony's Psy-Q "Runtime Library" SDK discs | `sdk/` | converts Sony's library objects into `lib/` and copies Sony's headers into `include/psyq/`, both generated and ignored |
 
 ## Building it
@@ -59,7 +60,11 @@ compiler, plus:
 
   The expected file is `SLPS_017.62`, 548864 bytes, SHA1
   `116d895763ebef141b4e2c3c90c1b227d257b804`. No other revision is
-  supported.
+  supported. Then the code overlays, from the same image:
+
+  ```sh
+  python3 tools/extract_overlays.py "Pepsiman (Japan) (Track 1).bin"  # writes disk/ovl/, checked against check-overlays.sha1
+  ```
 
 - **The Psy-Q SDK.** "Programmer Tool - Runtime Library" discs, as redump
   zips (don't unpack them), in `sdk/`. They are on archive.org
@@ -80,7 +85,7 @@ Then:
 binutils, installs splat into a venv, and clones maspsx (patched from
 `tools/patches/`), m2c, asm-differ and decomp-permuter. After that,
 `./build-and-verify.sh` is the only build command. It ends `OK: build
-matches retail SLPS_017.62` when the image is exact.
+matches retail SLPS_017.62 and its overlays` when every image is exact.
 
 ## The executable
 
@@ -100,6 +105,17 @@ segmentation, measured from the bytes:
 Sony's objects are listed in `config/psyq-objects.txt` and linked from
 `lib/`; two pieces stay disassembly (SN's crt0, which the object converter
 cannot read, and `libgs/gs_001`, whose `.bss` Sony's linker scattered).
+
+## The overlays
+
+`LoadOverlay` reads code from the disc to `0x800F0000` at run time: 22 files
+under `CDDATA/` (`tools/extract_overlays.py` lists them). Overlay 2 is the
+menu, 3 to 17 are the fifteen stages (`LoadStageOverlay`), 18 to 22 the five
+world intros, and 0 is a mode `main` loads first. Each is its own image: a
+splat config in `config/ovl/<ovl>.yaml`, a C unit in `src/ovl/<ovl>.c`, its
+own link against the executable's symbol addresses, and its retail SHA1 in
+`check-overlays.sha1`. The Makefile's `OVERLAYS` names the ones the build
+covers. Overlay code is compiled with `-G0` (the executable's is `-G8`).
 
 ## Changing the code and keeping it matching
 

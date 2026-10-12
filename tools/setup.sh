@@ -80,6 +80,22 @@ sha1sum -c check.sha1 >/dev/null 2>&1 || die "disk/SLPS_017.62 is not the
       expected: $(cut -d' ' -f1 check.sha1)
       actual:   $(sha1sum disk/SLPS_017.62 | cut -d' ' -f1)"
 ok "disk/SLPS_017.62 verified"
+if ! sha1sum -c check-overlays.sha1 >/dev/null 2>&1; then
+    # The overlays come from the same disc image, so the same rule applies:
+    # extract when exactly one image is in the tree, otherwise ask.
+    mapfile -t images < <(find . -maxdepth 3 \
+        \( -iname '*.bin' -o -iname '*.iso' -o -iname '*.img' \) \
+        -not -path './build/*' -not -path './.git/*' 2>/dev/null)
+    if [ "${#images[@]}" -eq 1 ]; then
+        printf '      extracting overlays from %s\n' "${images[0]}"
+        python3 tools/extract_overlays.py "${images[0]}" >/dev/null \
+            || die "could not extract the overlays from ${images[0]}"
+    fi
+fi
+sha1sum -c check-overlays.sha1 >/dev/null 2>&1 || die "disk/ovl/ is missing
+      or not the expected overlays.
+      run: python3 tools/extract_overlays.py <disc image>"
+ok "disk/ovl/ verified"
 fi
 
 # ---------------------------------------------------------------------------

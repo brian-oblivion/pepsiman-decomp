@@ -68,8 +68,10 @@ CONFIG    := config
 # `find`, not `wildcard`: wildcard has no recursive form, so the moment src/
 # grows a subdirectory it silently returns fewer units and every count derived
 # from it drops without a word.
-S_FILES  := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' 2>/dev/null)
-C_FILES  := $(shell find src -name '*.c' 2>/dev/null)
+# asm/ovl/ and src/ovl/ are the overlays' (see "overlays" below), never the
+# executable's.
+S_FILES  := $(shell find asm -name '*.s' -not -path 'asm/nonmatchings/*' -not -path 'asm/ovl/*' 2>/dev/null)
+C_FILES  := $(shell find src -name '*.c' -not -path 'src/ovl/*' 2>/dev/null)
 # Prebuilt Psy-Q library objects (splat `o` segments). lib/ is produced from
 # the user's own SDK disc by tools/setup.sh and is gitignored; the linker
 # script names them under build/lib/, so they are mirrored there.
@@ -87,6 +89,7 @@ ELF      := $(BUILD_DIR)/$(GAME).elf
 EXE      := $(BUILD_DIR)/$(TARGET)
 
 .PHONY: all build check extract clean format expected diff-init progress
+.PHONY: overlays check-overlays
 .DEFAULT_GOAL := all
 
 # The compile rule is a PIPELINE ending in `as -o $@`. When cc1 fails, `as`
@@ -98,7 +101,7 @@ EXE      := $(BUILD_DIR)/$(TARGET)
 # target of any recipe that fails.
 .DELETE_ON_ERROR:
 
-all: build check
+all: build check overlays check-overlays
 
 build: $(EXE)
 
@@ -124,6 +127,53 @@ $(ELF): $(O_FILES) $(GAME).ld $(CONFIG)/psyq-objects.ld \
 		-T $(CONFIG)/undefined_syms.$(GAME_ID).$(GAME).txt \
 		-T $(CONFIG)/undefined_syms_auto.$(GAME_ID).$(GAME).txt \
 		-T $(CONFIG)/undefined_funcs_auto.$(GAME_ID).$(GAME).txt \
+		$(LD_FLAGS)
+
+# Every rule from here on may use $$ in its prerequisites.
+.SECONDEXPANSION:
+
+# --- overlays --------------------------------------------------------------
+# Code LoadOverlay reads from the disc to 0x800F0000 at run time
+# (tools/extract_overlays.py puts the retail files in disk/ovl/). Each is its
+# own image with its own splat config (config/ovl/<ovl>.yaml), linked alone
+# against the executable's symbol addresses and checked against its line in
+# check-overlays.sha1. An overlay is built once its name is in OVERLAYS.
+#
+# One C unit per overlay so far, named after it: src/ovl/<ovl>.c, with its asm
+# under asm/ovl/<ovl>/. An overlay split into several units needs OVL_OBJS to
+# learn them.
+OVERLAYS  := ovl18
+# -G0, not the executable's -G8: retail overlay code reaches every global,
+# a scalar like gActiveBuff included, by cc1's own %hi/%lo split over two
+# registers (lui $v0 hoisted, lw $v1 later), where the executable's code has
+# the assembler's same-register expansion. -G0 reproduces that order in
+# ovl18's func_800F1318; -G8 does not. No overlay instruction uses $gp.
+OVL_CC_FLAGS := $(filter-out -G8,$(CC_FLAGS)) -G0
+OVL_DIR   := $(BUILD_DIR)/ovl
+OVL_BINS  := $(foreach o,$(OVERLAYS),$(OVL_DIR)/$(o).bin)
+OVL_S_FILES := $(shell find asm/ovl -name '*.s' -not -path '*/nonmatchings/*' 2>/dev/null)
+OVL_OBJS   = $(BUILD_DIR)/src/ovl/$(1).c.o \
+             $(foreach f,$(filter asm/ovl/$(1)/%,$(OVL_S_FILES)),$(BUILD_DIR)/$(f).o)
+
+overlays: $(OVL_BINS)
+
+# The retail hashes of the overlays in OVERLAYS, with disk/ swapped for build/.
+# An empty selection fails: sha1sum rejects input with no checksum lines.
+check-overlays:
+	grep -E ' disk/ovl/($(subst $(eval) ,|,$(OVERLAYS)))\.bin$$' check-overlays.sha1 \
+		| sed 's| disk/| $(BUILD_DIR)/|' | sha1sum --check
+
+$(OVL_DIR)/%.bin: $(OVL_DIR)/%.elf
+	$(OBJCOPY) -O binary $< $@
+
+# The linker script is splat's (make extract writes it into build/ovl/).
+$(OVL_DIR)/%.elf: $$(call OVL_OBJS,$$*) $(OVL_DIR)/%.ld \
+		$(CONFIG)/ovl/undefined_syms_auto.%.txt $(CONFIG)/ovl/undefined_funcs_auto.%.txt
+	$(LD) -o $@ \
+		-Map $(OVL_DIR)/$*.map \
+		-T $(OVL_DIR)/$*.ld \
+		-T $(CONFIG)/ovl/undefined_syms_auto.$*.txt \
+		-T $(CONFIG)/ovl/undefined_funcs_auto.$*.txt \
 		$(LD_FLAGS)
 
 # --- compile ---------------------------------------------------------------
@@ -152,7 +202,16 @@ $(BUILD_DIR)/%.s.o: %.s
 HEADERS := $(wildcard include/*.h include/*.inc include/psyq/*.h \
                       include/psyq/sys/*.h)
 
-.SECONDEXPANSION:
+# An overlay unit takes its $gp list from config/ovl/gp.<unit>.txt (written by
+# hand from the overlay's own code until tools/gpsyms.py learns overlays) and
+# its INCLUDE_ASMs from asm/ovl/<ovl>/nonmatchings/<unit>/. This rule's stem is
+# shorter than the generic one's, so make prefers it for src/ovl/.
+$(BUILD_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
+	@mkdir -p $(dir $@)
+	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(OVL_CC_FLAGS) | \
+		$(MASPSX) $(MASPSX_FLAGS) --gp-symbols=config/ovl/gp.$*.txt | \
+		$(AS) $(AS_FLAGS) -o $@
+
 $(BUILD_DIR)/%.c.o: %.c $(HEADERS) config/gp/$$(notdir $$*).txt $$(wildcard $$*_tables.inc) $$(wildcard asm/nonmatchings/$$(notdir $$*)/*.s)
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(CC_FLAGS) | $(MASPSX) $(MASPSX_FLAGS) $(UNIT_GP) | \
@@ -193,12 +252,14 @@ $(NM_DIR)/%.c.o: %.c $(HEADERS) config/gp/$$(notdir $$*).txt $$(wildcard $$*_tab
 extract:
 	rm -rf asm
 	$(SPLAT) $(CONFIG)/splat.$(GAME_ID).$(GAME).yaml
+	$(foreach o,$(OVERLAYS),$(SPLAT) $(CONFIG)/ovl/$(o).yaml && ) true
 	$(PYTHON) tools/gpsyms.py
 
 # --- housekeeping ----------------------------------------------------------
 clean:
 	rm -rf $(BUILD_DIR) asm $(GAME).ld
 	rm -f $(CONFIG)/undefined_syms_auto.*.txt $(CONFIG)/undefined_funcs_auto.*.txt
+	rm -f $(CONFIG)/ovl/undefined_syms_auto.*.txt $(CONFIG)/ovl/undefined_funcs_auto.*.txt
 
 format:
 	clang-format -i $$(find src include -name '*.c' -o -name '*.h' -o -name '*_tables.inc' | grep -v -e include/psyq -e include/include_asm.h)

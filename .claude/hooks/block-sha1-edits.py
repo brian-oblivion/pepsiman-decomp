@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Block modification of check.sha1 and build.sha1 — the ground-truth hashes.
+"""Block modification of check.sha1, build.sha1 and check-overlays.sha1 — the
+ground-truth hashes.
 
 A build that only passes against an edited hash is not a match, and the edit is
 almost invisible in review: one hex string changes and everything goes green.
@@ -13,7 +14,7 @@ import json
 import re
 import sys
 
-TARGETS = ("check.sha1", "build.sha1")
+TARGETS = ("check.sha1", "build.sha1", "check-overlays.sha1")
 
 # Operations that would modify, replace or remove the file. mv/rm/ln count:
 # they destroy or displace the ground truth just as surely as a write does.
@@ -27,7 +28,7 @@ WRITE_PATTERNS = [
 ]
 
 DENY = (
-    "BLOCKED: {t} holds the ground-truth SHA1 of the retail executable and "
+    "BLOCKED: {t} holds the ground-truth SHA1 of retail files and "
     "must never be modified. A build that only passes against an edited hash "
     "is not a match.\n"
     "(Read-only use, e.g. `sha1sum -c check.sha1`, is allowed.)"

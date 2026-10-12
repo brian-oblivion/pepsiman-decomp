@@ -237,6 +237,11 @@ function's match report, not here.
   parameter** as its own statement (`recs += 100;`). Indexing `recs[i]` from
   100 strength-reduces to the same loop with the `addiu` after the constants.
   (ClearSwitchBoxUpper)
+- **A loop-invariant value in a lower saved register than the build gives
+  it: compute it into the parameter**, `time /= 2;` rather than a new local.
+  The parameter's extra references raise its allocation priority over a
+  hoisted constant. Then `i * 16 + 0x68 - time` keeps retail's in-loop
+  `addiu`. (ovl20's rising text)
 - **A loop pointer biased to a field other than the first one written (stores
   at negative offsets): the source walked a separate struct pointer**, `r =
   &tbl[k]; ... r->f = ...; r++;`. Every `tbl[i].f` form reduces to the record
@@ -454,6 +459,14 @@ function's match report, not here.
   it**, `a + (rand() % 160 - 80)`. `a - 80 + rand() % 160` moves -80 onto
   the `rand()` result. (ScatterDust) If cc1 still moves it, give it its own
   statement: `bob = (...) - 200; y = pos->vy + bob;`. (DrawPin)
+- **`negu` then `addiu K` where the build has `li K` and `subu`: write
+  `-x + K`.** `K - x` gives cc1 a register for K, which CSE shares with a
+  second `K - x` across a call, so it lands in a saved register. (ovl20's
+  camera orbit, `-(timer * 2) + 180`)
+- **Retail adds `t * 2 + 200` to a just-stored `z += 30` where the build
+  adds 230 to the old `z`: write `z + 200 + t * 2`.** `z + (t * 2 + 200)`
+  lets combine merge the two constants, and `z + t * 2 + 200` adds in the
+  other order. (ovl20's step 10)
 - **Operand order sets load order.** `a <= b` and `a - b` load `a` first; a
   `subu` whose subtrahend loads first was `-b + a`. (LandPlayer,
   DrawToolPin)

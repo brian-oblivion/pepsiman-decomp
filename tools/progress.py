@@ -56,6 +56,11 @@ them (docs/PARALLEL-RUNS.md, Gate 1):
             game-code denominator -- it is not this game's source and matching
             it proves nothing about the game.
 
+OVERLAYS are counted apart, after the units: each built overlay (the
+Makefile's OVERLAYS) from its own src/ovl/ unit and build/ovl/ ELF, and the
+rest by name and file size only, since an overlay has no function list until
+it has a splat config.
+
 Byte metrics need a linked build/pepsiman.elf, so run ./build-and-verify.sh
 first. Sizes weight a 400-instruction dispatcher above a 6-word leaf, which is
 the honest way to read "how much is left".
@@ -359,6 +364,81 @@ def text_symbols():
     return info
 
 
+
+def built_overlays():
+    """The overlays the build covers: the Makefile's OVERLAYS."""
+    m = re.search(r"^OVERLAYS\s*:=\s*(.*)$", (ROOT / "Makefile").read_text(), re.M)
+    return m.group(1).split() if m else []
+
+
+def disc_overlays():
+    """Every overlay with a retail hash: (name, file bytes or None)."""
+    out = []
+    sums = ROOT / "check-overlays.sha1"
+    for m in re.finditer(r"disk/ovl/(\w+)\.bin$", sums.read_text() if sums.exists() else "", re.M):
+        f = ROOT / "disk/ovl" / f"{m.group(1)}.bin"
+        out.append((m.group(1), f.stat().st_size if f.exists() else None))
+    return out
+
+
+def overlay_text_symbols(ovl):
+    """name -> (vram, byte size) for the functions of one overlay's ELF: the
+    text symbols between splat's <ovl>_TEXT_START and _TEXT_END (its data
+    labels link as text too), sized to the next one or to the text end."""
+    elf = ROOT / "build/ovl" / f"{ovl}.elf"
+    if not (NM.exists() and elf.exists()):
+        return {}, 0
+    out = subprocess.run([str(NM), "-n", str(elf)],
+                         capture_output=True, text=True, check=True).stdout
+    syms, bounds = [], {}
+    for line in out.splitlines():
+        parts = line.split()
+        if len(parts) != 3:
+            continue
+        if parts[2] in (f"{ovl}_TEXT_START", f"{ovl}_TEXT_END"):
+            bounds[parts[2]] = int(parts[0], 16)
+        elif parts[1] in ("T", "t"):
+            syms.append((int(parts[0], 16), parts[2]))
+    lo, hi = bounds.get(f"{ovl}_TEXT_START"), bounds.get(f"{ovl}_TEXT_END")
+    if lo is None or hi is None:
+        return {}, 0
+    syms = [(a, n) for a, n in syms if lo <= a < hi and not NOT_A_FUNCTION.search(n)]
+    info = {}
+    for i, (addr, name) in enumerate(syms):
+        nxt = next((a for a, _ in syms[i + 1:] if a > addr), hi)
+        info[name] = (addr, nxt - addr)
+    return info, hi - lo
+
+
+def overlay_progress(reports):
+    """Per built overlay: functions and code bytes matched and queued, from
+    its own unit and its own ELF. A name means something only inside its
+    overlay, so nothing here is pooled with the executable's counts."""
+    rows = {}
+    for ovl in built_overlays():
+        c = ROOT / "src/ovl" / f"{ovl}.c"
+        info, text_b = overlay_text_symbols(ovl)
+        text = c.read_text() if c.exists() else ""
+        code = strip_dead_code(text)
+        inc = INCLUDE_RE.findall(code)
+        defs = [d for d in DEF_RE.findall(code) if d in info]
+        kept = set(DEF_RE.findall("\n".join(NM_BLOCK_RE.findall(text))))
+        stall = [f for f in inc if f in reports or f in kept]
+        rows[ovl] = {
+            "matched": len(defs), "queued": len(inc), "stalled": len(stall),
+            "fresh": len(inc) - len(stall),
+            "bytes": {"matched": sum(info.get(f, (0, 0))[1] for f in defs),
+                      "queued": sum(info.get(f, (0, 0))[1] for f in inc),
+                      "text": text_b},
+        }
+    return rows
+
+
+def is_overlay_unit(path):
+    """A unit of an overlay image (src/ovl/), counted by overlay_progress."""
+    return "ovl" in path.relative_to(srcpath.SRC).parts[:-1]
+
+
 def main():
     info = text_symbols()
     sizes = {n: s for n, (_, s) in info.items()}
@@ -379,6 +459,8 @@ def main():
     lib_stalled = 0
 
     for c in srcpath.src_files():
+        if is_overlay_unit(c):
+            continue
         text = c.read_text()
         code = strip_dead_code(text)
         inc = INCLUDE_RE.findall(code)
@@ -484,6 +566,9 @@ def main():
     total_b = matched_b + queued_b + uncarved_b + library_b + handwritten_b
     game_b = total_b - library_b
 
+    ovl_rows = overlay_progress(reports)
+    ovl_unbuilt = [(o, b) for o, b in disc_overlays() if o not in ovl_rows]
+
     if "--json" in sys.argv:
         print(json.dumps({
             "matched": matched, "queued": queued, "stalled": stalled,
@@ -496,7 +581,9 @@ def main():
                       "handwritten": handwritten_b,
                       "total": total_b, "game": game_b},
             "library_ranges": [[hex(a), hex(b)] for a, b in LIBRARY_RANGES],
-            "units": per_unit}, indent=2))
+            "units": per_unit,
+            "overlays": {"built": ovl_rows,
+                         "not_built": [o for o, _ in ovl_unbuilt]}}, indent=2))
         return
 
     if stale:
@@ -593,6 +680,35 @@ def main():
     for name, u in per_unit.items():
         print(f"  {name:<16} {u['matched']:>8} {u['queued']:>8}"
               f" {u['stalled']:>8} {u['banked']:>8} {u['fresh']:>8}")
+
+    # THE OVERLAYS. Each is its own image, loaded over the others at
+    # 0x800F0000, so its functions are counted apart from the executable's
+    # and its names mean something only inside it. An overlay not yet in the
+    # Makefile's OVERLAYS has no split, so no function count: only its size.
+    if ovl_rows or ovl_unbuilt:
+        print()
+        om = sum(r["matched"] for r in ovl_rows.values())
+        on = sum(r["matched"] + r["queued"] for r in ovl_rows.values())
+        ob = sum(r["bytes"]["matched"] for r in ovl_rows.values())
+        ot = sum(r["bytes"]["text"] for r in ovl_rows.values())
+        print(f"Overlays: {len(ovl_rows)} of {len(ovl_rows) + len(ovl_unbuilt)} built"
+              f" (the Makefile's OVERLAYS; not in any count above)")
+        if on:
+            print(f"  matched (C, byte-verified): {om:5d}  of {on} functions"
+                  f" ({100 * om / on:.2f}%), {ob} of {ot} code bytes")
+        if ovl_unbuilt:
+            known = [b for _, b in ovl_unbuilt if b is not None]
+            size = f", {sum(known)} file bytes" if known else ""
+            print(f"  not built yet:              {len(ovl_unbuilt):5d}  overlays"
+                  f" ({' '.join(o for o, _ in ovl_unbuilt)}{size}, code and data)")
+        if ovl_rows:
+            print()
+            print(f"  {'overlay':<16} {'matched':>8} {'queued':>8} {'stalled':>8}"
+                  f" {'fresh':>8} {'bytes':>12}")
+            for name, r in ovl_rows.items():
+                b = f"{r['bytes']['matched']}/{r['bytes']['text']}"
+                print(f"  {name:<16} {r['matched']:>8} {r['queued']:>8}"
+                      f" {r['stalled']:>8} {r['fresh']:>8} {b:>12}")
 
 
 if __name__ == "__main__":

@@ -22,6 +22,15 @@ enum SpriteBlend {
     BLEND_SUB = 2      /**< subtracted from the background */
 };
 
+/** @brief A sprite colour, a CVECTOR whose first byte is signed: the blend
+ *         mode, then the colour. */
+typedef struct {
+    s8 r;  /**< a SpriteBlend */
+    u8 g;  /**< red */
+    u8 b;  /**< green */
+    u8 cd; /**< blue */
+} SColor;
+
 extern GsOT gSubOt[]; /**< the ordering tables the sprite drawer is handed */
 extern GsOT gOt[];    /**< a second pair of ordering tables, cleared to depth 300 */
 extern GsOT *gCurOt;  /**< this frame's entry of the second pair (set in main) */

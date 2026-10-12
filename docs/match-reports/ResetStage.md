@@ -42,7 +42,7 @@ void ResetStage(void) {
     }
     gMissState = 0;
     SetCurrentBlock((BlockHeader *)0x801FD000);
-    D_80095768 = 0;
+    gWorldIntroStep = 0;
     sStage.unk6 = 3;
     sStage.unk3CA = 0;
     sStage.unk3 = 0;

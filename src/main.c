@@ -179,7 +179,7 @@ int main(void) {
                     gGameMode = GM_WORLD_INTRO;
                 }
                 gModeStep = 0;
-                D_80095768 = 0;
+                gWorldIntroStep = 0;
                 break;
             case GM_WORLD_INTRO:
                 switch ((u8)(gStage / 3)) {

@@ -373,7 +373,7 @@ void ResetStage(void) {
     }
     gMissState = MISS_NONE;
     SetCurrentBlock((BlockHeader *)0x801FD000);
-    D_80095768 = 0;
+    gWorldIntroStep = 0;
     gPlayer.motion[0] = MOT_RUN;
     gPlayer.falling = 0;
     gPlayer.twoTracks = 0;

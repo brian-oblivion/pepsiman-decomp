@@ -64,7 +64,6 @@ s32 DrawTodObjects(void);
 void SelectViewerMotion(void);
 s8 ReadTimHeader(u16 *tim);
 u8 *SetTodPacket(u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
-u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 
 void StopCdTrack(void) {
     if (gCdTrackPlaying != 0) {
@@ -326,8 +325,6 @@ void OrbitViewerCamera(void) {
     }
 }
 
-extern u8 sTodTmdIds[]; /**< SetTodFrame's TMD id table */
-
 u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
     u8 ret;
     s32 seq;
@@ -367,7 +364,7 @@ u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
         obj->motionTime[index]++;
     }
     obj->motionData[index] = SetTodFrame(obj->motionTime[index], obj->motionData[index],
-                                         (s32)gTodObjTable, (s32)sTodTmdIds, gModelTmd, 0, arg);
+                                         (s32)gTodObjTable, (s32)gTodTmdIds, gModelTmd, 0, arg);
     return ret;
 }
 

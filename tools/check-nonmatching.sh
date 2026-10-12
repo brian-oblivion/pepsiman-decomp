@@ -57,14 +57,25 @@ if ! make nonmatching -s "${targets[@]}" > build/nonmatching.log 2>&1; then
     exit 1
 fi
 
-# Symbols the verified image defines, any section.
-defined=$("$NM" "$ELF" | awk '$2 ~ /^[TtDdBbRrAa]$/ {print $3}' | sort -u)
+# Symbols a verified image defines, any section. An overlay unit
+# (src/ovl/<ovl>.c) links into its own image, build/ovl/<ovl>.elf, which also
+# carries the executable's symbols.
+defined_in() {
+    "$NM" "$1" | awk '$2 ~ /^[TtDdBbRrAa]$/ {print $3}' | sort -u
+}
+defined=$(defined_in "$ELF")
 
 bad=0
 for u in "${units[@]}"; do
     obj="build/nonmatching/src/$u.c.o"
+    have=$defined
+    if [[ $u == ovl/* ]]; then
+        oelf="build/ovl/${u#ovl/}.elf"
+        [ -f "$oelf" ] || { echo "FATAL: $oelf missing. Run ./build-and-verify.sh first." >&2; exit 1; }
+        have=$(defined_in "$oelf")
+    fi
     # Undefined symbols in the NM object that the real link does not define.
-    missing=$(comm -23 <("$NM" -u "$obj" | awk '{print $2}' | sort -u) <(printf '%s\n' "$defined"))
+    missing=$(comm -23 <("$NM" -u "$obj" | awk '{print $2}' | sort -u) <(printf '%s\n' "$have"))
     if [ -n "$missing" ]; then
         echo "UNRESOLVED in $u (NON_MATCHING body references a symbol the real link does not define):"
         printf '    %s\n' $missing

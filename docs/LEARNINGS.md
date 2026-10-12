@@ -9,6 +9,9 @@ function's match report, not here.
 
 ## Declarations
 
+- **Overlay code is `-G0`: every global, scalars included, is cc1's own
+  `%hi`/`%lo` split, with the `lui` hoisted into another register.** The
+  executable's rules for choosing a declaration apply only to it. (ovl18)
 - **How a global is reached says how it was declared** (CLAUDE.md, "Facts
   worth knowing"). Confirmed across round 1: `%gp_rel` and `lui $at` are a
   plain extern; `lui <reg>` + `%lo(sym)(<reg>)` is an array of unknown size,
@@ -388,6 +391,13 @@ function's match report, not here.
   a branch with a filled slot. (LineCircleIntersect)
 - **A body repeating another function of the unit: a `static __inline__`
   helper with both functions as callers.** (UpdateActiveSprites, StepSprite)
+- **A function that follows its only caller and repeats a block of it
+  exactly: a non-static `inline` defined before the caller.** gcc 2.8 inlines
+  it, then writes its own copy at the end of the file. (ovl18's caption and
+  model draws)
+- **An inlined frame placed 8 bytes higher than the arguments area allows: an
+  unused aggregate local in the caller**, which takes the frame's first slot.
+  (ovl18's frame step)
 
 - **A compare tree split one case lower than expected: an empty `case -2:
   break;` outside the visible range.** gcc 2.8 splits n nodes after node

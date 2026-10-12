@@ -170,12 +170,21 @@ check-overlays:
 $(OVL_DIR)/%.bin: $(OVL_DIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 
+# Every name the executable's symbols file gives, as linker assignments: an
+# overlay's C may name any executable symbol, not only those splat saw retail
+# reach (it saw `D_80095768 + 0x2` where ovl18's C says gFogFade).
+EXE_SYMS_LD := $(OVL_DIR)/exe_syms.ld
+$(EXE_SYMS_LD): $(CONFIG)/symbols.$(GAME_ID).$(GAME).txt
+	@mkdir -p $(dir $@)
+	sed 's|//.*||' $< > $@
+
 # The linker script is splat's (make extract writes it into build/ovl/).
-$(OVL_DIR)/%.elf: $$(call OVL_OBJS,$$*) $(OVL_DIR)/%.ld \
+$(OVL_DIR)/%.elf: $$(call OVL_OBJS,$$*) $(OVL_DIR)/%.ld $(EXE_SYMS_LD) \
 		$(CONFIG)/ovl/undefined_syms_auto.%.txt $(CONFIG)/ovl/undefined_funcs_auto.%.txt
 	$(LD) -o $@ \
 		-Map $(OVL_DIR)/$*.map \
 		-T $(OVL_DIR)/$*.ld \
+		-T $(EXE_SYMS_LD) \
 		-T $(CONFIG)/ovl/undefined_syms_auto.$*.txt \
 		-T $(CONFIG)/ovl/undefined_funcs_auto.$*.txt \
 		$(LD_FLAGS)
@@ -233,6 +242,12 @@ NM_OBJS  := $(foreach f,$(C_FILES),$(NM_DIR)/$(f).o)
 
 .PHONY: nonmatching
 nonmatching: $(NM_OBJS)
+
+$(NM_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
+	@mkdir -p $(dir $@)
+	$(CPP) $(CPP_FLAGS) -DNON_MATCHING $< | $(CC1) $(OVL_CC_FLAGS) | \
+		$(MASPSX) $(MASPSX_FLAGS) --gp-symbols=config/ovl/gp.$*.txt | \
+		$(AS) $(AS_FLAGS) -o $@
 
 $(NM_DIR)/%.c.o: %.c $(HEADERS) config/gp/$$(notdir $$*).txt $$(wildcard $$*_tables.inc) $$(wildcard asm/nonmatchings/$$(notdir $$*)/*.s)
 	@mkdir -p $(dir $@)

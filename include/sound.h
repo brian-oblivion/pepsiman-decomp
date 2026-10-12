@@ -25,4 +25,12 @@ void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable
 /** @brief Defined in sound. */
 void UpdateSoundFade(void);
 
+/** @brief Plays XA channel @p chan of the file the drive is positioned on,
+ *         at the mix the stereo setting picks.
+ *  @param chan the XA channel */
+void PlayXa(u8 chan);
+
+/** @brief Mutes the CD mix and pauses the drive, ending an XA track. */
+void StopXa(void);
+
 #endif

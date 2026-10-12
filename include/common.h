@@ -489,14 +489,14 @@ extern s32 gCdTrackPlays;   /**< 2 units, 2 functions */
 extern s32 gCdTrackStart;   /**< 2 units, 2 functions */
 extern s32 gLookYawNarrow; /**< object 2's turn toward the look point, eased by 8 within +-60 degrees */
 extern s32 gLookYawWide; /**< the other objects' turn toward the look point, eased by 50 within +-80 degrees */
-extern u16 gEditValue;     /**< the value the highlighted menu line edits */
-extern s16 gMenuLine;      /**< the highlighted line of a menu */
-extern u32 gStageObjCount; /**< an entry count */
-extern s32 gActiveBuff;    /**< the display buffer being drawn this frame, 0 or 1 */
-extern s32 gPad;           /**< port 1's held buttons this frame (PAD* bits), after ReadPad */
-extern s32 gGamePadTrig;   /**< remapped button flags; 2 units */
-extern u16 gModeStep;      /**< the model viewer's state; 2 units */
-extern u16 D_80095768;     /**< 2 units, 2 functions; never loaded, sign unknown */
+extern u16 gEditValue;      /**< the value the highlighted menu line edits */
+extern s16 gMenuLine;       /**< the highlighted line of a menu */
+extern u32 gStageObjCount;  /**< an entry count */
+extern s32 gActiveBuff;     /**< the display buffer being drawn this frame, 0 or 1 */
+extern s32 gPad;            /**< port 1's held buttons this frame (PAD* bits), after ReadPad */
+extern s32 gGamePadTrig;    /**< remapped button flags; 2 units */
+extern u16 gModeStep;       /**< the model viewer's state; 2 units */
+extern u16 gWorldIntroStep; /**< the world intro overlay's step; main and stage_flow clear it */
 extern u8 gAllTargetsBeaten; /**< 1 once every act's best time beats its target; set by the act results */
 extern u8 gPlayLive; /**< 1 from a stage's start or restart until a time-up miss freezes the play */
 extern u8 gFellOff;  /**< set when the player falls below the floor; never read here */
@@ -677,6 +677,10 @@ void InitLights(void);
 /** @brief Defined in main.
  *  @param count how many times it prints its fixed string */
 void PrintTabs(s16 count);
+
+/** @brief Defined in main: freezes the screen into two sprites and starts
+ *         the load screen, with a copy of the player running on it. */
+void BeginLoadScreenModel(void);
 
 /** @brief Defined in player: on every tenth pickup, plays a cue
  *         (unless the stage forbids it) and updates the pickup display. */

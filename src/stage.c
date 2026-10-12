@@ -449,15 +449,6 @@ void DefineHudSprites(void) {
 
 extern u32 sBonusDist; /**< speed summed each frame; its hundreds pick the bonus sprite's frame */
 
-/** @brief A sprite colour, a CVECTOR whose first byte is signed: the blend
- *         mode, then the colour. */
-typedef struct {
-    s8 r;  /**< a SpriteBlend */
-    u8 g;  /**< red */
-    u8 b;  /**< green */
-    u8 cd; /**< blue */
-} SColor;
-
 /* MATCHING: draw takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);

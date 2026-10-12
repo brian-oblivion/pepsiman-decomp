@@ -206,6 +206,15 @@ def is_game(path):
     return not (path.startswith("include/psyq/") or path.startswith("src/psyq/"))
 
 
+def image(path):
+    """The image a unit links into: an overlay's own (src/ovl/<ovl>.c), or
+    the executable. Headers belong to no image."""
+    parts = path.split("/")
+    if len(parts) == 3 and parts[:2] == ["src", "ovl"]:
+        return "ovl/" + parts[2].rsplit(".", 1)[0]
+    return "exe"
+
+
 def main():
     args = sys.argv[1:]
     verbose = "--verbose" in args
@@ -220,10 +229,20 @@ def main():
             for c in sorted(calls - declared):
                 implicit.append(f"{c}: called in {ur} with no declaration")
 
-    defs = {}
+    # A definition in the executable is the one every image links against.
+    # One in an overlay is that overlay's alone: the executable reaches an
+    # overlay function only by its address, which every overlay loaded there
+    # fills with code of its own, and two overlays may define the same name.
+    defs, ovl_defs = {}, {}
     for d in decls:
         if d.is_def and d.file.endswith(".c") and "static" not in d.storage:
-            defs.setdefault(d.name, d)
+            if image(d.file) == "exe":
+                defs.setdefault(d.name, d)
+            else:
+                ovl_defs.setdefault((image(d.file), d.name), d)
+
+    def definition(name, where):
+        return defs.get(name) or ovl_defs.get((image(where), name))
     sites = defaultdict(dict)
     for d in decls:
         if not d.is_def:
@@ -240,7 +259,6 @@ def main():
         game = {w: d for w, d in s.items() if is_game(w)}
         if not game:
             continue
-        df = defs.get(name)
         if len(s) > 1:
             key = "DELIBERATE" if any(deliberate(d) for d in s.values()) else "MULTI"
             problems[key].append(f"{name}: " + ", ".join(sorted(s)))
@@ -249,6 +267,7 @@ def main():
             if not d.file.endswith(".c") or "static" in d.storage:
                 continue
             others = sorted(users[name] - {d.file})
+            df = definition(name, d.file)
             why = []
             if df and df.file != d.file:
                 why.append(f"defined {df.where}")
@@ -258,8 +277,9 @@ def main():
                 why.append("used by " + ", ".join(others))
             if why:
                 problems["DELIBERATE" if deliberate(d) else "LOCAL"].append(f"{name}: {w} ({'; '.join(why)})")
-        if df:
-            for w, d in s.items():
+        for w, d in s.items():
+            df = definition(name, d.file)
+            if df:
                 if d.typ != df.typ:
                     problems["DELIBERATE" if deliberate(d) else "TYPE"].append(f"{name}: {w} `{d.typ}` vs definition {df.where} `{df.typ}`")
     problems["IMPLICIT"] = [x for x in implicit if not only or x.split(":")[0] in only]

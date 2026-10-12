@@ -39,6 +39,19 @@ typedef struct {
  *  @return 0 once the motion has stopped, 2 at a loop's end, else 1 */
 u8 StepAnimation(PlayerState *obj, u16 index, u8 arg);
 
+/** @brief Applies a TOD frame's packets once @p time reaches it.
+ *  @param time     the channel's clock
+ *  @param data     the frame: its packet count, its time, then the packets
+ *  @param objTable the object table the packets act on
+ *  @param tmdIds   the TMD id table
+ *  @param tmdTable the TMD data the objects are linked to
+ *  @param mode     handed to each packet
+ *  @param filter   the packet filter
+ *  @return the next frame, or @p data while @p time is before it */
+u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
+
+extern u8 gTodTmdIds[]; /**< SetTodFrame's TMD id table */
+
 /** @brief Rebuilds a coordinate system's matrix from a rotation, keeping
  *         its translation, and marks it changed.
  *  @param rot   the rotation (YXZ order)

@@ -3,6 +3,11 @@
 
     python3 tools/funcdiff.py <func_name>          # score, plus differing words
     python3 tools/funcdiff.py <func_name> --context  # every word, matched too
+    python3 tools/funcdiff.py <func_name> --ovl ovl18  # in that overlay
+
+The function is looked for in the executable and in every overlay the build
+covers (the Makefile's OVERLAYS); `--ovl` is needed only when a name exists in
+more than one, as the world intros' func_800F00C0 does.
 
 Exit status is the answer: 0 = byte-identical, 1 = differs, 2 = THE NUMBER
 CANNOT BE TRUSTED (see the two guards below).
@@ -13,7 +18,8 @@ give a score you can watch move. It is not a substitute for the full check.
 
 Addresses come from splat's own instruction comments, which carry the file
 offset directly: `/* 39CD8 800494D8 E8FFBD27 */`, i.e. FILEOFS VRAM WORD. For
-this executable file offset = vram - 0x80010000 + 0x800.
+the executable file offset = vram - 0x80010000 + 0x800; an overlay has no
+header, so its file offset = vram - 0x800F0000.
 """
 import re
 import subprocess
@@ -24,19 +30,65 @@ import progress
 import srcpath
 
 ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "disk/SLPS_017.62"
-BUILT = ROOT / "build/SLPS_017.62"
-ELF = ROOT / "build/pepsiman.elf"
 NM = ROOT / "tools/binutils/bin/mipsel-linux-gnu-nm"
 
-VRAM_BASE = 0x80010000
-FILE_BASE = 0x800
+
+class Target:
+    """One image the build verifies: the executable, or one overlay.
+
+    Everything below that names a file goes through one of these, so an
+    overlay function is never scored against the executable's bytes (or the
+    reverse) -- the same vram means different code in the two.
+    """
+
+    def __init__(self, name, retail, built, elf, vram_base, file_base,
+                 asm_root, stale_globs, sources):
+        self.name = name
+        self.retail = ROOT / retail
+        self.built = ROOT / built
+        self.elf = ROOT / elf
+        self.vram_base = vram_base
+        self.file_base = file_base
+        self.asm_root = ROOT / asm_root
+        self.stale_globs = stale_globs
+        self.sources = sources
+
+    def vram(self, off):
+        return off - self.file_base + self.vram_base
+
+    def nm_find(self, fn):
+        if self.name == "main":
+            return srcpath.nm_find(fn)
+        return sorted((self.asm_root / "nonmatchings").rglob(f"{fn}.s"))
+
+
+def overlays():
+    """The OVERLAYS the Makefile builds, read from the Makefile itself."""
+    m = re.search(r"^OVERLAYS\s*:=(.*)$", (ROOT / "Makefile").read_text(), re.M)
+    return m.group(1).split() if m else []
+
+
+def targets():
+    main = Target("main", "disk/SLPS_017.62", "build/SLPS_017.62",
+                  "build/pepsiman.elf", 0x80010000, 0x800, "asm",
+                  ("src/**/*.c", "include/**/*.h", "include/*.inc",
+                   "asm/*.s", "asm/nonmatchings/**/*.s"),
+                  [p for p in srcpath.src_files()
+                   if "ovl" not in p.relative_to(srcpath.SRC).parts[:-1]])
+    out = [main]
+    for o in overlays():
+        out.append(Target(o, f"disk/ovl/{o}.bin", f"build/ovl/{o}.bin",
+                          f"build/ovl/{o}.elf", 0x800F0000, 0, f"asm/ovl/{o}",
+                          (f"src/ovl/{o}.c", "include/**/*.h", "include/*.inc",
+                           f"asm/ovl/{o}/**/*.s", f"config/ovl/gp.{o}.txt"),
+                          [ROOT / f"src/ovl/{o}.c"]))
+    return out
 
 # /* FILEOFS VRAM WORD */
 INSN_RE = re.compile(r"/\* ([0-9A-Fa-f]+) [0-9A-Fa-f]{8} [0-9A-Fa-f]{8} \*/")
 
 
-def range_from_elf(name):
+def range_from_elf(t, name):
     """(start, end) file offsets from the linked ELF's symbol table, or None.
 
     THE ONLY SOURCE THAT WORKS FOR AN ALREADY-MATCHED FUNCTION. Once a function
@@ -50,9 +102,9 @@ def range_from_elf(name):
     out. It over-reads when the next symbol is not a function, so this is the
     fallback rather than the primary source.
     """
-    if not (NM.exists() and ELF.exists()):
+    if not (NM.exists() and t.elf.exists()):
         return None
-    out = subprocess.run([str(NM), "-n", str(ELF)],
+    out = subprocess.run([str(NM), "-n", str(t.elf)],
                          capture_output=True, text=True).stdout
     syms = []
     for line in out.splitlines():
@@ -65,12 +117,12 @@ def range_from_elf(name):
         nxt = next((a for a, _ in syms[i + 1:] if a > addr), None)
         if nxt is None:
             return None
-        return (addr - VRAM_BASE + FILE_BASE, nxt - VRAM_BASE + FILE_BASE)
+        return (addr - t.vram_base + t.file_base, nxt - t.vram_base + t.file_base)
     return None
 
 
-def find_range(name):
-    """(start, end) file offsets for `name`, or None.
+def find_range(t, name):
+    """(start, end) file offsets for `name` in target `t`, or None.
 
     Three sources, in descending order of precision:
       1. asm/nonmatchings/**/<name>.s -- one function per file, exact.
@@ -79,7 +131,7 @@ def find_range(name):
       3. the linked ELF's symbol table, which is the only one that still knows
          about a function after it has been MATCHED.
     """
-    for p in srcpath.nm_find(name):
+    for p in t.nm_find(name):
         text = p.read_text()
         # DELIMIT BY glabel/endlabel, exactly as source 2 below does -- do NOT
         # min/max over the whole file.  A function that owns a jump table has
@@ -103,7 +155,7 @@ def find_range(name):
         if offs:
             return min(offs), max(offs) + 4
 
-    for p in sorted(ROOT.glob("asm/*.s")):
+    for p in sorted(t.asm_root.glob("*.s")):
         text = p.read_text()
         m = re.search(rf"^glabel {re.escape(name)}$\n(.*?)^endlabel "
                       rf"{re.escape(name)}$", text, re.S | re.M)
@@ -113,10 +165,10 @@ def find_range(name):
         if offs:
             return min(offs), max(offs) + 4
 
-    return range_from_elf(name)
+    return range_from_elf(t, name)
 
 
-def staleness_check():
+def staleness_check(t):
     """Warn if any build input is NEWER than the built executable.
 
     THE ORACLE TRAP THIS PROJECT WILL HIT MOST OFTEN, made mechanical instead
@@ -136,14 +188,19 @@ def staleness_check():
     and it catches the sequence that actually recurs: edit, build fails, read
     the score.
     """
+    built_rel = t.built.relative_to(ROOT)
     try:
-        built_mtime = BUILT.stat().st_mtime
+        built_mtime = t.built.stat().st_mtime
     except OSError:
-        return "no build/SLPS_017.62 — run ./build-and-verify.sh first."
+        return f"no {built_rel} — run ./build-and-verify.sh first."
     newest, newest_path = 0.0, None
-    for pat in ("src/**/*.c", "include/**/*.h", "include/*.inc",
-                "asm/*.s", "asm/nonmatchings/**/*.s"):
+    # The executable's patterns reach into src/ovl/ and asm/ovl/ too; an
+    # overlay edit does not make the executable stale, so those are skipped.
+    for pat in t.stale_globs:
         for p in ROOT.glob(pat):
+            rel = p.relative_to(ROOT).parts
+            if t.name == "main" and rel[1:2] == ("ovl",):
+                continue
             try:
                 m = p.stat().st_mtime
             except OSError:
@@ -152,7 +209,7 @@ def staleness_check():
                 newest, newest_path = m, p
     if newest > built_mtime:
         return (f"STALE BUILD: {newest_path.relative_to(ROOT)} is NEWER than "
-                f"build/SLPS_017.62.\n"
+                f"{built_rel}.\n"
                 f"         The build does not reflect your latest edit, which "
                 f"means it almost certainly\n"
                 f"         FAILED (compile or link). EVERY NUMBER ABOVE IS "
@@ -162,7 +219,7 @@ def staleness_check():
     return None
 
 
-def include_asm_check(name):
+def include_asm_check(t, name):
     """Warn if `name` is still INCLUDE_ASM, i.e. this is retail vs retail.
 
     A DIFFERENT TRAP IN KIND from staleness: the build SUCCEEDS, the output is
@@ -175,7 +232,7 @@ def include_asm_check(name):
     have to re-enable its body first.
     """
     inc = re.compile(r"INCLUDE_ASM\([^,]+,\s*" + re.escape(name) + r"\s*\)")
-    for c in srcpath.src_files():
+    for c in t.sources:
         # A preserved body, a commented-out line, or the `#else` arm of an
         # `#if 1` a runner iterates under is not compiled and must not count
         # as a live INCLUDE_ASM (round 64: the regex form warned "still
@@ -195,26 +252,43 @@ def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     name = sys.argv[1]
+    want = None
+    if "--ovl" in sys.argv:
+        i = sys.argv.index("--ovl")
+        if i + 1 >= len(sys.argv):
+            sys.exit("--ovl needs an overlay name, e.g. --ovl ovl18")
+        want = sys.argv[i + 1]
 
-    rng = find_range(name)
-    if not rng:
-        sys.exit(f"function {name} not found in asm/ or in build/pepsiman.elf.\n"
+    pool = targets()
+    if want:
+        pool = [t for t in pool if t.name == want]
+        if not pool:
+            sys.exit(f"{want} is not an overlay the build covers "
+                     f"(the Makefile's OVERLAYS: {' '.join(overlays()) or 'none'})")
+    found = [(t, r) for t in pool for r in [find_range(t, name)] if r]
+    if not found:
+        where = want or "the executable or any overlay"
+        sys.exit(f"function {name} not found in {where}, in asm/ or in the "
+                 f"linked ELF.\n"
                  f"  Is it spelled right? Has `make extract` run? Has "
                  f"./build-and-verify.sh run at least once\n"
                  f"  (the ELF is the only source that knows about an "
                  f"already-matched function)?")
-    start, end = rng
+    if len(found) > 1:
+        sys.exit(f"{name} exists in {', '.join(t.name for t, _ in found)}; "
+                 f"pick one with --ovl <name>.")
+    t, (start, end) = found[0]
 
-    if not RETAIL.exists():
-        sys.exit(f"{RETAIL} missing — see README.md, 'Building it'")
-    if not BUILT.exists():
-        sys.exit(f"{BUILT} missing — run ./build-and-verify.sh")
+    if not t.retail.exists():
+        sys.exit(f"{t.retail.relative_to(ROOT)} missing — see README.md, 'Building it'")
+    if not t.built.exists():
+        sys.exit(f"{t.built.relative_to(ROOT)} missing — run ./build-and-verify.sh")
 
-    retail = RETAIL.read_bytes()
-    built = BUILT.read_bytes()
+    retail = t.retail.read_bytes()
+    built = t.built.read_bytes()
 
-    stale_warning = staleness_check()
-    inc_warning = include_asm_check(name)
+    stale_warning = staleness_check(t)
+    inc_warning = include_asm_check(t, name)
 
     a, b = retail[start:end], built[start:end]
     outside = sum(1 for i in range(min(len(retail), len(built)))
@@ -230,11 +304,12 @@ def main():
             bad += 1
         if x != y or "--context" in sys.argv:
             mark = "OK  " if x == y else "DIFF"
-            print(f"{i:3d} off=0x{start + i * 4:06X} vram=0x{0x80010000 + start + i * 4 - 0x800:08X} "
+            print(f"{i:3d} off=0x{start + i * 4:06X} vram=0x{t.vram(start + i * 4):08X} "
                   f"{mark} retail={x.hex()} built={y.hex()}")
 
+    where = "" if t.name == "main" else f"{t.name} "
     print(f"{name}: {n - bad}/{n} words match "
-          f"(file 0x{start:X}-0x{end:X})")
+          f"({where}file 0x{start:X}-0x{end:X})")
 
     # Insertions / deletions at the OPCODE level, so Gate 3's check 3 (does the
     # permuter scaffold's signature AGREE with the real build) can be run at

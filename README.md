@@ -115,7 +115,9 @@ world intros, and 0 is a mode `main` loads first. Each is its own image: a
 splat config in `config/ovl/<ovl>.yaml`, a C unit in `src/ovl/<ovl>.c`, its
 own link against the executable's symbol addresses, and its retail SHA1 in
 `check-overlays.sha1`. The Makefile's `OVERLAYS` names the ones the build
-covers. Overlay code is compiled with `-G0` (the executable's is `-G8`).
+covers. Overlay code is compiled with `-G0` (the executable's is `-G8`). `tools/funcdiff.py`
+scores overlay functions too; `--ovl <ovl>` picks one when a name is in
+several overlays.
 
 ## Changing the code and keeping it matching
 

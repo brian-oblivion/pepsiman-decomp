@@ -163,6 +163,10 @@ check-overlays:
 	grep -E ' disk/ovl/($(subst $(eval) ,|,$(OVERLAYS)))\.bin$$' check-overlays.sha1 \
 		| sed 's| disk/| $(BUILD_DIR)/|' | sha1sum --check
 
+# Kept: make deletes the intermediate of a pattern chain, and funcdiff reads
+# a matched function's range from this ELF's symbols.
+.SECONDARY: $(OVL_BINS:.bin=.elf)
+
 $(OVL_DIR)/%.bin: $(OVL_DIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 

@@ -1,0 +1,62 @@
+# Overlay 21: the world 4 intro, CDDATA/1/1400 on the disc
+# (tools/extract_overlays.py writes it to disk/ovl/ovl21.bin).
+#
+# ADDRESSING. A bare image, no header: LoadOverlay reads the file to
+# 0x800F0000 and main.c calls into it at 0x800F03BC (GM_WORLD_INTRO, world 4),
+# so vram = 0x800F0000 + file offset. It reaches the executable's symbols by
+# their absolute addresses, so the executable's symbols file is read first
+# and anything it calls lands in this overlay's undefined_*_auto files.
+#
+# SEGMENTATION, measured: a word table and two jump tables, then code from
+# the first prologue to the last `jr $ra`, then data to the end of the file.
+# No instruction uses $gp.
+name: ovl21
+sha1: 5f7c9912e401c14ae103775e63dc0dfec1d4194a
+options:
+  basename: ovl21
+  platform: psx
+  compiler: GCC
+
+  base_path: ../..
+  target_path: disk/ovl/ovl21.bin
+  asm_path:    asm/ovl/ovl21/
+  asset_path:  assets/ovl21/
+  src_path:    src/ovl/
+  symbol_addrs_path:
+    - config/symbols.slps01762.pepsiman.txt
+    - config/ovl/symbols.ovl21.txt
+  undefined_funcs_auto_path:   config/ovl/undefined_funcs_auto.ovl21.txt
+  undefined_syms_auto_path:    config/ovl/undefined_syms_auto.ovl21.txt
+  ld_script_path: build/ovl/ovl21.ld
+
+  find_file_boundaries: True
+  pair_rodata_to_text: False
+  migrate_rodata_to_functions: True
+
+  o_as_suffix: False
+  use_legacy_include_asm: False
+
+  asm_function_macro: glabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+
+  section_order: [".rodata", ".text", ".data"]
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+segments:
+  - name: ovl21
+    type: code
+    start: 0x0
+    vram: 0x800F0000
+    align: 4
+    subsegments:
+      - [0x0, .rodata, ovl21]
+      - [0xC0, c, ovl21]                  # 5 functions
+      - [0x13D0, data]
+  - [0x2DA0]

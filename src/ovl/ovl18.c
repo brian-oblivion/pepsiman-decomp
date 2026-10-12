@@ -14,24 +14,13 @@
 #include "draw.h"
 #include "sound.h"
 #include "spad.h"
+#include "world_intro.h"
 
 /* MATCHING: model types these as its own records; here they are the
  * overlay's tables, as in main. */
 void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
 /* MATCHING: main's s32 view, which keeps sound.h from declaring it. */
 s32 LoadVabBank(s32 bank);
-
-/** @brief The model list as the model draw walks it. */
-typedef struct {
-    GsDOBJ2 *objs; /**< the models */
-    s32 count;     /**< how many */
-} DrawList;
-
-/** @brief The record holding the intro's camera clock at +0x24. */
-typedef struct {
-    u8 pad0[0x24]; /**< not yet known */
-    u16 timer;     /**< the intro's camera clock */
-} IntroTimer;
 
 /** @brief The caption table: each caption's first frame, and the next one's. */
 typedef struct {
@@ -53,14 +42,10 @@ extern GsDOBJ2 D_800F2A50;
 extern VECTOR D_800F2A60;
 extern SVECTOR D_800F2A70;
 extern u8 D_800F2A78[];
-extern IntroTimer D_800D39D8;
-
-const CaptionTimes D_800F0000 = {{0xED, 0x159, 0x1C8, 0x249, 0x2C7, 0x366, 0x3D8, 0x43E, 0x4A4}};
 
 /* The camera script's step. */
 /* MATCHING: kept in the fog fade's word, reached as its own symbol. */
 #define sSubStep gFogFade
-#define sView (*(GsRVIEW2 *)gRefView)
 
 /** @brief The three flat lights of the scene. */
 typedef struct {
@@ -69,6 +54,8 @@ typedef struct {
 
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)gFlatLights)
+
+const CaptionTimes D_800F0000 = {{0xED, 0x159, 0x1C8, 0x249, 0x2C7, 0x366, 0x3D8, 0x43E, 0x4A4}};
 
 u8 func_800F00C0(PlayerState *obj, u16 index, s32 objTable, s32 tmdTable) {
     if (obj->motion[index] != obj->curMotion[index]) {

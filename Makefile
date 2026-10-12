@@ -142,7 +142,7 @@ $(ELF): $(O_FILES) $(GAME).ld $(CONFIG)/psyq-objects.ld \
 # One C unit per overlay so far, named after it: src/ovl/<ovl>.c, with its asm
 # under asm/ovl/<ovl>/. An overlay split into several units needs OVL_OBJS to
 # learn them.
-OVERLAYS  := ovl18
+OVERLAYS  := ovl18 ovl19 ovl20 ovl21 ovl22
 # -G0, not the executable's -G8: retail overlay code reaches every global,
 # a scalar like gActiveBuff included, by cc1's own %hi/%lo split over two
 # registers (lui $v0 hoisted, lw $v1 later), where the executable's code has

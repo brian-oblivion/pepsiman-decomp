@@ -259,14 +259,30 @@ def main():
         game = {w: d for w, d in s.items() if is_game(w)}
         if not game:
             continue
-        if len(s) > 1:
-            key = "DELIBERATE" if any(deliberate(d) for d in s.values()) else "MULTI"
-            problems[key].append(f"{name}: " + ", ".join(sorted(s)))
+        # Each image declares for itself: two overlays declaring one name are
+        # two translation units of two links, often for two different objects
+        # (each overlay's own data has placeholders of the same spelling). A
+        # header site counts in every image.
         hdr = sorted(w for w in s if w.startswith("include/"))
+        by_image = defaultdict(dict)
+        for w, d in s.items():
+            if not w.startswith("include/"):
+                by_image[image(d.file)][w] = d
+        groups = [g for g in by_image.values()] or [{}]
+        for g in groups:
+            seen = dict(g, **{w: s[w] for w in hdr})
+            if len(seen) > 1 and any(is_game(w) for w in seen):
+                key = "DELIBERATE" if any(deliberate(d) for d in seen.values()) else "MULTI"
+                line = f"{name}: " + ", ".join(sorted(seen))
+                if line not in problems[key]:
+                    problems[key].append(line)
         for w, d in game.items():
             if not d.file.endswith(".c") or "static" in d.storage:
                 continue
-            others = sorted(users[name] - {d.file})
+            others = users[name] - {d.file}
+            if image(d.file) != "exe":
+                others = {u for u in others if image(u) == image(d.file)}
+            others = sorted(others)
             df = definition(name, d.file)
             why = []
             if df and df.file != d.file:

@@ -51,7 +51,6 @@ typedef struct {
 s32 SnapToFloor(StageTrap *t);
 void PolarToXZ(s32 r, s32 deg, Vec3 *out);
 void DrawObjectModel(ObjectModel *rec, Trap *r);
-void ClearCanGroups(void);
 
 extern SwitchBox gSwitches[];
 

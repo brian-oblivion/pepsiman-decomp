@@ -104,6 +104,10 @@ extern SVECTOR gLocalPos; /**< a local position to transform to world */
 extern VECTOR gWorldPos;  /**< the world position of that local one */
 extern u8 gCanGroupOn[];  /**< each can group's revealed flag, 128 of them */
 
+/** @brief Defined in object: hides every can group.
+ *  @return nothing; the value is undefined */
+s32 ClearCanGroups(void);
+
 /** @brief Marks with 2 every block entry whose flag is 1.
  *  @return nothing; the value is undefined. */
 s32 ShowRevealedCans(void);

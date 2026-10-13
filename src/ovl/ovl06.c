@@ -656,27 +656,6 @@ void func_800F87E0(StageTrap *t, s8 dir) {
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
 FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
-/* MATCHING: the engine dispatchers call this address inside the function
- * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
 
 s8 func_800F8960(StageTrap *t) {
     StageTrap *g;

@@ -954,6 +954,18 @@ u16 func_800FA894(s16 id, StageTrap *src, StageTrap *dst) {
     return ret;
 }
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800FA9D4);
+/** @brief The shape of each of this stage's own sprites, as one block. */
+typedef struct {
+    u8 shape[74]; /**< a shape per sprite id from SPR_STAGE on */
+} StageShapes;
+
+extern const StageShapes D_800F0924;
+
+void func_800FA9D4(void) {
+    StageShapes shapes;
+
+    shapes = D_800F0924;
+    *(StageShapes *)sSpriteShapes = shapes;
+}
 
 INCLUDE_RODATA("asm/ovl/ovl06/nonmatchings/ovl06", D_800F0924);

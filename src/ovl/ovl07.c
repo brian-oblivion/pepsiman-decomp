@@ -214,7 +214,7 @@ void func_800F98E4(StageTrap *t);
 void func_800F98EC(StageTrap *t, s32 arg);
 void func_800F98F4(StageTrap *t);
 void func_800F98FC(StageTrap *t);
-void func_800F2A5C(StageTrap *t, s32 speed, s32 range, s8 dir);
+void func_800F2A5C(StageTrap *t, u16 speed, s32 range, s8 dir);
 void func_800F9904(StageTrap *t, s32 range, u8 type, u8 act);
 void func_800FA008(void);
 void func_800FA010(void);
@@ -227,7 +227,7 @@ void func_800F98C4(StageTrap *t);
 void func_800F24DC(StageTrap *t, s16 speed);
 void func_800F28FC(StageTrap *t, s16 speed);
 void func_800F2C24(StageTrap *t, u16 speed, s8 turn);
-void func_800F2DCC(StageTrap *t, s32 arg, s16 speed);
+void func_800F2DCC(StageTrap *t, s16 speed, s32 range);
 void func_800F9990(StageTrap *t);
 void func_800F9150(StageTrap *t, u16 speed, s16 arg, s8 dir);
 void func_800F99F8(StageTrap *t, s16 speed, s8 mode);
@@ -247,7 +247,7 @@ void func_800F99D8(StageTrap *t, s32 speed, s32 arg);
 void func_800F99E0(StageTrap *t, s32 arg, s8 arg2);
 void func_800F99E8(StageTrap *t, s32 arg);
 void func_800F99F0(StageTrap *t, s32 arg);
-void func_800F326C(StageTrap *t, s32 arg);
+void func_800F326C(StageTrap *t, u16 speed);
 void func_800F6098(StageTrap *t, s32 speed, s32 arg);
 void func_800F645C(StageTrap *t, s32 speed, s32 arg);
 void func_800F67E4(StageTrap *t, s32 arg);
@@ -995,25 +995,297 @@ void func_800F23C4(StageTrap *t, s32 range, s8 dir) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F24DC);
+/* MATCHING: object's views, with this unit's trap record. */
+s32 LatchProximity(StageTrap *t, s32 range);
+s32 SnapToFloor(StageTrap *t);
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F2658);
+void func_800F24DC(StageTrap *t, s16 speed) {
+    if (LatchProximity(t, 2000) != 0) {
+        PlaySe(82);
+    }
+    if (SnapToFloor(t) == -1) {
+        t->y = t->homeY;
+    }
+    t->y -= 20;
+    if (t->timer < 150 && speed != 0) {
+        t->timer++;
+        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        t->x += gOffsetVec[0] >> 12;
+        t->z += gOffsetVec[2] >> 12;
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F27B0);
+void func_800F2658(StageTrap *t, u16 speed) {
+    if (LatchProximity(t, 2000) != 0) {
+        PlaySe(82);
+    }
+    if (SnapToFloor(t) == -1) {
+        t->y = t->homeY;
+    }
+    t->y -= 20;
+    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+    t->x += gOffsetVec[0] >> 12;
+    t->z += gOffsetVec[2] >> 12;
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F28FC);
+void func_800F27B0(StageTrap *t, u16 speed) {
+    if (LatchProximity(t, 2000) != 0) {
+        PlaySe(82);
+    }
+    t->homeY = t->y;
+    t->y -= 20;
+    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+    t->x += gOffsetVec[0] >> 12;
+    t->z += gOffsetVec[2] >> 12;
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+    t->y = t->homeY;
+}
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F2A5C);
+void func_800F28FC(StageTrap *t, s16 speed) {
+    if (LatchProximity(t, 2000) != 0) {
+        PlaySe(82);
+    }
+    if (SnapToFloor(t) == -1) {
+        t->y = t->homeY;
+    }
+    t->y -= 20;
+    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+    t->x += gOffsetVec[0] >> 12;
+    t->z += gOffsetVec[2] >> 12;
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F2C24);
+/* MATCHING: object's view, with the target passed unnarrowed. */
+void InterpRange(s16 a, s32 b, u16 t, s32 n, s32 *out);
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F2DCC);
+void func_800F2A5C(StageTrap *t, u16 speed, s32 range, s8 dir) {
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 1:
+            func_800F2658(t, speed);
+            if (range * range < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
+                t->timer = 0;
+                t->state++;
+                t->homeRotY = t->rotY;
+                if (speed > 30) {
+                    PlaySe(88);
+                }
+            }
+            if (LatchProximity(t, 2000) != 0) {
+                PlaySe(82);
+            }
+            break;
+        case 2:
+            switch (dir) {
+                case 2:
+                    InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
+                    t->rotY = gOffsetVec[1];
+                    break;
+                case 1:
+                    InterpRange(t->homeRotY, t->homeRotY + 0x400, t->timer, 30, gOffsetVec);
+                    t->rotY = gOffsetVec[1];
+                    break;
+            }
+            func_800F2658(t, speed);
+            if (++t->timer > 30) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 3:
+            func_800F27B0(t, speed);
+            break;
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F3134);
+/* MATCHING: object's view, with this unit's trap record. */
+s16 GetPathDirection(StageTrap *t);
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F326C);
+void func_800F2C24(StageTrap *t, u16 speed, s8 turn) {
+    if (LatchProximity(t, 2000) != 0) {
+        PlaySe(82);
+    }
+    t->state++;
+    SnapToFloor(t);
+    if (t->timer < 150 && speed != 0) {
+        t->timer++;
+        t->y -= 20;
+        t->rotY = GetPathDirection(t) + (s8)(turn % 2) * 0x800;
+        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        t->x += gOffsetVec[0] >> 12;
+        t->z += gOffsetVec[2] >> 12;
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}
 
+/* MATCHING: stage's own definition, which no header declares. */
+s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);
+
+/* MATCHING: an unused 16-byte local sizes retail's frame. */
+void func_800F2DCC(StageTrap *t, s16 speed, s32 range) {
+    s32 unused[4];
+
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 1:
+            func_800F2658(t, speed);
+            if (range * range < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
+                t->timer = 0;
+                t->state++;
+                t->homeRotY = t->rotY;
+                PlaySe(62);
+            }
+            break;
+        case 2:
+            SnapToFloor(t);
+            if (++t->timer < 5) {
+                t->y -= 20;
+                PolarToXZ(-(s16)(speed / 3), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                t->x += gOffsetVec[0] >> 12;
+                t->z += gOffsetVec[2] >> 12;
+            } else {
+                t->timer = 0;
+                t->state++;
+                PlaySe(62);
+            }
+            break;
+        case 3:
+            SnapToFloor(t);
+            t->y -= 20;
+            if (gFrameCount % 5 == 0) {
+                SpawnEffect(1, t->x + (rand() % 200 - 100), t->y, t->z + (rand() % 200 - 100),
+                            rand() % 3);
+            }
+            break;
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}
+
+void func_800F3134(StageTrap *t, u16 speed) {
+    SnapToFloor(t);
+    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+    t->x += gOffsetVec[0] >> 12;
+    t->z += gOffsetVec[2] >> 12;
+    if (LatchProximity(t, 500) != 0) {
+        PlaySe(120);
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}
+
+void func_800F326C(StageTrap *t, u16 speed) {
+    switch (t->state) {
+        case 0:
+            t->timer = 0;
+            t->state++;
+            PlaySe(109);
+        case 1:
+            if (LatchProximity(t, 2000) != 0) {
+                PlaySe(110);
+            }
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+                PlaySe(57);
+            }
+            break;
+    }
+}
+
+#ifdef NON_MATCHING
+/* MATCHING: declared [] so its load stays below the stores to t. */
+extern s16 D_8009EEF8[];
+
+void func_800F33B8(StageTrap *t) {
+    s32 d;
+
+    switch (t->state) {
+        case 0:
+            t->homeY = t->y;
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            }
+            if (t->touched != 0) {
+                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+                    PlaySe(58);
+                }
+                t->homeX = 0;
+                t->homeY = t->y;
+                t->homeRotY = D_8009EEF8[0];
+                t->state++;
+                t->timer = 0;
+            }
+            t->y = t->homeY;
+            break;
+        case 1:
+            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x -= gOffsetVec[0] >> 12;
+            t->z -= gOffsetVec[2] >> 12;
+            t->timer = (t->timer + 10) % 360;
+            t->rotZ -= 11;
+            d = rsin((t->timer << 12) / 360) * 150 >> 12;
+            if (d < 0) {
+                d = -d;
+            }
+            t->y = t->homeY - d;
+            if (++t->homeX == 25) {
+                t->state++;
+            }
+            if (gFrameCount % 3 != 0) {
+                DrawObjectModel(&gObjectModels[t->model], t);
+            }
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F33B8);
+#endif
 
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F3644);
 

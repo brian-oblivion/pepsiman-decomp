@@ -3,6 +3,8 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "libetc.h"
+#include "libcd.h"
+#include "sound.h"
 #include "model.h"
 #include "draw.h"
 #include "spad.h"
@@ -127,7 +129,106 @@ INCLUDE_RODATA("asm/ovl/ovl02/nonmatchings/ovl02", D_800F0000);
 
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F1570);
 
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F6670);
+extern CdlLOC D_800F96F8;
+extern CdlLOC D_800F96FC;
+extern s32 D_800F9748;
+extern s32 D_800F974C;
+void func_800F0AD4(void);
+void func_800F1570(void);
+void func_800F69B0(void);
+void func_800F7A4C(void);
+
+void func_800F6670(void) {
+    switch (gModeStep) {
+        case 0:
+            gSubStep = 0;
+            gCdLoadLoc[0] = (s32)&D_800F96F8;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gModeStep = 1;
+            gCdLoadSectors[0] = D_800F9748;
+            break;
+        case 1:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                gPlayer.rideMode = 0;
+                gPlayer.flattened = 0;
+                LoadTimList((unsigned long *)(*(s32 *)0x8019D000 + 0x8019D000));
+                gSubStep = 50;
+                if (gStageTableSet == -1) {
+                    LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                    gModeStep = 2;
+                } else {
+                    gModeStep = 40;
+                }
+            }
+            break;
+        case 2:
+            DrawFrozenFrame();
+            SetTmdSortMode(gTmdSortMode);
+            func_800F01EC();
+            break;
+        case 5:
+            PlayMovie("\\MOVIE0.STR;1", NULL, 0x31F, 0xF0, 1);
+            gModeStep = 9;
+            gSubStep = 50;
+            break;
+        case 6:
+            PlayMovie("\\OP2_OK.STR;1", NULL, 0xAE, 0xF0, 1);
+            gModeStep = 9;
+            gSubStep = 50;
+            break;
+        case 7:
+            PlayMovie("\\OP2_15.STR;1", NULL, 0x15E, 0xF0, 1);
+            gModeStep = 9;
+            gSubStep = 50;
+            break;
+        case 9:
+            LoadTimList((unsigned long *)(*(s32 *)0x8019D000 + 0x8019D000));
+            gModeStep = 10;
+            gSubStep = 50;
+            break;
+        case 10:
+            DrawFrozenFrame();
+            SetTmdSortMode(gTmdSortMode);
+            func_800F69B0();
+            break;
+        case 30:
+            DrawFrozenFrame();
+            DrawScreenWipe();
+            func_800F0AD4();
+            break;
+        case 40:
+            DrawFrozenFrame();
+            SetTmdSortMode(gTmdSortMode);
+            func_800F1570();
+            break;
+        case 50:
+            gSubStep = 0;
+            gCdLoadLoc[0] = (s32)&D_800F96FC;
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gModeStep = 51;
+            gCdLoadSectors[0] = D_800F974C;
+            break;
+        case 51:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimList((unsigned long *)(*(s32 *)0x8019D000 + 0x8019D000));
+                if (gTmdSortMode == 1) {
+                    LoadTimList((unsigned long *)(*(s32 *)0x8019D00C + 0x8019D000));
+                } else {
+                    LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                }
+                gSubStep = 0;
+                gModeStep = 60;
+            }
+            break;
+        case 60:
+            func_800F7A4C();
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F69B0);
 

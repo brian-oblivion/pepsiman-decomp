@@ -1,102 +1,87 @@
-#include "common.h"
+/* Stage 1-2's overlay: the stage engine (engine.inc, engine_code.inc) with this
+ * stage's own routines, and the engine functions still in asm. */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F0974);
+#include "engine.inc"
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F0AC8);
+#include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F0CBC);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", ResetSpawnedTraps);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F0E2C);
+#include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F0F34);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepFlungPiece);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F13D4);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", SpawnMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F151C);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F1860);
+INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", sDebrisModelInit);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F1AAC);
+#include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F1D84);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct27);
 
-INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", D_800F0084);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F1FAC);
-
-INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", D_800F014C);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F22B4);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F23EC);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F2504);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F2848);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapAhead);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F29C4);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F2B1C);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType2A);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F2CE8);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F2E34);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapAheadNonstop);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F2F94);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapThenTurn);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F315C);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapAlongPath);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F3304);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType0F);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F36D4);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType12);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F3BBC);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", KnockTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F3E48);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F430C);
+#include "engine_code.inc" /* StepBouncingRoller */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F4500);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapFFAct68);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F49E0);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepSmokingTumbleTrap);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F4B60);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepSmokingTrap);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F4D30);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", ShatterTrap);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F5038);
+#include "engine_code.inc" /* BurstTrapFast to BurstTrapSlow */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F5334);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", SlideTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F5640);
+#include "engine_code.inc" /* BurstTrapMedium */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F5964);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepDashBoard);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F5B34);
+#include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F5E50);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", SpinTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F6008);
+#include "engine_code.inc" /* TipTrapAway */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F6260);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", OpenGateOnApproach);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F64A4);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", SwingGateContinuously);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F6708);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepHoppingTrap);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F6A90);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", SwapTrapModelOnApproach);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F6DB8);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F721C);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F73D0);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepMissSequence);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F74FC);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F77A0);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepGoalSequence);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7964);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", CycleGoalLights);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7968);
 
@@ -126,177 +111,115 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8B60);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8D64);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8EC0);
-
 INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", D_800F052C);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8EFC);
+#include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8F64);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapType04);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8FC4);
+#include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9088);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapType0B);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9190);
+#include "engine_code.inc" /* RunTrapType32 */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9274);
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9308);
+#include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9384);
+void StepTrapType1F(StageTrap *t, u16 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9414);
+#include "engine_code.inc" /* StepSolidTrap */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F94C4);
+void StepTrapFFAct67(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F952C);
+void StepTrapAct21(StageTrap *t) {}
 
-void func_800F95D0(void) {}
+void StepTrapAct22(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F95D8);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct23);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9640);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct24);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F96B0);
+void StepTrapAct25(StageTrap *t, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9700);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct28);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F976C);
+#include "engine_code.inc" /* ArmTrapByRange */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F97F0);
+void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9828);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", DrawTrapWarning);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9864);
+void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9898);
+void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F98CC);
+void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9900);
+void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9978);
+void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F99B4);
+void StepTrapType1E(StageTrap *t, u16 speed) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9A40);
+void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9A70);
+void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9AD0);
+void StepTrapType27(StageTrap *t, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9B50);
+void StepTrapType31(StageTrap *t, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9BC0);
+void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9C10);
+#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9C54);
+void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {}
 
-void func_800F9C88(void) {}
+void StepTrapType1D(StageTrap *t, u16 speed) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9C90);
+void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
 
-void func_800F9D2C(void) {}
+#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
 
-void func_800F9D34(void) {}
+#include "engine_code.inc" /* BurstTrapStacked */
 
-void func_800F9D3C(void) {}
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAct08);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9D44);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAct09);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9DE0);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAct0B);
 
-void func_800F9E7C(void) {}
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", KnockTrapAwayAct0C);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9E84);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAct12);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9F20);
+void StepSprayTrap(StageTrap *t, s8 dir) {}
 
-void func_800F9FAC(void) {}
+void StepTrapAct1D(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F9FB4);
+void BurstRaisedTrap(StageTrap *t) {}
 
-void func_800F9FC4(void) {}
+void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
-void func_800F9FCC(void) {}
+void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {}
 
-void func_800F9FD4(void) {}
+void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {}
 
-void func_800F9FDC(void) {}
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", DrawTrapWhileLinked);
 
-void func_800F9FE4(void) {}
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", UpdateStageEventHook);
 
-void func_800F9FEC(void) {}
+#include "engine_code.inc" /* UpdateGoalEvents */
 
-void func_800F9FF4(void) {}
-
-void func_800F9FFC(void) {}
-
-void func_800FA004(void) {}
-
-void func_800FA00C(void) {}
-
-void func_800FA014(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA01C);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA0BC);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA160);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA214);
-
-void func_800FA2AC(void) {}
-
-void func_800FA2B4(void) {}
-
-void func_800FA2BC(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA2C4);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA3C0);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA424);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA448);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA4D4);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA4F8);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA51C);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA540);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA560);
-
-void func_800FA584(void) {}
-
-void func_800FA58C(void) {}
-
-void func_800FA594(void) {}
-
-void func_800FA59C(void) {}
-
-void func_800FA5A4(void) {}
-
-void func_800FA5AC(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA5B4);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA630);
-
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA654);
-
-void func_800FA68C(void) {}
+void UpdateGoalEventHook(void) {}
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA694);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA71C);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA754);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", EmitTrapParticles);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA804);
 

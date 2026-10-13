@@ -1,96 +1,81 @@
-#include "common.h"
+/* Stage 5-1's overlay: the stage engine (engine.inc, engine_code.inc) with this
+ * stage's own routines, and the engine functions still in asm. */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F0968);
+#include "engine.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F0ABC);
+#include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F0CB0);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", ResetSpawnedTraps);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F0E20);
+#include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F0F28);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepFlungPiece);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F13C8);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", SpawnMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F1510);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F1854);
+INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", sDebrisModelInit);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F1AA0);
+#include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F1D78);
-
-INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F0084);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F1FA0);
-
-INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F014C);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F22A8);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F23E0);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F24F8);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapAhead);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F2674);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F27CC);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType2A);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F2998);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F2AE4);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapAheadNonstop);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F2C44);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapThenTurn);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F2E0C);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapAlongPath);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F2FB4);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepChargingTrap);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F331C);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", DrawTrapWarning);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F34E8);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType0F);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F38C0);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType12);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F3DA8);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType27);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F40FC);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", KnockTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F4388);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", TumbleTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F484C);
+#include "engine_code.inc" /* StepBouncingRoller */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F4A40);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepSmokingTrap);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F4C10);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", ShatterTrap);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F4F18);
+#include "engine_code.inc" /* BurstTrapFast to BurstTrapSlow */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F5214);
+#include "engine_code.inc" /* BurstTrapMedium */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F5520);
+#include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F5844);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", SpinTrapAway);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F5B60);
+#include "engine_code.inc" /* TipTrapAway */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F5DB8);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", BurstRaisedTrap);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F5FFC);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6260);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6570);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", ToppleTrapOnApproach);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6934);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6A58);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", SwapTrapModelOnApproach);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6C0C);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepMissSequence);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6FD8);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", UpdateStageEventHook);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7144);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", UpdateGoalEventHook);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F74FC);
 
@@ -110,187 +95,125 @@ INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F82E0);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8454);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8460);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F849C);
-
 INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F0558);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F84A8);
+#include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
+/* MATCHING: the dispatchers call these stage entry points, which in this
+ * overlay land inside the functions above. */
+FUNC_ALIAS(func_800F84A8, PlaySpriteHitSe, 0xC);
+FUNC_ALIAS(func_800F87E4, RunTrapType01, 0xB4);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8504);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapType04);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8564);
+#include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8628);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapType0B);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8730);
+#include "engine_code.inc" /* RunTrapType32 */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F87E4);
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8814);
+#include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F88A8);
+void StepTrapType1F(StageTrap *t, u16 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8924);
+#include "engine_code.inc" /* StepSolidTrap */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F89B4);
+void StepTrapFFAct67(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8A64);
+void StepTrapFFAct68(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8ACC);
+void StepTrapAct21(StageTrap *t) {}
 
-void func_800F8B70(void) {}
+void StepTrapAct22(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8B78);
+void StepTrapAct23(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8BE0);
+void StepTrapAct24(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8C50);
+void StepTrapAct25(StageTrap *t, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8CA0);
+void StepTrapAct27(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8D0C);
+void StepTrapAct28(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8D90);
+#include "engine_code.inc" /* ArmTrapByRange */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8DC8);
+void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8E04);
+void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8E38);
+void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8E6C);
+void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8EA0);
+void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8F18);
+void StepTrapType1E(StageTrap *t, u16 speed) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8F54);
+void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8FE0);
+void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9010);
+void StepTrapType31(StageTrap *t, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9070);
+void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F90F0);
+#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9160);
+void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F91B0);
+void StepTrapType1D(StageTrap *t, u16 speed) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F91F4);
+void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
 
-void func_800F9228(void) {}
+#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9230);
+#include "engine_code.inc" /* BurstTrapStacked */
 
-void func_800F92CC(void) {}
+void SlideTrapAway(StageTrap *t, s32 arg) {}
 
-void func_800F92D4(void) {}
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", TumbleTrapAct08);
 
-void func_800F92DC(void) {}
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", TumbleTrapAct09);
 
-void func_800F92E4(void) {}
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", TumbleTrapAct0B);
 
-void func_800F92EC(void) {}
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", KnockTrapAwayAct0C);
 
-void func_800F92F4(void) {}
+void StepDashBoard(StageTrap *t) {}
 
-void func_800F92FC(void) {}
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", TumbleTrapAct12);
 
-void func_800F9304(void) {}
+void StepSprayTrap(StageTrap *t, s8 dir) {}
 
-void func_800F930C(void) {}
+void StepSmokingTumbleTrap(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9314);
+void StepTrapAct1D(StageTrap *t) {}
 
-void func_800F93A0(void) {}
+void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
-void func_800F93A8(void) {}
+void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
-void func_800F93B0(void) {}
+void SwingGateContinuously(StageTrap *t, s8 arg) {}
 
-void func_800F93B8(void) {}
+void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {}
 
-void func_800F93C0(void) {}
+void StepHoppingTrap(StageTrap *t, u8 act) {}
 
-void func_800F93C8(void) {}
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", DrawTrapWhileLinked);
 
-void func_800F93D0(void) {}
+#include "engine_code.inc" /* UpdateGoalEvents */
 
-void func_800F93D8(void) {}
+void StepGoalSequence(void) {}
 
-void func_800F93E0(void) {}
-
-void func_800F93E8(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F93F0);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9490);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9534);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F95E8);
-
-void func_800F9680(void) {}
-
-void func_800F9688(void) {}
-
-void func_800F9690(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9698);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9794);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F97F8);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F981C);
-
-void func_800F98A8(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F98B0);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F98D4);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F98F8);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F991C);
-
-void func_800F993C(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9944);
-
-void func_800F9968(void) {}
-
-void func_800F9970(void) {}
-
-void func_800F9978(void) {}
-
-void func_800F9980(void) {}
-
-void func_800F9988(void) {}
-
-void func_800F9990(void) {}
-
-void func_800F9998(void) {}
-
-void func_800F99A0(void) {}
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F99A8);
-
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9A48);
-
-void func_800F9A80(void) {}
-
-void func_800F9A88(void) {}
+void CycleGoalLights(s8 arg) {}
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9A90);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9AC8);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9B10);
+INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", EmitTrapParticles);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9BC0);
 

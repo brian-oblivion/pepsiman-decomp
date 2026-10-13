@@ -1182,8 +1182,8 @@ s32 func_800F8D34(void) {
 }
 
 #ifdef NON_MATCHING
-/* Only the gPlayLive store's lui is placed differently. Reaching sCamOffset as
- * a struct keeps the yaw load above its stores, as in the original. */
+/* Near: only the gPlayLive store lands a few slots off. Reaching sCamOffset
+ * as a struct keeps the yaw read above its stores, as in the original. */
 void func_800F90F4(void) {
     s16 yaw;
 

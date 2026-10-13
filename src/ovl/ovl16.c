@@ -535,7 +535,282 @@ void func_800F5E80(void) {
     func_800F8BD4();
 }
 
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s32 D_800FE590[];
+
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s32 D_800FE590[];
+
+/* The goal walk's first two legs, each over n frames. */
+static __inline__ void WalkToGoalMark(StageTrap *t, s32 n) {
+    gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
+    gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
+    if (++t->timer > n) {
+        t->homeX = gPlayer.x;
+        t->homeY = gPlayer.y;
+        t->homeZ = gPlayer.z;
+        t->timer = 0;
+        t->state++;
+        gPlayer.action = 0x17;
+        SetSoundFade(4);
+    }
+}
+
+static __inline__ void WalkToGoalStop(StageTrap *t, s16 n) {
+    gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, n);
+    gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, n);
+    if (++t->timer < (s16)(n / 3)) {
+        ScatterDust((VECTOR *)&gPlayer.x);
+    }
+    if (t->timer > n) {
+        gPlayer.action = 0;
+        gPlayer.motion[0] = 0x13;
+        t->timer = 0;
+        t->state++;
+    }
+}
+
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s32 D_800FE590[];
+
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s32 D_800FE590[];
+
+#ifdef NON_MATCHING
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s32 D_800FE590[];
+
+/* Cases 0 and 1 differ: retail keeps the frame count n in a saved register
+ * (and sign-extends 40 at run time), where this folds it to a constant. */
+s8 func_800F60CC(StageTrap *t) {
+    s8 ret = 0;
+    s16 n;
+
+    switch (t->state) {
+        case 0:
+            n = 20;
+            gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
+            gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
+            if (++t->timer > n) {
+                t->homeX = gPlayer.x;
+                t->homeY = gPlayer.y;
+                t->homeZ = gPlayer.z;
+                t->timer = 0;
+                t->state++;
+                gPlayer.action = 0x17;
+                SetSoundFade(4);
+            }
+            break;
+        case 1:
+            n = 40;
+            gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, n);
+            gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, n);
+            if (++t->timer < (s16)(n / 3)) {
+                ScatterDust((VECTOR *)&gPlayer.x);
+            }
+            if (t->timer > n) {
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 0x13;
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 2:
+            if (++t->timer >= 16) {
+                gPlayer.action = 0x19;
+                gFellOff = 1;
+                D_800FE590[0] = rsin(gCourse.rot.vy + 0x8E3) * 200 >> 12;
+                D_800FE590[2] = rcos(gCourse.rot.vy + 0x8E3) * 200 >> 12;
+                D_800FE590[1] = gPlayer.y - 80;
+                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                D_800FE590[4] = gPlayer.y - 130;
+                t->homeRotZ = 0;
+                gRefView[0] = rsin(gCourse.rot.vy + 0x8E3) * 30 >> 12;
+                gRefView[2] = rcos(gCourse.rot.vy + 0x8E3) * 30 >> 12;
+                gRefView[1] = gPlayer.y - 100;
+                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[4] = gPlayer.y - 130;
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 3:
+            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 20);
+            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 20);
+            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 20);
+            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 20);
+            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 20);
+            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 20);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            if (t->timer < 20) {
+                t->timer++;
+            }
+            if (t->timer == 15) {
+                PlaySe(0x22);
+            }
+            if (++t->homeRotZ > 20) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 4:
+            if (++t->timer > 20) {
+                gPlayer.curMotion[0] = 0xFF;
+                gPlayer.action = 0x19;
+                gFellOff = 1;
+                D_800FE590[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
+                D_800FE590[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
+                D_800FE590[1] = gPlayer.y - 200;
+                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                D_800FE590[4] = gPlayer.y - 130;
+                gRefView[0] = rsin(gCourse.rot.vy + 0x71D) * 30 >> 12;
+                gRefView[2] = rcos(gCourse.rot.vy + 0x71D) * 30 >> 12;
+                gRefView[1] = gPlayer.y - 150;
+                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[4] = gPlayer.y - 130;
+                t->homeRotZ = 0;
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 5:
+            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 20);
+            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 20);
+            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 20);
+            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 20);
+            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 20);
+            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 20);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            if (t->timer < 20) {
+                t->timer++;
+            }
+            if (t->timer == 15) {
+                PlaySe(0x22);
+            }
+            if (++t->homeRotZ > 20) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 6:
+            if (++t->timer > 20) {
+                gPlayer.curMotion[0] = 0xFF;
+                gPlayer.action = 0x19;
+                gFellOff = 1;
+                D_800FE590[0] = rsin(gCourse.rot.vy + 0x800) * 200 >> 12;
+                D_800FE590[2] = rcos(gCourse.rot.vy + 0x800) * 200 >> 12;
+                D_800FE590[1] = gPlayer.y - 150;
+                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                D_800FE590[4] = gPlayer.y - 150;
+                gRefView[0] = rsin(gCourse.rot.vy + 0x800) * 30 >> 12;
+                gRefView[2] = rcos(gCourse.rot.vy + 0x800) * 30 >> 12;
+                gRefView[1] = gPlayer.y - 150;
+                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[4] = gPlayer.y - 150;
+                t->homeRotZ = 0;
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 7:
+            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 20);
+            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 20);
+            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 20);
+            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 20);
+            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 20);
+            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 20);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            if (t->timer < 20) {
+                t->timer++;
+            }
+            if (t->timer == 15) {
+                PlaySe(0x22);
+            }
+            if (++t->homeRotZ > 60) {
+                t->timer = 0;
+                t->state++;
+                StartScreenWipe();
+                gFellOff = 1;
+                D_800FE590[0] = rsin(gCourse.rot.vy + 0x800) * 300 >> 12;
+                D_800FE590[2] = rcos(gCourse.rot.vy + 0x800) * 300 >> 12;
+                D_800FE590[1] = gPlayer.y - 250;
+                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                D_800FE590[4] = gPlayer.y - 400;
+                gRefView[0] = rsin(gCourse.rot.vy) * 500 >> 12;
+                gRefView[2] = rcos(gCourse.rot.vy) * 500 >> 12;
+                gRefView[1] = gPlayer.y - 250;
+                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                gRefView[4] = gPlayer.y - 200;
+                t->homeRotZ = 0;
+            }
+            break;
+        case 8:
+            t->timer++;
+            if (IsScreenWipeActive() == 0) {
+                gView[0] = Lerp(gRefView[0], D_800FE590[0], 0, 90);
+                gView[1] = Lerp(gRefView[1], D_800FE590[1], 0, 90);
+                gView[2] = Lerp(gRefView[2], D_800FE590[2], 0, 90);
+                gView[3] = Lerp(gRefView[3], D_800FE590[3], 0, 90);
+                gView[4] = Lerp(gRefView[4], D_800FE590[4], 0, 90);
+                gView[5] = Lerp(gRefView[5], D_800FE590[5], 0, 90);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 9:
+            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 90);
+            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 90);
+            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 90);
+            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 90);
+            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 90);
+            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 90);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            if (++t->timer > 90) {
+                t->timer = 0;
+                sGoalLightsSet = 1;
+                t->state++;
+            }
+            break;
+        case 10:
+            if (++t->timer == 15) {
+                D_800F9A60[2] = 1;
+                PlaySe(0x71);
+            }
+            if (t->timer == 45) {
+                D_800F9A60[1] = 1;
+                PlaySe(0x71);
+            }
+            if (t->timer == 75) {
+                D_800F9A60[0] = 1;
+                PlaySe(0x71);
+            }
+            if (t->timer == 80) {
+                PlaySe(0x33);
+            }
+            if (t->timer > 120) {
+                ret = 1;
+            }
+            break;
+    }
+    return ret;
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F60CC);
+#endif
 
 void func_800F6FA0(void) {
     s16 v;

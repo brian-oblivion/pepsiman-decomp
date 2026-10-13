@@ -496,7 +496,111 @@ void func_800FA610(void) {}
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", EmitTrapParticles);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", func_800FA6C8);
+extern s32 D_800FB55C[];
+extern s32 D_800FB57C[];
+
+s32 func_800FA6C8(void) {
+    /* MATCHING: an unused 8-byte local gives retail's frame. */
+    s32 ret = 0;
+    s32 unused[2];
+
+    switch (gSubStep) {
+        case 0:
+            SetBootReady(0);
+            gCdLoadLoc[0] = (s32)&D_800FB55C[0];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB57C[1];
+            gSubStep++;
+            break;
+        case 1:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimList((unsigned long *)0x8019D000);
+                gVabLoadStep = 0;
+                gSubStep++;
+            }
+            break;
+        case 2:
+            if (LoadVabBank(2) == 1) {
+                gSubStep++;
+            }
+            break;
+        case 3:
+            gCdLoadLoc[0] = (s32)&D_800FB55C[1];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB57C[2];
+            gSubStep++;
+            break;
+        case 4:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimPack((void *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 5:
+            gCdLoadLoc[0] = (s32)&D_800FB55C[2];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadLoc[1] = (s32)&D_800FB55C[3];
+            gCdLoadDest[1] = 0x80155000;
+            gCdLoadCount = 2;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB57C[3];
+            gCdLoadSectors[1] = D_800FB57C[4];
+            gSubStep++;
+            break;
+        case 6:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadStageData((unsigned long *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 7:
+            gCdLoadLoc[0] = (s32)&D_800FB55C[4];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB57C[5];
+            gSubStep++;
+            break;
+        case 8:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadSpritePack((void *)0x8016D000, SPR_STAGE);
+                gSubStep++;
+            }
+            break;
+        case 9:
+            InitEntryModels();
+            gSubStep++;
+            break;
+        case 10:
+            gCdLoadLoc[0] = (s32)&D_800FB55C[5];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB57C[6];
+            gSubStep++;
+            break;
+        case 11:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                RestoreStageObjects();
+                LoadStageSprites();
+                gSubStep++;
+            }
+            break;
+        case 12:
+            ResetStageObjects();
+            StartStageOverlay();
+            SetBootReady(1);
+            ret = 1;
+            break;
+    }
+    FntPrint("CDEXEC %d", gSubStep);
+    return ret;
+}
 
 #ifdef NON_MATCHING
 /* MATCHING: model's, with this unit's view of the position. */
@@ -553,7 +657,34 @@ void func_800FAB9C(void) {
     *(SpriteShapes *)sSpriteShapes = shapes;
 }
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", func_800FAD08);
+/** @brief A table of 80 trap models, copied whole. */
+typedef struct {
+    u8 b[80]; /**< a model per entry */
+} Models80;
+
+extern const Models80 D_800F0960;
+
+/* MATCHING: ret set before the table copy and again after the call, so it
+ * stays a register (as ovl07's func_800FA580). */
+u16 func_800FAD08(s16 id, StageTrap *src, StageTrap *dst) {
+    u16 ret = 1;
+    Models80 models = D_800F0960;
+
+    if (id < 80) {
+        if (id >= 0) {
+            dst->homeX = src->x;
+            dst->homeY = src->y;
+            dst->homeZ = src->z;
+            dst->homeRotX = src->rotX;
+            dst->homeRotY = src->rotY;
+            dst->homeRotZ = src->rotZ;
+            ResetObj34(dst);
+            dst->model = models.b[id];
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
 INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", D_800F08FC);
 

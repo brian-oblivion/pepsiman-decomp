@@ -189,7 +189,67 @@ void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapType29);
+void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {
+    switch (t->state) {
+        case 0:
+            t->homeRotZ = 0;
+            t->state++;
+        case 1:
+            if ((s8)arg != 1) {
+                if ((s8)arg == 2) {
+                    if (t->homeRotZ != 0) {
+                        PolarToXZ(-10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+                    } else {
+                        PolarToXZ(10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+                    }
+                }
+            } else if (t->homeRotZ == 0) {
+                PolarToXZ(-10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+            } else {
+                PolarToXZ(10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+            }
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (++t->timer >= 26) {
+                t->timer = 0;
+                t->state++;
+                PlaySe(0x83);
+            }
+            break;
+        case 2:
+            t->timer++;
+            switch (arg2) {
+                case 0:
+                    t->homeRotZ ^= 1;
+                    t->timer = 0;
+                    t->state--;
+                    break;
+                case 1:
+                    if (t->timer >= 16) {
+                        t->homeRotZ ^= 1;
+                        t->timer = 0;
+                        t->state--;
+                    }
+                    break;
+                case 2:
+                    if (t->homeRotZ != 0 || t->timer >= 31) {
+                        t->homeRotZ ^= 1;
+                        t->timer = 0;
+                        t->state--;
+                    }
+                    break;
+            }
+            break;
+        default:
+            return;
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(0x36);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapType27);
 

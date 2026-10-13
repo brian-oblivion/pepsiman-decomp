@@ -674,7 +674,71 @@ FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
  * above (another stage's entry point in its own overlay). */
 FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F8960);
+s8 func_800F8960(StageTrap *t) {
+    StageTrap *g;
+    StageTrap *h;
+    s8 ret = 0;
+
+    switch (t->state) {
+        case 0:
+            t->homeX = gPlayer.x;
+            t->homeY = gPlayer.y;
+            t->homeZ = gPlayer.z;
+            gRefView[0] = 0;
+            gRefView[2] = 0;
+            gRefView[1] = 0;
+            gRefView[3] = 0;
+            gRefView[5] = 0;
+            gRefView[4] = 800;
+            t->homeRotZ = 0;
+            t->timer = 0;
+            t->state++;
+            PlaySe(0x23);
+        case 1:
+            g = (StageTrap *)gTraps;
+            g[193].y += t->homeRotZ * 3;
+            g[193].rotZ = Lerp(g[193].rotZ, 796, t->timer, 40);
+            gPlayer.drawY += t->homeRotZ * 2;
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
+            if (++t->homeRotZ >= 21) {
+                t->homeRotZ = 0;
+                t->timer = 0;
+                t->state++;
+                gPlayer.motion[0] = 0x36;
+                PlaySe(0x1C);
+                PlaySe(0x1A);
+            }
+            break;
+        case 2:
+            h = (StageTrap *)gTraps;
+            h[193].y += t->homeRotZ * 4;
+            gPlayer.drawY += t->homeRotZ * 3;
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
+            if (t->timer < 60) {
+                t->timer++;
+            }
+            gView[1] = Lerp(gView[1], gRefView[1], t->timer, 60);
+            gView[3] = Lerp(gView[3], gRefView[3], t->timer, 60);
+            gView[4] = Lerp(gView[4], gRefView[4], t->timer, 60);
+            gView[5] = Lerp(gView[5], gRefView[5], t->timer, 60);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            if (++t->homeRotZ >= 66) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 3:
+            ret = 1;
+            break;
+    }
+    return ret;
+}
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 

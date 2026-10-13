@@ -4,12 +4,13 @@
 #include "engine.inc"
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
-#ifdef NON_MATCHING
+
 void ResetSpawnedTraps(void) {
     u32 i;
     StageTrap *t;
     ModelSlot *a;
     ModelSlot *b;
+    ObjectModel *m;
 
     if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
         bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
@@ -32,15 +33,16 @@ void ResetSpawnedTraps(void) {
         sSpawnedTrapsReady = 1;
         gSlotTable = (s32)sSpawnedTraps;
         gSlotTableSize = 200 * sizeof(StageTrap);
+        /* MATCHING: the model table in a local, so its base is built before
+         * the trap table's. */
+        m = gObjectModels;
         t = (StageTrap *)gTraps;
-        a = (ModelSlot *)&gObjectModels[t[194].model];
-        b = (ModelSlot *)&gObjectModels[t[195].model];
-        a->scale.vy = b->scale.vy = a->scale.vx = b->scale.vx = 0x1000;
+        a = (ModelSlot *)&m[t[194].model];
+        b = (ModelSlot *)&m[t[195].model];
+        b->scale.vy = a->scale.vy = b->scale.vx = a->scale.vx = 0x1000;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", ResetSpawnedTraps);
-#endif
+
 #include "engine_code.inc" /* StepCheckpoint */
 #include "engine/step_flung_piece.inc"
 #include "engine/spawn_miss_debris.inc"
@@ -399,7 +401,9 @@ void StepGoalSequence(void) {
         }
     }
 }
-#ifdef NON_MATCHING
+
+void LoadTimRange(u8 *dir, u16 first, u16 count);
+
 void CycleGoalLights(s8 arg) {
     u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
     s16 i;
@@ -409,15 +413,12 @@ void CycleGoalLights(s8 arg) {
             if (gFrameCount % periods[i] == 0) {
                 LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
             } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2 + 1, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", CycleGoalLights);
-INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", D_800F04F0);
-#endif
+
 #include "engine/step_stage_frame.inc"
 #ifdef NON_MATCHING
 void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
@@ -650,21 +651,26 @@ void UpdateStageEventHook(void) {}
 #include "engine_code.inc" /* UpdateGoalEvents */
 
 void UpdateGoalEventHook(void) {}
-#ifdef NON_MATCHING
+
 void LoadTimRange(u8 *dir, u16 first, u16 count) {
     u16 i;
     DirEnt16 *e;
+    s32 off;
 
     e = (DirEnt16 *)dir + first;
-    for (i = first; i < first + count; i++) {
-        LoadTim(dir + e->offset);
-        e++;
+    for (i = first; i < first + count;) {
+        off = e->offset;
+        /* MATCHING: the bump wrapped in a block puts e in $s0 and i in $s1;
+         * both bumps ahead of the call are scheduled above the jal. */
+        do {
+            e++;
+        } while (0);
+        i++;
+        LoadTim(dir + off);
         DrawSync(0);
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", LoadTimRange);
-#endif
+
 #include "engine/reveal_start_cans.inc"
 #include "engine/emit_trap_particles.inc"
 

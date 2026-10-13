@@ -10,12 +10,12 @@ void StepTrapType18(StageTrap *t, s16 speed, s32 arg, s8 dir);
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-#ifdef NON_MATCHING
 void ResetSpawnedTraps(void) {
     u32 i;
     StageTrap *t;
     ModelSlot *a;
     ModelSlot *b;
+    ObjectModel *m;
 
     if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
         bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
@@ -38,15 +38,15 @@ void ResetSpawnedTraps(void) {
         sSpawnedTrapsReady = 1;
         gSlotTable = (s32)sSpawnedTraps;
         gSlotTableSize = 200 * sizeof(StageTrap);
+        /* MATCHING: the model table in a local, so its base is built before
+         * the trap table's. */
+        m = gObjectModels;
         t = (StageTrap *)gTraps;
-        a = (ModelSlot *)&gObjectModels[t[194].model];
-        b = (ModelSlot *)&gObjectModels[t[195].model];
-        a->scale.vy = b->scale.vy = a->scale.vx = b->scale.vx = 0x1000;
+        a = (ModelSlot *)&m[t[194].model];
+        b = (ModelSlot *)&m[t[195].model];
+        b->scale.vy = a->scale.vy = b->scale.vx = a->scale.vx = 0x1000;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", ResetSpawnedTraps);
-#endif
 
 #include "engine_code.inc" /* StepCheckpoint */
 
@@ -1018,7 +1018,24 @@ void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {}
 
 void UpdateGoalEventHook(void) {}
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", LoadTimRange);
+void LoadTimRange(u8 *dir, u16 first, u16 count) {
+    u16 i;
+    DirEnt16 *e;
+    s32 off;
+
+    e = (DirEnt16 *)dir + first;
+    for (i = first; i < first + count;) {
+        off = e->offset;
+        /* MATCHING: the bump wrapped in a block puts e in $s0 and i in $s1;
+         * both bumps ahead of the call are scheduled above the jal. */
+        do {
+            e++;
+        } while (0);
+        i++;
+        LoadTim(dir + off);
+        DrawSync(0);
+    }
+}
 
 #include "engine/reveal_start_cans.inc"
 

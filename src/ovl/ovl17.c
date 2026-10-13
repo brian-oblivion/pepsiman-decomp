@@ -285,7 +285,6 @@ s32 SpawnEffectWithParams(s32 kind, s32 x, s32 y, s32 z, s32 delay, s32 param0, 
 /* MATCHING: the step's sub-step, kept in the fog fade's word. */
 #define sSubStep gFogFade
 
-#ifdef NON_MATCHING
 /* MATCHING: tested `>= 0`, cc1 folds it to an abs that keeps the minuend
  * computed first. */
 #define ABS_GE(x) ((x) >= 0 ? (x) : -(x))
@@ -357,9 +356,10 @@ s32 func_800F17B0(void) {
             gView[4] = -100;
             gView[5] = 1000;
             GsSetRefView2((GsRVIEW2 *)gView);
+            /* MATCHING: x first; sched still stores z first, x's li ahead of z's. */
+            gPlayer.x = -0x1658;
             gPlayer.z = 0x6A4;
             gPlayer.motion[0] = 3;
-            gPlayer.x = -0x1658;
             gPlayer.y = 0;
             gPlayer.yaw = 0;
             gPlayer.speed = 0;
@@ -838,8 +838,5 @@ s32 func_800F17B0(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl17/nonmatchings/ovl17", func_800F17B0);
-#endif
 
 #include "chase_tail.inc"

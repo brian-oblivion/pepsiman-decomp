@@ -542,7 +542,78 @@ void func_800F8264(void) {
 FUNC_ALIAS(func_800F82E0, func_800F8264, 0x7C);
 FUNC_ALIAS(func_800F8454, func_800F8264, 0x1F0);
 
+void func_800F87E0(StageTrap *t, s8 dir);
+
+#ifdef NON_MATCHING
+/* Matches byte for byte as `s32 func_800F84A8` with no return (the jump
+ * table's index sll then fills the bound check's delay slot), once
+ * engine.inc declares it s32. */
+void func_800F84A8(StageTrap *t) {
+    s16 speed;
+
+    switch (t->state) {
+        case 0:
+            t->homeRotZ = 0;
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 1:
+            if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) < 2250000) {
+                t->timer = 0;
+                t->state++;
+            }
+            if (gSection - UpdatePathSegment(t) < 2) {
+                DrawObjectModel(&gObjectModels[t->model], t);
+            }
+            break;
+        case 2:
+            if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) <= 2250000) {
+                speed = 40;
+                if (t->timer % 20 == 1) {
+                    func_800F87E0(t, t->homeRotZ % 3);
+                    t->homeRotZ++;
+                }
+            } else {
+                speed = 5;
+            }
+            SnapToFloor(t);
+            t->timer++;
+            t->y -= 20;
+            t->rotY = GetPathDirection(t);
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            }
+            if (DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t) > 36000000) {
+                t->timer = 0;
+                t->state++;
+                t->homeRotY = t->rotY;
+            }
+            break;
+        case 3:
+            InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
+            t->rotY = gOffsetVec[1];
+            StepTrapForwardLevel(t, 20);
+            if (++t->timer >= 31) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 4:
+            StepTrapForwardLevel(t, 20);
+            if (++t->timer >= 31) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F84A8);
+#endif
 
 void func_800F87E0(StageTrap *t, s8 dir) {
     PlacedPos p;

@@ -990,25 +990,27 @@ s32 func_800FA6C8(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 /* MATCHING: model's, with this unit's view of the position. */
 s32 FindFloor(s32 *pos);
 
 void func_800FAA30(void) {
     s16 yaw;
+    u8 one;
     StartRec *st;
 
-    st = gStageStart;
     gCameraYaw = 0;
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
-    gView[1] = 0;
+    st = gStageStart;
+    /* MATCHING: the pointer and the 1 in locals order the first stores. */
+    one = 1;
+    gPlayLive = one;
     yaw = -st->yaw;
-    sCamOffset[1] = 0;
+    ((SVECTOR *)sCamOffset)->vx = 0;
+    gView[1] = 0;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -1016,10 +1018,10 @@ void func_800FAA30(void) {
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
     gFloorIndex = 0;
-    gSteerYaw = yaw;
     gCourse.x = gPlayer.x = -st->x;
-    gSteerYawHalf = yaw;
+    gSteerYaw = yaw;
     gCourse.y = gPlayer.y = -st->y;
+    gSteerYawHalf = yaw;
     gCourse.z = gPlayer.z = -st->z;
     gFloorIndex = FindFloor(&gPlayer.x);
     gPlayer.drawX = 0;
@@ -1032,9 +1034,6 @@ void func_800FAA30(void) {
     gView[1] = (s16)(gCourse.y - 150);
     func_800FA5D0();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", func_800FAA30);
-#endif
 
 extern const SpriteShapes D_800F08FC;
 

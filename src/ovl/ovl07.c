@@ -1285,6 +1285,8 @@ void func_800F557C(StageTrap *t) {
             if (t->touched == 1) {
                 t->homeX = 0;
                 t->homeY = t->y;
+                /* MATCHING: read as a member at a fixed address, which keeps
+                 * the load below the stores into t. */
                 t->homeRotY = ((SVECTOR *)&D_8009EEF8)->vx;
                 t->state++;
                 t->timer = 0;

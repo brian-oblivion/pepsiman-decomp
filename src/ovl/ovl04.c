@@ -448,13 +448,125 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7EFC);
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F82E0);
 #endif
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8454);
+void func_800F878C(StageTrap *t, s8 arg);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F84A8);
+void func_800F8454(StageTrap *t) {
+    s16 speed;
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F878C);
+    switch (t->state) {
+        case 0:
+            t->homeRotZ = 0;
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 1:
+            if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) <= 0x22550F) {
+                t->timer = 0;
+                t->state++;
+            }
+            if (gSection - UpdatePathSegment(t) < 2) {
+                DrawObjectModel(&gObjectModels[t->model], t);
+            }
+            break;
+        case 2:
+            if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) > 0x225510) {
+                speed = 5;
+            } else {
+                speed = 40;
+                if (t->timer % 20 == 1) {
+                    func_800F878C(t, (s16)t->homeRotZ % 3);
+                    t->homeRotZ++;
+                }
+            }
+            SnapToFloor(t);
+            t->timer++;
+            t->y -= 20;
+            t->rotY = GetPathDirection(t);
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            }
+            if (DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t) > 0xC5C100) {
+                t->timer = 0;
+                t->state++;
+                t->homeRotY = t->rotY;
+            }
+            break;
+        case 3:
+            InterpRange(t->homeRotY, t->homeRotY + 0x400, t->timer, 30, gOffsetVec);
+            t->rotY = gOffsetVec[1];
+            StepTrapForwardLevel(t, 20);
+            if (++t->timer > 30) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 4:
+            StepTrapForwardLevel(t, 20);
+            break;
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F87E4);
+/* MATCHING: the dispatchers call this stage entry point, which in this
+ * overlay lands inside the function above. */
+FUNC_ALIAS(func_800F84A8, func_800F8454, 0x54);
+
+void func_800F878C(StageTrap *t, s8 arg) {
+    PlacedPos p;
+    s16 models[9] = {0x17, 0x18, 0x19, 0x45, 0x46, 0x47, 0x49, 0x4A, 0x4B};
+    StageTrap *s;
+    s16 i;
+    s16 m;
+    s32 r;
+    s32 d;
+
+    i = FindFreeSlot48();
+    if (i != -1) {
+        s = &sSpawnedTraps[i];
+        *s = *t;
+        switch (arg) {
+            case 2:
+                p.lx = -80;
+                break;
+            case 1:
+                p.lx = 80;
+                break;
+            case 0:
+                p.lx = 0;
+                break;
+        }
+        p.ly = 0;
+        p.lz = 0;
+        p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
+        UpdatePlacedPos(&p);
+        s->x = s->homeX = p.pos.vx;
+        s->y = s->homeY = p.pos.vy;
+        s->z = s->homeZ = p.pos.vz;
+        m = models[rand() % 9];
+        s->type = 0xFF;
+        s->act = 0x68;
+        s->state = 0;
+        s->timer = 40;
+        s->model = m;
+        s->rotY = gCourse.rot.vy + 0x800;
+        d = (rand() % 3 - 1) * 227;
+        s->homeRotX = 100;
+        s->homeRotZ = -10;
+        s->homeX = 1;
+        s->aux = arg;
+        s->homeRotY += d;
+        r = rand() % 720 + 360;
+        s->counter = 0;
+        s->homeZ = r;
+    }
+}
+
+/* MATCHING: the dispatchers call this stage entry point, which in this
+ * overlay lands inside the function above. */
+FUNC_ALIAS(func_800F87E4, func_800F878C, 0x58);
 
 void func_800F8A58(void) {
     s16 v;
@@ -573,8 +685,6 @@ void func_800F8D64(void) {
     sSteerDrift = sSteerDrift < -100 ? -100 : sSteerDrift > 100 ? 100 : sSteerDrift;
     PushPlayer(90, (s16)(sSteerDrift / 10));
 }
-
-INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", D_800F052C);
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 

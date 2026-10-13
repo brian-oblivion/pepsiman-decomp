@@ -1139,7 +1139,31 @@ void func_800F9980(void) {
     RevealStartCans();
 }
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", func_800F9ABC);
+/* MATCHING: ret set before the table copy and again after the call, so it
+ * stays a register; set once it folds to a constant. */
+u16 func_800F9ABC(s16 id, StageTrap *src, StageTrap *dst) {
+    u16 ret = 1;
+    u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+                     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                     32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                     48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+                     64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79};
+
+    if (id < 80) {
+        if (id >= 0) {
+            dst->homeX = src->x;
+            dst->homeY = src->y;
+            dst->homeZ = src->z;
+            dst->homeRotX = src->rotX;
+            dst->homeRotY = src->rotY;
+            dst->homeRotZ = src->rotZ;
+            ResetObj34(dst);
+            dst->model = models[id];
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
 /** @brief The shape of each of this stage's own sprites, as one block. */
 typedef struct {
@@ -1154,7 +1178,5 @@ void func_800F9BFC(void) {
     shapes = D_800F0924;
     *(SpriteShapes41 *)sSpriteShapes = shapes;
 }
-
-INCLUDE_RODATA("asm/ovl/ovl12/nonmatchings/ovl12", D_800F08D4);
 
 INCLUDE_RODATA("asm/ovl/ovl12/nonmatchings/ovl12", D_800F0924);

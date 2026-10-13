@@ -886,7 +886,111 @@ void EmitTrapParticles(StageTrap *t) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800FA3EC);
+extern s32 D_800FB364[];
+extern s32 D_800FB384[];
+
+s32 func_800FA3EC(void) {
+    /* MATCHING: an unused 8-byte local gives retail's frame. */
+    s32 ret = 0;
+    s32 unused[2];
+
+    switch (gSubStep) {
+        case 0:
+            SetBootReady(0);
+            gCdLoadLoc[0] = (s32)&D_800FB364[0];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB384[1];
+            gSubStep++;
+            break;
+        case 1:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimList((unsigned long *)0x8019D000);
+                gVabLoadStep = 0;
+                gSubStep++;
+            }
+            break;
+        case 2:
+            if (LoadVabBank(3) == 1) {
+                gSubStep++;
+            }
+            break;
+        case 3:
+            gCdLoadLoc[0] = (s32)&D_800FB364[1];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB384[2];
+            gSubStep++;
+            break;
+        case 4:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimPack((void *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 5:
+            gCdLoadLoc[0] = (s32)&D_800FB364[2];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadLoc[1] = (s32)&D_800FB364[3];
+            gCdLoadDest[1] = 0x80155000;
+            gCdLoadCount = 2;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB384[3];
+            gCdLoadSectors[1] = D_800FB384[4];
+            gSubStep++;
+            break;
+        case 6:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadStageData((unsigned long *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 7:
+            gCdLoadLoc[0] = (s32)&D_800FB364[4];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB384[5];
+            gSubStep++;
+            break;
+        case 8:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadSpritePack((void *)0x8016D000, SPR_STAGE);
+                gSubStep++;
+            }
+            break;
+        case 9:
+            InitEntryModels();
+            gSubStep++;
+            break;
+        case 10:
+            gCdLoadLoc[0] = (s32)&D_800FB364[5];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB384[6];
+            gSubStep++;
+            break;
+        case 11:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                RestoreStageObjects();
+                LoadStageSprites();
+                gSubStep++;
+            }
+            break;
+        case 12:
+            ResetStageObjects();
+            StartStageOverlay();
+            SetBootReady(1);
+            ret = 1;
+            break;
+    }
+    FntPrint("CDEXEC %d", gSubStep);
+    return ret;
+}
 
 #ifdef NON_MATCHING
 void func_800FA754(void) {

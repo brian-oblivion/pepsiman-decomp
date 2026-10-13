@@ -1,1 +1,2 @@
 // Overlay 00 (the mode main loads first (GM_OVERLAY0)): names for addresses inside the overlay.
+D_800F1CFA = 0x800F1CFA;

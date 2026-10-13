@@ -7,14 +7,13 @@
 #include "sound.h"
 #include "libsnd.h"
 #include "libmcrd.h"
+#include "rand.h"
 #include "model.h"
 #include "draw.h"
 #include "spad.h"
 #include "world_intro.h"
 
-/* MATCHING: the functions from func_800F80F8 on are non-static inline:
- * gcc 2.8 expands them into callers defined after them and writes their
- * own copies at the end of the file, in the order of these declarations. */
+/* MATCHING: non-static inline, emitted at the file's end in this order. */
 inline void func_800F80F8(void);
 inline void func_800F81B4(void);
 inline void func_800F8264(void);
@@ -189,19 +188,19 @@ typedef struct {
 
 /** @brief The game's save as the title reads it from the memory card. */
 typedef struct {
-    Pair8 times[4];   /**< gBestTimes */
-    Pair8 cans[4];    /**< gBestCans */
-    u8 pad40[8];      /**< not read here */
-    Pair8 unk48;      /**< D_80095978 */
-    u8 stereo;        /**< gStereo */
-    u8 rumble;        /**< gRumbleEnabled */
-    s8 sortMode;      /**< gTmdSortMode */
-    s8 buttonConfig;  /**< gButtonConfig */
-    s8 unk54;         /**< D_800957A0 */
-    u8 gameCleared;   /**< gGameCleared */
-    u8 allTargets;    /**< gAllTargetsBeaten */
-    u8 unlocks;       /**< gUnlocks */
-    s32 checksum;     /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
+    Pair8 times[4];  /**< gBestTimes */
+    Pair8 cans[4];   /**< gBestCans */
+    u8 pad40[8];     /**< not read here */
+    Pair8 unk48;     /**< copied to the pair after gBestTimes and gBestCans */
+    u8 stereo;       /**< gStereo */
+    u8 rumble;       /**< gRumbleEnabled */
+    s8 sortMode;     /**< gTmdSortMode */
+    s8 buttonConfig; /**< gButtonConfig */
+    s8 unk54;        /**< a signed byte the boot code sets to -1 */
+    u8 gameCleared;  /**< gGameCleared */
+    u8 allTargets;   /**< gAllTargetsBeaten */
+    u8 unlocks;      /**< gUnlocks */
+    s32 checksum;    /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
 } SaveData;
 
 /* MATCHING: per-unit views, as in main.c. */
@@ -216,7 +215,6 @@ extern SaveData *D_800FA24C;
 extern s32 D_800FA250;
 extern s32 D_800FA25C;
 extern long D_800FA270;
-s32 IsScreenWipeActive(void);
 extern char D_800F0000[]; /* "BISLPS-01762", the save file's name */
 
 void func_800F0AD4(void) {
@@ -481,7 +479,342 @@ void func_800F6670(void) {
     }
 }
 
+inline void func_800F80F8(void) {
+    GsCOORDINATE2 c;
+    MATRIX m;
+    SVECTOR size;
+    SVECTOR unused;
+    SColor color;
+
+    GsInitCoordinate2(WORLD, &c);
+    c.coord.t[1] = 0;
+    c.coord.t[0] = gPlayer.x;
+    c.coord.t[2] = gPlayer.z;
+    GsGetLs(&c, &m);
+    GsSetLsMatrix(&m);
+    size.vx = 100;
+    size.vy = size.vx / 2;
+    color.r = BLEND_SUB;
+    color.g = color.b = color.cd = 0x40;
+    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+}
+
+inline void func_800F81B4(void) {
+    GsCOORDINATE2 c;
+    MATRIX m;
+    SVECTOR size;
+    SVECTOR unused;
+    SColor color;
+
+    GsInitCoordinate2(WORLD, &c);
+    c.coord.t[0] = 0x2B5C;
+    c.coord.t[1] = 0;
+    c.coord.t[2] = 0;
+    GsGetLs(&c, &m);
+    GsSetLsMatrix(&m);
+    size.vx = 800;
+    size.vy = 50;
+    color.r = BLEND_SUB;
+    color.g = color.b = color.cd = 0x60;
+    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+}
+
+extern s32 D_800FA278;
+extern s32 D_800FA280;
+extern s32 D_800FA284;
+
+#ifdef NON_MATCHING
+void func_800F69B0(void) {
+    SVECTOR pos;
+    SColor color;
+    MATRIX m;
+    POLY_F4 *p;
+    DR_TPAGE *t;
+    s32 *dir;
+    s32 *tbl;
+    s32 d;
+
+    switch (gSubStep) {
+        case 50:
+            DefineSprite(0x1E, 1, 0xFF, 0x60, 0x17, 0, 0, 0, 0x1E1);
+            DefineSprite(0x1F, 0, 0xFF, 0x10, 0x17, 0, 0x80, 0x40, 0x1E0);
+            DefineSprite(0x20, 0, 0xFF, 0x10, 0x17, 0, 0x90, 0x40, 0x1E0);
+            DefineSprite(0x21, 0, 0xFF, 0x20, 0x17, 0, 0xA0, 0x40, 0x1E0);
+            DefineSprite(0x22, 0, 0xFF, 0x20, 0x17, 0, 0xC0, 0x40, 0x1E0);
+            tbl = (s32 *)0x8019D010;
+            dir = (s32 *)0x8019D000;
+            for (gLoopI = 0; gLoopI < 2; gLoopI++) {
+                gAnimations[gLoopI + 51] = (s32 *)(tbl[gLoopI] + (s32)dir) + 1;
+                gPlayer.motionLen[gLoopI + 51] = *gAnimations[gLoopI + 51];
+                gAnimations[gLoopI + 51]++;
+                gPlayer.motionStart[gLoopI + 51] = gAnimations[gLoopI + 51][1];
+            }
+            GsSetProjection(250);
+            SetFogNearFar(2000, 6000, 250);
+            SetFarColor(0, 0, 0);
+            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D00C + 0x8019D004));
+            GsLinkObject4(*(s32 *)0x8019D00C + 0x8019D00C, &sAct3Objs[0], 0);
+            sAct3Objs[0].coord2 = &sAct3Coords[0];
+            sAct3Objs[0].attribute = 0x200;
+            D_8009EB58[0].vx = 0;
+            D_8009EB58[0].vy = 0;
+            D_8009EB58[0].vz = 0;
+            sLights.l[0].r = 0x80;
+            sLights.l[0].g = 0x80;
+            sLights.l[0].b = 0x80;
+            sLights.l[1].r = 0x80;
+            sLights.l[1].g = 0x80;
+            sLights.l[1].b = 0x80;
+            sLights.l[2].r = 0x80;
+            sLights.l[2].g = 0x80;
+            sLights.l[2].b = 0x80;
+            sLights.l[0].vx = 0;
+            sLights.l[0].vy = 100;
+            sLights.l[0].vz = 100;
+            GsSetFlatLight(0, &sLights.l[0]);
+            sLights.l[1].vx = 0x56;
+            sLights.l[1].vy = 100;
+            sLights.l[1].vz = -50;
+            GsSetFlatLight(1, &sLights.l[1]);
+            sLights.l[2].vx = -0x56;
+            sLights.l[2].vy = 100;
+            sLights.l[2].vz = -50;
+            GsSetFlatLight(2, &sLights.l[2]);
+            sView.vpx = 0;
+            sView.vpy = -150;
+            sView.vpz = 0;
+            sView.vrx = -1000;
+            sView.vry = -150;
+            sView.vrz = 0;
+            gPlayer.x = -10000;
+            gPlayer.yaw = -0x400;
+            gPlayer.action = 0x61;
+            gPlayer.y = 0;
+            gPlayer.z = 0;
+            gPlayer.motion[0] = 3;
+            PlayCdTrack(7, 0);
+            gSubStep = 100;
+            break;
+        case 100:
+            p = (POLY_F4 *)GsOUT_PACKET_P;
+            setPolyF4(p);
+            setSemiTrans(p, 1);
+            gLoopI = ((gPlayer.x >= 0 ? gPlayer.x : -gPlayer.x) - 1000) / 20;
+            if (gLoopI < 0) {
+                gLoopI = 0;
+            }
+            if (gLoopI >= 256) {
+                gLoopI = 255;
+            }
+            setXY4(p, -160, -120, 160, -120, -160, 120, 160, 120);
+            p->r0 = p->g0 = p->b0 = gLoopI;
+            addPrim(gOt[gActiveBuff].org, p);
+            p++;
+            GsOUT_PACKET_P = (PACKET *)p;
+            t = (DR_TPAGE *)GsOUT_PACKET_P;
+            setlen(t, 1);
+            t->code[0] = 0xE1000640;
+            addPrim(gOt[gActiveBuff].org, t);
+            t++;
+            GsOUT_PACKET_P = (PACKET *)t;
+            gPlayer.x += 50;
+            if (gPlayer.x >= -250) {
+                D_800FA280 = 0;
+                gSubStep = 110;
+            }
+            break;
+        case 110:
+            gPlayer.x += 50;
+            sView.vpx = gPlayer.x + rsin((-D_800FA280 * 12 + 90) * 4096 / 360) * 250 / 4096;
+            sView.vpy = -150;
+            sView.vpz = rcos((-D_800FA280 * 12 + 90) * 4096 / 360) * 150 / 4096;
+            sView.vry = -150;
+            sView.vrz = 0;
+            sView.vrx = gPlayer.x;
+            if (++D_800FA280 == 15) {
+                D_800FA280 = 250;
+                gSubStep = 120;
+            }
+            break;
+        case 120:
+            sView.vpy = -150;
+            sView.vpz = 0;
+            sView.vry = -150;
+            sView.vrz = 0;
+            gPlayer.x += 50;
+            sView.vpx = gPlayer.x - D_800FA280;
+            sView.vrx = gPlayer.x;
+            if ((D_800FA280 += 5) == 500) {
+                D_800FA278 = 0;
+                gSubStep = 130;
+            }
+            break;
+        case 130:
+            gPlayer.x += 50;
+            if (D_800FA278 == 0) {
+                if ((D_800FA280 -= 5) == 300) {
+                    D_800FA278 = 1;
+                }
+            } else {
+                if ((D_800FA280 += 5) == 500) {
+                    D_800FA278 = 0;
+                }
+            }
+            sView.vpy = -150;
+            sView.vpz = 0;
+            sView.vry = -150;
+            sView.vrz = 0;
+            sView.vpx = gPlayer.x - D_800FA280;
+            sView.vrx = gPlayer.x;
+            if (gPlayer.x == 11000) {
+                D_800FA280 = 0;
+                PlaySe(0x23);
+                gPlayer.action = 0x60;
+                gPlayer.motion[0] = 0x33;
+                gSubStep = 140;
+            }
+            break;
+        case 140:
+            if (D_800FA280 < 5) {
+                d = D_800FA280 * 50 - 500;
+                sView.vpx = gPlayer.x + d;
+                sView.vrx = gPlayer.x;
+                sView.vry = sView.vpy = rand() % 50 - 175;
+                sView.vrz = sView.vpz = rand() % 50 - 25;
+            } else if (D_800FA280 < 10) {
+                d = (D_800FA280 - 5) * 50 + 250;
+                sView.vpx = gPlayer.x - d;
+                sView.vrx = gPlayer.x;
+                sView.vry = sView.vpy = rand() % 50 - 175;
+                sView.vrz = sView.vpz = rand() % 50 - 25;
+            } else {
+                sView.vry = sView.vpy = -150;
+                sView.vrz = sView.vpz = 0;
+                sView.vpx = gPlayer.x - 500;
+                sView.vrx = gPlayer.x;
+            }
+            if (++D_800FA280 == 31) {
+                gSubStep = 1000;
+            }
+            break;
+        case 1000:
+            gPlayer.x = 11000;
+            gPlayer.yaw = -0x400;
+            gPlayer.action = 0x61;
+            gPlayer.y = 0;
+            gPlayer.z = 0;
+            gPlayer.motion[0] = 0x34;
+            sView.vpx = 0x2904;
+            sView.vrx = 11000;
+            sView.vpy = sView.vry = -150;
+            sView.vpz = sView.vrz = 0;
+            D_800FA280 = 0;
+            D_800FA284 = 0;
+            D_800FA278 = 0;
+            gSubStep = 1001;
+            PlaySe(0x50);
+            break;
+        case 1001:
+            if (gPadTrig & PADstart) {
+                if (D_800FA278 == 0) {
+                    MemCardAccept(0);
+                    PlaySe(0x22);
+                    gPlayer.yaw = 0x400;
+                    gPlayer.action = 0x60;
+                    gPlayer.motion[0] = 0xF;
+                    D_800FA284 = 1;
+                    D_800FA278 = 1;
+                }
+            }
+            if (D_800FA284 != 0) {
+                if (++D_800FA284 == 36) {
+                    StopCdTrack();
+                    gSubStep = 50;
+                    gModeStep = 30;
+                    StartScreenWipe();
+                }
+            } else {
+                if (++D_800FA280 == 450) {
+                    StopCdTrack();
+                    gSubStep = 50;
+                    gModeStep = 2;
+                }
+            }
+            break;
+    }
+    GsSetRefView2(&sView);
+    if (gPlayer.motion[0] == 3 && !(gFrameCount & 7)) {
+        PlaySe(0x13);
+    }
+    if (gSubStep >= 1000) {
+        if (D_800FA278 == 0 || (gFrameCount & 1)) {
+            color.r = 1;
+            color.g = color.b = color.cd = 0x80;
+            pos.vx = -128;
+            pos.vy = 16;
+            DrawSprite(0x1F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            color.r = 2;
+            color.g = color.b = color.cd = 0x80;
+            pos.vx = -128;
+            pos.vy = 16;
+            DrawSprite(0x20, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        }
+        color.r = -1;
+        color.g = color.b = color.cd = 0x80;
+        pos.vx = -128;
+        pos.vy = 0x48;
+        DrawSprite(0x21, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        color.r = 2;
+        color.g = color.b = color.cd = 0x80;
+        pos.vx = -128;
+        pos.vy = 0x48;
+        DrawSprite(0x22, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    }
+    StepStepper(&gPlayer);
+    DrawStepper(&gPlayer);
+    func_800F80F8();
+    sAct3Coords[0].coord.t[0] = 11000;
+    sAct3Coords[0].coord.t[1] = -234;
+    sAct3Coords[0].coord.t[2] = 0;
+    m = GsIDMATRIX;
+    m.t[0] = sAct3Coords[0].coord.t[0];
+    m.t[1] = sAct3Coords[0].coord.t[1];
+    m.t[2] = sAct3Coords[0].coord.t[2];
+    RotMatrixYXZ(&D_8009EB58[0], &m);
+    sAct3Coords[0].coord = m;
+    sAct3Coords[0].flg = 0;
+    GsGetLs(sAct3Objs[0].coord2, &m);
+    GsSetLsMatrix(&m);
+    pos.vx = 0x1FE;
+    pos.vy = 0xC0;
+    color.r = -1;
+    color.g = color.b = color.cd = 0x80;
+    DrawBillboard(0x1E, &pos, (CVECTOR *)&color, 2, &gOt[gActiveBuff]);
+    sAct3Coords[0].coord.t[0] = 0;
+    sAct3Coords[0].coord.t[1] = 0;
+    sAct3Coords[0].coord.t[2] = 0;
+    m = GsIDMATRIX;
+    m.t[0] = sAct3Coords[0].coord.t[0];
+    m.t[1] = sAct3Coords[0].coord.t[1];
+    m.t[2] = sAct3Coords[0].coord.t[2];
+    RotMatrixYXZ(&D_8009EB58[0], &m);
+    sAct3Coords[0].coord = m;
+    sAct3Coords[0].flg = 0;
+    GsGetLs(sAct3Objs[0].coord2, &m);
+    GsSetLsMatrix(&m);
+    GsGetLw(sAct3Objs[0].coord2, &m);
+    GsSetLightMatrix(&m);
+    if (gPlayer.x != -10000) {
+        GsSortObject4J(&sAct3Objs[0], &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    }
+    func_800F81B4();
+    if ((gPadTrig & PADstart) && gSubStep < 1000) {
+        gSubStep = 1000;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F69B0);
+#endif
 
 extern CdlLOC D_800F9BC8;
 extern SVECTOR D_800F9BD0[];
@@ -489,11 +822,7 @@ extern s32 D_800FA27C;
 extern Pair8 gActTimes;
 extern Pair8 gActCans;
 extern Pair8 D_800958C0;
-void PlayXa(u8 chan);
-void StopXa(void);
 
-/* The best draft so far: the coordinate's y is reloaded for the matrix,
- * where retail keeps it in a register and reloads z instead. */
 #ifdef NON_MATCHING
 s32 func_800F7A4C(void) {
     SVECTOR pos;
@@ -630,46 +959,6 @@ s32 func_800F7A4C(void) {
 #else
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F7A4C);
 #endif
-
-inline void func_800F80F8(void) {
-    GsCOORDINATE2 c;
-    MATRIX m;
-    SVECTOR size;
-    SVECTOR unused;
-    SColor color;
-
-    GsInitCoordinate2(WORLD, &c);
-    c.coord.t[1] = 0;
-    c.coord.t[0] = gPlayer.x;
-    c.coord.t[2] = gPlayer.z;
-    GsGetLs(&c, &m);
-    GsSetLsMatrix(&m);
-    size.vx = 100;
-    size.vy = 50;
-    color.r = BLEND_SUB;
-    color.g = color.b = color.cd = 0x40;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
-}
-
-inline void func_800F81B4(void) {
-    GsCOORDINATE2 c;
-    MATRIX m;
-    SVECTOR size;
-    SVECTOR unused;
-    SColor color;
-
-    GsInitCoordinate2(WORLD, &c);
-    c.coord.t[0] = 0x2B5C;
-    c.coord.t[1] = 0;
-    c.coord.t[2] = 0;
-    GsGetLs(&c, &m);
-    GsSetLsMatrix(&m);
-    size.vx = 800;
-    size.vy = 50;
-    color.r = BLEND_SUB;
-    color.g = color.b = color.cd = 0x60;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
-}
 
 inline void func_800F8264(void) {
     MATRIX m;

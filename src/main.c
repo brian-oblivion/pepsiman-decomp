@@ -795,8 +795,6 @@ typedef struct {
 
 extern u8 sStageMusicTracks[];
 
-void PlayCdTrack(s32 track, s32 loop);
-
 void PlayStageMusic(u8 idx) {
     Bytes15 tbl;
 

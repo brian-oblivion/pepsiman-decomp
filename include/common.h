@@ -670,6 +670,26 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur);
 /** @brief Defined in model; called when a stage is reset. */
 void StopCdTrack(void);
 
+/** @brief Defined in main; starts a CD-DA track.
+ *  @param track the track number
+ *  @param loop  nonzero to loop it */
+void PlayCdTrack(s32 track, s32 loop);
+
+/** @brief Defined in main; steps a model's animation (the title's player).
+ *  @param obj the model's state */
+void StepStepper(PlayerState *obj);
+
+/** @brief Defined in main; draws a model (the title's player).
+ *  @param obj the model's state */
+void DrawStepper(PlayerState *obj);
+
+/** @brief Defined in stage; starts the screen wipe and its sound. */
+void StartScreenWipe(void);
+
+/** @brief Defined in stage; whether the screen wipe runs.
+ *  @return nonzero while it runs */
+s32 IsScreenWipeActive(void);
+
 /** @brief Defined in model; called from main: sets up the three flat
  *         lights, the ambient light and the fog. */
 void InitLights(void);

@@ -1,16 +1,11 @@
 /* Stage 4-2's overlay: the stage engine (engine.inc, engine_code.inc) with this
  * stage's own routines, and the engine functions still in asm. */
 
-/* MATCHING: retail's parameter types, where engine.inc's prototypes differ. */
-#define RunTrapThenTurnTimed RunTrapThenTurnTimed_engine
-#define StepTrapType12 StepTrapType12_engine
+/* MATCHING: the engine's callers pass StepTrapType18 a word speed; this
+ * stage's body takes it as s16, so the shared declaration is set aside. */
 #define StepTrapType18 StepTrapType18_engine
 #include "engine.inc"
-#undef RunTrapThenTurnTimed
-#undef StepTrapType12
 #undef StepTrapType18
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir);
-void StepTrapType12(StageTrap *t, u16 speed, s16 arg);
 void StepTrapType18(StageTrap *t, s16 speed, s32 arg, s8 dir);
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
@@ -255,19 +250,15 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType0F);
 #endif
 
 
-/* The sSpawnedTraps slot of a trap's companion: StageTrap's word at 0x44,
- * which engine.inc still leaves unnamed. */
-#define TRAP_SLOT(t) (*(s32 *)(t)->unk44)
-
 void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
     switch (t->state) {
         case 0:
             /* MATCHING: retail stores the slot unextended, as if from an s32. */
-            TRAP_SLOT(t) = ((s32 (*)(void))FindFreeSlot48)();
-            sSpawnedTraps[TRAP_SLOT(t)] = *t;
-            sSpawnedTraps[TRAP_SLOT(t)].model = t->model + 1;
-            sSpawnedTraps[TRAP_SLOT(t)].state = 4;
-            sSpawnedTraps[TRAP_SLOT(t)].y = t->y -= 150;
+            t->slot = ((s32 (*)(void))FindFreeSlot48)();
+            sSpawnedTraps[t->slot] = *t;
+            sSpawnedTraps[t->slot].model = t->model + 1;
+            sSpawnedTraps[t->slot].state = 4;
+            sSpawnedTraps[t->slot].y = t->y -= 150;
             t->timer = 0;
             t->state++;
             PlaySe(0x53);
@@ -276,8 +267,8 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
                 PlaySe(0x55);
             }
             PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[TRAP_SLOT(t)].x = t->x += gOffsetVec[0] >> 12;
-            sSpawnedTraps[TRAP_SLOT(t)].z = t->z += gOffsetVec[2] >> 12;
+            sSpawnedTraps[t->slot].x = t->x += gOffsetVec[0] >> 12;
+            sSpawnedTraps[t->slot].z = t->z += gOffsetVec[2] >> 12;
             t->timer++;
             if (t->timer > arg) {
                 t->timer = 0;
@@ -288,10 +279,10 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
             break;
         case 2:
             PolarToXZ(Lerp(45, 0, t->timer, 40), (t->homeRotY + 227) * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[TRAP_SLOT(t)].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
-            sSpawnedTraps[TRAP_SLOT(t)].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
+            sSpawnedTraps[t->slot].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
+            sSpawnedTraps[t->slot].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
             t->rotY -= 11;
-            sSpawnedTraps[TRAP_SLOT(t)].rotY += 5;
+            sSpawnedTraps[t->slot].rotY += 5;
             SpawnEffect(4, (s16)t->x - (100 - rand() % 200), (s16)t->y + 100,
                         (s16)t->z - (100 - rand() % 200), 0);
             if (++t->timer == 40) {

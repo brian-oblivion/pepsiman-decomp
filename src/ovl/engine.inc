@@ -76,7 +76,7 @@ typedef struct {
     u8 unk41;        /**< not yet known */
     u8 type;         /**< what it does, the step it runs */
     u8 act;          /**< its act */
-    u8 unk44[4];     /**< not yet known */
+    s32 slot;        /**< its copy in sSpawnedTraps, from FindFreeSlot48 */
 } StageTrap;
 
 /** @brief An object model slot as a model with its own transform. */
@@ -238,10 +238,10 @@ void RunTrapAheadNonstop(StageTrap *t, s16 speed);
 void RunTrapAlongPath(StageTrap *t, u16 speed, s8 turn);
 void StepChargingTrap(StageTrap *t, s16 speed, s32 range);
 void DrawTrapWarning(StageTrap *t);
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir);
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir);
 void StepTrapType32(StageTrap *t, s16 speed, s8 mode);
 void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg);
-void StepTrapType12(StageTrap *t, u16 speed, s32 arg);
+void StepTrapType12(StageTrap *t, u16 speed, s16 arg);
 void StepTrapType1F(StageTrap *t, u16 arg);
 void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir);
 void StepTrapType1B(StageTrap *t, u16 speed, s32 arg);
@@ -265,7 +265,7 @@ void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed);
 void func_800F82E0(StageTrap *t);
 void func_800F8454(StageTrap *t);
 void func_800F87E4(StageTrap *t);
-void func_800F84A8(StageTrap *t);
+s32 func_800F84A8(StageTrap *t);
 void func_800F74FC(StageTrap *t);
 void func_800F7968(StageTrap *t);
 void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg);

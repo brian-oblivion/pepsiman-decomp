@@ -697,10 +697,8 @@ FUNC_ALIAS(func_800F8454, func_800F8264, 0x1F0);
 
 void func_800F87E0(StageTrap *t, s8 dir);
 
-#ifdef NON_MATCHING
-/* MATCHING: as s32 with no return statement this is retail's code; the
- * engine declares it void. */
-void func_800F84A8(StageTrap *t) {
+/* MATCHING: s32 with no return statement, which keeps retail's tail. */
+s32 func_800F84A8(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -763,9 +761,6 @@ void func_800F84A8(StageTrap *t) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F84A8);
-#endif
 
 void func_800F87E0(StageTrap *t, s8 dir) {
     PlacedPos p;
@@ -915,13 +910,13 @@ void RunTrapType0B(StageTrap *t, s8 dir) {
 
 #include "engine_code.inc" /* RunTrapType32 */
 
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir) {}
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 #include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 
 void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
 
-void StepTrapType12(StageTrap *t, u16 speed, s32 arg) {}
+void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {}
 
 void StepTrapType1F(StageTrap *t, u16 arg) {}
 

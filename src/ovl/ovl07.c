@@ -825,13 +825,13 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", RunTrapType0B);
 #endif
 #include "engine_code.inc" /* RunTrapType32 */
 
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir) {}
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 #include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 
 void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
 
-void StepTrapType12(StageTrap *t, u16 speed, s32 arg) {}
+void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {}
 
 void StepTrapType1F(StageTrap *t, u16 arg) {}
 

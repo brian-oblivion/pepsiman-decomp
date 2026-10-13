@@ -117,7 +117,7 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapType0B);
 
 #include "engine_code.inc" /* RunTrapType32 */
 
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir) {}
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 #include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 

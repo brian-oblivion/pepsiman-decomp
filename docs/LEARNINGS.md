@@ -233,6 +233,26 @@ function's match report, not here.
 - **In an overlay a global read after stores to a record stays below them
   only when declared `[]`**; as a scalar its `%hi`/`%lo` load is hoisted.
   (ovl07)
+- **A constant kept in a saved register through a switch and sign-extended
+  at run time (`li s0,100; sll; sra`) is an `s16` local initialised at the
+  top**; an `s32` local leaves the `li` at the top, and assigning inside the
+  case folds it. (ovl13, ovl04, ovl16 frame-count routines)
+- **The single-instruction abs `x >= 0 ? x : -x` keeps `x` in one block**
+  (`bgez; nop; negu` in place); `if (x < 0) x = -x;` makes `x` live across
+  blocks and costs its register; `x < 0 ? -x : x` becomes an add/sub.
+- **Saved registers permuted across code a macro expands: a `do { } while
+  (0)` wrapper raises the loop level of every ref inside**, which global
+  alloc weights; a plain block can be the match. (ovl14 frame step)
+- **`lui vN` / `addiu sM,vN` for an address where retail has both in `sM`:
+  copy the pointer to a second local after the first call**, so the first
+  is local to one block and crosses a call. (chase frame steps)
+- **Two pseudos within a point of priority
+  (floor_log2(refs)*refs/live_length): one `__asm__("")` inside both live
+  ranges can flip the tie.** (ovl08 frame step)
+- **A global's base kept in a register with large offsets
+  (`lh 0x3664(base)`) is a local pointer `g = (StageTrap *)gTraps;
+  g[193].y`**, one pointer per switch case; `&arr[K]` folds into
+  symbol+offset. (engine)
 
 ## Loops
 
@@ -456,6 +476,17 @@ function's match report, not here.
 - **A frame larger than its locals: an unused `s32 unused[4]` or
   `u8 pad[0x28]` declared before the other locals**, sized to retail's
   offsets. (ovl07)
+- **A switch whose cases only set locals to constants vanishes when each
+  local has a single assignment** (local-alloc makes it its constant).
+  Assigning in two separate case groups, with bare `break` cases for the
+  gaps, keeps retail's jump table; cross-jumping merges the copies.
+  (UpdateGoalEventHook)
+- **Shared tails (`j common` from several branches) come from repeating the
+  calls and `return` in each branch**, which cross-jumping merges; one call
+  block after an if/else chain does not. (ovl00)
+- **A function splat cut at an address other code calls (a stage entry
+  point that lands mid-function in this overlay) is one C function plus
+  `FUNC_ALIAS(name, base, offset)`.** (engine overlays)
 
 ## Scheduling
 
@@ -641,3 +672,15 @@ function's match report, not here.
   way. Retail negating a temporary (`negu`) rather than folding
   `-(s - k)` into `k - s` needs the value in a variable that the `if`
   negates. (ovl07, ovl11)
+- **A `lui` a branch slot should take from its target arm, filled instead
+  by a later instruction: look for a call on the other arm whose delay slot
+  reorg filled from before the call.** The `(use)` marker update_block
+  leaves keeps the register live there; move the setting statement after
+  that call. (chase frame steps, case 20)
+- **To load one constant earlier than its store order suggests, assign that
+  field first**: stores to different offsets of one base reorder freely,
+  so the store order can stay while the `li` moves up. (ovl17 frame step)
+- **Loads retail keeps below a struct copy can come from a statement
+  written before the copy**; the scheduler sinks them. (ovl08 frame step)
+- **`t->timer++;` as its own statement, then the test, puts the halfword
+  store in the compare's delay slot**; `if (++t->timer ...)` stores early.

@@ -490,9 +490,90 @@ s32 func_800F7968(StageTrap *t) {
  * overlay lands inside the function above. */
 FUNC_ALIAS(func_800F79A0, func_800F7968, 0x38);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7C9C);
+void func_800F7C9C(StageTrap *t, s8 kind) {
+    PlacedPos p;
+    StageTrap *s;
+    s16 i;
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7E34);
+    i = FindFreeSlot48();
+    if (i != -1) {
+        s = &sSpawnedTraps[i];
+        *s = *t;
+        switch (kind) {
+            case 2:
+                p.lx = -150;
+                break;
+            case 1:
+                p.lx = 150;
+                break;
+            case 0:
+                p.lx = 0;
+                break;
+        }
+        if (t->timer > 90) {
+            p.lx += 50;
+        }
+        p.ly = 0;
+        p.lz = 0;
+        p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
+        UpdatePlacedPos(&p);
+        s->x = s->homeX = p.pos.vx;
+        s->y = s->homeY = p.pos.vy;
+        s->z = s->homeZ = p.pos.vz;
+        s->model = 10;
+        s->type = 0xFF;
+        s->act = 100;
+        s->state = 0;
+        s->timer = 90;
+    }
+}
+
+extern s32 D_800FF3C0[];
+
+s8 func_800F7E34(StageTrap *t) {
+    s8 ret = 0;
+
+    switch (t->state) {
+        case 0:
+            D_800FF3C0[0] = gView[0];
+            D_800FF3C0[2] = gView[2];
+            gRefView[0] = rsin(gPlayer.yaw + 0x238) * 300 >> 12;
+            gRefView[2] = rcos(gPlayer.yaw + 0x238) * 300 >> 12;
+            t->timer = 0;
+            t->state++;
+        case 1:
+            t->timer++;
+            gView[0] = Lerp(D_800FF3C0[0], gRefView[0], t->timer, 60);
+            gView[2] = Lerp(D_800FF3C0[2], gRefView[2], t->timer, 60);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            gPlayer.bodyYaw = Lerp(gCourse.rot.vy + 0x800, gCourse.rot.vy + 0xC00, t->timer, 60);
+            gBodyRot[1] = gPlayer.yaw + gPlayer.bodyYaw;
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
+            if (t->timer > 60) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 2:
+            gPlayer.action = 0;
+            gPlayer.motion[0] = 2;
+            gPlayer.drawX += rsin(gCourse.rot.vy + 0xC00) * 20 >> 12;
+            gPlayer.drawZ += rcos(gCourse.rot.vy + 0xC00) * 20 >> 12;
+            gBodyRot[1] = gPlayer.yaw + gPlayer.bodyYaw;
+            gTodCoords[0].coord.t[0] = gPlayer.drawX;
+            gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+            gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+            SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
+            if (++t->timer > 60) {
+                ret = 1;
+            }
+            break;
+    }
+    return ret;
+}
 
 /** @brief One of this stage's on-screen prompts (D_800FB468, ended by a
  *         section of -1): shown when the player reaches its section. */
@@ -508,11 +589,88 @@ typedef struct {
 extern s32 D_800FB464;
 extern StageHint D_800FB468[];
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F80F4);
+s32 func_800F80F4(void) {
+    SVECTOR pos;
+    s32 n;
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F82E0);
+    switch (D_800FB468[D_800FB464].state) {
+        case 0:
+            if (D_800FB468[D_800FB464].section == gSection) {
+                D_800FB468[D_800FB464].state = 1;
+            }
+            break;
+        case 1:
+            switch (D_800FB468[D_800FB464].kind) {
+                case 0:
+                    if (gPadTrig & 0x8000) {
+                        D_800FB468[D_800FB464].state = 2;
+                    }
+                    if (D_800FB468[D_800FB464].timer < 9) {
+                        n = D_800FB468[D_800FB464].timer;
+                    } else {
+                        n = 8;
+                    }
+                    pos.vx = 196 - n * 30;
+                    pos.vy = -20;
+                    DrawSprite(0x161, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    break;
+                case 1:
+                    if (gPadTrig & 0x2000) {
+                        D_800FB468[D_800FB464].state = 2;
+                    }
+                    if (D_800FB468[D_800FB464].timer < 9) {
+                        n = D_800FB468[D_800FB464].timer;
+                    } else {
+                        n = 8;
+                    }
+                    pos.vx = n * 30 - 284;
+                    pos.vy = -20;
+                    DrawSprite(0x162, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    break;
+                case 2:
+                    if (gPadTrig & 0x40) {
+                        D_800FB468[D_800FB464].state = 2;
+                    }
+                    if (D_800FB468[D_800FB464].timer < 9) {
+                        n = D_800FB468[D_800FB464].timer;
+                    } else {
+                        n = 8;
+                    }
+                    pos.vx = -44;
+                    pos.vy = 220 - n * 30;
+                    DrawSprite(0x163, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    break;
+                case 3:
+                    if (gPadTrig & 0x20) {
+                        D_800FB468[D_800FB464].state = 2;
+                    }
+                    if (D_800FB468[D_800FB464].timer < 9) {
+                        n = D_800FB468[D_800FB464].timer;
+                    } else {
+                        n = 8;
+                    }
+                    pos.vx = -44;
+                    pos.vy = n * 30 - 260;
+                    DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    break;
+            }
+            if (++D_800FB468[D_800FB464].timer > D_800FB468[D_800FB464].limit) {
+                D_800FB468[D_800FB464].state = 100;
+            }
+            break;
+        case 2:
+            D_800FB464++;
+            break;
+        case 100:
+            D_800FB464++;
+            break;
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8454);
+/* MATCHING: the dispatchers call these stage entry points, which in this
+ * overlay land inside the function above. */
+FUNC_ALIAS(func_800F82E0, func_800F80F4, 0x1EC);
+FUNC_ALIAS(func_800F8454, func_800F80F4, 0x360);
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this

@@ -702,6 +702,9 @@ void PrintTabs(s16 count);
  *         the load screen, with a copy of the player running on it. */
 void BeginLoadScreenModel(void);
 
+/** @brief Defined in main: starts the load screen for the next stage. */
+void BeginLoadScreen(void);
+
 /** @brief Defined in player: on every tenth pickup, plays a cue
  *         (unless the stage forbids it) and updates the pickup display. */
 void CheckCanBonus(void);

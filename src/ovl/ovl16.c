@@ -91,13 +91,31 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissSequence);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepGoalSequence);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", CycleGoalLights);
+extern s8 D_800F9A60[];
+
+extern s8 D_800F9A60[];
+void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count);
+
+extern s8 D_800F9A60[];
+void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count);
+
+void CycleGoalLights(s8 arg) {
+    u16 periods[8] = {30, 30, 30, 30, 20, 20, 10, 10};
+    s8 lights[8] = {0, 0, 0, 0, 1, 1, 2, 2};
+    s16 i;
+
+    if (gSectionEdges[-1] - gSection < 20) {
+        for (i = 0; i < 8; i++) {
+            if (gFrameCount % periods[i] == 0) {
+                func_800F8B4C((DirEnt16 *)0x8018D000, i * 4 + D_800F9A60[lights[i]] * 2, 1);
+            } else if (gFrameCount % periods[i] == periods[i] >> 1) {
+                func_800F8B4C((DirEnt16 *)0x8018D000, i * 4 + 1 + D_800F9A60[lights[i]] * 2, 1);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F5E80);
-
-INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F04D8);
-
-INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F04E8);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F60CC);
 
@@ -426,6 +444,18 @@ u16 func_800F922C(s16 id, StageTrap *src, StageTrap *dst) {
     return ret;
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F936C);
+/** @brief The shape of each of this stage's own sprites, as one block. */
+typedef struct {
+    u8 shape[41]; /**< a shape per sprite id from SPR_STAGE on */
+} StageShapes;
+
+extern const StageShapes D_800F08F0;
+
+void func_800F936C(void) {
+    StageShapes shapes;
+
+    shapes = D_800F08F0;
+    *(StageShapes *)sSpriteShapes = shapes;
+}
 
 INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F08F0);

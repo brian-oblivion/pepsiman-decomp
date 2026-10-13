@@ -266,7 +266,69 @@ void func_800F6FA0(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F70A8);
+/* MATCHING: player's, declared only where defined. */
+void OnJumpStart(PlayerState *g);
+void ScatterDust(VECTOR *pos);
+
+/* MATCHING: player's, declared only where defined. */
+void OnJumpStart(PlayerState *g);
+void ScatterDust(VECTOR *pos);
+
+void func_800F70A8(void) {
+    s16 n;
+
+    if (gPlayer.control != 0) {
+        if ((gGamePadTrig & 0x20) &&
+            (gPlayer.y >= gPlayer.groundY || (gPlayer.onRideQuad == 1 && gPlayer.onQuadTop == 1)) &&
+            gPlayer.jumpState == JUMP_NONE) {
+            gPlayer.airborne = 1;
+            gPlayer.onQuadTop = 0;
+            gPlayer.jumpState = JUMP_RISING;
+            gPlayer.jumpTime = 0;
+            gPlayer.peakY = 0;
+            OnJumpStart(&gPlayer);
+            gPlayer.motion[0] = MOT_RIDE_JUMP;
+            gPlayer.jumpPower = 0x23;
+            gPlayer.jumpStartY = gPlayer.y;
+            ScatterDust((VECTOR *)&gPlayer.x);
+            PlaySe(0x17);
+        }
+        if (gPlayer.jumpState == JUMP_RISING) {
+            n = ++gPlayer.jumpTime;
+            if (n < 3) {
+                gPlayer.jumpPower = 0x21;
+            } else if ((u16)(n - 4) < 3) {
+                gPlayer.jumpPower = 0x1A;
+            } else if (n >= 9) {
+                gPlayer.jumpPower = 0x1C;
+                gPlayer.jumpState = JUMP_RELEASED;
+                gPlayer.motion[0] = MOT_RIDE_JUMP;
+                gPlayer.jumpHeight = 2;
+            } else if (gGamePad & 0x20) {
+                gPlayer.jumpPower = 0x1C;
+            } else {
+                gPlayer.jumpState = JUMP_RELEASED;
+                switch (n) {
+                    case 3:
+                        gPlayer.motion[0] = MOT_RIDE_JUMP_2;
+                        gPlayer.jumpHeight = 0;
+                        break;
+                    case 7:
+                        gPlayer.motion[0] = MOT_RIDE_JUMP_2;
+                        gPlayer.jumpHeight = 1;
+                        break;
+                    default:
+                        gPlayer.motion[0] = MOT_RIDE_JUMP_2;
+                        gPlayer.jumpHeight = 2;
+                        break;
+                }
+            }
+        }
+        if (gPlayer.jumpState == JUMP_RELEASED) {
+            gPlayer.jumpState = JUMP_NONE;
+        }
+    }
+}
 
 extern s16 sSteerDrift;
 /* MATCHING: player's, declared only where defined. */

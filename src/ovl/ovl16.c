@@ -79,14 +79,6 @@ void StepFlungPiece(StageTrap *t) {
     }
 }
 
-/* MATCHING: player's gCourse.rot.vy, reached by its own address here so the
- * loop does not hoist gCourse's base. */
-extern s16 D_800A7682;
-
-/* MATCHING: player's gCourse.rot.vy, reached by its own address here so the
- * loop does not hoist gCourse's base. */
-extern s16 D_800A7682;
-
 void SpawnMissDebris(void) {
     s16 models[15] = {4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 6, 0, 2, 5, 0};
     s16 i;
@@ -282,8 +274,8 @@ void StepTrapType27(StageTrap *t, s32 arg) {
             d = rsin((t->timer * 20 << 12) / 360) * 50 >> 12;
             t->timer++;
             t->y = t->homeY - (d >= 0 ? d : -d);
-            if ((t->timer * 20 % 360 == 180 || t->timer * 20 % 360 == 0) && gPlayer.invulnTimer == 0 &&
-                gPlayer.hittable == 1) {
+            if ((t->timer * 20 % 360 == 180 || t->timer * 20 % 360 == 0) &&
+                gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
                 PlaySe(0x3B);
             }
             if (t->timer >= 10) {
@@ -400,7 +392,7 @@ void StepMissSequence(void) {
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissSequence);
 #endif
 
-/* MATCHING: this stage's goal walk, still in asm below. */
+/* This stage's goal walk, defined below. */
 s8 func_800F60CC(StageTrap *t);
 
 void StepGoalSequence(void) {
@@ -461,11 +453,6 @@ void StepGoalSequence(void) {
         }
     }
 }
-
-extern s8 D_800F9A60[];
-
-extern s8 D_800F9A60[];
-void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count);
 
 extern s8 D_800F9A60[];
 void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count);
@@ -535,58 +522,13 @@ void func_800F5E80(void) {
     func_800F8BD4();
 }
 
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-extern s32 D_800FE590[];
-
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-extern s32 D_800FE590[];
-
-/* The goal walk's first two legs, each over n frames. */
-static __inline__ void WalkToGoalMark(StageTrap *t, s32 n) {
-    gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
-    gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
-    if (++t->timer > n) {
-        t->homeX = gPlayer.x;
-        t->homeY = gPlayer.y;
-        t->homeZ = gPlayer.z;
-        t->timer = 0;
-        t->state++;
-        gPlayer.action = 0x17;
-        SetSoundFade(4);
-    }
-}
-
-static __inline__ void WalkToGoalStop(StageTrap *t, s16 n) {
-    gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, n);
-    gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, n);
-    if (++t->timer < (s16)(n / 3)) {
-        ScatterDust((VECTOR *)&gPlayer.x);
-    }
-    if (t->timer > n) {
-        gPlayer.action = 0;
-        gPlayer.motion[0] = 0x13;
-        t->timer = 0;
-        t->state++;
-    }
-}
-
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-extern s32 D_800FE590[];
-
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-extern s32 D_800FE590[];
-
 #ifdef NON_MATCHING
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
 extern s32 D_800FE590[];
 
-/* Cases 0 and 1 differ: retail keeps the frame count n in a saved register
- * (and sign-extends 40 at run time), where this folds it to a constant. */
+/* Cases 0 and 1 differ: the original keeps the frame count n in a callee-saved
+ * register (and sign-extends 40 at run time), where this folds it to a constant. */
 s8 func_800F60CC(StageTrap *t) {
     s8 ret = 0;
     s16 n;
@@ -840,11 +782,6 @@ void func_800F6FA0(void) {
 
 /* MATCHING: player's, declared only where defined. */
 void OnJumpStart(PlayerState *g);
-void ScatterDust(VECTOR *pos);
-
-/* MATCHING: player's, declared only where defined. */
-void OnJumpStart(PlayerState *g);
-void ScatterDust(VECTOR *pos);
 
 void func_800F70A8(void) {
     s16 n;
@@ -901,11 +838,6 @@ void func_800F70A8(void) {
         }
     }
 }
-
-extern s16 sSteerDrift;
-/* MATCHING: player's, declared only where defined. */
-void ApplySteer(u8 mode, u16 a, s16 b);
-void RecentreSteer(void);
 
 extern s16 sSteerDrift;
 /* MATCHING: player's, declared only where defined. */
@@ -989,6 +921,7 @@ void StepTrapAct25(StageTrap *t, s32 arg) {
         }
     }
 }
+
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
 FUNC_ALIAS(func_800F82E0, StepTrapAct25, 0x78);

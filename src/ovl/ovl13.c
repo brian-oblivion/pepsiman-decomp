@@ -50,11 +50,11 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", ResetSpawnedTraps);
 
 #include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepFlungPiece);
+#include "engine/step_flung_piece.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", SpawnMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepMissDebris);
+#include "engine/step_miss_debris.inc"
 
 INCLUDE_RODATA("asm/ovl/ovl13/nonmatchings/ovl13", sDebrisModelInit);
 
@@ -617,7 +617,7 @@ void StepTrapType1E(StageTrap *t, u16 speed) {
 
 #include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", SpinTrapAway);
+#include "engine/spin_trap_away.inc"
 
 #include "engine_code.inc" /* TipTrapAway */
 
@@ -957,7 +957,7 @@ FUNC_ALIAS(func_800F84A8, RunTrapType04, 0x3C);
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapType0B);
+#include "engine/run_trap_type0_b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -1061,7 +1061,7 @@ void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {}
 
 #include "engine/draw_trap_while_linked.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", UpdateStageEventHook);
+#include "engine/update_stage_event_hook.inc"
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 
@@ -1071,7 +1071,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F9774);
 
 #include "engine/reveal_start_cans.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", EmitTrapParticles);
+#include "engine/emit_trap_particles.inc"
 
 extern s32 D_800FABD0[];
 extern s32 D_800FABF0[];

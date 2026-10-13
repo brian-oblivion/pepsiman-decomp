@@ -43,34 +43,11 @@ void ResetSpawnedTraps(void) {
 
 #include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepFlungPiece);
+#include "engine/step_flung_piece.inc"
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", SpawnMissDebris);
 
-void StepMissDebris(StageTrap *t) {
-    s32 d;
-
-    if (t->state == 0) {
-        PolarToXZ(t->homeRotZ, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-        t->x += gOffsetVec[0] >> 12;
-        t->z += gOffsetVec[2] >> 12;
-        t->y = t->homeY;
-        t->timer = (t->timer + t->homeZ) % 360;
-        d = rsin((t->timer << 12) / 360) * t->homeX >> 12;
-        t->homeRotX++;
-        t->y = t->homeY - (d >= 0 ? d : -d);
-        t->rotX -= (t->homeRotZ << 12) / 360;
-        t->rotZ += (t->homeZ << 12) / 360;
-        gModeObjectModels[t->model].coord.super = NULL;
-        if (gFrameCount & 3) {
-            DrawObjectModel((ObjectModel *)&gModeObjectModels[t->model], t);
-        }
-        if (t->homeRotX > 60) {
-            t->model = -1;
-            t->state++;
-        }
-    }
-}
+#include "engine/step_miss_debris.inc"
 
 INCLUDE_RODATA("asm/ovl/ovl06/nonmatchings/ovl06", sDebrisModelInit);
 
@@ -94,44 +71,7 @@ INCLUDE_RODATA("asm/ovl/ovl06/nonmatchings/ovl06", sDebrisModelInit);
 
 #include "engine/run_trap_ahead_at_height.inc"
 
-void KnockTrapAway(StageTrap *t) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->homeY = t->y;
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(58);
-                }
-                t->homeX = 0;
-                t->homeY = t->y;
-                t->homeRotY = D_8009EEF8[0];
-                t->state++;
-                t->timer = 0;
-            }
-            t->y = t->homeY;
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer = (t->timer + 10) % 360;
-            t->rotZ -= 11;
-            d = rsin((t->timer << 12) / 360) * 150 >> 12;
-            t->y = t->homeY - (d >= 0 ? d : -d);
-            if (++t->homeX == 25) {
-                t->state++;
-            }
-            if (gFrameCount % 3 != 0) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
+#include "engine/knock_trap_away.inc"
 
 #ifdef NON_MATCHING
 void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
@@ -220,95 +160,11 @@ INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAway);
 
 #include "engine_code.inc" /* StepFlipPanel */
 
-void SpinTrapAway(StageTrap *t) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            if (t->touched == 1) {
-                t->homeX = 0;
-                t->homeY = t->y;
-                /* MATCHING: read as a member at a fixed address, which keeps
-                 * the load below the stores into t. */
-                t->homeRotY = ((SVECTOR *)D_8009EEF8)->vx;
-                t->state++;
-                t->timer = 0;
-            }
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer = (t->timer + 10) % 360;
-            t->rotX += 113;
-            t->rotZ += 113;
-            d = rsin((t->timer << 12) / 360) * 200 >> 12;
-            t->y = t->homeY - (d >= 0 ? d : -d);
-            if (++t->homeX == 20) {
-                t->state++;
-            }
-            if ((gFrameCount & 1) && gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
+#include "engine/spin_trap_away.inc"
 
 #include "engine_code.inc" /* TipTrapAway */
 
-void StepSprayTrap(StageTrap *t, s8 dir) {
-    PlacedPos p;
-    StageTrap c;
-    s32 d;
-
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-        if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-            PlaySe(0x37);
-        }
-        if (dir != 0) {
-            switch (t->state) {
-                case 0:
-                    switch (dir) {
-                        case 2:
-                            p.lx = -140;
-                            break;
-                        case 1:
-                            p.lx = 140;
-                            break;
-                        case 3:
-                            p.lx = 0;
-                            break;
-                    }
-                    p.ly = 50;
-                    p.lz = 0;
-                    p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
-                    UpdatePlacedPos(&p);
-                    t->homeX = p.pos.vx;
-                    t->homeY = p.pos.vy;
-                    t->homeZ = p.pos.vz;
-                    t->state++;
-                case 1:
-                    c = *t;
-                    SnapToFloor(&c);
-                    if (!(gFrameCount & 3)) {
-                        SpawnEffectWithParams(9, t->homeX, t->homeY, t->homeZ, 0, 20,
-                                              (d = c.y - t->homeY, d >= 0 ? d : -d), 0, 0);
-                    }
-                    if (gFrameCount % 10 == 0) {
-                        PlaySe(0x6A);
-                    }
-                    if (!(gFrameCount & 1)) {
-                        SpawnEffect(4, (s16)t->homeX - (50 - rand() % 100),
-                                    (s16)c.y + (20 - rand() % 50),
-                                    (s16)t->homeZ - (50 - rand() % 100), 0);
-                    }
-                    break;
-            }
-        }
-    }
-}
+#include "engine/step_spray_trap.inc"
 
 #include "engine/burst_raised_trap.inc"
 
@@ -890,23 +746,11 @@ s8 func_800F8960(StageTrap *t) {
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 
-void RunTrapType04(StageTrap *t) {
-    Speeds sp = sChargeRanges;
-    s16 n;
-
-    n = sp.v[t->act / 4];
-    StepChargingTrap(t, t->act * 10 + 40, n);
-}
+#include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-void RunTrapType0B(StageTrap *t, s8 dir) {
-    s16 v[2] = {60, 90};
-    s16 n;
-
-    n = v[t->act / 5];
-    RunTrapThenTurnTimed(t, t->act * 10 + 60, n, dir);
-}
+#include "engine/run_trap_type0_b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -992,28 +836,7 @@ void StepTrapAct1D(StageTrap *t) {}
 
 #include "engine/draw_trap_while_linked.inc"
 
-void UpdateStageEventHook(void) {
-    StageTrap *m;
-    SwitchBox *s;
-
-    m = &D_800D39D8[1];
-    s = gSwitches;
-    if (s[192].state == SWITCH_ON) {
-        m->state = 0;
-        gPlayer.motion[0] = 11;
-        gPlayer.jumpPower = 40;
-        gPlayer.action = 0;
-        s[192].state = SWITCH_OFF;
-        gPlayer.dropRide = 1;
-        m->timer = 0;
-        m->state = 1;
-        gMissState = 0;
-        gPlayer.hittable = 0;
-        gPlayer.invulnTimer = 30;
-        gPlayer.rideMode &= 0xF0;
-        PlaySe(0x38);
-    }
-}
+#include "engine/update_stage_event_hook.inc"
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 
@@ -1025,14 +848,7 @@ void CycleGoalLights(s8 arg) {}
 
 void func_800FA334(void) {}
 
-void EmitTrapParticles(StageTrap *t) {
-    s32 r;
-
-    if ((gFrameCount & 3) == 0) {
-        r = rand() % 10 + 15;
-        SpawnEffectWithParams(12, t->x, t->y, t->z, 0, t->rotY + 0x800, r >= 0 ? r : -r, 20, 0);
-    }
-}
+#include "engine/emit_trap_particles.inc"
 
 extern s32 D_800FB364[];
 extern s32 D_800FB384[];

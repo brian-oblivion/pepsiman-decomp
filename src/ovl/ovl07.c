@@ -42,48 +42,7 @@ void ResetSpawnedTraps(void) {
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", ResetSpawnedTraps);
 #endif
 #include "engine_code.inc" /* StepCheckpoint */
-#ifdef NON_MATCHING
-void StepFlungPiece(StageTrap *t) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->x = gPlayer.x;
-            t->homeY = gPlayer.groundY - 50;
-            t->z = gPlayer.z;
-            t->rotY = gCourse.rot.vy + 0x800;
-            t->homeRotX = 0;
-            t->timer = 0;
-            t->state++;
-        case 1:
-            PolarToXZ(40, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            t->y = t->homeY;
-            t->timer = (t->timer + 10) % 360;
-            d = rsin((t->timer << 12) / 360) * 200 >> 12;
-            if (d < 0) {
-                d = -d;
-            }
-            t->y = t->homeY - d;
-            t->rotX -= 113;
-            t->rotZ += 56;
-            t->homeRotX++;
-            gModeObjectModels[t->model].coord.super = NULL;
-            if (gFrameCount & 3) {
-                DrawObjectModel((ObjectModel *)&gModeObjectModels[t->model], t);
-            }
-            if (t->homeRotX > 60) {
-                t->model = -1;
-                t->state++;
-                D_800D3358[0] = -1;
-            }
-            break;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepFlungPiece);
-#endif
+#include "engine/step_flung_piece.inc"
 #ifdef NON_MATCHING
 void SpawnMissDebris(void) {
     s16 models[15] = {4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 6, 0, 2, 5, 0};
@@ -118,37 +77,7 @@ void SpawnMissDebris(void) {
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", SpawnMissDebris);
 INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", sDebrisModelInit);
 #endif
-#ifdef NON_MATCHING
-void StepMissDebris(StageTrap *t) {
-    s32 d;
-
-    if (t->state == 0) {
-        PolarToXZ(t->homeRotZ, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-        t->x += gOffsetVec[0] >> 12;
-        t->z += gOffsetVec[2] >> 12;
-        t->y = t->homeY;
-        t->timer = (t->timer + t->homeZ) % 360;
-        d = rsin((t->timer << 12) / 360) * t->homeX >> 12;
-        t->homeRotX++;
-        if (d < 0) {
-            d = -d;
-        }
-        t->y = t->homeY - d;
-        t->rotX -= (t->homeRotZ << 12) / 360;
-        t->rotZ += (t->homeZ << 12) / 360;
-        gModeObjectModels[t->model].coord.super = NULL;
-        if (gFrameCount & 3) {
-            DrawObjectModel((ObjectModel *)&gModeObjectModels[t->model], t);
-        }
-        if (t->homeRotX > 60) {
-            t->model = -1;
-            t->state++;
-        }
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepMissDebris);
-#endif
+#include "engine/step_miss_debris.inc"
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
 #include "engine/run_trap_ahead.inc"
@@ -168,54 +97,7 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepMissDebris);
 #include "engine/step_rolling_trap.inc"
 
 #include "engine/run_trap_ahead_at_height.inc"
-#ifdef NON_MATCHING
-/* MATCHING: declared [] so its load stays below the stores to t. */
-extern s16 D_8009EEF8[];
-
-void KnockTrapAway(StageTrap *t) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->homeY = t->y;
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(58);
-                }
-                t->homeX = 0;
-                t->homeY = t->y;
-                t->homeRotY = D_8009EEF8[0];
-                t->state++;
-                t->timer = 0;
-            }
-            t->y = t->homeY;
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer = (t->timer + 10) % 360;
-            t->rotZ -= 11;
-            d = rsin((t->timer << 12) / 360) * 150 >> 12;
-            if (d < 0) {
-                d = -d;
-            }
-            t->y = t->homeY - d;
-            if (++t->homeX == 25) {
-                t->state++;
-            }
-            if (gFrameCount % 3 != 0) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", KnockTrapAway);
-#endif
+#include "engine/knock_trap_away.inc"
 #ifdef NON_MATCHING
 void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
     s16 n;
@@ -299,103 +181,9 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", TumbleTrapAway);
 #include "engine/step_dash_board.inc"
 
 #include "engine_code.inc" /* StepFlipPanel */
-#ifdef NON_MATCHING
-void SpinTrapAway(StageTrap *t) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            if (t->touched == 1) {
-                t->homeX = 0;
-                t->homeY = t->y;
-                /* MATCHING: read as a member at a fixed address, which keeps
-                 * the load below the stores into t. */
-                t->homeRotY = ((SVECTOR *)D_8009EEF8)->vx;
-                t->state++;
-                t->timer = 0;
-            }
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer = (t->timer + 10) % 360;
-            t->rotX += 113;
-            t->rotZ += 113;
-            d = rsin((t->timer << 12) / 360) * 200 >> 12;
-            if (d < 0) {
-                d = -d;
-            }
-            t->y = t->homeY - d;
-            if (++t->homeX == 20) {
-                t->state++;
-            }
-            if ((gFrameCount & 1) && gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", SpinTrapAway);
-#endif
+#include "engine/spin_trap_away.inc"
 #include "engine_code.inc" /* TipTrapAway */
-#ifdef NON_MATCHING
-void StepSprayTrap(StageTrap *t, s8 dir) {
-    PlacedPos p;
-    StageTrap c;
-    s32 d;
-
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-        if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-            PlaySe(0x37);
-        }
-        if (dir != 0) {
-            switch (t->state) {
-                case 0:
-                    switch (dir) {
-                        case 2:
-                            p.lx = -140;
-                            break;
-                        case 1:
-                            p.lx = 140;
-                            break;
-                        case 3:
-                            p.lx = 0;
-                            break;
-                    }
-                    p.ly = 50;
-                    p.lz = 0;
-                    p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
-                    UpdatePlacedPos(&p);
-                    t->homeX = p.pos.vx;
-                    t->homeY = p.pos.vy;
-                    t->homeZ = p.pos.vz;
-                    t->state++;
-                case 1:
-                    c = *t;
-                    SnapToFloor(&c);
-                    if (!(gFrameCount & 3)) {
-                        SpawnEffectWithParams(9, t->homeX, t->homeY, t->homeZ, 0, 20,
-                                              (d = c.y - t->homeY) < 0 ? -d : d, 0, 0);
-                    }
-                    if (gFrameCount % 10 == 0) {
-                        PlaySe(0x6A);
-                    }
-                    if (!(gFrameCount & 1)) {
-                        SpawnEffect(4, (s16)t->homeX - 50 + rand() % 100, (s16)c.y + 20 - rand() % 50,
-                                    (s16)t->homeZ - 50 + rand() % 100, 0);
-                    }
-                    break;
-            }
-        }
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepSprayTrap);
-#endif
+#include "engine/step_spray_trap.inc"
 #include "engine/burst_raised_trap.inc"
 
 #include "engine/turn_trap_on_approach.inc"
@@ -804,25 +592,9 @@ FUNC_ALIAS(func_800F8454, func_800F82CC, 0x188);
 FUNC_ALIAS(func_800F84A8, func_800F82CC, 0x1DC);
 FUNC_ALIAS(func_800F87E4, func_800F82CC, 0x518);
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
-#ifdef NON_MATCHING
-void RunTrapType04(StageTrap *t) {
-    Speeds sp = sChargeRanges;
-
-    StepChargingTrap(t, t->act * 10 + 40, sp.v[t->act / 4]);
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", RunTrapType04);
-#endif
+#include "engine/run_trap_type04.inc"
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
-#ifdef NON_MATCHING
-void RunTrapType0B(StageTrap *t, s8 dir) {
-    s16 v[2] = {60, 90};
-
-    RunTrapThenTurnTimed(t, t->act * 10 + 60, v[t->act / 5], dir);
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", RunTrapType0B);
-#endif
+#include "engine/run_trap_type0_b.inc"
 #include "engine_code.inc" /* RunTrapType32 */
 
 void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
@@ -927,18 +699,8 @@ void func_800FA050(u8 *dir, u16 first, u16 count) {
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800FA050);
 #endif
 #include "engine/reveal_start_cans.inc"
-#ifdef NON_MATCHING
-void EmitTrapParticles(StageTrap *t) {
-    s32 r;
+#include "engine/emit_trap_particles.inc"
 
-    if ((gFrameCount & 3) == 0) {
-        r = rand();
-        SpawnEffectWithParams(12, t->x, t->y, t->z, 0, t->rotY + 0x800, ABS(r % 10 + 15), 20, 0);
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", EmitTrapParticles);
-#endif
 s32 func_800FA1C0(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;

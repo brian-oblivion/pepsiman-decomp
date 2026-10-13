@@ -1,20 +1,25 @@
 /* The end the act-3 chase stages share: placing the objects, the loader
  * and the reset, after the scene's lights. The stage's unit defines
  * CHASE_LIGHT_BLUE (the lights' blue), CHASE_FAR_COLOR (the fog's colour,
- * three components) and CHASE_VAB, its sound bank, and
+ * three components) and CHASE_VAB, its sound bank, may define
+ * CHASE_LIGHT_RG (the lights' red and green, 0x80 unless defined), and
  * may define CHASE_LOADER as the INCLUDE_ASM that stands for the loader
  * while its C does not build to the unit's bytes. */
 
+#ifndef CHASE_LIGHT_RG
+#define CHASE_LIGHT_RG 0x80
+#endif
+
 /* Sets the scene's three lights and its fog. */
 void SetChaseLights(void) {
-    sLights.l[0].r = 0x80;
-    sLights.l[0].g = 0x80;
+    sLights.l[0].r = CHASE_LIGHT_RG;
+    sLights.l[0].g = CHASE_LIGHT_RG;
     sLights.l[0].b = CHASE_LIGHT_BLUE;
-    sLights.l[1].r = 0x80;
-    sLights.l[1].g = 0x80;
+    sLights.l[1].r = CHASE_LIGHT_RG;
+    sLights.l[1].g = CHASE_LIGHT_RG;
     sLights.l[1].b = CHASE_LIGHT_BLUE;
-    sLights.l[2].r = 0x80;
-    sLights.l[2].g = 0x80;
+    sLights.l[2].r = CHASE_LIGHT_RG;
+    sLights.l[2].g = CHASE_LIGHT_RG;
     sLights.l[2].b = CHASE_LIGHT_BLUE;
     sLights.l[0].vx = 0;
     sLights.l[0].vy = 100;

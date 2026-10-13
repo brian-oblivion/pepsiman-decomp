@@ -183,9 +183,39 @@ void func_800F95F0(StageTrap *t, s8 dir);
 void func_800F96D0(StageTrap *t, s8 unused);
 void func_800F9D9C(StageTrap *t, u8 arg);
 void func_800F90AC(StageTrap *t, s8 mode);
-void func_800F228C(StageTrap *t, s32 arg);
+void func_800F228C(StageTrap *t, s8 dir);
 void func_800F8A7C(u8 se);
 void func_800F7890(void);
+void func_800F9820(StageTrap *t);
+void func_800F404C(StageTrap *t);
+void func_800F4354(StageTrap *t);
+void func_800F4C80(StageTrap *t, s32 arg);
+void func_800F9EB0(StageTrap *t);
+void func_800F9ED4(StageTrap *t);
+void func_800F9EF8(StageTrap *t);
+void func_800F9F1C(StageTrap *t);
+void func_800F516C(StageTrap *t);
+void func_800F557C(StageTrap *t);
+void func_800F9E24(StageTrap *t);
+void func_800F9F3C(StageTrap *t);
+void func_800F57C0(StageTrap *t);
+void func_800F5324(StageTrap *t);
+void func_800F4E50(StageTrap *t);
+void func_800F5A24(StageTrap *t, s32 arg);
+void func_800F4650(StageTrap *t);
+void func_800F3CFC(StageTrap *t);
+void func_800F3E7C(StageTrap *t);
+void func_800F9F60(StageTrap *t);
+void func_800F5D88(StageTrap *t);
+void func_800F98CC(StageTrap *t);
+void func_800F98D4(StageTrap *t);
+void func_800F98DC(StageTrap *t);
+void func_800F98E4(StageTrap *t);
+void func_800F98EC(StageTrap *t, s32 arg);
+void func_800F98F4(StageTrap *t);
+void func_800F98FC(StageTrap *t);
+void func_800F2A5C(StageTrap *t, s32 speed, s32 range, s8 dir);
+void func_800F9904(StageTrap *t, s32 range, u8 type, u8 act);
 void func_800FA008(void);
 void func_800FA010(void);
 void func_800F9F68(StageTrap *t);
@@ -244,7 +274,7 @@ s32 SpawnEffectWithParams(s32 kind, s16 x, s16 y, s16 z, s16 delay, s32 param0, 
 void func_800F1F84(StageTrap *t);
 void func_800F8DF4(StageTrap *t);
 void func_800F8E88(StageTrap *t);
-void func_800F23C4(StageTrap *t, s32 arg, s32 arg2);
+void func_800F23C4(StageTrap *t, s32 range, s8 dir);
 void func_800F8F94(StageTrap *t);
 void func_800F9280(StageTrap *t);
 void func_800F9A00(StageTrap *t);
@@ -706,13 +736,264 @@ void func_800F1D5C(StageTrap *t) {
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F1D5C);
 #endif
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F1F84);
+void func_800F1F84(StageTrap *t) {
+    switch (t->act) {
+        case 0:
+        default:
+            if (gSection - UpdatePathSegment(t) < 2) {
+                DrawObjectModel(&gObjectModels[t->model], t);
+            }
+            break;
+        case 1:
+            func_800F9820(t);
+            break;
+        case 2:
+            func_800F33B8(t);
+            break;
+        case 3:
+            func_800F3644(t, 70, 0);
+            break;
+        case 4:
+            func_800F404C(t);
+            break;
+        case 5:
+            func_800F4354(t);
+            break;
+        case 6:
+            func_800F495C(t);
+            break;
+        case 7:
+            func_800F4C80(t, 0);
+            break;
+        case 8:
+            func_800F9EB0(t);
+            break;
+        case 9:
+            func_800F9ED4(t);
+            break;
+        case 11:
+            func_800F9EF8(t);
+            break;
+        case 12:
+            func_800F9F1C(t);
+            break;
+        case 13:
+            func_800F516C(t);
+            break;
+        case 15:
+        case 16:
+            func_800F557C(t);
+            break;
+        case 17:
+            func_800F9E24(t);
+            break;
+        case 18:
+            func_800F9F3C(t);
+            break;
+        case 19:
+            func_800F57C0(t);
+            break;
+        case 14:
+        case 20:
+            func_800F5324(t);
+            break;
+        case 10:
+        case 21:
+            func_800F4E50(t);
+            break;
+        case 22:
+            func_800F3644(t, 50, 0);
+            break;
+        case 23:
+            func_800F5A24(t, 2);
+            break;
+        case 24:
+            func_800F5A24(t, 1);
+            break;
+        case 25:
+            func_800F4650(t);
+            break;
+        case 26:
+            func_800F3644(t, 20, 0);
+            break;
+        case 27:
+            func_800F3CFC(t);
+            break;
+        case 28:
+            func_800F3E7C(t);
+            break;
+        case 29:
+            func_800F9F60(t);
+            break;
+        case 30:
+            func_800F5D88(t);
+            break;
+        case 31:
+            func_800F3644(t, 30, 1);
+            break;
+        case 32:
+            func_800F3644(t, 10, 2);
+            break;
+        case 33:
+            func_800F98CC(t);
+            break;
+        case 34:
+            func_800F98D4(t);
+            break;
+        case 35:
+            func_800F98DC(t);
+            break;
+        case 36:
+            func_800F98E4(t);
+            break;
+        case 37:
+            func_800F98EC(t, 2);
+            break;
+        case 38:
+            func_800F98EC(t, 1);
+            break;
+        case 39:
+            func_800F98F4(t);
+            break;
+        case 40:
+            func_800F98FC(t);
+            break;
+    }
+}
 
-INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", D_800F014C);
+const Speeds D_800F014C = {{1500, 2000, 2500, 3000, 4000, 5000}};
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F228C);
+void func_800F228C(StageTrap *t, s8 dir) {
+    switch (t->act) {
+        case 1:
+            func_800F2A5C(t, 20, 1000, dir);
+            break;
+        case 2:
+            func_800F2A5C(t, 30, 1000, dir);
+            break;
+        case 3:
+            func_800F2A5C(t, 40, 1000, dir);
+            break;
+        case 4:
+            func_800F2A5C(t, 50, 1000, dir);
+            break;
+        case 5:
+            func_800F2A5C(t, 60, 1000, dir);
+            break;
+        case 6:
+            func_800F2A5C(t, 20, 1500, dir);
+            break;
+        case 7:
+            func_800F2A5C(t, 30, 1500, dir);
+            break;
+        case 8:
+            func_800F2A5C(t, 40, 1500, dir);
+            break;
+        case 9:
+            func_800F2A5C(t, 50, 1500, dir);
+            break;
+        case 10:
+            func_800F2A5C(t, 60, 1500, dir);
+            break;
+        case 11:
+            func_800F2A5C(t, 20, 2000, dir);
+            break;
+        case 12:
+            func_800F2A5C(t, 30, 2000, dir);
+            break;
+        case 13:
+            func_800F2A5C(t, 40, 2000, dir);
+            break;
+        case 14:
+            func_800F2A5C(t, 50, 2000, dir);
+            break;
+        case 15:
+            func_800F2A5C(t, 60, 2000, dir);
+            break;
+        case 16:
+            func_800F2A5C(t, 20, 2500, dir);
+            break;
+        case 17:
+            func_800F2A5C(t, 30, 2500, dir);
+            break;
+        case 18:
+            func_800F2A5C(t, 40, 2500, dir);
+            break;
+        case 19:
+            func_800F2A5C(t, 50, 2500, dir);
+            break;
+        case 20:
+            func_800F2A5C(t, 60, 2500, dir);
+            break;
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F23C4);
+void func_800F23C4(StageTrap *t, s32 range, s8 dir) {
+    switch (t->act) {
+        case 101:
+            func_800F2A5C(t, 10, 500, dir);
+            break;
+        case 102:
+            func_800F2A5C(t, 20, 500, dir);
+            break;
+        case 103:
+            func_800F2A5C(t, 30, 500, dir);
+            break;
+        case 104:
+            func_800F2A5C(t, 40, 500, dir);
+            break;
+        case 105:
+            func_800F2A5C(t, 50, 500, dir);
+            break;
+        case 106:
+            func_800F2A5C(t, 10, 1000, dir);
+            break;
+        case 107:
+            func_800F2A5C(t, 20, 1000, dir);
+            break;
+        case 108:
+            func_800F2A5C(t, 30, 1000, dir);
+            break;
+        case 109:
+            func_800F2A5C(t, 40, 1000, dir);
+            break;
+        case 110:
+            func_800F2A5C(t, 50, 1000, dir);
+            break;
+        case 111:
+            func_800F2A5C(t, 10, 2000, dir);
+            break;
+        case 112:
+            func_800F2A5C(t, 20, 2000, dir);
+            break;
+        case 113:
+            func_800F2A5C(t, 30, 2000, dir);
+            break;
+        case 114:
+            func_800F2A5C(t, 40, 2000, dir);
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+            func_800F9904(t, range, t->type, t->act + 100);
+            break;
+        case 115:
+            func_800F2A5C(t, 50, 2000, dir);
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F24DC);
 
@@ -1303,19 +1584,19 @@ void func_800F98BC(StageTrap *t) {}
 
 void func_800F98C4(StageTrap *t) {}
 
-void func_800F98CC(void) {}
+void func_800F98CC(StageTrap *t) {}
 
-void func_800F98D4(void) {}
+void func_800F98D4(StageTrap *t) {}
 
-void func_800F98DC(void) {}
+void func_800F98DC(StageTrap *t) {}
 
-void func_800F98E4(void) {}
+void func_800F98E4(StageTrap *t) {}
 
-void func_800F98EC(void) {}
+void func_800F98EC(StageTrap *t, s32 arg) {}
 
-void func_800F98F4(void) {}
+void func_800F98F4(StageTrap *t) {}
 
-void func_800F98FC(void) {}
+void func_800F98FC(StageTrap *t) {}
 
 void func_800F9904(StageTrap *t, s32 range, u8 type, u8 act) {
     if (t->state == 0) {
@@ -1559,7 +1840,7 @@ void func_800F9F3C(StageTrap *t) {
     func_800F3644(t, 10, 0);
 }
 
-void func_800F9F60(void) {}
+void func_800F9F60(StageTrap *t) {}
 
 void func_800F9F68(StageTrap *t) {
     Query30 q;

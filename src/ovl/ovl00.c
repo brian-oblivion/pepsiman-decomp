@@ -339,7 +339,6 @@ s32 func_800F1158(void);
 
 /* Steps the edited value or the highlighted line from the pad and wraps
  * them; returns 1 when a choice is made. */
-#ifdef NON_MATCHING
 s32 func_800F1060(void) {
     if (gPadTrig & (PADRleft | PADRright)) {
         if (gModeStep != 100) {
@@ -349,25 +348,35 @@ s32 func_800F1060(void) {
         return 1;
     }
     if (gPadType == PAD_TYPE_DIGITAL || gPadType == PAD_TYPE_ANALOG) {
+        /* MATCHING: each branch makes its own calls; cross-jumping merges
+         * the tails into retail's shared ones. */
         if (gPadTrig & PADLright) {
             gEditValue++;
-        } else if (gPadTrig & PADLleft) {
-            gEditValue--;
-        } else if (gPadTrig & PADLdown) {
-            gMenuLine++;
-        } else if (gPadTrig & PADLup) {
-            gMenuLine--;
-        } else {
+            func_800F11E8();
+            func_800F1158();
             return 0;
         }
-        func_800F11E8();
-        func_800F1158();
+        if (gPadTrig & PADLleft) {
+            gEditValue--;
+            func_800F11E8();
+            func_800F1158();
+            return 0;
+        }
+        if (gPadTrig & PADLdown) {
+            gMenuLine++;
+            func_800F11E8();
+            func_800F1158();
+            return 0;
+        }
+        if (gPadTrig & PADLup) {
+            gMenuLine--;
+            func_800F11E8();
+            func_800F1158();
+            return 0;
+        }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl00/nonmatchings/ovl00", func_800F1060);
-#endif
 
 /* This image's copy of editor's WrapMenuValues. */
 s32 func_800F1158(void) {

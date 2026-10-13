@@ -15,19 +15,19 @@
 #include "prim.h"
 
 /* Starts a jump on a face button, unless the play is frozen. */
-#ifdef NON_MATCHING
 void StartChaseJump(void) {
     if (ClipF == 0 && (gGamePadTrig & (PADRleft | PADRdown | PADRright))) {
+        s32 state;
+
         sJumpSpeed = -40;
-        gPlayer.slideState = 1;
+        /* MATCHING: the 1 held in a local is loaded ahead of gPlayer's address. */
+        state = 1;
+        gPlayer.slideState = state;
         gPlayer.unk38C = 0;
         gPlayer.curMotion[0] = MOT_OFF;
         PlaySe(0x17);
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl05/nonmatchings/ovl05", StartChaseJump);
-#endif
 
 #include "chase_head.inc"
 

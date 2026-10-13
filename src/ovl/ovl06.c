@@ -844,7 +844,28 @@ void StepTrapAct1D(StageTrap *t) {}
 
 #include "engine/draw_trap_while_linked.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", UpdateStageEventHook);
+void UpdateStageEventHook(void) {
+    StageTrap *m;
+    SwitchBox *s;
+
+    m = &D_800D39D8[1];
+    s = gSwitches;
+    if (s[192].state == SWITCH_ON) {
+        m->state = 0;
+        gPlayer.motion[0] = 11;
+        gPlayer.jumpPower = 40;
+        gPlayer.action = 0;
+        s[192].state = SWITCH_OFF;
+        gPlayer.dropRide = 1;
+        m->timer = 0;
+        m->state = 1;
+        gMissState = 0;
+        gPlayer.hittable = 0;
+        gPlayer.invulnTimer = 30;
+        gPlayer.rideMode &= 0xF0;
+        PlaySe(0x38);
+    }
+}
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 

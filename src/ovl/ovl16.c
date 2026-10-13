@@ -79,11 +79,45 @@ void StepFlungPiece(StageTrap *t) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", SpawnMissDebris);
+/* MATCHING: player's gCourse.rot.vy, reached by its own address here so the
+ * loop does not hoist gCourse's base. */
+extern s16 D_800A7682;
+
+/* MATCHING: player's gCourse.rot.vy, reached by its own address here so the
+ * loop does not hoist gCourse's base. */
+extern s16 D_800A7682;
+
+void SpawnMissDebris(void) {
+    s16 models[15] = {4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 6, 0, 2, 5, 0};
+    s16 i;
+    s16 n;
+    StageTrap *t;
+
+    for (i = 0; i < 8; i++) {
+        n = FindFreeSlot48();
+        if (n == -1) {
+            break;
+        }
+        t = &sSpawnedTraps[n];
+        t->switchNo = 0xB8;
+        t->type = 0xFF;
+        t->act = 0x6A;
+        gSwitches[0xB8].state = SWITCH_ON;
+        t->homeY = gPlayer.groundY - 50;
+        t->x = gPlayer.x + (rand() % 200 - 100);
+        t->z = gPlayer.z + (rand() % 200 - 100);
+        t->model = models[gStage];
+        t->homeZ = rand() % 10 + 5;
+        t->homeX = sBurstHeights[i] / 2;
+        t->rotY = sBurstSpins[i][0] * 40960 / 360 + gCourse.rot.vy + 0x800;
+        t->homeRotZ = rand() % 20 + 10;
+        t->homeRotX = 0;
+        t->timer = 0;
+        t->state = 0;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissDebris);
-
-INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 

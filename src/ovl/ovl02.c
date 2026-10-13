@@ -377,7 +377,7 @@ extern s32 D_800F974C;
 void func_800F0AD4(void);
 void func_800F1570(void);
 void func_800F69B0(void);
-void func_800F7A4C(void);
+s32 func_800F7A4C(void);
 
 void func_800F6670(void) {
     switch (gModeStep) {
@@ -473,7 +473,153 @@ void func_800F6670(void) {
 
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F69B0);
 
+extern CdlLOC D_800F9BC8;
+extern SVECTOR D_800F9BD0[];
+extern s32 D_800FA27C;
+extern Pair8 gActTimes;
+extern Pair8 gActCans;
+extern Pair8 D_800958C0;
+void PlayXa(u8 chan);
+void StopXa(void);
+
+/* The best draft so far: the coordinate's y is reloaded for the matrix,
+ * where retail keeps it in a register and reloads z instead. */
+#ifdef NON_MATCHING
+s32 func_800F7A4C(void) {
+    SVECTOR pos;
+    SColor color;
+    MATRIX m;
+
+    switch (gSubStep) {
+        case 0:
+            DefineSprite(0x1E, 1, 0xFF, 0x20, 5, 0, 0, 0, 0x1E0);
+            DefineSprite(0x1F, 1, 0xFF, 0x20, 5, 0, 0x20, 0, 0x1E0);
+            GsInitCoordinate2(&sAct3Coords[0], NULL);
+            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D004));
+            GsLinkObject4(*(s32 *)0x8019D004 + 0x8019D00C, &sAct3Objs[0], 0);
+            sAct3Objs[0].coord2 = &sAct3Coords[0];
+            D_8009EA78[0].vx = 0;
+            sAct3Objs[0].attribute = 0;
+            D_8009EA78[0].vy = -1000;
+            D_8009EA78[0].vz = 0;
+            D_8009EB58[0].vx = 0;
+            D_8009EB58[0].vy = -0x2CC;
+            D_8009EB58[0].vz = 0;
+            sView.vrx = 0;
+            sView.vry = -240;
+            sView.vrz = 0;
+            sView.vpx = 0x226;
+            sView.vpy = -240;
+            sView.vpz = 0x226;
+            sLights.l[0].r = 0x80;
+            sLights.l[0].g = 0x80;
+            sLights.l[0].b = 0x80;
+            sLights.l[1].r = 0x80;
+            sLights.l[1].g = 0x80;
+            sLights.l[1].b = 0x80;
+            sLights.l[2].r = 0x80;
+            sLights.l[2].g = 0x80;
+            sLights.l[2].b = 0x80;
+            sLights.l[0].vx = 0;
+            sLights.l[0].vy = 100;
+            sLights.l[0].vz = 100;
+            GsSetFlatLight(0, &sLights.l[0]);
+            sLights.l[1].vx = 0x56;
+            sLights.l[1].vy = 100;
+            sLights.l[1].vz = -50;
+            GsSetFlatLight(1, &sLights.l[1]);
+            sLights.l[2].vx = -0x56;
+            sLights.l[2].vy = 100;
+            sLights.l[2].vz = -50;
+            GsSetFlatLight(2, &sLights.l[2]);
+            D_800FA27C = 0;
+            CdControlF(CdlSeekL, (u_char *)&D_800F9BC8);
+            CdSync(0, NULL);
+            PlayXa(5);
+            gSubStep++;
+            break;
+        case 1:
+            if (++D_800FA27C < 10) {
+                D_8009EA78[0].vy += 100;
+            } else if (D_800FA27C < 35) {
+                D_8009EA78[0].vy = 0;
+                D_8009EB58[0].vx = D_800F9BD0[D_800FA27C - 10].vx;
+                D_8009EB58[0].vy = D_800F9BD0[D_800FA27C - 10].vy;
+                D_8009EB58[0].vz = D_800F9BD0[D_800FA27C - 10].vz;
+            }
+            if ((u32)(D_800FA27C - 31) < 63) {
+                color.r = 1;
+                color.g = color.b = color.cd = (D_800FA27C - 30) * 2;
+                pos.vx = -128;
+                pos.vy = -16;
+                DrawSprite(0x1E, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+                color.r = 2;
+                pos.vx = -128;
+                pos.vy = -16;
+                color.g = color.b = color.cd = (D_800FA27C - 30) * 2;
+                DrawSprite(0x1F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            }
+            if (D_800FA27C >= 94) {
+                color.r = 1;
+                color.g = color.b = color.cd = 0x80;
+                pos.vx = -128;
+                pos.vy = -16;
+                DrawSprite(0x1E, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+                color.r = 2;
+                color.g = color.b = color.cd = 0x80;
+                pos.vx = -128;
+                pos.vy = -16;
+                DrawSprite(0x1F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            }
+            sAct3Coords[0].coord.t[0] = D_8009EA78[0].vx;
+            sAct3Coords[0].coord.t[2] = D_8009EA78[0].vz;
+            sAct3Coords[0].coord.t[1] = D_8009EA78[0].vy;
+            m = GsIDMATRIX;
+            m.t[0] = sAct3Coords[0].coord.t[0];
+            m.t[1] = sAct3Coords[0].coord.t[1];
+            m.t[2] = sAct3Coords[0].coord.t[2];
+            RotMatrixYXZ(&D_8009EB58[0], &m);
+            sAct3Coords[0].coord = m;
+            sAct3Coords[0].flg = 0;
+            GsGetLs(sAct3Objs[0].coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(sAct3Objs[0].coord2, &m);
+            GsSetLightMatrix(&m);
+            SetTmdSortMode(0);
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            sAct3Coords[0].flg = 0;
+            sAct3Coords[0].coord.m[1][0] *= -1;
+            sAct3Coords[0].coord.m[1][1] *= -1;
+            sAct3Coords[0].coord.m[1][2] *= -1;
+            sAct3Coords[0].coord.t[1] = -sAct3Coords[0].coord.t[1];
+            GsGetLs(sAct3Objs[0].coord2, &m);
+            GsSetLsMatrix(&m);
+            SetTmdSortMode(5);
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            if (D_800FA27C == 150) {
+                if (gStageTableSet == 0) {
+                    D_800957A0 = gStage;
+                    D_800958C0.a = gActTimes.a;
+                    D_800958C0.b = gActTimes.b;
+                    D_80095978.a = gActCans.a;
+                    D_80095978.b = gActCans.b;
+                } else if (gStageTableSet == 1) {
+                    D_800957A0 = gStage + 100;
+                    D_800958C0.a = gActTimes.a;
+                    D_800958C0.b = gActTimes.b;
+                    D_80095978.a = gActCans.a;
+                    D_80095978.b = gActCans.b;
+                }
+                StopXa();
+                gModeStep = 0;
+                gSubStep = 50;
+            }
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F7A4C);
+#endif
 
 void func_800F80F8(void) {
     GsCOORDINATE2 c;

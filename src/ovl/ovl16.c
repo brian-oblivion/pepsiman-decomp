@@ -87,7 +87,68 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", ToppleTrapOnApproach);
 
 #include "engine/swap_trap_model_on_approach.inc"
 
+#ifdef NON_MATCHING
+void StepMissSequence(void) {
+    s32 unused[18];
+    StageTrap *m;
+
+    m = &D_800AC6E0;
+    if (D_800D3638 == 1) {
+        switch (m->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                EndJump();
+                gMissState = -1;
+                D_800D39D8[0].homeRotZ = 0;
+                gFellOff = 1;
+                m->timer = 0;
+                D_800D39D8[0].homeX = gPlayer.x;
+                D_800D39D8[0].homeY = gPlayer.y;
+                D_800D39D8[0].homeZ = gPlayer.z;
+                gRefView[0] = gView[0];
+                gRefView[1] = gView[1];
+                gRefView[2] = gView[2];
+                m->state++;
+            case 1:
+                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 20);
+                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 20);
+                gRefView[0] -= gPlayer.x + gWorldShift[0];
+                gRefView[1] = gView[1];
+                gRefView[2] -= gPlayer.z + gWorldShift[2];
+                gRefView[3] = gView[3];
+                gRefView[4] = gView[4];
+                gRefView[5] = gView[5];
+                GsSetRefView2((GsRVIEW2 *)gRefView);
+                if (++m->timer == 10) {
+                    gPlayer.motion[0] = 11;
+                    gPlayer.action = 0;
+                    gPlayer.jumpPower = 40;
+                }
+                if (m->timer >= 21) {
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 2:
+                if (gPlayer.y >= gPlayer.groundY) {
+                    gPlayer.rideMode = (gPlayer.rideMode & 0xF0) | 4;
+                    SpawnMissDebris();
+                    gSpeedFixed = 800;
+                    D_800D3638 = 2;
+                    gMissState = 0;
+                    gFellOff = 0;
+                    gPlayer.control = 1;
+                }
+                break;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissSequence);
+#endif
 
 /* MATCHING: this stage's goal walk, still in asm below. */
 s8 func_800F60CC(StageTrap *t);

@@ -21,15 +21,15 @@ INCLUDE_RODATA("asm/ovl/ovl13/nonmatchings/ovl13", sDebrisModelInit);
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapAct22);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapAhead);
+#include "engine/run_trap_ahead.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F2840);
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F2998);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapAheadNonstop);
+#include "engine/run_trap_ahead_nonstop.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapAlongPath);
+#include "engine/run_trap_along_path.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapThenTurnTimed);
 
@@ -53,7 +53,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType1C);
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType1E);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapAheadAtHeight);
+#include "engine/run_trap_ahead_at_height.inc"
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
@@ -69,7 +69,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", SpinTrapAway);
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapAct1D);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", BurstRaisedTrap);
+#include "engine/burst_raised_trap.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", ToppleTrapOnApproach);
 
@@ -200,7 +200,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {}
 
 void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", DrawTrapWhileLinked);
+#include "engine/draw_trap_while_linked.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", UpdateStageEventHook);
 

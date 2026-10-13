@@ -140,3 +140,5 @@ CycleGoalLights = 0x800F7964; // type:func
 DrawTrapWhileLinked = 0x800FA5B4; // type:func
 StepTrapFFAct67 = 0x800F9D2C; // type:func
 StepTrapFFAct68 = 0x800F4500; // type:func
+StepTrapForward = 0x800F29C4; // type:func
+StepTrapForwardLevel = 0x800F2CE8; // type:func

@@ -151,29 +151,9 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepMissDebris);
 #endif
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-void RunTrapAhead(StageTrap *t, s16 speed) {
-    if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
-    }
-    if (SnapToFloor(t) == -1) {
-        t->y = t->homeY;
-    }
-    t->y -= 20;
-    if (t->timer < 150 && speed != 0) {
-        t->timer++;
-        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-        t->x += gOffsetVec[0] >> 12;
-        t->z += gOffsetVec[2] >> 12;
-    }
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-}
+#include "engine/run_trap_ahead.inc"
 
-void func_800F2658(StageTrap *t, u16 speed) {
+void StepTrapForward(StageTrap *t, u16 speed) {
     if (LatchProximity(t, 2000) != 0) {
         PlaySe(82);
     }
@@ -192,7 +172,7 @@ void func_800F2658(StageTrap *t, u16 speed) {
     }
 }
 
-void func_800F27B0(StageTrap *t, u16 speed) {
+void StepTrapForwardLevel(StageTrap *t, u16 speed) {
     if (LatchProximity(t, 2000) != 0) {
         PlaySe(82);
     }
@@ -210,139 +190,13 @@ void func_800F27B0(StageTrap *t, u16 speed) {
     t->y = t->homeY;
 }
 
-void RunTrapAheadNonstop(StageTrap *t, s16 speed) {
-    if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
-    }
-    if (SnapToFloor(t) == -1) {
-        t->y = t->homeY;
-    }
-    t->y -= 20;
-    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-    t->x += gOffsetVec[0] >> 12;
-    t->z += gOffsetVec[2] >> 12;
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-}
+#include "engine/run_trap_ahead_nonstop.inc"
 
-void RunTrapThenTurn(StageTrap *t, u16 speed, s32 range, s8 dir) {
-    switch (t->state) {
-        case 0:
-            t->homeX = t->x;
-            t->homeY = t->y;
-            t->homeZ = t->z;
-            t->state++;
-        case 1:
-            func_800F2658(t, speed);
-            if (range * range < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-                if (speed > 30) {
-                    PlaySe(88);
-                }
-            }
-            if (LatchProximity(t, 2000) != 0) {
-                PlaySe(82);
-            }
-            break;
-        case 2:
-            switch (dir) {
-                case 2:
-                    InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
-                    t->rotY = gOffsetVec[1];
-                    break;
-                case 1:
-                    InterpRange(t->homeRotY, t->homeRotY + 0x400, t->timer, 30, gOffsetVec);
-                    t->rotY = gOffsetVec[1];
-                    break;
-            }
-            func_800F2658(t, speed);
-            if (++t->timer > 30) {
-                t->timer = 0;
-                t->state++;
-            }
-            break;
-        case 3:
-            func_800F27B0(t, speed);
-            break;
-    }
-}
+#include "engine/run_trap_then_turn.inc"
 
-void RunTrapAlongPath(StageTrap *t, u16 speed, s8 turn) {
-    if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
-    }
-    t->state++;
-    SnapToFloor(t);
-    if (t->timer < 150 && speed != 0) {
-        t->timer++;
-        t->y -= 20;
-        t->rotY = GetPathDirection(t) + (s8)(turn % 2) * 0x800;
-        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-        t->x += gOffsetVec[0] >> 12;
-        t->z += gOffsetVec[2] >> 12;
-    }
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-}
+#include "engine/run_trap_along_path.inc"
 
-/* MATCHING: an unused 16-byte local sizes retail's frame. */
-void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {
-    s32 unused[4];
-
-    switch (t->state) {
-        case 0:
-            t->homeX = t->x;
-            t->homeY = t->y;
-            t->homeZ = t->z;
-            t->state++;
-        case 1:
-            func_800F2658(t, speed);
-            if (range * range < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-                PlaySe(62);
-            }
-            break;
-        case 2:
-            SnapToFloor(t);
-            if (++t->timer < 5) {
-                t->y -= 20;
-                PolarToXZ(-(s16)(speed / 3), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-                t->x += gOffsetVec[0] >> 12;
-                t->z += gOffsetVec[2] >> 12;
-            } else {
-                t->timer = 0;
-                t->state++;
-                PlaySe(62);
-            }
-            break;
-        case 3:
-            SnapToFloor(t);
-            t->y -= 20;
-            if (gFrameCount % 5 == 0) {
-                SpawnEffect(1, (s16)(t->x + (rand() % 200 - 100)), (s16)t->y,
-                            (s16)(t->z + (rand() % 200 - 100)), (s16)(rand() % 3));
-            }
-            break;
-    }
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-}
+#include "engine/step_charging_trap.inc"
 
 void func_800F3134(StageTrap *t, u16 speed) {
     SnapToFloor(t);
@@ -360,26 +214,7 @@ void func_800F3134(StageTrap *t, u16 speed) {
     }
 }
 
-void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {
-    switch (t->state) {
-        case 0:
-            t->timer = 0;
-            t->state++;
-            PlaySe(109);
-        case 1:
-            if (LatchProximity(t, 2000) != 0) {
-                PlaySe(110);
-            }
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(57);
-            }
-            break;
-    }
-}
+#include "engine/run_trap_ahead_at_height.inc"
 #ifdef NON_MATCHING
 /* MATCHING: declared [] so its load stays below the stores to t. */
 extern s16 D_8009EEF8[];
@@ -496,159 +331,19 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", TumbleTrapAway);
 #endif
 #include "engine_code.inc" /* StepBouncingRoller */
 
-void StepSmokingTumbleTrap(StageTrap *t) {
-    PlacedPos p;
-    s32 x;
-    s32 z;
+#include "engine/step_smoking_tumble_trap.inc"
 
-    p.lx = 0;
-    p.ly = -70;
-    p.lz = 0;
-    p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
-    UpdatePlacedPos(&p);
-    t->homeX = p.pos.vx;
-    t->homeY = p.pos.vy;
-    t->homeZ = p.pos.vz;
-    if (gFrameCount % 5 == 0) {
-        /* MATCHING: x - (k - r), not x - k + r: retail subtracts k from x first. */
-        x = (s16)p.pos.vx - (20 - rand() % 40);
-        z = (s16)p.pos.vz - (20 - rand() % 40);
-        SpawnEffect(1, x, (s16)p.pos.vy, z, (s16)(rand() % 3));
-    }
-    TumbleTrapAway(t, 70, 0);
-}
+#include "engine/step_smoking_trap.inc"
 
-void StepSmokingTrap(StageTrap *t) {
-    PlacedPos p;
-    s32 x;
-    s32 z;
-
-    p.lx = 0;
-    p.ly = -50;
-    p.lz = -100;
-    p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
-    UpdatePlacedPos(&p);
-    t->homeX = p.pos.vx;
-    t->homeY = p.pos.vy;
-    t->homeZ = p.pos.vz;
-    if (gFrameCount % 5 == 0) {
-        x = (s16)p.pos.vx - (100 - rand() % 200);
-        z = (s16)p.pos.vz - (200 - rand() % 400);
-        SpawnEffect(1, x, (s16)p.pos.vy, z, (s16)(rand() % 3));
-    }
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-}
-
-void ShatterTrap(StageTrap *t) {
-    u8 pad[0x28];
-    StageTrap c;
-    s16 i;
-
-    switch (t->state) {
-        case 0:
-            SnapToFloor(t);
-            t->timer++;
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched == 1) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
-                }
-                t->homeY = sFloorHit[0];
-                t->timer = 0;
-                t->model++;
-                t->state++;
-                UnusedHook1(t);
-            }
-            break;
-        case 1:
-            if (t->timer % 3 != 0) {
-                for (i = 0; i < 6; i++) {
-                    c = *t;
-                    InterpSwing(sBurstHeights[i], t->timer, 30, gOffsetVec);
-                    c.y -= gOffsetVec[1] >> 12;
-                    /* MATCHING: a shift, not * 4: it loads the timer before the table. */
-                    c.x += sBurstDirs[i][0] * (t->timer << 2);
-                    c.z += sBurstDirs[i][1] * (t->timer << 2);
-                    c.rotZ += (t->timer * (sBurstSpins[i][0] * 2 + 10) << 12) / 360;
-                    DrawObjectModel(&gObjectModels[t->model], &c);
-                }
-            }
-            if (++t->timer == 30) {
-                t->state = -1;
-            }
-            break;
-    }
-}
+#include "engine/shatter_trap.inc"
 
 #include "engine_code.inc" /* BurstTrapFast to BurstTrapSlow */
 
-void SlideTrapAway(StageTrap *t, s32 arg) {
-    switch (t->state) {
-        case 0:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0) {
-                t->homeRotY = gPlayer.yaw;
-                t->timer = 0;
-                t->state++;
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x3A);
-                }
-            }
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->rotZ += 11;
-            if (++t->timer == 15) {
-                t->state = -1;
-                t->timer = 0;
-            }
-            if (!(gFrameCount & 1) && t->state != -1) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
+#include "engine/slide_trap_away.inc"
 
 #include "engine_code.inc" /* BurstTrapMedium */
 
-void StepDashBoard(StageTrap *t) {
-    switch (t->state) {
-        case 0:
-            if (t->touched != 0) {
-                gPlayer.action = ACT_DASH_START;
-                t->timer = 0;
-                t->state++;
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x71);
-                }
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            break;
-        case 1:
-            t->timer++;
-            t->rotX = Lerp(0, -0x4E3, t->timer, 3);
-            if (t->timer == 3) {
-                t->homeRotY = (t->rotY - 0x800) * 360 / 4096;
-                t->timer = 0;
-                t->state++;
-            }
-        case 2:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
+#include "engine/step_dash_board.inc"
 
 #include "engine_code.inc" /* StepFlipPanel */
 #ifdef NON_MATCHING
@@ -748,337 +443,17 @@ void StepSprayTrap(StageTrap *t, s8 dir) {
 #else
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepSprayTrap);
 #endif
-void BurstRaisedTrap(StageTrap *t) {
-    StageTrap c;
-    u16 i;
+#include "engine/burst_raised_trap.inc"
 
-    switch (t->state) {
-        case 0:
-            t->homeY = t->y;
-            t->y -= 50;
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched == 1) {
-                t->timer = 0;
-                t->state++;
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
-                }
-            }
-            t->y = t->homeY;
-            break;
-        case 1:
-            t->timer++;
-            if (t->timer % 3) {
-                for (i = 0; i < 8; i++) {
-                    c = *t;
-                    c.model = 0;
-                    InterpSwing(sBurstHeights[i], t->timer, 30, gOffsetVec);
-                    c.y -= gOffsetVec[1] >> 12;
-                    /* MATCHING: a shift, not * 2, keeps the timer load first. */
-                    c.x += sBurstDirs[i][0] * (t->timer << 1);
-                    c.z += sBurstDirs[i][1] * (t->timer << 1);
-                    c.rotZ += (t->timer * (sBurstSpins[i][0] * 2 + 10) << 12) / 360;
-                    if (gSection - UpdatePathSegment(t) < 2) {
-                        DrawObjectModel(&gObjectModels[c.model], &c);
-                    }
-                }
-            }
-            if (t->timer == 30) {
-                t->state++;
-            }
-            break;
-    }
-}
+#include "engine/turn_trap_on_approach.inc"
 
-void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {
-    s32 v;
-    s32 w;
+#include "engine/open_gate_on_approach.inc"
 
-    switch (t->state) {
-        case 0:
-            if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-        case 1:
-            t->timer++;
-            v = Lerp(0, 0x200, t->timer, 10);
-            switch (arg) {
-                case 2:
-                    t->rotY = t->homeRotY - v;
-                    break;
-                case 1:
-                    t->rotY = t->homeRotY + v;
-                    break;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->timer == 10) {
-                t->timer = 0;
-                t->state++;
-                t->model++;
-                switch (arg) {
-                    case 2:
-                        t->homeRotY -= 0x200;
-                        break;
-                    case 1:
-                        t->homeRotY += 0x200;
-                        break;
-                }
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 2:
-            t->timer++;
-            w = Lerp(0, 0x200, t->timer, 10);
-            switch (arg) {
-                case 2:
-                    t->rotY = t->homeRotY - w;
-                    break;
-                case 1:
-                    t->rotY = t->homeRotY + w;
-                    break;
-            }
-            if (t->timer == 10) {
-                t->timer = 0;
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 3:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-    }
-}
+#include "engine/swing_gate_continuously.inc"
 
-void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {
-    StageTrap c;
-    s32 v;
+#include "engine/topple_trap_on_approach.inc"
 
-    c = *t;
-    c.model++;
-    switch (t->state) {
-        case 0:
-            if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
-            }
-            if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 1:
-            t->timer++;
-            v = Lerp(0, 0x800, t->timer, 40);
-            switch (arg) {
-                case 2:
-                    c.rotY = t->homeRotY - v;
-                    break;
-                case 1:
-                    c.rotY = t->homeRotY + v;
-                    break;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
-            }
-            if (t->timer == 40) {
-                t->timer = 0;
-                t->state++;
-            }
-            if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 2:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                c.rotY += 0x800;
-                UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
-            }
-            if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-    }
-}
-
-void SwingGateContinuously(StageTrap *t, s8 arg) {
-    StageTrap c;
-
-    c = *t;
-    c.model++;
-    switch (t->state) {
-        case 0:
-            t->homeX = 0;
-            t->homeRotY = t->rotY;
-            t->state++;
-        case 1:
-            t->timer++;
-            switch (t->homeX) {
-                case 0:
-                    c.rotY = t->homeRotY - Lerp(0, 0x800, t->timer, 40);
-                    break;
-                case 1:
-                    c.rotY = t->homeRotY - Lerp(0x800, 0, t->timer, 40);
-                    break;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
-            }
-            if (t->timer == 40) {
-                t->timer = 0;
-                t->homeX ^= 1;
-                if (arg == 1) {
-                    t->homeZ = 0;
-                    t->state++;
-                }
-            }
-            if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 2:
-            t->timer++;
-            switch (t->homeX) {
-                case 0:
-                    c.rotY = 0;
-                    break;
-                case 1:
-                    c.rotY = 0x800;
-                    break;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
-            }
-            if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            if (t->timer == 20) {
-                t->timer = 0;
-                t->state--;
-            }
-            break;
-    }
-}
-
-void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {
-    s16 n;
-
-    switch (kind) {
-        case 0:
-            n = 12;
-            break;
-        case 1:
-            n = 10;
-            break;
-    }
-    switch (t->state) {
-        case 0:
-            if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-        case 1:
-            t->timer++;
-            switch ((u8)side) {
-                case 1:
-                case 2:
-                    t->y += t->timer * 4;
-                    break;
-                case 3:
-                    t->y += t->timer * 12;
-                    if (t->y > gFloorY[0] - 30) {
-                        t->y = gFloorY[0] - 30;
-                    }
-                    break;
-            }
-            switch ((u8)side) {
-                case 2:
-                    t->rotZ = -Lerp(0, 227, t->timer, n);
-                    break;
-                case 1:
-                    t->rotZ = Lerp(0, 227, t->timer, n);
-                    break;
-            }
-            if (t->timer == n) {
-                t->timer = 0;
-                t->state++;
-                func_800F6ED0(t, side);
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
-                }
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            break;
-        case 2:
-            t->timer++;
-            t->y -= 10;
-            if (t->timer == 2) {
-                t->timer = 0;
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            break;
-        case 3:
-            t->timer++;
-            t->y += 10;
-            if (t->timer == 4) {
-                t->timer = 0;
-                t->state++;
-                func_800F6ED0(t, side);
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
-                }
-            }
-        case 4:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-    }
-}
-
-void func_800F6ED0(StageTrap *t, u8 side) {
+void ScatterTrapDust(StageTrap *t, u8 side) {
     VECTOR v;
     u16 i;
 
@@ -1108,58 +483,7 @@ void func_800F6ED0(StageTrap *t, u8 side) {
     }
 }
 
-void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {
-    s32 step;
-
-    switch (dir) {
-        case 0:
-            step = 10;
-            break;
-        case 1:
-            step = -10;
-            break;
-    }
-    switch (t->state) {
-        case 0:
-            t->homeX = t->x;
-            t->homeY = t->y;
-            t->homeZ = t->z;
-            t->state++;
-        case 1:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 2:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            t->y += step;
-            if (DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t) > 22500) {
-                t->timer = 0;
-                t->state++;
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-        case 3:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
-            }
-            break;
-    }
-}
+#include "engine/shift_trap_on_approach.inc"
 #ifdef NON_MATCHING
 void StepHoppingTrap(StageTrap *t, u8 act) {
     VECTOR v;
@@ -1248,43 +572,7 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepHoppingTrap);
 #endif
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F74FC);
 
-void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {
-    switch (t->state) {
-        case 0:
-            if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
-                switch (arg) {
-                    case 0:
-                        t->homeRotX = 0;
-                        t->model++;
-                        break;
-                    case 1:
-                        t->homeRotX = 1;
-                        t->model--;
-                        break;
-                }
-                PlaySe(0x3B);
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-        case 1:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                if (t->homeRotX == 0) {
-                    UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                } else {
-                    DrawObjectModel(&gObjectModels[t->model], t);
-                }
-            }
-            break;
-        default:
-            return;
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x36);
-    }
-}
+#include "engine/swap_trap_model_on_approach.inc"
 
 void StepMissSequence(void) {
     s32 unused[18];
@@ -1725,39 +1013,19 @@ void StepTrapType1D(StageTrap *t, u16 speed) {}
 #include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
 #include "engine_code.inc" /* BurstTrapStacked */
 
-void TumbleTrapAct08(StageTrap *t) {
-    TumbleTrapAway(t, 70, 0);
-}
+#include "engine/tumble_trap_act08.inc"
 
-void TumbleTrapAct09(StageTrap *t) {
-    TumbleTrapAway(t, 30, 0);
-}
+#include "engine/tumble_trap_act09.inc"
 
-void TumbleTrapAct0B(StageTrap *t) {
-    TumbleTrapAway(t, 30, 0);
-}
+#include "engine/tumble_trap_act0_b.inc"
 
-void KnockTrapAwayAct0C(StageTrap *t) {
-    KnockTrapAway(t);
-}
+#include "engine/knock_trap_away_act0_c.inc"
 
-void TumbleTrapAct12(StageTrap *t) {
-    TumbleTrapAway(t, 10, 0);
-}
+#include "engine/tumble_trap_act12.inc"
 
 void StepTrapAct1D(StageTrap *t) {}
 
-void DrawTrapWhileLinked(StageTrap *t) {
-    Query30 q;
-    StageTrap *k;
-
-    k = &((StageTrap *)gTraps)[195];
-    if (k->state >= 0 && (k->state < 4 || (k->state == 4 && k->timer < 4))) {
-        if (gSection - UpdatePathSegment(t) < 2) {
-            DrawObjectModel(&gObjectModels[t->model], t);
-        }
-    }
-}
+#include "engine/draw_trap_while_linked.inc"
 
 void UpdateStageEventHook(void) {}
 

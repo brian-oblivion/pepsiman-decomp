@@ -229,6 +229,10 @@ void StepBouncingRoller(StageTrap *t, s32 arg);
 void func_800F79A0(StageTrap *t, s32 arg);
 void StepTrapFFAct67(StageTrap *t);
 void StepTrapFFAct68(StageTrap *t);
+/* Steps a trap forward along its heading, snapped to the floor or at its
+ * height. */
+void StepTrapForward(StageTrap *t, u16 speed);
+void StepTrapForwardLevel(StageTrap *t, u16 speed);
 void RunTrapAhead(StageTrap *t, s16 speed);
 void RunTrapAheadNonstop(StageTrap *t, s16 speed);
 void RunTrapAlongPath(StageTrap *t, u16 speed, s8 turn);
@@ -353,7 +357,7 @@ s32 SnapToFloor(StageTrap *t);
  * unextended, so the view takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 
-void func_800F6ED0(StageTrap *t, u8 side);
+void ScatterTrapDust(StageTrap *t, u8 side);
 
 /* MATCHING: player's, which no header declares. */
 void ScatterDust(VECTOR *pos);

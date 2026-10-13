@@ -1,0 +1,21 @@
+void RunTrapAhead(StageTrap *t, s16 speed) {
+    if (LatchProximity(t, 2000) != 0) {
+        PlaySe(82);
+    }
+    if (SnapToFloor(t) == -1) {
+        t->y = t->homeY;
+    }
+    t->y -= 20;
+    if (t->timer < 150 && speed != 0) {
+        t->timer++;
+        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        t->x += gOffsetVec[0] >> 12;
+        t->z += gOffsetVec[2] >> 12;
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(55);
+    }
+}

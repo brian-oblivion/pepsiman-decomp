@@ -19,23 +19,23 @@ INCLUDE_RODATA("asm/ovl/ovl06/nonmatchings/ovl06", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", RunTrapAhead);
+#include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F267C);
+INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepTrapForward);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F27D4);
+INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepTrapForwardLevel);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", RunTrapAheadNonstop);
+#include "engine/run_trap_ahead_nonstop.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", RunTrapThenTurn);
+#include "engine/run_trap_then_turn.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", RunTrapAlongPath);
+#include "engine/run_trap_along_path.inc"
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepChargingTrap);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F3158);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", RunTrapAheadAtHeight);
+#include "engine/run_trap_ahead_at_height.inc"
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", KnockTrapAway);
 
@@ -43,19 +43,19 @@ INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAway);
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepSmokingTumbleTrap);
+#include "engine/step_smoking_tumble_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepSmokingTrap);
+#include "engine/step_smoking_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", ShatterTrap);
+#include "engine/shatter_trap.inc"
 
 #include "engine_code.inc" /* BurstTrapFast to BurstTrapSlow */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", SlideTrapAway);
+#include "engine/slide_trap_away.inc"
 
 #include "engine_code.inc" /* BurstTrapMedium */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepDashBoard);
+#include "engine/step_dash_board.inc"
 
 #include "engine_code.inc" /* StepFlipPanel */
 
@@ -65,25 +65,25 @@ INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", SpinTrapAway);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepSprayTrap);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", BurstRaisedTrap);
+#include "engine/burst_raised_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TurnTrapOnApproach);
+#include "engine/turn_trap_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", OpenGateOnApproach);
+#include "engine/open_gate_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", SwingGateContinuously);
+#include "engine/swing_gate_continuously.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", ToppleTrapOnApproach);
+#include "engine/topple_trap_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F6EF4);
+INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", ScatterTrapDust);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", ShiftTrapOnApproach);
+#include "engine/shift_trap_on_approach.inc"
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepHoppingTrap);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F74FC);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", SwapTrapModelOnApproach);
+#include "engine/swap_trap_model_on_approach.inc"
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepMissSequence);
 
@@ -185,19 +185,19 @@ void StepTrapType1D(StageTrap *t, u16 speed) {}
 
 #include "engine_code.inc" /* BurstTrapStacked */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAct08);
+#include "engine/tumble_trap_act08.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAct09);
+#include "engine/tumble_trap_act09.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAct0B);
+#include "engine/tumble_trap_act0_b.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", KnockTrapAwayAct0C);
+#include "engine/knock_trap_away_act0_c.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAct12);
+#include "engine/tumble_trap_act12.inc"
 
 void StepTrapAct1D(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", DrawTrapWhileLinked);
+#include "engine/draw_trap_while_linked.inc"
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", UpdateStageEventHook);
 

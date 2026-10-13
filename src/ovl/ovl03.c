@@ -21,19 +21,19 @@ INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", sDebrisModelInit);
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapAct27);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapAhead);
+#include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", func_800F2A00);
+INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapForward);
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType2A);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", func_800F2D24);
+INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapForwardLevel);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapAheadNonstop);
+#include "engine/run_trap_ahead_nonstop.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapThenTurn);
+#include "engine/run_trap_then_turn.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapAlongPath);
+#include "engine/run_trap_along_path.inc"
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType0F);
 
@@ -49,19 +49,19 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapFFAct67);
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapFFAct68);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepSmokingTumbleTrap);
+#include "engine/step_smoking_tumble_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepSmokingTrap);
+#include "engine/step_smoking_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", ShatterTrap);
+#include "engine/shatter_trap.inc"
 
 #include "engine_code.inc" /* BurstTrapFast to BurstTrapSlow */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SlideTrapAway);
+#include "engine/slide_trap_away.inc"
 
 #include "engine_code.inc" /* BurstTrapMedium */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepDashBoard);
+#include "engine/step_dash_board.inc"
 
 #include "engine_code.inc" /* StepFlipPanel */
 
@@ -69,9 +69,9 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SpinTrapAway);
 
 #include "engine_code.inc" /* TipTrapAway */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", OpenGateOnApproach);
+#include "engine/open_gate_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SwingGateContinuously);
+#include "engine/swing_gate_continuously.inc"
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepHoppingTrap);
 
@@ -177,15 +177,15 @@ void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
 
 #include "engine_code.inc" /* BurstTrapStacked */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", TumbleTrapAct08);
+#include "engine/tumble_trap_act08.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", TumbleTrapAct09);
+#include "engine/tumble_trap_act09.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", TumbleTrapAct0B);
+#include "engine/tumble_trap_act0_b.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", KnockTrapAwayAct0C);
+#include "engine/knock_trap_away_act0_c.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", TumbleTrapAct12);
+#include "engine/tumble_trap_act12.inc"
 
 void StepSprayTrap(StageTrap *t, s8 dir) {}
 
@@ -199,7 +199,7 @@ void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {}
 
 void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {}
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", DrawTrapWhileLinked);
+#include "engine/draw_trap_while_linked.inc"
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 

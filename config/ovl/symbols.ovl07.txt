@@ -140,3 +140,6 @@ StepGoalSequence = 0x800F7C44; // type:func
 CycleGoalLights = 0x800F7E08; // type:func
 StepTrapFFAct67 = 0x800F98BC; // type:func
 StepTrapFFAct68 = 0x800F98C4; // type:func
+StepTrapForward = 0x800F2658; // type:func
+StepTrapForwardLevel = 0x800F27B0; // type:func
+ScatterTrapDust = 0x800F6ED0; // type:func

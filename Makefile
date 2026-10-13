@@ -229,7 +229,7 @@ HEADERS := $(wildcard include/*.h include/*.inc include/psyq/*.h \
 # hand from the overlay's own code until tools/gpsyms.py learns overlays) and
 # its INCLUDE_ASMs from asm/ovl/<ovl>/nonmatchings/<unit>/. This rule's stem is
 # shorter than the generic one's, so make prefers it for src/ovl/.
-$(BUILD_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) $(wildcard src/ovl/*.inc) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
+$(BUILD_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) $(wildcard src/ovl/*.inc src/ovl/engine/*.inc) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPP_FLAGS) $< | $(CC1) $(OVL_CC_FLAGS) | \
 		$(MASPSX) $(MASPSX_FLAGS) --gp-symbols=config/ovl/gp.$*.txt | \
@@ -253,7 +253,7 @@ NM_OBJS  := $(foreach f,$(C_FILES),$(NM_DIR)/$(f).o)
 .PHONY: nonmatching
 nonmatching: $(NM_OBJS)
 
-$(NM_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) $(wildcard src/ovl/*.inc) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
+$(NM_DIR)/src/ovl/%.c.o: src/ovl/%.c $(HEADERS) $(wildcard src/ovl/*.inc src/ovl/engine/*.inc) config/ovl/gp.%.txt $$(wildcard asm/ovl/*/nonmatchings/$$*/*.s)
 	@mkdir -p $(dir $@)
 	$(CPP) $(CPP_FLAGS) -DNON_MATCHING $< | $(CC1) $(OVL_CC_FLAGS) | \
 		$(MASPSX) $(MASPSX_FLAGS) --gp-symbols=config/ovl/gp.$*.txt | \

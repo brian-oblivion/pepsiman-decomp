@@ -1201,25 +1201,20 @@ out:
     return ret;
 }
 
+#ifdef NON_MATCHING
 void func_800F9F18(void) {
     s16 yaw;
-    u8 one;
-    StartRec *st;
 
-    /* MATCHING: the start pointer and the 1 in locals, set after gFellOff,
-     * order the first stores. */
     gCameraYaw = 0x400;
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    st = gStageStart;
-    one = 1;
-    gPlayLive = one;
-    yaw = -st->yaw;
-    ((SVECTOR *)sCamOffset)->vx = 0;
+    gPlayLive = 1;
+    sCamOffset[0] = 0;
     gView[1] = 0;
-    ((SVECTOR *)sCamOffset)->vy = 0;
+    sCamOffset[1] = 0;
+    yaw = -gStageStart->yaw;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -1227,11 +1222,11 @@ void func_800F9F18(void) {
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
     gFloorIndex = 0;
-    gCourse.x = gPlayer.x = -st->x;
+    gCourse.x = gPlayer.x = -gStageStart->x;
     gSteerYaw = yaw;
-    gCourse.y = gPlayer.y = -st->y;
+    gCourse.y = gPlayer.y = -gStageStart->y;
     gSteerYawHalf = yaw;
-    gCourse.z = gPlayer.z = -st->z;
+    gCourse.z = gPlayer.z = -gStageStart->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
@@ -1241,6 +1236,9 @@ void func_800F9F18(void) {
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
+#else
+INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F9F18);
+#endif
 
 /** @brief The shape of each of this stage's own sprites, as one block. */
 typedef struct {

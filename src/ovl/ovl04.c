@@ -806,7 +806,121 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA694);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", EmitTrapParticles);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA804);
+extern s32 D_800FB70C[];
+extern s32 D_800FB72C[];
+
+s32 func_800FA804(void) {
+    /* MATCHING: an unused 8-byte local gives retail's frame. */
+    s32 ret = 0;
+    s32 unused[2];
+
+    switch (gSubStep) {
+        case 0:
+            SetBootReady(0);
+            gCdLoadLoc[0] = (s32)&D_800FB70C[0];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB72C[1];
+            gSubStep++;
+            break;
+        case 1:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimList((unsigned long *)0x8019D000);
+                gVabLoadStep = 0;
+                gSubStep++;
+            }
+            break;
+        case 2:
+            if (LoadVabBank(2) == 1) {
+                gSubStep++;
+            }
+            break;
+        case 3:
+            gCdLoadLoc[0] = (s32)&D_800FB70C[1];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB72C[2];
+            gSubStep++;
+            break;
+        case 4:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimPack((void *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 5:
+            gCdLoadLoc[0] = (s32)&D_800FB70C[2];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadLoc[1] = (s32)&D_800FB70C[3];
+            gCdLoadDest[1] = 0x80155000;
+            gCdLoadCount = 2;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB72C[3];
+            gCdLoadSectors[1] = D_800FB72C[4];
+            gSubStep++;
+            break;
+        case 6:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadStageData((unsigned long *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 7:
+            gCdLoadLoc[0] = (s32)&D_800FB70C[4];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB72C[5];
+            gSubStep++;
+            break;
+        case 8:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadSpritePack((void *)0x8016D000, SPR_STAGE);
+                gSubStep++;
+            }
+            break;
+        case 9:
+            InitEntryModels();
+            gSubStep++;
+            break;
+        case 10:
+            gCdLoadLoc[0] = (s32)&D_800FB70C[5];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB72C[6];
+            gSubStep++;
+            break;
+        case 11:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                RestoreStageObjects();
+                LoadStageSprites();
+                gSubStep++;
+            }
+            break;
+        case 12:
+            gCdLoadLoc[0] = (s32)&D_800FB70C[6];
+            gCdLoadDest[0] = 0x8018D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FB72C[7];
+            gSubStep++;
+            break;
+        case 13:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                ResetStageObjects();
+                StartStageOverlay();
+                SetBootReady(1);
+                ret = 1;
+            }
+            break;
+    }
+    FntPrint("CDEXEC %d", gSubStep);
+    return ret;
+}
 
 #ifdef NON_MATCHING
 void func_800FABC4(void) {

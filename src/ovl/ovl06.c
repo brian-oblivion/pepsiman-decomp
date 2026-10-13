@@ -71,74 +71,7 @@ void ResetSpawnedTraps(void) {
 
 #include "engine/knock_trap_away.inc"
 
-#ifdef NON_MATCHING
-void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
-    s16 n;
-    StageTrap *p;
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->homeY = t->y;
-            t->y -= height;
-            if (t->touched != 0) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
-                }
-                t->homeX = 0;
-                t->homeY = t->y;
-                t->homeRotY = gPlayer.yaw;
-                t->homeRotZ = 0;
-                t->timer = 0;
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x36);
-            }
-            t->y = t->homeY;
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer += 10;
-            t->rotX -= 113;
-            d = rsin((t->timer << 12) / 360) * 150 >> 12;
-            t->y = t->homeY - (d >= 0 ? d : -d);
-            if (++t->homeX == 30) {
-                t->state++;
-            }
-            if (gFrameCount % 3 != 0) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-                if ((u16)(t->timer % 360) == 180 || (u16)(t->timer % 360) == 0) {
-                    PlaySe(0x36);
-                }
-            }
-            if (spawn != 0 && t->homeRotZ < 5 && (t->timer == 180 || t->timer == 270)) {
-                n = FindFreeSlot48();
-                p = &sSpawnedTraps[n];
-                *p = *t;
-                sSpawnedTraps[n].rotZ = 0;
-                sSpawnedTraps[n].rotX = 0;
-                sSpawnedTraps[n].rotY = sSpawnedTraps[n].homeRotY = gCourse.rot.vy;
-                sSpawnedTraps[n].x -= 25 - rand() % 50;
-                sSpawnedTraps[n].z -= 25 - rand() % 50;
-                sSpawnedTraps[n].state = 0;
-                SnapToFloor(&sSpawnedTraps[n]);
-                sSpawnedTraps[n].model = rand() % 3 + 17;
-                sSpawnedTraps[n].type = 0;
-                sSpawnedTraps[n].act = 1;
-                t->homeRotZ++;
-            }
-            break;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAway);
-#endif
+#include "engine/tumble_trap_away.inc"
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
@@ -933,9 +866,10 @@ s32 func_800FA3EC(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 void func_800FA754(void) {
     s16 yaw;
+    u8 one;
+    StartRec *st;
 
     /* MATCHING: stored as the s16 it is read as. */
     *(s16 *)&gCameraYaw = -2;
@@ -943,23 +877,26 @@ void func_800FA754(void) {
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
+    st = gStageStart;
+    /* MATCHING: the pointer and the 1 in locals order the first stores. */
+    one = 1;
+    gPlayLive = one;
+    yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
-    sCamOffset[1] = 0;
-    yaw = -gStageStart->yaw;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
-    gCourse.x = gPlayer.x = -gStageStart->x;
     gFloorIndex = 0;
-    gCourse.y = gPlayer.y = -gStageStart->y;
+    gCourse.x = gPlayer.x = -st->x;
     gSteerYaw = yaw;
-    gCourse.z = gPlayer.z = -gStageStart->z;
+    gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
@@ -969,9 +906,6 @@ void func_800FA754(void) {
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800FA754);
-#endif
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */

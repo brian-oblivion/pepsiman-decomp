@@ -5,43 +5,7 @@
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-void ResetSpawnedTraps(void) {
-    u32 i;
-    StageTrap *t;
-    ModelSlot *a;
-    ModelSlot *b;
-    ObjectModel *m;
-
-    if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
-        bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
-        for (i = 0; i < 200; i++) {
-            sSpawnedTraps[i].switchNo = -1;
-            sSpawnedTraps[i].model = -1;
-            sSpawnedTraps[i].state = 0;
-            sSpawnedTraps[i].timer = 0;
-        }
-        for (i = 0; i < 10; i++) {
-            D_800D39D8[i].model = -1;
-            D_800D39D8[i].state = 0;
-            D_800D39D8[i].timer = 0;
-        }
-        for (i = 0; i < 2; i++) {
-            sGoalTraps[i].model = -1;
-            sGoalTraps[i].state = 0;
-            sGoalTraps[i].timer = 0;
-        }
-        sSpawnedTrapsReady = 1;
-        gSlotTable = (s32)sSpawnedTraps;
-        gSlotTableSize = 200 * sizeof(StageTrap);
-        /* MATCHING: the model table in a local, so its base is built before
-         * the trap table's. */
-        m = gObjectModels;
-        t = (StageTrap *)gTraps;
-        a = (ModelSlot *)&m[t[194].model];
-        b = (ModelSlot *)&m[t[195].model];
-        b->scale.vy = a->scale.vy = b->scale.vx = a->scale.vx = 0x1000;
-    }
-}
+#include "engine/reset_spawned_traps.inc"
 
 #include "engine_code.inc" /* StepCheckpoint */
 
@@ -75,7 +39,7 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType0F);
 
 #include "engine/knock_trap_away.inc"
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAway);
+#include "engine/tumble_trap_away.inc"
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
@@ -260,20 +224,7 @@ void StepGoalSequence(void) {
 
 void LoadTimRange(u8 *dir, u16 first, u16 count);
 
-void CycleGoalLights(s8 arg) {
-    u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
-    s16 i;
-
-    if (gSectionEdges[-1] - gSection < 20) {
-        for (i = 0; i < 8; i++) {
-            if (gFrameCount % periods[i] == 0) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
-            } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
-            }
-        }
-    }
-}
+#include "engine/cycle_goal_lights.inc"
 
 /* MATCHING: the type dispatchers call these two addresses inside the
  * function above (other stages' entry points in their own overlays). */
@@ -793,7 +744,7 @@ void UpdateStageEventHook(void) {
 
 void UpdateGoalEventHook(void) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", LoadTimRange);
+#include "engine/load_tim_range.inc"
 
 #include "engine/reveal_start_cans.inc"
 
@@ -915,9 +866,9 @@ s32 func_800FA804(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 void func_800FABC4(void) {
     s16 yaw;
+    u8 one;
     StartRec *st;
 
     /* MATCHING: stored as the s16 it is read as. */
@@ -927,11 +878,13 @@ void func_800FABC4(void) {
     gViewerAngle = 0xD8;
     gFellOff = 0;
     st = gStageStart;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
-    gView[1] = 0;
-    sCamOffset[1] = 0;
+    /* MATCHING: the pointer and the 1 in locals order the first stores. */
+    one = 1;
+    gPlayLive = one;
     yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
+    gView[1] = 0;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -943,19 +896,16 @@ void func_800FABC4(void) {
     gSteerYaw = yaw;
     gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
-    gCourse.z = gPlayer.z = -st->z;
     gBodyRot[0] = 0;
     gBodyRot[1] = 0;
     gBodyRot[2] = 0;
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FABC4);
-#endif
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */

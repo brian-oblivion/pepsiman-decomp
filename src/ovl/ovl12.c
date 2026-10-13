@@ -61,48 +61,7 @@ void ResetSpawnedTraps(void) {
 
 #include "engine/run_trap_along_path.inc"
 
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {
-    switch (t->state) {
-        case 0:
-            t->homeRotZ = 0;
-            t->homeX = t->x;
-            t->homeY = t->y;
-            t->homeZ = t->z;
-            t->state++;
-            PlaySe(0x11);
-        case 1:
-            StepTrapForward(t, speed);
-            DrawTrapWarning(t);
-            if (gSection - UpdatePathSegment(t) < 2) {
-                if (++t->homeRotZ > arg) {
-                    t->timer = 0;
-                    t->state++;
-                    t->homeRotY = t->rotY;
-                }
-            }
-            break;
-        case 2:
-            switch (dir) {
-                case 2:
-                    InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
-                    t->rotY = gOffsetVec[1];
-                    break;
-                case 1:
-                    InterpRange(t->homeRotY, t->homeRotY + 0x400, t->timer, 30, gOffsetVec);
-                    t->rotY = gOffsetVec[1];
-                    break;
-            }
-            StepTrapForward(t, speed);
-            if (++t->timer > 30) {
-                t->timer = 0;
-                t->state++;
-            }
-            break;
-        case 3:
-            StepTrapForwardLevel(t, speed);
-            break;
-    }
-}
+#include "engine/run_trap_then_turn_timed.inc"
 
 void DrawTrapWarning(StageTrap *t) {
     SVECTOR pos;
@@ -143,36 +102,7 @@ INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", StepTrapType0F);
 
 #include "engine/step_trap_type12.inc"
 
-void StepTrapType1F(StageTrap *t, u16 arg) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->homeRotZ = (rand() % 3 + 1) * 30;
-            t->timer = rand() % 360;
-            t->homeX = t->y;
-            t->state++;
-        case 1:
-            t->y = t->homeX - 30;
-            d = rsin((t->timer * 20 << 12) / 360) * t->homeRotZ >> 12;
-            t->homeY = -(d >= 0 ? d : -d);
-            if (t->homeY > 0) {
-                t->y = t->homeY;
-            }
-            PolarToXZ(arg, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->rotX += (arg << 12) / 360;
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            t->timer++;
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x3F);
-            }
-            break;
-    }
-}
+#include "engine/step_trap_type1_f.inc"
 
 #include "engine/step_rolling_trap.inc"
 
@@ -338,120 +268,9 @@ void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {
     }
 }
 
-void StepTrapType1D(StageTrap *t, u16 speed) {
-    VECTOR v;
-    StageTrap *base;
-    u16 phase;
+#include "engine/step_trap_type1_d.inc"
 
-    base = t;
-    switch (t->state) {
-        case 0:
-            SnapToFloor(t);
-            t->homeY = t->y;
-            t->state++;
-        case 1:
-            base->y = base->homeY;
-            base->y -= (u16)(t->timer % 10) * 3;
-            PolarToXZ(speed, base->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            base->x += gOffsetVec[0] >> 12;
-            base->z += gOffsetVec[2] >> 12;
-            t->timer++;
-            phase = t->timer % 20;
-            t++;
-            if (phase < 15) {
-                t->rotX = Lerp(0x2AA, -0x2AA, phase, 15);
-            } else {
-                t->rotX = Lerp(-0x2AA, 0x2AA, phase - 15, 5);
-            }
-            t->y = base->y - 100;
-            t->rotY = base->rotY;
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            t->model = base->model + 1;
-            t++;
-            if (phase < 15) {
-                t->rotX = Lerp(-0x2AA, 0x400, phase, 15);
-            } else {
-                t->rotX = Lerp(0x400, -0x2AA, phase - 15, 5);
-            }
-            t->y = base->y - 100;
-            t->rotY = base->rotY;
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            t->model = base->model + 2;
-            t = base;
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            t++;
-            DrawObjectModel(&gObjectModels[t->model], t);
-            t->model = -1;
-            t++;
-            DrawObjectModel(&gObjectModels[t->model], t);
-            t->model = -1;
-            if (base->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x1C);
-            }
-            v.vx = t->x - (25 - rand() % 50);
-            v.vy = t->y + 70;
-            v.vz = t->z - (25 - rand() % 50);
-            ScatterDust(&v);
-            if (LatchProximity(t, 1000) != 0) {
-                PlaySe(0x79);
-            }
-            break;
-    }
-}
-
-void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {
-    switch (t->state) {
-        case 0:
-            if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-            }
-            DrawObjectModel(&gObjectModels[t->model], t);
-            break;
-        case 1:
-            t->timer++;
-            switch ((s8)arg) {
-                case 2:
-                    t->rotZ = -Lerp(0, 0x400, t->timer, 10);
-                    break;
-                case 1:
-                    t->rotZ = Lerp(0, 0x400, t->timer, 10);
-                    break;
-            }
-            if (t->timer == 10) {
-                t->timer = 0;
-                t->state++;
-                PlaySe(0x3D);
-            }
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            break;
-        case 2:
-            t->timer++;
-            t->y -= 10;
-            if (t->timer == 2) {
-                t->timer = 0;
-                t->state++;
-            }
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            break;
-        case 3:
-            t->timer++;
-            t->y += 10;
-            if (t->timer == 4) {
-                t->timer = 0;
-                t->state++;
-                PlaySe(0x3D);
-            }
-        case 4:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            break;
-    }
-}
+#include "engine/step_trap_type1_c.inc"
 
 #include "engine/run_trap_ahead_at_height.inc"
 
@@ -467,54 +286,7 @@ void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {
 
 #include "engine_code.inc" /* TipTrapAway */
 
-void StepTrapAct1D(StageTrap *t) {
-    VECTOR v;
-
-    switch (t->state) {
-        case 0:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched == 1) {
-                t->timer = 0;
-                t->state++;
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x36);
-                }
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x7D);
-                }
-            }
-            break;
-        case 1:
-            t->timer++;
-            t->rotX = Lerp(0, -0x400, t->timer, 5);
-            if (t->timer == 5) {
-                t->timer = 0;
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-        case 2:
-            t->timer++;
-            if ((u16)(t->timer % 3) == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * (10 * (rand() % 10))) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * (10 * (rand() % 10))) >> 12);
-                v.vy = t->y;
-                ScatterDust(&v);
-            }
-            if (t->timer == 20) {
-                t->state++;
-            }
-        case 3:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-            }
-            break;
-    }
-}
+#include "engine/step_trap_act1_d.inc"
 
 #include "engine/burst_raised_trap.inc"
 
@@ -869,14 +641,7 @@ void StepTrapFFAct67(StageTrap *t) {}
 
 void StepTrapFFAct68(StageTrap *t) {}
 
-void StepTrapAct21(StageTrap *t) {
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x3D);
-    }
-}
+#include "engine/step_trap_act21.inc"
 
 void StepTrapAct22(StageTrap *t) {}
 

@@ -4,43 +4,9 @@
 #include "engine.inc"
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
-#ifdef NON_MATCHING
-void ResetSpawnedTraps(void) {
-    u32 i;
-    StageTrap *t;
-    ModelSlot *a;
-    ModelSlot *b;
 
-    if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
-        bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
-        for (i = 0; i < 200; i++) {
-            sSpawnedTraps[i].switchNo = -1;
-            sSpawnedTraps[i].model = -1;
-            sSpawnedTraps[i].state = 0;
-            sSpawnedTraps[i].timer = 0;
-        }
-        for (i = 0; i < 10; i++) {
-            D_800D39D8[i].model = -1;
-            D_800D39D8[i].state = 0;
-            D_800D39D8[i].timer = 0;
-        }
-        for (i = 0; i < 2; i++) {
-            sGoalTraps[i].model = -1;
-            sGoalTraps[i].state = 0;
-            sGoalTraps[i].timer = 0;
-        }
-        sSpawnedTrapsReady = 1;
-        gSlotTable = (s32)sSpawnedTraps;
-        gSlotTableSize = 200 * sizeof(StageTrap);
-        t = (StageTrap *)gTraps;
-        a = (ModelSlot *)&gObjectModels[t[194].model];
-        b = (ModelSlot *)&gObjectModels[t[195].model];
-        a->scale.vy = b->scale.vy = a->scale.vx = b->scale.vx = 0x1000;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", ResetSpawnedTraps);
-#endif
+#include "engine/reset_spawned_traps.inc"
+
 #include "engine_code.inc" /* StepCheckpoint */
 #include "engine/step_flung_piece.inc"
 #include "engine/spawn_miss_debris.inc"
@@ -65,72 +31,9 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", ResetSpawnedTraps);
 
 #include "engine/run_trap_ahead_at_height.inc"
 #include "engine/knock_trap_away.inc"
-#ifdef NON_MATCHING
-void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
-    s16 n;
-    s32 d;
 
-    switch (t->state) {
-        case 0:
-            t->homeY = t->y;
-            t->y -= height;
-            if (t->touched != 0) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
-                }
-                t->homeX = 0;
-                t->homeY = t->y;
-                t->homeRotY = gPlayer.yaw;
-                t->homeRotZ = 0;
-                t->timer = 0;
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x36);
-            }
-            t->y = t->homeY;
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer += 10;
-            t->rotX -= 113;
-            d = rsin((t->timer << 12) / 360) * 150 >> 12;
-            t->y = t->homeY - (d >= 0 ? d : -d);
-            if (++t->homeX == 30) {
-                t->state++;
-            }
-            if (gFrameCount % 3 != 0) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-                if ((u16)(t->timer % 360) == 180 || (u16)(t->timer % 360) == 0) {
-                    PlaySe(0x36);
-                }
-            }
-            if (spawn != 0 && t->homeRotZ < 5 && (t->timer == 180 || t->timer == 270)) {
-                n = FindFreeSlot48();
-                sSpawnedTraps[n] = *t;
-                sSpawnedTraps[n].rotZ = 0;
-                sSpawnedTraps[n].rotX = 0;
-                sSpawnedTraps[n].rotY = sSpawnedTraps[n].homeRotY = gCourse.rot.vy;
-                sSpawnedTraps[n].x -= 25 - rand() % 50;
-                sSpawnedTraps[n].z -= 25 - rand() % 50;
-                sSpawnedTraps[n].state = 0;
-                SnapToFloor(&sSpawnedTraps[n]);
-                sSpawnedTraps[n].model = rand() % 3 + 17;
-                sSpawnedTraps[n].type = 0;
-                sSpawnedTraps[n].act = 1;
-                t->homeRotZ++;
-            }
-            break;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", TumbleTrapAway);
-#endif
+#include "engine/tumble_trap_away.inc"
+
 #include "engine_code.inc" /* StepBouncingRoller */
 
 #include "engine/step_smoking_tumble_trap.inc"
@@ -164,7 +67,7 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", TumbleTrapAway);
 #include "engine/scatter_trap_dust.inc"
 
 #include "engine/shift_trap_on_approach.inc"
-#ifdef NON_MATCHING
+
 void StepHoppingTrap(StageTrap *t, u8 act) {
     VECTOR v;
     s32 off;
@@ -199,10 +102,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
     if (t->state == 0) {
         t->timer++;
         d = rsin((t->timer * 20 << 12) / 360) * 25 >> 12;
-        if (d < 0) {
-            d = -d;
-        }
-        t->y = t->homeY - d;
+        t->y = t->homeY - (d >= 0 ? d : -d);
         switch (act) {
             case 0:
             case 1:
@@ -220,18 +120,11 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
                 t->z += rcos(ang) * 20 >> 12;
                 break;
         }
-        d = t->x + gWorldShift[0];
-        if (d < 0) {
-            d = -d;
-        }
-        if (d < 2000) {
+        if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000) {
             e = t->z + gWorldShift[2];
-            if (e < 0) {
-                e = -e;
-            }
-            if (e < 2000 && t->timer % 3 == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * 10 * (rand() % 10)) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * 10 * (rand() % 10)) >> 12);
+            if ((e >= 0 ? e : -e) < 2000 && t->timer % 3 == 0) {
+                v.vx = t->x + (rsin((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
+                v.vz = t->z + (rcos((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
                 v.vy = t->y;
                 ScatterDust(&v);
             }
@@ -247,10 +140,10 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepHoppingTrap);
-#endif
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F74FC);
+
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F74FC, StepHoppingTrap, 0x284);
 
 #include "engine/swap_trap_model_on_approach.inc"
 
@@ -399,25 +292,11 @@ void StepGoalSequence(void) {
         }
     }
 }
-#ifdef NON_MATCHING
-void CycleGoalLights(s8 arg) {
-    u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
-    s16 i;
 
-    if (gSectionEdges[-1] - gSection < 20) {
-        for (i = 0; i < 8; i++) {
-            if (gFrameCount % periods[i] == 0) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
-            } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2 + 1, 1);
-            }
-        }
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", CycleGoalLights);
-INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", D_800F04F0);
-#endif
+void LoadTimRange(u8 *dir, u16 first, u16 count);
+
+#include "engine/cycle_goal_lights.inc"
+
 #include "engine/step_stage_frame.inc"
 #ifdef NON_MATCHING
 void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
@@ -650,21 +529,9 @@ void UpdateStageEventHook(void) {}
 #include "engine_code.inc" /* UpdateGoalEvents */
 
 void UpdateGoalEventHook(void) {}
-#ifdef NON_MATCHING
-void LoadTimRange(u8 *dir, u16 first, u16 count) {
-    u16 i;
-    DirEnt16 *e;
 
-    e = (DirEnt16 *)dir + first;
-    for (i = first; i < first + count; i++) {
-        LoadTim(dir + e->offset);
-        e++;
-        DrawSync(0);
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", LoadTimRange);
-#endif
+#include "engine/load_tim_range.inc"
+
 #include "engine/reveal_start_cans.inc"
 #include "engine/emit_trap_particles.inc"
 
@@ -806,9 +673,11 @@ u16 func_800FA580(s16 id, StageTrap *src, StageTrap *dst) {
     }
     return ret;
 }
-#ifdef NON_MATCHING
+
 void func_800FA6C0(void) {
     s16 yaw;
+    u8 one;
+    StartRec *st;
 
     /* MATCHING: stored as the s16 it is read as. */
     *(s16 *)&gCameraYaw = -0x201;
@@ -816,11 +685,14 @@ void func_800FA6C0(void) {
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
+    st = gStageStart;
+    /* MATCHING: the pointer and the 1 in locals order the first stores. */
+    one = 1;
+    gPlayLive = one;
+    yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
-    sCamOffset[1] = 0;
-    yaw = -gStageStart->yaw;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -828,23 +700,21 @@ void func_800FA6C0(void) {
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
     gFloorIndex = 0;
-    gCourse.x = gPlayer.x = -gStageStart->x;
+    gCourse.x = gPlayer.x = -st->x;
     gSteerYaw = yaw;
-    gCourse.y = gPlayer.y = -gStageStart->y;
+    gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
-    gCourse.z = gPlayer.z = -gStageStart->z;
     gBodyRot[0] = 0;
     gBodyRot[1] = 0;
     gBodyRot[2] = 0;
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800FA6C0);
-#endif
+
 void func_800FA800(void) {
     SpriteShapes shapes;
 

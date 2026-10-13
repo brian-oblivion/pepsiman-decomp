@@ -5,43 +5,7 @@
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-void ResetSpawnedTraps(void) {
-    u32 i;
-    StageTrap *t;
-    ModelSlot *a;
-    ModelSlot *b;
-    ObjectModel *m;
-
-    if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
-        bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
-        for (i = 0; i < 200; i++) {
-            sSpawnedTraps[i].switchNo = -1;
-            sSpawnedTraps[i].model = -1;
-            sSpawnedTraps[i].state = 0;
-            sSpawnedTraps[i].timer = 0;
-        }
-        for (i = 0; i < 10; i++) {
-            D_800D39D8[i].model = -1;
-            D_800D39D8[i].state = 0;
-            D_800D39D8[i].timer = 0;
-        }
-        for (i = 0; i < 2; i++) {
-            sGoalTraps[i].model = -1;
-            sGoalTraps[i].state = 0;
-            sGoalTraps[i].timer = 0;
-        }
-        sSpawnedTrapsReady = 1;
-        gSlotTable = (s32)sSpawnedTraps;
-        gSlotTableSize = 200 * sizeof(StageTrap);
-        /* MATCHING: the model table in a local, so its base is built before
-         * the trap table's. */
-        m = gObjectModels;
-        t = (StageTrap *)gTraps;
-        a = (ModelSlot *)&m[t[194].model];
-        b = (ModelSlot *)&m[t[195].model];
-        b->scale.vy = a->scale.vy = b->scale.vx = a->scale.vx = 0x1000;
-    }
-}
+#include "engine/reset_spawned_traps.inc"
 
 #include "engine_code.inc" /* StepCheckpoint */
 #include "engine/step_flung_piece.inc"
@@ -68,70 +32,7 @@ void ResetSpawnedTraps(void) {
 #include "engine/run_trap_ahead_at_height.inc"
 #include "engine/knock_trap_away.inc"
 
-void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
-    s16 n;
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->homeY = t->y;
-            t->y -= height;
-            if (t->touched != 0) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
-                }
-                t->homeX = 0;
-                t->homeY = t->y;
-                t->homeRotY = gPlayer.yaw;
-                t->homeRotZ = 0;
-                t->timer = 0;
-                t->state++;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x36);
-            }
-            t->y = t->homeY;
-            break;
-        case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x -= gOffsetVec[0] >> 12;
-            t->z -= gOffsetVec[2] >> 12;
-            t->timer += 10;
-            t->rotX -= 113;
-            d = rsin((t->timer << 12) / 360) * 150 >> 12;
-            t->y = t->homeY - (d >= 0 ? d : -d);
-            if (++t->homeX == 30) {
-                t->state++;
-            }
-            if (gFrameCount % 3 != 0) {
-                DrawObjectModel(&gObjectModels[t->model], t);
-                if ((u16)(t->timer % 360) == 180 || (u16)(t->timer % 360) == 0) {
-                    PlaySe(0x36);
-                }
-            }
-            if (spawn != 0 && t->homeRotZ < 5 && (t->timer == 180 || t->timer == 270)) {
-                /* MATCHING: the slot read as the word it returns, and the copy's
-                 * target through a cast, order the slot's address as retail. */
-                n = ((s32 (*)(void))FindFreeSlot48)();
-                *(StageTrap *)&sSpawnedTraps[n] = *t;
-                sSpawnedTraps[n].rotY = sSpawnedTraps[n].homeRotY = gCourse.rot.vy;
-                sSpawnedTraps[n].rotZ = 0;
-                sSpawnedTraps[n].rotX = 0;
-                sSpawnedTraps[n].x -= 25 - rand() % 50;
-                sSpawnedTraps[n].z -= 25 - rand() % 50;
-                sSpawnedTraps[n].state = 0;
-                SnapToFloor(&sSpawnedTraps[n]);
-                sSpawnedTraps[n].model = rand() % 3 + 17;
-                sSpawnedTraps[n].type = 0;
-                sSpawnedTraps[n].act = 1;
-                t->homeRotZ++;
-            }
-            break;
-    }
-}
+#include "engine/tumble_trap_away.inc"
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
@@ -394,20 +295,7 @@ void StepGoalSequence(void) {
 
 void LoadTimRange(u8 *dir, u16 first, u16 count);
 
-void CycleGoalLights(s8 arg) {
-    u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
-    s16 i;
-
-    if (gSectionEdges[-1] - gSection < 20) {
-        for (i = 0; i < 8; i++) {
-            if (gFrameCount % periods[i] == 0) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
-            } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                LoadTimRange((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
-            }
-        }
-    }
-}
+#include "engine/cycle_goal_lights.inc"
 
 #include "engine/step_stage_frame.inc"
 #ifdef NON_MATCHING
@@ -642,24 +530,7 @@ void UpdateStageEventHook(void) {}
 
 void UpdateGoalEventHook(void) {}
 
-void LoadTimRange(u8 *dir, u16 first, u16 count) {
-    u16 i;
-    DirEnt16 *e;
-    s32 off;
-
-    e = (DirEnt16 *)dir + first;
-    for (i = first; i < first + count;) {
-        off = e->offset;
-        /* MATCHING: the bump wrapped in a block puts e in $s0 and i in $s1;
-         * both bumps ahead of the call are scheduled above the jal. */
-        do {
-            e++;
-        } while (0);
-        i++;
-        LoadTim(dir + off);
-        DrawSync(0);
-    }
-}
+#include "engine/load_tim_range.inc"
 
 #include "engine/reveal_start_cans.inc"
 #include "engine/emit_trap_particles.inc"

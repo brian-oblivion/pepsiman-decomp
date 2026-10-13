@@ -2,12 +2,100 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "libetc.h"
 #include "model.h"
 #include "draw.h"
 #include "spad.h"
 #include "world_intro.h"
 
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F01EC);
+/** @brief The three flat lights of the scene. */
+typedef struct {
+    GsF_LIGHT l[3]; /**< one per light index */
+} LightTable;
+
+/* MATCHING: a struct lvalue keeps the table's base in a register. */
+#define sLights (*(LightTable *)gFlatLights)
+
+extern s32 D_800FA220;
+extern s32 D_800FA28C;
+void func_800F83E0(void);
+void func_800F8898(void);
+void func_800F88B0(void);
+
+void func_800F01EC(void) {
+    SVECTOR pos;
+    SColor color;
+
+    switch (gSubStep) {
+        case 50:
+            DefineSprite(0x1E, 0, 0x80, 0xF0, 0x15, 0, 0, 0, 0x1F3);
+            DefineSprite(0x1F, 0, 0x80, 0xF0, 0x15, 0x80, 0, 0, 0x1F3);
+            DefineSprite(0x20, 0, 0x40, 0xF0, 0x16, 0, 0, 0, 0x1F3);
+            sLights.l[0].r = 0x80;
+            sLights.l[0].g = 0x80;
+            sLights.l[0].b = 0x80;
+            sLights.l[1].r = 0x80;
+            sLights.l[1].g = 0x80;
+            sLights.l[1].b = 0x80;
+            sLights.l[2].r = 0x80;
+            sLights.l[2].g = 0x80;
+            sLights.l[2].b = 0x80;
+            sLights.l[0].vx = 0;
+            sLights.l[0].vy = 100;
+            sLights.l[0].vz = 100;
+            GsSetFlatLight(0, &sLights.l[0]);
+            sLights.l[1].vx = 0x56;
+            sLights.l[1].vy = 100;
+            sLights.l[1].vz = -50;
+            GsSetFlatLight(1, &sLights.l[1]);
+            sLights.l[2].vx = -0x56;
+            sLights.l[2].vy = 100;
+            sLights.l[2].vz = -50;
+            GsSetFlatLight(2, &sLights.l[2]);
+            gPlayer.action = 0x61;
+            gPlayer.motion[0] = 3;
+            gPlayer.z = -600;
+            gPlayer.speed = 0;
+            gPlayer.x = 0;
+            gPlayer.y = 100;
+            gPlayer.yaw = 0x800;
+            sView.vpx = 500;
+            sView.vpy = -100;
+            sView.vpz = 0;
+            sView.vrx = 0;
+            sView.vry = 0;
+            sView.vrz = 0;
+            D_800FA220 = 0;
+            gSubStep = 100;
+            func_800F8898();
+            break;
+        case 100:
+            func_800F83E0();
+            color.r = -1;
+            color.g = color.b = color.cd = 0x80;
+            pos.vx = -160;
+            pos.vy = -120;
+            DrawSprite(0x1E, &pos, (CVECTOR *)&color, 1, gCurOt);
+            pos.vx += 0x80;
+            DrawSprite(0x1F, &pos, (CVECTOR *)&color, 1, gCurOt);
+            pos.vx += 0x80;
+            DrawSprite(0x20, &pos, (CVECTOR *)&color, 1, gCurOt);
+            if (D_800FA28C == 1) {
+                D_800FA220++;
+                gPlayer.z += 20;
+                if (D_800FA220 >= 60) {
+                    func_800F88B0();
+                }
+            }
+            if (D_800FA28C == 0) {
+                gModeStep = 5;
+            }
+            if (gPadTrig & PADstart) {
+                gModeStep = 5;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F04EC);
 
@@ -120,7 +208,6 @@ void func_800F8264(void) {
 }
 
 extern s32 D_800FA288;
-extern s32 D_800FA28C;
 
 void func_800F83E0(void) {
     GsOT *ot;

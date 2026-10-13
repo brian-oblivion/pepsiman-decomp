@@ -116,7 +116,95 @@ void func_800F07E4(void) {
 INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F07E4);
 #endif
 
+/** @brief A flat line packet with its colour and code as one word. */
+typedef struct {
+    u_long tag;  /**< the link and length */
+    u_long rgbc; /**< the colour, then the code in the top byte */
+    s16 x0;      /**< start x */
+    s16 y0;      /**< start y */
+    s16 x1;      /**< end x */
+    s16 y1;      /**< end y */
+} LineF2;
+
+extern SwitchBox gSwitches[];
+
+/** @brief One row of the closing wipe, kept in the switch table's memory. */
+typedef struct {
+    s16 x;     /**< how far the row's black line reaches */
+    s16 speed; /**< how fast it grows */
+    u8 pad[4]; /**< unused */
+} WipeRow;
+
+/* The packet being built, in the packet buffer. */
+#define sLine ((LineF2 *)GsOUT_PACKET_P)
+/* The wipe's rows. */
+#define sWipe ((WipeRow *)gSwitches)
+
+/* Draws the stage's closing caption, two sprites sliding in, then wipes
+ * the screen with 240 black lines, each growing at its own speed. */
+#ifdef NON_MATCHING
+void func_800F09D8(void) {
+    s16 quad[8];
+    SColor color;
+    s16 t;
+    s32 i;
+    WipeRow *w;
+
+    if ((u16)D_800D39D8.title - 60 < 8U) {
+        t = D_800D39D8.title - 60;
+        quad[0] = (t << 5) - 0x180;
+        quad[1] = -64;
+        color.r = 1;
+        color.g = color.b = color.cd = t * 16;
+        DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    }
+    if ((u16)D_800D39D8.title - 68 < 8U) {
+        quad[0] = -128;
+        quad[1] = -64;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80;
+        DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        quad[1] = 0;
+        color.r = 1;
+        t = D_800D39D8.title - 68;
+        quad[0] = (t << 5) - 0x180;
+        color.g = color.b = color.cd = t * 16;
+        DrawSprite(33, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    }
+    if (D_800D39D8.title >= 76) {
+        quad[0] = -128;
+        quad[1] = -64;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80;
+        DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        quad[0] = -128;
+        quad[1] = 0;
+        color.r = 1;
+        color.g = color.b = color.cd = 0x80;
+        DrawSprite(33, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    }
+    if (D_800D39D8.title >= 150) {
+        w = sWipe;
+        for (i = 0; i < 240; i++, w++) {
+            setlen(sLine, 3);
+            sLine->rgbc = 0;
+            setcode(sLine, 0x40);
+            sLine->x0 = -160;
+            sLine->y0 = sLine->y1 = i - 120;
+            sLine->x1 = w->x;
+            w->x += w->speed;
+            if (w->x >= 160) {
+                w->x = 160;
+            }
+            addPrim(gSubOt[gActiveBuff].org, sLine);
+            GsOUT_PACKET_P += sizeof(LineF2);
+        }
+    }
+    D_800D39D8.title++;
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F09D8);
+#endif
 
 s32 StepChasePiece0(Act3Obj *o) {
     s32 unused[2];

@@ -1,11 +1,49 @@
 /* Stage 5-1's overlay: the stage engine (engine.inc, engine_code.inc) with this
  * stage's own routines, and the engine functions still in asm. */
 
+/* MATCHING: retail's return types, where engine.inc's prototypes differ. */
+#define func_800F7968 func_800F7968_engine
 #include "engine.inc"
+#undef func_800F7968
+s32 func_800F7968(StageTrap *t);
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", ResetSpawnedTraps);
+void ResetSpawnedTraps(void) {
+    u32 i;
+    StageTrap *t;
+    ModelSlot *a;
+    ModelSlot *b;
+    ObjectModel *m;
+
+    if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
+        bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
+        for (i = 0; i < 200; i++) {
+            sSpawnedTraps[i].switchNo = -1;
+            sSpawnedTraps[i].model = -1;
+            sSpawnedTraps[i].state = 0;
+            sSpawnedTraps[i].timer = 0;
+        }
+        for (i = 0; i < 10; i++) {
+            D_800D39D8[i].model = -1;
+            D_800D39D8[i].state = 0;
+            D_800D39D8[i].timer = 0;
+        }
+        for (i = 0; i < 2; i++) {
+            sGoalTraps[i].model = -1;
+            sGoalTraps[i].state = 0;
+            sGoalTraps[i].timer = 0;
+        }
+        sSpawnedTrapsReady = 1;
+        gSlotTable = (s32)sSpawnedTraps;
+        gSlotTableSize = 200 * sizeof(StageTrap);
+        m = gObjectModels;
+        t = (StageTrap *)gTraps;
+        a = (ModelSlot *)&m[t[194].model];
+        b = (ModelSlot *)&m[t[195].model];
+        b->scale.vy = a->scale.vy = b->scale.vx = a->scale.vx = 0x1000;
+    }
+}
 
 #include "engine_code.inc" /* StepCheckpoint */
 
@@ -35,7 +73,40 @@ INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType2A);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepChargingTrap);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", DrawTrapWarning);
+void DrawTrapWarning(StageTrap *t) {
+    SVECTOR pos;
+    SVECTOR sv;
+    s32 d;
+
+    if (!(t->unk41 & 0x40)) {
+        d = SquareRoot0(DistanceSquared((VECTOR *)t, (VECTOR *)&gPlayer.x));
+        if (gSection - UpdatePathSegment(t) < 2) {
+            t->unk41 |= 0x40;
+        }
+        if (d < 1200) {
+            if (!(gFrameCount & 1)) {
+                return;
+            }
+        } else if (d < 2400) {
+            if ((gFrameCount & 3) < 2) {
+                return;
+            }
+        } else if (d < 3200) {
+            if ((gFrameCount & 7) < 4) {
+                return;
+            }
+        }
+        gOffsetVec[0] = t->x + (rsin(t->rotY) * d >> 12);
+        gOffsetVec[2] = t->z + (rcos(t->rotY) * d >> 12);
+        gOffsetVec[1] = gPlayer.groundY - 100;
+        gOffsetVec[0] += gWorldShift[0];
+        gOffsetVec[2] += gWorldShift[2];
+        ProjectToScreen((VECTOR *)gOffsetVec, &sv);
+        pos.vy = 50;
+        pos.vx = sv.vx - 32;
+        DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType0F);
 
@@ -65,37 +136,383 @@ INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", SpinTrapAway);
 
 #include "engine/burst_raised_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", ToppleTrapOnApproach);
+#include "engine/topple_trap_on_approach.inc"
 
 #include "engine/scatter_trap_dust.inc"
 
 #include "engine/swap_trap_model_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepMissSequence);
+void StepMissSequence(void) {
+    s32 unused[18];
+    StageTrap *m;
+    u16 i;
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", UpdateStageEventHook);
+    m = &D_800AC6E0;
+    if (D_800D3638 == 1) {
+        switch (m->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                EndJump();
+                gMissState = -1;
+                D_800D39D8[0].homeRotZ = 0;
+                gFellOff = 1;
+                m->timer = 0;
+                D_800D39D8[0].homeX = gPlayer.x;
+                D_800D39D8[0].homeY = gPlayer.y;
+                D_800D39D8[0].homeZ = gPlayer.z;
+                gRefView[0] = gView[0];
+                gRefView[1] = gView[1];
+                gRefView[2] = gView[2];
+                gRefView[3] = gView[3];
+                gRefView[4] = gView[4];
+                gRefView[5] = gView[5];
+                m->state++;
+            case 1:
+                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 25);
+                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 25);
+                gView[1] = gRefView[1] + Lerp(0, 65, m->timer, 25);
+                gView[4] = gRefView[4] + Lerp(0, 50, m->timer, 25);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                if (++m->timer >= 26) {
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 2:
+                gPlayer.motion[0] = 0;
+                if (++m->timer != 0) {
+                    D_800AC6B8 = 90;
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 3:
+                if (++m->timer < 8 && m->timer % 2 == 0) {
+                    PlaySe(0x38);
+                }
+                if (m->timer >= 9) {
+                    m->timer = 0;
+                    m->state++;
+                    gOffsetVec[0] = gPlayer.x;
+                    gOffsetVec[2] = gPlayer.z;
+                    for (i = 0; i < 40; i++) {
+                        gOffsetVec[1] = gPlayer.y - i * 10;
+                        ScatterDust((VECTOR *)gOffsetVec);
+                    }
+                    gPlayer.action = ACT_RIDE_STRAIGHT;
+                    gPlayer.rideMode = (gPlayer.rideMode & RIDE_ITEM_MASK) | RIDE_COVER;
+                    SpawnMissDebris();
+                    gMissState = 0;
+                    gFellOff = 0;
+                    D_800D39D8[1].state = 0;
+                    D_800D39D8[1].timer = 0;
+                    gPlayer.control = 1;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+            case 4:
+                DrawFrozenFrame();
+                if (++m->timer == 30) {
+                    m->state++;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", UpdateGoalEventHook);
+void UpdateStageEventHook(void) {
+    StageTrap *m;
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F74FC);
+    m = &D_800D39D8[1];
+    if (gSwitches[190].state == SWITCH_ON) {
+        switch (m->state) {
+            case 0:
+                gPlayer.control = 0;
+                gMissState = -1;
+                D_800D39D8[0].homeRotZ = 0;
+                m->timer = 0;
+                m->state++;
+                D_800D39D8[0].homeX = gPlayer.x;
+                D_800D39D8[0].homeY = gPlayer.y;
+                D_800D39D8[0].homeZ = gPlayer.z;
+            case 1:
+                gPlayer.x = Lerp(D_800D39D8[0].homeX, 0x4EFF, m->timer, 25);
+                gPlayer.z = Lerp(D_800D39D8[0].homeZ, -0x5428, m->timer, 25);
+                if (++m->timer >= 26) {
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 2:
+                gMissState = 0;
+                gPlayer.action = 7;
+                gSwitches[192].state = SWITCH_OFF;
+                gPlayer.dropRide = 1;
+                m->timer = 0;
+                m->state++;
+                gPlayer.rideMode &= 0xF0;
+                PlaySe(0x37);
+                break;
+        }
+    }
+}
+
+extern s8 D_800D36F0;
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+void BeginLoadScreen(void);
+s8 func_800F7E34(StageTrap *t);
+
+void UpdateGoalEventHook(void) {
+    StageTrap *t;
+    StageTrap *u;
+    s16 n;
+    s16 m;
+
+    t = sGoalTraps;
+    u = &sGoalTraps[1];
+    if (D_800D36F0 == 1) {
+        ResetRumble();
+        switch (gStage) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                n = 35;
+                m = 100;
+                break;
+            case 6:
+            case 7:
+            case 8:
+                break;
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+                n = 35;
+                m = 100;
+                break;
+        }
+        DrawFrozenFrame();
+        switch (t->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                gMissState = -2;
+                ClipF = 1;
+                t->homeX = gPlayer.x;
+                t->homeY = gPlayer.y;
+                t->homeZ = gPlayer.z;
+                SetSoundFade(4);
+                t->timer = 0;
+                t->state++;
+            case 1:
+                gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
+                gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
+                t->timer++;
+                if (t->timer > n) {
+                    t->timer = 0;
+                    gPlayer.action = 0x17;
+                    t->homeX = gPlayer.x;
+                    t->homeY = gPlayer.y;
+                    t->homeZ = gPlayer.z;
+                    t->state++;
+                }
+                break;
+            case 2:
+                gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, m);
+                gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, m);
+                t->timer++;
+                if (t->timer < (s16)(m / 3)) {
+                    ScatterDust((VECTOR *)&gPlayer.x);
+                }
+                if (t->timer > m) {
+                    gPlayer.action = 0;
+                    gPlayer.motion[0] = 0x13;
+                    gFellOff = 1;
+                    gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
+                    gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
+                    gRefView[1] = gPlayer.y - 270;
+                    gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    t->homeRotZ = 0;
+                    t->timer = 0;
+                    gRefView[4] = gPlayer.y - 100;
+                    t->state++;
+                }
+                break;
+            case 3:
+                if (t->timer < 30) {
+                    t->timer++;
+                }
+                gView[0] = Lerp(gView[0], gRefView[0], t->timer, 30);
+                gView[1] = Lerp(gView[1], gRefView[1], t->timer, 30);
+                gView[2] = Lerp(gView[2], gRefView[2], t->timer, 30);
+                gView[3] = Lerp(gView[3], gRefView[3], t->timer, 30);
+                gView[4] = Lerp(gView[4], gRefView[4], t->timer, 30);
+                gView[5] = Lerp(gView[5], gRefView[5], t->timer, 30);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                t->homeRotZ++;
+                if (t->timer == 8) {
+                    gPlayLive = 0;
+                }
+                if (t->homeRotZ > 40) {
+                    t->timer = 0;
+                    gPlayer.action = 0x1B;
+                    t->state++;
+                }
+                break;
+            case 4:
+                if (++t->timer > 240) {
+                    t->timer = 0;
+                    t->state++;
+                    StartActResults();
+                }
+                break;
+            case 5:
+                if (IsResultsActive() == 0) {
+                    t->state++;
+                }
+                break;
+            case 6:
+                if (func_800F7E34(u) && gInEditor != 1) {
+                    t->state++;
+                }
+                break;
+            case 7:
+                if (gInEditor != 1) {
+                    if (gStageTableSet != 3) {
+                        t->timer = 0;
+                        t->state++;
+                    } else {
+                        gGameMode = 6;
+                        gModeStep = 0;
+                        ClipF = 0;
+                    }
+                }
+                break;
+            case 8:
+                if (++t->timer >= 9) {
+                    gStage = GetNextStage(12);
+                    BeginLoadScreen();
+                    ClipF = 0;
+                }
+                break;
+        }
+    }
+}
+
+/* MATCHING: the dispatchers call this stage entry point, which in this
+ * overlay lands inside the function above. */
+FUNC_ALIAS(func_800F74FC, UpdateGoalEventHook, 0x3B8);
 
 #include "engine/step_stage_frame.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7968);
+void func_800F7C9C(StageTrap *t, s8 kind);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F79A0);
+s32 func_800F7968(StageTrap *t) {
+    s16 speed;
+
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->homeRotZ = 0;
+            t->state++;
+        case 1:
+            if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) < 1500 * 1500) {
+                t->timer = 0;
+                t->state++;
+            }
+            if (gSection - UpdatePathSegment(t) < 2) {
+                DrawObjectModel(&gObjectModels[t->model], t);
+            }
+            break;
+        case 2:
+            if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) > 1500 * 1500) {
+                speed = 5;
+            } else {
+                speed = 40;
+                if (t->timer % 30 == 1) {
+                    func_800F7C9C(t, rand() % 3);
+                    t->homeRotZ++;
+                }
+            }
+            SnapToFloor(t);
+            t->timer++;
+            t->y -= 20;
+            t->rotY = GetPathDirection(t);
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            }
+            if (DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t) > 9200 * 9200) {
+                t->timer = 0;
+                t->state++;
+                t->homeRotY = t->rotY;
+            }
+            break;
+        case 3:
+            InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
+            t->rotY = gOffsetVec[1];
+            StepTrapForwardLevel(t, 20);
+            if (++t->timer > 30) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 4:
+            StepTrapForwardLevel(t, 20);
+            if (++t->timer > 30) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+    }
+}
+
+/* MATCHING: the dispatchers call this stage entry point, which in this
+ * overlay lands inside the function above. */
+FUNC_ALIAS(func_800F79A0, func_800F7968, 0x38);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7C9C);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7E34);
+
+/** @brief One of this stage's on-screen prompts (D_800FB468, ended by a
+ *         section of -1): shown when the player reaches its section. */
+typedef struct {
+    s16 section; /**< the course section that starts it */
+    s16 limit;   /**< frames it shows before it is dismissed */
+    s16 kind;    /**< which prompt it draws */
+    s16 timer;   /**< frames shown so far */
+    s16 unk8;    /**< not yet known; cleared with timer */
+    s16 state;   /**< 0 waiting, 1 shown, 2 answered, 100 done */
+} StageHint;
+
+extern s32 D_800FB464;
+extern StageHint D_800FB468[];
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F80F4);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F82E0);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F8454);
-
-INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F0558);
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
@@ -211,18 +628,169 @@ void CycleGoalLights(s8 arg) {}
 
 #include "engine/reveal_start_cans.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9AC8);
+extern s32 D_800FB4F8;
+
+void func_800F9AC8(void) {
+    s32 i;
+
+    for (i = 0; i < D_800FB4F8; i++) {
+        D_800FB468[i].timer = 0;
+        D_800FB468[i].unk8 = 0;
+        D_800FB468[i].state = 0;
+    }
+    D_800FB464 = 0;
+}
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", EmitTrapParticles);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9BC0);
+extern s32 D_800FADA8[];
+extern s32 D_800FADC8[];
+
+s32 func_800F9BC0(void) {
+    /* MATCHING: an unused 8-byte local gives retail's frame. */
+    s32 ret = 0;
+    s32 unused[2];
+
+    switch (gSubStep) {
+        case 0:
+            SetBootReady(0);
+            gCdLoadLoc[0] = (s32)&D_800FADA8[0];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FADC8[1];
+            gSubStep++;
+            break;
+        case 1:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimList((unsigned long *)0x8019D000);
+                gVabLoadStep = 0;
+                gSubStep++;
+            }
+            break;
+        case 2:
+            if (LoadVabBank(6) == 1) {
+                gSubStep++;
+            }
+            break;
+        case 3:
+            gCdLoadLoc[0] = (s32)&D_800FADA8[1];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FADC8[2];
+            gSubStep++;
+            break;
+        case 4:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadTimPack((void *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 5:
+            gCdLoadLoc[0] = (s32)&D_800FADA8[2];
+            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadLoc[1] = (s32)&D_800FADA8[3];
+            gCdLoadDest[1] = 0x80155000;
+            gCdLoadCount = 2;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FADC8[3];
+            gCdLoadSectors[1] = D_800FADC8[4];
+            gSubStep++;
+            break;
+        case 6:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadStageData((unsigned long *)0x8019D000);
+                gSubStep++;
+            }
+            break;
+        case 7:
+            gCdLoadLoc[0] = (s32)&D_800FADA8[4];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FADC8[5];
+            gSubStep++;
+            break;
+        case 8:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                LoadSpritePack((void *)0x8016D000, SPR_STAGE);
+                gSubStep++;
+            }
+            break;
+        case 9:
+            InitEntryModels();
+            gSubStep++;
+            break;
+        case 10:
+            gCdLoadLoc[0] = (s32)&D_800FADA8[5];
+            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadCount = 1;
+            gCdLoadState = CD_LOAD_SEEK;
+            gCdLoadSectors[0] = D_800FADC8[6];
+            gSubStep++;
+            break;
+        case 11:
+            if (gCdLoadState == CD_LOAD_DONE) {
+                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                RestoreStageObjects();
+                LoadStageSprites();
+                gSubStep++;
+            }
+            break;
+        case 12:
+            ResetStageObjects();
+            StartStageOverlay();
+            SetBootReady(1);
+            ret = 1;
+            break;
+    }
+    FntPrint("CDEXEC %d", gSubStep);
+    return ret;
+}
+
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9F28);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800FA060);
+/* MATCHING: ret set before the table copy and again after the call, so it
+ * stays a register; set once it folds to a constant. */
+u16 func_800FA060(s16 id, StageTrap *src, StageTrap *dst) {
+    u16 ret = 1;
+    u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+                     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                     32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                     48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+                     64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79};
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800FA1A0);
+    if (id < 80) {
+        if (id >= 0) {
+            dst->homeX = src->x;
+            dst->homeY = src->y;
+            dst->homeZ = src->z;
+            dst->homeRotX = src->rotX;
+            dst->homeRotY = src->rotY;
+            dst->homeRotZ = src->rotZ;
+            ResetObj34(dst);
+            dst->model = models[id];
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
-INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F08EC);
+/** @brief This stage's sprite shapes, as one block: 41 of them where
+ *         the engine's SpriteShapes has 100. */
+typedef struct {
+    u8 shape[41]; /**< a shape per sprite id from SPR_STAGE on */
+} SpriteShapes41;
+
+extern const SpriteShapes41 D_800F093C;
+
+void func_800FA1A0(void) {
+    SpriteShapes41 shapes;
+
+    shapes = D_800F093C;
+    *(SpriteShapes41 *)sSpriteShapes = shapes;
+}
 
 INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F093C);

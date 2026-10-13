@@ -112,7 +112,65 @@ INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType0F);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType12);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType27);
+void StepTrapType27(StageTrap *t, s32 arg) {
+    StageTrap probe;
+    s32 d;
+
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 1:
+            if (arg * arg > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 2:
+            t->y += t->timer * 5;
+            t->timer++;
+            probe = *t;
+            SnapToFloor(&probe);
+            if (t->y > probe.y) {
+                t->homeY = t->y;
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 3:
+            d = rsin((t->timer * 20 << 12) / 360) * 50 >> 12;
+            t->timer++;
+            t->y = t->homeY - (d >= 0 ? d : -d);
+            if ((t->timer * 20 % 360 == 180 || t->timer * 20 % 360 == 0) &&
+                gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+                PlaySe(0x3B);
+            }
+            if (t->timer >= 10) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 4:
+            t->rotX = -Lerp(0, 0x400, t->timer, 10);
+            if (++t->timer >= 11) {
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        if (t->state != 5) {
+            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+        } else {
+            DrawObjectModel(&gObjectModels[t->model], t);
+        }
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(0x3B);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", KnockTrapAway);
 
@@ -266,6 +324,7 @@ void UpdateStageEventHook(void) {
 extern s8 D_800D36F0;
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
+/* MATCHING: main's view of the loader. */
 void BeginLoadScreen(void);
 s8 func_800F7E34(StageTrap *t);
 
@@ -575,8 +634,8 @@ s8 func_800F7E34(StageTrap *t) {
     return ret;
 }
 
-/** @brief One of this stage's on-screen prompts (D_800FB468, ended by a
- *         section of -1): shown when the player reaches its section. */
+/** @brief One of this stage's on-screen prompts, in a table ended by a
+ *         section of -1: shown when the player reaches its section. */
 typedef struct {
     s16 section; /**< the course section that starts it */
     s16 limit;   /**< frames it shows before it is dismissed */
@@ -906,7 +965,6 @@ s32 func_800F9BC0(void) {
     FntPrint("CDEXEC %d", gSubStep);
     return ret;
 }
-
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9F28);
 

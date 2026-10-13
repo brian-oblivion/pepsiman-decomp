@@ -806,21 +806,25 @@ u16 func_800FA580(s16 id, StageTrap *src, StageTrap *dst) {
     }
     return ret;
 }
-#ifdef NON_MATCHING
 void func_800FA6C0(void) {
     s16 yaw;
+    u8 one;
+    StartRec *st;
 
-    /* MATCHING: stored as the s16 it is read as. */
+    /* MATCHING: stored as the s16 it is read as; the start pointer and the 1
+     * in locals, set after gFellOff, order the first stores. */
     *(s16 *)&gCameraYaw = -0x201;
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
+    st = gStageStart;
+    one = 1;
+    gPlayLive = one;
+    yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
-    sCamOffset[1] = 0;
-    yaw = -gStageStart->yaw;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -828,23 +832,20 @@ void func_800FA6C0(void) {
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
     gFloorIndex = 0;
-    gCourse.x = gPlayer.x = -gStageStart->x;
+    gCourse.x = gPlayer.x = -st->x;
     gSteerYaw = yaw;
-    gCourse.y = gPlayer.y = -gStageStart->y;
+    gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
-    gCourse.z = gPlayer.z = -gStageStart->z;
     gBodyRot[0] = 0;
     gBodyRot[1] = 0;
     gBodyRot[2] = 0;
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800FA6C0);
-#endif
 void func_800FA800(void) {
     SpriteShapes shapes;
 

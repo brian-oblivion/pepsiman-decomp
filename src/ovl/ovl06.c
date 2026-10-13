@@ -933,33 +933,37 @@ s32 func_800FA3EC(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 void func_800FA754(void) {
     s16 yaw;
+    u8 one;
+    StartRec *st;
 
-    /* MATCHING: stored as the s16 it is read as. */
+    /* MATCHING: stored as the s16 it is read as; the start pointer and the 1
+     * in locals, set after gFellOff, order the first stores. */
     *(s16 *)&gCameraYaw = -2;
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
+    st = gStageStart;
+    one = 1;
+    gPlayLive = one;
+    yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
-    sCamOffset[1] = 0;
-    yaw = -gStageStart->yaw;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
-    gCourse.x = gPlayer.x = -gStageStart->x;
     gFloorIndex = 0;
-    gCourse.y = gPlayer.y = -gStageStart->y;
+    gCourse.x = gPlayer.x = -st->x;
     gSteerYaw = yaw;
-    gCourse.z = gPlayer.z = -gStageStart->z;
+    gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
@@ -969,9 +973,6 @@ void func_800FA754(void) {
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800FA754);
-#endif
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */

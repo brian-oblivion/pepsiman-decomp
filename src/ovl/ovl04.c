@@ -922,23 +922,25 @@ s32 func_800FA804(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 void func_800FABC4(void) {
     s16 yaw;
+    u8 one;
     StartRec *st;
 
-    /* MATCHING: stored as the s16 it is read as. */
+    /* MATCHING: stored as the s16 it is read as; the start pointer and the 1
+     * in locals, set after gFellOff, order the first stores. */
     *(s16 *)&gCameraYaw = -0xC00;
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
     st = gStageStart;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
-    gView[1] = 0;
-    sCamOffset[1] = 0;
+    one = 1;
+    gPlayLive = one;
     yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
+    gView[1] = 0;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -950,19 +952,16 @@ void func_800FABC4(void) {
     gSteerYaw = yaw;
     gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
-    gCourse.z = gPlayer.z = -st->z;
     gBodyRot[0] = 0;
     gBodyRot[1] = 0;
     gBodyRot[2] = 0;
     gView[1] = (s16)(gCourse.y - 150);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FABC4);
-#endif
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */

@@ -228,6 +228,11 @@ function's match report, not here.
 - **abs as one instruction with no label: `x >= 0 ? x : -x`** (the `abssi2`
   pattern). `if (x < 0) x = -x;` makes a CODE_LABEL that stops reorg filling
   later delay slots. (DrawObjectModel, DrawObjectSprite)
+- **A parameter masked `andi 0xFFFF` at each use is `u16`; one re-extended
+  `sll 24`/`sra 24` at each use or at entry is `s8`.** (ovl07)
+- **In an overlay a global read after stores to a record stays below them
+  only when declared `[]`**; as a scalar its `%hi`/`%lo` load is hoisted.
+  (ovl07)
 
 ## Loops
 
@@ -440,6 +445,17 @@ function's match report, not here.
   reaches it: read that slot's value before calling it a register choice.**
   Retail's `sb $v0` after a `li $v0, 3` slot was `gToolViewStep++` with the index
   known on that path. (UpdateToolView)
+- **Whether a switch becomes a jump table depends on the case count before
+  cc1 merges adjacent cases into ranges.** Two ranges with a shared default
+  stay a compare tree; an explicit `case 0:` beside `default:` makes the
+  table. A two-case switch tested `beq 1`, `bne 2` comes from writing case 2
+  first. Case bodies are laid out in source order. (ovl07 dispatchers)
+- **Two functions reading one rodata table copy a `const` struct defined
+  between them** (`Speeds sp = D;`); an initialized local array emits its own
+  rodata in function order. (ovl07)
+- **A frame larger than its locals: an unused `s32 unused[4]` or
+  `u8 pad[0x28]` declared before the other locals**, sized to retail's
+  offsets. (ovl07)
 
 ## Scheduling
 
@@ -612,3 +628,16 @@ function's match report, not here.
   `b = D[k + 2] << 8; b |= D[k + 3]; b ^= 0xFFFF;`. A narrowed copy reused in
   one block goes in a new local (`n = (u16)b;`), which local-alloc places and
   which moves a neighbouring load. (PollPads)
+- **Add order around a call: `x + (rand() % n - k)` or `x - (k - rand() % n)`
+  keeps retail's `x - k` before the remainder is added**; `x - k + rand() % n`
+  folds `-k` onto the remainder. (ovl07 trap steps)
+- **`a * 10 * dir` keeps the multiply's operands as retail has them where
+  `a * (dir * 10)` is reassociated.** (ovl07 trap dispatchers)
+- **A multiply whose timer `lhu` comes before the table `lw`:
+  `tbl[i] * (t->timer << 2)`**; `* 4` loads the table first, and the timer
+  first in the product swaps the `mult` operands. (ovl07)
+- **abs with the minuend's load hoisted above the branch:
+  `y = h - (d >= 0 ? d : -d);`**; an `if (d < 0) d = -d;` puts a label in the
+  way. Retail negating a temporary (`negu`) rather than folding
+  `-(s - k)` into `k - s` needs the value in a variable that the `if`
+  negates. (ovl07, ovl11)

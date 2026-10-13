@@ -86,7 +86,40 @@ void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapType20);
+void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
+    switch (t->state) {
+        case 0:
+            t->homeRotZ = 0;
+            t->state++;
+        case 1:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 2:
+            if (t->homeRotZ == 0) {
+                PolarToXZ((s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            } else {
+                PolarToXZ(-(s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            }
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (LatchProximity(t, 1500) != 0) {
+                PlaySe(0x84);
+            }
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            }
+            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+                PlaySe(0x39);
+            }
+            if (dir == 1 && arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
+                t->state--;
+                t->homeRotZ ^= 1;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapType29);
 

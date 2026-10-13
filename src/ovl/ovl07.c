@@ -43,40 +43,7 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", ResetSpawnedTraps);
 #endif
 #include "engine_code.inc" /* StepCheckpoint */
 #include "engine/step_flung_piece.inc"
-#ifdef NON_MATCHING
-void SpawnMissDebris(void) {
-    s16 models[15] = {4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 6, 0, 2, 5, 0};
-    s16 i;
-    s16 n;
-    StageTrap *t;
-
-    for (i = 0; i < 8; i++) {
-        n = FindFreeSlot48();
-        if (n == -1) {
-            break;
-        }
-        t = &sSpawnedTraps[n];
-        t->switchNo = 0xB8;
-        t->type = 0xFF;
-        t->act = 0x6A;
-        gSwitches[0xB8].state = SWITCH_ON;
-        t->homeY = gPlayer.groundY - 50;
-        t->x = rand() % 200 + gPlayer.x - 100;
-        t->z = rand() % 200 + gPlayer.z - 100;
-        t->model = models[gStage];
-        t->homeZ = rand() % 10 + 5;
-        t->homeX = sBurstHeights[i] / 2;
-        t->rotY = gCourse.rot.vy + sBurstSpins[i][0] * 40960 / 360 + 0x800;
-        t->homeRotX = 0;
-        t->timer = 0;
-        t->state = 0;
-        t->homeRotZ = rand() % 20 + 10;
-    }
-}
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", SpawnMissDebris);
-INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", sDebrisModelInit);
-#endif
+#include "engine/spawn_miss_debris.inc"
 #include "engine/step_miss_debris.inc"
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 

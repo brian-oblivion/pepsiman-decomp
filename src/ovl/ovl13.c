@@ -52,11 +52,9 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", ResetSpawnedTraps);
 
 #include "engine/step_flung_piece.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", SpawnMissDebris);
+#include "engine/spawn_miss_debris.inc"
 
 #include "engine/step_miss_debris.inc"
-
-INCLUDE_RODATA("asm/ovl/ovl13/nonmatchings/ovl13", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 

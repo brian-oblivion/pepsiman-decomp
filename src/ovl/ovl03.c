@@ -47,11 +47,9 @@ void ResetSpawnedTraps(void) {
 
 #include "engine/step_flung_piece.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SpawnMissDebris);
+#include "engine/spawn_miss_debris.inc"
 
 #include "engine/step_miss_debris.inc"
-
-INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 

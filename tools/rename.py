@@ -478,7 +478,12 @@ def main():
         print(f"    {n:4d}  {p.relative_to(ROOT)}")
     if report_old.exists():
         print(f"  report: {report_old.relative_to(ROOT)} -> {report_new.name}")
-    if not touched and symline is None and not report_old.exists() and not registering:
+    # An overlay's data placeholder may be named before any C uses it: its
+    # asm (regenerated from the symbols file) is the reference then.
+    in_ovl_asm = bool(OVL) and any(
+        pat.search(p.read_text(errors="replace")) for p in (ROOT / "asm/ovl" / OVL).rglob("*.s"))
+    if not touched and symline is None and not report_old.exists() and not registering \
+            and not in_ovl_asm:
         sys.exit("FATAL: nothing references the old name; is it spelled right?")
     for rel in ([] if OVL else sorted(RULE_DOCS)):
         rp = ROOT / rel

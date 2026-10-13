@@ -71,10 +71,8 @@ void ResetSpawnedTraps(void) {
 
 #include "engine/knock_trap_away.inc"
 
-#ifdef NON_MATCHING
 void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
     s16 n;
-    StageTrap *p;
     s32 d;
 
     switch (t->state) {
@@ -118,12 +116,13 @@ void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
                 }
             }
             if (spawn != 0 && t->homeRotZ < 5 && (t->timer == 180 || t->timer == 270)) {
-                n = FindFreeSlot48();
-                p = &sSpawnedTraps[n];
-                *p = *t;
+                /* MATCHING: the slot read as the word it returns, and the copy's
+                 * target through a cast, order the slot's address as retail. */
+                n = ((s32 (*)(void))FindFreeSlot48)();
+                *(StageTrap *)&sSpawnedTraps[n] = *t;
+                sSpawnedTraps[n].rotY = sSpawnedTraps[n].homeRotY = gCourse.rot.vy;
                 sSpawnedTraps[n].rotZ = 0;
                 sSpawnedTraps[n].rotX = 0;
-                sSpawnedTraps[n].rotY = sSpawnedTraps[n].homeRotY = gCourse.rot.vy;
                 sSpawnedTraps[n].x -= 25 - rand() % 50;
                 sSpawnedTraps[n].z -= 25 - rand() % 50;
                 sSpawnedTraps[n].state = 0;
@@ -136,9 +135,6 @@ void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", TumbleTrapAway);
-#endif
 
 #include "engine_code.inc" /* StepBouncingRoller */
 

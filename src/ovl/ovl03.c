@@ -328,13 +328,60 @@ void func_800F87E4(StageTrap *t) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", func_800F8B2C);
+void func_800F8B2C(StageTrap *t, s8 arg) {
+    PlacedPos p;
+    s16 models[9] = {0x17, 0x18, 0x19, 0x45, 0x46, 0x47, 0x49, 0x4A, 0x4B};
+    StageTrap *s;
+    s16 i;
+    s16 m;
+    s32 r;
+    s32 d;
+
+    i = FindFreeSlot48();
+    if (i != -1) {
+        s = &sSpawnedTraps[i];
+        *s = *t;
+        switch (arg) {
+            case 2:
+                p.lx = -80;
+                break;
+            case 1:
+                p.lx = 80;
+                break;
+            case 0:
+                p.lx = 20;
+                break;
+        }
+        PlaySe(0x61);
+        p.ly = 0;
+        p.lz = 0;
+        p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
+        UpdatePlacedPos(&p);
+        s->x = s->homeX = p.pos.vx;
+        s->y = s->homeY = p.pos.vy;
+        s->z = s->homeZ = p.pos.vz;
+        m = models[rand() % 9];
+        s->type = 0xFF;
+        s->act = 0x68;
+        s->state = 0;
+        s->timer = 40;
+        s->rotY += 0x800;
+        s->model = m;
+        d = (rand() % 3 - 1) * 227;
+        s->homeRotX = 100;
+        s->homeRotZ = -10;
+        s->homeX = 1;
+        *(s32 *)s->unk44 = arg;
+        s->homeRotY += d;
+        r = rand() % 720 + 360;
+        *(s16 *)s->unk38 = 0;
+        s->homeZ = r;
+    }
+}
 
 s32 func_800F8DF0(StageTrap *t) {
     return t->state == 0;
 }
-
-INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", D_800F056C);
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 

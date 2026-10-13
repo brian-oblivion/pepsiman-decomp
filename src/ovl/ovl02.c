@@ -101,7 +101,75 @@ void func_800F01EC(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F04EC);
+void func_800F04EC(SVECTOR *pos, s32 count, s32 frames) {
+    SColor color;
+    s32 x;
+    s32 n;
+    s32 m;
+    s32 d;
+    s32 k;
+    s32 t;
+    s32 sec;
+    /* MATCHING: two dead divisions keep the /10 and /100 constants in
+     * prologue registers; the /100 one only after the first draw. */
+    u32 dead;
+
+    dead = (s16)count / 10;
+    color.r = BLEND_ADD;
+    color.g = color.b = color.cd = 0x80;
+    x = pos->vx;
+    pos->vx -= 8;
+    DrawSprite(0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 8;
+    DrawSprite(0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 8;
+    DrawSprite(0x2F, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 8;
+    DrawSprite(0x39, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    n = count;
+    dead = (u32)frames / 100;
+    count /= 10;
+    pos->vx -= 8;
+    DrawSprite(n % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    if (count != 0) {
+        pos->vx -= 8;
+        DrawSprite(count % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    }
+    if (n / 100 != 0) {
+        pos->vx -= 8;
+        DrawSprite(n / 100 % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    }
+    n = frames * 100 / 30;
+    d = n;
+    d /= 10;
+    pos->vx = x - 8;
+    pos->vy += 8;
+    DrawSprite(n % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 8;
+    DrawSprite(d % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 8;
+    DrawSprite(0x38, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    sec = frames / 30;
+    m = sec / 60;
+    n = sec % 60;
+    k = 1;
+    d = n;
+    d /= 10;
+    pos->vx -= 8;
+    DrawSprite(n % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    pos->vx -= 8;
+    DrawSprite(d % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    n = m;
+    pos->vx -= 8;
+    DrawSprite(0x38, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    for (; k < 11; k *= 10) {
+        t = n / k;
+        if (t != 0 || (k == 1 && n == 0)) {
+            pos->vx -= 8;
+            DrawSprite(t % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        }
+    }
+}
 
 /** @brief Two words, copied as a pair (a unit-local view). */
 typedef struct {

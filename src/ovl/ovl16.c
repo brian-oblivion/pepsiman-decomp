@@ -327,12 +327,71 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", EmitTrapParticles);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F8D34);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F90F4);
+#ifdef NON_MATCHING
+void func_800F90F4(void) {
+    s16 yaw;
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F922C);
+    gCameraYaw = 0;
+    sCamHeight = 0;
+    sViewSpeed = 100;
+    gViewerAngle = 0xD8;
+    gFellOff = 0;
+    gPlayLive = 1;
+    sCamOffset[0] = 0;
+    gView[1] = 0;
+    sCamOffset[1] = 0;
+    yaw = -gStageStart->yaw;
+    gPlayer.motion[0] = 2;
+    gPlayer.control = 1;
+    gPlayer.hittable = 1;
+    gCourse.rot.vy = yaw;
+    gCourse.rot.vz = yaw;
+    gPlayer.startYaw = gPlayer.yaw = yaw;
+    gFloorIndex = 0;
+    gCourse.x = gPlayer.x = -gStageStart->x;
+    gSteerYaw = yaw;
+    gCourse.y = gPlayer.y = -gStageStart->y;
+    gSteerYawHalf = yaw;
+    gCourse.z = gPlayer.z = -gStageStart->z;
+    gPlayer.drawX = 0;
+    gPlayer.drawY = 0;
+    gPlayer.drawZ = 0;
+    gBodyRot[0] = 0;
+    gBodyRot[1] = 0;
+    gBodyRot[2] = 0;
+    gView[1] = (s16)(gCourse.y - 500);
+    RevealStartCans();
+}
+#else
+INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F90F4);
+#endif
+
+/* MATCHING: ret set before the table copy and again after the call, so it
+ * stays a register; set once it folds to a constant. */
+u16 func_800F922C(s16 id, StageTrap *src, StageTrap *dst) {
+    u16 ret = 1;
+    u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+                     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                     32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                     48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+                     64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79};
+
+    if (id < 80) {
+        if (id >= 0) {
+            dst->homeX = src->x;
+            dst->homeY = src->y;
+            dst->homeZ = src->z;
+            dst->homeRotX = src->rotX;
+            dst->homeRotY = src->rotY;
+            dst->homeRotZ = src->rotZ;
+            ResetObj34(dst);
+            dst->model = models[id];
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F936C);
-
-INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F08A0);
 
 INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F08F0);

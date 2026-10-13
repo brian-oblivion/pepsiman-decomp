@@ -1849,7 +1849,7 @@ void func_800F5324(StageTrap *t) {
     }
 }
 
-extern u16 D_8009EEF8;
+extern s16 D_8009EEF8[];
 
 #ifdef NON_MATCHING
 void func_800F557C(StageTrap *t) {
@@ -1863,7 +1863,7 @@ void func_800F557C(StageTrap *t) {
                 t->homeY = t->y;
                 /* MATCHING: read as a member at a fixed address, which keeps
                  * the load below the stores into t. */
-                t->homeRotY = ((SVECTOR *)&D_8009EEF8)->vx;
+                t->homeRotY = ((SVECTOR *)D_8009EEF8)->vx;
                 t->state++;
                 t->timer = 0;
             }
@@ -2550,10 +2550,7 @@ extern s8 D_800D3638;
 extern StageTrap D_800AC6E0;
 extern Vec3 D_8007AD68[];
 extern s16 D_800AC6B8;
-/* MATCHING: player's and model's views, declared only where defined; the
- * blend's result taken as a word. */
-s32 Lerp(s32 a, s32 b, u16 t, u16 n);
-void ScatterDust(VECTOR *pos);
+/* MATCHING: player's, declared only where defined. */
 void StopSpeed(void);
 void func_800F1A84(void);
 

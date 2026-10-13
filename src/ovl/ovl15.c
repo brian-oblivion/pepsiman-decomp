@@ -1,11 +1,7 @@
 /* Stage 5-1's overlay: the stage engine (engine.inc, engine_code.inc) with this
  * stage's own routines, and the engine functions still in asm. */
 
-/* MATCHING: retail's return types, where engine.inc's prototypes differ. */
-#define func_800F7968 func_800F7968_engine
 #include "engine.inc"
-#undef func_800F7968
-s32 func_800F7968(StageTrap *t);
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 

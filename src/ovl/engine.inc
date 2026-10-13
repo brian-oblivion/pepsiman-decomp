@@ -268,7 +268,7 @@ void func_800F8454(StageTrap *t);
 void func_800F87E4(StageTrap *t);
 s32 func_800F84A8(StageTrap *t);
 void func_800F74FC(StageTrap *t);
-void func_800F7968(StageTrap *t);
+s32 func_800F7968(StageTrap *t);
 void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg);
 void StepHoppingTrap(StageTrap *t, u8 act);
 void BurstTrapSlow(StageTrap *t);

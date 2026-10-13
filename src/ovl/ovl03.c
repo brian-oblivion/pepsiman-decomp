@@ -148,7 +148,74 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType2A);
 
 #include "engine/run_trap_along_path.inc"
 
+#ifdef NON_MATCHING
+void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
+    StageTrap c;
+    s32 unused[8];
+
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+            PlaySe(0x53);
+            if (dir == 3) {
+                PlaySe(0x11);
+            }
+        case 1:
+            if (LatchProximity(t, 2000) != 0) {
+                PlaySe(0x55);
+            }
+            if (SnapToFloor(t) == -1) {
+                t->y = t->homeY;
+            }
+            t->y -= 120;
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (speed != 0) {
+                switch (dir) {
+                    case 2:
+                        t->rotY = GetPathDirection(t) + 0x800;
+                        break;
+                    case 1:
+                    case 3:
+                        t->rotY = GetPathDirection(t);
+                        break;
+                    case 4:
+                        PolarToXZ(-(speed * 2), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                        t->x += gOffsetVec[0] >> 12;
+                        t->z += gOffsetVec[2] >> 12;
+                        if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
+                            t->state++;
+                        }
+                        break;
+                    case 5:
+                        if (gSection - UpdatePathSegment(t) >= 2) {
+                            t->state += 2;
+                        }
+                        break;
+                }
+            }
+        case 2:
+            c = *t;
+            c.model++;
+            t->timer++;
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+                UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
+                if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 &&
+                    gPlayer.hittable == 1) {
+                    PlaySe(0x37);
+                }
+            }
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType0F);
+#endif
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType12);
 

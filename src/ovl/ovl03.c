@@ -81,7 +81,32 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", TumbleTrapAway);
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
+#ifdef NON_MATCHING
+void StepTrapFFAct67(StageTrap *t) {
+    s32 h;
+
+    if (t->state == 0) {
+        PolarToXZ(-10, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        t->x += gOffsetVec[0] >> 12;
+        t->z += gOffsetVec[2] >> 12;
+        t->timer += 10;
+        h = rsin(t->timer * 4096 / 360) * 200 >> 12;
+        if (h < 0) {
+            h = -h;
+        }
+        t->y = t->homeY - h;
+        if (t->timer >= 180) {
+            PlaySe(0x49);
+            t->state++;
+        }
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapFFAct67);
+#endif
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapFFAct68);
 

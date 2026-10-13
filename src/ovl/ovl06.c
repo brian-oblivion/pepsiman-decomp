@@ -394,24 +394,153 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
     }
 }
 
-/* MATCHING: the engine dispatchers call this address inside the function above. */
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
 FUNC_ALIAS(func_800F74FC, StepHoppingTrap, 0x260);
 
 #include "engine/swap_trap_model_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepMissSequence);
+void StepMissSequence(void) {
+    s32 unused[18];
+    StageTrap *m;
+    u16 i;
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F7968);
+    m = &D_800AC6E0;
+    if (D_800D3638 == 1) {
+        switch (m->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                EndJump();
+                gMissState = -1;
+                D_800D39D8[0].homeRotZ = 0;
+                gFellOff = 1;
+                m->timer = 0;
+                D_800D39D8[0].homeX = gPlayer.x;
+                D_800D39D8[0].homeY = gPlayer.y;
+                D_800D39D8[0].homeZ = gPlayer.z;
+                gRefView[0] = gView[0];
+                gRefView[1] = gView[1];
+                gRefView[2] = gView[2];
+                gRefView[3] = gView[3];
+                gRefView[4] = gView[4];
+                gRefView[5] = gView[5];
+                m->state++;
+            case 1:
+                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 25);
+                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 25);
+                gView[1] = gRefView[1] + Lerp(0, 65, m->timer, 25);
+                gView[4] = gRefView[4] + Lerp(0, 50, m->timer, 25);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                if (++m->timer >= 26) {
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 2:
+                gPlayer.motion[0] = 0;
+                if (++m->timer != 0) {
+                    D_800AC6B8 = 90;
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 3:
+                if (++m->timer < 8 && m->timer % 2 == 0) {
+                    PlaySe(0x38);
+                }
+                if (m->timer >= 9) {
+                    m->timer = 0;
+                    m->state++;
+                    gOffsetVec[0] = gPlayer.x;
+                    gOffsetVec[2] = gPlayer.z;
+                    for (i = 0; i < 40; i++) {
+                        gOffsetVec[1] = gPlayer.y - i * 10;
+                        ScatterDust((VECTOR *)gOffsetVec);
+                    }
+                    gPlayer.rideMode = (gPlayer.rideMode & 0xF0) | 2;
+                    gSpeedFixed = 800;
+                    SpawnMissDebris();
+                    gMissState = 0;
+                    gFellOff = 0;
+                    D_800D39D8[1].state = 0;
+                    D_800D39D8[1].timer = 0;
+                    gPlayer.control = 1;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+            case 4:
+                DrawFrozenFrame();
+                if (++m->timer == 30) {
+                    m->state++;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F79A0);
+/* MATCHING: the engine dispatchers call these addresses inside the function
+ * above (other stages' entry points in their own overlays). */
+FUNC_ALIAS(func_800F7968, StepMissSequence, 0xB4);
+FUNC_ALIAS(func_800F79A0, StepMissSequence, 0xEC);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", UpdateGoalEventHook);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F8264);
+/* MATCHING: an unused 32-byte local gives retail's frame. */
+void func_800F8264(void) {
+    s32 unused[8];
+    s32 v;
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F82E0);
+    if (*(s8 *)&gFellOff == 0) {
+        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + 0x800;
+    }
+    gPlayer.editorY = gPlayer.groundY;
+    v = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
+    if (v != -1) {
+        gFloorIndex = v;
+        gStageParams = *(s32 *)&gFloorY[4];
+    }
+    gPlayer.groundY = gFloorY[0];
+    SetSpadStack();
+    UpdatePlayer();
+    UpdateStageLights();
+    if (*(s8 *)&gFellOff == 0) {
+        PushPlayerFromWalls();
+    }
+    DrawModeObject();
+    DrawPlayerShadow();
+    TestBoxes();
+    PairMarks();
+    ResetCollision();
+    UpdateStageEvents();
+    UpdateStageTraps();
+    UpdateStageSprites();
+    ReactToHits(&gPlayer);
+    if (*(s8 *)&gPlayLive == 1) {
+        UpdatePickups(&gSubOt[gActiveBuff]);
+    }
+    LeaveQuadTop();
+    UpdatePlayerAction(&gPlayer);
+    ResetSpadStack();
+    DrawTodObjects();
+    UnusedHook2();
+    PopInNextCan();
+    if (*(s8 *)&gPlayLive == 1) {
+        DrawStage(-gPlayer.x, 0, -gPlayer.z);
+        DrawSky(gStageParams);
+    }
+    UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
+}
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F8454);
+/* MATCHING: the engine dispatchers call these addresses inside the function
+ * above (other stages' entry points in their own overlays). */
+FUNC_ALIAS(func_800F82E0, func_800F8264, 0x7C);
+FUNC_ALIAS(func_800F8454, func_800F8264, 0x1F0);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F84A8);
 

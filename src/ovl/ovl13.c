@@ -798,10 +798,10 @@ FUNC_ALIAS(func_800F79A0, func_800F7844, 0x15C);
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
 
-#ifdef NON_MATCHING
+/* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F7A88(StageTrap *t) {
     s8 ret = 0;
-    s32 n = 35;
+    s16 n = 35;
     s16 m = 100;
 
     switch (t->state) {
@@ -887,9 +887,6 @@ s8 func_800F7A88(StageTrap *t) {
     }
     return ret;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F7A88);
-#endif
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this

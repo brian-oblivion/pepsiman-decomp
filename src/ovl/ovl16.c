@@ -460,20 +460,18 @@ void func_800F5E80(void) {
     func_800F8BD4();
 }
 
-#ifdef NON_MATCHING
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
 extern s32 D_800FE590[];
 
-/* Cases 0 and 1 differ: the original keeps the frame count n in a callee-saved
- * register (and sign-extends 40 at run time), where this folds it to a constant. */
+/* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F60CC(StageTrap *t) {
     s8 ret = 0;
-    s16 n;
+    s16 n = 20;
+    s16 m = 40;
 
     switch (t->state) {
         case 0:
-            n = 20;
             gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
             gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
             if (++t->timer > n) {
@@ -487,13 +485,12 @@ s8 func_800F60CC(StageTrap *t) {
             }
             break;
         case 1:
-            n = 40;
-            gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, n);
-            gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, n);
-            if (++t->timer < (s16)(n / 3)) {
+            gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, m);
+            gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, m);
+            if (++t->timer < (s16)(m / 3)) {
                 ScatterDust((VECTOR *)&gPlayer.x);
             }
-            if (t->timer > n) {
+            if (t->timer > m) {
                 gPlayer.action = 0;
                 gPlayer.motion[0] = 0x13;
                 t->timer = 0;
@@ -688,9 +685,6 @@ s8 func_800F60CC(StageTrap *t) {
     }
     return ret;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F60CC);
-#endif
 
 void func_800F6FA0(void) {
     s16 v;

@@ -339,17 +339,14 @@ extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
 extern s32 D_800FC060[];
 
-#ifdef NON_MATCHING
-/* Cases 0 and 1 do not match yet: the original never folds the frame
- * counts 35 and 100 to constants. */
+/* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F7EFC(StageTrap *t) {
     s8 ret = 0;
-    s32 n;
-    s16 m;
+    s16 n = 35;
+    s16 m = 100;
 
     switch (t->state) {
         case 0:
-            n = 35;
             gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
             gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
             if (++t->timer > n) {
@@ -363,7 +360,6 @@ s8 func_800F7EFC(StageTrap *t) {
             }
             break;
         case 1:
-            m = 100;
             gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, m);
             gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, m);
             if (++t->timer < (s16)(m / 3)) {
@@ -440,11 +436,8 @@ s8 func_800F7EFC(StageTrap *t) {
     return ret;
 }
 
-#else
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7EFC);
+FUNC_ALIAS(func_800F82E0, func_800F7EFC, 0x3E4);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F82E0);
-#endif
 
 void func_800F878C(StageTrap *t, s8 arg);
 

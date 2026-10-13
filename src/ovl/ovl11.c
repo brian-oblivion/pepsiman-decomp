@@ -249,27 +249,27 @@ typedef struct {
     u8 pad[4]; /**< unused */
 } WipeRow;
 
-/* The packet being built, in the packet buffer. */
-#define sLine ((LineF2 *)GsOUT_PACKET_P)
 /* The wipe's rows. */
 #define sWipe ((WipeRow *)gSwitches)
 
 /* Draws the stage's closing caption, two sprites sliding in, then wipes
  * the screen with 240 black lines, each growing at its own speed. */
-#ifdef NON_MATCHING
 void func_800F09D8(void) {
     s16 quad[8];
     SColor color;
-    s16 t;
+    s32 d;
+    s32 t;
     s32 i;
     WipeRow *w;
+    LineF2 *line;
 
     if ((u16)D_800D39D8.title - 60 < 8U) {
-        t = D_800D39D8.title - 60;
-        quad[0] = (t << 5) - 0x180;
+        /* MATCHING: its own temporary, not the one the second caption uses. */
+        d = D_800D39D8.title - 60;
+        quad[0] = (d << 5) - 0x180;
         quad[1] = -64;
         color.r = 1;
-        color.g = color.b = color.cd = t * 16;
+        color.g = color.b = color.cd = d * 16;
         DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     if ((u16)D_800D39D8.title - 68 < 8U) {
@@ -298,27 +298,28 @@ void func_800F09D8(void) {
         DrawSprite(33, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     if (D_800D39D8.title >= 150) {
-        w = sWipe;
-        for (i = 0; i < 240; i++, w++) {
-            setlen(sLine, 3);
-            sLine->rgbc = 0;
-            setcode(sLine, 0x40);
-            sLine->x0 = -160;
-            sLine->y0 = sLine->y1 = i - 120;
-            sLine->x1 = w->x;
+        /* MATCHING: the row indexed, not stepped, so the loop's invariants
+         * come first. */
+        for (i = 0; i < 240; i++) {
+            w = &sWipe[i];
+            line = (LineF2 *)GsOUT_PACKET_P;
+            setlen(line, 3);
+            line->rgbc = 0;
+            setcode(line, 0x40);
+            line->x0 = -160;
+            line->x1 = w->x;
+            line->y0 = line->y1 = i - 120;
             w->x += w->speed;
             if (w->x >= 160) {
                 w->x = 160;
             }
-            addPrim(gSubOt[gActiveBuff].org, sLine);
-            GsOUT_PACKET_P += sizeof(LineF2);
+            addPrim(gSubOt[gActiveBuff].org, line);
+            line++;
+            GsOUT_PACKET_P = (PACKET *)line;
         }
     }
     D_800D39D8.title++;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F09D8);
-#endif
 
 s32 StepChasePiece0(Act3Obj *o) {
     s32 unused[2];
@@ -1231,7 +1232,6 @@ extern u8 *gSkyColors;
 void func_800F0234(void);
 void func_800F0590(void);
 void func_800F06E0(void);
-void func_800F09D8(void);
 void SetChaseLights(void);
 void PlaceChaseObjects(void);
 

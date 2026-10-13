@@ -544,9 +544,64 @@ FUNC_ALIAS(func_800F8454, func_800F8264, 0x1F0);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F84A8);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F87E0);
+void func_800F87E0(StageTrap *t, s8 dir) {
+    PlacedPos p;
+    StageTrap *s;
+    s16 n;
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F87E4);
+    n = FindFreeSlot48();
+    if (n != -1) {
+        s = &sSpawnedTraps[n];
+        *s = *t;
+        switch (dir) {
+            case 2:
+                p.lx = -80;
+                break;
+            case 1:
+                p.lx = 80;
+                break;
+            case 3:
+                p.lx = 0;
+                break;
+        }
+        p.ly = 0;
+        p.lz = 0;
+        p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
+        UpdatePlacedPos(&p);
+        s->x = s->homeX = p.pos.vx;
+        s->y = s->homeY = p.pos.vy;
+        s->z = s->homeZ = p.pos.vz;
+        s->model = 10;
+        s->type = 0xFF;
+        s->act = 100;
+        s->state = 0;
+        s->timer = 90;
+    }
+}
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+/* MATCHING: the engine dispatchers call this address inside the function
+ * above (another stage's entry point in its own overlay). */
+FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F8960);
 

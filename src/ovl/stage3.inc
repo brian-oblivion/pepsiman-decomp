@@ -1,8 +1,8 @@
 /* The code of world 3's free-running stages, 3-1 (ovl09) and 3-2 (ovl10):
  * the stages' own traps and hooks, run by stage_overlay and stage_flow. The
  * two overlays differ only in their data. The including unit defines
- * STAGE3_ASM_04C4, STAGE3_ASM_1908 and STAGE3_RODATA_SHAPES as its own
- * INCLUDE_ASM and INCLUDE_RODATA lines for what is still asm. */
+ * STAGE3_RODATA_SHAPES as its own INCLUDE_RODATA line for what is still
+ * asm. */
 
 #include "common.h"
 #include "libgte.h"
@@ -264,7 +264,6 @@ void func_800F02E8(StageTrap *t) {
     }
 }
 
-#ifdef NON_MATCHING
 void func_800F04C4(StageTrap *t) {
     s32 v;
 
@@ -286,9 +285,8 @@ void func_800F04C4(StageTrap *t) {
             t->rotX -= 0x71;
             t->timer = (t->timer + 10) % 360;
             v = rsin(t->timer * 4096 / 360) * 200 >> 12;
-            if (v < 0) {
-                v = -v;
-            }
+            /* MATCHING: abs as one insn keeps v block-local. */
+            v = v >= 0 ? v : -v;
             t->y = t->homeY - v;
             if (++t->homeX == 50) {
                 t->state++;
@@ -299,9 +297,6 @@ void func_800F04C4(StageTrap *t) {
             break;
     }
 }
-#else
-STAGE3_ASM_04C4
-#endif
 
 void func_800F06F4(StageTrap *t, s8 dir) {
     s32 a;
@@ -699,21 +694,25 @@ void func_800F15E4(void) {
     InitModel(&gObjectModels[37], (unsigned long *)0x80155000, 37);
 }
 
-#ifdef NON_MATCHING
 void func_800F1908(void) {
     s16 yaw;
+    u8 one;
+    StartRec *st;
 
-    /* MATCHING: stored as the s16 it is read as. */
+    /* MATCHING: stored as the s16 it is read as; the start pointer and the 1
+     * in locals, set after gFellOff, order the first stores. */
     *(s16 *)&gCameraYaw = -0x201;
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    sCamOffset[0] = 0;
+    st = gStageStart;
+    one = 1;
+    gPlayLive = one;
+    yaw = -st->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
-    sCamOffset[1] = 0;
-    yaw = -gStageStart->yaw;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
@@ -721,11 +720,11 @@ void func_800F1908(void) {
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
     gFloorIndex = 0;
-    gCourse.x = gPlayer.x = -gStageStart->x;
+    gCourse.x = gPlayer.x = -st->x;
     gSteerYaw = yaw;
-    gCourse.y = gPlayer.y = -gStageStart->y;
+    gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
-    gCourse.z = gPlayer.z = -gStageStart->z;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
@@ -735,9 +734,6 @@ void func_800F1908(void) {
     gView[1] = (s16)(gCourse.y - 150);
     func_800F0EEC();
 }
-#else
-STAGE3_ASM_1908
-#endif
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */

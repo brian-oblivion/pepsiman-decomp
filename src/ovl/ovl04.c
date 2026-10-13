@@ -75,17 +75,176 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepHoppingTrap);
 
 #include "engine/swap_trap_model_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepMissSequence);
+void StepMissSequence(void) {
+    s32 unused[18];
+    StageTrap *m;
+    u16 i;
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F74FC);
+    m = &D_800AC6E0;
+    if (D_800D3638 == 1) {
+        switch (m->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                EndJump();
+                gMissState = -1;
+                D_800D39D8[0].homeRotZ = 0;
+                gFellOff = 1;
+                m->timer = 0;
+                D_800D39D8[0].homeX = gPlayer.x;
+                D_800D39D8[0].homeY = gPlayer.y;
+                D_800D39D8[0].homeZ = gPlayer.z;
+                gRefView[0] = gView[0];
+                gRefView[1] = gView[1];
+                gRefView[2] = gView[2];
+                gRefView[3] = gView[3];
+                gRefView[4] = gView[4];
+                gRefView[5] = gView[5];
+                m->state++;
+            case 1:
+                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 25);
+                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 25);
+                gView[1] = gRefView[1] + Lerp(0, 65, m->timer, 25);
+                gView[4] = gRefView[4] + Lerp(0, 50, m->timer, 25);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                if (++m->timer >= 26) {
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 2:
+                gPlayer.motion[0] = 0;
+                if (++m->timer != 0) {
+                    D_800AC6B8 = 90;
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 3:
+                if (++m->timer < 8 && m->timer % 2 == 0) {
+                    PlaySe(0x38);
+                }
+                if (m->timer >= 9) {
+                    m->timer = 0;
+                    m->state++;
+                    gOffsetVec[0] = gPlayer.x;
+                    gOffsetVec[2] = gPlayer.z;
+                    for (i = 0; i < 40; i++) {
+                        gOffsetVec[1] = gPlayer.y - i * 10;
+                        ScatterDust((VECTOR *)gOffsetVec);
+                    }
+                    gPlayer.rideMode = (gPlayer.rideMode & RIDE_ITEM_MASK) | RIDE_BOARD;
+                    gSpeedFixed = 800;
+                    SpawnMissDebris();
+                    gMissState = 0;
+                    gFellOff = 0;
+                    D_800D39D8[1].state = 0;
+                    D_800D39D8[1].timer = 0;
+                    gPlayer.control = 1;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+            case 4:
+                DrawFrozenFrame();
+                if (++m->timer == 30) {
+                    m->state++;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepGoalSequence);
+/* MATCHING: the dispatchers call this stage entry point, which in this
+ * overlay lands inside the function above. */
+FUNC_ALIAS(func_800F74FC, StepMissSequence, 0x12C);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", CycleGoalLights);
+s8 func_800F7EFC(StageTrap *t);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7968);
+void StepGoalSequence(void) {
+    StageTrap *t;
+    StageTrap *u;
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F79A0);
+    t = sGoalTraps;
+    u = &sGoalTraps[1];
+    if (D_800D37A8 == 1) {
+        ResetRumble();
+        DrawFrozenFrame();
+        switch (t->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                gMissState = -2;
+                ClipF = 1;
+                t->timer = 0;
+                u->homeX = gPlayer.x;
+                u->homeY = gPlayer.y;
+                u->homeZ = gPlayer.z;
+                t->state++;
+            case 1:
+                if (func_800F7EFC(u)) {
+                    t->state++;
+                    StartActResults();
+                }
+                break;
+            case 2:
+                if (IsResultsActive() == 0) {
+                    t->state++;
+                }
+                break;
+            case 3:
+                t->state++;
+                break;
+            case 4:
+                if (gInEditor != 1) {
+                    if (gStageTableSet != 3) {
+                        t->timer = 0;
+                        t->state++;
+                    } else {
+                        gGameMode = 6;
+                        gModeStep = 0;
+                        ClipF = 0;
+                    }
+                }
+                break;
+            case 5:
+                if (++t->timer >= 9) {
+                    gStage = GetNextStage(1);
+                    BeginAct3LoadScreen();
+                    ClipF = 0;
+                }
+                break;
+        }
+    }
+}
+
+void func_800FA694(u8 *dir, u16 first, u16 count);
+
+void CycleGoalLights(s8 arg) {
+    u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
+    s16 i;
+
+    if (gSectionEdges[-1] - gSection < 20) {
+        for (i = 0; i < 8; i++) {
+            if (gFrameCount % periods[i] == 0) {
+                func_800FA694((u8 *)0x8018D000, i * 4 + arg * 2, 1);
+            } else if (gFrameCount % periods[i] == periods[i] >> 1) {
+                func_800FA694((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
+            }
+        }
+    }
+}
+
+/* MATCHING: the type dispatchers call these two addresses inside the
+ * function above (other stages' entry points in their own overlays). */
+FUNC_ALIAS(func_800F7968, CycleGoalLights, 0x4);
+FUNC_ALIAS(func_800F79A0, CycleGoalLights, 0x3C);
 
 #include "engine/step_stage_frame.inc"
 
@@ -141,8 +300,6 @@ void func_800F7CE0(StageTrap *m) {
         }
     }
 }
-
-INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", D_800F04F0);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7EFC);
 

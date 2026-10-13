@@ -254,11 +254,11 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
     switch (t->state) {
         case 0:
             /* MATCHING: retail stores the slot unextended, as if from an s32. */
-            t->slot = ((s32 (*)(void))FindFreeSlot48)();
-            sSpawnedTraps[t->slot] = *t;
-            sSpawnedTraps[t->slot].model = t->model + 1;
-            sSpawnedTraps[t->slot].state = 4;
-            sSpawnedTraps[t->slot].y = t->y -= 150;
+            t->aux = ((s32 (*)(void))FindFreeSlot48)();
+            sSpawnedTraps[t->aux] = *t;
+            sSpawnedTraps[t->aux].model = t->model + 1;
+            sSpawnedTraps[t->aux].state = 4;
+            sSpawnedTraps[t->aux].y = t->y -= 150;
             t->timer = 0;
             t->state++;
             PlaySe(0x53);
@@ -267,8 +267,8 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
                 PlaySe(0x55);
             }
             PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[t->slot].x = t->x += gOffsetVec[0] >> 12;
-            sSpawnedTraps[t->slot].z = t->z += gOffsetVec[2] >> 12;
+            sSpawnedTraps[t->aux].x = t->x += gOffsetVec[0] >> 12;
+            sSpawnedTraps[t->aux].z = t->z += gOffsetVec[2] >> 12;
             t->timer++;
             if (t->timer > arg) {
                 t->timer = 0;
@@ -279,10 +279,10 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
             break;
         case 2:
             PolarToXZ(Lerp(45, 0, t->timer, 40), (t->homeRotY + 227) * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[t->slot].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
-            sSpawnedTraps[t->slot].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
+            sSpawnedTraps[t->aux].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
+            sSpawnedTraps[t->aux].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
             t->rotY -= 11;
-            sSpawnedTraps[t->slot].rotY += 5;
+            sSpawnedTraps[t->aux].rotY += 5;
             SpawnEffect(4, (s16)t->x - (100 - rand() % 200), (s16)t->y + 100,
                         (s16)t->z - (100 - rand() % 200), 0);
             if (++t->timer == 40) {
@@ -1003,7 +1003,7 @@ void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {}
+void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {}
 

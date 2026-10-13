@@ -70,13 +70,14 @@ typedef struct {
     s32 lightAngle2; /**< from the floor lookup */
     s16 switchNo;    /**< the switch that triggers it */
     s16 model;       /**< its ObjectModel entry; -1 when free */
-    u8 unk38[4];     /**< not yet known */
+    s16 counter;     /**< a count some traps keep */
+    u8 unk3A[2];     /**< not yet known */
     s32 section;     /**< the section it was placed in */
     u8 touched;      /**< 1 when the player touched one of its hit points this frame */
     u8 unk41;        /**< not yet known */
     u8 type;         /**< what it does, the step it runs */
     u8 act;          /**< its act */
-    s32 slot;        /**< its copy in sSpawnedTraps, from FindFreeSlot48 */
+    s32 aux;         /**< a word some traps keep: their copy's slot in sSpawnedTraps, or a mode */
 } StageTrap;
 
 /** @brief An object model slot as a model with its own transform. */
@@ -252,7 +253,7 @@ void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir);
 void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2);
 void StepTrapType1E(StageTrap *t, u16 speed);
 void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir);
-void StepTrapType2A(StageTrap *t, s32 speed, s32 arg);
+void StepTrapType2A(StageTrap *t, u16 speed, s32 arg);
 void StepTrapType29(StageTrap *t, s32 arg, s8 arg2);
 void StepTrapType27(StageTrap *t, s32 arg);
 void StepTrapType31(StageTrap *t, s32 arg);

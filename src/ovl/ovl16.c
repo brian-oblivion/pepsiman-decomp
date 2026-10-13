@@ -922,7 +922,7 @@ void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
 
 void StepTrapType1E(StageTrap *t, u16 speed) {}
 
-void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {}
+void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepTrapType31(StageTrap *t, s32 arg) {}
 

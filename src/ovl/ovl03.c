@@ -106,10 +106,7 @@ void StepTrapAct27(StageTrap *t) {
 
 #include "engine/step_trap_forward.inc"
 
-#ifdef NON_MATCHING
-/* Matches with speed declared u16 (and -speed); that needs engine.inc's
- * prototype and the other overlays' stubs changed to u16. */
-void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {
+void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {
     switch (t->state) {
         case 0:
             t->homeX = t->x;
@@ -119,7 +116,7 @@ void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {
         case 1:
             SnapToFloor(t);
             t->y -= 20;
-            PolarToXZ(-(u16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(-speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
@@ -136,9 +133,6 @@ void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType2A);
-#endif
 
 #include "engine/step_trap_forward_level.inc"
 
@@ -280,16 +274,16 @@ void StepTrapFFAct68(StageTrap *t) {
             if (t->timer == 180) {
                 PlaySe(0x38);
             }
-            if (*(s32 *)t->unk44 != 3) {
-                t->homeZ -= ++*(s16 *)t->unk38;
+            if (t->aux != 3) {
+                t->homeZ -= ++t->counter;
                 yaw = gCourse.rot.vy;
                 if (t->homeZ < 0) {
                     t->homeZ = 0;
                 }
-                if (*(s32 *)t->unk44 == 2) {
+                if (t->aux == 2) {
                     yaw += (t->homeZ << 12) / 360;
                 }
-                if (*(s32 *)t->unk44 == 1) {
+                if (t->aux == 1) {
                     yaw += -(t->homeZ << 12) / 360;
                 }
                 t->rotY = yaw;
@@ -982,10 +976,10 @@ void func_800F8B2C(StageTrap *t, s8 arg) {
         s->homeRotX = 100;
         s->homeRotZ = -10;
         s->homeX = 1;
-        *(s32 *)s->unk44 = arg;
+        s->aux = arg;
         s->homeRotY += d;
         r = rand() % 720 + 360;
-        *(s16 *)s->unk38 = 0;
+        s->counter = 0;
         s->homeZ = r;
     }
 }

@@ -331,7 +331,7 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", SpinTrapAway);
 
 #include "engine/burst_raised_trap.inc"
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", ToppleTrapOnApproach);
+#include "engine/topple_trap_on_approach.inc"
 
 #include "engine/scatter_trap_dust.inc"
 

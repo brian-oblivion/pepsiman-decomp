@@ -7,6 +7,7 @@
 #include "sound.h"
 #include "libsnd.h"
 #include "libmcrd.h"
+#include "libpad.h"
 #include "rand.h"
 #include "model.h"
 #include "draw.h"
@@ -376,7 +377,1740 @@ void func_800F1494(s32 i) {
 
 INCLUDE_RODATA("asm/ovl/ovl02/nonmatchings/ovl02", D_800F0000);
 
+/* MATCHING: a complete type, so &sAct3Coords[k] is one constant. */
+extern GsCOORDINATE2 sAct3Coords[3];
+extern GsCOORDINATE2 D_800CEF90;
+extern GsCOORDINATE2 D_800CEFE0;
+extern SVECTOR D_800FA230;
+extern s32 D_800FA228;
+extern s32 D_800FA238;
+extern s32 D_800FA23C;
+extern s32 D_800FA244;
+extern s32 D_800FA248;
+extern s32 D_800FA254;
+extern s32 D_800FA258;
+extern s8 D_800FA260[];
+extern s8 D_800FA268;
+extern s32 D_800FA26C;
+extern s32 D_800FA274;
+extern s32 D_80095984;
+extern s32 D_80095998;
+extern u8 D_800F9460[];
+extern s8 D_800F9660[][4];
+extern Pair8 gActTimes;
+extern Pair8 gActCans;
+extern Pair8 D_800958C0;
+extern u16 gRumbleTime;
+extern u16 gRumbleSmall[];
+
+#ifdef NON_MATCHING
+void func_800F1570(void) {
+    SVECTOR pos;
+    SVECTOR p2;
+    SVECTOR unused;
+    SColor col;
+    SColor norm;
+    SColor hi;
+    u32 i;
+    s32 t;
+    s32 d;
+
+    switch (gSubStep) {
+        case 50:
+            D_800FA258 = 0;
+            func_800F0E58();
+            GsInitCoordinate2(&sAct3Coords[0], NULL);
+            GsInitCoordinate2(&sAct3Coords[1], NULL);
+            GsInitCoordinate2(&sAct3Coords[2], NULL);
+            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D018 + 0x8019D004));
+            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D01C + 0x8019D004));
+            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D020 + 0x8019D004));
+            GsLinkObject4(*(s32 *)0x8019D018 + 0x8019D00C, &sAct3Objs[0], 0);
+            GsLinkObject4(*(s32 *)0x8019D01C + 0x8019D00C, &sAct3Objs[1], 0);
+            GsLinkObject4(*(s32 *)0x8019D020 + 0x8019D00C, &sAct3Objs[2], 0);
+            sAct3Objs[0].coord2 = &sAct3Coords[0];
+            sAct3Objs[0].attribute = 0;
+            sAct3Objs[1].coord2 = &D_800CEF90;
+            sAct3Objs[1].attribute = 0;
+            sAct3Objs[2].coord2 = &D_800CEFE0;
+            sAct3Objs[2].attribute = 0;
+            D_8009EA78[0].vx = D_8009EA78[1].vx = D_8009EA78[2].vx = 0;
+            D_8009EA78[0].vy = D_8009EA78[1].vy = D_8009EA78[2].vy = 0;
+            D_8009EA78[0].vz = D_8009EA78[1].vz = D_8009EA78[2].vz = 0;
+            D_8009EB58[0].vx = D_8009EB58[1].vx = D_8009EB58[2].vx = 0;
+            D_8009EB58[0].vy = D_8009EB58[1].vy = D_8009EB58[2].vy = 0;
+            D_8009EB58[0].vz = D_8009EB58[1].vz = D_8009EB58[2].vz = 0;
+            sLights.l[0].r = 0x80;
+            sLights.l[0].g = 0x80;
+            sLights.l[0].b = 0x80;
+            sLights.l[1].r = 0x80;
+            sLights.l[1].g = 0x80;
+            sLights.l[1].b = 0x80;
+            sLights.l[2].r = 0x80;
+            sLights.l[2].g = 0x80;
+            sLights.l[2].b = 0x80;
+            sLights.l[0].vx = 0;
+            sLights.l[0].vy = 100;
+            sLights.l[0].vz = 100;
+            GsSetFlatLight(0, &sLights.l[0]);
+            sLights.l[1].vx = 0x56;
+            sLights.l[1].vy = 100;
+            sLights.l[1].vz = -50;
+            GsSetFlatLight(1, &sLights.l[1]);
+            sLights.l[2].vx = -0x56;
+            sLights.l[2].vy = 100;
+            sLights.l[2].vz = -50;
+            GsSetFlatLight(2, &sLights.l[2]);
+            gPlayer.action = 0x61;
+            gPlayer.motion[0] = 3;
+            gPlayer.x = 0;
+            gPlayer.y = 0;
+            gPlayer.z = 0;
+            gPlayer.yaw = 0;
+            D_800FA230.vx = 0;
+            D_800FA230.vy = 0;
+            D_800FA230.vz = 0;
+            switch (gStageTableSet) {
+                case -1:
+                case 0:
+                case 1:
+                    gSubStep = 100;
+                    break;
+                case 2:
+                case 3:
+                    D_800FA258 = 2;
+                    gSubStep = 1000;
+                    break;
+            }
+            break;
+        case 100:
+            D_800FA258 = 0;
+            D_800FA268 = 0;
+            D_800FA260[D_800FA268] = 0;
+            D_800FA268++;
+            if (D_800957A0 != -1) {
+                D_800FA260[D_800FA268] = 1;
+                D_800FA268++;
+            }
+            if (*(s8 *)&gGameCleared != 0) {
+                D_800FA260[D_800FA268] = 2;
+                D_800FA268++;
+            }
+            if (*(s8 *)&gAllTargetsBeaten != 0) {
+                D_800FA260[D_800FA268] = 3;
+                D_800FA268++;
+            }
+            D_800FA260[D_800FA268] = 4;
+            D_800FA268++;
+            D_800FA260[D_800FA268] = 5;
+            D_800FA268++;
+            D_800FA260[D_800FA268] = 6;
+            D_800FA268++;
+            D_800FA274 = 0;
+            D_800FA244 = 0;
+            gSubStep = 101;
+            break;
+        case 101:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            D_800FA244++;
+            for (i = 0; (s32)i < D_800FA268; i++) {
+                t = D_800FA244 - i * 2;
+                if (t > 8) {
+                    t = 8;
+                }
+                pos.vx = t * 32 - 0x150;
+                pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
+                DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            if (D_800FA244 == D_800FA268 * 2 + 8) {
+                gSubStep = 102;
+            }
+            break;
+        case 102:
+            norm.r = -1;
+            norm.g = norm.b = norm.cd = 0x80;
+            hi.r = -1;
+            hi.g = hi.b = 0x80;
+            hi.cd = 0;
+            for (i = 0; (s32)i < D_800FA268; i++) {
+                if (i == D_800FA274) {
+                    col = hi;
+                } else {
+                    col = norm;
+                }
+                pos.vx = -0x50;
+                pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
+                DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            p2.vx = -0x50;
+            p2.vy = D_800FA274 * 24 - D_800FA268 * 12 - 0x15;
+            func_800F8708(&p2, 1);
+            if (gPadTrig & PADLup) {
+                PlaySe(0xB);
+                if (D_800FA274 == 0) {
+                    D_800FA274 = D_800FA268 - 1;
+                } else {
+                    D_800FA274--;
+                }
+            } else if (gPadTrig & PADLdown) {
+                PlaySe(0xB);
+                if (D_800FA274 == D_800FA268 - 1) {
+                    D_800FA274 = 0;
+                } else {
+                    D_800FA274++;
+                }
+            } else if (gPadTrig & PADRright) {
+                PlaySe(0xC);
+                switch (D_800FA260[D_800FA274]) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        D_800FA244 = 0;
+                        gSubStep = 103;
+                        break;
+                    case 5:
+                        D_800FA228 = 0;
+                        gSubStep = 5000;
+                        break;
+                    case 6:
+                        D_800FA228 = 0;
+                        gSubStep = 6000;
+                        break;
+                }
+            }
+            break;
+        case 103:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            D_800FA244++;
+            for (i = 0; (s32)i < D_800FA268; i++) {
+                t = D_800FA244 - i * 2;
+                if (t < 0) {
+                    t = 0;
+                }
+                pos.vx = t * 32 - 0x50;
+                pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
+                DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            if (D_800FA244 == D_800FA268 * 2 + 12) {
+                switch (D_800FA260[D_800FA274]) {
+                    case 0:
+                        gStageTableSet = 0;
+                        gRetries = 3;
+                        gStage = 0;
+                        gGameMode = 0x2C;
+                        break;
+                    case 1:
+                        gRetries = 3;
+                        if (D_800957A0 >= 100) {
+                            gStageTableSet = 1;
+                            gStage = D_800957A0 - 100;
+                        } else {
+                            gStageTableSet = 0;
+                            gStage = D_800957A0;
+                        }
+                        gActTimes.a = D_800958C0.a;
+                        gActTimes.b = D_800958C0.b;
+                        gActCans.a = D_80095978.a;
+                        gActCans.b = D_80095978.b;
+                        switch ((u8)(gStage % 3)) {
+                            case 0:
+                                BeginLoadScreenModel();
+                                break;
+                            case 1:
+                                BeginLoadScreen();
+                                break;
+                            case 2:
+                                BeginAct3LoadScreen();
+                                break;
+                        }
+                        break;
+                    case 2:
+                        gSubStep = 1000;
+                        break;
+                    case 3:
+                        gStageTableSet = 1;
+                        gRetries = 3;
+                        gStage = 0;
+                        gGameMode = 0x2C;
+                        break;
+                    case 4:
+                        D_800FA23C = 0;
+                        gSubStep = 2000;
+                        break;
+                }
+            }
+            break;
+        case 1000:
+            D_800FA258 = 2;
+            D_800FA244 = 0;
+            D_800FA248 = 0;
+            gSubStep++;
+            break;
+        case 1001:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = ++D_800FA244;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x150;
+            pos.vy = -0x58;
+            DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 2;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x130;
+            pos.vy = -0x38;
+            DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vy = pos.vy;
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
+            }
+            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
+            }
+            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 4;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = -0x18;
+            DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 6;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = 8;
+            DrawSprite(0x2A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vx = pos.vx + 0x100;
+            p2.vy = pos.vy;
+            pos.vx += 0x90;
+            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            func_800F04EC(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            t = D_800FA244 - 8;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = 0x28;
+            DrawSprite(0x2B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vx = pos.vx + 0x100;
+            p2.vy = pos.vy;
+            pos.vx += 0x90;
+            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            func_800F04EC(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            t = D_800FA244 - 10;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = 0x48;
+            DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 == 20) {
+                gSubStep = 1002;
+            }
+            break;
+        case 1002:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            norm.r = -1;
+            norm.g = norm.b = norm.cd = 0x80;
+            hi.r = -1;
+            hi.g = hi.b = 0x80;
+            hi.cd = 0;
+            pos.vx = -0x50;
+            pos.vy = -0x58;
+            DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx = -0x30;
+            pos.vy = -0x38;
+            DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vy = pos.vy;
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
+            }
+            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
+            }
+            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 < 16) {
+                D_800FA244++;
+            }
+            if (D_80095984 == 0) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            t = D_800FA244;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = -0x18;
+            DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_80095984 == 1) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            t = D_800FA244 - 2;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = 8;
+            DrawSprite(0x2A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            p2.vx = pos.vx + 0x100;
+            p2.vy = pos.vy;
+            pos.vx += 0x90;
+            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            func_800F04EC(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            if (D_80095984 == 2) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            t = D_800FA244 - 4;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = 0x28;
+            DrawSprite(0x2B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            p2.vx = pos.vx + 0x100;
+            p2.vy = pos.vy;
+            pos.vx += 0x90;
+            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            func_800F04EC(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            if (D_80095984 == 3) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            t = D_800FA244 - 6;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = 0x48;
+            DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 >= 16) {
+                p2.vx = -0x8E;
+                p2.vy = D_80095984 * 32 - 0x21;
+                func_800F8708(&p2, 2);
+            }
+            if (gPadTrig & PADLleft) {
+                PlaySe(0xB);
+                D_800FA244 = 0;
+                if (D_80095998 == 0) {
+                    D_80095998 = 3;
+                } else {
+                    D_80095998--;
+                }
+            } else if (gPadTrig & PADLright) {
+                PlaySe(0xB);
+                D_800FA244 = 0;
+                if (D_80095998 == 3) {
+                    D_80095998 = 0;
+                } else {
+                    D_80095998++;
+                }
+            } else if (gPadTrig & PADLup) {
+                if (D_800FA244 >= 16) {
+                    PlaySe(0xB);
+                    if (D_80095984 == 0) {
+                        D_80095984 = 3;
+                    } else {
+                        D_80095984--;
+                    }
+                }
+            } else if (gPadTrig & PADLdown) {
+                if (D_800FA244 >= 16) {
+                    PlaySe(0xB);
+                    if (D_80095984 == 3) {
+                        D_80095984 = 0;
+                    } else {
+                        D_80095984++;
+                    }
+                }
+            } else if (gPadTrig & PADRdown) {
+                if (D_800FA244 >= 16) {
+                    PlaySe(0xE);
+                    D_800FA248 = 1;
+                    D_800FA244 = 0;
+                    gSubStep = 1003;
+                }
+            } else if (gPadTrig & PADRright) {
+                if (D_800FA244 >= 16) {
+                    PlaySe(0xC);
+                    D_800FA244 = 0;
+                    gSubStep = 1003;
+                }
+            }
+            break;
+        case 1003:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = ++D_800FA244;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x50;
+            pos.vy = -0x58;
+            DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 2;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x30;
+            pos.vy = -0x38;
+            DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vy = pos.vy;
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
+            }
+            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
+            }
+            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 4;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x80;
+            pos.vy = -0x18;
+            DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 6;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x80;
+            pos.vy = 8;
+            DrawSprite(0x2A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vx = pos.vx + 0x100;
+            p2.vy = pos.vy;
+            pos.vx += 0x90;
+            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            func_800F04EC(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            t = D_800FA244 - 8;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x80;
+            pos.vy = 0x28;
+            DrawSprite(0x2B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vx = pos.vx + 0x100;
+            p2.vy = pos.vy;
+            pos.vx += 0x90;
+            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            func_800F04EC(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            t = D_800FA244 - 10;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x80;
+            pos.vy = 0x48;
+            DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 == 24) {
+                if (D_800FA248 == 1) {
+                    gSubStep = 100;
+                } else {
+                    gRetries = 99;
+                    switch (D_80095998) {
+                        case 0:
+                            gStage = 0;
+                            break;
+                        case 1:
+                            gStage = 3;
+                            break;
+                        case 2:
+                            gStage = 9;
+                            break;
+                        case 3:
+                            gStage = 12;
+                            break;
+                    }
+                    switch (D_80095984) {
+                        case 0:
+                            gStageTableSet = 2;
+                            gGameMode = 0x26;
+                            break;
+                        case 1:
+                            gStageTableSet = 3;
+                            BeginLoadScreenModel();
+                            break;
+                        case 2:
+                            gStageTableSet = 3;
+                            gStage++;
+                            BeginLoadScreen();
+                            break;
+                        case 3:
+                            gStageTableSet = 3;
+                            gStage += 2;
+                            BeginAct3LoadScreen();
+                            break;
+                    }
+                }
+            }
+            break;
+        case 2000:
+            D_800FA258 = 1;
+            D_800FA244 = 0;
+            gSubStep = 2001;
+            break;
+        case 2001:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = ++D_800FA244;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x150;
+            pos.vy = -0x58;
+            DrawSprite(0x22, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 2;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = -0x38;
+            DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0x98;
+            if (gStereo != 0) {
+                DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            } else {
+                DrawSprite(0x47, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            if (PadInfoMode(0, 2, 0) != 0) {
+                t = D_800FA244 - 4;
+                if (t > 8) {
+                    t = 8;
+                }
+                pos.vx = t * 32 - 0x180;
+                pos.vy = -0x18;
+                DrawSprite(0x3B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                pos.vx += 0x98;
+                if (gRumbleEnabled != 0) {
+                    DrawSprite(0x48, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                } else {
+                    DrawSprite(0x49, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                }
+            }
+            if (*(s8 *)&gUnlocks != 1) {
+                t = D_800FA244 - 6;
+                if (t > 8) {
+                    t = 8;
+                }
+                pos.vx = t * 32 - 0x180;
+                pos.vy = 8;
+                DrawSprite(0x3C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                pos.vx += 0x98;
+                switch (gTmdSortMode) {
+                    case 0:
+                        DrawSprite(0x4A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 1:
+                        DrawSprite(0x4B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 2:
+                        DrawSprite(0x4C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 3:
+                        DrawSprite(0x4D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                }
+            }
+            t = D_800FA244 - 8;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x140;
+            pos.vy = 0x28;
+            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 10;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x118;
+            pos.vy = 0x48;
+            DrawSprite(0x3E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 == 20) {
+                gSubStep = 2002;
+            }
+            break;
+        case 2002:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            norm.r = -1;
+            norm.g = norm.b = norm.cd = 0x80;
+            hi.r = -1;
+            hi.g = hi.b = 0x80;
+            hi.cd = 0;
+            pos.vx = -0x50;
+            pos.vy = -0x58;
+            DrawSprite(0x22, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = 8;
+            if (D_800FA23C == 0) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            pos.vx = t * 32 - 0x180;
+            pos.vy = -0x38;
+            DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0x98;
+            if (gStereo != 0) {
+                DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            } else {
+                DrawSprite(0x47, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            if (D_800FA23C == 0) {
+                p2.vy = pos.vy;
+                {
+                    s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                    p2.vx = pos.vx - (b >= 0 ? b : -b);
+                }
+                DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                {
+                    s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                    p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
+                }
+                DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            if ((D_800FA254 = PadInfoMode(0, 2, 0) != 0)) {
+                if (D_800FA23C == 1) {
+                    col = hi;
+                } else {
+                    col = norm;
+                }
+                pos.vx = t * 32 - 0x180;
+                pos.vy = -0x18;
+                DrawSprite(0x3B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                pos.vx += 0x98;
+                if (gRumbleEnabled != 0) {
+                    DrawSprite(0x48, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                } else {
+                    DrawSprite(0x49, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                }
+                if (D_800FA23C == 1) {
+                    p2.vy = pos.vy;
+                    {
+                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        p2.vx = pos.vx - (b >= 0 ? b : -b);
+                    }
+                    DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    {
+                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
+                    }
+                    DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                }
+            } else if (D_800FA23C == 1) {
+                D_800FA23C = 0;
+            }
+            if (*(s8 *)&gUnlocks != 1) {
+                if (D_800FA23C == 2) {
+                    col = hi;
+                } else {
+                    col = norm;
+                }
+                pos.vx = t * 32 - 0x180;
+                pos.vy = 8;
+                DrawSprite(0x3C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                pos.vx += 0x98;
+                switch (gTmdSortMode) {
+                    case 0:
+                        DrawSprite(0x4A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 1:
+                        DrawSprite(0x4B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 2:
+                        DrawSprite(0x4C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 3:
+                        DrawSprite(0x4D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                }
+                if (D_800FA23C == 2) {
+                    D_800FA258 = 3;
+                    p2.vy = pos.vy;
+                    {
+                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        p2.vx = pos.vx - (b >= 0 ? b : -b);
+                    }
+                    DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    {
+                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
+                    }
+                    DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                } else {
+                    D_800FA258 = 1;
+                }
+            }
+            if (D_800FA23C == 3) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            pos.vx = t * 32 - 0x140;
+            pos.vy = 0x28;
+            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA23C == 4) {
+                col = hi;
+            } else {
+                col = norm;
+            }
+            pos.vx = t * 32 - 0x118;
+            pos.vy = 0x48;
+            DrawSprite(0x3E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            d = D_800FA23C;
+            p2.vx = d >= 3 ? -0x40 : -0x8E;
+            p2.vy = d * 32 - 0x41;
+            func_800F8708(&p2, 2);
+            if (gPadTrig & PADLup) {
+                PlaySe(0xB);
+                do {
+                    i = 0;
+                    if (D_800FA23C == 0) {
+                        D_800FA23C = 4;
+                    } else {
+                        D_800FA23C--;
+                    }
+                    if (D_800FA23C == 1 && D_800FA254 == 0) {
+                        i = 1;
+                    }
+                    if (D_800FA23C == 2 && *(s8 *)&gUnlocks == 1) {
+                        i = 1;
+                    }
+                } while (i != 0);
+            } else if (gPadTrig & PADLdown) {
+                PlaySe(0xB);
+                do {
+                    i = 0;
+                    if (D_800FA23C == 4) {
+                        D_800FA23C = 0;
+                    } else {
+                        D_800FA23C++;
+                    }
+                    if (D_800FA23C == 1 && D_800FA254 == 0) {
+                        i = 1;
+                    }
+                    if (D_800FA23C == 2 && *(s8 *)&gUnlocks == 1) {
+                        i = 1;
+                    }
+                } while (i != 0);
+            } else if (gPadTrig & PADLleft) {
+                PlaySe(0xB);
+                switch (D_800FA23C) {
+                    case 0:
+                        gStereo ^= 1;
+                        if (gStereo != 0) {
+                            SsSetStereo();
+                        } else {
+                            SsSetMono();
+                        }
+                        break;
+                    case 1:
+                        gRumbleEnabled ^= 1;
+                        if (gRumbleEnabled != 0) {
+                            gRumbleTime = 15;
+                            gRumbleSmall[0] = 0xFF;
+                            gRumbleSmall[1] = 0xFF;
+                        }
+                        break;
+                    case 2:
+                        do {
+                            if (gTmdSortMode == 0) {
+                                gTmdSortMode = 3;
+                            } else {
+                                gTmdSortMode--;
+                            }
+                        } while (!((*(s8 *)&gUnlocks >> gTmdSortMode) & 1));
+                        switch (gTmdSortMode) {
+                            case 0:
+                            case 2:
+                            case 3:
+                                LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                                break;
+                            case 1:
+                                LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                                break;
+                        }
+                        break;
+                }
+            } else if (gPadTrig & PADLright) {
+                PlaySe(0xB);
+                switch (D_800FA23C) {
+                    case 0:
+                        gStereo ^= 1;
+                        if (gStereo != 0) {
+                            SsSetStereo();
+                        } else {
+                            SsSetMono();
+                        }
+                        break;
+                    case 1:
+                        gRumbleEnabled ^= 1;
+                        if (gRumbleEnabled != 0) {
+                            gRumbleTime = 15;
+                            gRumbleSmall[0] = 0xFF;
+                            gRumbleSmall[1] = 0xFF;
+                        }
+                        break;
+                    case 2:
+                        do {
+                            if (gTmdSortMode == 3) {
+                                gTmdSortMode = 0;
+                            } else {
+                                gTmdSortMode++;
+                            }
+                        } while (!((*(s8 *)&gUnlocks >> gTmdSortMode) & 1));
+                        switch (gTmdSortMode) {
+                            case 0:
+                            case 2:
+                            case 3:
+                                LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                                break;
+                            case 1:
+                                LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                                break;
+                        }
+                        break;
+                }
+            } else if (gPadTrig & PADRdown) {
+                PlaySe(0xE);
+                D_800FA244 = 0;
+                if (D_800FA23C != 4) {
+                    D_800FA23C = 4;
+                }
+                gSubStep = 2003;
+            } else if (gPadTrig & PADRright) {
+                switch (D_800FA23C) {
+                    case 3:
+                        PlaySe(0xC);
+                        D_800FA244 = 0;
+                        gSubStep = 2003;
+                        break;
+                    case 4:
+                        PlaySe(0xE);
+                        D_800FA244 = 0;
+                        gSubStep = 2003;
+                        break;
+                }
+            }
+            break;
+        case 2003:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = ++D_800FA244;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x50;
+            pos.vy = -0x58;
+            DrawSprite(0x22, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 2;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x80;
+            pos.vy = -0x38;
+            DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0x98;
+            if (gStereo != 0) {
+                DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            } else {
+                DrawSprite(0x47, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            if (PadInfoMode(0, 2, 0) != 0) {
+                t = D_800FA244 - 4;
+                if (t < 0) {
+                    t = 0;
+                }
+                pos.vx = t * 32 - 0x80;
+                pos.vy = -0x18;
+                DrawSprite(0x3B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                pos.vx += 0x98;
+                if (gRumbleEnabled != 0) {
+                    DrawSprite(0x48, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                } else {
+                    DrawSprite(0x49, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                }
+            }
+            if (*(s8 *)&gUnlocks != 1) {
+                t = D_800FA244 - 6;
+                if (t < 0) {
+                    t = 0;
+                }
+                pos.vx = t * 32 - 0x80;
+                pos.vy = 8;
+                DrawSprite(0x3C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                pos.vx += 0x98;
+                switch (gTmdSortMode) {
+                    case 0:
+                        DrawSprite(0x4A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 1:
+                        DrawSprite(0x4B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 2:
+                        DrawSprite(0x4C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                    case 3:
+                        DrawSprite(0x4D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        break;
+                }
+            }
+            t = D_800FA244 - 8;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x40;
+            pos.vy = 0x28;
+            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 10;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x18;
+            pos.vy = 0x48;
+            DrawSprite(0x3E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 == 24) {
+                if (D_800FA23C == 4) {
+                    gSubStep = 100;
+                } else {
+                    gSubStep = 3000;
+                }
+            }
+            break;
+        case 3000:
+            D_800FA244 = 0;
+            gSubStep++;
+            break;
+        case 3001:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = ++D_800FA244;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x140;
+            pos.vy = -0x58;
+            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 2;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x128;
+            pos.vy = -0x38;
+            DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 4;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x160;
+            pos.vy = -0x18;
+            DrawSprite(0x3F, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0xB0;
+            DrawSprite(D_800F9660[gButtonConfig][0] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 6;
+            if (t > 8) {
+                t = 8;
+            }
+            pos.vx = t * 32 - 0x160;
+            pos.vy = 8;
+            DrawSprite(0x40, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0xB0;
+            DrawSprite(D_800F9660[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 == 18) {
+                gSubStep = 3002;
+            }
+            break;
+        case 3002:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = 8;
+            pos.vx = t * 32 - 0x140;
+            pos.vy = -0x58;
+            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx = t * 32 - 0x128;
+            pos.vy = -0x38;
+            DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            p2.vy = pos.vy;
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
+            }
+            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            {
+                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x48);
+            }
+            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx = t * 32 - 0x160;
+            pos.vy = -0x18;
+            DrawSprite(0x3F, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0xB0;
+            DrawSprite(D_800F9660[gButtonConfig][0] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            pos.vx = t * 32 - 0x160;
+            pos.vy = t;
+            DrawSprite(0x40, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0xB0;
+            DrawSprite(D_800F9660[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            if (gPadTrig & PADLleft) {
+                PlaySe(0xB);
+                if (gButtonConfig == 0) {
+                    gButtonConfig = 3;
+                } else {
+                    gButtonConfig--;
+                }
+            } else if (gPadTrig & PADLright) {
+                PlaySe(0xB);
+                if (gButtonConfig == 3) {
+                    gButtonConfig = 0;
+                } else {
+                    gButtonConfig++;
+                }
+            } else if (gPadTrig & PADRright) {
+                PlaySe(0xE);
+                D_800FA244 = 0;
+                gSubStep = 3003;
+            } else if (gPadTrig & PADRdown) {
+                PlaySe(0xE);
+                D_800FA244 = 0;
+                gSubStep = 3003;
+            }
+            break;
+        case 3003:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            t = ++D_800FA244;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x40;
+            pos.vy = -0x58;
+            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 2;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x28;
+            pos.vy = -0x38;
+            DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 4;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x60;
+            pos.vy = -0x18;
+            DrawSprite(0x3F, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0xB0;
+            DrawSprite(D_800F9660[gButtonConfig][0] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            t = D_800FA244 - 6;
+            if (t < 0) {
+                t = 0;
+            }
+            pos.vx = t * 32 - 0x60;
+            pos.vy = 8;
+            DrawSprite(0x40, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            pos.vx += 0xB0;
+            DrawSprite(D_800F9660[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            if (D_800FA244 == 22) {
+                gSubStep = 2000;
+            }
+            break;
+        case 5000:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            for (i = 0; (s32)i < D_800FA268; i++) {
+                pos.vx = -0x50;
+                pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
+                DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            p2.vx = -0x88;
+            p2.vy = 0x4F;
+            func_800F8708(&p2, 3);
+            pos.vx = -0x80;
+            pos.vy = 0x58;
+            switch (D_800FA228) {
+                case 0:
+                    DrawSprite(0x5A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x41;
+                    pos.vy = 0x57;
+                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x6F;
+                    pos.vy = 0x57;
+                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    if (gPadTrig & PADRdown) {
+                        PlaySe(0xE);
+                        gSubStep = 102;
+                    } else if (gPadTrig & PADRright) {
+                        PlaySe(0xC);
+                        D_800FA228 = 10;
+                    }
+                    break;
+                case 5:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    MemCardExist(0);
+                    D_800FA228 = 6;
+                    break;
+                case 6:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (MemCardSync(1, NULL, &D_800FA270) == 1) {
+                        switch (D_800FA270) {
+                            case 0:
+                                D_800FA228 = 12;
+                                break;
+                            case 1:
+                                D_800FA238 = 0x59;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 2:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 3:
+                                D_800FA228 = 10;
+                                break;
+                        }
+                    }
+                    break;
+                case 10:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    MemCardAccept(0);
+                    D_800FA228 = 11;
+                    break;
+                case 11:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (MemCardSync(1, NULL, &D_800FA270) == 1) {
+                        switch (D_800FA270) {
+                            case 0:
+                            case 3:
+                                D_800FA228 = 12;
+                                break;
+                            case 1:
+                                D_800FA238 = 0x59;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 2:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 4:
+                                D_800FA238 = 0x58;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                        }
+                    }
+                    break;
+                case 12:
+                    MemCardReadFile(0, D_800F0000, (unsigned long *)0x8016D000, 0x200, 0x80);
+                    D_800FA228 = 13;
+                    break;
+                case 13:
+                    DrawSprite(0x5D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (MemCardSync(1, NULL, &D_800FA270) == 1) {
+                        switch (D_800FA270) {
+                            case 0:
+                                D_800FA228 = 20;
+                                break;
+                            case 1:
+                                D_800FA238 = 0x59;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 2:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 3:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 4:
+                                break;
+                            case 5:
+                                D_800FA238 = 0x58;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                        }
+                    }
+                    break;
+                case 20:
+                    D_800FA24C = (SaveData *)0x8016D000;
+                    D_800FA240 = D_800FA24C->checksum;
+                    D_800FA24C->checksum = 0;
+                    D_800FA250 = 0;
+                    for (i = 0; i < 0x5C; i++) {
+                        D_800FA250 += ((u8 *)D_800FA24C)[i];
+                    }
+                    D_800FA250 = ~D_800FA250;
+                    if (D_800FA250 != D_800FA240) {
+                        D_800FA238 = 0x67;
+                        D_800FA26C = 0;
+                        D_800FA228 = 1000;
+                        break;
+                    }
+                    gBestTimes[0].a = D_800FA24C->times[0].a;
+                    gBestTimes[1].a = D_800FA24C->times[1].a;
+                    gBestTimes[2].a = D_800FA24C->times[2].a;
+                    gBestTimes[3].a = D_800FA24C->times[3].a;
+                    gBestTimes[0].b = D_800FA24C->times[0].b;
+                    gBestTimes[1].b = D_800FA24C->times[1].b;
+                    gBestTimes[2].b = D_800FA24C->times[2].b;
+                    gBestTimes[3].b = D_800FA24C->times[3].b;
+                    gBestCans[0].a = D_800FA24C->cans[0].a;
+                    gBestCans[1].a = D_800FA24C->cans[1].a;
+                    gBestCans[2].a = D_800FA24C->cans[2].a;
+                    gBestCans[3].a = D_800FA24C->cans[3].a;
+                    gBestCans[0].b = D_800FA24C->cans[0].b;
+                    gBestCans[1].b = D_800FA24C->cans[1].b;
+                    gBestCans[2].b = D_800FA24C->cans[2].b;
+                    gBestCans[3].b = D_800FA24C->cans[3].b;
+                    D_80095978.a = D_800FA24C->unk48.a;
+                    D_80095978.b = D_800FA24C->unk48.b;
+                    gStereo = D_800FA24C->stereo;
+                    gRumbleEnabled = D_800FA24C->rumble;
+                    gTmdSortMode = D_800FA24C->sortMode;
+                    gButtonConfig = D_800FA24C->buttonConfig;
+                    D_800957A0 = D_800FA24C->unk54;
+                    gGameCleared = D_800FA24C->gameCleared;
+                    gAllTargetsBeaten = D_800FA24C->allTargets;
+                    gUnlocks = D_800FA24C->unlocks;
+                    if (gStereo != 0) {
+                        SsSetStereo();
+                    } else {
+                        SsSetMono();
+                    }
+                    switch (gTmdSortMode) {
+                        case 0:
+                        case 2:
+                        case 3:
+                            LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                            break;
+                        case 1:
+                            LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                            break;
+                    }
+                    D_800FA238 = 0x66;
+                    D_800FA26C = 0;
+                    D_800FA228 = 2000;
+                    break;
+                case 1000:
+                    col.g = 0x80;
+                    col.b = col.cd = 0;
+                    DrawSprite(D_800FA238, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 30) {
+                        gSubStep = 102;
+                    }
+                    break;
+                case 2000:
+                    DrawSprite(D_800FA238, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 30) {
+                        gSubStep = 100;
+                    }
+                    break;
+            }
+            break;
+        case 6000:
+            col.r = -1;
+            col.g = col.b = col.cd = 0x80;
+            for (i = 0; (s32)i < D_800FA268; i++) {
+                pos.vx = -0x50;
+                pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
+                DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            }
+            p2.vx = -0x88;
+            p2.vy = 0x4F;
+            func_800F8708(&p2, 3);
+            pos.vx = -0x80;
+            pos.vy = 0x58;
+            switch (D_800FA228) {
+                case 0:
+                    DrawSprite(0x5B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x41;
+                    pos.vy = 0x57;
+                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x6F;
+                    pos.vy = 0x57;
+                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    if (gPadTrig & PADRdown) {
+                        PlaySe(0xE);
+                        gSubStep = 102;
+                    } else if (gPadTrig & PADRright) {
+                        PlaySe(0xC);
+                        D_800FA26C = 0;
+                        D_800FA228 = 10;
+                    }
+                    break;
+                case 5:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 4) {
+                        MemCardExist(0);
+                        D_800FA228 = 6;
+                    }
+                    break;
+                case 6:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (MemCardSync(1, NULL, &D_800FA270) == 1) {
+                        switch (D_800FA270) {
+                            case 0:
+                                switch (MemCardCreateFile(0, D_800F0000, 1)) {
+                                    case 0:
+                                        D_800FA228 = 12;
+                                        break;
+                                    case 1:
+                                        D_800FA238 = 0x59;
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 1000;
+                                        break;
+                                    case 2:
+                                        D_800FA238 = 0x68;
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 1000;
+                                        break;
+                                    case 3:
+                                        break;
+                                    case 4:
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 500;
+                                        break;
+                                    case 5:
+                                        break;
+                                    case 6:
+                                        D_800FA228 = 13;
+                                        break;
+                                    case 7:
+                                        D_800FA238 = 0x65;
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 1000;
+                                        break;
+                                }
+                                break;
+                            case 1:
+                                D_800FA238 = 0x59;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 2:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 3:
+                                D_800FA228 = 10;
+                                break;
+                        }
+                    }
+                    break;
+                case 10:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    MemCardAccept(0);
+                    D_800FA228 = 11;
+                    break;
+                case 11:
+                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (MemCardSync(1, NULL, &D_800FA270) == 1) {
+                        switch (D_800FA270) {
+                            case 0:
+                            case 3:
+                                switch (MemCardCreateFile(0, D_800F0000, 1)) {
+                                    case 0:
+                                        D_800FA228 = 12;
+                                        break;
+                                    case 1:
+                                        D_800FA238 = 0x59;
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 1000;
+                                        break;
+                                    case 2:
+                                        D_800FA238 = 0x68;
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 1000;
+                                        break;
+                                    case 3:
+                                        break;
+                                    case 4:
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 500;
+                                        break;
+                                    case 5:
+                                        break;
+                                    case 6:
+                                        D_800FA228 = 13;
+                                        break;
+                                    case 7:
+                                        D_800FA238 = 0x65;
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 1000;
+                                        break;
+                                }
+                                break;
+                            case 1:
+                                D_800FA238 = 0x59;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 2:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 4:
+                                D_800FA26C = 0;
+                                D_800FA228 = 500;
+                                break;
+                        }
+                    }
+                    break;
+                case 12:
+                    for (i = 0; (s32)i < 0x200; i++) {
+                        ((u8 *)0x8016D000)[i] = D_800F9460[i];
+                    }
+                    D_800FA24C = (SaveData *)0x8016D200;
+                    D_800FA24C->times[0].a = gBestTimes[0].a;
+                    D_800FA24C->times[1].a = gBestTimes[1].a;
+                    D_800FA24C->times[2].a = gBestTimes[2].a;
+                    D_800FA24C->times[3].a = gBestTimes[3].a;
+                    D_800FA24C->times[0].b = gBestTimes[0].b;
+                    D_800FA24C->times[1].b = gBestTimes[1].b;
+                    D_800FA24C->times[2].b = gBestTimes[2].b;
+                    D_800FA24C->times[3].b = gBestTimes[3].b;
+                    D_800FA24C->cans[0].a = gBestCans[0].a;
+                    D_800FA24C->cans[1].a = gBestCans[1].a;
+                    D_800FA24C->cans[2].a = gBestCans[2].a;
+                    D_800FA24C->cans[3].a = gBestCans[3].a;
+                    D_800FA24C->cans[0].b = gBestCans[0].b;
+                    D_800FA24C->cans[1].b = gBestCans[1].b;
+                    D_800FA24C->cans[2].b = gBestCans[2].b;
+                    D_800FA24C->cans[3].b = gBestCans[3].b;
+                    D_800FA24C->unk48.a = D_80095978.a;
+                    D_800FA24C->unk48.b = D_80095978.b;
+                    D_800FA24C->stereo = gStereo;
+                    D_800FA24C->rumble = gRumbleEnabled;
+                    D_800FA24C->sortMode = gTmdSortMode;
+                    D_800FA24C->buttonConfig = gButtonConfig;
+                    D_800FA24C->unk54 = D_800957A0;
+                    D_800FA24C->gameCleared = gGameCleared;
+                    D_800FA24C->allTargets = gAllTargetsBeaten;
+                    D_800FA24C->unlocks = gUnlocks;
+                    D_800FA24C->checksum = 0;
+                    D_800FA250 = 0;
+                    for (i = 0; i < 0x5C; i++) {
+                        D_800FA250 += ((u8 *)D_800FA24C)[i];
+                    }
+                    D_800FA250 = ~D_800FA250;
+                    D_800FA24C->checksum = D_800FA250;
+                    MemCardWriteFile(0, D_800F0000, (unsigned long *)0x8016D000, 0, 0x280);
+                    D_800FA228 = 15;
+                    break;
+                case 13:
+                    DrawSprite(0x5C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x41;
+                    pos.vy = 0x57;
+                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x6F;
+                    pos.vy = 0x57;
+                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    if (gPadTrig & PADRdown) {
+                        PlaySe(0xE);
+                        gSubStep = 102;
+                    } else if (gPadTrig & PADRright) {
+                        PlaySe(0xC);
+                        D_800FA24C = (SaveData *)0x8016D000;
+                        D_800FA24C->times[0].a = gBestTimes[0].a;
+                        D_800FA24C->times[1].a = gBestTimes[1].a;
+                        D_800FA24C->times[2].a = gBestTimes[2].a;
+                        D_800FA24C->times[3].a = gBestTimes[3].a;
+                        D_800FA24C->times[0].b = gBestTimes[0].b;
+                        D_800FA24C->times[1].b = gBestTimes[1].b;
+                        D_800FA24C->times[2].b = gBestTimes[2].b;
+                        D_800FA24C->times[3].b = gBestTimes[3].b;
+                        D_800FA24C->cans[0].a = gBestCans[0].a;
+                        D_800FA24C->cans[1].a = gBestCans[1].a;
+                        D_800FA24C->cans[2].a = gBestCans[2].a;
+                        D_800FA24C->cans[3].a = gBestCans[3].a;
+                        D_800FA24C->cans[0].b = gBestCans[0].b;
+                        D_800FA24C->cans[1].b = gBestCans[1].b;
+                        D_800FA24C->cans[2].b = gBestCans[2].b;
+                        D_800FA24C->cans[3].b = gBestCans[3].b;
+                        D_800FA24C->unk48.a = D_80095978.a;
+                        D_800FA24C->unk48.b = D_80095978.b;
+                        D_800FA24C->stereo = gStereo;
+                        D_800FA24C->rumble = gRumbleEnabled;
+                        D_800FA24C->sortMode = gTmdSortMode;
+                        D_800FA24C->buttonConfig = gButtonConfig;
+                        D_800FA24C->unk54 = D_800957A0;
+                        D_800FA24C->gameCleared = gGameCleared;
+                        D_800FA24C->allTargets = gAllTargetsBeaten;
+                        D_800FA24C->unlocks = gUnlocks;
+                        D_800FA24C->checksum = 0;
+                        D_800FA250 = 0;
+                        for (i = 0; i < 0x5C; i++) {
+                            D_800FA250 += ((u8 *)D_800FA24C)[i];
+                        }
+                        D_800FA250 = ~D_800FA250;
+                        D_800FA24C->checksum = D_800FA250;
+                        MemCardWriteFile(0, D_800F0000, (unsigned long *)0x8016D000, 0x200, 0x80);
+                        D_800FA228 = 15;
+                    }
+                    break;
+                case 15:
+                    DrawSprite(0x5E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (MemCardSync(1, NULL, &D_800FA270) == 1) {
+                        switch (D_800FA270) {
+                            case 0:
+                                D_800FA238 = 0x66;
+                                D_800FA26C = 0;
+                                D_800FA228 = 2000;
+                                break;
+                            case 1:
+                                D_800FA238 = 0x59;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 2:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 3:
+                                D_800FA238 = 0x68;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                            case 4:
+                                break;
+                            case 5:
+                                D_800FA238 = 0x58;
+                                D_800FA26C = 0;
+                                D_800FA228 = 1000;
+                                break;
+                        }
+                    }
+                    break;
+                case 500:
+                    col.g = 0x80;
+                    col.b = col.cd = 0;
+                    DrawSprite(0x61, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 30) {
+                        D_800FA228 = 501;
+                    }
+                    break;
+                case 501:
+                    DrawSprite(0x62, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x41;
+                    pos.vy = 0x57;
+                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    pos.vx = 0x6F;
+                    pos.vy = 0x57;
+                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    if (gPadTrig & PADRdown) {
+                        PlaySe(0xE);
+                        gSubStep = 102;
+                    } else if (gPadTrig & PADRright) {
+                        PlaySe(0xC);
+                        D_800FA26C = 0;
+                        D_800FA228 = 502;
+                    }
+                    break;
+                case 502:
+                    DrawSprite(0x63, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 8) {
+                        D_800FA228 = 503;
+                    }
+                    break;
+                case 503:
+                    DrawSprite(0x63, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    switch (MemCardFormat(0)) {
+                        case 0:
+                            D_800FA26C = 0;
+                            D_800FA228 = 10;
+                            break;
+                        case 1:
+                            D_800FA238 = 0x59;
+                            D_800FA26C = 0;
+                            D_800FA228 = 1000;
+                            break;
+                        case 2:
+                            D_800FA238 = 0x68;
+                            D_800FA26C = 0;
+                            D_800FA228 = 1000;
+                            break;
+                    }
+                    break;
+                case 504:
+                    DrawSprite(0x66, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    D_800FA26C++;
+                    break;
+                case 1000:
+                    col.g = 0x80;
+                    col.b = col.cd = 0;
+                    DrawSprite(D_800FA238, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 30) {
+                        gSubStep = 102;
+                    }
+                    break;
+                case 2000:
+                    DrawSprite(D_800FA238, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    if (++D_800FA26C == 30) {
+                        gSubStep = 100;
+                    }
+                    break;
+            }
+            break;
+    }
+    D_800FA230.vy += 11;
+    func_800F88C8(&D_800FA230);
+    StepStepper(&gPlayer);
+    switch (D_800FA258) {
+        case 0:
+            func_800F1494(2);
+            break;
+        case 1:
+            func_800F1494(1);
+            break;
+        case 2:
+            func_800F1494(0);
+            break;
+        case 3:
+            DrawStepper(&gPlayer);
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F1570);
+#endif
 
 extern CdlLOC D_800F96F8;
 extern CdlLOC D_800F96FC;
@@ -819,9 +2553,6 @@ INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F69B0);
 extern CdlLOC D_800F9BC8;
 extern SVECTOR D_800F9BD0[];
 extern s32 D_800FA27C;
-extern Pair8 gActTimes;
-extern Pair8 gActCans;
-extern Pair8 D_800958C0;
 
 #ifdef NON_MATCHING
 s32 func_800F7A4C(void) {

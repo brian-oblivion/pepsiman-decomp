@@ -705,6 +705,10 @@ void BeginLoadScreenModel(void);
 /** @brief Defined in main: starts the load screen for the next stage. */
 void BeginLoadScreen(void);
 
+/** @brief Defined in main: freezes the screen into two sprites and starts
+ *         the third act's load screen. */
+void BeginAct3LoadScreen(void);
+
 /** @brief Defined in player: on every tenth pickup, plays a cue
  *         (unless the stage forbids it) and updates the pickup display. */
 void CheckCanBonus(void);

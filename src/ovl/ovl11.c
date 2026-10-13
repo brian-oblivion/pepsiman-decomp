@@ -31,7 +31,6 @@ void RecentreSteer(void);
 /* Steps the player: speed, gravity, jump and slide, the move along the
  * course, analog or digital steering held within the course heading, and
  * the model's placement. */
-#ifdef NON_MATCHING
 void func_800F0234(void) {
     PlayerState *g;
     s32 x;
@@ -40,6 +39,7 @@ void func_800F0234(void) {
     u8 locked;
     u32 a;
     u32 stick;
+    s32 t;
 
     locked = 0;
     UpdateSpeedBand();
@@ -65,22 +65,26 @@ void func_800F0234(void) {
                     if (gPad & PADLright) {
                         a = 16;
                     } else {
-                        a = stick - 0x80;
-                        if ((s32)a < 0) {
-                            a = -a;
+                        /* MATCHING: the right's offset in a signed temporary, the
+                         * left's magnitude taken in the stick's own word. */
+                        t = stick - 0x80;
+                        if (t < 0) {
+                            t = -t;
                         }
-                        a >>= 2;
+                        a = (u32)t >> 2;
                     }
                     ApplySteer(3, a, 15);
                 } else if (stick < 0x70 || (gPad & PADLleft)) {
                     if (gPad & PADLleft) {
                         a = 16;
                     } else {
-                        a = stick;
-                        if ((s32)a < 0) {
-                            a = -a;
+                        if ((s32)stick < 0) {
+                            stick = -stick;
                         }
-                        a = (0x80 - a) >> 2;
+                        /* MATCHING: the barrier keeps reorg from copying the
+                         * 0x80 into the test's delay slot. */
+                        __asm__("");
+                        a = (0x80 - stick) >> 2;
                     }
                     ApplySteer(2, a, 15);
                 } else {
@@ -125,9 +129,6 @@ clamp:
     gWorldShift[0] = -gPlayer.x;
     gWorldShift[2] = -gPlayer.z;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F0234);
-#endif
 
 /* Draws the player's models at its position, sorted on the scratchpad
  * stack. */
@@ -1228,10 +1229,7 @@ extern GsDOBJ2 sAct3Objs[];
 /* MATCHING: model's view of the sky colours, as bytes. */
 extern u8 *gSkyColors;
 
-/* This unit's routines the step calls. */
-void func_800F0234(void);
-void func_800F0590(void);
-void func_800F06E0(void);
+/* This unit's routines the step calls, defined after it. */
 void SetChaseLights(void);
 void PlaceChaseObjects(void);
 

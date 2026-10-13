@@ -181,6 +181,7 @@ void DrawTrapWarning(StageTrap *t) {
 #ifdef NON_MATCHING
 void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
     StageTrap copy;
+    s32 unused[4];
 
     switch (t->state) {
         case 0:

@@ -185,7 +185,6 @@ void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot)
 
 /* Draws the stage's title: one sprite fading in, a second dropping into
  * place, then the second growing and fading out. */
-#ifdef NON_MATCHING
 void func_800F07E4(void) {
     s16 quad[8];
     SColor color;
@@ -197,7 +196,13 @@ void func_800F07E4(void) {
             quad[0] = -128;
             quad[1] = -32;
             color.r = 1;
-            color.g = color.b = color.cd = D_800D39D8.title < 16 ? D_800D39D8.title * 8 : 0x80;
+            /* MATCHING: a store in each arm keeps the stores above the call's
+             * arguments. */
+            if (D_800D39D8.title < 16) {
+                color.g = color.b = color.cd = D_800D39D8.title * 8;
+            } else {
+                color.g = color.b = color.cd = 0x80;
+            }
             DrawSprite(30, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         if (D_800D39D8.title >= 30 && D_800D39D8.title < 60) {
@@ -210,7 +215,7 @@ void func_800F07E4(void) {
         }
         if (D_800D39D8.title >= 60) {
             t = D_800D39D8.title - 60;
-            quad[5] = quad[4] = (t << 9) + 0x1000;
+            quad[4] = quad[5] = (t << 9) + 0x1000;
             quad[7] = 1;
             color.r = 1;
             quad[2] = 0;
@@ -224,9 +229,6 @@ void func_800F07E4(void) {
         D_800D39D8.title++;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F07E4);
-#endif
 
 /** @brief A flat line packet with its colour and code as one word. */
 typedef struct {
@@ -1229,7 +1231,6 @@ extern u8 *gSkyColors;
 void func_800F0234(void);
 void func_800F0590(void);
 void func_800F06E0(void);
-void func_800F07E4(void);
 void func_800F09D8(void);
 void SetChaseLights(void);
 void PlaceChaseObjects(void);

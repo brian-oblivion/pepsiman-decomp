@@ -5,7 +5,43 @@
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", ResetSpawnedTraps);
+void ResetSpawnedTraps(void) {
+    u32 i;
+    StageTrap *t;
+    ModelSlot *a;
+    ModelSlot *b;
+    ObjectModel *m;
+
+    if (gSkipLandRumble == 1 || sSpawnedTrapsReady == 0) {
+        bzero((u8 *)sSpawnedTraps, 200 * sizeof(StageTrap));
+        for (i = 0; i < 200; i++) {
+            sSpawnedTraps[i].switchNo = -1;
+            sSpawnedTraps[i].model = -1;
+            sSpawnedTraps[i].state = 0;
+            sSpawnedTraps[i].timer = 0;
+        }
+        for (i = 0; i < 10; i++) {
+            D_800D39D8[i].model = -1;
+            D_800D39D8[i].state = 0;
+            D_800D39D8[i].timer = 0;
+        }
+        for (i = 0; i < 2; i++) {
+            sGoalTraps[i].model = -1;
+            sGoalTraps[i].state = 0;
+            sGoalTraps[i].timer = 0;
+        }
+        sSpawnedTrapsReady = 1;
+        gSlotTable = (s32)sSpawnedTraps;
+        gSlotTableSize = 200 * sizeof(StageTrap);
+        /* MATCHING: the model table in a local, so its base is built before
+         * the trap table's. */
+        m = gObjectModels;
+        t = (StageTrap *)gTraps;
+        a = (ModelSlot *)&m[t[194].model];
+        b = (ModelSlot *)&m[t[195].model];
+        b->scale.vy = a->scale.vy = b->scale.vx = a->scale.vx = 0x1000;
+    }
+}
 
 #include "engine_code.inc" /* StepCheckpoint */
 
@@ -301,9 +337,116 @@ void func_800F7CE0(StageTrap *m) {
     }
 }
 
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s32 D_800FC060[];
+
+#ifdef NON_MATCHING
+/* Cases 0 and 1 differ: retail keeps the frame counts 35 and 100 in saved
+ * registers (and sign-extends 100 at run time), where this folds them. */
+s8 func_800F7EFC(StageTrap *t) {
+    s8 ret = 0;
+    s32 n;
+    s16 m;
+
+    switch (t->state) {
+        case 0:
+            n = 35;
+            gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
+            gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
+            if (++t->timer > n) {
+                t->homeX = gPlayer.x;
+                t->homeY = gPlayer.y;
+                t->homeZ = gPlayer.z;
+                t->timer = 0;
+                t->state++;
+                gPlayer.action = 0x17;
+                SetSoundFade(4);
+            }
+            break;
+        case 1:
+            m = 100;
+            gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, m);
+            gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, m);
+            if (++t->timer < (s16)(m / 3)) {
+                ScatterDust((VECTOR *)&gPlayer.x);
+            }
+            if (t->timer > m) {
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 0x13;
+                t->timer = 0;
+                t->state++;
+                D_800FC060[0] = gView[0];
+                D_800FC060[1] = gView[1];
+                D_800FC060[2] = gView[2];
+                D_800FC060[3] = gView[3];
+                D_800FC060[4] = gView[4];
+                D_800FC060[5] = gView[5];
+            }
+            break;
+        case 2:
+            if (++t->timer > 30) {
+                gPlayer.action = 0x19;
+                gFellOff = 1;
+                gRefView[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
+                gRefView[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
+                gRefView[1] = gPlayer.y - 280;
+                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[4] = gPlayer.y - 130;
+                t->homeRotZ = 0;
+                t->timer = 0;
+                t->state++;
+            }
+            break;
+        case 3:
+            gView[0] = Lerp(gView[0], gRefView[0], t->timer, 20);
+            gView[1] = Lerp(gView[1], gRefView[1], t->timer, 20);
+            gView[2] = Lerp(gView[2], gRefView[2], t->timer, 20);
+            gView[3] = Lerp(gView[3], gRefView[3], t->timer, 20);
+            gView[4] = Lerp(gView[4], gRefView[4], t->timer, 20);
+            gView[5] = Lerp(gView[5], gRefView[5], t->timer, 20);
+            GsSetRefView2((GsRVIEW2 *)gView);
+            if (t->timer < 20) {
+                t->timer++;
+            }
+            if (t->timer == 15) {
+                PlaySe(0x22);
+            }
+            if (++t->homeRotZ > 40) {
+                t->timer = 0;
+                t->state++;
+                StartScreenWipe();
+                sGoalLightsSet = 1;
+            }
+            break;
+        case 4:
+            if (++t->timer == 15) {
+                PlaySe(0x33);
+            }
+            if (IsScreenWipeActive() == 0) {
+                t->state++;
+                gView[0] = D_800FC060[0];
+                gView[1] = D_800FC060[1];
+                gView[2] = D_800FC060[2];
+                gView[3] = D_800FC060[3];
+                gView[4] = D_800FC060[4] + 10;
+                gView[5] = D_800FC060[5];
+                GsSetRefView2((GsRVIEW2 *)gView);
+            }
+            break;
+        case 5:
+            ret = 1;
+            break;
+    }
+    return ret;
+}
+
+#else
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7EFC);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F82E0);
+#endif
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F8454);
 

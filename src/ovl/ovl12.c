@@ -43,11 +43,11 @@ void ResetSpawnedTraps(void) {
 
 #include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", StepFlungPiece);
+#include "engine/step_flung_piece.inc"
 
 INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", SpawnMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", StepMissDebris);
+#include "engine/step_miss_debris.inc"
 
 INCLUDE_RODATA("asm/ovl/ovl12/nonmatchings/ovl12", sDebrisModelInit);
 
@@ -465,7 +465,7 @@ void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {
 
 #include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", SpinTrapAway);
+#include "engine/spin_trap_away.inc"
 
 #include "engine_code.inc" /* TipTrapAway */
 
@@ -852,7 +852,7 @@ void func_800F7D30(StageTrap *t, s16 period) {
  * overlay land inside the functions above. */
 FUNC_ALIAS(func_800F82E0, RunTrapType09, 0x64);
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", RunTrapType0B);
+#include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
@@ -993,7 +993,7 @@ void CycleGoalLights(s8 arg) {}
 
 #include "engine/reveal_start_cans.inc"
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", EmitTrapParticles);
+#include "engine/emit_trap_particles.inc"
 
 extern s32 D_800FA72C[];
 extern s32 D_800FA74C[];

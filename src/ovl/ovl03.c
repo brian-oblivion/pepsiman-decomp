@@ -45,11 +45,11 @@ void ResetSpawnedTraps(void) {
 
 #include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepFlungPiece);
+#include "engine/step_flung_piece.inc"
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SpawnMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepMissDebris);
+#include "engine/step_miss_debris.inc"
 
 INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", sDebrisModelInit);
 
@@ -142,7 +142,7 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType0F);
 
 #include "engine/step_trap_type12.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", KnockTrapAway);
+#include "engine/knock_trap_away.inc"
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", TumbleTrapAway);
 
@@ -186,7 +186,7 @@ void StepTrapFFAct67(StageTrap *t) {
 
 #include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SpinTrapAway);
+#include "engine/spin_trap_away.inc"
 
 #include "engine_code.inc" /* TipTrapAway */
 
@@ -772,7 +772,7 @@ s8 func_800F8DF0(StageTrap *t) {
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapType0B);
+#include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -884,7 +884,7 @@ void func_800FA5D0(void) {
 
 void func_800FA610(void) {}
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", EmitTrapParticles);
+#include "engine/emit_trap_particles.inc"
 
 extern s32 D_800FB55C[];
 extern s32 D_800FB57C[];

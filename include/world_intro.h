@@ -21,6 +21,7 @@ typedef struct {
 typedef struct {
     u8 pad0[0x24]; /**< not yet known */
     u16 timer;     /**< the intro's camera clock */
+    s16 title;     /**< the act-3 chase's title clock */
 } IntroTimer;
 
 /** @brief The record whose word at +0x24 is the intro's camera clock. */

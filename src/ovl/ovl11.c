@@ -67,7 +67,54 @@ void func_800F06E0(void) {
     DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
+/* MATCHING: draw takes a Sprite2D *, a type local to that unit; this
+ * unit passes the same eight halfwords as an array. */
+void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
+
+/* Draws the stage's title: one sprite fading in, a second dropping into
+ * place, then the second growing and fading out. */
+#ifdef NON_MATCHING
+void func_800F07E4(void) {
+    s16 quad[8];
+    SColor color;
+    s32 d;
+    s32 t;
+
+    if (D_800D39D8.title < 68) {
+        if (D_800D39D8.title < 30) {
+            quad[0] = -128;
+            quad[1] = -32;
+            color.r = 1;
+            color.g = color.b = color.cd = D_800D39D8.title < 16 ? D_800D39D8.title * 8 : 0x80;
+            DrawSprite(30, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        }
+        if (D_800D39D8.title >= 30 && D_800D39D8.title < 60) {
+            quad[0] = -128;
+            d = D_800D39D8.title - 30;
+            quad[1] = d < 9 ? d * 22 - 208 : -32;
+            color.r = 1;
+            color.g = color.b = color.cd = 0x80;
+            DrawSprite(31, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        }
+        if (D_800D39D8.title >= 60) {
+            t = D_800D39D8.title - 60;
+            quad[5] = quad[4] = (t << 9) + 0x1000;
+            quad[7] = 1;
+            color.r = 1;
+            quad[2] = 0;
+            quad[0] = 0;
+            quad[3] = 0;
+            quad[1] = 0;
+            quad[6] = 0;
+            color.g = color.b = color.cd = -128 - t * 16;
+            DrawSpriteTransformed(31, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        }
+        D_800D39D8.title++;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F07E4);
+#endif
 
 INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F09D8);
 

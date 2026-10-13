@@ -56,17 +56,72 @@ void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range);
 void StartWorldResults(void);
 void UpdateWorldResults(void);
 s32 IsResultsActive(void);
-s32 SpawnEffectWithParams(s32 kind, s16 x, s16 y, s16 z, s16 delay, s16 param0, s16 param1,
-                          s16 param2, s16 param3);
+void UpdateEffects(s32 unused, s16 x, s16 y, s16 z);
+/* MATCHING: this unit passes it words. */
+s32 SpawnEffectWithParams(s32 kind, s32 x, s32 y, s32 z, s32 delay, s32 param0, s32 param1,
+                          s32 param2, s32 param3);
 
-#define ABS(x) ((x) < 0 ? -(x) : (x))
 /* MATCHING: the step's sub-step, kept in the fog fade's word. */
 #define sSubStep gFogFade
 
+#ifdef NON_MATCHING
+/* MATCHING: tested `>= 0`, cc1 folds it to an abs that keeps the minuend
+ * computed first. */
+#define ABS_GE(x) ((x) >= 0 ? (x) : -(x))
+
+/* Steps the player's first animation channel, with a footstep while it
+ * runs. */
+static inline void StepChaseMotion(PlayerState *p) {
+    u8 m;
+
+    p->motionResult[0] = StepAnimation(p, 0, 0);
+    /* MATCHING: the barrier keeps the result's store above the reads. */
+    __asm__("");
+    m = p->motion[0];
+    if (!(gFrameCount & 7) && m == 0x33) {
+        PlaySe(0x13);
+    }
+    switch (p->action) {
+        case ACT_MODEL_ONCE:
+            break;
+        case ACT_MODEL_LOOP:
+            if (p->motionResult[0] == 0) {
+                p->curMotion[0] = MOT_OFF;
+            }
+            break;
+    }
+}
+
+/* The same, after setting the scene's lights. */
+static inline void StepChaseMotionLit(PlayerState *p) {
+    PlayerState *q;
+
+    SetChaseLights();
+    /* MATCHING: a copy past the call puts the address in one saved register. */
+    q = p;
+    StepChaseMotion(q);
+}
+
+/* The chase's own step: the player's, the lights, the run forward and the
+ * world shifted to follow it, on the scratchpad stack. */
+static inline void StepChaseRun(PlayerState *q) {
+    PlayerState *p;
+
+    StepChasePlayer();
+    p = q;
+    SetChaseLights();
+    gWorldShift[1] = 0;
+    p->x += p->speed;
+    gWorldShift[0] = -p->x;
+    gWorldShift[2] = -p->z;
+    SetSpadStack();
+    StepChaseMotion(p);
+}
+
 /* The stage's frame step: the opening scene, the chase, the escape at the
  * run's end, and the results. */
-#ifdef NON_MATCHING
-void func_800F4794(void) {
+/* MATCHING: non-void with no return keeps the tail's delay slots nops. */
+s32 func_800F4794(void) {
     Act3Obj *o;
     s32 i;
     s32 v;
@@ -76,7 +131,7 @@ void func_800F4794(void) {
         case 0:
             gSkyColors = D_800F7B40;
             for (gLoopI = 10; gLoopI < 50; gLoopI++) {
-                sPieceCoords[gLoopI].flg = 0;
+                sPieceCoords[gLoopI].super = NULL;
             }
             gView[0] = -0x157C;
             gView[1] = -200;
@@ -125,10 +180,11 @@ void func_800F4794(void) {
                     gView[0] = -0x157C;
                     gView[1] = -250;
                     sCan.lidZ += 30;
-                    gView[2] = sCan.lidZ - (D_800F80E8 * 5 - 700);
+                    /* MATCHING: the offset kept in a local, so cc1 does not fold the 30 in. */
+                    gView[2] = sCan.lidZ - (r = D_800F80E8 * 5 - 700);
+                    gView[3] = sCan.lidX;
                     gView[4] = sCan.lidY;
                     gView[5] = sCan.lidZ;
-                    gView[3] = sCan.lidX;
                     if (D_800F80E8 % 10 == 0) {
                         PlaySe(0x54);
                     }
@@ -141,10 +197,10 @@ void func_800F4794(void) {
                 case 10:
                     gView[0] = -0x157C;
                     gView[1] = -200;
+                    gView[2] = D_800F80E8 * 30 - 1000;
                     gView[3] = -0x157C;
                     gView[4] = -150;
                     gView[5] = D_800F80E8 * 30 - 500;
-                    gView[2] = D_800F80E8 * 30 - 1000;
                     if (D_800F80E8 == 10) {
                         PlaySe(0x58);
                     }
@@ -170,9 +226,10 @@ void func_800F4794(void) {
                         }
                         PlaySe(0x38);
                         PlaySe(0x34);
+                        /* MATCHING: z less (100 less the roll) takes z - 100 first. */
                         for (gLoopI = 0; gLoopI < 8; gLoopI++) {
                             SpawnEffect(4, gPlayer.x + rand() % 200 - 100, -150 - rand() % 50,
-                                        gPlayer.z - 100 + rand() % 200, rand() % 4);
+                                        gPlayer.z - (100 - rand() % 200), rand() % 4);
                         }
                         gPlayer.motion[0] = 0x3C;
                         gPlayer.action = ACT_MODEL_ONCE;
@@ -214,7 +271,7 @@ void func_800F4794(void) {
                         PlaySe(0x39);
                         for (gLoopI = 0; gLoopI < 8; gLoopI++) {
                             SpawnEffect(4, gPlayer.x + rand() % 200 - 100, gPlayer.y + rand() % 200 - 100,
-                                        gPlayer.z - 100 + rand() % 200, rand() % 4);
+                                        gPlayer.z - (100 - rand() % 200), rand() % 4);
                         }
                         D_800F80E8 = 0;
                         sSubStep = 30;
@@ -223,8 +280,8 @@ void func_800F4794(void) {
                     break;
                 case 30:
                     gPlayer.x += 60;
-                    gPlayer.z -= 60;
                     gPlayer.y += 10;
+                    gPlayer.z -= 60;
                     sCanRot[0].vx = D_800F80E4 + rand() % 113 - 0x38;
                     if (++D_800F80E8 >= 30) {
                         D_800F80E8 = 0;
@@ -270,8 +327,8 @@ void func_800F4794(void) {
                         gView[0] = -3000;
                         gView[3] = -4000;
                         gView[4] = gView[1] = rand() % 50 - 25;
-                        gView[1] -= 300;
                         gView[5] = gView[2] = rand() % 50 - 25;
+                        gView[1] -= 300;
                     } else {
                         gView[0] = -3000;
                         gView[1] = -300;
@@ -280,7 +337,8 @@ void func_800F4794(void) {
                         gView[4] = 0;
                         gView[5] = 0;
                     }
-                    sCan.y = -(ABS(rsin(D_800F80E8 * 20480 / 360)) * 500) / 4096;
+                    v = rsin(D_800F80E8 * 20480 / 360);
+                    sCan.y = -(ABS_GE(v) * 500) / 4096;
                     sCan.x += 30;
                     sCanRot[0].vz -= 0x71;
                     if (++D_800F80E8 == 36) {
@@ -301,20 +359,7 @@ void func_800F4794(void) {
                     break;
             }
             GsSetRefView2((GsRVIEW2 *)gView);
-            SetChaseLights();
-            gPlayer.motionResult[0] = StepAnimation(&gPlayer, 0, 0);
-            if (!(gFrameCount & 7) && gPlayer.motion[0] == 0x33) {
-                PlaySe(0x13);
-            }
-            switch (gPlayer.action) {
-                case ACT_MODEL_ONCE:
-                    break;
-                case ACT_MODEL_LOOP:
-                    if (gPlayer.motionResult[0] == 0) {
-                        gPlayer.curMotion[0] = MOT_OFF;
-                    }
-                    break;
-            }
+            StepChaseMotionLit(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], 0, 0, 0);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayer();
@@ -353,7 +398,7 @@ void func_800F4794(void) {
         case 10:
             PlayStageMusic(gStage);
             for (gLoopI = 10; gLoopI < 50; gLoopI++) {
-                sPieceCoords[gLoopI].flg = 0;
+                sPieceCoords[gLoopI].super = NULL;
             }
             PlaceChaseObjects();
             gView[0] = 700;
@@ -399,6 +444,8 @@ void func_800F4794(void) {
                 gView[3] = -500;
                 gView[4] = 0;
                 gView[5] = 0;
+                /* MATCHING: one call per arm; cc1 cross-jumps them. */
+                GsSetRefView2((GsRVIEW2 *)gView);
             } else {
                 gView[0] = rcos((D_800F80E4 << 12) / 360) * (700 - D_800F80E4 * 3) / 4096;
                 gView[1] = -200;
@@ -406,42 +453,25 @@ void func_800F4794(void) {
                 gView[3] = -(rcos((D_800F80E4 << 12) / 360) * 500 / 4096);
                 gView[4] = 0;
                 gView[5] = -(rsin((D_800F80E4 << 12) / 360) * 500 / 4096);
+                GsSetRefView2((GsRVIEW2 *)gView);
             }
-            GsSetRefView2((GsRVIEW2 *)gView);
-            StepChasePlayer();
-            SetChaseLights();
-            gWorldShift[1] = 0;
-            gPlayer.x += gPlayer.speed;
-            gWorldShift[0] = -gPlayer.x;
-            gWorldShift[2] = -gPlayer.z;
-            SetSpadStack();
-            gPlayer.motionResult[0] = StepAnimation(&gPlayer, 0, 0);
-            if (!(gFrameCount & 7) && gPlayer.motion[0] == 0x33) {
-                PlaySe(0x13);
-            }
-            switch (gPlayer.action) {
-                case ACT_MODEL_ONCE:
-                    break;
-                case ACT_MODEL_LOOP:
-                    if (gPlayer.motionResult[0] == 0) {
-                        gPlayer.curMotion[0] = MOT_OFF;
-                    }
-                    break;
-            }
+            StepChaseRun(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
-            ResetSpadStack();
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(sChaseLive);
             DrawChaseShadowCentre();
-            v = sCan.x;
-            sCan.x = v + 30;
-            if (v + 650 < gPlayer.x) {
+            sCan.x += 30;
+            if (sCan.x + 620 < gPlayer.x) {
                 sCan.x = gPlayer.x - 620;
             }
             SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
             sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];
-            sAct3Coords[0].coord.t[1] =
-                sCan.y + gWorldShift[1] - ABS(rsin(gFrameCount * 40960 / 360) * 100 / 4096);
+            {
+                s32 t;
+
+                t = rsin(gFrameCount * 40960 / 360) * 100;
+                sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
+            }
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
                 PlaySe(0x39);
@@ -449,7 +479,7 @@ void func_800F4794(void) {
             sCanRot[0].vx = 0x800;
             sCanRot[0].vy = 0;
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);
-            if (sCan.x + 120 < gPlayer.x + 500) {
+            if (gPlayer.x + 500 > sCan.x + 120) {
                 SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);
                 GsGetLs(sAct3Objs[0].coord2, &D_800F80C0);
                 GsSetLsMatrix(&D_800F80C0);
@@ -458,10 +488,13 @@ void func_800F4794(void) {
                 SetTmdSortMode(0);
                 GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             }
+            i = 0;
             DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 30000);
-            for (i = 0, o = sObjs; i < D_800F7B00; i++, o++) {
-                if (o->state != -1) {
-                    D_800F7B0C[o->kind](o);
+            /* MATCHING: i cleared before the call, the base taken before the loop. */
+            o = sObjs;
+            for (; i < D_800F7B00; i++) {
+                if (o[i].state != -1) {
+                    D_800F7B0C[(s16)o[i].kind](&o[i]);
                 }
             }
             DrawSky(0);
@@ -509,15 +542,18 @@ void func_800F4794(void) {
                     gWorldIntroStep = 50;
                 }
             }
+            ResetSpadStack();
             break;
         case 50:
             if (D_800F80E8 > 160) {
                 D_800F80EC = (POLY_F4 *)GsOUT_PACKET_P;
                 setPolyF4(D_800F80EC);
                 setSemiTrans(D_800F80EC, 1);
-                setXY4(D_800F80EC, -160, -120, 160, -120, -160, 120, 160, 120);
-                setRGB0(D_800F80EC, (D_800F80E8 - 160) * 4, (D_800F80E8 - 160) * 4,
-                        (D_800F80E8 - 160) * 4);
+                D_800F80EC->x0 = D_800F80EC->x2 = -160;
+                D_800F80EC->y0 = D_800F80EC->y1 = -120;
+                D_800F80EC->x1 = D_800F80EC->x3 = 160;
+                D_800F80EC->y2 = D_800F80EC->y3 = 120;
+                D_800F80EC->r0 = D_800F80EC->g0 = D_800F80EC->b0 = (D_800F80E8 - 160) * 4;
                 addPrim(gSubOt[gActiveBuff].org, D_800F80EC);
                 D_800F80EC++;
                 GsOUT_PACKET_P = (PACKET *)D_800F80EC;
@@ -552,22 +588,32 @@ void func_800F4794(void) {
                 gRefView[4] = gView[4] - gView[1];
                 gRefView[5] = gView[5] - gView[2];
             }
-            if (D_800F80E8 < 150 && D_800F80E8 >= 120) {
-                if (D_800F80E8 == 120) {
-                    PlaySe(0x3E);
-                    if (gRumbleEnabled) {
-                        gRumbleTime = 30;
-                        gRumbleSmall[0] = 200;
-                        gRumbleSmall[1] = 200;
+            /* MATCHING: nested, so cc1 does not merge the two bounds. */
+            if (D_800F80E8 < 150) {
+                if (D_800F80E8 >= 120) {
+                    if (D_800F80E8 == 120) {
+                        PlaySe(0x3E);
+                        if (gRumbleEnabled) {
+                            gRumbleTime = 30;
+                            gRumbleSmall[0] = 200;
+                            gRumbleSmall[1] = 200;
+                        }
                     }
+                    gView[0] = gRefView[0] - gPlayer.x + rand() % 20 - 10;
+                    gView[1] = gRefView[1] - gPlayer.y + rand() % 20 - 10;
+                    gView[2] = gRefView[2] - gPlayer.z + rand() % 20 - 10;
+                    gView[3] = gRefView[3] + gView[0] + rand() % 20 - 10;
+                    gView[4] = gRefView[4] + gView[1] + rand() % 20 - 10;
+                    gView[5] = gRefView[5] + gView[2] + rand() % 20 - 10;
+                } else if (D_800F80E8 >= 90) {
+                    gView[0] = gRefView[0] - gPlayer.x;
+                    gView[1] = gRefView[1] - gPlayer.y;
+                    gView[2] = gRefView[2] - gPlayer.z;
+                    gView[3] = gRefView[3] + gView[0];
+                    gView[4] = gRefView[4] + gView[1];
+                    gView[5] = gRefView[5] + gView[2];
                 }
-                gView[0] = gRefView[0] - gPlayer.x + rand() % 20 - 10;
-                gView[1] = gRefView[1] - gPlayer.y + rand() % 20 - 10;
-                gView[2] = gRefView[2] - gPlayer.z + rand() % 20 - 10;
-                gView[3] = gRefView[3] + gView[0] + rand() % 20 - 10;
-                gView[4] = gRefView[4] + gView[1] + rand() % 20 - 10;
-                gView[5] = gRefView[5] + gView[2] + rand() % 20 - 10;
-            } else if (D_800F80E8 >= 90) {
+            } else {
                 gView[0] = gRefView[0] - gPlayer.x;
                 gView[1] = gRefView[1] - gPlayer.y;
                 gView[2] = gRefView[2] - gPlayer.z;
@@ -580,20 +626,9 @@ void func_800F4794(void) {
                 gPlayer.yaw -= 11;
             }
             D_800F80E8++;
+            /* MATCHING: here the address is taken after the call, not copied. */
             SetChaseLights();
-            gPlayer.motionResult[0] = StepAnimation(&gPlayer, 0, 0);
-            if (!(gFrameCount & 7) && gPlayer.motion[0] == 0x33) {
-                PlaySe(0x13);
-            }
-            switch (gPlayer.action) {
-                case ACT_MODEL_ONCE:
-                    break;
-                case ACT_MODEL_LOOP:
-                    if (gPlayer.motionResult[0] == 0) {
-                        gPlayer.curMotion[0] = MOT_OFF;
-                    }
-                    break;
-            }
+            StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(0x1000);
@@ -603,8 +638,12 @@ void func_800F4794(void) {
                 SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
             }
             sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];
-            sAct3Coords[0].coord.t[1] =
-                sCan.y + gWorldShift[1] - ABS(rsin(gFrameCount * 40960 / 360) * 100 / 4096);
+            {
+                s32 t;
+
+                t = rsin(gFrameCount * 40960 / 360) * 100;
+                sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
+            }
             sCanRot[0].vx = 0x800;
             sCanRot[0].vy = 0;
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
@@ -621,26 +660,34 @@ void func_800F4794(void) {
             if (D_800F80E8 >= 223) {
                 ClipF = 0;
                 StopCdTrack();
-                if (gStageTableSet >= 0) {
-                    if (gStageTableSet < 3) {
+                switch (gStageTableSet) {
+                    case 0:
+                    case 1:
+                    case 2:
                         StartWorldResults();
                         gWorldIntroStep = 60;
-                    } else if (gStageTableSet == 3) {
+                        break;
+                    case 3:
                         gGameMode = 6;
                         gModeStep = 0;
-                    }
+                        break;
                 }
             }
             break;
         case 60:
             UpdateWorldResults();
-            if (IsResultsActive() == 0 && gStageTableSet >= 0) {
-                if (gStageTableSet < 2) {
-                    gStage = STAGE_2_1;
-                    gGameMode = 0x2C;
-                } else if (gStageTableSet < 4) {
-                    gGameMode = 6;
-                    gModeStep = 0;
+            if (IsResultsActive() == 0) {
+                switch (gStageTableSet) {
+                    case 0:
+                    case 1:
+                        gStage = STAGE_2_1;
+                        gGameMode = 0x2C;
+                        break;
+                    case 2:
+                    case 3:
+                        gGameMode = 6;
+                        gModeStep = 0;
+                        break;
                 }
             }
             break;

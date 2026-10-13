@@ -43,41 +43,7 @@ void ResetSpawnedTraps(void) {
 
 #include "engine_code.inc" /* StepCheckpoint */
 
-void StepFlungPiece(StageTrap *t) {
-    s32 d;
-
-    switch (t->state) {
-        case 0:
-            t->x = gPlayer.x;
-            t->homeY = gPlayer.groundY - 50;
-            t->z = gPlayer.z;
-            t->rotY = gCourse.rot.vy + 0x800;
-            t->homeRotX = 0;
-            t->timer = 0;
-            t->state++;
-        case 1:
-            PolarToXZ(40, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            t->y = t->homeY;
-            t->timer = (t->timer + 10) % 360;
-            d = rsin((t->timer << 12) / 360) * 200 >> 12;
-            t->y = t->homeY - (d >= 0 ? d : -d);
-            t->rotX -= 113;
-            t->rotZ += 56;
-            t->homeRotX++;
-            gModeObjectModels[t->model].coord.super = NULL;
-            if (gFrameCount & 3) {
-                DrawObjectModel((ObjectModel *)&gModeObjectModels[t->model], t);
-            }
-            if (t->homeRotX > 60) {
-                t->model = -1;
-                t->state++;
-                D_800D3358[0] = -1;
-            }
-            break;
-    }
-}
+#include "engine/step_flung_piece.inc"
 
 void SpawnMissDebris(void) {
     s16 models[15] = {4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 6, 0, 2, 5, 0};
@@ -109,7 +75,7 @@ void SpawnMissDebris(void) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissDebris);
+#include "engine/step_miss_debris.inc"
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
@@ -303,7 +269,7 @@ void StepTrapType27(StageTrap *t, s32 arg) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", KnockTrapAway);
+#include "engine/knock_trap_away.inc"
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", TumbleTrapAway);
 
@@ -317,7 +283,7 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", TumbleTrapAway);
 
 #include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", SpinTrapAway);
+#include "engine/spin_trap_away.inc"
 
 #include "engine_code.inc" /* TipTrapAway */
 
@@ -875,7 +841,7 @@ void func_800F729C(void) {
  * overlay land inside the functions above. */
 FUNC_ALIAS(func_800F74FC, StartSpriteWalk, 0x3C);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", RunTrapType04);
+#include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 /* MATCHING: the dispatchers call these stage entry points, which in this
@@ -883,17 +849,17 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", RunTrapType04);
 FUNC_ALIAS(func_800F7968, RunTrapType0A, 0x58);
 FUNC_ALIAS(func_800F79A0, RunTrapType0A, 0x90);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", RunTrapType0B);
+#include "engine/run_trap_type0_b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s16 arg, s8 dir) {}
+void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 #include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 
 void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
 
-void StepTrapType12(StageTrap *t, u16 speed, s32 arg) {}
+void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {}
 
 void StepTrapType1F(StageTrap *t, u16 arg) {}
 
@@ -956,7 +922,7 @@ void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
 
 void StepTrapType1E(StageTrap *t, u16 speed) {}
 
-void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {}
+void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepTrapType31(StageTrap *t, s32 arg) {}
 
@@ -1063,7 +1029,7 @@ void func_800F8BD4(void) {
 
 #include "engine/reveal_start_cans.inc"
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", EmitTrapParticles);
+#include "engine/emit_trap_particles.inc"
 
 extern s32 D_800F9FC0[];
 extern s32 D_800F9FE0[];

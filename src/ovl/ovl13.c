@@ -1,16 +1,11 @@
 /* Stage 4-2's overlay: the stage engine (engine.inc, engine_code.inc) with this
  * stage's own routines, and the engine functions still in asm. */
 
-/* MATCHING: retail's parameter types, where engine.inc's prototypes differ. */
-#define RunTrapThenTurnTimed RunTrapThenTurnTimed_engine
-#define StepTrapType12 StepTrapType12_engine
+/* MATCHING: the engine's callers pass StepTrapType18 a word speed; this
+ * stage's body takes it as s16, so the shared declaration is set aside. */
 #define StepTrapType18 StepTrapType18_engine
 #include "engine.inc"
-#undef RunTrapThenTurnTimed
-#undef StepTrapType12
 #undef StepTrapType18
-void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir);
-void StepTrapType12(StageTrap *t, u16 speed, s16 arg);
 void StepTrapType18(StageTrap *t, s16 speed, s32 arg, s8 dir);
 
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
@@ -55,11 +50,11 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", ResetSpawnedTraps);
 
 #include "engine_code.inc" /* StepCheckpoint */
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepFlungPiece);
+#include "engine/step_flung_piece.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", SpawnMissDebris);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepMissDebris);
+#include "engine/step_miss_debris.inc"
 
 INCLUDE_RODATA("asm/ovl/ovl13/nonmatchings/ovl13", sDebrisModelInit);
 
@@ -255,19 +250,15 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType0F);
 #endif
 
 
-/* The sSpawnedTraps slot of a trap's companion: StageTrap's word at 0x44,
- * which engine.inc still leaves unnamed. */
-#define TRAP_SLOT(t) (*(s32 *)(t)->unk44)
-
 void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
     switch (t->state) {
         case 0:
             /* MATCHING: retail stores the slot unextended, as if from an s32. */
-            TRAP_SLOT(t) = ((s32 (*)(void))FindFreeSlot48)();
-            sSpawnedTraps[TRAP_SLOT(t)] = *t;
-            sSpawnedTraps[TRAP_SLOT(t)].model = t->model + 1;
-            sSpawnedTraps[TRAP_SLOT(t)].state = 4;
-            sSpawnedTraps[TRAP_SLOT(t)].y = t->y -= 150;
+            t->aux = ((s32 (*)(void))FindFreeSlot48)();
+            sSpawnedTraps[t->aux] = *t;
+            sSpawnedTraps[t->aux].model = t->model + 1;
+            sSpawnedTraps[t->aux].state = 4;
+            sSpawnedTraps[t->aux].y = t->y -= 150;
             t->timer = 0;
             t->state++;
             PlaySe(0x53);
@@ -276,8 +267,8 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
                 PlaySe(0x55);
             }
             PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[TRAP_SLOT(t)].x = t->x += gOffsetVec[0] >> 12;
-            sSpawnedTraps[TRAP_SLOT(t)].z = t->z += gOffsetVec[2] >> 12;
+            sSpawnedTraps[t->aux].x = t->x += gOffsetVec[0] >> 12;
+            sSpawnedTraps[t->aux].z = t->z += gOffsetVec[2] >> 12;
             t->timer++;
             if (t->timer > arg) {
                 t->timer = 0;
@@ -288,10 +279,10 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
             break;
         case 2:
             PolarToXZ(Lerp(45, 0, t->timer, 40), (t->homeRotY + 227) * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[TRAP_SLOT(t)].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
-            sSpawnedTraps[TRAP_SLOT(t)].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
+            sSpawnedTraps[t->aux].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
+            sSpawnedTraps[t->aux].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
             t->rotY -= 11;
-            sSpawnedTraps[TRAP_SLOT(t)].rotY += 5;
+            sSpawnedTraps[t->aux].rotY += 5;
             SpawnEffect(4, (s16)t->x - (100 - rand() % 200), (s16)t->y + 100,
                         (s16)t->z - (100 - rand() % 200), 0);
             if (++t->timer == 40) {
@@ -626,7 +617,7 @@ void StepTrapType1E(StageTrap *t, u16 speed) {
 
 #include "engine_code.inc" /* StepFlipPanel */
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", SpinTrapAway);
+#include "engine/spin_trap_away.inc"
 
 #include "engine_code.inc" /* TipTrapAway */
 
@@ -966,7 +957,7 @@ FUNC_ALIAS(func_800F84A8, RunTrapType04, 0x3C);
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", RunTrapType0B);
+#include "engine/run_trap_type0_b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -1012,7 +1003,7 @@ void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {}
+void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {}
 
@@ -1070,7 +1061,7 @@ void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {}
 
 #include "engine/draw_trap_while_linked.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", UpdateStageEventHook);
+#include "engine/update_stage_event_hook.inc"
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 
@@ -1080,7 +1071,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F9774);
 
 #include "engine/reveal_start_cans.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", EmitTrapParticles);
+#include "engine/emit_trap_particles.inc"
 
 extern s32 D_800FABD0[];
 extern s32 D_800FABF0[];

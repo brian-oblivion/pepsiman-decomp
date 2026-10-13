@@ -350,7 +350,7 @@ s32 func_800F17B0(void) {
         case 0:
             gSkyColors = D_800F4568;
             for (gLoopI = 10; gLoopI < 50; gLoopI++) {
-                sPieceCoords[gLoopI].flg = 0;
+                sPieceCoords[gLoopI].super = NULL;
             }
             gView[0] = -0x12C0;
             gView[1] = -700;
@@ -547,7 +547,7 @@ s32 func_800F17B0(void) {
         case 10:
             PlayStageMusic(gStage);
             for (gLoopI = 10; gLoopI < 50; gLoopI++) {
-                sPieceCoords[gLoopI].flg = 0;
+                sPieceCoords[gLoopI].super = NULL;
             }
             PlaceChaseObjects();
             gView[0] = 700;

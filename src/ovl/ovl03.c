@@ -403,10 +403,8 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
         }
         /* MATCHING: A >= 0 ? A : -A is cc1's one-insn abs; the spread is
          * (rand() % 10 * 10), not * 10 * (rand() % 10). */
-        if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) <
-            2000) {
-            if ((t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) <
-                    2000 &&
+        if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000) {
+            if ((t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) < 2000 &&
                 t->timer % 3 == 0) {
                 v.vx = t->x + (rsin((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
                 v.vz = t->z + (rcos((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
@@ -549,6 +547,7 @@ void UpdateStageEventHook(void) {
         }
     }
 }
+
 FUNC_ALIAS(func_800F7968, UpdateStageEventHook, 0x18);
 FUNC_ALIAS(func_800F79A0, UpdateStageEventHook, 0x50);
 
@@ -833,6 +832,7 @@ void func_800F82E0(StageTrap *t) {
             break;
     }
 }
+
 FUNC_ALIAS(func_800F8454, func_800F82E0, 0x174);
 FUNC_ALIAS(func_800F84A8, func_800F82E0, 0x1C8);
 

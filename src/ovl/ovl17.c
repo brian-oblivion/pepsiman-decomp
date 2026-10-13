@@ -290,12 +290,19 @@ s32 SpawnEffectWithParams(s32 kind, s32 x, s32 y, s32 z, s32 delay, s32 param0, 
  * computed first. */
 #define ABS_GE(x) ((x) >= 0 ? (x) : -(x))
 
+void SetChaseLights(void);
+void PlaceChaseObjects(void);
+
 /* Steps the player's first animation channel, with a footstep while it
  * runs. */
-static inline void StepChaseMotion(PlayerState *p) {
+static inline void StepChaseMotion(PlayerState *q) {
+    PlayerState *p;
     u8 m;
 
-    p->motionResult[0] = StepAnimation(p, 0, 0);
+    q->motionResult[0] = StepAnimation(q, 0, 0);
+    /* MATCHING: copied past the call, the address and its %hi share one
+     * saved register. */
+    p = q;
     /* MATCHING: the barrier keeps the result's store above the reads. */
     __asm__("");
     m = p->motion[0];
@@ -313,23 +320,14 @@ static inline void StepChaseMotion(PlayerState *p) {
     }
 }
 
-/* The same, after setting the scene's lights. */
-static inline void StepChaseMotionLit(PlayerState *p) {
-    PlayerState *q;
-
-    SetChaseLights();
-    /* MATCHING: a copy past the call puts the address in one saved register. */
-    q = p;
-    StepChaseMotion(q);
-}
-
 /* The chase's own step: the player's, the lights, the run forward and the
  * world shifted to follow it, on the scratchpad stack. */
-static inline void StepChaseRun(PlayerState *q) {
+static inline void StepChaseRun(void) {
     PlayerState *p;
 
     StepChasePlayer();
-    p = q;
+    /* MATCHING: taken after the call, so reorg can hoist the next arm's lui. */
+    p = &gPlayer;
     SetChaseLights();
     gWorldShift[1] = 0;
     p->x += p->speed;
@@ -523,7 +521,8 @@ s32 func_800F17B0(void) {
                     break;
             }
             GsSetRefView2((GsRVIEW2 *)gView);
-            StepChaseMotionLit(&gPlayer);
+            SetChaseLights();
+            StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], 0, 0, 0);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayer();
@@ -604,7 +603,7 @@ s32 func_800F17B0(void) {
                 gView[5] = -(rsin((D_800F4B0C << 12) / 360) * 500 / 4096);
                 GsSetRefView2((GsRVIEW2 *)gView);
             }
-            StepChaseRun(&gPlayer);
+            StepChaseRun();
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(sChaseLive);
@@ -772,7 +771,8 @@ s32 func_800F17B0(void) {
                 gPlayer.yaw -= 11;
             }
             D_800F4B10++;
-            StepChaseMotionLit(&gPlayer);
+            SetChaseLights();
+            StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(0x1000);

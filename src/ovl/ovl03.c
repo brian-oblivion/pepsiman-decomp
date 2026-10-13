@@ -61,7 +61,39 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapAct27);
 
 #include "engine/step_trap_forward.inc"
 
+#ifdef NON_MATCHING
+/* Matches with speed declared u16 (and -speed); that needs engine.inc's
+ * prototype and the other overlays' stubs changed to u16. */
+void StepTrapType2A(StageTrap *t, s32 speed, s32 arg) {
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+        case 1:
+            SnapToFloor(t);
+            t->y -= 20;
+            PolarToXZ(-(u16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
+                t->timer = 0;
+                t->state++;
+            }
+        case 2:
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+            }
+            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+                PlaySe(55);
+            }
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType2A);
+#endif
 
 #include "engine/step_trap_forward_level.inc"
 

@@ -89,7 +89,67 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", ToppleTrapOnApproach);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissSequence);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepGoalSequence);
+/* MATCHING: this stage's goal walk, still in asm below. */
+s8 func_800F60CC(StageTrap *t);
+
+void StepGoalSequence(void) {
+    StageTrap *t;
+    StageTrap *u;
+
+    t = sGoalTraps;
+    u = &sGoalTraps[1];
+    if (D_800D37A8 == 1) {
+        ResetRumble();
+        DrawFrozenFrame();
+        switch (t->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                gMissState = -2;
+                ClipF = 1;
+                t->timer = 0;
+                u->homeX = gPlayer.x;
+                u->homeY = gPlayer.y;
+                u->homeZ = gPlayer.z;
+                t->state++;
+            case 1:
+                if (func_800F60CC(u)) {
+                    t->state++;
+                    StartActResults();
+                }
+                break;
+            case 2:
+                if (IsResultsActive() == 0) {
+                    t->state++;
+                }
+                break;
+            case 3:
+                t->state++;
+                break;
+            case 4:
+                if (gInEditor != 1) {
+                    if (gStageTableSet != 3) {
+                        t->timer = 0;
+                        t->state++;
+                    } else {
+                        gGameMode = 6;
+                        gModeStep = 0;
+                        ClipF = 0;
+                    }
+                }
+                break;
+            case 5:
+                if (++t->timer >= 9) {
+                    gStage = GetNextStage(13);
+                    BeginAct3LoadScreen();
+                    ClipF = 0;
+                }
+                break;
+        }
+    }
+}
 
 extern s8 D_800F9A60[];
 

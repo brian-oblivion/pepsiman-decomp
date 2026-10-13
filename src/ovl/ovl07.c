@@ -1757,7 +1757,7 @@ void func_800F4E50(StageTrap *t) {
 
 /* MATCHING: model's, all s32 where it has s16: the result is stored
  * without re-extension. */
-s32 Lerp(s32 a, s32 b, u16 t, u16 n);
+s32 Lerp(s32 a, s32 b, s32 t, s32 n);
 
 void func_800F516C(StageTrap *t) {
     switch (t->state) {
@@ -1927,19 +1927,7 @@ void func_800F57C0(StageTrap *t) {
     }
 }
 
-/** @brief A 0x2C-byte record placed relative to a coordinate system
- *         (object's UpdatePlacedPos). */
-typedef struct {
-    VECTOR pos;           /**< world position, written from the local one */
-    u8 unk10[0xC];        /**< not yet known */
-    s32 lx;               /**< local x */
-    s32 ly;               /**< local y */
-    s32 lz;               /**< local z */
-    GsCOORDINATE2 *coord; /**< the coordinate system lx..lz are in */
-} Placed2C;
-
 /* MATCHING: object's views, with this unit's records. */
-void UpdatePlacedPos(Placed2C *p);
 s32 SnapToFloor(StageTrap *t);
 /* MATCHING: stage defines x..delay as s16; this call passes them
  * unextended, so the view takes s32. */
@@ -1947,7 +1935,7 @@ s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 
 #ifdef NON_MATCHING
 void func_800F5A24(StageTrap *t, s8 dir) {
-    Placed2C p;
+    PlacedPos p;
     StageTrap c;
     s32 d;
 
@@ -2044,10 +2032,6 @@ void func_800F5D88(StageTrap *t) {
             break;
     }
 }
-
-/* MATCHING: model defines this with s16/u16 parameters and an s16 result;
- * these calls pass their arguments and use the result unextended. */
-s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 
 void func_800F6098(StageTrap *t, s32 speed, s8 arg) {
     s32 v;

@@ -336,6 +336,9 @@ static inline void StepChaseRun(void) {
     StepChaseMotion(p);
 }
 
+/* MATCHING: a view of a routine model.c declares only where defined. */
+void DrawSky(u32 arg);
+
 /* The stage's frame step: the opening scene, the chase, the escape at the
  * run's end, and the results. */
 /* MATCHING: non-void with no return keeps the tail's delay slots nops. */

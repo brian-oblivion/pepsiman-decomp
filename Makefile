@@ -143,7 +143,7 @@ $(ELF): $(O_FILES) $(GAME).ld $(CONFIG)/psyq-objects.ld \
 # under asm/ovl/<ovl>/. An overlay split into several units needs OVL_OBJS to
 # learn them. Code several overlays share word for word lives in an include
 # beside them (src/ovl/world_intro.inc), which every overlay unit depends on.
-OVERLAYS  := ovl09 ovl10 ovl18 ovl19 ovl20 ovl21 ovl22
+OVERLAYS  := ovl00 ovl02 ovl03 ovl04 ovl05 ovl06 ovl07 ovl08 ovl09 ovl10 ovl11 ovl12 ovl13 ovl14 ovl15 ovl16 ovl17 ovl18 ovl19 ovl20 ovl21 ovl22
 # -G0, not the executable's -G8: retail overlay code reaches every global,
 # a scalar like gActiveBuff included, by cc1's own %hi/%lo split over two
 # registers (lui $v0 hoisted, lw $v1 later), where the executable's code has
@@ -154,7 +154,14 @@ OVL_DIR   := $(BUILD_DIR)/ovl
 OVL_BINS  := $(foreach o,$(OVERLAYS),$(OVL_DIR)/$(o).bin)
 OVL_S_FILES := $(shell find asm/ovl -name '*.s' -not -path '*/nonmatchings/*' 2>/dev/null)
 OVL_OBJS   = $(BUILD_DIR)/src/ovl/$(1).c.o \
-             $(foreach f,$(filter asm/ovl/$(1)/%,$(OVL_S_FILES)),$(BUILD_DIR)/$(f).o)
+             $(foreach f,$(filter asm/ovl/$(1)/%,$(OVL_S_FILES)),$(BUILD_DIR)/$(f).o) \
+             $(foreach f,$(wildcard assets/$(1)/*.bin),$(BUILD_DIR)/$(f).o)
+
+# Bytes splat keeps as a `bin` subsegment (assets/<ovl>/, generated, never
+# committed): ovl00's file ends in a halfword its data words cannot hold.
+$(BUILD_DIR)/assets/%.bin.o: assets/%.bin
+	@mkdir -p $(dir $@)
+	printf '.section .data\n.incbin "%s"\n' $< | $(AS) $(AS_FLAGS) -o $@
 
 overlays: $(OVL_BINS)
 

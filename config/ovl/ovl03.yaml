@@ -1,0 +1,61 @@
+# Overlay 03: stage 1-1, CDDATA/2/2000 on the disc
+# (tools/extract_overlays.py writes it to disk/ovl/ovl03.bin).
+#
+# ADDRESSING. A bare image, no header: LoadStageOverlay reads the file to 0x800F0000,
+# so vram = 0x800F0000 + file offset. It reaches the executable's symbols by
+# their absolute addresses, so the executable's symbols file is read first
+# and anything it calls lands in this overlay's undefined_*_auto files.
+#
+# SEGMENTATION, measured: rodata, then code from the first function to the
+# last `jr $ra`, then data to the end of the file. Not yet worked: the rodata
+# and data are one block each.
+name: ovl03
+sha1: 29f6ff4c64aa87951d69f90e1bc081b356070be0
+options:
+  basename: ovl03
+  platform: psx
+  compiler: GCC
+
+  base_path: ../..
+  target_path: disk/ovl/ovl03.bin
+  asm_path:    asm/ovl/ovl03/
+  asset_path:  assets/ovl03/
+  src_path:    src/ovl/
+  symbol_addrs_path:
+    - config/symbols.slps01762.pepsiman.txt
+    - config/ovl/symbols.ovl03.txt
+  undefined_funcs_auto_path:   config/ovl/undefined_funcs_auto.ovl03.txt
+  undefined_syms_auto_path:    config/ovl/undefined_syms_auto.ovl03.txt
+  ld_script_path: build/ovl/ovl03.ld
+
+  find_file_boundaries: True
+  pair_rodata_to_text: False
+  migrate_rodata_to_functions: True
+
+  o_as_suffix: False
+  use_legacy_include_asm: False
+
+  asm_function_macro: glabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+
+  section_order: [".rodata", ".text", ".data"]
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+segments:
+  - name: ovl03
+    type: code
+    start: 0x0
+    vram: 0x800F0000
+    align: 4
+    subsegments:
+      - [0x0, .rodata, ovl03]
+      - [0x9B0, c, ovl03]
+      - [0xAE48, data]
+  - [0xFDB8]

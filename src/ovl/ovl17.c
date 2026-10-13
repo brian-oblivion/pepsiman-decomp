@@ -293,8 +293,13 @@ s32 SpawnEffectWithParams(s32 kind, s32 x, s32 y, s32 z, s32 delay, s32 param0, 
 /* Steps the player's first animation channel, with a footstep while it
  * runs. */
 static inline void StepChaseMotion(PlayerState *p) {
+    u8 m;
+
     p->motionResult[0] = StepAnimation(p, 0, 0);
-    if (!(gFrameCount & 7) && p->motion[0] == 0x33) {
+    /* MATCHING: the barrier keeps the result's store above the reads. */
+    __asm__("");
+    m = p->motion[0];
+    if (!(gFrameCount & 7) && m == 0x33) {
         PlaySe(0x13);
     }
     switch (p->action) {
@@ -310,14 +315,21 @@ static inline void StepChaseMotion(PlayerState *p) {
 
 /* The same, after setting the scene's lights. */
 static inline void StepChaseMotionLit(PlayerState *p) {
+    PlayerState *q;
+
     SetChaseLights();
-    StepChaseMotion(p);
+    /* MATCHING: a copy past the call puts the address in one saved register. */
+    q = p;
+    StepChaseMotion(q);
 }
 
 /* The chase's own step: the player's, the lights, the run forward and the
  * world shifted to follow it, on the scratchpad stack. */
-static inline void StepChaseRun(PlayerState *p) {
+static inline void StepChaseRun(PlayerState *q) {
+    PlayerState *p;
+
     StepChasePlayer();
+    p = q;
     SetChaseLights();
     gWorldShift[1] = 0;
     p->x += p->speed;
@@ -622,11 +634,13 @@ s32 func_800F17B0(void) {
                 SetTmdSortMode(0);
                 GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
             }
+            i = 0;
             DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 50000);
-            for (i = 0; i < D_800F454C; i++) {
-                o = &sObjs[i];
-                if (o->state != -1) {
-                    D_800F4558[(s16)o->kind](o);
+            /* MATCHING: i cleared before the call, the base taken before the loop. */
+            o = sObjs;
+            for (; i < D_800F454C; i++) {
+                if (o[i].state != -1) {
+                    D_800F4558[(s16)o[i].kind](&o[i]);
                 }
             }
             DrawSky(0);

@@ -6,6 +6,8 @@
 #define CHASE_PLACEMENTS 103
 #define CHASE_VAB 2
 #define CHASE_REACH 120
+#define CHASE_LIGHT_BLUE 0x80
+#define CHASE_FAR_COLOR 0xB0, 0xB0, 0xB0
 
 #include "chase.inc"
 
@@ -30,31 +32,5 @@ INCLUDE_ASM("asm/ovl/ovl05/nonmatchings/ovl05", StartChaseJump);
 
 INCLUDE_ASM("asm/ovl/ovl05/nonmatchings/ovl05", func_800F4794);
 
-/* Sets the scene's three lights and its fog. */
-void SetChaseLights(void) {
-    sLights.l[0].r = 0x80;
-    sLights.l[0].g = 0x80;
-    sLights.l[0].b = 0x80;
-    sLights.l[1].r = 0x80;
-    sLights.l[1].g = 0x80;
-    sLights.l[1].b = 0x80;
-    sLights.l[2].r = 0x80;
-    sLights.l[2].g = 0x80;
-    sLights.l[2].b = 0x80;
-    sLights.l[0].vx = 0;
-    sLights.l[0].vy = 100;
-    sLights.l[0].vz = 100;
-    GsSetFlatLight(0, &sLights.l[0]);
-    sLights.l[1].vx = 0x56;
-    sLights.l[1].vy = 100;
-    sLights.l[1].vz = -50;
-    GsSetFlatLight(1, &sLights.l[1]);
-    sLights.l[2].vx = -0x56;
-    sLights.l[2].vy = 100;
-    sLights.l[2].vz = -50;
-    GsSetFlatLight(2, &sLights.l[2]);
-    SetFogNearFar(3000, 8000, 250);
-    SetFarColor(0xB0, 0xB0, 0xB0);
-}
 
 #include "chase_tail.inc"

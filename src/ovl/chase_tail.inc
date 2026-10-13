@@ -1,7 +1,36 @@
 /* The end the act-3 chase stages share: placing the objects, the loader
- * and the reset. The stage's unit defines CHASE_VAB, its sound bank, and
+ * and the reset, after the scene's lights. The stage's unit defines
+ * CHASE_LIGHT_BLUE (the lights' blue), CHASE_FAR_COLOR (the fog's colour,
+ * three components) and CHASE_VAB, its sound bank, and
  * may define CHASE_LOADER as the INCLUDE_ASM that stands for the loader
  * while its C does not build to the unit's bytes. */
+
+/* Sets the scene's three lights and its fog. */
+void SetChaseLights(void) {
+    sLights.l[0].r = 0x80;
+    sLights.l[0].g = 0x80;
+    sLights.l[0].b = CHASE_LIGHT_BLUE;
+    sLights.l[1].r = 0x80;
+    sLights.l[1].g = 0x80;
+    sLights.l[1].b = CHASE_LIGHT_BLUE;
+    sLights.l[2].r = 0x80;
+    sLights.l[2].g = 0x80;
+    sLights.l[2].b = CHASE_LIGHT_BLUE;
+    sLights.l[0].vx = 0;
+    sLights.l[0].vy = 100;
+    sLights.l[0].vz = 100;
+    GsSetFlatLight(0, &sLights.l[0]);
+    sLights.l[1].vx = 0x56;
+    sLights.l[1].vy = 100;
+    sLights.l[1].vz = -50;
+    GsSetFlatLight(1, &sLights.l[1]);
+    sLights.l[2].vx = -0x56;
+    sLights.l[2].vy = 100;
+    sLights.l[2].vz = -50;
+    GsSetFlatLight(2, &sLights.l[2]);
+    SetFogNearFar(3000, 8000, 250);
+    SetFarColor(CHASE_FAR_COLOR);
+}
 
 /* Frees every object, then places the stage's 103. */
 void PlaceChaseObjects(void) {

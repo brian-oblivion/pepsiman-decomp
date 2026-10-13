@@ -1,1 +1,18 @@
 // Overlay 17 (stage 5-3): names for addresses inside the overlay.
+sJumpSpeed = 0x800F4550;
+sChaseLive = 0x800F4554;
+sHurtTimer = 0x800F4AD8;
+sPlacements = 0x800F3FAC;
+sChaseFileLoc = 0x800F4A8C;
+sChaseFileSectors = 0x800F4AB0;
+StartChaseJump = 0x800F01F0; // type:func
+StepChasePlayer = 0x800F0258; // type:func
+DrawChasePlayer = 0x800F04A0; // type:func
+DrawChasePlayerScaled = 0x800F05F0; // type:func
+DrawChaseShadowCentre = 0x800F0790; // type:func
+DrawChaseShadow = 0x800F087C; // type:func
+DrawChaseHud = 0x800F097C; // type:func
+SetChaseLights = 0x800F36A8; // type:func
+PlaceChaseObjects = 0x800F377C; // type:func
+LoadChaseStage = 0x800F3800; // type:func
+ResetChaseStage = 0x800F3A28; // type:func

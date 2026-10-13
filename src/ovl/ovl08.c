@@ -5,6 +5,8 @@
 #define CHASE_PLACEMENTS 126
 #define CHASE_VAB 3
 #define CHASE_REACH 550
+#define CHASE_LIGHT_BLUE 0x40
+#define CHASE_FAR_COLOR 0, 0, 32
 /* MATCHING: the loader's jump table sits 4 bytes past an 8-byte boundary;
  * this toolchain aligns jump tables to 8, so the loader stays asm. */
 #define CHASE_LOADER INCLUDE_ASM("asm/ovl/ovl08/nonmatchings/ovl08", LoadChaseStage);
@@ -32,31 +34,5 @@ INCLUDE_ASM("asm/ovl/ovl08/nonmatchings/ovl08", StartChaseJump);
 
 INCLUDE_ASM("asm/ovl/ovl08/nonmatchings/ovl08", func_800F4758);
 
-/* Sets the scene's three lights and its fog. */
-void SetChaseLights(void) {
-    sLights.l[0].r = 0x80;
-    sLights.l[0].g = 0x80;
-    sLights.l[0].b = 0x40;
-    sLights.l[1].r = 0x80;
-    sLights.l[1].g = 0x80;
-    sLights.l[1].b = 0x40;
-    sLights.l[2].r = 0x80;
-    sLights.l[2].g = 0x80;
-    sLights.l[2].b = 0x40;
-    sLights.l[0].vx = 0;
-    sLights.l[0].vy = 100;
-    sLights.l[0].vz = 100;
-    GsSetFlatLight(0, &sLights.l[0]);
-    sLights.l[1].vx = 0x56;
-    sLights.l[1].vy = 100;
-    sLights.l[1].vz = -50;
-    GsSetFlatLight(1, &sLights.l[1]);
-    sLights.l[2].vx = -0x56;
-    sLights.l[2].vy = 100;
-    sLights.l[2].vz = -50;
-    GsSetFlatLight(2, &sLights.l[2]);
-    SetFogNearFar(3000, 8000, 250);
-    SetFarColor(0, 0, 32);
-}
 
 #include "chase_tail.inc"

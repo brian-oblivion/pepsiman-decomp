@@ -188,11 +188,13 @@ $(EXE_SYMS_LD): $(CONFIG)/symbols.$(GAME_ID).$(GAME).txt
 
 # The linker script is splat's (make extract writes it into build/ovl/).
 $(OVL_DIR)/%.elf: $$(call OVL_OBJS,$$*) $(OVL_DIR)/%.ld $(EXE_SYMS_LD) \
+		$(CONFIG)/undefined_syms.$(GAME_ID).$(GAME).txt \
 		$(CONFIG)/ovl/undefined_syms_auto.%.txt $(CONFIG)/ovl/undefined_funcs_auto.%.txt
 	$(LD) -o $@ \
 		-Map $(OVL_DIR)/$*.map \
 		-T $(OVL_DIR)/$*.ld \
 		-T $(EXE_SYMS_LD) \
+		-T $(CONFIG)/undefined_syms.$(GAME_ID).$(GAME).txt \
 		-T $(CONFIG)/ovl/undefined_syms_auto.$*.txt \
 		-T $(CONFIG)/ovl/undefined_funcs_auto.$*.txt \
 		$(LD_FLAGS)

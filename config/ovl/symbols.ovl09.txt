@@ -1,1 +1,3 @@
 // Overlay 09 (stage 3-1): names for addresses inside the overlay.
+sStageFileLoc = 0x800F256C;
+sStageFileSectors = 0x800F258C;

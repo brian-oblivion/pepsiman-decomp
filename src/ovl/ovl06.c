@@ -293,13 +293,16 @@ void StepSprayTrap(StageTrap *t, s8 dir) {
                     c = *t;
                     SnapToFloor(&c);
                     if (!(gFrameCount & 3)) {
-                        SpawnEffectWithParams(9, t->homeX, t->homeY, t->homeZ, 0, 20, (d = c.y - t->homeY, d >= 0 ? d : -d), 0, 0);
+                        SpawnEffectWithParams(9, t->homeX, t->homeY, t->homeZ, 0, 20,
+                                              (d = c.y - t->homeY, d >= 0 ? d : -d), 0, 0);
                     }
                     if (gFrameCount % 10 == 0) {
                         PlaySe(0x6A);
                     }
                     if (!(gFrameCount & 1)) {
-                        SpawnEffect(4, (s16)t->homeX - (50 - rand() % 100), (s16)c.y + (20 - rand() % 50), (s16)t->homeZ - (50 - rand() % 100), 0);
+                        SpawnEffect(4, (s16)t->homeX - (50 - rand() % 100),
+                                    (s16)c.y + (20 - rand() % 50),
+                                    (s16)t->homeZ - (50 - rand() % 100), 0);
                     }
                     break;
             }
@@ -492,66 +495,7 @@ FUNC_ALIAS(func_800F79A0, StepMissSequence, 0xEC);
 extern s8 D_800D36F0;
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
-
-extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
+/* MATCHING: main's view of the loader. */
 void BeginLoadScreen(void);
 s8 func_800F8960(StageTrap *t);
 
@@ -754,9 +698,8 @@ FUNC_ALIAS(func_800F8454, func_800F8264, 0x1F0);
 void func_800F87E0(StageTrap *t, s8 dir);
 
 #ifdef NON_MATCHING
-/* Matches byte for byte as `s32 func_800F84A8` with no return (the jump
- * table's index sll then fills the bound check's delay slot), once
- * engine.inc declares it s32. */
+/* MATCHING: as s32 with no return statement this is retail's code; the
+ * engine declares it void. */
 void func_800F84A8(StageTrap *t) {
     s16 speed;
 
@@ -858,6 +801,7 @@ void func_800F87E0(StageTrap *t, s8 dir) {
         s->timer = 90;
     }
 }
+
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
 FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);

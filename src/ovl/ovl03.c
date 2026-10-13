@@ -171,7 +171,89 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepHoppingTrap);
 #include "engine/swap_trap_model_on_approach.inc"
 FUNC_ALIAS(func_800F74FC, SwapTrapModelOnApproach, 0x12C);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepMissSequence);
+void StepMissSequence(void) {
+    s32 unused[18];
+    StageTrap *m;
+    u16 i;
+
+    m = &D_800AC6E0;
+    if (D_800D3638 == 1) {
+        switch (m->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                EndJump();
+                gMissState = -1;
+                D_800D39D8[0].homeRotZ = 0;
+                gFellOff = 1;
+                m->timer = 0;
+                D_800D39D8[0].homeX = gPlayer.x;
+                D_800D39D8[0].homeY = gPlayer.y;
+                D_800D39D8[0].homeZ = gPlayer.z;
+                gRefView[0] = gView[0];
+                gRefView[1] = gView[1];
+                gRefView[2] = gView[2];
+                gRefView[3] = gView[3];
+                gRefView[4] = gView[4];
+                gRefView[5] = gView[5];
+                m->state++;
+            case 1:
+                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 25);
+                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 25);
+                gView[1] = gRefView[1] + Lerp(0, 65, m->timer, 25);
+                gView[4] = gRefView[4] + Lerp(0, 50, m->timer, 25);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                if (++m->timer >= 26) {
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 2:
+                gPlayer.motion[0] = 0;
+                if (++m->timer != 0) {
+                    D_800AC6B8 = 90;
+                    m->timer = 0;
+                    m->state++;
+                }
+                break;
+            case 3:
+                if (++m->timer < 8 && m->timer % 2 == 0) {
+                    PlaySe(0x38);
+                }
+                if (m->timer >= 9) {
+                    m->timer = 0;
+                    m->state++;
+                    gOffsetVec[0] = gPlayer.x;
+                    gOffsetVec[2] = gPlayer.z;
+                    for (i = 0; i < 40; i++) {
+                        gOffsetVec[1] = gPlayer.y - i * 10;
+                        ScatterDust((VECTOR *)gOffsetVec);
+                    }
+                    gPlayer.action = 0x5E;
+                    gPlayer.rideMode = (gPlayer.rideMode & 0xF0) | 3;
+                    SpawnMissDebris();
+                    gMissState = 0;
+                    gFellOff = 0;
+                    D_800D39D8[1].state = 0;
+                    D_800D39D8[1].timer = 0;
+                    gPlayer.control = 1;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+            case 4:
+                DrawFrozenFrame();
+                if (++m->timer == 30) {
+                    m->state++;
+                }
+                gView[1] = gRefView[1] + 100;
+                GsSetRefView2((GsRVIEW2 *)gView);
+                break;
+        }
+    }
+}
 
 void UpdateStageEventHook(void) {
     StageTrap *m;

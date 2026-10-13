@@ -350,7 +350,6 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SpinTrapAway);
 
 #include "engine/swing_gate_continuously.inc"
 
-#ifdef NON_MATCHING
 void StepHoppingTrap(StageTrap *t, u8 act) {
     VECTOR v;
     s32 off;
@@ -358,7 +357,6 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
     s16 r;
     s16 ang;
     s32 d;
-    s32 e;
 
     switch (act) {
         case 0:
@@ -385,10 +383,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
     if (t->state == 0) {
         t->timer++;
         d = rsin((t->timer * 20 << 12) / 360) * 25 >> 12;
-        if (d < 0) {
-            d = -d;
-        }
-        t->y = t->homeY - d;
+        t->y = t->homeY - (d >= 0 ? d : -d);
         switch (act) {
             case 0:
             case 1:
@@ -406,18 +401,15 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
                 t->z += rcos(ang) * 20 >> 12;
                 break;
         }
-        d = t->x + gWorldShift[0];
-        if (d < 0) {
-            d = -d;
-        }
-        if (d < 2000) {
-            e = t->z + gWorldShift[2];
-            if (e < 0) {
-                e = -e;
-            }
-            if (e < 2000 && t->timer % 3 == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * 10 * (rand() % 10)) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * 10 * (rand() % 10)) >> 12);
+        /* MATCHING: A >= 0 ? A : -A is cc1's one-insn abs; the spread is
+         * (rand() % 10 * 10), not * 10 * (rand() % 10). */
+        if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) <
+            2000) {
+            if ((t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) <
+                    2000 &&
+                t->timer % 3 == 0) {
+                v.vx = t->x + (rsin((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
+                v.vz = t->z + (rcos((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
                 v.vy = t->y;
                 ScatterDust(&v);
             }
@@ -433,9 +425,6 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepHoppingTrap);
-#endif
 
 #include "engine/swap_trap_model_on_approach.inc"
 FUNC_ALIAS(func_800F74FC, SwapTrapModelOnApproach, 0x12C);

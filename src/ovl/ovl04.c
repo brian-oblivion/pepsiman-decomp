@@ -55,13 +55,13 @@ INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct27);
+#include "engine/step_trap_act27.inc"
 
 #include "engine/run_trap_ahead.inc"
 
 #include "engine/step_trap_forward.inc"
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType2A);
+#include "engine/step_trap_type2a.inc"
 
 #include "engine/step_trap_forward_level.inc"
 
@@ -73,7 +73,7 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType2A);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType0F);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType12);
+#include "engine/step_trap_type12.inc"
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", KnockTrapAway);
 
@@ -81,7 +81,7 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", TumbleTrapAway);
 
 #include "engine_code.inc" /* StepBouncingRoller */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapFFAct68);
+#include "engine/step_trap_ff_act68.inc"
 
 #include "engine/step_smoking_tumble_trap.inc"
 
@@ -107,7 +107,7 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", SpinTrapAway);
 
 #include "engine/swing_gate_continuously.inc"
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepHoppingTrap);
+#include "engine/step_hopping_trap.inc"
 
 #include "engine/swap_trap_model_on_approach.inc"
 
@@ -260,7 +260,7 @@ void StepGoalSequence(void) {
     }
 }
 
-void func_800FA694(u8 *dir, u16 first, u16 count);
+void LoadTimRange(u8 *dir, u16 first, u16 count);
 
 void CycleGoalLights(s8 arg) {
     u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
@@ -269,9 +269,9 @@ void CycleGoalLights(s8 arg) {
     if (gSectionEdges[-1] - gSection < 20) {
         for (i = 0; i < 8; i++) {
             if (gFrameCount % periods[i] == 0) {
-                func_800FA694((u8 *)0x8018D000, i * 4 + arg * 2, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
             } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                func_800FA694((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
             }
         }
     }
@@ -690,7 +690,7 @@ void func_800F8D64(void) {
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", RunTrapType04);
+#include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
@@ -712,7 +712,7 @@ void StepTrapAct21(StageTrap *t) {}
 
 void StepTrapAct22(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct23);
+#include "engine/step_trap_act23.inc"
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct24);
 
@@ -764,9 +764,9 @@ void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
 
 #include "engine/tumble_trap_act09.inc"
 
-#include "engine/tumble_trap_act0_b.inc"
+#include "engine/tumble_trap_act0b.inc"
 
-#include "engine/knock_trap_away_act0_c.inc"
+#include "engine/knock_trap_away_act0c.inc"
 
 #include "engine/tumble_trap_act12.inc"
 
@@ -802,7 +802,7 @@ void UpdateStageEventHook(void) {
 
 void UpdateGoalEventHook(void) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA694);
+INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", LoadTimRange);
 
 #include "engine/reveal_start_cans.inc"
 

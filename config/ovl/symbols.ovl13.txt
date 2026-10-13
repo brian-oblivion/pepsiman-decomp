@@ -145,3 +145,4 @@ StepTrapForwardLevel = 0x800F2998; // type:func
 StepRollingTrap = 0x800F3CC0; // type:func
 ScatterTrapDust = 0x800F70DC; // type:func
 RevealStartCans = 0x800F97FC; // type:func
+LoadTimRange = 0x800F9774; // type:func

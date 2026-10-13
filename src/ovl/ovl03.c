@@ -55,84 +55,13 @@ INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-void StepTrapAct27(StageTrap *t) {
-    StageTrap c;
-    u16 i;
-    s16 model;
-
-    /* MATCHING: the model in a local keeps it in a saved register. */
-    model = 0x44;
-    switch (t->state) {
-        case 0:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0) {
-                if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x39);
-                }
-                t->timer = 0;
-                t->state++;
-            }
-            break;
-        case 1:
-            t->timer++;
-            PolarToXZ(50, (gCourse.rot.vy + 0x800) * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            for (i = 0; i < 8; i++) {
-                c = *t;
-                c.model = model;
-                c.rotY = gCourse.rot.vy;
-                InterpSwing(sBurstHeights[i], t->timer, 30, gOffsetVec);
-                c.y -= gOffsetVec[1] >> 12;
-                /* MATCHING: timer * 4 + timer, not * 5: it loads the table first. */
-                c.x += sBurstDirs[i][0] * (t->timer * 4 + t->timer);
-                c.z += sBurstDirs[i][1] * (t->timer * 4 + t->timer);
-                c.rotZ += (t->timer * (sBurstSpins[i][0] * 2 + 10) << 12) / 360;
-                if (t->timer & 3) {
-                    DrawObjectModel(&gObjectModels[c.model], &c);
-                }
-            }
-            if (t->timer > 40) {
-                t->model = -1;
-                t->state++;
-            }
-            break;
-    }
-}
+#include "engine/step_trap_act27.inc"
 
 #include "engine/run_trap_ahead.inc"
 
 #include "engine/step_trap_forward.inc"
 
-void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {
-    switch (t->state) {
-        case 0:
-            t->homeX = t->x;
-            t->homeY = t->y;
-            t->homeZ = t->z;
-            t->state++;
-        case 1:
-            SnapToFloor(t);
-            t->y -= 20;
-            PolarToXZ(-speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
-                t->timer = 0;
-                t->state++;
-            }
-        case 2:
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(55);
-            }
-            break;
-    }
-}
+#include "engine/step_trap_type2a.inc"
 
 #include "engine/step_trap_forward_level.inc"
 
@@ -211,7 +140,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType0F);
 #endif
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType12);
+#include "engine/step_trap_type12.inc"
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", KnockTrapAway);
 
@@ -239,86 +168,7 @@ void StepTrapFFAct67(StageTrap *t) {
     }
 }
 
-void StepTrapFFAct68(StageTrap *t) {
-    StageTrap c;
-    u16 i;
-    s16 model;
-    s32 h;
-    u16 yaw;
-
-    model = 12;
-    switch (t->state) {
-        case 0:
-            PolarToXZ(t->homeRotZ, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            t->x += gOffsetVec[0] >> 12;
-            t->z += gOffsetVec[2] >> 12;
-            t->timer += 10;
-            h = rsin((t->timer / t->homeX << 12) / 360) * t->homeRotX >> 12;
-            /* MATCHING: h >= 0 ? h : -h folds to one abs insn, which the
-             * scheduler moves loads across; an if gives a branch. */
-            t->y = t->homeY - (h >= 0 ? h : -h);
-            if (t->timer > 180) {
-                t->homeX = 3;
-                t->homeRotX = 10;
-                t->homeRotZ = -5;
-            }
-            if (t->timer > 360) {
-                t->homeX = 8;
-                t->homeRotX = 2;
-                t->homeRotZ = -2;
-            }
-            if (t->timer > 540) {
-                t->homeRotX = 0;
-                t->homeRotZ = 0;
-            }
-            if (t->timer == 180) {
-                PlaySe(0x38);
-            }
-            if (t->aux != 3) {
-                t->homeZ -= ++t->counter;
-                yaw = gCourse.rot.vy;
-                if (t->homeZ < 0) {
-                    t->homeZ = 0;
-                }
-                if (t->aux == 2) {
-                    yaw += (t->homeZ << 12) / 360;
-                }
-                if (t->aux == 1) {
-                    yaw += -(t->homeZ << 12) / 360;
-                }
-                t->rotY = yaw;
-            }
-            if (gSection - UpdatePathSegment(t) < 2) {
-                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            }
-            if (t->touched == 1) {
-                PlaySe(0x38);
-                t->timer = 0;
-                t->state++;
-            }
-            break;
-        case 1:
-            t->timer++;
-            for (i = 0; i < 8; i++) {
-                c = *t;
-                c.model = model;
-                c.rotY = gCourse.rot.vy;
-                InterpSwing(sBurstHeights[i], t->timer, 30, gOffsetVec);
-                c.y -= gOffsetVec[1] >> 12;
-                c.x += sBurstDirs[i][0] * (t->timer * 4 + t->timer);
-                c.z += sBurstDirs[i][1] * (t->timer * 4 + t->timer);
-                c.rotZ += (t->timer * (sBurstSpins[i][0] * 2 + 10) << 12) / 360;
-                if (t->timer % 3) {
-                    DrawObjectModel(&gObjectModels[c.model], &c);
-                }
-            }
-            if (t->timer > 40) {
-                t->model = -1;
-                t->state++;
-            }
-            break;
-    }
-}
+#include "engine/step_trap_ff_act68.inc"
 
 #include "engine/step_smoking_tumble_trap.inc"
 
@@ -344,79 +194,7 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", SpinTrapAway);
 
 #include "engine/swing_gate_continuously.inc"
 
-void StepHoppingTrap(StageTrap *t, u8 act) {
-    VECTOR v;
-    s32 off;
-    s32 amp;
-    s16 r;
-    s16 ang;
-    s32 d;
-
-    switch (act) {
-        case 0:
-            off = 0x400;
-            amp = 125;
-            break;
-        case 1:
-            off = 0xC00;
-            amp = 250;
-            break;
-        case 2:
-            off = 0x400;
-            break;
-        case 3:
-            off = 0xC00;
-            break;
-        case 4:
-            off = 0;
-            break;
-        case 5:
-            off = 0x800;
-            break;
-    }
-    if (t->state == 0) {
-        t->timer++;
-        d = rsin((t->timer * 20 << 12) / 360) * 25 >> 12;
-        t->y = t->homeY - (d >= 0 ? d : -d);
-        switch (act) {
-            case 0:
-            case 1:
-                r = rsin((t->timer * 3 << 12) / 360) * amp >> 12;
-                ang = t->rotY + off;
-                t->x = t->homeX - (rsin(ang) * r >> 12);
-                t->z = t->homeZ - (rcos(ang) * r >> 12);
-                break;
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                ang = t->rotY + off;
-                t->x += rsin(ang) * 20 >> 12;
-                t->z += rcos(ang) * 20 >> 12;
-                break;
-        }
-        /* MATCHING: A >= 0 ? A : -A is cc1's one-insn abs; the spread is
-         * (rand() % 10 * 10), not * 10 * (rand() % 10). */
-        if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000) {
-            if ((t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) < 2000 &&
-                t->timer % 3 == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
-                v.vy = t->y;
-                ScatterDust(&v);
-            }
-        }
-        if (gSection - UpdatePathSegment(t) < 2) {
-            UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-            if (t->timer * 20 % 180 == 0) {
-                PlaySe(0x4E);
-            }
-        }
-        if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-            PlaySe(0x36);
-        }
-    }
-}
+#include "engine/step_hopping_trap.inc"
 
 #include "engine/swap_trap_model_on_approach.inc"
 FUNC_ALIAS(func_800F74FC, SwapTrapModelOnApproach, 0x12C);
@@ -990,7 +768,7 @@ s8 func_800F8DF0(StageTrap *t) {
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", RunTrapType04);
+#include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
@@ -1010,14 +788,7 @@ void StepTrapAct21(StageTrap *t) {}
 
 void StepTrapAct22(StageTrap *t) {}
 
-void StepTrapAct23(StageTrap *t) {
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x3B);
-    }
-}
+#include "engine/step_trap_act23.inc"
 
 void StepTrapAct24(StageTrap *t) {
     if (gSection - UpdatePathSegment(t) < 2) {
@@ -1076,9 +847,9 @@ void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
 
 #include "engine/tumble_trap_act09.inc"
 
-#include "engine/tumble_trap_act0_b.inc"
+#include "engine/tumble_trap_act0b.inc"
 
-#include "engine/knock_trap_away_act0_c.inc"
+#include "engine/knock_trap_away_act0c.inc"
 
 #include "engine/tumble_trap_act12.inc"
 

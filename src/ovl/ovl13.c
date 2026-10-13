@@ -250,54 +250,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType0F);
 #endif
 
 
-void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
-    switch (t->state) {
-        case 0:
-            /* MATCHING: retail stores the slot unextended, as if from an s32. */
-            t->aux = ((s32 (*)(void))FindFreeSlot48)();
-            sSpawnedTraps[t->aux] = *t;
-            sSpawnedTraps[t->aux].model = t->model + 1;
-            sSpawnedTraps[t->aux].state = 4;
-            sSpawnedTraps[t->aux].y = t->y -= 150;
-            t->timer = 0;
-            t->state++;
-            PlaySe(0x53);
-        case 1:
-            if (LatchProximity(t, 2000) != 0) {
-                PlaySe(0x55);
-            }
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[t->aux].x = t->x += gOffsetVec[0] >> 12;
-            sSpawnedTraps[t->aux].z = t->z += gOffsetVec[2] >> 12;
-            t->timer++;
-            if (t->timer > arg) {
-                t->timer = 0;
-                t->state++;
-                t->homeRotY = t->rotY;
-                PlaySe(0x58);
-            }
-            break;
-        case 2:
-            PolarToXZ(Lerp(45, 0, t->timer, 40), (t->homeRotY + 227) * 360 / 4096, (Vec3 *)gOffsetVec);
-            sSpawnedTraps[t->aux].x = t->x += (gOffsetVec[0] >> 12) - (2 - rand() % 5);
-            sSpawnedTraps[t->aux].z = t->z += (gOffsetVec[2] >> 12) - (2 - rand() % 5);
-            t->rotY -= 11;
-            sSpawnedTraps[t->aux].rotY += 5;
-            SpawnEffect(4, (s16)t->x - (100 - rand() % 200), (s16)t->y + 100,
-                        (s16)t->z - (100 - rand() % 200), 0);
-            if (++t->timer == 40) {
-                t->timer = 0;
-                t->state++;
-            }
-            break;
-    }
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x37);
-    }
-}
+#include "engine/step_trap_type12.inc"
 
 void StepTrapType1F(StageTrap *t, u16 arg) {
     s32 d;
@@ -818,7 +771,7 @@ void StepGoalSequence(void) {
     }
 }
 
-void func_800F9774(u8 *dir, u16 first, u16 count);
+void LoadTimRange(u8 *dir, u16 first, u16 count);
 
 void CycleGoalLights(s8 arg) {
     u16 periods[8] = {20, 40, 30, 40, 20, 30, 20, 35};
@@ -827,9 +780,9 @@ void CycleGoalLights(s8 arg) {
     if (gSectionEdges[-1] - gSection < 20) {
         for (i = 0; i < 8; i++) {
             if (gFrameCount % periods[i] == 0) {
-                func_800F9774((u8 *)0x8018D000, i * 4 + arg * 2, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
             } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                func_800F9774((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + 1 + arg * 2, 1);
             }
         }
     }
@@ -957,7 +910,7 @@ FUNC_ALIAS(func_800F84A8, RunTrapType04, 0x3C);
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-#include "engine/run_trap_type0_b.inc"
+#include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -1067,7 +1020,7 @@ void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {}
 
 void UpdateGoalEventHook(void) {}
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F9774);
+INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", LoadTimRange);
 
 #include "engine/reveal_start_cans.inc"
 

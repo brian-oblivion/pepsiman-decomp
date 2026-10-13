@@ -440,9 +440,9 @@ void CycleGoalLights(s8 arg) {
     if (gSectionEdges[-1] - gSection < 20) {
         for (i = 0; i < 8; i++) {
             if (gFrameCount % periods[i] == 0) {
-                func_800FA050((u8 *)0x8018D000, i * 4 + arg * 2, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2, 1);
             } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                func_800FA050((u8 *)0x8018D000, i * 4 + arg * 2 + 1, 1);
+                LoadTimRange((u8 *)0x8018D000, i * 4 + arg * 2 + 1, 1);
             }
         }
     }
@@ -594,7 +594,7 @@ FUNC_ALIAS(func_800F87E4, func_800F82CC, 0x518);
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 #include "engine/run_trap_type04.inc"
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
-#include "engine/run_trap_type0_b.inc"
+#include "engine/run_trap_type0b.inc"
 #include "engine_code.inc" /* RunTrapType32 */
 
 void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
@@ -668,9 +668,9 @@ void StepTrapType1D(StageTrap *t, u16 speed) {}
 
 #include "engine/tumble_trap_act09.inc"
 
-#include "engine/tumble_trap_act0_b.inc"
+#include "engine/tumble_trap_act0b.inc"
 
-#include "engine/knock_trap_away_act0_c.inc"
+#include "engine/knock_trap_away_act0c.inc"
 
 #include "engine/tumble_trap_act12.inc"
 
@@ -684,7 +684,7 @@ void UpdateStageEventHook(void) {}
 
 void UpdateGoalEventHook(void) {}
 #ifdef NON_MATCHING
-void func_800FA050(u8 *dir, u16 first, u16 count) {
+void LoadTimRange(u8 *dir, u16 first, u16 count) {
     u16 i;
     DirEnt16 *e;
 
@@ -696,7 +696,7 @@ void func_800FA050(u8 *dir, u16 first, u16 count) {
     }
 }
 #else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800FA050);
+INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", LoadTimRange);
 #endif
 #include "engine/reveal_start_cans.inc"
 #include "engine/emit_trap_particles.inc"

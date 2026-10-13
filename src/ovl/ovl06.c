@@ -729,7 +729,7 @@ s8 func_800F8960(StageTrap *t) {
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
-#include "engine/run_trap_type0_b.inc"
+#include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -805,9 +805,9 @@ void StepTrapType1D(StageTrap *t, u16 speed) {}
 
 #include "engine/tumble_trap_act09.inc"
 
-#include "engine/tumble_trap_act0_b.inc"
+#include "engine/tumble_trap_act0b.inc"
 
-#include "engine/knock_trap_away_act0_c.inc"
+#include "engine/knock_trap_away_act0c.inc"
 
 #include "engine/tumble_trap_act12.inc"
 

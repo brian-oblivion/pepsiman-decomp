@@ -849,7 +849,7 @@ FUNC_ALIAS(func_800F74FC, StartSpriteWalk, 0x3C);
 FUNC_ALIAS(func_800F7968, RunTrapType0A, 0x58);
 FUNC_ALIAS(func_800F79A0, RunTrapType0A, 0x90);
 
-#include "engine/run_trap_type0_b.inc"
+#include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 
@@ -951,9 +951,9 @@ void SlideTrapAway(StageTrap *t, s32 arg) {}
 
 #include "engine/tumble_trap_act09.inc"
 
-#include "engine/tumble_trap_act0_b.inc"
+#include "engine/tumble_trap_act0b.inc"
 
-#include "engine/knock_trap_away_act0_c.inc"
+#include "engine/knock_trap_away_act0c.inc"
 
 void StepDashBoard(StageTrap *t) {}
 

@@ -143,7 +143,7 @@ void DrawTrapWarning(StageTrap *t) {
 
 INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", StepTrapType0F);
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", StepTrapType12);
+#include "engine/step_trap_type12.inc"
 
 void StepTrapType1F(StageTrap *t, u16 arg) {
     s32 d;
@@ -845,7 +845,7 @@ void func_800F7D30(StageTrap *t, s16 period) {
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", RunTrapType04);
+#include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 /* MATCHING: the dispatchers call these stage entry points, which in this

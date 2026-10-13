@@ -57,7 +57,7 @@ INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", sDebrisModelInit);
 
 #include "engine/step_trap_forward.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType2A);
+#include "engine/step_trap_type2a.inc"
 
 #include "engine/step_trap_forward_level.inc"
 
@@ -106,7 +106,7 @@ void DrawTrapWarning(StageTrap *t) {
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType0F);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType12);
+#include "engine/step_trap_type12.inc"
 
 void StepTrapType27(StageTrap *t, s32 arg) {
     StageTrap probe;
@@ -733,7 +733,7 @@ FUNC_ALIAS(func_800F8454, func_800F80F4, 0x360);
 FUNC_ALIAS(func_800F84A8, PlaySpriteHitSe, 0xC);
 FUNC_ALIAS(func_800F87E4, RunTrapType01, 0xB4);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", RunTrapType04);
+#include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
@@ -807,9 +807,9 @@ void SlideTrapAway(StageTrap *t, s32 arg) {}
 
 #include "engine/tumble_trap_act09.inc"
 
-#include "engine/tumble_trap_act0_b.inc"
+#include "engine/tumble_trap_act0b.inc"
 
-#include "engine/knock_trap_away_act0_c.inc"
+#include "engine/knock_trap_away_act0c.inc"
 
 void StepDashBoard(StageTrap *t) {}
 

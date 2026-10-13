@@ -284,6 +284,7 @@ void func_800F0AD4(void) {
                             gGameCleared = D_800FA24C->gameCleared;
                             gAllTargetsBeaten = D_800FA24C->allTargets;
                             gUnlocks = D_800FA24C->unlocks;
+                            /* MATCHING: one call per arm, which cross-jumping merges. */
                             if (gStereo != 0) {
                                 SsSetStereo();
                             } else {
@@ -377,10 +378,6 @@ void func_800F1494(s32 i) {
 
 INCLUDE_RODATA("asm/ovl/ovl02/nonmatchings/ovl02", D_800F0000);
 
-/* MATCHING: a complete type, so &sAct3Coords[k] is one constant. */
-extern GsCOORDINATE2 sAct3Coords[3];
-extern GsCOORDINATE2 D_800CEF90;
-extern GsCOORDINATE2 D_800CEFE0;
 extern SVECTOR D_800FA230;
 extern s32 D_800FA228;
 extern s32 D_800FA238;
@@ -404,6 +401,8 @@ extern u16 gRumbleTime;
 extern u16 gRumbleSmall[];
 
 #ifdef NON_MATCHING
+/* MATCHING: 0.999; step 5000's entry loop keeps gSubOt's address in a saved
+ * register, where the original rebuilds it every pass (step 6000 keeps it). */
 void func_800F1570(void) {
     SVECTOR pos;
     SVECTOR p2;
@@ -430,9 +429,9 @@ void func_800F1570(void) {
             GsLinkObject4(*(s32 *)0x8019D020 + 0x8019D00C, &sAct3Objs[2], 0);
             sAct3Objs[0].coord2 = &sAct3Coords[0];
             sAct3Objs[0].attribute = 0;
-            sAct3Objs[1].coord2 = &D_800CEF90;
+            sAct3Objs[1].coord2 = &sAct3Coords[1];
             sAct3Objs[1].attribute = 0;
-            sAct3Objs[2].coord2 = &D_800CEFE0;
+            sAct3Objs[2].coord2 = &sAct3Coords[2];
             sAct3Objs[2].attribute = 0;
             D_8009EA78[0].vx = D_8009EA78[1].vx = D_8009EA78[2].vx = 0;
             D_8009EA78[0].vy = D_8009EA78[1].vy = D_8009EA78[2].vy = 0;
@@ -492,6 +491,7 @@ void func_800F1570(void) {
                 D_800FA260[D_800FA268] = 1;
                 D_800FA268++;
             }
+            /* MATCHING: retail tests the flags with lb, an s8 view. */
             if (*(s8 *)&gGameCleared != 0) {
                 D_800FA260[D_800FA268] = 2;
                 D_800FA268++;
@@ -520,6 +520,8 @@ void func_800F1570(void) {
                     t = 8;
                 }
                 pos.vx = t * 32 - 0x150;
+                /* MATCHING: the cast keeps i * 24 - 12 one induction value;
+                 * without it the -12 moves onto the count. */
                 pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
                 DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
@@ -668,6 +670,8 @@ void func_800F1570(void) {
             pos.vy = -0x38;
             DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
+            /* MATCHING: the bob in a block-local with an (s16) cast; a shared
+             * local takes the division's register, no cast folds the + 8. */
             {
                 s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
@@ -1187,6 +1191,8 @@ void func_800F1570(void) {
             d = D_800FA23C;
             p2.vx = d >= 3 ? -0x40 : -0x8E;
             p2.vy = d * 32 - 0x41;
+            /* MATCHING: keeps the arguments below the stores. */
+            __asm__("");
             func_800F8708(&p2, 2);
             if (gPadTrig & PADLup) {
                 PlaySe(0xB);
@@ -1789,6 +1795,9 @@ void func_800F1570(void) {
                                     case 0:
                                         D_800FA228 = 12;
                                         break;
+                                    case 6:
+                                        D_800FA228 = 13;
+                                        break;
                                     case 1:
                                         D_800FA238 = 0x59;
                                         D_800FA26C = 0;
@@ -1799,23 +1808,22 @@ void func_800F1570(void) {
                                         D_800FA26C = 0;
                                         D_800FA228 = 1000;
                                         break;
-                                    case 3:
-                                        break;
-                                    case 4:
-                                        D_800FA26C = 0;
-                                        D_800FA228 = 500;
-                                        break;
-                                    case 5:
-                                        break;
-                                    case 6:
-                                        D_800FA228 = 13;
-                                        break;
                                     case 7:
                                         D_800FA238 = 0x65;
                                         D_800FA26C = 0;
                                         D_800FA228 = 1000;
                                         break;
+                                    case 3:
+                                    case 5:
+                                        break;
+                                    case 4:
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 500;
+                                        break;
                                 }
+                                break;
+                            case 3:
+                                D_800FA228 = 10;
                                 break;
                             case 1:
                                 D_800FA238 = 0x59;
@@ -1826,9 +1834,6 @@ void func_800F1570(void) {
                                 D_800FA238 = 0x68;
                                 D_800FA26C = 0;
                                 D_800FA228 = 1000;
-                                break;
-                            case 3:
-                                D_800FA228 = 10;
                                 break;
                         }
                     }
@@ -1848,6 +1853,9 @@ void func_800F1570(void) {
                                     case 0:
                                         D_800FA228 = 12;
                                         break;
+                                    case 6:
+                                        D_800FA228 = 13;
+                                        break;
                                     case 1:
                                         D_800FA238 = 0x59;
                                         D_800FA26C = 0;
@@ -1858,21 +1866,17 @@ void func_800F1570(void) {
                                         D_800FA26C = 0;
                                         D_800FA228 = 1000;
                                         break;
-                                    case 3:
-                                        break;
-                                    case 4:
-                                        D_800FA26C = 0;
-                                        D_800FA228 = 500;
-                                        break;
-                                    case 5:
-                                        break;
-                                    case 6:
-                                        D_800FA228 = 13;
-                                        break;
                                     case 7:
                                         D_800FA238 = 0x65;
                                         D_800FA26C = 0;
                                         D_800FA228 = 1000;
+                                        break;
+                                    case 3:
+                                    case 5:
+                                        break;
+                                    case 4:
+                                        D_800FA26C = 0;
+                                        D_800FA228 = 500;
                                         break;
                                 }
                                 break;

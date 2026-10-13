@@ -342,8 +342,8 @@ extern Vec3 D_8007AED0[];
 extern s32 D_800FC060[];
 
 #ifdef NON_MATCHING
-/* Cases 0 and 1 differ: retail keeps the frame counts 35 and 100 in saved
- * registers (and sign-extends 100 at run time), where this folds them. */
+/* Cases 0 and 1 do not match yet: the original never folds the frame
+ * counts 35 and 100 to constants. */
 s8 func_800F7EFC(StageTrap *t) {
     s8 ret = 0;
     s32 n;
@@ -594,6 +594,8 @@ void func_800F8A58(void) {
     }
 }
 
+/* MATCHING: player's view of these, declared only where defined. */
+void OnJumpStart(PlayerState *g);
 void StartRumble(u16 *table, s32 index);
 
 void func_800F8B60(void) {
@@ -654,7 +656,7 @@ void func_800F8B60(void) {
 }
 
 extern s16 sSteerDrift;
-
+/* MATCHING: player's, declared only where defined. */
 void ApplySteer(u8 mode, u16 a, s16 b);
 void RecentreSteer(void);
 void PushPlayer(s32 deg, s32 dist);

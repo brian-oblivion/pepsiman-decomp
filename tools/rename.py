@@ -148,7 +148,7 @@ def text_files():
     if OVL:
         return [ROOT / "src/ovl" / f"{OVL}.c"]
     out = []
-    for pat in ("src/**/*.c", "src/**/*_tables.inc", "include/*.h", "include/*.inc",
+    for pat in ("src/**/*.c", "src/**/*_tables.inc", "src/ovl/*.inc", "include/*.h", "include/*.inc",
                 "docs/*.md", "docs/match-reports/*.md", "docs/research/*.md",
                 "CLAUDE.md", "config/gp-symbols.txt", "config/typeviews-warnings.txt"):
         out.extend(ROOT.glob(pat))

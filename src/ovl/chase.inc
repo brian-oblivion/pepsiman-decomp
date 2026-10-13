@@ -48,7 +48,22 @@ void LoadAct3Data(unsigned long *p);
 extern GsCOORDINATE2 sPieceCoords[];
 extern GsDOBJ2 sPieceObjs[];
 extern SVECTOR sPieceRots[];
-extern s32 D_8009EA78; /* the near edge of the drawn run */
+
+/** @brief The giant can that rolls after the player: its body and its lid. */
+typedef struct {
+    s32 x;    /**< the body's x; objects are knocked away as it reaches them */
+    s32 y;    /**< the body's y */
+    s32 z;    /**< the body's z */
+    s32 pad;  /**< not yet known */
+    s32 lidX; /**< the lid's x, in the opening scene */
+    s32 lidY; /**< the lid's y */
+    s32 lidZ; /**< the lid's z */
+} ChaseCan;
+
+extern ChaseCan D_8009EA78;
+extern SVECTOR D_8009EB58[2]; /* the body's and the lid's rotations */
+#define sCan D_8009EA78
+#define sCanRot D_8009EB58
 extern u8 gRumbleEnabled;
 extern s16 gRumbleTime;
 extern s16 gRumbleSmall[];

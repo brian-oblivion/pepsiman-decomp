@@ -24,7 +24,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[10], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x38);
                     o->state = 1;
                     o->timer = 0;
@@ -105,7 +105,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[11], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;
@@ -186,7 +186,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[12], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;
@@ -267,7 +267,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[13], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x38);
                     o->state = 1;
                     o->timer = 0;
@@ -348,7 +348,7 @@ s32 StepChasePiece4(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[14], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3A);
                     o->state = 1;
                     o->timer = 0;
@@ -430,7 +430,7 @@ s32 StepChasePiece5(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[15], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[15], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x39);
                     o->state = 1;
                     o->timer = 0;
@@ -512,7 +512,7 @@ s32 StepChasePiece6(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[16], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[16], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3A);
                     o->state = 1;
                     o->timer = 0;
@@ -594,7 +594,7 @@ s32 StepChasePiece7(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[17], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[17], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x39);
                     o->state = 1;
                     o->timer = 0;
@@ -660,7 +660,7 @@ s32 StepChasePiece8(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[18], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[18], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;
@@ -747,7 +747,7 @@ s32 StepChasePiece9(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[19], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[19], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;
@@ -834,7 +834,7 @@ s32 StepChasePiece10(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[20], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[20], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;
@@ -921,7 +921,7 @@ s32 StepChasePiece11(Act3Obj *o) {
                 GsGetLs(&sPieceCoords[21], &m);
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[21], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;
@@ -1014,7 +1014,7 @@ s32 StepChasePiece12(Act3Obj *o) {
                     o->timer = 0;
                     o->speed = 0;
                 }
-                if (o->x < D_8009EA78 + CHASE_REACH) {
+                if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
                     o->timer = 0;

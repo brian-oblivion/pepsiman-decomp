@@ -1182,6 +1182,8 @@ s32 func_800F8D34(void) {
 }
 
 #ifdef NON_MATCHING
+/* Only the gPlayLive store's lui is placed differently. Reaching sCamOffset as
+ * a struct keeps the yaw load above its stores, as in the original. */
 void func_800F90F4(void) {
     s16 yaw;
 
@@ -1191,10 +1193,10 @@ void func_800F90F4(void) {
     gViewerAngle = 0xD8;
     gFellOff = 0;
     gPlayLive = 1;
-    sCamOffset[0] = 0;
-    gView[1] = 0;
-    sCamOffset[1] = 0;
     yaw = -gStageStart->yaw;
+    ((SVECTOR *)sCamOffset)->vx = 0;
+    gView[1] = 0;
+    ((SVECTOR *)sCamOffset)->vy = 0;
     gPlayer.motion[0] = 2;
     gPlayer.control = 1;
     gPlayer.hittable = 1;

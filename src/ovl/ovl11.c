@@ -12,6 +12,7 @@
 #define CHASE_LOADER INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", LoadChaseStage);
 
 #include "chase.inc"
+#include "rand.h"
 #include "spad.h"
 #include "player.h"
 
@@ -30,7 +31,6 @@ void RecentreSteer(void);
 /* Steps the player: speed, gravity, jump and slide, the move along the
  * course, analog or digital steering held within the course heading, and
  * the model's placement. */
-#ifdef NON_MATCHING
 void func_800F0234(void) {
     PlayerState *g;
     s32 x;
@@ -39,6 +39,7 @@ void func_800F0234(void) {
     u8 locked;
     u32 a;
     u32 stick;
+    s32 t;
 
     locked = 0;
     UpdateSpeedBand();
@@ -64,22 +65,26 @@ void func_800F0234(void) {
                     if (gPad & PADLright) {
                         a = 16;
                     } else {
-                        a = stick - 0x80;
-                        if ((s32)a < 0) {
-                            a = -a;
+                        /* MATCHING: the right's offset in a signed temporary, the
+                         * left's magnitude taken in the stick's own word. */
+                        t = stick - 0x80;
+                        if (t < 0) {
+                            t = -t;
                         }
-                        a >>= 2;
+                        a = (u32)t >> 2;
                     }
                     ApplySteer(3, a, 15);
                 } else if (stick < 0x70 || (gPad & PADLleft)) {
                     if (gPad & PADLleft) {
                         a = 16;
                     } else {
-                        a = stick;
-                        if ((s32)a < 0) {
-                            a = -a;
+                        if ((s32)stick < 0) {
+                            stick = -stick;
                         }
-                        a = (0x80 - a) >> 2;
+                        /* MATCHING: the barrier keeps reorg from copying the
+                         * 0x80 into the test's delay slot. */
+                        __asm__("");
+                        a = (0x80 - stick) >> 2;
                     }
                     ApplySteer(2, a, 15);
                 } else {
@@ -124,9 +129,6 @@ clamp:
     gWorldShift[0] = -gPlayer.x;
     gWorldShift[2] = -gPlayer.z;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F0234);
-#endif
 
 /* Draws the player's models at its position, sorted on the scratchpad
  * stack. */
@@ -184,7 +186,6 @@ void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot)
 
 /* Draws the stage's title: one sprite fading in, a second dropping into
  * place, then the second growing and fading out. */
-#ifdef NON_MATCHING
 void func_800F07E4(void) {
     s16 quad[8];
     SColor color;
@@ -196,7 +197,13 @@ void func_800F07E4(void) {
             quad[0] = -128;
             quad[1] = -32;
             color.r = 1;
-            color.g = color.b = color.cd = D_800D39D8.title < 16 ? D_800D39D8.title * 8 : 0x80;
+            /* MATCHING: a store in each arm keeps the stores above the call's
+             * arguments. */
+            if (D_800D39D8.title < 16) {
+                color.g = color.b = color.cd = D_800D39D8.title * 8;
+            } else {
+                color.g = color.b = color.cd = 0x80;
+            }
             DrawSprite(30, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         if (D_800D39D8.title >= 30 && D_800D39D8.title < 60) {
@@ -209,7 +216,7 @@ void func_800F07E4(void) {
         }
         if (D_800D39D8.title >= 60) {
             t = D_800D39D8.title - 60;
-            quad[5] = quad[4] = (t << 9) + 0x1000;
+            quad[4] = quad[5] = (t << 9) + 0x1000;
             quad[7] = 1;
             color.r = 1;
             quad[2] = 0;
@@ -223,9 +230,6 @@ void func_800F07E4(void) {
         D_800D39D8.title++;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F07E4);
-#endif
 
 /** @brief A flat line packet with its colour and code as one word. */
 typedef struct {
@@ -246,27 +250,27 @@ typedef struct {
     u8 pad[4]; /**< unused */
 } WipeRow;
 
-/* The packet being built, in the packet buffer. */
-#define sLine ((LineF2 *)GsOUT_PACKET_P)
 /* The wipe's rows. */
 #define sWipe ((WipeRow *)gSwitches)
 
 /* Draws the stage's closing caption, two sprites sliding in, then wipes
  * the screen with 240 black lines, each growing at its own speed. */
-#ifdef NON_MATCHING
 void func_800F09D8(void) {
     s16 quad[8];
     SColor color;
-    s16 t;
+    s32 d;
+    s32 t;
     s32 i;
     WipeRow *w;
+    LineF2 *line;
 
     if ((u16)D_800D39D8.title - 60 < 8U) {
-        t = D_800D39D8.title - 60;
-        quad[0] = (t << 5) - 0x180;
+        /* MATCHING: its own temporary, not the one the second caption uses. */
+        d = D_800D39D8.title - 60;
+        quad[0] = (d << 5) - 0x180;
         quad[1] = -64;
         color.r = 1;
-        color.g = color.b = color.cd = t * 16;
+        color.g = color.b = color.cd = d * 16;
         DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     if ((u16)D_800D39D8.title - 68 < 8U) {
@@ -295,27 +299,28 @@ void func_800F09D8(void) {
         DrawSprite(33, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     if (D_800D39D8.title >= 150) {
-        w = sWipe;
-        for (i = 0; i < 240; i++, w++) {
-            setlen(sLine, 3);
-            sLine->rgbc = 0;
-            setcode(sLine, 0x40);
-            sLine->x0 = -160;
-            sLine->y0 = sLine->y1 = i - 120;
-            sLine->x1 = w->x;
+        /* MATCHING: the row indexed, not stepped, so the loop's invariants
+         * come first. */
+        for (i = 0; i < 240; i++) {
+            w = &sWipe[i];
+            line = (LineF2 *)GsOUT_PACKET_P;
+            setlen(line, 3);
+            line->rgbc = 0;
+            setcode(line, 0x40);
+            line->x0 = -160;
+            line->x1 = w->x;
+            line->y0 = line->y1 = i - 120;
             w->x += w->speed;
             if (w->x >= 160) {
                 w->x = 160;
             }
-            addPrim(gSubOt[gActiveBuff].org, sLine);
-            GsOUT_PACKET_P += sizeof(LineF2);
+            addPrim(gSubOt[gActiveBuff].org, line);
+            line++;
+            GsOUT_PACKET_P = (PACKET *)line;
         }
     }
     D_800D39D8.title++;
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F09D8);
-#endif
 
 s32 StepChasePiece0(Act3Obj *o) {
     s32 unused[2];
@@ -1201,8 +1206,606 @@ s32 StepChasePiece12(Act3Obj *o) {
     }
 }
 
-INCLUDE_RODATA("asm/ovl/ovl11/nonmatchings/ovl11", D_800F0000);
+/** @brief The intro clock's record, as this stage's frame step views it. */
+typedef struct {
+    s32 unk0;              /**< not yet known */
+    s32 fall;              /**< the can's fall speed in the opening scene */
+    s32 depth;             /**< the depth scale the player's model is drawn with */
+    u8 padC[0x24 - 0xC];   /**< not yet known */
+    u16 timer;             /**< the step's clock */
+    s16 title;             /**< the title's and the closing caption's clock */
+    u8 pad28[0x40 - 0x28]; /**< not yet known */
+    u8 canInSub;           /**< 1 sorts the can into the sub ordering table */
+} ChaseStepRec;
 
-INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F42E8);
+/* The step's record. */
+#define sRec (*(ChaseStepRec *)&D_800D39D8)
+/* MATCHING: the step's sub-step, kept in the fog fade's word. */
+#define sSubStep gFogFade
+
+extern s32 (*D_800F7280[])(Act3Obj *o);
+extern GsCOORDINATE2 sAct3Coords[];
+extern GsDOBJ2 sAct3Objs[];
+/* MATCHING: model's view of the sky colours, as bytes. */
+extern u8 *gSkyColors;
+
+/* This unit's routines the step calls, defined after it. */
+void SetChaseLights(void);
+void PlaceChaseObjects(void);
+
+/* MATCHING: views of routines their units declare only where defined. */
+s16 Lerp(s16 from, s16 to, u16 step, u16 steps);
+s32 UpdatePlayerAction(PlayerState *state);
+s32 DrawTodObjects(void);
+void DrawPlayerShadow(void);
+void UnusedHook3(void);
+void DrawSky(u32 arg);
+void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range);
+void UpdateEffects(s32 unused, s16 x, s16 y, s16 z);
+
+/* Draws the player's models with their depth scaled by the step's record,
+ * each sorted on the scratchpad stack. */
+/* MATCHING: inlined, so the matrix's address is not kept across the calls. */
+static inline void DrawStepPlayer(void) {
+    MATRIX m;
+    VECTOR scale;
+    GsDOBJ2 *o;
+    s32 i;
+    s32 sz;
+
+    sz = sRec.depth;
+    o = ((DrawList *)gTodObjTable)->objs;
+    for (i = 0; i < ((DrawList *)gTodObjTable)->count; o++, i++) {
+        o->coord2->flg = 0;
+        if (o->id != -1 && o->tmd != NULL) {
+            GsGetLs(o->coord2, &m);
+            scale.vx = 0x1000;
+            scale.vy = 0x1000;
+            scale.vz = sz;
+            ScaleMatrix(&m, &scale);
+            GsSetLsMatrix(&m);
+            GsGetLw(o->coord2, &m);
+            GsSetLightMatrix(&m);
+            SetSpadStack();
+            GsSortObject4(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            ResetSpadStack();
+        }
+    }
+}
+
+/* MATCHING: tested `>= 0`, cc1 folds it to an abs that keeps the minuend
+ * computed first. */
+#define ABS_GE(x) ((x) >= 0 ? (x) : -(x))
+
+/* The stage's frame step: the opening scene, where the can bursts out and
+ * rolls after the player, the chase, the escape at the run's end, and a
+ * debug view that places the can by pad. */
+/* MATCHING: non-void with no return keeps the jump table's bound check
+ * delay slot; the unused 32-byte local gives retail's frame. */
+s32 func_800F42E8(void) {
+    s32 unused[8];
+    MATRIX m;
+    u8 sky[16] = {0x6B, 0xBC, 0xEB, 0, 0xFF, 0xFF, 0xFF, 0,
+                  0xFF, 0xFF, 0xFF, 0, 0xFF, 0xFF, 0xFF, 0};
+    Act3Obj *o;
+    s32 i;
+    s32 t;
+
+    switch (gWorldIntroStep) {
+        case 0:
+            GsSetProjection(250);
+            gSkyColors = sky;
+            sCan.x = -0x1676;
+            sCan.y = -0x4B0;
+            sCan.z = 0x78A;
+            sCanRot[0].vx = -0x23A;
+            sCanRot[0].vy = -0x596;
+            sCanRot[0].vz = 0x1FE;
+            sCan.lidX = -0x1130;
+            sCan.lidY = 0;
+            sCan.lidZ = -300;
+            sCanRot[1].vy = 0x400;
+            sCanRot[1].vx = 0;
+            sCanRot[1].vz = 0;
+            gMissState = 0;
+            gPlayer.motion[0] = 0x13;
+            gPlayer.action = 0x17;
+            gPlayer.speed = 0;
+            gPlayer.x = -0x15E0;
+            gPlayer.y = 0;
+            gPlayer.z = -300;
+            gPlayer.control = 0;
+            gCourse.rot.vy = 0x800;
+            sRec.canInSub = 0;
+            gPlayer.curMotion[1] = 0;
+            sSubStep = 0;
+            gWorldIntroStep++;
+            break;
+        case 1:
+            switch (sSubStep) {
+                case 0:
+                    gView[0] = -0x155E;
+                    gView[1] = -0xAA;
+                    gView[2] = -0x29E;
+                    gView[3] = -0x173E;
+                    gView[4] = 0xB4;
+                    gView[5] = 0x76C;
+                    sSubStep = 1;
+                    sRec.timer = 0;
+                    break;
+                case 1:
+                    sCan.lidX -= 50;
+                    /* MATCHING: `p + (rand() % n - k)` takes p - k first; the
+                     * heights below, `y - k + rand() % n`, the roll less k. */
+                    SpawnEffect(4, sCan.lidX - 100, sCan.lidY + (rand() % 50 - 25),
+                                sCan.lidZ + (rand() % 200 - 100), 0);
+                    if (++sRec.timer == 20) {
+                        for (gLoopI = 0; gLoopI < 4; gLoopI++) {
+                            SpawnEffect(4, gPlayer.x + (rand() % 50 - 25), gPlayer.y - 150 + rand() % 100,
+                                        gPlayer.z + (rand() % 50 - 25), rand() % 4);
+                        }
+                        gPlayer.action = ACT_MODEL_ONCE;
+                        gPlayer.motion[0] = 0x34;
+                        sSubStep = 2;
+                        sRec.timer = 0;
+                    }
+                    break;
+                case 2:
+                    gPlayer.x -= 50;
+                    gPlayer.y -= 50;
+                    if (++sRec.timer == 20) {
+                        gPlayer.x = -6000;
+                        gPlayer.y = -1300;
+                        gPlayer.z = 1000;
+                        sSubStep = 5;
+                        sRec.timer = 0;
+                    }
+                    break;
+                case 5:
+                    gView[0] = -0x15EA;
+                    gView[1] = -0x3DE;
+                    gView[2] = 1000;
+                    gView[3] = -0x1630;
+                    gView[4] = -0x492;
+                    gView[5] = 0x64A;
+                    gPlayer.z += 50;
+                    gPlayer.y += 10;
+                    if (gPlayer.z >= 1800) {
+                        gPlayer.motion[0] = 0x43;
+                        for (gLoopI = 0; gLoopI < 4; gLoopI++) {
+                            SpawnEffect(4, gPlayer.x + (rand() % 100 - 50),
+                                        gPlayer.y - 150 + rand() % 100,
+                                        gPlayer.z + (rand() % 100 - 50), rand() % 4);
+                        }
+                        gView[0] = -0x15EA;
+                        gView[1] = -1000;
+                        gView[2] = 1000;
+                        sRec.timer = 0;
+                        sSubStep = 6;
+                    }
+                    break;
+                case 6:
+                    gView[0] = -0x15EA;
+                    gView[1] = -0x3DE;
+                    gView[2] = 1000;
+                    gView[3] = -0x1630;
+                    gView[4] = -0x492;
+                    gView[5] = 0x64A;
+                    gPlayer.x += 50;
+                    gPlayer.y += 10;
+                    gPlayer.z -= 30;
+                    if (++sRec.timer == 15) {
+                        sRec.timer = 0;
+                        sSubStep = 10;
+                    }
+                    break;
+                case 10:
+                    sCanRot[0].vx = rsin(sRec.timer * 245760 / 360) * 30 / 4096 - 0x23A;
+                    rand(); /* a roll thrown away */
+                    SpawnEffect(4, sCan.x + (rand() % 300 - 150), sCan.y + (rand() % 300 - 150),
+                                sCan.z + (rand() % 300 - 150), 0);
+                    if (++sRec.timer == 60) {
+                        sRec.timer = 0;
+                        sRec.fall = 0;
+                        sSubStep = 15;
+                    }
+                    break;
+                case 15:
+                    sCanRot[0].vx = Lerp(sCanRot[0].vx, 0, sRec.timer, 40);
+                    sRec.fall += 2;
+                    sCan.x += 10;
+                    sCan.y += sRec.fall;
+                    sCanRot[0].vz -= 0x44;
+                    if (++sRec.timer == 20) {
+                        for (gLoopI = 0; gLoopI < 4; gLoopI++) {
+                            for (gLoopJ = 0; gLoopJ < 4; gLoopJ++) {
+                                SpawnEffect(4, sCan.x + (rand() % 300 - 150),
+                                            sCan.y + (rand() % 300 - 150),
+                                            sCan.z + (rand() % 300 - 150), gLoopI);
+                            }
+                        }
+                        sSubStep = 20;
+                    }
+                    break;
+                case 20:
+                    sCanRot[0].vx = Lerp(sCanRot[0].vx, 0, sRec.timer, 60);
+                    sRec.fall -= 2;
+                    sCan.x += 20;
+                    sCan.y -= sRec.fall;
+                    sCanRot[0].vz -= 0x88;
+                    if (++sRec.timer == 60) {
+                        gCourse.rot.vy = -0x400;
+                        gPlayer.x = -1000;
+                        gPlayer.y = 0;
+                        gPlayer.z = 0;
+                        gPlayer.motion[0] = 0x35;
+                        sCan.x = -4000;
+                        /* MATCHING: the height worked in sCan.y itself. */
+                        sCan.y = rsin(gFrameCount * 40960 / 360) * 100 / 4096;
+                        sCan.y = ABS(sCan.y) - 140;
+                        sCan.z = 0;
+                        sRec.canInSub = 1;
+                        sRec.timer = 0;
+                        sSubStep = 22;
+                    }
+                    break;
+                case 22:
+                    gView[0] = gPlayer.x + 300;
+                    gView[1] = gPlayer.y - 300;
+                    gView[2] = gPlayer.z;
+                    gView[3] = gPlayer.x - 100;
+                    gView[4] = gPlayer.y;
+                    gView[5] = gPlayer.z;
+                    SpawnEffect(4, gPlayer.x + (rand() % 100 - 50), gPlayer.y,
+                                gPlayer.z + (rand() % 100 - 50), 0);
+                    if (++sRec.timer == 5) {
+                        gPlayer.motion[0] = 0x36;
+                        sRec.timer = 0;
+                        sSubStep = 25;
+                    }
+                    break;
+                case 25:
+                    if (++sRec.timer == 100) {
+                        gPlayer.motion[0] = 0x47;
+                        sRec.timer = 0;
+                        sSubStep = 26;
+                    }
+                    break;
+                case 26:
+                    if (++sRec.timer == 50) {
+                        gPlayer.motion[0] = 2;
+                        sRec.timer = 0;
+                        sSubStep = 30;
+                    }
+                    break;
+                case 30:
+                    sCan.x += 30;
+                    SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
+                    sCan.y = rsin(gFrameCount * 40960 / 360) * 100 / 4096;
+                    sCan.y = ABS(sCan.y) - 140;
+                    sCanRot[0].vx = 0x800;
+                    sCanRot[0].vy = 0;
+                    sCanRot[0].vz = -(gFrameCount * 49152 / 360);
+                    if (++sRec.timer == 30) {
+                        gPlayer.motion[0] = 2;
+                        sRec.timer = 0;
+                        sSubStep = 100;
+                    }
+                    break;
+                case 100:
+                    gWorldIntroStep = 2;
+                    break;
+            }
+            GsSetRefView2((GsRVIEW2 *)gView);
+            gPlayer.groundY = gPlayer.y;
+            gFloorY[0] = gPlayer.y;
+            func_800F0234();
+            SetChaseLights();
+            UpdateEffects((s32)&gSubOt[gActiveBuff], 0, 0, 0);
+            DrawRepeatingStage(0, 0, 0, 30000);
+            UpdatePlayerAction(&gPlayer);
+            switch (gPlayer.action) {
+                case ACT_MODEL_ONCE:
+                    break;
+                case ACT_MODEL_LOOP:
+                    if (gPlayer.motionResult[0] == 0) {
+                        gPlayer.curMotion[0] = MOT_OFF;
+                    }
+                    break;
+            }
+            func_800F0590();
+            func_800F06E0();
+            sAct3Coords[0].coord.t[0] = sCan.x;
+            sAct3Coords[0].coord.t[1] = sCan.y;
+            sAct3Coords[0].coord.t[2] = sCan.z;
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);
+            GsGetLs(sAct3Objs[0].coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(sAct3Objs[0].coord2, &m);
+            GsSetLightMatrix(&m);
+            if (sRec.canInSub == 0) {
+                GsSortObject4(&sAct3Objs[0], gCurOt, 2, (u_long *)0x1F800000);
+            } else {
+                GsSortObject4(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            }
+            sAct3Coords[1].coord.t[0] = sCan.lidX;
+            sAct3Coords[1].coord.t[1] = sCan.lidY;
+            sAct3Coords[1].coord.t[2] = sCan.lidZ;
+            SetCoordRotation(&sCanRot[1], &sAct3Coords[1]);
+            GsGetLs(sAct3Objs[1].coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(sAct3Objs[1].coord2, &m);
+            GsSetLightMatrix(&m);
+            GsSortObject4(&sAct3Objs[1], gCurOt, 2, (u_long *)0x1F800000);
+            DrawSky(0);
+            if (gPadTrig & PADstart) {
+                gWorldIntroStep = 2;
+            }
+            break;
+        case 2:
+            gCourse.rot.vy = -0x400;
+            gView[0] = 700;
+            gView[1] = -200;
+            gView[2] = 0;
+            gView[3] = -500;
+            gView[4] = 0;
+            gView[5] = 0;
+            GsSetRefView2((GsRVIEW2 *)gView);
+            sCan.x = -0x974;
+            sCan.y = -140;
+            sCan.z = 0;
+            sCanRot[0].vx = 0;
+            sCanRot[0].vy = 0;
+            sCanRot[0].vz = 0;
+            gPlayer.x = -1800;
+            gPlayer.speed = 30;
+            gPlayer.motion[0] = 4;
+            gPlayer.y = 0;
+            gPlayer.z = 0;
+            gPlayer.action = 0;
+            gPlayer.control = 1;
+            gPlayer.groundY = 0;
+            gFloorY[0] = 0;
+            sRec.depth = 0x1000;
+            sRec.timer = 0;
+            sRec.title = 0;
+            gWorldIntroStep = 3;
+            break;
+        case 3:
+            func_800F07E4();
+            GsSetProjection(250);
+            func_800F0234();
+            gPlayer.z = gPlayer.z < -200 ? -200 : gPlayer.z > 200 ? 200 : gPlayer.z;
+            SetChaseLights();
+            UpdatePlayerAction(&gPlayer);
+            DrawStepPlayer();
+            if (sRec.timer == 0) {
+                DrawPlayerShadow();
+            }
+            UnusedHook3();
+            UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
+            gPlayer.groundY = 0;
+            gFloorY[0] = 0;
+            DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 30000);
+            /* MATCHING: the base taken in a local keeps the -1 in a register. */
+            o = sObjs;
+            for (i = 0; i < 200; i++) {
+                if (o[i].state != -1) {
+                    D_800F7280[(s16)o[i].kind](&o[i]);
+                }
+            }
+            sCan.x += 28;
+            if (sCan.x + 620 < gPlayer.x) {
+                sCan.x = gPlayer.x - 620;
+            }
+            SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
+            sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];
+            /* MATCHING: a block-local temporary, as the function's own lands in
+             * another register. */
+            {
+                s32 t;
+
+                t = rsin(gFrameCount * 40960 / 360) * 100;
+                sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
+            }
+            sCanRot[0].vx = 0x800;
+            sCanRot[0].vy = 0;
+            sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
+            sCanRot[0].vz = -(gFrameCount * 49152 / 360);
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);
+            GsGetLs(sAct3Objs[0].coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(sAct3Objs[0].coord2, &m);
+            GsSetLightMatrix(&m);
+            GsSortObject4(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            DrawSky(0);
+            if (gPlayer.x < sCan.x + 120 && sRec.timer == 0) {
+                sRec.timer = 1;
+                gPlayer.motion[0] = 0x23;
+            }
+            if (gPlayer.x > 30000) {
+                gWorldIntroStep = 4;
+                sSubStep = 0;
+                gPlayer.control = 0;
+                sRec.title = 0;
+                for (gLoopI = 0; gLoopI < 240; gLoopI++) {
+                    sWipe[gLoopI].x = -(rand() % 64) - 160;
+                    sWipe[gLoopI].speed = rand() % 16 + 16;
+                }
+            }
+            if (sRec.timer != 0) {
+                gPlayer.control = 0;
+                if (sRec.timer == 20) {
+                    sRec.depth = 0;
+                    gPlayer.action = ACT_MODEL_ONCE;
+                    gPlayer.speed = 0;
+                    gPlayer.motion[0] = 0x46;
+                }
+                if (sRec.timer == 140) {
+                    PlaceChaseObjects();
+                    gWorldIntroStep = 0;
+                }
+                sRec.timer++;
+            }
+            break;
+        case 4:
+            func_800F09D8();
+            switch (sSubStep) {
+                case 0:
+                    gPlayer.z += 10;
+                    if (gPlayer.z > 200) {
+                        gPlayer.z = 200;
+                    }
+                    if (gPlayer.x > 32300) {
+                        sSubStep = 5;
+                        StopCdTrack();
+                        PlaySe(0x10);
+                    }
+                    break;
+                case 5:
+                    gView[0] = -(rsin(gCourse.rot.vy) * 700 / 4096);
+                    gView[1] = -250;
+                    gView[2] = -(rcos(gCourse.rot.vy) * 700 / 4096);
+                    gView[3] = rsin(gCourse.rot.vy) * 500 / 4096;
+                    gView[4] = 0;
+                    gView[5] = rcos(gCourse.rot.vy) * 500 / 4096;
+                    GsSetRefView2((GsRVIEW2 *)gView);
+                    gCourse.rot.vy -= 11;
+                    if ((gCourse.rot.vy & 0xFFF) < 0x9B1) {
+                        gCourse.rot.vy = -0x64F;
+                        sRec.timer = 0;
+                        sSubStep = 10;
+                        gRefView[0] = gView[0] + gPlayer.x;
+                        gRefView[1] = gView[1] + gPlayer.y;
+                        gRefView[2] = gView[2] + gPlayer.z;
+                        gRefView[3] = gView[3] - gView[0];
+                        gRefView[4] = gView[4] - gView[1];
+                        gRefView[5] = gView[5] - gView[2];
+                    }
+                    break;
+                case 10:
+                    gView[1] = -250;
+                    gView[4] = 0;
+                    gView[0] = gRefView[0] - gPlayer.x;
+                    gView[2] = gRefView[2] - gPlayer.z;
+                    gView[3] = gRefView[3] + gView[0];
+                    gView[5] = gRefView[5] + gView[2];
+                    GsSetRefView2((GsRVIEW2 *)gView);
+                    if (++sRec.timer > 30) {
+                        sRec.timer = 0;
+                        gPlayer.motion[0] = 0x13;
+                        gPlayer.action = 0x17;
+                        gPlayer.speed = 0;
+                        sSubStep = 15;
+                    }
+                    break;
+                case 15:
+                    if (++sRec.timer > 30) {
+                        gStage = 9;
+                        gGameMode = 0x26;
+                    }
+                    break;
+            }
+            gPlayer.control = 0;
+            GsSetProjection(250);
+            func_800F0234();
+            SetChaseLights();
+            UpdatePlayerAction(&gPlayer);
+            DrawTodObjects();
+            DrawPlayerShadow();
+            UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
+            gPlayer.groundY = 0;
+            DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 30000);
+            o = sObjs;
+            for (i = 0; i < 200; i++) {
+                if (o[i].state != -1) {
+                    D_800F7280[(s16)o[i].kind](&o[i]);
+                }
+            }
+            SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
+            sCan.x += 30;
+            sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];
+            t = rsin(gFrameCount * 40960 / 360) * 100;
+            sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
+            sCanRot[0].vx = 0x800;
+            sCanRot[0].vy = 0;
+            sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
+            sCanRot[0].vz = -(gFrameCount * 49152 / 360);
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);
+            GsGetLs(sAct3Objs[0].coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(sAct3Objs[0].coord2, &m);
+            GsSetLightMatrix(&m);
+            GsSortObject4(&sAct3Objs[0], &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            DrawSky(0);
+            break;
+        case 10:
+            GsSetProjection(250);
+            DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 30000);
+            FntPrint("bp %d %d %d\n", sCan.x, sCan.y, sCan.z);
+            FntPrint("br %d %d %d\n", sCanRot[0].vx, sCanRot[0].vy, sCanRot[0].vz);
+            if (gPad & PADLup) {
+                sCan.x -= 10;
+            }
+            if (gPad & PADLdown) {
+                sCan.x += 10;
+            }
+            if (gPad & PADLleft) {
+                sCan.z -= 10;
+            }
+            if (gPad & PADLright) {
+                sCan.z += 10;
+            }
+            if (gPad & PADL1) {
+                sCan.y -= 10;
+            }
+            if (gPad & PADL2) {
+                sCan.y += 10;
+            }
+            if (gPad & PADRup) {
+                sCanRot[0].vx -= 10;
+            }
+            if (gPad & PADRdown) {
+                sCanRot[0].vx += 10;
+            }
+            if (gPad & PADRleft) {
+                sCanRot[0].vz -= 10;
+            }
+            if (gPad & PADRright) {
+                sCanRot[0].vz += 10;
+            }
+            if (gPad & PADR1) {
+                sCanRot[0].vy -= 10;
+            }
+            if (gPad & PADR2) {
+                sCanRot[0].vy += 10;
+            }
+            if (gPadTrig & PADselect) {
+                gView[0] = -0x15EA;
+                gView[1] = -0x3DE;
+                gView[2] = 1000;
+                gView[3] = -0x1630;
+                gView[4] = -0x492;
+                gView[5] = 0x64A;
+                sCan.x = -0x1676;
+                sCan.y = -0x4B0;
+                sCan.z = 0x78A;
+                sCanRot[0].vx = -0x23A;
+                sCanRot[0].vy = -0x596;
+                sCanRot[0].vz = 0x1FE;
+            }
+            GsSetRefView2((GsRVIEW2 *)gView);
+            sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];
+            sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1];
+            sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);
+            GsGetLs(sAct3Objs[0].coord2, &m);
+            GsSetLsMatrix(&m);
+            GsGetLw(sAct3Objs[0].coord2, &m);
+            GsSetLightMatrix(&m);
+            GsSortObject4(&sAct3Objs[0], gCurOt, 2, (u_long *)0x1F800000);
+            break;
+    }
+}
 
 #include "chase_tail.inc"

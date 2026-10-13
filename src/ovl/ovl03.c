@@ -552,7 +552,185 @@ void UpdateStageEventHook(void) {
 FUNC_ALIAS(func_800F7968, UpdateStageEventHook, 0x18);
 FUNC_ALIAS(func_800F79A0, UpdateStageEventHook, 0x50);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", UpdateGoalEventHook);
+extern Vec3 D_8007AE1C[];
+extern Vec3 D_8007AED0[];
+extern s8 D_800D36F0;
+s8 func_800F8DF0(StageTrap *t);
+/* MATCHING: stage's, declared only where defined. */
+void BeginLoadScreen(void);
+
+void UpdateGoalEventHook(void) {
+    StageTrap *t;
+    StageTrap *u;
+    s16 walk;
+    s16 run;
+
+    t = sGoalTraps;
+    u = &sGoalTraps[1];
+    if (D_800D36F0 == 1) {
+        ResetRumble();
+        /* MATCHING: a body per case, which cross-jumping merges after the
+         * jump table is built; one shared body lets cse fold the constants. */
+        switch (gStage) {
+            case 0:
+                walk = 35;
+                run = 100;
+                break;
+            case 1:
+                walk = 35;
+                run = 100;
+                break;
+            case 2:
+                walk = 35;
+                run = 100;
+                break;
+            case 3:
+                walk = 35;
+                run = 100;
+                break;
+            case 4:
+                walk = 35;
+                run = 100;
+                break;
+            case 5:
+                walk = 35;
+                run = 100;
+                break;
+            case 9:
+                walk = 35;
+                run = 100;
+                break;
+            case 10:
+                walk = 35;
+                run = 100;
+                break;
+            case 11:
+                walk = 35;
+                run = 100;
+                break;
+            case 12:
+                walk = 35;
+                run = 100;
+                break;
+            case 13:
+                walk = 35;
+                run = 100;
+                break;
+            case 14:
+                walk = 35;
+                run = 100;
+                break;
+        }
+        DrawFrozenFrame();
+        switch (t->state) {
+            case 0:
+                gPlayer.control = 0;
+                gPlayer.action = 0;
+                gPlayer.motion[0] = 4;
+                StopSpeed();
+                gMissState = -2;
+                ClipF = 1;
+                t->homeX = gPlayer.x;
+                t->homeY = gPlayer.y;
+                t->homeZ = gPlayer.z;
+                SetSoundFade(4);
+                t->timer = 0;
+                t->state++;
+            case 1:
+                gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, walk);
+                gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, walk);
+                t->timer++;
+                if (t->timer > walk) {
+                    t->timer = 0;
+                    gPlayer.action = 0x17;
+                    t->homeX = gPlayer.x;
+                    t->homeY = gPlayer.y;
+                    t->homeZ = gPlayer.z;
+                    t->state++;
+                }
+                break;
+            case 2:
+                gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, run);
+                gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, run);
+                t->timer++;
+                if (t->timer < (s16)(run / 3)) {
+                    ScatterDust((VECTOR *)&gPlayer.x);
+                }
+                if (t->timer > run) {
+                    gPlayer.action = 0;
+                    gPlayer.motion[0] = 0x13;
+                    gFellOff = 1;
+                    gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
+                    gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
+                    gRefView[1] = gPlayer.y - 270;
+                    gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    t->homeRotZ = 0;
+                    t->timer = 0;
+                    gRefView[4] = gPlayer.y - 100;
+                    t->state++;
+                }
+                break;
+            case 3:
+                if (t->timer < 30) {
+                    t->timer++;
+                }
+                gView[0] = Lerp(gView[0], gRefView[0], t->timer, 30);
+                gView[1] = Lerp(gView[1], gRefView[1], t->timer, 30);
+                gView[2] = Lerp(gView[2], gRefView[2], t->timer, 30);
+                gView[3] = Lerp(gView[3], gRefView[3], t->timer, 30);
+                gView[4] = Lerp(gView[4], gRefView[4], t->timer, 30);
+                gView[5] = Lerp(gView[5], gRefView[5], t->timer, 30);
+                GsSetRefView2((GsRVIEW2 *)gView);
+                t->homeRotZ++;
+                if (t->timer == 8) {
+                    gPlayLive = 0;
+                }
+                if (t->homeRotZ > 40) {
+                    t->timer = 0;
+                    gPlayer.action = 0x1B;
+                    t->state++;
+                }
+                break;
+            case 4:
+                if (++t->timer > 240) {
+                    t->timer = 0;
+                    t->state++;
+                    StartActResults();
+                }
+                break;
+            case 5:
+                if (IsResultsActive() == 0) {
+                    t->state++;
+                }
+                break;
+            case 6:
+                if (func_800F8DF0(u) && gInEditor != 1) {
+                    t->state++;
+                }
+                break;
+            case 7:
+                if (gInEditor != 1) {
+                    if (gStageTableSet != 3) {
+                        t->timer = 0;
+                        t->state++;
+                    } else {
+                        gGameMode = 6;
+                        gModeStep = 0;
+                        ClipF = 0;
+                    }
+                }
+                break;
+            case 8:
+                if (++t->timer > 8) {
+                    gStage = GetNextStage(0);
+                    BeginLoadScreen();
+                    ClipF = 0;
+                }
+                break;
+        }
+    }
+}
 
 /* MATCHING: engine/step_stage_frame.inc with a 120-byte unused local, which
  * gives this stage's frame. */
@@ -812,7 +990,7 @@ void func_800F8B2C(StageTrap *t, s8 arg) {
     }
 }
 
-s32 func_800F8DF0(StageTrap *t) {
+s8 func_800F8DF0(StageTrap *t) {
     return t->state == 0;
 }
 

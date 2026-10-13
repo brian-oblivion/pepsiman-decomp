@@ -1149,8 +1149,9 @@ void func_800F2C24(StageTrap *t, u16 speed, s8 turn) {
     }
 }
 
-/* MATCHING: stage's own definition, which no header declares. */
-s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);
+/* MATCHING: stage defines it with s16 positions; this unit passes words,
+ * narrowing them itself where retail does. */
+s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 
 /* MATCHING: an unused 16-byte local sizes retail's frame. */
 void func_800F2DCC(StageTrap *t, s16 speed, s32 range) {
@@ -1188,8 +1189,8 @@ void func_800F2DCC(StageTrap *t, s16 speed, s32 range) {
             SnapToFloor(t);
             t->y -= 20;
             if (gFrameCount % 5 == 0) {
-                SpawnEffect(1, t->x + (rand() % 200 - 100), t->y, t->z + (rand() % 200 - 100),
-                            rand() % 3);
+                SpawnEffect(1, (s16)(t->x + (rand() % 200 - 100)), (s16)t->y,
+                            (s16)(t->z + (rand() % 200 - 100)), (s16)(rand() % 3));
             }
             break;
     }
@@ -1393,8 +1394,6 @@ typedef struct {
 
 /* MATCHING: object's view, with this unit's copy of its placed point. */
 void UpdatePlacedPos(PlacedPos *p);
-/* MATCHING: stage defines it with s16 positions; this unit passes words. */
-s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 
 void func_800F3CFC(StageTrap *t) {
     PlacedPos p;

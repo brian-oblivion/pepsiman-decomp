@@ -5,6 +5,8 @@
 #include "libetc.h"
 #include "libcd.h"
 #include "sound.h"
+#include "libsnd.h"
+#include "libmcrd.h"
 #include "model.h"
 #include "draw.h"
 #include "spad.h"
@@ -101,7 +103,134 @@ void func_800F01EC(void) {
 
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F04EC);
 
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F0AD4);
+/** @brief Two words, copied as a pair (a unit-local view). */
+typedef struct {
+    s32 a; /**< first word */
+    s32 b; /**< second word */
+} Pair8;
+
+/** @brief The game's save as the title reads it from the memory card. */
+typedef struct {
+    Pair8 times[4];   /**< gBestTimes */
+    Pair8 cans[4];    /**< gBestCans */
+    u8 pad40[8];      /**< not read here */
+    Pair8 unk48;      /**< D_80095978 */
+    u8 stereo;        /**< gStereo */
+    u8 rumble;        /**< gRumbleEnabled */
+    s8 sortMode;      /**< gTmdSortMode */
+    s8 buttonConfig;  /**< gButtonConfig */
+    s8 unk54;         /**< D_800957A0 */
+    u8 gameCleared;   /**< gGameCleared */
+    u8 allTargets;    /**< gAllTargetsBeaten */
+    u8 unlocks;       /**< gUnlocks */
+    s32 checksum;     /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
+} SaveData;
+
+/* MATCHING: per-unit views, as in main.c. */
+extern Pair8 gBestCans[];
+extern Pair8 gBestTimes[];
+extern Pair8 D_80095978;
+extern u8 gRumbleEnabled;
+extern s8 D_800957A0;
+extern u8 gGameCleared;
+extern s32 D_800FA240;
+extern SaveData *D_800FA24C;
+extern s32 D_800FA250;
+extern s32 D_800FA25C;
+extern long D_800FA270;
+s32 IsScreenWipeActive(void);
+extern char D_800F0000[]; /* "BISLPS-01762", the save file's name */
+
+void func_800F0AD4(void) {
+    s32 bad;
+    u32 i;
+
+    switch (gSubStep) {
+        case 50:
+            D_800FA25C = 0;
+            gSubStep = 51;
+            break;
+        case 51:
+            if (IsScreenWipeActive() == 0 && D_800FA25C == 0) {
+                D_800FA25C = 1;
+            }
+            if (D_800FA25C != 0) {
+                D_800FA25C++;
+            }
+            if (D_800FA25C == 8) {
+                MemCardSync(0, 0, &D_800FA270);
+                switch (D_800FA270) {
+                    case 0:
+                    case 3:
+                        bad = 0;
+                        break;
+                    default:
+                        bad = 1;
+                        break;
+                }
+                if (bad == 0) {
+                    MemCardReadFile(0, D_800F0000, (unsigned long *)0x8016D000, 0x200, 0x80);
+                    MemCardSync(0, 0, &D_800FA270);
+                    if (D_800FA270 == 0) {
+                        D_800FA24C = (SaveData *)0x8016D000;
+                        D_800FA240 = D_800FA24C->checksum;
+                        D_800FA24C->checksum = 0;
+                        D_800FA250 = 0;
+                        for (i = 0; i < 0x5C; i++) {
+                            D_800FA250 += ((u8 *)D_800FA24C)[i];
+                        }
+                        D_800FA250 = ~D_800FA250;
+                        if (D_800FA250 == D_800FA240) {
+                            gBestTimes[0].a = D_800FA24C->times[0].a;
+                            gBestTimes[1].a = D_800FA24C->times[1].a;
+                            gBestTimes[2].a = D_800FA24C->times[2].a;
+                            gBestTimes[3].a = D_800FA24C->times[3].a;
+                            gBestTimes[0].b = D_800FA24C->times[0].b;
+                            gBestTimes[1].b = D_800FA24C->times[1].b;
+                            gBestTimes[2].b = D_800FA24C->times[2].b;
+                            gBestTimes[3].b = D_800FA24C->times[3].b;
+                            gBestCans[0].a = D_800FA24C->cans[0].a;
+                            gBestCans[1].a = D_800FA24C->cans[1].a;
+                            gBestCans[2].a = D_800FA24C->cans[2].a;
+                            gBestCans[3].a = D_800FA24C->cans[3].a;
+                            gBestCans[0].b = D_800FA24C->cans[0].b;
+                            gBestCans[1].b = D_800FA24C->cans[1].b;
+                            gBestCans[2].b = D_800FA24C->cans[2].b;
+                            gBestCans[3].b = D_800FA24C->cans[3].b;
+                            D_80095978.a = D_800FA24C->unk48.a;
+                            D_80095978.b = D_800FA24C->unk48.b;
+                            gStereo = D_800FA24C->stereo;
+                            gRumbleEnabled = D_800FA24C->rumble;
+                            gTmdSortMode = D_800FA24C->sortMode;
+                            gButtonConfig = D_800FA24C->buttonConfig;
+                            D_800957A0 = D_800FA24C->unk54;
+                            gGameCleared = D_800FA24C->gameCleared;
+                            gAllTargetsBeaten = D_800FA24C->allTargets;
+                            gUnlocks = D_800FA24C->unlocks;
+                            if (gStereo != 0) {
+                                SsSetStereo();
+                            } else {
+                                SsSetMono();
+                            }
+                            switch (gTmdSortMode) {
+                                case 0:
+                                case 2:
+                                case 3:
+                                    LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                                    break;
+                                case 1:
+                                    LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                                    break;
+                            }
+                        }
+                    }
+                }
+                gModeStep = 40;
+                gSubStep = 50;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F0E58);
 

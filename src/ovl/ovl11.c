@@ -13,9 +13,120 @@
 
 #include "chase.inc"
 #include "spad.h"
+#include "player.h"
+
+#define ABS(x) ((x) < 0 ? -(x) : (x))
 
 
+/* MATCHING: player's routines, declared only where defined; this unit's
+ * ApplySteer view takes the step narrowed to s16, as retail passes it. */
+s32 UpdateSpeedBand(void);
+s32 ApplyGravity(void);
+void UpdateJump(void);
+s32 TrySlide(void);
+void ApplySteer(s32 mode, s16 a, s32 b);
+void RecentreSteer(void);
+
+/* Steps the player: speed, gravity, jump and slide, the move along the
+ * course, analog or digital steering held within the course heading, and
+ * the model's placement. */
+#ifdef NON_MATCHING
+void func_800F0234(void) {
+    PlayerState *g;
+    s32 x;
+    s32 v;
+    s32 hi;
+    u8 locked;
+    u32 a;
+    u32 stick;
+
+    locked = 0;
+    UpdateSpeedBand();
+    ApplyGravity();
+    if (gPlayer.motion[0] >= 2 && gPlayer.motion[0] <= 4) {
+        if (gPlayer.speed >= 30 || (gPlayer.speed += 5) >= 30) {
+            gPlayer.speed = 30;
+            gPlayer.motion[0] = 4;
+        }
+    }
+    UpdateJump();
+    TrySlide();
+    gPlayer.unk344 = (90 - gPlayer.speed) / 3 + 1;
+    gPlayer.stepX = rsin(gCourse.rot.vy) * gPlayer.speed / 4096;
+    gPlayer.stepZ = rcos(gCourse.rot.vy) * gPlayer.speed / 4096;
+    gPlayer.x -= gPlayer.stepX;
+    gPlayer.z -= gPlayer.stepZ;
+    if (gPlayer.control != 0) {
+        switch (gPadType) {
+            case PAD_TYPE_ANALOG:
+                stick = gStickRawX;
+                if (stick > 0x90 || (gPad & PADLright)) {
+                    if (gPad & PADLright) {
+                        a = 16;
+                    } else {
+                        a = stick - 0x80;
+                        if ((s32)a < 0) {
+                            a = -a;
+                        }
+                        a >>= 2;
+                    }
+                    ApplySteer(3, a, 15);
+                } else if (stick < 0x70 || (gPad & PADLleft)) {
+                    if (gPad & PADLleft) {
+                        a = 16;
+                    } else {
+                        a = stick;
+                        if ((s32)a < 0) {
+                            a = -a;
+                        }
+                        a = (0x80 - a) >> 2;
+                    }
+                    ApplySteer(2, a, 15);
+                } else {
+                    RecentreSteer();
+                }
+                break;
+            case PAD_TYPE_DIGITAL:
+                if ((gPad & PADLright) && !locked) {
+                    ApplySteer(3, 16, 15);
+                } else if ((gPad & PADLleft) && !locked) {
+                    ApplySteer(2, 16, 15);
+                } else {
+                    RecentreSteer();
+                }
+                break;
+        }
+        if (gPlayer.control != 0) {
+            goto clamp;
+        }
+    }
+    gPlayer.yaw = gCourse.rot.vy;
+clamp:
+    g = &gPlayer;
+    x = g->yaw;
+    v = gCourse.rot.vy - 0x155;
+    if (x >= v) {
+        hi = gCourse.rot.vy + 0x155;
+        if (x <= hi) {
+            v = x;
+        } else {
+            v = hi;
+        }
+    }
+    g->yaw = v;
+    gBodyRot[1] = gPlayer.yaw;
+    gBodyRot[2] = gPlayer.lean;
+    gTodCoords[0].coord.t[0] = gPlayer.drawX;
+    gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
+    gTodCoords[0].coord.t[2] = gPlayer.drawZ;
+    SetCoordRotation((SVECTOR *)gBodyRot, gTodCoords);
+    gWorldShift[1] = 0;
+    gWorldShift[0] = -gPlayer.x;
+    gWorldShift[2] = -gPlayer.z;
+}
+#else
 INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", func_800F0234);
+#endif
 
 /* Draws the player's models at its position, sorted on the scratchpad
  * stack. */

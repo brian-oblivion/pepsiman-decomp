@@ -23,11 +23,11 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct27);
 
 #include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapForward);
+#include "engine/step_trap_forward.inc"
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapType2A);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapForwardLevel);
+#include "engine/step_trap_forward_level.inc"
 
 #include "engine/run_trap_ahead_nonstop.inc"
 
@@ -87,7 +87,7 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7968);
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F79A0);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7A9C);
+#include "engine/step_stage_frame.inc"
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800F7CE0);
 
@@ -149,7 +149,7 @@ INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", StepTrapAct28);
 
 void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {}
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", DrawTrapWarning);
+#include "engine/draw_trap_warning.inc"
 
 void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
@@ -217,7 +217,7 @@ void UpdateGoalEventHook(void) {}
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA694);
 
-INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", func_800FA71C);
+#include "engine/reveal_start_cans.inc"
 
 INCLUDE_ASM("asm/ovl/ovl04/nonmatchings/ovl04", EmitTrapParticles);
 

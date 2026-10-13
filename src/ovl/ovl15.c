@@ -21,11 +21,11 @@ INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", sDebrisModelInit);
 
 #include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapForward);
+#include "engine/step_trap_forward.inc"
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType2A);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapForwardLevel);
+#include "engine/step_trap_forward_level.inc"
 
 #include "engine/run_trap_ahead_nonstop.inc"
 
@@ -67,7 +67,7 @@ INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", SpinTrapAway);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", ToppleTrapOnApproach);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F6934);
+#include "engine/scatter_trap_dust.inc"
 
 #include "engine/swap_trap_model_on_approach.inc"
 
@@ -79,7 +79,7 @@ INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", UpdateGoalEventHook);
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F74FC);
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7724);
+#include "engine/step_stage_frame.inc"
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F7968);
 
@@ -209,7 +209,7 @@ void StepGoalSequence(void) {}
 
 void CycleGoalLights(s8 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9A90);
+#include "engine/reveal_start_cans.inc"
 
 INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", func_800F9AC8);
 

@@ -153,42 +153,9 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepMissDebris);
 
 #include "engine/run_trap_ahead.inc"
 
-void StepTrapForward(StageTrap *t, u16 speed) {
-    if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
-    }
-    if (SnapToFloor(t) == -1) {
-        t->y = t->homeY;
-    }
-    t->y -= 20;
-    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-    t->x += gOffsetVec[0] >> 12;
-    t->z += gOffsetVec[2] >> 12;
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-}
+#include "engine/step_trap_forward.inc"
 
-void StepTrapForwardLevel(StageTrap *t, u16 speed) {
-    if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
-    }
-    t->homeY = t->y;
-    t->y -= 20;
-    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-    t->x += gOffsetVec[0] >> 12;
-    t->z += gOffsetVec[2] >> 12;
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-    t->y = t->homeY;
-}
+#include "engine/step_trap_forward_level.inc"
 
 #include "engine/run_trap_ahead_nonstop.inc"
 
@@ -198,21 +165,7 @@ void StepTrapForwardLevel(StageTrap *t, u16 speed) {
 
 #include "engine/step_charging_trap.inc"
 
-void func_800F3134(StageTrap *t, u16 speed) {
-    SnapToFloor(t);
-    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
-    t->x += gOffsetVec[0] >> 12;
-    t->z += gOffsetVec[2] >> 12;
-    if (LatchProximity(t, 500) != 0) {
-        PlaySe(120);
-    }
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
-    }
-}
+#include "engine/step_rolling_trap.inc"
 
 #include "engine/run_trap_ahead_at_height.inc"
 #ifdef NON_MATCHING
@@ -453,35 +406,7 @@ INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", StepSprayTrap);
 
 #include "engine/topple_trap_on_approach.inc"
 
-void ScatterTrapDust(StageTrap *t, u8 side) {
-    VECTOR v;
-    u16 i;
-
-    switch (side) {
-        case 2:
-            v.vx = t->x + 280;
-            v.vz = t->z - 200;
-            v.vy = gFloorY[0];
-            ScatterDust(&v);
-            break;
-        case 1:
-            v.vx = t->x - 280;
-            v.vz = t->z + 200;
-            v.vy = gFloorY[0];
-            ScatterDust(&v);
-            break;
-        case 3:
-            for (i = 0; i < 10; i++) {
-                v.vx = t->x + 300;
-                v.vx -= i * 50;
-                v.vz = t->z - 200;
-                v.vz += i * 50;
-                v.vy = gFloorY[0];
-                ScatterDust(&v);
-            }
-            break;
-    }
-}
+#include "engine/scatter_trap_dust.inc"
 
 #include "engine/shift_trap_on_approach.inc"
 #ifdef NON_MATCHING
@@ -738,51 +663,7 @@ void CycleGoalLights(s8 arg) {
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", CycleGoalLights);
 INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", D_800F04F0);
 #endif
-/* MATCHING: an unused 32-byte local gives retail's frame. */
-void func_800F7F40(void) {
-    s32 unused[8];
-    s32 v;
-
-    if (*(s8 *)&gFellOff == 0) {
-        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + 0x800;
-    }
-    gPlayer.editorY = gPlayer.groundY;
-    v = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
-    if (v != -1) {
-        gFloorIndex = v;
-        gStageParams = *(s32 *)&gFloorY[4];
-    }
-    gPlayer.groundY = gFloorY[0];
-    SetSpadStack();
-    UpdatePlayer();
-    UpdateStageLights();
-    if (*(s8 *)&gFellOff == 0) {
-        PushPlayerFromWalls();
-    }
-    DrawModeObject();
-    DrawPlayerShadow();
-    TestBoxes();
-    PairMarks();
-    ResetCollision();
-    UpdateStageEvents();
-    UpdateStageTraps();
-    UpdateStageSprites();
-    ReactToHits(&gPlayer);
-    if (*(s8 *)&gPlayLive == 1) {
-        UpdatePickups(&gSubOt[gActiveBuff]);
-    }
-    LeaveQuadTop();
-    UpdatePlayerAction(&gPlayer);
-    ResetSpadStack();
-    DrawTodObjects();
-    UnusedHook2();
-    PopInNextCan();
-    if (*(s8 *)&gPlayLive == 1) {
-        DrawStage(-gPlayer.x, 0, -gPlayer.z);
-        DrawSky(gStageParams);
-    }
-    UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
-}
+#include "engine/step_stage_frame.inc"
 #ifdef NON_MATCHING
 void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
     u16 i;
@@ -976,9 +857,7 @@ void StepTrapAct28(StageTrap *t) {}
 
 #include "engine_code.inc" /* ArmTrapByRange */
 
-void DrawTrapWarning(StageTrap *t) {
-    s32 unused[4];
-}
+#include "engine/draw_trap_warning.inc"
 
 void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
@@ -1047,12 +926,7 @@ void func_800FA050(u8 *dir, u16 first, u16 count) {
 #else
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800FA050);
 #endif
-void func_800FA0D8(void) {
-    ClearCanGroups();
-    gCanGroupOn[1] = 1;
-    gCanGroupOn[2] = 1;
-    ShowRevealedCans();
-}
+#include "engine/reveal_start_cans.inc"
 #ifdef NON_MATCHING
 void EmitTrapParticles(StageTrap *t) {
     s32 r;
@@ -1237,7 +1111,7 @@ void func_800FA6C0(void) {
     gBodyRot[1] = 0;
     gBodyRot[2] = 0;
     gView[1] = (s16)(gCourse.y - 150);
-    func_800FA0D8();
+    RevealStartCans();
 }
 #else
 INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800FA6C0);

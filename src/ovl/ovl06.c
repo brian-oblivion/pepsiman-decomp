@@ -21,9 +21,9 @@ INCLUDE_RODATA("asm/ovl/ovl06/nonmatchings/ovl06", sDebrisModelInit);
 
 #include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepTrapForward);
+#include "engine/step_trap_forward.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepTrapForwardLevel);
+#include "engine/step_trap_forward_level.inc"
 
 #include "engine/run_trap_ahead_nonstop.inc"
 
@@ -33,7 +33,7 @@ INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepTrapForwardLevel);
 
 INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepChargingTrap);
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800F3158);
+#include "engine/step_rolling_trap.inc"
 
 #include "engine/run_trap_ahead_at_height.inc"
 
@@ -75,7 +75,7 @@ INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", StepSprayTrap);
 
 #include "engine/topple_trap_on_approach.inc"
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", ScatterTrapDust);
+#include "engine/scatter_trap_dust.inc"
 
 #include "engine/shift_trap_on_approach.inc"
 
@@ -149,7 +149,7 @@ void StepTrapAct28(StageTrap *t) {}
 
 #include "engine_code.inc" /* ArmTrapByRange */
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", DrawTrapWarning);
+#include "engine/draw_trap_warning.inc"
 
 void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
@@ -207,7 +207,7 @@ void StepGoalSequence(void) {}
 
 void CycleGoalLights(s8 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl06/nonmatchings/ovl06", func_800FA2FC);
+#include "engine/reveal_start_cans.inc"
 
 void func_800FA334(void) {}
 

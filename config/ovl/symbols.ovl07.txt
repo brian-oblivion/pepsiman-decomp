@@ -143,3 +143,6 @@ StepTrapFFAct68 = 0x800F98C4; // type:func
 StepTrapForward = 0x800F2658; // type:func
 StepTrapForwardLevel = 0x800F27B0; // type:func
 ScatterTrapDust = 0x800F6ED0; // type:func
+StepRollingTrap = 0x800F3134; // type:func
+StepStageFrame = 0x800F7F40; // type:func
+RevealStartCans = 0x800FA0D8; // type:func

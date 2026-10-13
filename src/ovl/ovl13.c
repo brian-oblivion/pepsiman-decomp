@@ -23,9 +23,9 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapAct22);
 
 #include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F2840);
+#include "engine/step_trap_forward.inc"
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F2998);
+#include "engine/step_trap_forward_level.inc"
 
 #include "engine/run_trap_ahead_nonstop.inc"
 
@@ -41,7 +41,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType12);
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType1F);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F3CC0);
+#include "engine/step_rolling_trap.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapType1D);
 
@@ -73,7 +73,7 @@ INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapAct1D);
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", ToppleTrapOnApproach);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F70DC);
+#include "engine/scatter_trap_dust.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepMissSequence);
 
@@ -210,7 +210,7 @@ void UpdateGoalEventHook(void) {}
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F9774);
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", func_800F97FC);
+#include "engine/reveal_start_cans.inc"
 
 INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", EmitTrapParticles);
 

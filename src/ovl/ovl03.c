@@ -23,11 +23,11 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapAct27);
 
 #include "engine/run_trap_ahead.inc"
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapForward);
+#include "engine/step_trap_forward.inc"
 
 INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType2A);
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapForwardLevel);
+#include "engine/step_trap_forward_level.inc"
 
 #include "engine/run_trap_ahead_nonstop.inc"
 
@@ -141,7 +141,7 @@ INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapAct28);
 
 void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {}
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", DrawTrapWarning);
+#include "engine/draw_trap_warning.inc"
 
 void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 

@@ -49,7 +49,7 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", SpinTrapAway);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", ToppleTrapOnApproach);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F55A4);
+#include "engine/scatter_trap_dust.inc"
 
 #include "engine/swap_trap_model_on_approach.inc"
 
@@ -134,7 +134,7 @@ void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {}
 
 void RunTrapThenTurn(StageTrap *t, u16 speed, s32 range, s8 dir) {}
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", DrawTrapWarning);
+#include "engine/draw_trap_warning.inc"
 
 void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
@@ -215,7 +215,7 @@ INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F8B4C);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F8BD4);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F8C4C);
+#include "engine/reveal_start_cans.inc"
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", EmitTrapParticles);
 

@@ -140,3 +140,5 @@ CycleGoalLights = 0x800F5CE4; // type:func
 TurnTrapOnApproach = 0x800F89B4; // type:func
 StepTrapFFAct67 = 0x800F8238; // type:func
 StepTrapFFAct68 = 0x800F8240; // type:func
+ScatterTrapDust = 0x800F55A4; // type:func
+RevealStartCans = 0x800F8C4C; // type:func

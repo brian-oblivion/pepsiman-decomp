@@ -434,7 +434,9 @@ def overlay_progress(reports):
         text = with_local_includes(c) if c.exists() else ""
         code = strip_dead_code(text)
         inc = INCLUDE_RE.findall(code)
-        defs = [d for d in DEF_RE.findall(code) if d in info]
+        # A shared include of sections (engine_code.inc) is spliced once per
+        # section it gives, so its definitions repeat: count each once.
+        defs = sorted({d for d in DEF_RE.findall(code) if d in info})
         kept = set(DEF_RE.findall("\n".join(NM_BLOCK_RE.findall(text))))
         stall = [f for f in inc if f in reports or f in kept]
         rows[ovl] = {

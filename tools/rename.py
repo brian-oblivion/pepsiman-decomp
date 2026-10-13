@@ -146,7 +146,19 @@ def is_code(path):
 def text_files():
     """Every file a symbol name may appear in, excluding generated and archive."""
     if OVL:
-        return [ROOT / "src/ovl" / f"{OVL}.c"]
+        # The overlay's unit and the local includes it shares with other
+        # overlays (chase.inc, engine_code.inc): a name written in a shared
+        # include is the same name in every overlay that includes it.
+        unit = ROOT / "src/ovl" / f"{OVL}.c"
+        out, todo = [unit], [unit]
+        while todo:
+            f = todo.pop()
+            for inc in re.findall(r'^[ \t]*#[ \t]*include[ \t]+"([^"]+\.inc)"', f.read_text(), re.M):
+                q = f.parent / inc
+                if q.exists() and q not in out:
+                    out.append(q)
+                    todo.append(q)
+        return out
     out = []
     for pat in ("src/**/*.c", "src/**/*_tables.inc", "src/ovl/*.inc", "include/*.h", "include/*.inc",
                 "docs/*.md", "docs/match-reports/*.md", "docs/research/*.md",
@@ -432,6 +444,20 @@ def main():
         if not re.search(rf"\b{re.escape(new)}\b", t):
             continue
         (hard if scope.search(t) or oldpat.search(t) else soft).append(rel)
+    # NAMING FOR SHARED CODE: an overlay's local include (engine.inc) shared
+    # with other overlays already declares NEW, a routine every overlay that
+    # includes it must supply under that name. Giving this overlay's OLD the
+    # name is the point, unless the include defines NEW itself or this
+    # overlay's symbols file already has it.
+    if OVL and hard:
+        shared = {f.relative_to(ROOT).as_posix() for f in text_files()[1:]}
+        defines = re.compile(rf"\b{re.escape(new)}\s*\([^;{{]*\)\s*\{{")
+        known = re.search(rf"^{re.escape(new)}\s*=", SYMBOLS.read_text(), re.M)
+        if not known and all(rel in shared and not defines.search((ROOT / rel).read_text())
+                             for rel in hard):
+            print(f"note: {new!r} is declared in this overlay's shared include(s) "
+                  f"({', '.join(hard)}); naming {old} for it.")
+            hard = []
     # REGISTERING, not renaming: the C already defines NEW, the link puts it at
     # OLD's address, and only the symbols file lacks it, so retail's
     # disassembly still says OLD and objdiff pairs nothing (a C-defined table

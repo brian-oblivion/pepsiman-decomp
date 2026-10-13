@@ -279,9 +279,7 @@ def main():
         for w, d in game.items():
             if not d.file.endswith(".c") or "static" in d.storage:
                 continue
-            others = users[name] - {d.file}
-            if image(d.file) != "exe":
-                others = {u for u in others if image(u) == image(d.file)}
+            others = {u for u in users[name] - {d.file} if image(u) == image(d.file)}
             others = sorted(others)
             df = definition(name, d.file)
             why = []

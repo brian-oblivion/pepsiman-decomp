@@ -2,6 +2,7 @@
 # Provision a decomp-permuter directory for one function.
 #
 #   tools/setup-permuter.sh <func> <seed.c> [outdir]
+#   OVL=ovl09 tools/setup-permuter.sh <func> <seed.c> [outdir]   # an overlay's
 #
 # <seed.c> is a small C file holding the project #includes plus ONE function
 # definition -- the near-miss body, normally copied out of that function's
@@ -50,8 +51,16 @@ dir=${3:-permuter-work/$func}
 [ -f "$seed" ] || { echo "FATAL: no such seed file: $seed" >&2; exit 1; }
 
 # Find the function's disassembly without being told which unit it is in.
-asm=$(find asm/nonmatchings -name "$func.s" -print -quit)
-[ -n "$asm" ] || { echo "FATAL: no asm/nonmatchings/**/$func.s -- is it already matched?" >&2; exit 1; }
+# An overlay function is looked up in that overlay only (OVL=<ovl> in the
+# environment): one name is a different function in each overlay.
+OVL=${OVL:-}
+if [ -n "$OVL" ]; then
+    asm=$(find "asm/ovl/$OVL/nonmatchings" -name "$func.s" -print -quit 2>/dev/null)
+    [ -n "$asm" ] || { echo "FATAL: no asm/ovl/$OVL/nonmatchings/**/$func.s -- is it already matched?" >&2; exit 1; }
+else
+    asm=$(find asm/nonmatchings -name "$func.s" -print -quit)
+    [ -n "$asm" ] || { echo "FATAL: no asm/nonmatchings/**/$func.s -- is it already matched? (an overlay's: OVL=<ovl>)" >&2; exit 1; }
+fi
 echo "target asm: $asm"
 
 mkdir -p "$dir" permuter-work/bin
@@ -75,14 +84,21 @@ MASPSX_FLAGS=$(sed -n 's/^MASPSX_FLAGS *:= *//p' "$REPO/Makefile" | sed "s| conf
 # The build hands maspsx the UNIT's gp list after MASPSX_FLAGS (Makefile
 # UNIT_GP); a later --gp-symbols wins, so append the same one here.
 unit=$(basename "$(dirname "$asm")")
-[ -f "$REPO/config/gp/$unit.txt" ] || { echo "FATAL: no config/gp/$unit.txt -- run python3 tools/gpsyms.py" >&2; exit 1; }
-MASPSX_FLAGS="$MASPSX_FLAGS --gp-symbols=$REPO/config/gp/$unit.txt"
+if [ -n "$OVL" ]; then
+    gp="$REPO/config/ovl/gp.$unit.txt"
+else
+    gp="$REPO/config/gp/$unit.txt"
+fi
+[ -f "$gp" ] || { echo "FATAL: no $gp -- run python3 tools/gpsyms.py" >&2; exit 1; }
+MASPSX_FLAGS="$MASPSX_FLAGS --gp-symbols=$gp"
 echo "maspsx flags (from Makefile): $MASPSX_FLAGS"
 # Trap 8: CC_FLAGS were hardcoded here too, with -G0 while the Makefile has
 # -G8 (Pepsiman's 2.8.1 splits %hi/%lo itself). The scaffold then disagreed
 # with funcdiff on the same body. Read them from the Makefile like MASPSX_FLAGS.
 CC_FLAGS=$(sed -n 's/^CC_FLAGS *[:+]\{0,1\}= *//p' "$REPO/Makefile" | tr '\n' ' ')
 [ -n "$CC_FLAGS" ] || { echo "FATAL: could not read CC_FLAGS from $REPO/Makefile" >&2; exit 1; }
+# An overlay unit is compiled with -G0 in place of -G8 (Makefile OVL_CC_FLAGS).
+[ -z "$OVL" ] || CC_FLAGS="$(echo "$CC_FLAGS" | sed 's/-G8/-G0/')"
 echo "cc1 flags (from Makefile): $CC_FLAGS"
 cat > "$dir/compile.sh" <<SH
 #!/bin/bash

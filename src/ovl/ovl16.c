@@ -67,11 +67,69 @@ INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F04E8);
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F60CC);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F6FA0);
+void func_800F6FA0(void) {
+    s16 v;
+
+    if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - MOT_RIDE) < 5) {
+        v = gPlayer.speed;
+        if (v < 100) {
+            gSpeedFixed += 16;
+        } else if (gPad & 0x1000) { /* PADLup */
+            gSpeedFixed += 32;
+            if ((s16)gSpeedFixed >> 4 > 100) {
+                gSpeedFixed = 0x640;
+            }
+        } else if (gPad & 0x4000) { /* PADLdown */
+            gSpeedFixed -= 32;
+            if ((s16)gSpeedFixed >> 4 < 100) {
+                gSpeedFixed = 0x640;
+            }
+        } else if (v > 100) {
+            gSpeedFixed -= 16;
+        } else {
+            gSpeedFixed += 16;
+        }
+        gPlayer.speed = (s16)gSpeedFixed >> 4;
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F70A8);
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F729C);
+extern s16 sSteerDrift;
+/* MATCHING: player's, declared only where defined. */
+void ApplySteer(u8 mode, u16 a, s16 b);
+void RecentreSteer(void);
+
+extern s16 sSteerDrift;
+/* MATCHING: player's, declared only where defined. */
+void ApplySteer(u8 mode, u16 a, s16 b);
+void RecentreSteer(void);
+
+void func_800F729C(void) {
+    if (gPad & 0x8000) { /* PADLleft */
+        ApplySteer(3, 16, 15);
+        sSteerDrift -= 3;
+        gPlayer.action = 0x35;
+    } else if (gPad & 0x2000) { /* PADLright */
+        ApplySteer(2, 16, 15);
+        sSteerDrift += 3;
+        gPlayer.action = 0x37;
+    } else {
+        RecentreSteer();
+        gPlayer.action = 0x33;
+        if (sSteerDrift != 0) {
+            if (sSteerDrift < 0) {
+                sSteerDrift++;
+            } else {
+                sSteerDrift--;
+            }
+        }
+    }
+    if (gPadType == 0) {
+        RecentreSteer();
+    }
+    sSteerDrift = sSteerDrift < -50 ? -50 : sSteerDrift > 50 ? 50 : sSteerDrift;
+}
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
@@ -114,9 +172,19 @@ void StepTrapAct23(StageTrap *t) {}
 
 void StepTrapAct24(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapAct25);
+void StepTrapAct25(StageTrap *t, s32 arg) {
+    u8 unused[0x78];
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F82E0);
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+        if (t->touched && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+            PlaySe(0x37);
+        }
+    }
+}
+/* MATCHING: the dispatchers call this stage entry point, which in this
+ * overlay lands inside the function above. */
+FUNC_ALIAS(func_800F82E0, StepTrapAct25, 0x78);
 
 void StepTrapAct27(StageTrap *t) {}
 
@@ -205,15 +273,53 @@ void StepHoppingTrap(StageTrap *t, u8 act) {}
 
 #include "engine/draw_trap_while_linked.inc"
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", UpdateStageEventHook);
+void UpdateStageEventHook(void) {
+    StageTrap *m;
+
+    m = &D_800D39D8[1];
+    if (gSwitches[192].state == SWITCH_ON) {
+        m->state = 0;
+        gPlayer.motion[0] = 11;
+        gPlayer.jumpPower = 60;
+        gPlayer.action = 0;
+        gSwitches[192].state = SWITCH_OFF;
+        gPlayer.dropRide = 1;
+        m->timer = 0;
+        m->state = 1;
+        gMissState = 0;
+        gPlayer.hittable = 0;
+        gPlayer.invulnTimer = 30;
+        gPlayer.rideMode &= 0xF0;
+        PlaySe(0x38);
+    }
+}
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 
 void UpdateGoalEventHook(void) {}
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F8B4C);
+void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count) {
+    DirEnt16 *e;
+    u16 i;
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F8BD4);
+    e = dir;
+    e += first;
+    for (i = first; i < first + count; i++) {
+        LoadTim((u8 *)dir + e->offset);
+        e++;
+        DrawSync(0);
+    }
+}
+
+void func_800F8BD4(void) {
+    RECT r;
+
+    r.x = gFrameCount / 2 % 12 * 16;
+    r.y = 0x1F3;
+    r.w = 16;
+    r.h = 1;
+    MoveImage(&r, 0, 0x1E0);
+}
 
 #include "engine/reveal_start_cans.inc"
 

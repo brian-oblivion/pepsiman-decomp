@@ -53,7 +53,38 @@ INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", sDebrisModelInit);
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapType32);
+void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
+    s16 dir;
+
+    dir = 1;
+    if (mode == 2) {
+        dir = -1;
+    }
+    if (t->state == 0) {
+        if (LatchProximity(t, 2000) != 0) {
+            PlaySe(82);
+        }
+        SnapToFloor(t);
+        if (t->timer < 150 && speed != 0) {
+            t->timer++;
+            if (mode == 0 || mode == 2) {
+                t->rotY = GetPathDirection(t) + dir * 2048;
+            }
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+        }
+        if (mode == 1 && DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t) > 250000) {
+            t->state++;
+        }
+    }
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(0x39);
+    }
+}
 
 INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepTrapType20);
 

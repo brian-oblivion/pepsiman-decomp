@@ -12,6 +12,19 @@
 #include "spad.h"
 #include "world_intro.h"
 
+/* MATCHING: the functions from func_800F80F8 on are non-static inline:
+ * gcc 2.8 expands them into callers defined after them and writes their
+ * own copies at the end of the file, in the order of these declarations. */
+inline void func_800F80F8(void);
+inline void func_800F81B4(void);
+inline void func_800F8264(void);
+inline void func_800F83E0(void);
+inline void func_800F8708(SVECTOR *pos, s32 kind);
+inline void func_800F8840(PlayerState *obj);
+inline void func_800F8898(void);
+inline void func_800F88B0(void);
+inline void func_800F88C8(SVECTOR *rot);
+
 /** @brief The three flat lights of the scene. */
 typedef struct {
     GsF_LIGHT l[3]; /**< one per light index */
@@ -22,9 +35,6 @@ typedef struct {
 
 extern s32 D_800FA220;
 extern s32 D_800FA28C;
-void func_800F83E0(void);
-void func_800F8898(void);
-void func_800F88B0(void);
 
 void func_800F01EC(void) {
     SVECTOR pos;
@@ -621,7 +631,7 @@ s32 func_800F7A4C(void) {
 INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F7A4C);
 #endif
 
-void func_800F80F8(void) {
+inline void func_800F80F8(void) {
     GsCOORDINATE2 c;
     MATRIX m;
     SVECTOR size;
@@ -641,7 +651,7 @@ void func_800F80F8(void) {
     DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
-void func_800F81B4(void) {
+inline void func_800F81B4(void) {
     GsCOORDINATE2 c;
     MATRIX m;
     SVECTOR size;
@@ -661,7 +671,7 @@ void func_800F81B4(void) {
     DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
-void func_800F8264(void) {
+inline void func_800F8264(void) {
     MATRIX m;
     SVECTOR rot;
     GsDOBJ2 *o;
@@ -697,7 +707,7 @@ void func_800F8264(void) {
 
 extern s32 D_800FA288;
 
-void func_800F83E0(void) {
+inline void func_800F83E0(void) {
     GsOT *ot;
     POLY_F4 *p;
     DR_TPAGE *t;
@@ -765,7 +775,7 @@ void func_800F83E0(void) {
     }
 }
 
-void func_800F8708(SVECTOR *pos, s32 kind) {
+inline void func_800F8708(SVECTOR *pos, s32 kind) {
     switch (kind) {
         case 1:
             DrawSprite(0x53, pos, NULL, 0, &gSubOt[gActiveBuff]);
@@ -781,7 +791,7 @@ void func_800F8708(SVECTOR *pos, s32 kind) {
     }
 }
 
-void func_800F8840(PlayerState *obj) {
+inline void func_800F8840(PlayerState *obj) {
     obj->motionResult[0] = StepAnimation(obj, 0, obj->animFilter);
     switch (obj->action) {
         case 0x60:
@@ -794,17 +804,17 @@ void func_800F8840(PlayerState *obj) {
     }
 }
 
-void func_800F8898(void) {
+inline void func_800F8898(void) {
     D_800FA288 = 0;
     D_800FA28C = 2;
 }
 
-void func_800F88B0(void) {
+inline void func_800F88B0(void) {
     D_800FA288 = 0;
     D_800FA28C = 3;
 }
 
-void func_800F88C8(SVECTOR *rot) {
+inline void func_800F88C8(SVECTOR *rot) {
     MATRIX m;
     SVECTOR v;
     VECTOR out;

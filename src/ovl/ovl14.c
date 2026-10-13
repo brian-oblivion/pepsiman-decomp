@@ -254,17 +254,23 @@ s32 SpawnEffectWithParams(s32 kind, s32 x, s32 y, s32 z, s32 delay, s32 param0, 
 /* MATCHING: the step's sub-step, kept in the fog fade's word. */
 #define sSubStep gFogFade
 
-#ifdef NON_MATCHING
 /* MATCHING: tested `>= 0`, cc1 folds it to an abs that keeps the minuend
  * computed first. */
 #define ABS_GE(x) ((x) >= 0 ? (x) : -(x))
 
+void SetChaseLights(void);
+void PlaceChaseObjects(void);
+
 /* Steps the player's first animation channel, with a footstep while it
  * runs. */
-static inline void StepChaseMotion(PlayerState *p) {
+static inline void StepChaseMotion(PlayerState *q) {
+    PlayerState *p;
     u8 m;
 
-    p->motionResult[0] = StepAnimation(p, 0, 0);
+    q->motionResult[0] = StepAnimation(q, 0, 0);
+    /* MATCHING: copied past the call, the address and its %hi share one
+     * saved register. */
+    p = q;
     /* MATCHING: the barrier keeps the result's store above the reads. */
     __asm__("");
     m = p->motion[0];
@@ -282,23 +288,14 @@ static inline void StepChaseMotion(PlayerState *p) {
     }
 }
 
-/* The same, after setting the scene's lights. */
-static inline void StepChaseMotionLit(PlayerState *p) {
-    PlayerState *q;
-
-    SetChaseLights();
-    /* MATCHING: a copy past the call puts the address in one saved register. */
-    q = p;
-    StepChaseMotion(q);
-}
-
 /* The chase's own step: the player's, the lights, the run forward and the
  * world shifted to follow it, on the scratchpad stack. */
-static inline void StepChaseRun(PlayerState *q) {
+static inline void StepChaseRun(void) {
     PlayerState *p;
 
     StepChasePlayer();
-    p = q;
+    /* MATCHING: taken after the call, so reorg can hoist the next arm's lui. */
+    p = &gPlayer;
     SetChaseLights();
     gWorldShift[1] = 0;
     p->x += p->speed;
@@ -310,8 +307,10 @@ static inline void StepChaseRun(PlayerState *q) {
 
 /* Draws the can three times along the run, each rolling and bouncing at
  * its own phase. */
+/* MATCHING: a plain block; a do-while(0) adds a loop level to the refs and
+ * reorders the saved registers. */
 #define DRAW_CANS()                                                                       \
-    do {                                                                                  \
+    {                                                                                     \
         s32 t;                                                                            \
         s32 t2;                                                                           \
         s32 t3;                                                                           \
@@ -364,22 +363,24 @@ static inline void StepChaseRun(PlayerState *q) {
             SetTmdSortMode(4);                                                            \
             GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
         }                                                                                 \
-    } while (0)
+    }
 
 /* Draws the still can at an offset from its place. */
-#define DRAW_STILL_CAN(dx, dy)                                                        \
-    do {                                                                              \
-        sAct3Coords[0].coord.t[0] = sCan.x + (dx);                                    \
-        sAct3Coords[0].coord.t[1] = sCan.y + (dy);                                    \
-        sAct3Coords[0].coord.t[2] = sCan.z;                                           \
-        SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-        GsGetLs(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-        GsSetLsMatrix(&D_800F57EC);                                                   \
-        GsGetLw(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-        GsSetLightMatrix(&D_800F57EC);                                                \
-        SetTmdSortMode(4);                                                            \
-        GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
-    } while (0)
+static inline void DrawStillCan(SVECTOR *rot, GsCOORDINATE2 *coord, s32 dx, s32 dy) {
+    coord->coord.t[0] = sCan.x + dx;
+    coord->coord.t[1] = sCan.y + dy;
+    coord->coord.t[2] = sCan.z;
+    SetCoordRotation(rot, coord);
+    GsGetLs(sAct3Objs[0].coord2, &D_800F57EC);
+    GsSetLsMatrix(&D_800F57EC);
+    GsGetLw(sAct3Objs[0].coord2, &D_800F57EC);
+    GsSetLightMatrix(&D_800F57EC);
+    SetTmdSortMode(4);
+    GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+}
+
+/* MATCHING: a view of a routine model.c declares only where defined. */
+void DrawSky(u32 arg);
 
 /* The stage's frame step: the opening scene, the chase, the escape at the
  * run's end, and the results. */
@@ -663,7 +664,8 @@ s32 func_800F1654(void) {
             }
             SetSpadStack();
             GsSetRefView2((GsRVIEW2 *)gView);
-            StepChaseMotionLit(&gPlayer);
+            SetChaseLights();
+            StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], 0, 0, 0);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayer();
@@ -673,9 +675,9 @@ s32 func_800F1654(void) {
                 func_800F1248(sWalker.walkX - 200, sWalker.walkY, sWalker.walkZ - 150, 1);
                 func_800F1248(sWalker.walkX - 300, sWalker.walkY, sWalker.walkZ + 150, 2);
             } else {
-                DRAW_STILL_CAN(0, 0);
-                DRAW_STILL_CAN(-100, -100);
-                DRAW_STILL_CAN(-200, 0);
+                DrawStillCan(&sCanRot[0], &sAct3Coords[0], 0, 0);
+                DrawStillCan(&sCanRot[0], &sAct3Coords[0], -100, -100);
+                DrawStillCan(&sCanRot[0], &sAct3Coords[0], -200, 0);
             }
             DrawRepeatingStage(0, 0, 0, 40000);
             DrawSky(0);
@@ -744,7 +746,7 @@ s32 func_800F1654(void) {
                 gView[5] = -(rsin((D_800F5810 << 12) / 360) * 500 / 4096);
                 GsSetRefView2((GsRVIEW2 *)gView);
             }
-            StepChaseRun(&gPlayer);
+            StepChaseRun();
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(sChaseLive);
@@ -888,7 +890,6 @@ s32 func_800F1654(void) {
                 gPlayer.yaw -= 11;
             }
             D_800F5814++;
-            /* MATCHING: here the address is taken after the call, not copied. */
             SetChaseLights();
             StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
@@ -940,8 +941,5 @@ s32 func_800F1654(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl14/nonmatchings/ovl14", func_800F1654);
-#endif
 
 #include "chase_tail.inc"

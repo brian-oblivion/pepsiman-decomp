@@ -64,17 +64,23 @@ s32 SpawnEffectWithParams(s32 kind, s32 x, s32 y, s32 z, s32 delay, s32 param0, 
 /* MATCHING: the step's sub-step, kept in the fog fade's word. */
 #define sSubStep gFogFade
 
-#ifdef NON_MATCHING
 /* MATCHING: tested `>= 0`, cc1 folds it to an abs that keeps the minuend
  * computed first. */
 #define ABS_GE(x) ((x) >= 0 ? (x) : -(x))
 
+void SetChaseLights(void);
+void PlaceChaseObjects(void);
+
 /* Steps the player's first animation channel, with a footstep while it
  * runs. */
-static inline void StepChaseMotion(PlayerState *p) {
+static inline void StepChaseMotion(PlayerState *q) {
+    PlayerState *p;
     u8 m;
 
-    p->motionResult[0] = StepAnimation(p, 0, 0);
+    q->motionResult[0] = StepAnimation(q, 0, 0);
+    /* MATCHING: copied past the call, the address and its %hi share one
+     * saved register. */
+    p = q;
     /* MATCHING: the barrier keeps the result's store above the reads. */
     __asm__("");
     m = p->motion[0];
@@ -92,23 +98,14 @@ static inline void StepChaseMotion(PlayerState *p) {
     }
 }
 
-/* The same, after setting the scene's lights. */
-static inline void StepChaseMotionLit(PlayerState *p) {
-    PlayerState *q;
-
-    SetChaseLights();
-    /* MATCHING: a copy past the call puts the address in one saved register. */
-    q = p;
-    StepChaseMotion(q);
-}
-
 /* The chase's own step: the player's, the lights, the run forward and the
  * world shifted to follow it, on the scratchpad stack. */
-static inline void StepChaseRun(PlayerState *q) {
+static inline void StepChaseRun(void) {
     PlayerState *p;
 
     StepChasePlayer();
-    p = q;
+    /* MATCHING: taken after the call, so reorg can hoist the next arm's lui. */
+    p = &gPlayer;
     SetChaseLights();
     gWorldShift[1] = 0;
     p->x += p->speed;
@@ -117,6 +114,9 @@ static inline void StepChaseRun(PlayerState *q) {
     SetSpadStack();
     StepChaseMotion(p);
 }
+
+/* MATCHING: a view of a routine model.c declares only where defined. */
+void DrawSky(u32 arg);
 
 /* The stage's frame step: the opening scene, the chase, the escape at the
  * run's end, and the results. */
@@ -276,15 +276,16 @@ s32 func_800F4758(void) {
                     if (gFrameCount & 1) {
                         D_800F803C++;
                     }
-                    *(GsRVIEW2 *)gView = sView;
                     sCan.x += D_800F803C;
+                    *(GsRVIEW2 *)gView = sView;
                     if (D_800F803C >= 60) {
                         gWorldIntroStep = 10;
                     }
                     break;
             }
             GsSetRefView2((GsRVIEW2 *)gView);
-            StepChaseMotionLit(&gPlayer);
+            SetChaseLights();
+            StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], 0, 0, 0);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayer();
@@ -373,7 +374,7 @@ s32 func_800F4758(void) {
                 gView[5] = -(rsin((D_800F8038 << 12) / 360) * 500 / 4096);
                 GsSetRefView2((GsRVIEW2 *)gView);
             }
-            StepChaseRun(&gPlayer);
+            StepChaseRun();
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(sChaseLive);
@@ -403,6 +404,9 @@ s32 func_800F4758(void) {
             sAct3Coords[1].coord.t[1] = sCan.y + gWorldShift[1];
             sAct3Coords[1].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[1].vx = 0;
+            /* MATCHING: the barrier lengthens both bases' lives, so the coordinates'
+             * base outranks the rotations' for the lower saved register. */
+            __asm__("");
             ResetSpadStack();
             sCanRot[1].vy = rsin((gFrameCount * 8 - 30) * 4096 / 360) * 10 / 4096 * 4096 / 360;
             SetSpadStack();
@@ -550,7 +554,6 @@ s32 func_800F4758(void) {
                 gPlayer.yaw -= 11;
             }
             D_800F803C++;
-            /* MATCHING: here the address is taken after the call, not copied. */
             SetChaseLights();
             StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
@@ -623,9 +626,5 @@ s32 func_800F4758(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl08/nonmatchings/ovl08", func_800F4758);
-#endif
-
 
 #include "chase_tail.inc"

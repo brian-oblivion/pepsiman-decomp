@@ -209,10 +209,8 @@ void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {
 
 #include "engine/swap_trap_model_on_approach.inc"
 
-/* Near (0.956 with temporaries folded): cc1 keeps the miss phase's value
- * as the case-1 constant and its address in a saved register for the
- * `= 2` store; retail reloads both. Neither the test's form nor the
- * store's moved it. */
+/* Near: the miss phase's value is reused as the case-1 constant and its
+ * address kept for the `= 2` store, where the original reloads both. */
 #ifdef NON_MATCHING
 void StepMissSequence(void) {
     s32 unused[18];

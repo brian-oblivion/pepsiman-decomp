@@ -21,7 +21,7 @@ WHAT IT DOES, in order:
   2. refuses if NEW is not a C identifier, is already a symbol or visible where
      OLD is used (an unrelated local elsewhere is only noted), or is a
      splat placeholder spelling other than OLD's own (renaming to OLD's own
-     placeholder UNNAMES it); refuses a game-style `gName`/`sName` for data
+     placeholder UNNAMES it, dropping its symbols line); refuses a game-style `gName`/`sName` for data
      every accessor of which is Sony library code (tools/sonydata.py);
   3. rewrites the symbols file (replaces OLD's line, or appends a line for a
      placeholder that had none) and every whole-word OLD in src/, include/,
@@ -542,7 +542,8 @@ def main():
                      f"static, whose honest spelling is the placeholder.")
 
     print(f"rename {old} -> {new}   ({addr:#x}, {kind})")
-    print(f"  symbols file: {'replace line' if symline is not None else 'append line'}")
+    unnaming = PLACEHOLDER.match(new) and int(PLACEHOLDER.match(new).group(2), 16) == addr
+    print(f"  symbols file: {('drop line' if unnaming else 'replace line') if symline is not None else 'append line'}")
     print(f"  {len(touched)} file(s) with whole-word references:")
     for p in touched:
         n = len(pat.findall(p.read_text(errors="replace")))
@@ -567,7 +568,11 @@ def main():
 
     # 3. symbols file
     lines = SYMBOLS.read_text().splitlines(keepends=True)
-    if symline is not None:
+    if symline is not None and unnaming:
+        # The placeholder is splat's default: unnaming drops the line (a
+        # label cut inside a table goes this way once its readers index it).
+        del lines[symline]
+    elif symline is not None:
         lines[symline] = re.sub(rf"^(\s*){re.escape(old)}\b", rf"\g<1>{new}", lines[symline])
     else:
         tag = " // type:func" if kind == "func" else ""

@@ -2259,8 +2259,6 @@ extern s32 D_800FA278;
 extern s32 D_800FA280;
 extern s32 D_800FA284;
 
-#ifdef NON_MATCHING
-/* MATCHING: 0.983; step 120's registers and step 140's gRefView %hi left. */
 void func_800F69B0(void) {
     SVECTOR pos;
     SColor color;
@@ -2380,6 +2378,8 @@ void func_800F69B0(void) {
             sView.vpx = gPlayer.x - D_800FA280;
             sView.vrx = gPlayer.x;
             if ((D_800FA280 += 5) == 500) {
+                /* MATCHING: no code; moves D_800FA280 to global alloc. */
+                D_800FA280 = 500;
                 D_800FA278 = 0;
                 gSubStep = 130;
             }
@@ -2411,28 +2411,18 @@ void func_800F69B0(void) {
             break;
         case 140:
             if (D_800FA280 < 5) {
-                s32 e;
-                s32 x;
-
-                x = gPlayer.x;
-                e = D_800FA280 * 50 - 500;
-                sView.vpx = x + e;
-                sView.vrx = x;
-                sView.vry = sView.vpy = rand() % 50 - 175;
-                sView.vrz = sView.vpz = rand() % 50 - 25;
+                sView.vpx = gPlayer.x - 500 + D_800FA280 * 50;
+                sView.vrx = gPlayer.x;
+                sView.vpy = sView.vry = rand() % 50 - 175;
+                sView.vpz = sView.vrz = rand() % 50 - 25;
             } else if (D_800FA280 < 10) {
-                s32 e;
-                s32 x;
-
-                x = gPlayer.x;
-                e = (D_800FA280 - 5) * 50 + 250;
-                sView.vpx = x - e;
-                sView.vrx = x;
-                sView.vry = sView.vpy = rand() % 50 - 175;
-                sView.vrz = sView.vpz = rand() % 50 - 25;
+                sView.vpx = gPlayer.x - 250 - (D_800FA280 - 5) * 50;
+                sView.vrx = gPlayer.x;
+                sView.vpy = sView.vry = rand() % 50 - 175;
+                sView.vpz = sView.vrz = rand() % 50 - 25;
             } else {
-                sView.vry = sView.vpy = -150;
-                sView.vrz = sView.vpz = 0;
+                sView.vpy = sView.vry = -150;
+                sView.vpz = sView.vrz = 0;
                 sView.vpx = gPlayer.x - 500;
                 sView.vrx = gPlayer.x;
             }
@@ -2555,9 +2545,6 @@ void func_800F69B0(void) {
         gSubStep = 1000;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F69B0);
-#endif
 
 extern CdlLOC D_800F9BC8;
 extern SVECTOR D_800F9BD0[];

@@ -2,7 +2,7 @@
  * sections, like engine_code.inc: each #include of this file emits the next
  * section, so an overlay includes it once per section, in address order,
  * around its own data. Overlays have no .bss: their zeroed buffers are
- * initialised definitions, which cc1 writes to .data.
+ * initialised definitions, in .data.
  *
  * What differs per overlay is set before the first #include:
  *   ENGINE_SPEEDS_PAD  the halfword after sType1FSpeeds's five speeds;
@@ -42,9 +42,8 @@ s8 sWalksReady = 0;        /* set once the walks are reset */
 s8 sSpawnedTrapsReady = 0; /* set once the spawned traps are reset */
 s8 sGoalLightsSet = 0;     /* set once the goal lights are on */
 
-/* A type-1F trap's speed by its act. MATCHING: [5] is not a speed: it is
- * the halfword retail's link padded the file's data with, whatever its
- * buffer held, which differs per overlay. */
+/* A type-1F trap's speed by its act; [5] is not a speed. */
+/* MATCHING: [5] is the link's padding, whatever its buffer held; per overlay. */
 u16 sType1FSpeeds[6] = {10, 15, 20, 25, 30, ENGINE_SPEEDS_PAD};
 
 #undef ENGINE_DATA_PART
@@ -84,7 +83,7 @@ s32 sHintBurstHeights[8] = {400, 200, 300, 600, 100, 500, 240, 20};
 s32 sWalkPose[300] = {0};
 
 /* Each walking sprite's step, and its timer. Both are longer than the 100
- * sprites they serve; the sizes are retail's. */
+ * sprites they serve; the sizes are the original's. */
 u8 sWalkState[112] = {0};
 s16 sWalkTimer[104] = {0};
 

@@ -21,7 +21,8 @@ Doxygen reads its documentation from:
             at the macro, and are not counted
   plain     a `/* @brief */`-style tag in a plain comment: Doxygen skips it
 
-and every comment in include/ and src/ (Sony's include/psyq/ excepted) is
+and every comment in include/ and src/ (Sony's include/psyq/ excepted; src/'s
+.inc files count as sources) is
 screened for process text, which track 12 moves to the match reports:
 
   process   registers, instructions, the toolchain, retail, rounds, runners,
@@ -103,7 +104,7 @@ def game_headers():
 
 
 def game_sources():
-    return sorted((REPO / "src").rglob("*.c"))
+    return sorted(p for p in (REPO / "src").rglob("*") if p.suffix in (".c", ".inc"))
 
 
 def rel(p):
@@ -312,7 +313,7 @@ def census(files=None):
             hits[e.file].append((e.line, e.kind, e.name))
 
     for f in sorted(want):
-        is_c = f.endswith(".c")
+        is_c = not f.endswith(".h")
         for a, b, txt in T(f).comments:
             body = re.sub(r"^/\*+<?\s*", "", txt)
             if body.startswith("MATCHING:"):
@@ -400,7 +401,7 @@ def main():
         files = []
         for p in a.paths:
             q = REPO / p
-            files += [rel(x) for x in sorted(q.rglob("*")) if x.suffix in (".c", ".h")] if q.is_dir() else [rel(q)]
+            files += [rel(x) for x in sorted(q.rglob("*")) if x.suffix in (".c", ".h", ".inc")] if q.is_dir() else [rel(q)]
     hits = census(files)
     tot = defaultdict(int)
     rows = []

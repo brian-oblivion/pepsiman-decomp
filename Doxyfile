@@ -5,14 +5,24 @@
 # Only settings that differ from Doxygen's defaults are listed. Sony's own
 # headers (include/psyq/) are read for their types but not documented, and
 # tools/apidoc.py is the measurement: this file renders what it checks.
+#
+# Doxygen documents a source file's functions and globals, and warns about
+# the undocumented ones, only once the file has a `/** @file */` block. A
+# unit gets that block when all of it is documented, and from then on any
+# warning fails CI's lint job, so a new function there must come with its doc.
 
 PROJECT_NAME           = "Pepsiman"
 PROJECT_BRIEF          = "Decompiled game source (SLPS-01762)"
 OUTPUT_DIRECTORY       = build/doxygen
 INPUT                  = include src
-FILE_PATTERNS          = *.h *.c
+FILE_PATTERNS          = *.h *.c *.inc
+EXTENSION_MAPPING      = inc=C
+# The sectioned .inc files (engine_code.inc) are read whole, every section.
+FILTER_PATTERNS        = *.inc="python3 tools/doxysections.py"
 RECURSIVE              = YES
-EXCLUDE                = include/psyq include/include_asm.h
+# include/'s other .inc files are assembler macros, not C.
+EXCLUDE                = include/psyq include/include_asm.h \
+                         include/gte_macros.inc include/labels.inc include/macro.inc
 EXCLUDE_PATTERNS       = */include/psyq/*
 
 OPTIMIZE_OUTPUT_FOR_C  = YES

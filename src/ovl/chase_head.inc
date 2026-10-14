@@ -3,9 +3,9 @@
 
 void StartChaseJump(void);
 
-/* The frame step's state, defined by chase_data.inc. MATCHING: cc1 writes
- * a unit's tentative definitions at its end in the order of their FIRST
- * declarations, so the zeroed ones are declared here in .bss order. */
+/* The frame step's state, defined by chase_data.inc, the zeroed ones
+ * declared here in .bss order. */
+/* MATCHING: tentative definitions land in first-declaration order. */
 extern s32 sObjCount;
 extern Act3Step sPieceSteps[];
 extern CVECTOR sChaseSky[4];

@@ -775,9 +775,9 @@ const SpriteShapes sStageShapes = {{
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 }};
 
-/* MATCHING: the three bytes that end the shapes' last word are what
- * retail's link left in its padding, whatever its buffer held; they differ
- * between 3-1 and 3-2. Single bytes, so cc1 aligns them to nothing. */
+/* The three bytes that end the shapes' last word; they differ between 3-1
+ * and 3-2. */
+/* MATCHING: the link's padding, whatever its buffer held; bytes, unaligned. */
 const u8 sStageShapesPad0 = STAGE3_SHAPES_PAD0;
 const u8 sStageShapesPad1 = STAGE3_SHAPES_PAD1;
 const u8 sStageShapesPad2 = STAGE3_SHAPES_PAD2;

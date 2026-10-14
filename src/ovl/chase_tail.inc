@@ -4,7 +4,7 @@
  * CHASE_PLACEMENTS (how many objects its placement list holds),
  * CHASE_LIGHT_BLUE (the lights' blue), CHASE_FAR_COLOR (the fog's colour,
  * three components), CHASE_FILE_LOC and CHASE_FILE_SECTORS (its stage's
- * directory in cdfile.h, whose files 1 and 2 the loader reads), and may
+ * files in disc_files.inc, of which the loader reads 1 and 2), and may
  * define CHASE_VAB, the sound bank the loader loads if it loads one, and
  * CHASE_LIGHT_RG (the lights' red and green, 0x80 unless defined). */
 

@@ -7,8 +7,8 @@
 #define CHASE_VAB 3
 #define CHASE_LIGHT_BLUE 0x40
 #define CHASE_FAR_COLOR 0, 0, 32
-#define CHASE_FILE_LOC sCdData7Loc
-#define CHASE_FILE_SECTORS sCdData7Sectors
+#define CHASE_FILE_LOC sFiles2Ovl08Loc
+#define CHASE_FILE_SECTORS sFiles2Ovl08Sectors
 
 #include "chase.inc"
 #include "chase_tail.inc"

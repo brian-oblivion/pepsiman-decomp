@@ -8,7 +8,7 @@
 #
 # SEGMENTATION, measured: rodata, then code from the first function to the
 # last `jr $ra`, then data to the end of the file: the main unit's .data,
-# the tail's (which starts at its own copy of cdfile.h's table, the
+# the tail's (which starts at its own copy of disc_files.inc's table, the
 # second in the file), and no .bss.
 #
 # TWO UNITS. The stage's tail (chase_tail.inc: lights, placement, loader,

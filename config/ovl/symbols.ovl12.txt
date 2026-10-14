@@ -146,3 +146,4 @@ StepRollingTrap = 0x800F3ADC; // type:func
 ScatterTrapDust = 0x800F6BB4; // type:func
 StepStageFrame = 0x800F72B8; // type:func
 RevealStartCans = 0x800F9530; // type:func
+sStageSpriteShapes = 0x800F0924;

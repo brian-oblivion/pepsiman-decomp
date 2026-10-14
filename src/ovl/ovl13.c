@@ -5,6 +5,18 @@
  * stage's body takes it as s16, so the shared declaration is set aside. */
 #define StepTrapType18 StepTrapType18_engine
 #include "engine.inc"
+
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0x660D
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc to sFiles3LastSectors */
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
 #undef StepTrapType18
 void StepTrapType18(StageTrap *t, s16 speed, s32 arg, s8 dir);
 
@@ -739,9 +751,6 @@ void UpdateGoalEventHook(void) {}
 
 #include "engine/emit_trap_particles.inc"
 
-extern s32 D_800FABD0[];
-extern s32 D_800FABF0[];
-
 s32 func_800F98E4(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
@@ -750,11 +759,11 @@ s32 func_800F98E4(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800FABD0[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FABF0[1];
+            gCdLoadSectors[0] = sFiles2Ovl13Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -770,11 +779,11 @@ s32 func_800F98E4(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800FABD0[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FABF0[2];
+            gCdLoadSectors[0] = sFiles2Ovl13Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -784,14 +793,14 @@ s32 func_800F98E4(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800FABD0[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800FABD0[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl13Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FABF0[3];
-            gCdLoadSectors[1] = D_800FABF0[4];
+            gCdLoadSectors[0] = sFiles2Ovl13Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl13Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -801,11 +810,11 @@ s32 func_800F98E4(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800FABD0[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FABF0[5];
+            gCdLoadSectors[0] = sFiles2Ovl13Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -819,11 +828,11 @@ s32 func_800F98E4(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800FABD0[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FABF0[6];
+            gCdLoadSectors[0] = sFiles2Ovl13Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -835,11 +844,11 @@ s32 func_800F98E4(void) {
             }
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)&D_800FABD0[6];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[7];
             gCdLoadDest[0] = 0x8018D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FABF0[7];
+            gCdLoadSectors[0] = sFiles2Ovl13Sectors[7];
             gSubStep++;
             break;
         case 13:
@@ -962,13 +971,27 @@ typedef struct {
     u8 shape[41]; /**< a shape per sprite id from SPR_STAGE on */
 } SpriteShapes41;
 
-extern const SpriteShapes41 D_800F08FC;
+/** @brief The shapes as this overlay's rodata holds them: the link
+ *         padded the block to a word. */
+typedef struct {
+    SpriteShapes41 shapes; /**< the shapes */
+    u8 pad[3];             /**< MATCHING: the link's padding, whatever its buffer held */
+} SpriteShapes41Rodata;
+
+extern const SpriteShapes41Rodata sStageSpriteShapes;
 
 void func_800FA058(void) {
     SpriteShapes41 shapes;
 
-    shapes = D_800F08FC;
+    shapes = sStageSpriteShapes.shapes;
     *(SpriteShapes41 *)sSpriteShapes = shapes;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl13/nonmatchings/ovl13", D_800F08FC);
+/* This stage's sprite shapes. */
+const SpriteShapes41Rodata sStageSpriteShapes = {
+    {{
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    }},
+    {16, 255, 253},
+};

@@ -3,6 +3,39 @@
 
 #include "engine.inc"
 
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0x0046
+#define ENGINE_HINT_FILE
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc on, sHintBurstSpins on */
+
+/* The stage-hint file's data: the hint being watched, the hints and their
+ * count. */
+s32 sHintIndex = 0;
+StageHint sHints[12] = {
+    {16, 30, 2},  {27, 30, 2},  {30, 30, 2},  {45, 30, 2},  {58, 30, 2},  {129, 30, 1},
+    {208, 30, 2}, {260, 30, 2}, {267, 30, 2}, {271, 30, 2}, {276, 30, 2}, {-1},
+};
+s32 sHintCount = 12;
+
+/* MATCHING: the word retail's link padded the file's data with, whatever
+ * its buffer held. */
+s32 sHintPad = 0x0002D644;
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
+
+/* The camera view saved before a shot, which the camera then moves from;
+ * only x and z are used. */
+s32 sSavedView[8] = {0};
+
+/* 400 zeroed bytes nothing in this overlay reads. */
+s32 sUnusedWords[100] = {0};
+
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
 void ResetSpawnedTraps(void) {
@@ -596,23 +629,21 @@ void func_800F7C9C(StageTrap *t, s8 kind) {
     }
 }
 
-extern s32 D_800FF3C0[];
-
 s8 func_800F7E34(StageTrap *t) {
     s8 ret = 0;
 
     switch (t->state) {
         case 0:
-            D_800FF3C0[0] = gView[0];
-            D_800FF3C0[2] = gView[2];
+            sSavedView[0] = gView[0];
+            sSavedView[2] = gView[2];
             gRefView[0] = rsin(gPlayer.yaw + 0x238) * 300 >> 12;
             gRefView[2] = rcos(gPlayer.yaw + 0x238) * 300 >> 12;
             t->timer = 0;
             t->state++;
         case 1:
             t->timer++;
-            gView[0] = Lerp(D_800FF3C0[0], gRefView[0], t->timer, 60);
-            gView[2] = Lerp(D_800FF3C0[2], gRefView[2], t->timer, 60);
+            gView[0] = Lerp(sSavedView[0], gRefView[0], t->timer, 60);
+            gView[2] = Lerp(sSavedView[2], gRefView[2], t->timer, 60);
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.bodyYaw = Lerp(gCourse.rot.vy + 0x800, gCourse.rot.vy + 0xC00, t->timer, 60);
             gBodyRot[1] = gPlayer.yaw + gPlayer.bodyYaw;
@@ -643,38 +674,24 @@ s8 func_800F7E34(StageTrap *t) {
     return ret;
 }
 
-/** @brief One of this stage's on-screen prompts, in a table ended by a
- *         section of -1: shown when the player reaches its section. */
-typedef struct {
-    s16 section; /**< the course section that starts it */
-    s16 limit;   /**< frames it shows before it is dismissed */
-    s16 kind;    /**< which prompt it draws */
-    s16 timer;   /**< frames shown so far */
-    s16 unk8;    /**< not yet known; cleared with timer */
-    s16 state;   /**< 0 waiting, 1 shown, 2 answered, 100 done */
-} StageHint;
-
-extern s32 D_800FB464;
-extern StageHint D_800FB468[];
-
 s32 func_800F80F4(void) {
     SVECTOR pos;
     s32 n;
 
-    switch (D_800FB468[D_800FB464].state) {
+    switch (sHints[sHintIndex].state) {
         case 0:
-            if (D_800FB468[D_800FB464].section == gSection) {
-                D_800FB468[D_800FB464].state = 1;
+            if (sHints[sHintIndex].section == gSection) {
+                sHints[sHintIndex].state = 1;
             }
             break;
         case 1:
-            switch (D_800FB468[D_800FB464].kind) {
+            switch (sHints[sHintIndex].kind) {
                 case 0:
                     if (gPadTrig & 0x8000) {
-                        D_800FB468[D_800FB464].state = 2;
+                        sHints[sHintIndex].state = 2;
                     }
-                    if (D_800FB468[D_800FB464].timer < 9) {
-                        n = D_800FB468[D_800FB464].timer;
+                    if (sHints[sHintIndex].timer < 9) {
+                        n = sHints[sHintIndex].timer;
                     } else {
                         n = 8;
                     }
@@ -684,10 +701,10 @@ s32 func_800F80F4(void) {
                     break;
                 case 1:
                     if (gPadTrig & 0x2000) {
-                        D_800FB468[D_800FB464].state = 2;
+                        sHints[sHintIndex].state = 2;
                     }
-                    if (D_800FB468[D_800FB464].timer < 9) {
-                        n = D_800FB468[D_800FB464].timer;
+                    if (sHints[sHintIndex].timer < 9) {
+                        n = sHints[sHintIndex].timer;
                     } else {
                         n = 8;
                     }
@@ -697,10 +714,10 @@ s32 func_800F80F4(void) {
                     break;
                 case 2:
                     if (gPadTrig & 0x40) {
-                        D_800FB468[D_800FB464].state = 2;
+                        sHints[sHintIndex].state = 2;
                     }
-                    if (D_800FB468[D_800FB464].timer < 9) {
-                        n = D_800FB468[D_800FB464].timer;
+                    if (sHints[sHintIndex].timer < 9) {
+                        n = sHints[sHintIndex].timer;
                     } else {
                         n = 8;
                     }
@@ -710,10 +727,10 @@ s32 func_800F80F4(void) {
                     break;
                 case 3:
                     if (gPadTrig & 0x20) {
-                        D_800FB468[D_800FB464].state = 2;
+                        sHints[sHintIndex].state = 2;
                     }
-                    if (D_800FB468[D_800FB464].timer < 9) {
-                        n = D_800FB468[D_800FB464].timer;
+                    if (sHints[sHintIndex].timer < 9) {
+                        n = sHints[sHintIndex].timer;
                     } else {
                         n = 8;
                     }
@@ -722,15 +739,15 @@ s32 func_800F80F4(void) {
                     DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
             }
-            if (++D_800FB468[D_800FB464].timer > D_800FB468[D_800FB464].limit) {
-                D_800FB468[D_800FB464].state = 100;
+            if (++sHints[sHintIndex].timer > sHints[sHintIndex].limit) {
+                sHints[sHintIndex].state = 100;
             }
             break;
         case 2:
-            D_800FB464++;
+            sHintIndex++;
             break;
         case 100:
-            D_800FB464++;
+            sHintIndex++;
             break;
     }
 }
@@ -854,23 +871,18 @@ void CycleGoalLights(s8 arg) {}
 
 #include "engine/reveal_start_cans.inc"
 
-extern s32 D_800FB4F8;
-
 void func_800F9AC8(void) {
     s32 i;
 
-    for (i = 0; i < D_800FB4F8; i++) {
-        D_800FB468[i].timer = 0;
-        D_800FB468[i].unk8 = 0;
-        D_800FB468[i].state = 0;
+    for (i = 0; i < sHintCount; i++) {
+        sHints[i].timer = 0;
+        sHints[i].unk8 = 0;
+        sHints[i].state = 0;
     }
-    D_800FB464 = 0;
+    sHintIndex = 0;
 }
 
 #include "engine/emit_trap_particles.inc"
-
-extern s32 D_800FADA8[];
-extern s32 D_800FADC8[];
 
 s32 func_800F9BC0(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
@@ -880,11 +892,11 @@ s32 func_800F9BC0(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800FADA8[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl15Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FADC8[1];
+            gCdLoadSectors[0] = sFiles2Ovl15Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -900,11 +912,11 @@ s32 func_800F9BC0(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800FADA8[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl15Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FADC8[2];
+            gCdLoadSectors[0] = sFiles2Ovl15Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -914,14 +926,14 @@ s32 func_800F9BC0(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800FADA8[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl15Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800FADA8[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl15Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FADC8[3];
-            gCdLoadSectors[1] = D_800FADC8[4];
+            gCdLoadSectors[0] = sFiles2Ovl15Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl15Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -931,11 +943,11 @@ s32 func_800F9BC0(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800FADA8[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl15Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FADC8[5];
+            gCdLoadSectors[0] = sFiles2Ovl15Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -949,11 +961,11 @@ s32 func_800F9BC0(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800FADA8[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl15Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FADC8[6];
+            gCdLoadSectors[0] = sFiles2Ovl15Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -1048,13 +1060,27 @@ typedef struct {
     u8 shape[41]; /**< a shape per sprite id from SPR_STAGE on */
 } SpriteShapes41;
 
-extern const SpriteShapes41 D_800F093C;
+/** @brief The shapes as this overlay's rodata holds them: the link
+ *         padded the block to a word. */
+typedef struct {
+    SpriteShapes41 shapes; /**< the shapes */
+    u8 pad[3];             /**< MATCHING: the link's padding, whatever its buffer held */
+} SpriteShapes41Rodata;
+
+extern const SpriteShapes41Rodata sStageSpriteShapes;
 
 void func_800FA1A0(void) {
     SpriteShapes41 shapes;
 
-    shapes = D_800F093C;
+    shapes = sStageSpriteShapes.shapes;
     *(SpriteShapes41 *)sSpriteShapes = shapes;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl15/nonmatchings/ovl15", D_800F093C);
+/* This stage's sprite shapes. */
+const SpriteShapes41Rodata sStageSpriteShapes = {
+    {{
+        1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    }},
+    {69, 51, 221},
+};

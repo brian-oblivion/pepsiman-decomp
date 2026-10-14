@@ -147,3 +147,5 @@ StepRollingTrap = 0x800F3134; // type:func
 StepStageFrame = 0x800F7F40; // type:func
 RevealStartCans = 0x800FA0D8; // type:func
 LoadTimRange = 0x800FA050; // type:func
+sSavedView = 0x800FF8DC;
+sStageSpriteShapes = 0x800F08E8;

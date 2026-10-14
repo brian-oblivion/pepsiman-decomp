@@ -751,10 +751,8 @@ void UpdateStageEventHook(void) {}
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 
-/* The miss sequence, empty on this stage. MATCHING: the unused 72 bytes of
- * locals give retail's frame (the other engine stages' sequence declares
- * the same), and the empty asm makes cc1 emit the epilogue with the frame
- * pop in the return's delay slot, as for any body with an insn. */
+/* The miss sequence, empty on this stage. */
+/* MATCHING: an unused 72-byte local gives the frame; the empty asm puts the frame pop after the return. */
 void StepMissSequence(void) {
     s32 unused[18];
 

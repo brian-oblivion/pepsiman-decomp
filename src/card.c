@@ -59,6 +59,10 @@ extern char sCardDevice[];         /**< "bu10:" */
 extern const char sToolCardFile[]; /**< "bu10:BISLPS-12345PEPTOOL" */
 extern const char sHitCardFile[];  /**< "bu10:BISLPS-67890PEPTOOL" */
 
+/* MATCHING: declared above as an array of unknown size first, so the code
+ * splits its address. */
+char sCardDevice[] SDATA = "bu10:";
+
 /** @brief A loaded record bank file: a count word, then the bank. */
 typedef struct {
     s32 count;  /**< entry count, copied to the bank's count global */

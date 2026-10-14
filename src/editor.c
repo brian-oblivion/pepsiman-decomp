@@ -819,7 +819,59 @@ extern char sEdWomanLine[];        /**< "WOMAN\n" */
 extern char sEdChildLine[];        /**< "CHILD\n" */
 extern char sEdDogLine[];          /**< "DOG\n" */
 extern char sEdYouAreLine[];       /**< "IMASU." */
-extern VECTOR sStatusPos;          /**< the position printed on the status panel */
+
+/* The editor's small data: its strings, in address order. */
+/* MATCHING: each declared above as an array of unknown size first, so the
+ * code splits its address. */
+char sEdColorWhite[] SDATA = "~c888";
+char sEdColorCyan[] SDATA = "~c088";
+char sEdColorRed[] SDATA = "~c800";
+char sEdColorBlue[] SDATA = "~c008";
+char sEdPosYFmt[] SDATA = "Y %d ";
+char sEdPosZFmt[] SDATA = "Z %d";
+char sEdNewline[] SDATA = "\n";
+char sEdNewlines3[] SDATA = "\n\n\n";
+char sEdMenuPepsiText[] SDATA = "PEPSI\n";
+char sEdMenuSwitchText[] SDATA = "SWITCH\n";
+char sEdMenuTrapText[] SDATA = "TRAP\n";
+char sEdMenuSpriteText[] SDATA = "SPRITE\n";
+char sEdMenuDeleteText[] SDATA = "DELETE\n";
+char sEdMenuInfoText[] SDATA = "INFO\n";
+char sEdMenuDefPosText[] SDATA = "DEFPOS\n";
+char sEdMenuDataText[] SDATA = "DATA\n";
+char sEdColorGrey[] SDATA = "~c444";
+char sEdNum2Fmt[] SDATA = "%2d";
+char sEdRangeEndBlankFmt[] SDATA = "->%d\n\n";
+char sEdNewlines4[] SDATA = "\n\n\n\n";
+char sEdRangeEndFmt[] SDATA = "->%d\n";
+char sEdRangeEnd2Fmt[] SDATA = "->%2d\n";
+char sEdNewlines5[] SDATA = "\n\n\n\n\n";
+char sEdOffLine[] SDATA = "OFF\n";
+char sEdOnLine[] SDATA = "ON\n";
+char sEdNoActLine[] SDATA = "NO ACT\n";
+char sEdSeNoFmt[] SDATA = "NO %3d\n";
+char sEdManLine[] SDATA = "MAN\n";
+char sEdWomanLine[] SDATA = "WOMAN\n";
+char sEdChildLine[] SDATA = "CHILD\n";
+char sEdDogLine[] SDATA = "DOG\n";
+char sEdNewlines2[] SDATA = "\n\n";
+char sEdYouAreLine[] SDATA = "IMASU.";
+char sEdInfoHitLabel[] SDATA = "HIT. ";
+char sEdInfoOffText[] SDATA = " OFF / ";
+char sEdInfoOnText[] SDATA = " ON  / ";
+char sEdInfoActLabel[] SDATA = "ACT. ";
+char sEdInfoWalkLabel[] SDATA = "WALK.";
+char sEdInfoOffLine[] SDATA = " OFF\n";
+char sEdInfoSeLabel[] SDATA = "SE. ";
+char sEdCheckText[] SDATA = "CHECK";
+char sEdYesText[] SDATA = "  YES\n";
+char sEdNoText[] SDATA = "  NO";
+char sEdSaveText[] SDATA = "  SAVE\n";
+char sEdLoadText[] SDATA = "  LOAD\n";
+char sEdArea1Text[] SDATA = "1";
+char sEdArea2Text[] SDATA = "2";
+char sEdBossText[] SDATA = "BOSS";
+extern VECTOR sStatusPos; /**< the position printed on the status panel */
 
 void PrintEditorCaption(void);
 void PrintEditorData(void);

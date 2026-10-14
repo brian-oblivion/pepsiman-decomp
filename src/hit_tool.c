@@ -1128,6 +1128,21 @@ s32 UpdateToolCard(void) {
 extern char sHitNewlines3[]; /**< a line prefix, "\n\n\n" */
 extern char sHitCheckText[]; /**< not yet known, "CHECK" */
 
+/* The hit tool's small data: its strings, in address order. */
+/* MATCHING: each declared above as an array of unknown size first, so the
+ * code splits its address. */
+char sHitNewlines6[] SDATA = "\n\n\n\n\n\n";
+char sHitRadiusFmt[] SDATA = "R:%d\n";
+char sHitColorWhite[] SDATA = "~c888";
+char sHitColorBlue[] SDATA = "~c008";
+char sHitMenuDeleteText[] SDATA = "DELETE\n";
+char sHitMenuInfoText[] SDATA = "INFO\n";
+char sHitMenuDataText[] SDATA = "DATA\n";
+char sHitNewlines5[] SDATA = "\n\n\n\n\n";
+char sHitNewlines3[] SDATA = "\n\n\n";
+char sHitCheckText[] SDATA = "CHECK";
+char sHitNewlines2[] SDATA = "\n\n";
+
 void PrintToolCardMenu(void) {
     PrintTabs(5);
     FntPrint(sHitDataModeText);

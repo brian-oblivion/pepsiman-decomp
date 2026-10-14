@@ -1007,7 +1007,7 @@ void PollPads(void) {
 extern u8 *sPadBufPtr;
 extern u8 *sPadActPtr;
 /* MATCHING: a known small size, so its address is one `la` register. */
-extern u8 sPadActAlign[6];
+extern u8 sPadActAlign[8];
 
 u32 UpdatePadActuators(void) {
     u8 *buf;
@@ -1171,6 +1171,19 @@ const char sCantOpenFmt[] = "Can't open %s\n";
 extern s16 gCdLoadIndex;
 extern s32 gCdLoadReadSectors;
 extern u8 gCdLoadRetries;
+
+/* main's small data, in address order. */
+/* MATCHING: declared above first (strings as arrays of unknown size), so
+ * the code above and below splits their addresses. */
+s32 D_800954C4 SDATA = 0; /**< read by no code */
+char sNewline[] SDATA = "\n";
+char sTab[] SDATA = "\t";
+char sWhiteLineText[] SDATA = "~c888\n";
+char sHexAddrFmt[] SDATA = "%x\n";
+char sHexByteFmt[] SDATA = " %2x";
+/** PadSetActAlign's actuator alignment; it reads the first six. */
+u8 sPadActAlign[8] SDATA = {0, 1, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0};
+s16 gCdLoadIndex SDATA = 0;
 
 s8 UpdateCdLoad(void) {
     s32 r;

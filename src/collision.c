@@ -116,6 +116,9 @@ const PointSpec25 sPlayerPointSpecs = {{
 }};
 
 extern Bytes3 sPointGroupStarts[]; /**< 7, 13 and 19: where the three point groups start */
+/* MATCHING: declared above as an array of unknown size before it is
+ * defined, so the copy below splits its address. */
+Bytes3 sPointGroupStarts[] SDATA = {{{7, 13, 19}}};
 
 /** @brief Three halfwords, a corner or an edge of a quad. */
 typedef struct {

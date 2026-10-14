@@ -587,7 +587,13 @@ segments:
       # $gp+0x1FE, so .sdata starts at $gp. crt0 clears from 0x800956D0,
       # which is where .sbss starts; its first 0x130 bytes are still inside
       # the file (zeros) and the rest of .bss lies past the image's end.
-      - [0x85CC4, sdata]
+      - [0x85CC4, .sdata, main]
+      - [0x85CF0, .sdata, collision]
+      - [0x85CF4, .sdata, editor]
+      - [0x85E58, .sdata, hit_tool]
+      - [0x85EA8, .sdata, card]
+      - [0x85EB0, .sdata, stage]
+      - [0x85EC0, .sdata, sound]
       - [0x85ED0, sbss]
 
   - [0x86000]

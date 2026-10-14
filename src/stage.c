@@ -54,6 +54,10 @@ extern s8 gResultsSliding[8];
 extern s8 gResultsSlide[8];
 extern u8 sActResultsSlide[];   /**< each results line's slide-in start, for an act */
 extern u8 sWorldResultsSlide[]; /**< each results line's slide-in start, for a world */
+/* MATCHING: both declared above as arrays of unknown size before they are
+ * defined, so the copies of them split their addresses. */
+u8 sActResultsSlide[] SDATA = {0xF0, 0xE7, 0xF7, 0xF7, 0xF7, 0xF7, 0xF7, 0xF7};
+u8 sWorldResultsSlide[] SDATA = {0xF0, 0xF7, 0xF7, 0xF7, 0xF7, 0xF7, 0xF7, 0xF7};
 
 /** @brief An 8-byte boundary record: a point and the direction its sign
  *         test projects onto. */

@@ -194,6 +194,13 @@ extern u_long *gMovieAddr;
 extern s32 gMovieWidth;
 extern s32 gMovieHeight;
 
+/* sound's small data, in address order. */
+s16 D_800956C0 SDATA = 320; /**< read by no code */
+s16 gMovieOffsetX SDATA = 0;
+s32 gMovieWidth SDATA = 0;
+s32 gMovieHeight SDATA = 0;
+s32 D_800956CC SDATA = 0; /**< read by no code */
+
 u_long *GetNextMovieFrame(DECENV *dec) {
     gMovieTimeout = 0x800000;
     while (StGetNext(&gMovieAddr, (u_long **)&gMovieHeader)) {

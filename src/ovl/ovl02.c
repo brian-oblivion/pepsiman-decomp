@@ -284,7 +284,6 @@ void func_800F0AD4(void) {
                             gGameCleared = D_800FA24C->gameCleared;
                             gAllTargetsBeaten = D_800FA24C->allTargets;
                             gUnlocks = D_800FA24C->unlocks;
-                            /* MATCHING: one call per arm, which cross-jumping merges. */
                             if (gStereo != 0) {
                                 SsSetStereo();
                             } else {
@@ -400,9 +399,6 @@ extern Pair8 D_800958C0;
 extern u16 gRumbleTime;
 extern u16 gRumbleSmall[];
 
-#ifdef NON_MATCHING
-/* MATCHING: 0.999; step 5000's entry loop keeps gSubOt's address in a saved
- * register, where the original rebuilds it every pass (step 6000 keeps it). */
 void func_800F1570(void) {
     SVECTOR pos;
     SVECTOR p2;
@@ -541,7 +537,9 @@ void func_800F1570(void) {
                 } else {
                     col = norm;
                 }
-                pos.vx = -0x50;
+                /* MATCHING: t = 8 as in the slides; its hoisted set halves later hoisting. */
+                t = 8;
+                pos.vx = t * 32 - 0x150;
                 pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
                 DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
@@ -999,6 +997,7 @@ void func_800F1570(void) {
             pos.vy = -0x38;
             DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0x98;
+            /* MATCHING: one call per arm, which cross-jumping merges. */
             if (gStereo != 0) {
                 DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             } else {
@@ -1551,7 +1550,8 @@ void func_800F1570(void) {
             col.r = -1;
             col.g = col.b = col.cd = 0x80;
             for (i = 0; (s32)i < D_800FA268; i++) {
-                pos.vx = -0x50;
+                t = 8;
+                pos.vx = t * 32 - 0x150;
                 pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
                 DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
@@ -1752,7 +1752,8 @@ void func_800F1570(void) {
             col.r = -1;
             col.g = col.b = col.cd = 0x80;
             for (i = 0; (s32)i < D_800FA268; i++) {
-                pos.vx = -0x50;
+                t = 8;
+                pos.vx = t * 32 - 0x150;
                 pos.vy = (s16)(i * 24 - 12) - D_800FA268 * 12;
                 DrawSprite(D_800FA260[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
@@ -2112,9 +2113,6 @@ void func_800F1570(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F1570);
-#endif
 
 extern CdlLOC D_800F96F8;
 extern CdlLOC D_800F96FC;

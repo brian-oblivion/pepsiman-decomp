@@ -50,7 +50,7 @@ u8 StepAnimation(PlayerState *obj, u16 index, u8 arg);
  *  @return the next frame, or @p data while @p time is before it */
 u8 *SetTodFrame(u32 time, u8 *data, s32 objTable, s32 tmdIds, s32 tmdTable, s32 mode, s8 filter);
 
-extern u8 gTodTmdIds[]; /**< SetTodFrame's TMD id table */
+extern s32 gTodTmdIds[]; /**< SetTodFrame's TMD id table */
 
 /** @brief Rebuilds a coordinate system's matrix from a rotation, keeping
  *         its translation, and marks it changed.

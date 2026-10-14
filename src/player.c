@@ -3,6 +3,7 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "libcd.h"
 #include "draw.h"
 #include "player.h"
 #include "object.h"
@@ -106,8 +107,6 @@ s32 TrySlide(void);
 /* MATCHING: editor stores it as u8; this unit's tests load it lb. */
 extern s8 gToolExited;
 
-/* MATCHING: common.h declares the table as bytes; this unit reads its records. */
-
 /** @brief How the player reacts to one kind of hit. b[0] to b[4] are the
  *         PlayerAction it starts while running, jumping, sliding, dashing
  *         and in any other action (kinds 15 to 18 instead pick b[2], b[1]
@@ -118,7 +117,44 @@ typedef struct {
     u8 b[8]; /**< the columns above */
 } HitReaction;
 
-extern HitReaction gHitReactions[];
+/* The disc file table's thirteenth and fourteenth copies (disc_files.inc),
+ * which no code here reads; they sit between draw_tmd's copy and
+ * gHitReactions. */
+#define DISC_FILE(x) sFiles13##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles14##x
+#include "disc_files.inc"
+
+/** The HitReaction of each kind of hit, by PlayerHit.kind; 0 starts no
+ *  action. */
+HitReaction gHitReactions[] = {
+    /*  0 */ {{0, 0, 0, 0, 0, 0, 0, 0}},
+    /*  1 */ {{ACT_TRIP_START, 0, 0, 0, 0, 0, 0, 0}},
+    /*  2 */ {{ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_THROWN_BACK_START, ACT_KNOCKDOWN_BOUNCE_START, 0, 1, 0, 1}},
+    /*  3 */ {{ACT_KNOCKDOWN_BOUNCE_START, ACT_KNOCKDOWN_BOUNCE_START, ACT_THROWN_BACK_START, ACT_KNOCKDOWN_BOUNCE_START, 0, 1, 0, 1}},
+    /*  4 */
+    {{ACT_KNOCKDOWN_BOUNCE_START, ACT_KNOCKDOWN_BOUNCE_START, ACT_THROWN_BACK_START,
+      ACT_KNOCKDOWN_BOUNCE_START, ACT_KNOCKDOWN_BOUNCE_START, 0, 0, 1}},
+    /*  5 */ {{ACT_THROWN_BACK_START, ACT_THROWN_BACK_START, 0, 0, 0, 1, 0, 1}},
+    /*  6 */ {{ACT_THROWN_BACK_START, ACT_THROWN_BACK_START, ACT_THROWN_BACK_START, ACT_THROWN_BACK_BOUNCE_START, 0, 1, 0, 1}},
+    /*  7 */ {{ACT_REEL_START, ACT_REEL_START, 0, 0, 0, 1, 0, 1}},
+    /*  8 */ {{ACT_REEL_START, ACT_REEL_START, ACT_REEL_START, ACT_THROWN_BACK_BOUNCE_START, 0, 1, 0, 1}},
+    /*  9 */ {{ACT_LAUNCH_START, ACT_LAUNCH_START, 0, ACT_LAUNCH_START, 0, 1, 0, 1}},
+    /* 10 */ {{ACT_SPIN_START, ACT_SPIN_START, ACT_SPIN_START, ACT_SPIN_START, 0, 1, 0, 1}},
+    /* 11 */ {{ACT_TWIRL_START, ACT_TWIRL_START, ACT_THROWN_BACK_START, ACT_TWIRL_START, 0, 1, 0, 1}},
+    /* 12 */ {{ACT_BLOWN_AWAY_START, ACT_BLOWN_AWAY_START, ACT_BLOWN_AWAY_START, ACT_BLOWN_AWAY_START, ACT_BLOWN_AWAY_START, 1, 1, 0}},
+    /* 13 */ {{ACT_FLATTENED_START, ACT_FLATTENED_START, ACT_FLATTENED_START, ACT_FLATTENED_START, ACT_FLATTENED_START, 1, 1, 0}},
+    /* 14 */ {{ACT_SCREEN_HIT_START, ACT_SCREEN_HIT_START, ACT_SCREEN_HIT_START, ACT_SCREEN_HIT_START, ACT_SCREEN_HIT_START, 1, 1, 0}},
+    /* 15 */ {{ACT_KNOCKDOWN_BOUNCE_START, ACT_FALL_FLAT_START, ACT_HEAD_HIT_START, 0, 0, 1, 0, 1}},
+    /* 16 */ {{ACT_KNOCKDOWN_BOUNCE_START, ACT_REEL_START, ACT_HEAD_HIT_START, 0, 0, 1, 0, 1}},
+    /* 17 */ {{ACT_KNOCKDOWN_BOUNCE_START, ACT_THROWN_BACK_START, ACT_HEAD_HIT_START, 0, 0, 1, 0, 1}},
+    /* 18 */ {{ACT_SPIN_START, ACT_REEL_START, ACT_HEAD_HIT_START, 0, 0, 1, 0, 1}},
+    /* 19 */ {{ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, 0, 0, 0, 1, 0, 1}},
+    /* 20 */ {{ACT_KNOCKDOWN_BOUNCE_START, ACT_KNOCKDOWN_BOUNCE_START, 0, 0, 0, 1, 0, 1}},
+    /* 21 */ {{ACT_DASH_START, ACT_DASH_START, ACT_DASH_START, ACT_DASH_START, ACT_DASH_START, 1, 0, 0}},
+    /* 22 */ {{ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, 1, 0, 1}},
+};
+
 extern s8 sLastHitMask; /**< the hit flags of gPlayerHits, or-ed, when last reacted to */
 /* Overlay entry points: the stage modes' own code. */
 void func_800F8A58(void);

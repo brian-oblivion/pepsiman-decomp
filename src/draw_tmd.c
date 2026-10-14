@@ -2,55 +2,14 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "libcd.h"
 #include "gte.h"
 #include "prim.h"
 
-/* LoadOverlay's files: each overlay's disc position (a CdlLOC, kept as a
- * word) and its size in sectors. */
-extern s32 sOverlay00Loc[];
-extern s32 sOverlay02Loc[];
-extern s32 sOverlay18Loc[];
-extern s32 sOverlay19Loc[];
-extern s32 sOverlay20Loc[];
-extern s32 sOverlay21Loc[];
-extern s32 sOverlay22Loc[];
-extern s32 sOverlay03Loc[];
-extern s32 sOverlay04Loc[];
-extern s32 sOverlay05Loc[];
-extern s32 sOverlay06Loc[];
-extern s32 sOverlay07Loc[];
-extern s32 sOverlay08Loc[];
-extern s32 sOverlay09Loc[];
-extern s32 sOverlay10Loc[];
-extern s32 sOverlay11Loc[];
-extern s32 sOverlay12Loc[];
-extern s32 sOverlay13Loc[];
-extern s32 sOverlay14Loc[];
-extern s32 sOverlay15Loc[];
-extern s32 sOverlay16Loc[];
-extern s32 sOverlay17Loc[];
-extern s32 sOverlay00Sectors[];
-extern s32 sOverlay02Sectors[];
-extern s32 sOverlay18Sectors[];
-extern s32 sOverlay19Sectors[];
-extern s32 sOverlay20Sectors[];
-extern s32 sOverlay21Sectors[];
-extern s32 sOverlay22Sectors[];
-extern s32 sOverlay03Sectors[];
-extern s32 sOverlay04Sectors[];
-extern s32 sOverlay05Sectors[];
-extern s32 sOverlay06Sectors[];
-extern s32 sOverlay07Sectors[];
-extern s32 sOverlay08Sectors[];
-extern s32 sOverlay09Sectors[];
-extern s32 sOverlay10Sectors[];
-extern s32 sOverlay11Sectors[];
-extern s32 sOverlay12Sectors[];
-extern s32 sOverlay13Sectors[];
-extern s32 sOverlay14Sectors[];
-extern s32 sOverlay15Sectors[];
-extern s32 sOverlay16Sectors[];
-extern s32 sOverlay17Sectors[];
+/* The disc file table's twelfth copy (disc_files.inc): LoadOverlay reads
+ * each overlay's position and size from it. */
+#define DISC_FILE(x) sFiles12##x
+#include "disc_files.inc"
 
 /** @brief A flat-textured unlit TMD quad: a header, four UV words (the
  *  CLUT and the texture page in the first two's top halves), a colour and
@@ -554,92 +513,92 @@ void LoadOverlay(s32 id) {
     /* MATCHING: s32 in stage_overlay's view; the switch narrows it. */
     switch ((u8)id) {
         case 0:
-            gCdLoadLoc[0] = (s32)sOverlay00Loc;
-            gCdLoadSectors[0] = sOverlay00Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12OvlLoc;
+            gCdLoadSectors[0] = sFiles12OvlSectors[0];
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)sOverlay02Loc;
-            gCdLoadSectors[0] = sOverlay02Sectors[0];
+            gCdLoadLoc[0] = (s32)&sFiles12OvlLoc[1];
+            gCdLoadSectors[0] = sFiles12OvlSectors[1];
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)sOverlay03Loc;
-            gCdLoadSectors[0] = sOverlay03Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl03Loc;
+            gCdLoadSectors[0] = sFiles12Ovl03Sectors[0];
             break;
         case 4:
-            gCdLoadLoc[0] = (s32)sOverlay04Loc;
-            gCdLoadSectors[0] = sOverlay04Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl04Loc;
+            gCdLoadSectors[0] = sFiles12Ovl04Sectors[0];
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)sOverlay05Loc;
-            gCdLoadSectors[0] = sOverlay05Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl05Loc;
+            gCdLoadSectors[0] = sFiles12Ovl05Sectors[0];
             break;
         case 6:
-            gCdLoadLoc[0] = (s32)sOverlay06Loc;
-            gCdLoadSectors[0] = sOverlay06Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl06Loc;
+            gCdLoadSectors[0] = sFiles12Ovl06Sectors[0];
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)sOverlay07Loc;
-            gCdLoadSectors[0] = sOverlay07Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl07Loc;
+            gCdLoadSectors[0] = sFiles12Ovl07Sectors[0];
             break;
         case 8:
-            gCdLoadLoc[0] = (s32)sOverlay08Loc;
-            gCdLoadSectors[0] = sOverlay08Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl08Loc;
+            gCdLoadSectors[0] = sFiles12Ovl08Sectors[0];
             break;
         case 9:
-            gCdLoadLoc[0] = (s32)sOverlay09Loc;
-            gCdLoadSectors[0] = sOverlay09Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl09Loc;
+            gCdLoadSectors[0] = sFiles12Ovl09Sectors[0];
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)sOverlay10Loc;
-            gCdLoadSectors[0] = sOverlay10Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl10Loc;
+            gCdLoadSectors[0] = sFiles12Ovl10Sectors[0];
             break;
         case 11:
-            gCdLoadLoc[0] = (s32)sOverlay11Loc;
-            gCdLoadSectors[0] = sOverlay11Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl11Loc;
+            gCdLoadSectors[0] = sFiles12Ovl11Sectors[0];
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)sOverlay12Loc;
-            gCdLoadSectors[0] = sOverlay12Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl12Loc;
+            gCdLoadSectors[0] = sFiles12Ovl12Sectors[0];
             break;
         case 13:
-            gCdLoadLoc[0] = (s32)sOverlay13Loc;
-            gCdLoadSectors[0] = sOverlay13Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl13Loc;
+            gCdLoadSectors[0] = sFiles12Ovl13Sectors[0];
             break;
         case 14:
-            gCdLoadLoc[0] = (s32)sOverlay14Loc;
-            gCdLoadSectors[0] = sOverlay14Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl14Loc;
+            gCdLoadSectors[0] = sFiles12Ovl14Sectors[0];
             break;
         case 15:
-            gCdLoadLoc[0] = (s32)sOverlay15Loc;
-            gCdLoadSectors[0] = sOverlay15Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl15Loc;
+            gCdLoadSectors[0] = sFiles12Ovl15Sectors[0];
             break;
         case 16:
-            gCdLoadLoc[0] = (s32)sOverlay16Loc;
-            gCdLoadSectors[0] = sOverlay16Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl16Loc;
+            gCdLoadSectors[0] = sFiles12Ovl16Sectors[0];
             break;
         case 17:
-            gCdLoadLoc[0] = (s32)sOverlay17Loc;
-            gCdLoadSectors[0] = sOverlay17Sectors[0];
+            gCdLoadLoc[0] = (s32)sFiles12Ovl17Loc;
+            gCdLoadSectors[0] = sFiles12Ovl17Sectors[0];
             break;
         case 18:
-            gCdLoadLoc[0] = (s32)sOverlay18Loc;
-            gCdLoadSectors[0] = sOverlay18Sectors[0];
+            gCdLoadLoc[0] = (s32)&sFiles12OvlLoc[10];
+            gCdLoadSectors[0] = sFiles12OvlSectors[10];
             break;
         case 19:
-            gCdLoadLoc[0] = (s32)sOverlay19Loc;
-            gCdLoadSectors[0] = sOverlay19Sectors[0];
+            gCdLoadLoc[0] = (s32)&sFiles12OvlLoc[12];
+            gCdLoadSectors[0] = sFiles12OvlSectors[12];
             break;
         case 20:
-            gCdLoadLoc[0] = (s32)sOverlay20Loc;
-            gCdLoadSectors[0] = sOverlay20Sectors[0];
+            gCdLoadLoc[0] = (s32)&sFiles12OvlLoc[14];
+            gCdLoadSectors[0] = sFiles12OvlSectors[14];
             break;
         case 21:
-            gCdLoadLoc[0] = (s32)sOverlay21Loc;
-            gCdLoadSectors[0] = sOverlay21Sectors[0];
+            gCdLoadLoc[0] = (s32)&sFiles12OvlLoc[16];
+            gCdLoadSectors[0] = sFiles12OvlSectors[16];
             break;
         case 22:
-            gCdLoadLoc[0] = (s32)sOverlay22Loc;
-            gCdLoadSectors[0] = sOverlay22Sectors[0];
+            gCdLoadLoc[0] = (s32)&sFiles12OvlLoc[18];
+            gCdLoadSectors[0] = sFiles12OvlSectors[18];
             break;
     }
     gCdLoadDest[0] = 0x800F0000;

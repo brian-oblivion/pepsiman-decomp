@@ -328,6 +328,26 @@ void OrbitViewerCamera(void) {
     }
 }
 
+/* The disc file table's sixth to eleventh copies (disc_files.inc). No
+ * code here reads them; model's range starts at the first copy after
+ * main's last read one, and the last sits before gTodTmdIds. */
+#define DISC_FILE(x) sFiles6##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles7##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles8##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles9##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles10##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles11##x
+#include "disc_files.inc"
+
+/** SetTodFrame's TMD id table: FindTmdById's keys, the id of each TMD in
+ *  the model data's order. */
+s32 gTodTmdIds[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
 u8 StepAnimation(PlayerState *obj, u16 index, u8 arg) {
     u8 ret;
     s32 seq;

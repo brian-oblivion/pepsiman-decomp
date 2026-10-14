@@ -514,7 +514,10 @@ segments:
       - [0x624C4, o, libmcrd/userfunc]        # UserFuncInit, UserFuncOpen, UserFuncExecute, UserFuncCompl
       - [0x625D4, o, libmcrd/bios]            # funcEvSpIOE, funcEvSpError, funcEvSpTimeout, funcEvSpNewca
       - [0x62C84, .data, main]
-      - [0x648AC, data]
+      - [0x648AC, .data, model]
+      - [0x6692C, .data, draw_tmd]
+      - [0x66E8C, .data, player]
+      - [0x67A04, data]
       - [0x6C42C, o, libmath/ferr, .data]
       - [0x6C43C, o, libsnd/ssinit, .data]
       - [0x6C46C, o, libspu/s_ini, .data]

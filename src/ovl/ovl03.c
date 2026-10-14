@@ -33,11 +33,12 @@
 
 #include "engine/run_trap_along_path.inc"
 
-#ifdef NON_MATCHING
 void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
     StageTrap c;
     s32 unused[8];
+    s32 z;
 
+    z = 0;
     switch (t->state) {
         case 0:
             t->homeX = t->x;
@@ -60,6 +61,13 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (speed != 0) {
+                /* MATCHING: a test only combine can fold (after flow), guarding
+                 * a read of z, leaves z's dead zero in a saved register. */
+                if (((s32)speed >> 16) != 0) {
+                    if (z) {
+                        t->state = 0;
+                    }
+                }
                 switch (dir) {
                     case 2:
                         t->rotY = GetPathDirection(t) + 0x800;
@@ -98,9 +106,6 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapType0F);
-#endif
 
 #include "engine/step_trap_type12.inc"
 

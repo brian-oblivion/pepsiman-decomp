@@ -102,7 +102,80 @@ void DrawTrapWarning(StageTrap *t) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl15/nonmatchings/ovl15", StepTrapType0F);
+void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
+    StageTrap copy;
+    s32 unused[4];
+    s32 z;
+
+    z = 0;
+    switch (t->state) {
+        case 0:
+            t->homeX = t->x;
+            t->homeY = t->y;
+            t->homeZ = t->z;
+            t->state++;
+            PlaySe(0x53);
+            if (dir == 3) {
+                PlaySe(0x11);
+            }
+        case 1:
+            if (LatchProximity(t, 2000) != 0) {
+                PlaySe(0x55);
+            }
+            if (SnapToFloor(t) == -1) {
+                t->y = t->homeY;
+            }
+            t->y -= 120;
+            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            t->x += gOffsetVec[0] >> 12;
+            t->z += gOffsetVec[2] >> 12;
+            if (speed != 0) {
+                /* MATCHING: a test only combine can fold (after flow), guarding
+                 * a read of z, leaves z's dead zero in a saved register. */
+                if (((s32)speed >> 16) != 0) {
+                    if (z) {
+                        t->state = 0;
+                    }
+                }
+                switch (dir) {
+                    case 2:
+                        t->rotY = GetPathDirection(t) + 0x800;
+                        break;
+                    case 3:
+                        DrawTrapWarning(t);
+                    case 1:
+                        t->rotY = GetPathDirection(t);
+                        break;
+                    case 4:
+                        PolarToXZ(-(speed * 2), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                        t->x += gOffsetVec[0] >> 12;
+                        t->z += gOffsetVec[2] >> 12;
+                        if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
+                            t->state++;
+                        }
+                        break;
+                    case 5:
+                        if (gSection - UpdatePathSegment(t) >= 2) {
+                            t->state += 2;
+                        }
+                        break;
+                }
+            }
+        case 2:
+            copy = *t;
+            copy.model++;
+            t->timer++;
+            if (gSection - UpdatePathSegment(t) < 2) {
+                UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+                UpdateObjectEntry(&gObjectModels[copy.model], (Trap *)&copy);
+                if ((t->touched != 0 || copy.touched != 0) && gPlayer.invulnTimer == 0 &&
+                    gPlayer.hittable == 1) {
+                    PlaySe(0x37);
+                }
+            }
+            break;
+    }
+}
 
 #include "engine/step_trap_type12.inc"
 

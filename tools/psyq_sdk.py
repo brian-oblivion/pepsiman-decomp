@@ -383,10 +383,41 @@ def read_localize():
     return {n: ann["localize"] for _, n, _, ann in _manifest_lines() if "localize" in ann}
 
 
+def data_only(obj: Path):
+    """True for an object with no code: a table and nothing else (libgte/cstbl's
+    rcossin_tbl, libpress/table's VLC tables, libspu/zerobuf, libsn/sndef's
+    _stacksize/_ramsize). `match` cannot place one -- it matches .text -- so the
+    other placed objects' references to its symbols place it, and its manifest
+    offset is the file offset of its .data, not of a .text it does not have.
+    The yaml then holds only `- [0xOFF, o, lib/module, .data]` for it."""
+    from elftools.elf.elffile import ELFFile
+    with open(obj, "rb") as f:
+        text = ELFFile(f).get_section_by_name(".text")
+        return text is None or text.data_size == 0
+
+
+def masked_data(obj: Path):
+    """A data-only object's .data with its relocated words masked out, as
+    masked_text() does for code."""
+    from elftools.elf.elffile import ELFFile
+    with open(obj, "rb") as f:
+        elf = ELFFile(f)
+        sec = elf.get_section_by_name(".data")
+        if sec is None or sec.data_size == 0:
+            return None, None
+        data = sec.data()
+        mask = bytearray(b"\xff" * len(data))
+        rel = elf.get_section_by_name(".rel.data")
+        for r in (rel.iter_relocations() if rel else []):
+            mask[r["r_offset"]:r["r_offset"] + 4] = b"\0\0\0\0"
+        return data, bytes(mask)
+
+
 def verify_at(obj: Path, exe: bytes, off: int):
-    """The object's masked .text is exactly what retail holds at file offset off."""
+    """The object's masked .text is exactly what retail holds at file offset off
+    (its masked .data, for a data_only() object)."""
     from match_obj import masked_text
-    data, mask = masked_text(obj)
+    data, mask = masked_data(obj) if data_only(obj) else masked_text(obj)
     if data is None:
         return False
     win = exe[off:off + len(data)]
@@ -727,10 +758,10 @@ def reloc_addresses(exe, opath, toff, gp=0x800954C4):
     with open(opath, "rb") as f:
         elf = ELFFile(f)
         syms = list(elf.get_section_by_name(".symtab").iter_symbols())
-        text = elf.get_section_by_name(".text").data()
         rel = elf.get_section_by_name(".rel.text")
         if rel is None:
-            return
+            return   # no code, or code that references nothing (data_only())
+        text = elf.get_section_by_name(".text").data()
         pending = None
         for r in rel.iter_relocations():
             off, typ, si = r["r_offset"], r["r_info_type"], r["r_info_sym"]
@@ -895,8 +926,8 @@ def bss_plan(objects):
             elf = ELFFile(f)
             secs = list(elf.iter_sections())
             syms = list(elf.get_section_by_name(".symtab").iter_symbols())
-            text = elf.get_section_by_name(".text").data()
             rel = elf.get_section_by_name(".rel.text")
+            text = elf.get_section_by_name(".text").data() if rel else b""   # data_only(): no code
             derived = defaultdict(set)
             pending = None
             for r in (rel.iter_relocations() if rel else []):
@@ -1129,8 +1160,15 @@ def cmd_check(_args):
                 print(f"0x{off:X}: yaml says {name}, manifest says {by_off[off][1]}")
                 ok = False
     yaml_o = {off for off, kind, _ in yaml_segments() if kind == "o"}
+    # a data_only() object has no text segment; its row names its .data line
+    yaml_data = {(int(m.group(1), 16), m.group(2)) for m in re.finditer(
+        r"^\s+- \[\s*(0x[0-9A-Fa-f]+)\s*,\s*o\s*,\s*([\w/]+)\s*,\s*\.data\s*\]", YAML.read_text(), re.M)}
     for ver, name, off in rows:
-        if off not in yaml_o:
+        if (LIB_DIR / f"{name}.o").exists() and data_only(LIB_DIR / f"{name}.o"):
+            if (off, name) not in yaml_data:
+                print(f"manifest entry {name} (data only) at 0x{off:X} has no `[0x{off:X}, o, {name}, .data]` line in the yaml")
+                ok = False
+        elif off not in yaml_o:
             print(f"manifest entry {name} at 0x{off:X} has no `o` segment in the yaml")
             ok = False
         if not (LIB_DIR / f"{name}.o").exists():

@@ -42,6 +42,7 @@ SECTIONS {
     .psyq_bss.libcard_format_bss 0x800EAB40 (NOLOAD) : SUBALIGN(4) { build/lib/libcard/format.o(.bss) }   /* 0x2B0 bytes; section-relative refs */
     .psyq_bss.libmcrd_userfunc_bss 0x800EADF0 (NOLOAD) : SUBALIGN(4) { build/lib/libmcrd/userfunc.o(.bss) }   /* 0x50 bytes; section-relative refs */
     .psyq_bss.libmcrd_bios_bss 0x800EAE40 (NOLOAD) : SUBALIGN(4) { build/lib/libmcrd/bios.o(.bss) }   /* 0x40 bytes; section-relative refs */
+    .psyq_bss.libgs_global_bss 0x800E48D0 (NOLOAD) : SUBALIGN(4) { build/lib/libgs/global.o(.bss) }   /* 0x2C bytes; first symbol GsOUT_PACKET_P */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */
@@ -107,6 +108,13 @@ GsWSMATRIX_ORG = 0x800E4838;   /* libgs/gs_123 */
 GsIDMATRIX = 0x800E4858;   /* libgs/gs_123 */
 GsWSMATRIX = 0x800E4878;   /* libgs/gs_123 */
 GsIDMATRIX2 = 0x800E4898;   /* libgs/gs_123 */
+GsLIOFF = 0x800E48BC;   /* libgs/global */
+GsLMODE = 0x800E48C0;   /* libgs/global */
+GsLIGNR = 0x800E48C4;   /* libgs/global */
+GsOUT_PACKET_P = 0x800E48D0;   /* libgs/global */
+GsMATE_C = 0x800E48D4;   /* libgs/global */
+GsTON = 0x800E48DC;   /* libgs/global */
+GsNDIV = 0x800E48E0;   /* libgs/global */
 _que = 0x800E8F78;   /* libgpu/sys */
 GlobalCallback = 0x800EA798;   /* libds/dscb */
 _startTime = 0x800EAAA8;   /* libpad/waitrc2 */
@@ -114,17 +122,6 @@ _waitTime = 0x800EAAAC;   /* libpad/waitrc2 */
 /* externals the linked objects reference and nothing in the link defines yet;
  * each is the address retail's own code calls. Once the defining object is
  * linked the pin still holds (a script assignment wins) and must agree. */
-_spu_AllocBlockNum = 0x8007BD4C;
-_spu_AllocLastNum = 0x8007BD50;
-_spu_memList = 0x8007BD54;
-_spu_zerobuf = 0x8007BD5C;
-_spu_rev_startaddr = 0x8007C15C;
-_spu_rev_param = 0x8007C1AC;
-rsin_tbl = 0x8007DD14;
-SQRT = 0x8007E524;
-rcossin_tbl = 0x8007E844;
-CF_DVLC = 0x80084B84;
-CF2_DVLC = 0x80094B84;
 _svm_rattr = 0x800E1C40;
 _svm_vab_pg = 0x800E1C58;
 _svm_vab_vh = 0x800E1C98;
@@ -156,10 +153,3 @@ CLIP2 = 0x800E4740;
 PSDCNT = 0x800E4748;
 PSDIDX = 0x800E474C;
 PSDGPU = 0x800E474E;
-GsLIOFF = 0x800E48BC;
-GsLMODE = 0x800E48C0;
-GsLIGNR = 0x800E48C4;
-GsOUT_PACKET_P = 0x800E48D0;
-GsMATE_C = 0x800E48D4;
-GsTON = 0x800E48DC;
-GsNDIV = 0x800E48E0;

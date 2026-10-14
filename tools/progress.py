@@ -410,6 +410,25 @@ def overlay_text_symbols(ovl):
     return info, hi - lo
 
 
+# A stage's fixed-address entry point (src/ovl/engine.inc's FUNC_ALIAS): a
+# global symbol set inside another function, not a function of its own.
+FUNC_ALIAS_RE = re.compile(r"^[ \t]*FUNC_ALIAS\((\w+),", re.M)
+
+
+def fold_aliases(info, aliases):
+    """`info` with each alias's bytes credited to the function it lands in:
+    the nearest symbol below it that is not an alias itself."""
+    out, owner = {}, None
+    for name, (addr, size) in sorted(info.items(), key=lambda kv: kv[1][0]):
+        if name in aliases and owner is not None:
+            a, s = out[owner]
+            out[owner] = (a, s + size)
+        else:
+            out[name] = (addr, size)
+            owner = name
+    return out
+
+
 LOCAL_INCLUDE_RE = re.compile(r'^[ \t]*#[ \t]*include[ \t]+"([^"]+\.inc)"', re.M)
 
 
@@ -435,6 +454,7 @@ def overlay_progress(reports):
         info, text_b = overlay_text_symbols(ovl)
         text = "\n".join(with_local_includes(c) for c in units if c.exists())
         code = strip_dead_code(text)
+        info = fold_aliases(info, set(FUNC_ALIAS_RE.findall(code)))
         inc = INCLUDE_RE.findall(code)
         # A shared include of sections (engine_code.inc) is spliced once per
         # section it gives, so its definitions repeat: count each once.

@@ -514,14 +514,11 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 
 #include "engine/cycle_goal_lights.inc"
 
-/* The engine's StepStageFrame, under this overlay's name for it. */
-#define StepStageFrame func_800F7844
 #include "engine/step_stage_frame.inc"
-#undef StepStageFrame
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the function above. */
-FUNC_ALIAS(func_800F7968, func_800F7844, 0x124);
-FUNC_ALIAS(func_800F79A0, func_800F7844, 0x15C);
+FUNC_ALIAS(func_800F7968, StepStageFrame, 0x124);
+FUNC_ALIAS(func_800F79A0, StepStageFrame, 0x15C);
 
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];

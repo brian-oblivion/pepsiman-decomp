@@ -2262,6 +2262,7 @@ extern s32 D_800FA280;
 extern s32 D_800FA284;
 
 #ifdef NON_MATCHING
+/* MATCHING: 0.983; step 120's registers and step 140's gRefView %hi left. */
 void func_800F69B0(void) {
     SVECTOR pos;
     SColor color;
@@ -2269,8 +2270,6 @@ void func_800F69B0(void) {
     POLY_F4 *p;
     DR_TPAGE *t;
     s32 *dir;
-    s32 *tbl;
-    s32 d;
 
     switch (gSubStep) {
         case 50:
@@ -2279,10 +2278,10 @@ void func_800F69B0(void) {
             DefineSprite(0x20, 0, 0xFF, 0x10, 0x17, 0, 0x90, 0x40, 0x1E0);
             DefineSprite(0x21, 0, 0xFF, 0x20, 0x17, 0, 0xA0, 0x40, 0x1E0);
             DefineSprite(0x22, 0, 0xFF, 0x20, 0x17, 0, 0xC0, 0x40, 0x1E0);
-            tbl = (s32 *)0x8019D010;
-            dir = (s32 *)0x8019D000;
             for (gLoopI = 0; gLoopI < 2; gLoopI++) {
-                gAnimations[gLoopI + 51] = (s32 *)(tbl[gLoopI] + (s32)dir) + 1;
+                /* MATCHING: the entry assigned inside the store keeps the +1 off
+                 * the directory's address. */
+                gAnimations[gLoopI + 51] = (dir = (s32 *)(((s32 *)0x8019D010)[gLoopI] + 0x8019D000)) + 1;
                 gPlayer.motionLen[gLoopI + 51] = *gAnimations[gLoopI + 51];
                 gAnimations[gLoopI + 51]++;
                 gPlayer.motionStart[gLoopI + 51] = gAnimations[gLoopI + 51][1];
@@ -2414,15 +2413,23 @@ void func_800F69B0(void) {
             break;
         case 140:
             if (D_800FA280 < 5) {
-                d = D_800FA280 * 50 - 500;
-                sView.vpx = gPlayer.x + d;
-                sView.vrx = gPlayer.x;
+                s32 e;
+                s32 x;
+
+                x = gPlayer.x;
+                e = D_800FA280 * 50 - 500;
+                sView.vpx = x + e;
+                sView.vrx = x;
                 sView.vry = sView.vpy = rand() % 50 - 175;
                 sView.vrz = sView.vpz = rand() % 50 - 25;
             } else if (D_800FA280 < 10) {
-                d = (D_800FA280 - 5) * 50 + 250;
-                sView.vpx = gPlayer.x - d;
-                sView.vrx = gPlayer.x;
+                s32 e;
+                s32 x;
+
+                x = gPlayer.x;
+                e = (D_800FA280 - 5) * 50 + 250;
+                sView.vpx = x - e;
+                sView.vrx = x;
                 sView.vry = sView.vpy = rand() % 50 - 175;
                 sView.vrz = sView.vpz = rand() % 50 - 25;
             } else {
@@ -2558,7 +2565,6 @@ extern CdlLOC D_800F9BC8;
 extern SVECTOR D_800F9BD0[];
 extern s32 D_800FA27C;
 
-#ifdef NON_MATCHING
 s32 func_800F7A4C(void) {
     SVECTOR pos;
     SColor color;
@@ -2646,8 +2652,8 @@ s32 func_800F7A4C(void) {
                 DrawSprite(0x1F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
             }
             sAct3Coords[0].coord.t[0] = D_8009EA78[0].vx;
-            sAct3Coords[0].coord.t[2] = D_8009EA78[0].vz;
             sAct3Coords[0].coord.t[1] = D_8009EA78[0].vy;
+            sAct3Coords[0].coord.t[2] = D_8009EA78[0].vz;
             m = GsIDMATRIX;
             m.t[0] = sAct3Coords[0].coord.t[0];
             m.t[1] = sAct3Coords[0].coord.t[1];
@@ -2691,9 +2697,6 @@ s32 func_800F7A4C(void) {
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl02/nonmatchings/ovl02", func_800F7A4C);
-#endif
 
 inline void func_800F8264(void) {
     MATRIX m;

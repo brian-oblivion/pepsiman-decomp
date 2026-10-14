@@ -4,11 +4,14 @@
     python3 tools/datatable.py sEntityMoodTable --rows 130 \\
         --layout "s8[2] s8 s8 u8 s8 s8 s8 s8 s8 s8 s8 ptr"
     python3 tools/datatable.py 0x80089EA4 --rows 4 --layout "u32 u32 u32 ptr"
+    python3 tools/datatable.py sPlacements --ovl ovl08 --rows 126 --layout "u16 u8[2] s32 s32 s32"
 
 Each row prints as `/* i */ {...},` with its fields in `--layout` order.
 Field types: s8 u8 s16 u16 s32 u32, and ptr (a word printed as the symbol
 at that address from config/symbols.slps01762.pepsiman.txt, NULL for 0, or hex
-if no symbol is there). `T[n]` is an array field, printed as a nested brace.
+if no symbol is there). With --ovl the bytes are that overlay's
+(disk/ovl/<ovl>.bin, loaded at 0x800F0000 with no header) and its own
+symbols file is read after the executable's. `T[n]` is an array field, printed as a nested brace.
 Unsigned 16- and 32-bit values above 0xFF print in hex. A layout's fields
 are packed with C's alignment rules, so it must be the struct's fields in
 order, padding included (spell padding as a u8[n]).
@@ -34,14 +37,19 @@ FMT = {"s8": "b", "u8": "B", "s16": "h", "u16": "H", "s32": "i", "u32": "I", "pt
 SIZE = {"s8": 1, "u8": 1, "s16": 2, "u16": 2, "s32": 4, "u32": 4, "ptr": 4}
 
 
-def load_symbols():
+OVL_BASE = 0x800F0000
+
+
+def load_symbols(files):
+    """Later files win: an overlay's own name for one of its addresses."""
     by_addr, by_name = {}, {}
-    for line in SYMBOLS.read_text().splitlines():
-        m = re.match(r"\s*(\w+)\s*=\s*0x([0-9A-Fa-f]+);", line)
-        if m:
-            addr = int(m.group(2), 16)
-            by_addr.setdefault(addr, m.group(1))
-            by_name[m.group(1)] = addr
+    for f in files:
+        for line in f.read_text().splitlines():
+            m = re.match(r"\s*(\w+)\s*=\s*0x([0-9A-Fa-f]+);", line)
+            if m:
+                addr = int(m.group(2), 16)
+                by_addr[addr] = m.group(1) if f != SYMBOLS else by_addr.get(addr, m.group(1))
+                by_name[m.group(1)] = addr
     return by_addr, by_name
 
 
@@ -69,20 +77,25 @@ def main():
     ap.add_argument("start", help="symbol name or 0x address")
     ap.add_argument("--rows", type=int, required=True)
     ap.add_argument("--layout", required=True)
+    ap.add_argument("--ovl", help="read this overlay (e.g. ovl08) instead of the executable")
     args = ap.parse_args()
 
-    by_addr, by_name = load_symbols()
+    files, image_path, base, header = [SYMBOLS], RETAIL, BASE, HEADER
+    if args.ovl:
+        files.append(ROOT / "config/ovl" / f"symbols.{args.ovl}.txt")
+        image_path, base, header = ROOT / "disk/ovl" / f"{args.ovl}.bin", OVL_BASE, 0
+    by_addr, by_name = load_symbols(files)
     start = int(args.start, 16) if args.start.startswith("0x") else by_name.get(args.start)
     if start is None:
         sys.exit(f"datatable: no symbol {args.start!r}")
     fields = parse_layout(args.layout)
     size = row_size(fields)
     end = start + size * args.rows
-    image = RETAIL.read_bytes()
+    image = image_path.read_bytes()
 
     inside = sorted((a, s) for a, s in by_addr.items() if start < a < end)
     print(f"/* {start:08X}..{end:08X}: {args.rows} rows of {size:#x} bytes, file offset "
-          f"{start - BASE + HEADER:#x}..{end - BASE + HEADER:#x} */")
+          f"{start - base + header:#x}..{end - base + header:#x} */")
     for a, s in inside:
         print(f"/* label inside the table: {s} at {a:08X} (row {(a - start) // size}, "
               f"+{(a - start) % size:#x}) */")
@@ -95,7 +108,7 @@ def main():
         return str(v)
 
     for r in range(args.rows):
-        off = start - BASE + HEADER + r * size
+        off = start - base + header + r * size
         pos, cells = 0, []
         for t, n in fields:
             a = SIZE[t]

@@ -3,6 +3,20 @@
 
 void StartChaseJump(void);
 
+/* The frame step's state, defined by chase_data.inc. MATCHING: cc1 writes
+ * a unit's tentative definitions at its end in the order of their FIRST
+ * declarations, so the zeroed ones are declared here in .bss order. */
+extern s32 sObjCount;
+extern Act3Step sPieceSteps[];
+extern CVECTOR sChaseSky[4];
+extern s32 sChaseUnused[3];
+extern MATRIX sChaseMatrix;
+extern s32 sCaughtTimer;
+extern s32 sEscapeTimer;
+extern s32 sSceneTimer;
+extern POLY_F4 *sFadePoly;
+extern DR_MODE *sFadeMode;
+
 /* The player's step in the chase: gravity, the jump, the hit and the
  * sidestep. */
 /* MATCHING: non-void with no return keeps six delay slots nops. */

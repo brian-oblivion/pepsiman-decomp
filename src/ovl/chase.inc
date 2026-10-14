@@ -4,7 +4,8 @@
  * length, which scales the progress bar, includes this, defines its own
  * StartChaseJump, includes chase_head.inc, and goes on with its own
  * objects, step and lights. Its second unit, <ovl>_tail.c, includes this
- * and chase_tail.inc. */
+ * and chase_tail.inc. Each unit's .data starts with its own copy of the
+ * disc's file table, cdfile.h. */
 
 #include "common.h"
 #include "libgte.h"
@@ -17,6 +18,7 @@
 #include "sound.h"
 #include "object.h"
 #include "world_intro.h"
+#include "cdfile.h"
 
 /** @brief An act-3 object, as this overlay views gTraps: 20 bytes. */
 typedef struct {
@@ -28,6 +30,9 @@ typedef struct {
     u16 kind;  /**< which object it is */
     s16 speed; /**< how fast it flies once hit */
 } Act3Obj;
+
+/** @brief An object kind's step: moves and draws one object. */
+typedef s32 (*Act3Step)(Act3Obj *o);
 
 /** @brief A placed object of the stage's object list: 16 bytes. */
 typedef struct {

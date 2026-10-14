@@ -7,6 +7,8 @@
 #define CHASE_LIGHT_RG 0xFF
 #define CHASE_LIGHT_BLUE 0xFF
 #define CHASE_FAR_COLOR 0xB0, 0xB0, 0xB0
+#define CHASE_FILE_LOC sCdDataALoc
+#define CHASE_FILE_SECTORS sCdDataASectors
 
 #include "chase.inc"
 #include "chase_tail.inc"

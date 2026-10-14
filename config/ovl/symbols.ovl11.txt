@@ -17,5 +17,4 @@ PlaceChaseObjects = 0x800F642C; // type:func
 LoadChaseStage = 0x800F64B0; // type:func
 ResetChaseStage = 0x800F66BC; // type:func
 sPlacements = 0x800F6C40;
-sChaseFileLoc = 0x800F7618;
-sChaseFileSectors = 0x800F763C;
+sPieceSteps = 0x800F7280;

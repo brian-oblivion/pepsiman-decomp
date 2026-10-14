@@ -3,17 +3,17 @@
  * (<ovl>_tail.c, which includes chase.inc before this). That unit defines
  * CHASE_PLACEMENTS (how many objects its placement list holds),
  * CHASE_LIGHT_BLUE (the lights' blue), CHASE_FAR_COLOR (the fog's colour,
- * three components), and may define CHASE_VAB, the sound bank the loader
- * loads if it loads one, and CHASE_LIGHT_RG (the lights' red and green,
- * 0x80 unless defined). */
+ * three components), CHASE_FILE_LOC and CHASE_FILE_SECTORS (its stage's
+ * directory in cdfile.h, whose files 1 and 2 the loader reads), and may
+ * define CHASE_VAB, the sound bank the loader loads if it loads one, and
+ * CHASE_LIGHT_RG (the lights' red and green, 0x80 unless defined). */
 
 #ifndef CHASE_LIGHT_RG
 #define CHASE_LIGHT_RG 0x80
 #endif
 
+/* The stage's object list, which its main unit defines. */
 extern Act3Place sPlacements[CHASE_PLACEMENTS];
-extern CdlLOC sChaseFileLoc[];
-extern s32 sChaseFileSectors[];
 
 /* Sets the scene's three lights and its fog. */
 void SetChaseLights(void) {
@@ -72,11 +72,11 @@ s32 LoadChaseStage(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&sChaseFileLoc[0];
+            gCdLoadLoc[0] = (s32)&CHASE_FILE_LOC[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sChaseFileSectors[0];
+            gCdLoadSectors[0] = CHASE_FILE_SECTORS[1];
             gSubStep++;
             break;
         case 1:
@@ -86,11 +86,11 @@ s32 LoadChaseStage(void) {
             }
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)&sChaseFileLoc[1];
+            gCdLoadLoc[0] = (s32)&CHASE_FILE_LOC[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sChaseFileSectors[1];
+            gCdLoadSectors[0] = CHASE_FILE_SECTORS[2];
             gSubStep++;
             break;
         case 3:

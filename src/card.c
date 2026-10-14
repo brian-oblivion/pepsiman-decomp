@@ -1235,5 +1235,3 @@ const CardIconTim sHitCardIcon2 = {
         {0x2D, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}, /* d2dddddddddddddd */
     },
 };
-
-INCLUDE_RODATA("asm/nonmatchings/card", sButtonMaps);

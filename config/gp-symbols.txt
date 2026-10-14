@@ -269,13 +269,13 @@ sPointGroupStarts
 sPrevViewY
 sPreviewing
 sSaveData
+sSeVabHead
 sSpriteAct
 sSteerDrift
 sTab
 sToolInfoMode
 sToolModeSaved
 sToolPickMode
-sVabBody
 sViewLerpStep
 sWhiteLineText
 sWorldResultsSlide

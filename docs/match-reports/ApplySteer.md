@@ -6,14 +6,14 @@ Unit `src/code_13068.c`. Steers the player: mode 3 turns one way, mode 2
 the other. Each moves the heading `gSteerYaw` by `2a` and `gSteerYawHalf` by
 `a`, keeps unk380 within the camera yaw, eases the lean in unk384 to at
 most 15 either way, moves unk3B4 by 50 and pushes the position back by
-`b` at 90 degrees to the yaw (the unit's `pushBack` helper). The heading
+`b` at 90 degrees to the yaw (the unit's `pushPlayer` helper). The heading
 is then clamped to 0x100 of the yaw. A repeated mode only resets unk380
 to the yaw.
 
 ```c
 extern s16 gSteerYawHalf;
 
-static __inline__ void pushBack(s32 deg, s32 dist) {
+static __inline__ void pushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
@@ -51,7 +51,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 }
                 sGame.unk384 = w;
                 sGame.unk3B4 -= 50;
-                pushBack(-90, b);
+                pushPlayer(-90, b);
                 break;
             case 2:
                 yaw = gCourse->vy;
@@ -74,7 +74,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 }
                 sGame.unk384 = w;
                 sGame.unk3B4 += 50;
-                pushBack(90, b);
+                pushPlayer(90, b);
                 break;
         }
         gSteerYaw = gSteerYaw < gCourse->vy - 0x100   ? gCourse->vy - 0x100
@@ -97,8 +97,8 @@ no other unit calls it.
 
 Seven builds, 3 -> 44 -> 81 -> 84 -> 142 -> 157 -> 187.
 
-- **The rsin/rcos tail is the unit's `static __inline__ pushBack(deg,
-  dist)`** (PushPlayer's body), `pushBack(-90, b)` and `pushBack(90,
+- **The rsin/rcos tail is the unit's `static __inline__ pushPlayer(deg,
+  dist)`** (PushPlayer's body), `pushPlayer(-90, b)` and `pushPlayer(90,
   b)`. It gives retail's `sll s1, a2, 16; sra s1, s1, 16` in place and
   the `gCourse` pointer in `$s0`. Spelt out with a `k = b;` local the
   extension went through a scratch register and the saved registers

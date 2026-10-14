@@ -908,7 +908,7 @@ PlayBgm = 0x80042150; // type:func
 InitSound = 0x800428B0; // type:func
 InitReverb = 0x800428EC; // type:func
 StopBgm = 0x800429B4; // type:func
-StopFinishedSe = 0x800429EC; // type:func
+StopAllSe = 0x800429EC; // type:func
 LoadVabBank = 0x80042A88; // type:func
 PlayXa = 0x80042B80; // type:func
 StopXa = 0x80042C14; // type:func
@@ -1119,7 +1119,7 @@ LoadStageData = 0x800399A8; // type:func
 LoadAct3Data = 0x80039C3C; // type:func
 DrawStage = 0x8003A008; // type:func
 DrawRepeatingStage = 0x8003A20C; // type:func
-UpdateSection = 0x8003A3F4; // type:func
+StepFloorIndex = 0x8003A3F4; // type:func
 DrawHudTime = 0x8003A4B4; // type:func
 DefineHudSprites = 0x8003A84C; // type:func
 DrawHud = 0x8003AFAC; // type:func
@@ -1137,7 +1137,7 @@ RemapButtons = 0x8003DE34; // type:func
 LinkStageTmd = 0x8003DFB8; // type:func
 LinkPropsTmd = 0x8003E07C; // type:func
 LoadTimList = 0x8003E13C; // type:func
-NearestPointToOrigin = 0x8003E1FC; // type:func
+NearestPointOffset = 0x8003E1FC; // type:func
 MarkCpuTime = 0x8003E29C; // type:func
 StartScreenWipe = 0x8003E40C; // type:func
 IsScreenWipeActive = 0x8003E438; // type:func
@@ -1799,7 +1799,7 @@ gAllTargetsBeaten = 0x800957D5;
 gGameCleared = 0x800958A5;
 gAltModel = 0x800963A0;
 gCardNew = 0x80095A14;
-sVabBody = 0x80095B08;
+sSeVabHead = 0x80095B08;
 // libgs/gs_001 (Psy-Q 4.4), kept as asm in psyq_46F74: its static .bss is
 // scattered in retail, so the object cannot link unedited. The three globals
 // are the object's own exports; the two statics are unnamed in the object,

@@ -1,4 +1,6 @@
-# NearestPointToOrigin — MATCHED (40/40), round 3, runner bravo
+# NearestPointOffset — MATCHED (40/40), round 3, runner bravo
+
+> Renamed from `NearestPointToOrigin` on 2026-10-14 (tools/rename.py). Address 0x8003e1fc.
 
 > Renamed from `func_8003E1FC` on 2026-10-10 (tools/rename.py). Address 0x8003e1fc.
 
@@ -7,7 +9,7 @@ from the origin to the line through (x0, y0) and (x1, y1), relative to
 (x0, y0): `t * d / |d|^2` with `d = p1 - p0` and `t = -(p0 . d)`.
 
 ```c
-void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+void NearestPointOffset(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 dx;
     s32 dy;
     s32 t;

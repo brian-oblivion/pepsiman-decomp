@@ -4,14 +4,14 @@
 
 Unit `src/object.c`. Two wall probes: a point 50 units from the
 player (`sGameHead` 0x348/0x34C/0x350) at the heading `gCourse[0].vy`
-plus and minus 0x200 (45 degrees); UpdateSection finds the path segment
+plus and minus 0x200 (45 degrees); StepFloorIndex finds the path segment
 from `gFloorIndex`, and when QueryWall reports a hit the player moves
 25 units back along heading ±0x400. Then CheckForcedThrowBack.
 
 ```c
 /* MATCHING: stage defines x and y as s16; this unit passes them
  * unextended. */
-void UpdateSection(s32 *index, s32 x, s32 y);
+void StepFloorIndex(s32 *index, s32 x, s32 y);
 
 s32 QueryWall(s32 index, VECTOR *pos, u8 *data);
 s32 CheckForcedThrowBack(void);
@@ -29,7 +29,7 @@ void PushPlayerFromWalls(void) {
     pos.vy = sGameHead.unk34C;
     pos.vz = sGameHead.unk350 + (rcos(gCourse[0].vy + 0x200) * 50 >> 12);
     idx = gFloorIndex;
-    UpdateSection(&idx, pos.vx, pos.vz);
+    StepFloorIndex(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (u8 *)gFloorData)) {
         sGameHead.unk348 -= rsin(gCourse[0].vy + 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(gCourse[0].vy + 0x400) * 25 >> 12;
@@ -38,7 +38,7 @@ void PushPlayerFromWalls(void) {
     pos.vy = sGameHead.unk34C;
     pos.vz = sGameHead.unk350 + (rcos(gCourse[0].vy - 0x200) * 50 >> 12);
     idx = gFloorIndex;
-    UpdateSection(&idx, pos.vx, pos.vz);
+    StepFloorIndex(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (u8 *)gFloorData)) {
         sGameHead.unk348 -= rsin(gCourse[0].vy - 0x400) * 25 >> 12;
         sGameHead.unk350 -= rcos(gCourse[0].vy - 0x400) * 25 >> 12;
@@ -49,7 +49,7 @@ void PushPlayerFromWalls(void) {
 First build. `GameHead` (unit-local) gained `unk348`, `unk34C`, `unk350`;
 no offset moved.
 
-UpdateSection's x and y arrive unextended (`lw` straight into `$a1`), so
+StepFloorIndex's x and y arrive unextended (`lw` straight into `$a1`), so
 this unit's view takes `s32` (LEARNINGS, "a callee's prototype is a
 per-unit view"). QueryWall is still asm; its prototype here is a
 guess from this call (index, position, data base). `gFloorIndex` and

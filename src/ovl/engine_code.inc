@@ -63,15 +63,15 @@ void UpdateStageSprites(void) {
  *        when the player hits it, it takes its hit frame and drifts away.
  * @param r     the sprite
  * @param i     its index in gStageSprites, which picks its walk state
- * @param arg   its heading in degrees, set when the walk starts
+ * @param angle its heading in degrees, set when the walk starts
  * @param speed how far it walks each frame
  * @param range how near the player must come to set it walking
  * @param limit how many frames it walks
  */
-void StepSpriteWalk(EngSprite *r, u16 i, s16 arg, u16 speed, s32 range, s32 limit) {
+void StepSpriteWalk(EngSprite *r, u16 i, s16 angle, u16 speed, s32 range, s32 limit) {
     switch ((s8)sWalkState[i]) {
         case 0:
-            StartSpriteWalk(r, i, arg);
+            StartSpriteWalk(r, i, angle);
             sWalkState[i]++;
         case 1:
             sWalkTimer[i]++;

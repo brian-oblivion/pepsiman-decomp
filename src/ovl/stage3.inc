@@ -166,7 +166,7 @@ s32 Lerp(s32 a, s32 b, u16 t, u16 n);
 
 /* MATCHING: the step's callees, which their units declare only where they
  * define them; this image links against them by address. */
-s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height);
+s16 UpdateCamera(s16 x, s16 y, s16 z, s16 floorY);
 void UpdatePlayer(void);
 void UpdateStageLights(void);
 void PushPlayerFromWalls(void);

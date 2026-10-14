@@ -145,8 +145,8 @@ void StepSprite(s32 id, EngSprite *r);
 void DrawObjectSprite(s32 id, EngSprite *r);
 s32 StepDrift(EngSprite *r);
 void ResetSpriteWalks(void);
-void StartSpriteWalk(EngSprite *r, u16 i, s16 arg);
-void StepSpriteWalk(EngSprite *r, u16 i, s16 arg, u16 speed, s32 range, s32 limit);
+void StartSpriteWalk(EngSprite *r, u16 i, s16 angle);
+void StepSpriteWalk(EngSprite *r, u16 i, s16 angle, u16 speed, s32 range, s32 limit);
 void AdvanceSpriteWalk(EngSprite *r, u16 i, u16 speed);
 void ResetSpawnedTraps(void);
 /* MATCHING: object's views, with this unit's records. */
@@ -365,7 +365,7 @@ extern s32 *gSectionEdges;
 
 /* MATCHING: the step's callees, which their units declare only where they
  * define them; this image links against them by address. */
-s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height);
+s16 UpdateCamera(s16 x, s16 y, s16 z, s16 floorY);
 void UpdatePlayer(void);
 void UpdateStageLights(void);
 void PushPlayerFromWalls(void);

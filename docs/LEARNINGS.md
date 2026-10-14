@@ -337,7 +337,7 @@ function's match report, not here.
   the base went into a local and was advanced**, `src = tbl; src += i;`.
   Every indexed spelling puts the sum in the index register. (GetQuad16)
 - **An element address kept in a saved register across a call: a local
-  pointer**, `seq = &tbl[i];`. (StopFinishedSe)
+  pointer**, `seq = &tbl[i];`. (StopAllSe)
 - **Two one-pass loops whose registers pair with different variables: one
   counter per loop.** A shared counter costs a saved register. `f(fmt, *p);
   p++;` keeps the format's `addiu` first; `f(fmt, *p++)` does not.
@@ -365,7 +365,7 @@ function's match report, not here.
   (InitGridTest)
 - **`addu d, shift, base` (index first): an integer sum**, `(T *)(i * 8 +
   (s32)D)`. Pointer arithmetic always puts the pointer first.
-  (UpdateSection, UpdateStageLights)
+  (StepFloorIndex, UpdateStageLights)
 - **A count-down `bgez` loop: write it counting down.** 2.8.1 did not
   reverse a short `s32` count-up here. (stage, round 5)
 - **A loop compared on a pointer with signed `slt`: an `s32` counter cc1

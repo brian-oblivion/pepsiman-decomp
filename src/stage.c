@@ -418,7 +418,7 @@ void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
  * @param x     the point's x
  * @param y     the point's other horizontal coordinate, the world's z
  */
-void UpdateSection(s32 *index, s16 x, s16 y) {
+void StepFloorIndex(s32 *index, s16 x, s16 y) {
     s32 i;
     s32 j;
     s32 d;
@@ -833,20 +833,20 @@ static __inline__ void stepEdge(s32 *index, Edge *tbl, s16 x, s16 y) {
 
 /**
  * @brief The course camera, once a frame: steps gSection along the course path
- *        to (x, y), turns gCameraYaw toward that section's heading at a rate
+ *        to (x, z), turns gCameraYaw toward that section's heading at a rate
  *        that eases off as it closes, puts the view point 400 units behind the
- *        player on that yaw and the section's camera height above `height`
+ *        player on that yaw and the section's camera height above `floorY`
  *        (eased by 10 a frame, its climb and drop limited per frame), aims it
  *        150 units above the midpoint of the floor and the player, and sets the
  *        view.
  * @param x      the player's x
- * @param target the player's height, y
- * @param y      the player's z, the course's other horizontal axis
- * @param height the floor's height under the player
+ * @param y      the player's height
+ * @param z      the player's z, the course's other horizontal axis
+ * @param floorY the floor's height under the player
  * @return the section's heading, which the stage takes as the course's yaw
  *         (4096 to a turn)
  */
-s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
+s16 UpdateCamera(s16 x, s16 y, s16 z, s16 floorY) {
     Edge *tbl;
     Edge *e;
     /* MATCHING: s16, extended only at the return; as s32 it takes a's
@@ -861,7 +861,7 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     s32 unused[2];
 
     tbl = gSectionEdges;
-    stepEdge(&gSection, tbl, x, y);
+    stepEdge(&gSection, tbl, x, z);
     e = (Edge *)(gSection * 8 + (s32)tbl);
     angle = a = ratan2(e[1].x - e[0].x, e[1].y - e[0].y);
     a &= 0xFFF;
@@ -906,7 +906,7 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
         sCamHeight += 10;
     }
     old = sPrevViewY;
-    v = height + sCamHeight;
+    v = floorY + sCamHeight;
     sView.vpy = v;
     if (v - old > 200) {
         sView.vpy = old + 50;
@@ -927,11 +927,11 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     } else if (sView.vpy - sPrevViewY < -20) {
         sView.vpy = sPrevViewY - 10;
     }
-    /* MATCHING: a fresh local, so the sum stays in one register; -height
-     * first loads height first. */
-    off = (-height + target) / 2 - 150;
+    /* MATCHING: a fresh local, so the sum stays in one register; -floorY
+     * first loads floorY first. */
+    off = (-floorY + y) / 2 - 150;
     sView.vrx = 0;
-    sView.vry = height + off;
+    sView.vry = floorY + off;
     sView.vrz = 0;
     sView.rz = 0;
     sView.super = NULL;
@@ -1687,7 +1687,7 @@ void LoadTimList(unsigned long *p) {
  * @param x1  the second point's x
  * @param y1  the second point's y
  */
-void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
+void NearestPointOffset(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 dx;
     s32 dy;
     s32 t;
@@ -1705,16 +1705,16 @@ void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
  * @brief Takes a CPU-time mark for DrawCpuMeter: the scanline count now, from
  *        VSync(1), and the colour its bar is drawn in; at most 16 a frame. No
  *        code calls it.
- * @param a the bar's red
- * @param b its green
- * @param c its blue
+ * @param r the bar's red
+ * @param g its green
+ * @param b its blue
  */
-void MarkCpuTime(s32 a, s32 b, s32 c) {
+void MarkCpuTime(s32 r, s32 g, s32 b) {
     if (gCpuMarkCount < 16) {
         gCpuMarkTimes[gCpuMarkCount] = VSync(1);
-        sCpuMarkR[gCpuMarkCount] = a;
-        sCpuMarkG[gCpuMarkCount] = b;
-        sCpuMarkB[gCpuMarkCount] = c;
+        sCpuMarkR[gCpuMarkCount] = r;
+        sCpuMarkG[gCpuMarkCount] = g;
+        sCpuMarkB[gCpuMarkCount] = b;
         gCpuMarkCount++;
     }
 }

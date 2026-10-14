@@ -24,7 +24,7 @@ Sixth build matched.
   a pointer local kept across the call takes a saved register (5/177).
 - **The later record's address `addu s0, s0(index), s2(base)`: an integer
   sum**, `(EditorTrap *)(i * sizeof(EditorTrap) + (u32)w)` (LEARNINGS,
-  UpdateSection). `&w[i]`, `i + w` and `r = w; r += i;` all put the base
+  StepFloorIndex). `&w[i]`, `i + w` and `r = w; r += i;` all put the base
   first (176/177); `&gPlaceQueue[i]` takes a seventh saved register.
 - `bnez` with a `nop` slot at the loop bottom: non-void with no return.
 - The `CallStageHook` id is passed unextended (`lhu`): `s32` in this

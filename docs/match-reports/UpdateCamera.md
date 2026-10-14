@@ -4,7 +4,7 @@
 
 Unit `src/stage.c`. The chase camera: steps the path index
 `gSection` across the boundary edges either side of (x, y) (the body of
-UpdateSection, inlined, on `gSectionEdges`), turns the camera heading
+StepFloorIndex, inlined, on `gSectionEdges`), turns the camera heading
 `gCameraYaw` toward the path segment's direction (`ratan2`) faster the
 further off it is, places the reference view `gView` on a 400-unit
 circle around that heading, eases its height toward `height` plus the
@@ -151,7 +151,7 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
 
 | step | words |
 | --- | --- |
-| first body (the edge step as UpdateSection's body in a `static __inline__` helper) | 60/272 (length off, so addresses drifted), frame 8 bytes small |
+| first body (the edge step as StepFloorIndex's body in a `static __inline__` helper) | 60/272 (length off, so addresses drifted), frame 8 bytes small |
 | `iabs()` for the 0x800 test, the speed ladder ending `a == b ? 0 : 1`, integer-sum segment address | same length; shared `sCamTurnStep` store as retail |
 | `s32 unused[2]`, store order vpz / vpx / vpy, `(-height + target) / 2 - 150` in its own statement | |
 | `s16 angle` (extended only at the return) with `angle = a = ratan2(...)` | 232/272 |
@@ -159,9 +159,9 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
 | a fresh `off` local for the aim offset | 251/272, only `a` and the distance register swapped |
 | permuter (Gate 3: scaffold with the two helpers written back into base.c, disassembly identical to the in-tree object; zero at iteration 6,872): `a = old;` inside the clamp's else | 272/272 |
 
-- **The edge step is UpdateSection inlined**, with the table loaded once
+- **The edge step is StepFloorIndex inlined**, with the table loaded once
   (`gSectionEdges` cannot alias the index once both are fixed symbols).
-  UpdateSection itself could become a wrapper of `stepEdge` (move the
+  StepFloorIndex itself could become a wrapper of `stepEdge` (move the
   helper above it); not tried, it reloads its table per use.
 - **The aim offset**: `height + ((target - height) / 2 - 150)` folds the
   -150 onto `height`; its own statement keeps retail's order, and a fresh

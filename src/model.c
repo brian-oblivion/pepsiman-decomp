@@ -49,7 +49,7 @@ const char gMotionFmt[] = "\n\n\tMOTION %3d";
 s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
 /* MATCHING: this unit passes the coordinates unextended, so it saw s32
  * parameters (stage defines them as s16). */
-void UpdateSection(s32 *index, s32 x, s32 y);
+void StepFloorIndex(s32 *index, s32 x, s32 y);
 extern CdlLOC gCdTrackLoc;
 
 /** @brief The three flat lights. */
@@ -665,7 +665,7 @@ s32 FindFloorNear(void *pos, void *arg, s32 cur) {
     p.x = ((Vec3i *)pos)->x;
     p.y = ((Vec3i *)pos)->y;
     p.z = ((Vec3i *)pos)->z;
-    UpdateSection(&cur, p.x, p.z);
+    StepFloorIndex(&cur, p.x, p.z);
     if (QueryFloor(arg, cur, &p, gFloorData) == 0x7FFF) {
         return -1;
     }

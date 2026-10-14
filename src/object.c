@@ -469,7 +469,7 @@ s32 QueryWall(s32 zone, VECTOR *pos, FloorHdr *hdr) {
 
 /* MATCHING: stage defines x and y as s16; this unit passes them
  * unextended. */
-void UpdateSection(s32 *index, s32 x, s32 y);
+void StepFloorIndex(s32 *index, s32 x, s32 y);
 
 s32 CheckForcedThrowBack(void);
 
@@ -484,7 +484,7 @@ void PushPlayerFromWalls(void) {
     pos.vy = gPlayer.y;
     pos.vz = gPlayer.z + (rcos(gCourse.rot.vy + 0x200) * 50 >> 12);
     idx = gFloorIndex;
-    UpdateSection(&idx, pos.vx, pos.vz);
+    StepFloorIndex(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
         gPlayer.x -= rsin(gCourse.rot.vy + 0x400) * 25 >> 12;
         gPlayer.z -= rcos(gCourse.rot.vy + 0x400) * 25 >> 12;
@@ -493,7 +493,7 @@ void PushPlayerFromWalls(void) {
     pos.vy = gPlayer.y;
     pos.vz = gPlayer.z + (rcos(gCourse.rot.vy - 0x200) * 50 >> 12);
     idx = gFloorIndex;
-    UpdateSection(&idx, pos.vx, pos.vz);
+    StepFloorIndex(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
         gPlayer.x -= rsin(gCourse.rot.vy - 0x400) * 25 >> 12;
         gPlayer.z -= rcos(gCourse.rot.vy - 0x400) * 25 >> 12;

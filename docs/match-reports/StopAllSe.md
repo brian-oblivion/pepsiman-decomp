@@ -1,17 +1,21 @@
-# StopFinishedSe — MATCHED 39/39 (round 4, echo)
+# StopAllSe — MATCHED 39/39 (round 4, echo)
+
+> Renamed from `StopFinishedSe` on 2026-10-14 (tools/rename.py). Address 0x800429ec.
 
 > Renamed from `func_800429EC` on 2026-10-10 (tools/rename.py). Address 0x800429ec.
 
 Unit `src/sound.c`. Walks sequence slots 2..9 of the access-number
 table `gSeqIds` with the global index `gSeSlot`, and stops every
-open sequence that has reached its end (`SsIsEos(seq, 0) == 1`).
+open sequence that is still playing (`SsIsEos(seq, 0) == 1`: libsnd's
+SsIsEos returns 1 while a song plays, 0 once it has ended). The old name
+read the test the other way round.
 
 ```c
 #include "libsnd.h"
 extern s16 gSeqIds[];
 extern u16 gSeSlot;
 
-void StopFinishedSe(void) {
+void StopAllSe(void) {
     s16 *seq;
 
     for (gSeSlot = 2; gSeSlot < 10; gSeSlot++) {
@@ -40,4 +44,4 @@ void StopFinishedSe(void) {
 - **An element address held in a saved register across a call and
   dereferenced on both sides: the source took `&tbl[i]` into a local
   pointer.** Repeated `tbl[i]` with a global index reloads the index
-  after the call. (StopFinishedSe)
+  after the call. (StopAllSe)

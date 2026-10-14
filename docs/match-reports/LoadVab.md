@@ -7,7 +7,7 @@ Stalled at 66/76 in round 10 (delta).
 Unit `src/code_31cec.c`. Opens a sound bank: copies the VAB header from
 the loaded file at 0x8016D000 (offset word 0, size word 1) to its home
 (bank 0: computed from the file directory at 0x80101000 and remembered
-in `sVabBody`; bank 1: `sVabBody`), opens it with `SsVabOpenHead`
+in `sSeVabHead`; bank 1: `sSeVabHead`), opens it with `SsVabOpenHead`
 into `gBgmVab[bank]`, then transfers the body (offset word 4) and
 waits for the transfer. Returns -1 (and sets `gVabError`) when the open
 fails, 0 otherwise.
@@ -21,7 +21,7 @@ kept below for the record; Round 13 has the two changes that closed it.
 
 extern s32 gVabError;
 extern s16 gBgmVab;
-extern u8 *sVabBody;
+extern u8 *sSeVabHead;
 
 s32 LoadVab(s16 bank) {
     u32 *vh = (u32 *)0x8016D000;
@@ -37,10 +37,10 @@ s32 LoadVab(s16 bank) {
             dst = (u8 *)rec[0];
             dst += rec[1];
             dst += 0x80101000;
-            sVabBody = dst + vh[1];
+            sSeVabHead = dst + vh[1];
             break;
         case 1:
-            dst = sVabBody;
+            dst = sSeVabHead;
             break;
     }
     memcpy(dst, vh[0] + (u32)vh, vh[1]);

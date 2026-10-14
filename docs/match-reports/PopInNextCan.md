@@ -36,7 +36,7 @@ Third build.
 - Build 2, `(CanPoint *)(i * 8 + gCanPoints)`: unchanged; pointer arithmetic
   still puts the pointer first.
 - Build 3, `(CanPoint *)(i * 8 + (u32)gCanPoints)`: 36/36. The LEARNINGS entry
-  for UpdateSection/UpdateStageLights again.
+  for StepFloorIndex/UpdateStageLights again.
 
 Declarations: `gFrameCount` is a scalar (`lui $v0` / `lw $v0, %lo` in one
 register); it was a local extern in hit_tool.c, so it moved to

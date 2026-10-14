@@ -47,7 +47,7 @@ void SteerRoller(void) {
         }
         sSteerDrift = sSteerDrift < -10 ? -10 : sSteerDrift > 10 ? 10 : sSteerDrift;
         step = sSteerDrift / 10;
-        pushBack(90, step);
+        pushPlayer(90, step);
         /* MATCHING: as in SteerCover. */
         __asm__("");
         g = &sGame;
@@ -66,7 +66,7 @@ void SteerRoller(void) {
 }
 ```
 
-The `pushBack` inline helper (PushPlayer's body) moved above this
+The `pushPlayer` inline helper (PushPlayer's body) moved above this
 function so both users follow it; see SteerCover's report for it.
 
 ## Path

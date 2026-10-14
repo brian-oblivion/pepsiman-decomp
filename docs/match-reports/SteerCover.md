@@ -15,7 +15,7 @@ SteerRoller is its twin.
 ```c
 /* MATCHING: PushPlayer's body as an inline helper; calling it with the s16 step
  * keeps the step's sign extension ahead of the rsin call. */
-static __inline__ void pushBack(s32 deg, s32 dist) {
+static __inline__ void pushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
@@ -50,7 +50,7 @@ void SteerCover(void) {
         }
         sSteerDrift = sSteerDrift < -7 ? -7 : sSteerDrift > 7 ? 7 : sSteerDrift;
         step = sSteerDrift / 10;
-        pushBack(90, step);
+        pushPlayer(90, step);
         /* MATCHING: the barrier keeps the yaw and unk380 loads below the unk350 store;
          * g keeps the sGame base in a register for the store at the join. */
         __asm__("");

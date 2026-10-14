@@ -53,11 +53,11 @@ extern char sSeqAttrTable[]; /**< SsSetTableSize's SEQ attribute table */
 extern s32 gMovieEnded;      /**< set once the movie's last frame has been read */
 extern u16 gSeSlot;          /**< the sound-effect slot, 2 to 9, PlaySe tries first */
 extern s16 gBgmVab;          /**< VAB id of the first bank, open for good; gSeVab follows it */
-extern u8 *sVabBody;   /**< the sound VAB body address: worked out for bank 0, reused for bank 1 */
-extern s16 gBgmVolume; /**< the BGM sequence's volume, as the fade sets it */
-extern s16 gSeVab;     /**< VAB id of the swappable bank, the one gVabBank names */
-extern s16 D_80095AEA; /**< cleared by InitSeSeqs; read by no code */
-extern u16 gVabBank;   /**< the numbered VAB bank open as gSeVab, 1 on */
+extern u8 *sSeVabHead; /**< where slot 1's VAB header goes: just past slot 0's, set as slot 0 loads */
+extern s16 gBgmVolume;          /**< the BGM sequence's volume, as the fade sets it */
+extern s16 gSeVab;              /**< VAB id of the swappable bank, the one gVabBank names */
+extern s16 D_80095AEA;          /**< cleared by InitSeSeqs; read by no code */
+extern u16 gVabBank;            /**< the numbered VAB bank open as gSeVab, 1 on */
 extern s16 gMovieOffsetX;       /**< where the picture starts across a frame area, in VRAM units */
 extern s16 gMovieDisplayHeight; /**< the movie picture's height in lines, centred on 240 */
 
@@ -373,7 +373,7 @@ void StartMovieRead(CdlLOC *loc) {
  *         VAB slots and sends its waveforms to the sound RAM.
  *
  *  Bank 0's header is copied to just past the sound pack's last SEQ;
- *  bank 1's goes straight after bank 0's, at sVabBody.
+ *  bank 1's goes straight after bank 0's, at sSeVabHead.
  *  @param bank 0 for gBgmVab's slot, 1 for gSeVab's
  *  @return 0, or -1 when the VAB header did not open (gVabError is set) */
 s32 LoadVab(s16 bank) {
@@ -392,10 +392,10 @@ s32 LoadVab(s16 bank) {
             dst = (u8 *)rec[0];
             dst += rec[1];
             dst += RAM_SOUND_PACK;
-            sVabBody = dst + vh[1];
+            sSeVabHead = dst + vh[1];
             break;
         case 1:
-            dst = sVabBody;
+            dst = sSeVabHead;
             break;
     }
     src = RAM_WORK_A;
@@ -679,7 +679,7 @@ void StopBgm(void) {
 }
 
 /** @brief Stops every sound-effect slot whose sequence is still playing. */
-void StopFinishedSe(void) {
+void StopAllSe(void) {
     s16 *seq;
 
     for (gSeSlot = 2; gSeSlot < 10; gSeSlot++) {

@@ -1,4 +1,6 @@
-# UpdateSection — MATCHED 48/48 (round 5, bravo)
+# StepFloorIndex — MATCHED 48/48 (round 5, bravo)
+
+> Renamed from `UpdateSection` on 2026-10-14 (tools/rename.py). Address 0x8003a3f4.
 
 > Renamed from `func_8003A3F4` on 2026-10-10 (tools/rename.py). Address 0x8003a3f4.
 
@@ -21,7 +23,7 @@ typedef struct {
 
 extern Edge *gBoundaryEdges;
 
-void UpdateSection(s32 *index, s16 x, s16 y) {
+void StepFloorIndex(s32 *index, s16 x, s16 y) {
     s32 i;
     s32 j;
     s32 d;
@@ -70,7 +72,7 @@ void UpdateSection(s32 *index, s16 x, s16 y) {
   pointer spelling gives `addu d, base, shift`: the source summed integers,
   index first**, `(T *)(i * 8 + (s32)base)`. C's pointer arithmetic always
   puts the pointer first, and local-alloc ties the sum to the first
-  operand's register. (UpdateSection)
+  operand's register. (StepFloorIndex)
 - **A pointer local per basic block, not one shared across two blocks**,
   when retail gives the pointer an argument register and moves the
-  parameter elsewhere at entry. (UpdateSection)
+  parameter elsewhere at entry. (StepFloorIndex)

@@ -16,7 +16,7 @@
 s32 LoadVabBank(s32 bank);
 void PlayBgm(u16 song, s32 unused);
 void StopBgm(s32 unused);
-void StopFinishedSe(void);
+void StopAllSe(void);
 void StartRumble(u16 *table, s32 index);
 void ResetClearColor(void);
 
@@ -263,7 +263,7 @@ void func_800F09C0(void) {
                     case 4:
                         gModeStep = 0;
                         StopBgm(0);
-                        StopFinishedSe();
+                        StopAllSe();
                         break;
                 }
             }

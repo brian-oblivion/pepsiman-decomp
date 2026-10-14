@@ -479,8 +479,8 @@ void ProjectToScreen(VECTOR *pos, SVECTOR *out) {
  */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
-    MATRIX world;
-    MATRIX local;
+    MATRIX ls;
+    MATRIX lw;
     SVECTOR v;
     VECTOR t;
     s32 unused[2];
@@ -489,13 +489,13 @@ void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     v.vx = pos->vx;
     v.vy = pos->vy;
     v.vz = pos->vz;
-    GsGetLws(coord, &local, &world);
-    GsSetLsMatrix(&local);
+    GsGetLws(coord, &lw, &ls);
+    GsSetLsMatrix(&lw);
     RotTrans(&v, &t, &flag);
     out->vx = t.vx;
     out->vy = t.vy;
     out->vz = t.vz;
-    GsSetLsMatrix(&world);
+    GsSetLsMatrix(&ls);
 }
 
 /**
@@ -693,7 +693,7 @@ void SteerPlayer(void) {
  * @param deg  the direction, in degrees from the course heading
  * @param dist how far
  */
-static __inline__ void pushBack(s32 deg, s32 dist) {
+static __inline__ void pushPlayer(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
 
@@ -742,7 +742,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 }
                 gPlayer.lean = w;
                 gPlayer.steerSum -= 50;
-                pushBack(-90, b);
+                pushPlayer(-90, b);
                 break;
             case 2:
                 yaw = gCourse.rot.vy;
@@ -765,7 +765,7 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
                 }
                 gPlayer.lean = w;
                 gPlayer.steerSum += 50;
-                pushBack(90, b);
+                pushPlayer(90, b);
                 break;
         }
         gSteerYaw = gSteerYaw < gCourse.rot.vy - 0x100   ? gCourse.rot.vy - 0x100
@@ -2822,7 +2822,7 @@ void SteerRoller(void) {
         }
         sSteerDrift = sSteerDrift < -10 ? -10 : sSteerDrift > 10 ? 10 : sSteerDrift;
         step = sSteerDrift / 10;
-        pushBack(90, step);
+        pushPlayer(90, step);
         /* MATCHING: as in SteerCover. */
         __asm__("");
         g = &gPlayer;
@@ -2986,7 +2986,7 @@ void SteerCover(void) {
         }
         sSteerDrift = sSteerDrift < -7 ? -7 : sSteerDrift > 7 ? 7 : sSteerDrift;
         step = sSteerDrift / 10;
-        pushBack(90, step);
+        pushPlayer(90, step);
         /* MATCHING: the barrier keeps the yaw and unk380 loads below the unk350 store;
          * g keeps the gPlayer base in a register for the store at the join. */
         __asm__("");

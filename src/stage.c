@@ -1,3 +1,23 @@
+/**
+ * @file stage.c
+ * @brief The running stages' shared engine: the stage models, the course
+ *        camera, the HUD, the screen wipe, the results screens and the
+ *        effects.
+ *
+ * LoadStageData (LoadAct3Data for an act-3 chase) maps a stage pack's
+ * scenery and props models and keeps pointers to its other parts: the floor
+ * data, the course path, the floor boundaries, each section's runs of
+ * objects, and the light, fog and sky colours. Each frame UpdateCamera steps
+ * the section along the path and swings the camera after it, DrawStage (or
+ * DrawRepeatingStage, the chases' endless corridor) draws the section, and
+ * DrawHud draws the cans, the bonus level, the countdown, the progress bar,
+ * the time and the lives. StartActResults and UpdateActResults run an act's
+ * results, counting the cans and storing records; StartWorldResults and
+ * UpdateWorldResults a world's. SpawnEffect, UpdateEffects and gEffectSteps
+ * run the effect pool. Also here: the letterbox, the button remap, the
+ * frozen frame, the screen wipe and a CPU-time meter no code calls.
+ */
+
 #include "common.h"
 #include "sbss.h"
 #include "libgte.h"
@@ -29,11 +49,11 @@ const Bytes16 sButtonMaps = {{
     {0, 1, 2, 0},
 }};
 
-extern s32 gWipeFrame;
-extern s32 gTallyCans;
-extern s32 gResultsActive;
-extern s32 gResultsTimer;
-extern s32 gWipeActive;
+extern s32 gWipeFrame;     /**< the screen wipe's frame, 0 to 24; each image shows for 3 */
+extern s32 gTallyCans;     /**< the cans the act results have counted up so far */
+extern s32 gResultsActive; /**< 1 while a results screen runs */
+extern s32 gResultsTimer;  /**< frames into the current results step */
+extern s32 gWipeActive;    /**< 1 while the screen wipe runs */
 
 /** @brief The results screens' steps, gResultsStep. An act's runs them
  *         in order, skipping the record steps when no record falls; a
@@ -50,9 +70,9 @@ enum ResultsStep {
     RES_WORLD_DONE = 10  /**< a world's results are finished */
 };
 
-extern s32 gResultsStep; /**< a ResultsStep */
-extern s8 gResultsSliding[8];
-extern s8 gResultsSlide[8];
+extern s32 gResultsStep;        /**< a ResultsStep */
+extern s8 gResultsSliding[8];   /**< per results line: 1 while it slides in */
+extern s8 gResultsSlide[8];     /**< per results line: its slide offset, counting up to 0 */
 extern u8 sActResultsSlide[];   /**< each results line's slide-in start, for an act */
 extern u8 sWorldResultsSlide[]; /**< each results line's slide-in start, for a world */
 /* MATCHING: both declared above as arrays of unknown size before they are
@@ -69,16 +89,16 @@ typedef struct {
     s16 dy; /**< the direction's y */
 } Edge;
 
-extern Edge *gBoundaryEdges;
+extern Edge *gBoundaryEdges; /**< stage header part 4: the floor blocks' boundaries */
 
-extern GsDOBJ2 gStageObjs[];
-extern GsDOBJ2 gPropObjs[];
-extern GsCOORDINATE2 gStageCoord;
+extern GsDOBJ2 gStageObjs[];      /**< the scenery model's objects */
+extern GsDOBJ2 gPropObjs[];       /**< the props model's objects */
+extern GsCOORDINATE2 gStageCoord; /**< the coordinate system both stage models hang from */
 
-extern s32 gCpuMarkTimes[];
-extern u8 sCpuMarkR[]; /**< each CPU-time mark's colour, red */
-extern u8 sCpuMarkG[]; /**< green */
-extern u8 sCpuMarkB[]; /**< blue */
+extern s32 gCpuMarkTimes[]; /**< each CPU-time mark's scanline count, 0xFF for none */
+extern u8 sCpuMarkR[];      /**< each CPU-time mark's colour, red */
+extern u8 sCpuMarkG[];      /**< green */
+extern u8 sCpuMarkB[];      /**< blue */
 
 /** @brief A run of entries in a draw list: where it starts and how long. */
 typedef struct {
@@ -87,15 +107,21 @@ typedef struct {
 } Run;
 
 /* MATCHING: a per-unit view; object types the same list as Zone4. */
-extern Run *gStageRuns;
-extern Run *gPropRuns;
-extern s8 *gPropRunObjs;
+extern Run *gStageRuns;  /**< stage header part 5: each section's run of scenery objects */
+extern Run *gPropRuns;   /**< stage header part 6: each section's run of props */
+extern s8 *gPropRunObjs; /**< the prop indices the runs of gPropRuns cover; -1 for none */
 
-extern DR_STP sDrawStpMain;
-extern DR_ENV sDrawEnvMain;
-extern DR_STP sDrawStpSub;
-extern DR_ENV sDrawEnvSub;
+extern DR_STP sDrawStpMain; /**< the letterbox's draw-mode packet in the 3D ordering table */
+extern DR_ENV sDrawEnvMain; /**< the letterbox's clipped draw environment */
+extern DR_STP sDrawStpSub;  /**< the draw-mode packet at the head of the HUD's ordering table */
+extern DR_ENV sDrawEnvSub;  /**< the full-screen draw environment the HUD is drawn in */
 
+/**
+ * @brief Letterboxes the 3D view. With `clip` set it queues, in the 3D ordering
+ *        table's last entry, a draw environment that clips drawing to the 175
+ *        lines from line 32, and at the head of the HUD's table one that gives
+ *        the full 320x240 screen back. Called once a frame from main.
+ */
 void SetLetterbox(s32 clip) {
     DRAWENV env;
     /* MATCHING: retail's frame has 8 more bytes above the environment. */
@@ -123,14 +149,23 @@ void SetLetterbox(s32 clip) {
 }
 
 /* MATCHING: per-unit views; this loader stores the stage pointers plainly. */
-extern Edge *gSectionEdges;
+extern Edge *gSectionEdges; /**< stage header part 3: the course path, a point per section, after a count */
 extern s32 gStageStart;        /**< stage header part 7: the record the start heading comes from */
 extern s32 gLightColors;       /**< stage header part 10: light colours, four bytes each */
 extern s8 *sSectionCamHeights; /**< stage header part 8: each section's camera height, in tens */
-extern s32 gSkyColors;
-extern s32 gStageRunCount; /**< the number of runs in gStageRuns */
-extern s32 gPropRunCount;  /**< the number of runs in gPropRuns */
+extern s32 gSkyColors;         /**< stage header part 11: the sky's colour sets */
+extern s32 gStageRunCount;     /**< the number of runs in gStageRuns */
+extern s32 gPropRunCount;      /**< the number of runs in gPropRuns */
 
+/**
+ * @brief Takes in a stage pack loaded to RAM: maps its scenery and props models
+ *        and links their objects to gStageCoord, resets the section and floor
+ *        indices, and points the stage's globals at the pack's other parts: the
+ *        floor data, the course path, the floor boundaries, the scenery and
+ *        props runs, the start record, the camera heights and the fog, light
+ *        and sky colours.
+ * @param hdr the pack, a table of its parts' offsets from its start
+ */
 void LoadStageData(unsigned long *hdr) {
     u32 i;
     GsDOBJ2 *obj;
@@ -237,6 +272,14 @@ static __inline__ void linkProps(unsigned long *tmd) {
     }
 }
 
+/**
+ * @brief LoadStageData's counterpart for an act-3 chase pack: links the scenery
+ *        and props, a third model whose objects each have their own coordinate
+ *        system, and the piece objects from slot 10 on; reads animations 51 on
+ *        from the fifth part, with their lengths and first frames into gPlayer;
+ *        and defines the four 255x64 strips that start the stage's sprites.
+ * @param pack the pack, a table of its parts' offsets from its start
+ */
 void LoadAct3Data(s32 *pack) {
     s32 i;
     s32 n;
@@ -272,6 +315,15 @@ void LoadAct3Data(s32 *pack) {
     DefineSprite(SPR_STAGE + 3, 0, 0xFF, 0x40, 0x1C, 0, 0xC0, 0, 0x1FE);
 }
 
+/**
+ * @brief Draws the current section's scenery and props: places the stage at (x,
+ *        y, z), the player's position negated, and sorts every object of
+ *        gSection's two runs into the current ordering table, skipping an index
+ *        past the model's object count (and a prop of -1).
+ * @param x the stage's x
+ * @param y the stage's y
+ * @param z the stage's z
+ */
 void DrawStage(s16 x, s16 y, s16 z) {
     s32 i;
     s32 k;
@@ -357,6 +409,15 @@ void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
     }
 }
 
+/**
+ * @brief Steps a floor-block index across the floor boundaries: one block on
+ *        when (x, y) has passed the next boundary, one back when it is behind
+ *        the block's own. Finds the block under a point from the block of a
+ *        point near it.
+ * @param index the floor-block index, stepped in place
+ * @param x     the point's x
+ * @param y     the point's other horizontal coordinate, the world's z
+ */
 void UpdateSection(s32 *index, s16 x, s16 y) {
     s32 i;
     s32 j;
@@ -390,6 +451,12 @@ static __inline__ void putDigit(SVECTOR *pos, u16 id) {
     DrawSprite(id, pos, NULL, 0, &gSubOt[gActiveBuff]);
 }
 
+/**
+ * @brief Draws a time in the HUD's small digits as minutes:seconds:hundredths,
+ *        right to left from `pos`; the minutes take one or two digits.
+ * @param pos    the pen, right of the last digit; moved left past the time
+ * @param frames the time, in frames (30 a second)
+ */
 void DrawHudTime(SVECTOR *pos, s32 frames) {
     s32 n;
     s32 m;
@@ -425,6 +492,11 @@ void DrawHudTime(SVECTOR *pos, s32 frames) {
     }
 }
 
+/**
+ * @brief Defines the sprites of the HUD, the results screens, the effects, the
+ *        tools' markers and the pause caption, in the textures LoadTimList has
+ *        just put in VRAM. Called from main once those are loaded.
+ */
 void DefineHudSprites(void) {
     s32 i;
 
@@ -485,11 +557,29 @@ void DefineHudSprites(void) {
 
 extern u32 sBonusDist; /**< speed summed each frame; its hundreds pick the bonus sprite's frame */
 
+/**
+ * @brief Draws a sprite scaled and rotated about a pivot; defined in draw.
+ * @param id    the sprite
+ * @param quad  its placement: x, y, the pivot x and y, the 4.12 x and y
+ *              scales, the angle and the centring flag
+ * @param color its colour, or NULL
+ * @param otz   the ordering-table entry
+ * @param ot    the ordering table
+ */
 /* MATCHING: draw takes a Sprite2D *, a type local to that unit; this
  * unit passes the same eight halfwords as an array. */
 void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot);
 s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay);
 
+/**
+ * @brief Draws the running HUD on the HUD's ordering table: the can count and
+ *        icon, the bonus level's running figure (blinking at level 1,
+ *        larger at 2, largest above), the seconds left (red under 11,
+ *        blinking under 5), the marker on the course progress bar, the
+ *        elapsed time and the lives.
+ *        With 11 seconds left it starts the hurry banner and its sound; each
+ *        frame it adds the player's speed to sBonusDist.
+ */
 void DrawHud(void) {
     s32 n;
     s32 k;
@@ -633,6 +723,18 @@ static __inline__ s32 iabs(s32 v) {
     return v >= 0 ? v : -v;
 }
 
+/**
+ * @brief Intersects the line through (x0, y0) and (x1, y1) with the circle of
+ *        radius 500 about the origin and writes the crossing nearer the first
+ *        point. A line steeper than 45 degrees is solved a quarter turn round
+ *        and turned back. A line that misses leaves `out` as it was. No code
+ *        calls it.
+ * @param out the crossing, x then y
+ * @param x0  the first point's x
+ * @param y0  the first point's y
+ * @param x1  the second point's x
+ * @param y1  the second point's y
+ */
 void LineCircleIntersect(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 swapped;
     s32 t;
@@ -694,10 +796,11 @@ void LineCircleIntersect(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
 }
 
 extern s32 sCamTurnStep; /**< how far gCameraYaw turns this frame toward the section's heading */
-extern s16 sCamOffsetX;
-extern s16 sCamOffsetZ;
-extern s16 sCamHeight; /**< the camera height, eased by 10 toward the section's */
+extern s16 sCamOffsetX;  /**< the view point's x offset from the player, on gCameraYaw */
+extern s16 sCamOffsetZ;  /**< its z offset */
+extern s16 sCamHeight;   /**< the camera height, eased by 10 toward the section's */
 
+/** The view, gView's words read as a GsRVIEW2. */
 #define sView (*(GsRVIEW2 *)gView)
 
 /**
@@ -728,6 +831,21 @@ static __inline__ void stepEdge(s32 *index, Edge *tbl, s16 x, s16 y) {
     }
 }
 
+/**
+ * @brief The course camera, once a frame: steps gSection along the course path
+ *        to (x, y), turns gCameraYaw toward that section's heading at a rate
+ *        that eases off as it closes, puts the view point 400 units behind the
+ *        player on that yaw and the section's camera height above `height`
+ *        (eased by 10 a frame, its climb and drop limited per frame), aims it
+ *        150 units above the midpoint of the floor and the player, and sets the
+ *        view.
+ * @param x      the player's x
+ * @param target the player's height, y
+ * @param y      the player's z, the course's other horizontal axis
+ * @param height the floor's height under the player
+ * @return the section's heading, which the stage takes as the course's yaw
+ *         (4096 to a turn)
+ */
 s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     Edge *tbl;
     Edge *e;
@@ -821,6 +939,12 @@ s16 UpdateCamera(s16 x, s16 target, s16 y, s16 height) {
     return angle;
 }
 
+/**
+ * @brief Draws the CPU-time meter down the screen's left edge: for each mark
+ *        MarkCpuTime took this frame, a bar in its colour from the previous
+ *        mark's scanline to its own; then a white tick, and clears the marks.
+ *        No code calls it.
+ */
 void DrawCpuMeter(void) {
     POLY_F4 *p;
     s32 i;
@@ -859,6 +983,11 @@ void DrawCpuMeter(void) {
     GsOUT_PACKET_P = (u8 *)p;
 }
 
+/**
+ * @brief Freezes the picture: copies the frame just drawn to VRAM at (640, 0)
+ *        and draws it back over the screen as two half-screen sprites, blended
+ *        half and half, on the HUD's ordering table.
+ */
 void DrawFrozenFrame(void) {
     RECT rect;
     SVECTOR pos;
@@ -881,6 +1010,12 @@ void DrawFrozenFrame(void) {
     DrawSprite(SPR_SCREEN_RIGHT, &pos, &color, 0, &gSubOt[gActiveBuff]);
 }
 
+/**
+ * @brief DrawFrozenFrame's opaque variant: draws the copied frame at a
+ *        brightness, in the 3D ordering table's last entry, behind the scene.
+ *        No code calls it.
+ * @param level the brightness, 0x80 for unchanged
+ */
 void DrawFrozenFrameFaded(u8 level) {
     RECT rect;
     SVECTOR pos;
@@ -904,6 +1039,12 @@ void DrawFrozenFrameFaded(u8 level) {
     DrawSprite(SPR_SCREEN_RIGHT, &pos, &color, 0xFFF, &gOt[gActiveBuff]);
 }
 
+/**
+ * @brief Draws the screen wipe while it runs: a full-screen quad on the HUD's
+ *        ordering table showing one of eight 128x96 images from VRAM, each for
+ *        3 frames, then ends the wipe after 24 frames. Called each frame by the
+ *        stage flow.
+ */
 void DrawScreenWipe(void) {
     POLY_FT4 *p;
     s32 n;
@@ -934,6 +1075,13 @@ void DrawScreenWipe(void) {
     }
 }
 
+/**
+ * @brief Draws a results-screen can count as "n/100", right to left from `pos`,
+ *        each glyph over its shadow: the 100, the slash, then the one to three
+ *        digits of `n`.
+ * @param pos the pen, right of the 100; moved left past the number
+ * @param n   the count
+ */
 void DrawResultNumber(SVECTOR *pos, s32 n) {
     CVECTOR color;
     CVECTOR shadow;
@@ -979,6 +1127,13 @@ void DrawResultNumber(SVECTOR *pos, s32 n) {
     }
 }
 
+/**
+ * @brief Draws a time on the results screen as minutes:seconds:hundredths in
+ *        the results digits, right to left from `pos`; the minutes take one or
+ *        two digits.
+ * @param pos    the pen, right of the last digit; moved left past the time
+ * @param frames the time, in frames (30 a second)
+ */
 void DrawResultTime(SVECTOR *pos, s32 frames) {
     s32 n;
     s32 m;
@@ -1028,15 +1183,26 @@ void DrawResultTime(SVECTOR *pos, s32 frames) {
 
 /* MATCHING: 8-byte arrays (rank % 3 indexes them); as scalars indexed
  * through & the stores in UpdateActResults schedule the address first. */
-extern s32 gActCans[2];
-extern s32 gActTimes[2];
+extern s32 gActCans[2];  /**< the cans of the world's acts 1 and 2, for the world results */
+extern s32 gActTimes[2]; /**< those acts' times, in frames */
 /* MATCHING: per-unit views; main.c reads the same pairs as Pair8. */
-extern s32 gBestCans[][2];
-extern s32 gBestTimes[][2];
-extern s32 gTargetTimes[][2];
+extern s32 gBestCans[][2];  /**< the can records, by world and act */
+extern s32 gBestTimes[][2]; /**< the time records, in frames, by world and act */
+extern s32 gTargetTimes[][2]; /**< target times by world and act; beating all sets gAllTargetsBeaten */
 
 void DrawResultNumber(SVECTOR *pos, s32 n);
 
+/**
+ * @brief One frame of the act results screen while it runs. It steps
+ *        gResultsStep: the lines slide in, the cans are counted up (a sound
+ *        every 10, a life every 25), all 100 give a flashing caption and one
+ *        more life, a can or time record is stored with its caption, and at the
+ *        end the target times and the 800-can total are checked for their
+ *        unlocks and the act's cans and time are kept for the world results.
+ *        Then it slides the lines on and draws the lives, the act label, the
+ *        banner and the cans, best cans, time and best time rows. Called each
+ *        frame by the stage flow.
+ */
 void UpdateActResults(void) {
     s32 i;
     s32 k;
@@ -1298,9 +1464,15 @@ void UpdateActResults(void) {
     DrawResultTime(&pos, gBestTimes[rank / 3][rank % 3]);
 }
 
-extern s32 gWorldCans;
-extern s32 gWorldTime;
+extern s32 gWorldCans; /**< the can count the world results show under the second act label */
+extern s32 gWorldTime; /**< the time, in frames, shown beside it */
 
+/**
+ * @brief One frame of the world results screen while it runs: slides its seven
+ *        lines in over 300 frames and then ends; draws the world's title and
+ *        number, act 1's label with its cans and time, and the second label
+ *        with gWorldCans and gWorldTime. Called by the chase overlays.
+ */
 void UpdateWorldResults(void) {
     s32 i;
     s32 k;
@@ -1399,6 +1571,12 @@ void UpdateWorldResults(void) {
     DrawResultTime(&pos, gWorldTime);
 }
 
+/**
+ * @brief Copies the pad's words, gPadTrig and gPad, into the game's,
+ *        gGamePadTrig and gGamePad, with the three face buttons (0x20, 0x40,
+ *        0x80) moved to the bits gButtonConfig's row of sButtonMaps gives them.
+ *        Called once a frame from main.
+ */
 void RemapButtons(void) {
     Bytes16 tbl;
     s32 k;
@@ -1423,6 +1601,11 @@ void RemapButtons(void) {
     gGamePad |= ((b & 0x80) >> 7) << (tbl.b[k][2] + 5);
 }
 
+/**
+ * @brief Maps the stage TMD and links its objects to the stage object table, as
+ *        linkStage does inline. No code calls it.
+ * @param tmd the file, at its leading word
+ */
 void LinkStageTmd(unsigned long *tmd) {
     u32 i;
     GsDOBJ2 *obj;
@@ -1443,6 +1626,11 @@ void LinkStageTmd(unsigned long *tmd) {
     }
 }
 
+/**
+ * @brief Maps the props TMD and links its objects to the props object table, as
+ *        linkProps does inline. No code calls it.
+ * @param tmd the file, at its leading word
+ */
 void LinkPropsTmd(unsigned long *tmd) {
     u32 i;
     GsDOBJ2 *obj;
@@ -1463,6 +1651,10 @@ void LinkPropsTmd(unsigned long *tmd) {
     }
 }
 
+/**
+ * @brief Loads a run of TIM images into VRAM, each one's CLUT and then its
+ *        pixels, until a word that is not a TIM's leading 0x10.
+ */
 void LoadTimList(unsigned long *p) {
     RECT rect;
     GsIMAGE tim;
@@ -1485,6 +1677,16 @@ void LoadTimList(unsigned long *p) {
     }
 }
 
+/**
+ * @brief Projects the first point onto the line through (x0, y0) and (x1, y1):
+ *        writes the step from (x0, y0) to the point of that line nearest the
+ *        origin (not the point itself). No code calls it.
+ * @param out the step, x then y
+ * @param x0  the first point's x
+ * @param y0  the first point's y
+ * @param x1  the second point's x
+ * @param y1  the second point's y
+ */
 void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     s32 dx;
     s32 dy;
@@ -1499,6 +1701,14 @@ void NearestPointToOrigin(s16 *out, s16 x0, s16 y0, s16 x1, s16 y1) {
     out[1] = t * dy / d;
 }
 
+/**
+ * @brief Takes a CPU-time mark for DrawCpuMeter: the scanline count now, from
+ *        VSync(1), and the colour its bar is drawn in; at most 16 a frame. No
+ *        code calls it.
+ * @param a the bar's red
+ * @param b its green
+ * @param c its blue
+ */
 void MarkCpuTime(s32 a, s32 b, s32 c) {
     if (gCpuMarkCount < 16) {
         gCpuMarkTimes[gCpuMarkCount] = VSync(1);
@@ -1509,8 +1719,11 @@ void MarkCpuTime(s32 a, s32 b, s32 c) {
     }
 }
 
-/** @brief MISS_TO_MENU's step: computes nine values from `level` and keeps
- *         none of them. */
+/**
+ * @brief MISS_TO_MENU's step: computes nine values from `level` and keeps
+ *        none of them.
+ * @param level the step's progress, clamped to 0x80
+ */
 void StepQuitEffect(s32 level) {
     s32 i;
     s32 v;
@@ -1540,16 +1753,27 @@ void StepQuitEffect(s32 level) {
     }
 }
 
+/**
+ * @brief Starts the screen wipe from its first image, with its sound.
+ */
 void StartScreenWipe(void) {
     gWipeFrame = 0;
     gWipeActive = 1;
     PlaySe(SE_WIPE);
 }
 
+/**
+ * @brief Whether the screen wipe still runs.
+ * @return nonzero while it runs
+ */
 s32 IsScreenWipeActive(void) {
     return gWipeActive;
 }
 
+/**
+ * @brief Starts the act results screen: its first step, the timer and the can
+ *        count at 0, and each line's slide offset from sActResultsSlide.
+ */
 void StartActResults(void) {
     s32 i;
     Bytes8 buf;
@@ -1565,6 +1789,10 @@ void StartActResults(void) {
     }
 }
 
+/**
+ * @brief Starts the world results screen: its first step, the timer at 0, and
+ *        each line's slide offset from sWorldResultsSlide.
+ */
 void StartWorldResults(void) {
     s32 i;
     Bytes8 buf;
@@ -1580,6 +1808,10 @@ void StartWorldResults(void) {
     }
 }
 
+/**
+ * @brief Whether a results screen still runs; the stages wait on it.
+ * @return nonzero while it runs
+ */
 s32 IsResultsActive(void) {
     return gResultsActive;
 }
@@ -1605,6 +1837,17 @@ static __inline__ void setLs(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
+/**
+ * @brief EFFECT_TWINKLE: a puff, SPR_BURST's sixth frame, as an additive
+ *        standing billboard whose width and height swell and shrink over 15
+ *        frames, after its delay.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepTwinkle(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -1623,6 +1866,17 @@ s32 StepTwinkle(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_GLINT: an additive bar on the screen itself, its corner at the
+ *        effect's x and y and its z the width, that spreads about its centre
+ *        and fades over 8 frames. It ignores the stage's offset and the delay.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepGlint(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 c[2];
     POLY_F4 *f;
@@ -1659,6 +1913,17 @@ s32 StepGlint(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return ++p->frame == 8;
 }
 
+/**
+ * @brief EFFECT_CAN_COLLECT: after its delay, takes the can's screen position
+ *        and flies it to the HUD's can icon over 8 frames, shrinking, turning
+ *        and fading; then adds the can to gCans and checks the can bonus.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepCanCollect(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
@@ -1690,6 +1955,16 @@ s32 StepCanCollect(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_FIVE_CANS: StepCanCollect for five cans at once, which circle
+ *        in toward their common path as they fly to the HUD; adds five cans.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepFiveCans(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     s16 q[8];
     CVECTOR color;
@@ -1728,6 +2003,13 @@ s32 StepFiveCans(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_HURRY: the hurry banner, after its delay, slides in from the
+ *        left for 16 frames, flashes from white to red for 16 and slides out to
+ *        the right in red for 16.
+ * @param p the effect
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepHurry(Effect *p) {
     SVECTOR pos;
     SColor color;
@@ -1762,6 +2044,17 @@ s32 StepHurry(Effect *p) {
 
 extern SVECTOR sPieceRots[]; /**< each piece object's rotation */
 
+/**
+ * @brief EFFECT_FLYING_PIECE: throws piece object 10 + param0 along x by param1
+ *        a frame, in a half-sine arc param2 high over 30 frames, spinning about
+ *        x by param3 degrees a frame and leaving dust every 5 frames.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepFlyingPiece(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     MATRIX m;
 
@@ -1792,6 +2085,17 @@ s32 StepFlyingPiece(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_SKID_DUST: an additive blob that grows and fades over 32 frames
+ *        while it slides toward the angle param0 at speed param1, which drops
+ *        by one a frame, and rises by param2 a frame.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepSkidDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -1818,27 +2122,36 @@ s32 StepSkidDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
 /** @brief One frame of an effect; returns nonzero when it ends. */
 typedef s32 (*EffectStep)(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
 
-/* The disc file table's 15th to 24th copies (disc_files.inc), which no
+/** The disc file table's 15th to 24th copies (disc_files.inc), which no
  * code here reads; they sit between player's gHitReactions and
- * gEffectSteps. */
+ * gEffectSteps. This one names the 15th copy's arrays. */
 #define DISC_FILE(x) sFiles15##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 16th copy. */
 #define DISC_FILE(x) sFiles16##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 17th copy. */
 #define DISC_FILE(x) sFiles17##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 18th copy. */
 #define DISC_FILE(x) sFiles18##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 19th copy. */
 #define DISC_FILE(x) sFiles19##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 20th copy. */
 #define DISC_FILE(x) sFiles20##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 21th copy. */
 #define DISC_FILE(x) sFiles21##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 22th copy. */
 #define DISC_FILE(x) sFiles22##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 23th copy. */
 #define DISC_FILE(x) sFiles23##x
 #include "disc_files.inc"
+/** Names the arrays of the table's 24th copy. */
 #define DISC_FILE(x) sFiles24##x
 #include "disc_files.inc"
 
@@ -1866,6 +2179,16 @@ EffectStep gEffectSteps[] = {
     StepSkidDust,          /* EFFECT_SKID_DUST */
 };
 
+/**
+ * @brief Runs one frame of every active effect, from the most recently spawned:
+ *        an effect more than about 495 units from the player along x goes into
+ *        the 3D ordering table, a nearer one into the HUD's. A finished effect
+ *        goes back to the free list.
+ * @param unused unused; the callers pass the HUD's ordering table
+ * @param x      the stage's x offset, the player's x negated
+ * @param y      the stage's y offset
+ * @param z      the stage's z offset
+ */
 void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
     u8 i;
     u8 prev;
@@ -1906,6 +2229,17 @@ void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
     } while (1);
 }
 
+/**
+ * @brief Starts an effect: moves a record from the free list to the head of the
+ *        active list and sets its kind, position and delay; the caller fills in
+ *        its params.
+ * @param kind  an EffectKind
+ * @param x     its x
+ * @param y     its y
+ * @param z     its z
+ * @param delay the frames before it is first drawn
+ * @return 0, or -1 when every record is in use
+ */
 s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay) {
     u8 prev;
     Effect *slot;
@@ -1927,6 +2261,13 @@ s32 SpawnEffect(s32 kind, s16 x, s16 y, s16 z, s16 delay) {
     return 0;
 }
 
+/**
+ * @brief Sets the local-screen matrix to a pure translation (x, y, z), as setLs
+ *        does inline. No code calls it.
+ * @param x translation x
+ * @param y translation y
+ * @param z translation z
+ */
 void SetLsTranslation(s16 x, s16 y, s16 z) {
     GsCOORDINATE2 coord;
     MATRIX ls;
@@ -1940,6 +2281,16 @@ void SetLsTranslation(s16 x, s16 y, s16 z) {
     GsSetLsMatrix(&ls);
 }
 
+/**
+ * @brief EFFECT_BURST: after its delay, plays the 8 SPR_BURST frames as an
+ *        additive billboard, 150 units across.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepBurst(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -1956,6 +2307,16 @@ s32 StepBurst(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_SMOKE: a puff that grows slowly, rises 4 a frame, drifts along
+ *        z and fades over 32 frames, after its delay.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepSmoke(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -1975,6 +2336,16 @@ s32 StepSmoke(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_FLASH: SPR_BURST's first frame, 50 units across, fading over 8
+ *        frames after its delay.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepFlash(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -1991,6 +2362,16 @@ s32 StepFlash(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_DUST: an additive blob that grows from 100 units and fades over
+ *        8 frames, after its delay.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -2008,6 +2389,16 @@ s32 StepDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_DARK_DUST: StepDust's blob, subtracted from the picture instead
+ *        of added.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepDarkDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;
@@ -2025,6 +2416,16 @@ s32 StepDarkDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     return 0;
 }
 
+/**
+ * @brief EFFECT_FLOAT: SPR_FLOAT, half-blended and 100 units across, moving
+ *        param0 a frame along y until it has moved param1, after its delay.
+ * @param p  the effect
+ * @param ot the ordering table UpdateEffects chose for it
+ * @param x  the stage's x offset, added to the effect's own
+ * @param y  the stage's y offset
+ * @param z  the stage's z offset
+ * @return nonzero on its last frame, else 0
+ */
 s32 StepFloat(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
     SVECTOR size;
     CVECTOR color;

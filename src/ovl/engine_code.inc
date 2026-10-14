@@ -1,8 +1,21 @@
-/* The stage engine's code that all eight engine overlays share word for
- * word, in sections. Each #include of this file emits the next section, so
- * an overlay includes it once per section, in order, around its own code.
- * Only matched C lives here: a function still in asm or NON_MATCHING in any
- * overlay stays in that overlay's unit. */
+/**
+ * @file engine_code.inc
+ * @brief The stage engine's shared code: stage sprites, traps, checkpoints
+ *        and the per-frame stage events.
+ *
+ * Identical in the eight overlays built on the engine: ovl03 (stage 1-1),
+ * ovl04 (1-2), ovl06 (2-1), ovl07 (2-2), ovl12 (4-1), ovl13 (4-2), ovl15
+ * (5-1) and ovl16 (5-2). Each inclusion emits the next section, so an
+ * overlay includes it once per section, in order, around its own code; a
+ * function not yet C in every overlay stays in that overlay's unit.
+ *
+ * Once a frame the engine steps the stage events (the miss sequence, the
+ * stage's own event, the goal), the traps and the stage sprites, each while
+ * its switch is on. A trap's type picks its dispatcher, its act what the
+ * dispatcher hands to a step routine. An overlay with no trap of a type
+ * keeps that type's step as an empty stub. Types 34 to 38 and 40 and two
+ * acts of type 255 call routines only one stage defines, picked by stage.
+ */
 
 #ifndef ENGINE_PART
 #define ENGINE_PART 1
@@ -10,6 +23,13 @@
 
 #if ENGINE_PART == 1
 
+/**
+ * @brief Steps the 100 stage sprites, once a frame after the traps: each
+ *        live sprite whose switch is on walks if it is a walker, then is
+ *        drawn and tested against the player if it can be hit, or drawn
+ *        (drifting away after a hit) if not. A hit plays the sprite's sound
+ *        and starts it drifting.
+ */
 void UpdateStageSprites(void) {
     u32 i;
     EngSprite *r;
@@ -37,6 +57,17 @@ void UpdateStageSprites(void) {
     }
 }
 
+/**
+ * @brief Steps a walking sprite: it waits until the player comes within
+ *        `range`, walks along its heading for `limit` frames, then stands;
+ *        when the player hits it, it takes its hit frame and drifts away.
+ * @param r     the sprite
+ * @param i     its index in gStageSprites, which picks its walk state
+ * @param arg   its heading in degrees, set when the walk starts
+ * @param speed how far it walks each frame
+ * @param range how near the player must come to set it walking
+ * @param limit how many frames it walks
+ */
 void StepSpriteWalk(EngSprite *r, u16 i, s16 arg, u16 speed, s32 range, s32 limit) {
     switch ((s8)sWalkState[i]) {
         case 0:
@@ -67,6 +98,14 @@ void StepSpriteWalk(EngSprite *r, u16 i, s16 arg, u16 speed, s32 range, s32 limi
     }
 }
 
+/**
+ * @brief Takes one step of a walking sprite: moves it `speed` units along
+ *        its heading and, every fifth frame, shows the next of its four
+ *        walk frames.
+ * @param r     the sprite
+ * @param i     its index in gStageSprites, which picks its walk state
+ * @param speed how far it moves
+ */
 void AdvanceSpriteWalk(EngSprite *r, u16 i, u16 speed) {
     if (gFrameCount % 5 == 0) {
         WALK_FRAME(i) = (WALK_FRAME(i) + 1) % 4;
@@ -76,6 +115,12 @@ void AdvanceSpriteWalk(EngSprite *r, u16 i, u16 speed) {
     r->z += rcos((WALK_ANGLE(i) << 12) / 360) * speed >> 12;
 }
 
+/**
+ * @brief Steps the traps, once a frame after the stage events: the 200
+ *        placed ones (gTraps), then the 200 spawned during the stage, each
+ *        that has a model and whose switch is on. The spawned ones are
+ *        cleared first on a start or restart.
+ */
 void UpdateStageTraps(void) {
     u32 i;
     StageTrap *t;
@@ -95,6 +140,14 @@ void UpdateStageTraps(void) {
     }
 }
 
+/**
+ * @brief Runs one frame of a trap by its type: each type (0 to 51, and 255
+ *        for the special objects) calls its dispatcher, which reads the
+ *        trap's act; pairs of types share one dispatcher with a direction
+ *        or mode, and types 34 to 38 and 40 all run the stage's own trap.
+ *        Any other type does nothing.
+ * @param t the trap
+ */
 void StepStageTrap(StageTrap *t) {
     switch (t->type) {
         case 255:
@@ -256,6 +309,16 @@ void StepStageTrap(StageTrap *t) {
 
 #elif ENGINE_PART == 2
 
+/**
+ * @brief Steps a checkpoint: it floats in place, bobbing and circling, and
+ *        when the player touches it, saves the state a miss resumes from
+ *        (its position at the player's ground height, the section, floor,
+ *        camera heading and height, and the cans), plays a chime and spins
+ *        up out of sight over 30 frames.
+ * @param t    the checkpoint
+ * @param id   its number, saved as the resume point's: 1 or 2
+ * @param near 1 to make it rise while the player is within 1000 units
+ */
 void StepCheckpoint(StageTrap *t, s32 id, s8 near) {
     Query30 q;
 
@@ -314,6 +377,14 @@ void StepCheckpoint(StageTrap *t, s32 id, s8 near) {
 
 #elif ENGINE_PART == 3
 
+/**
+ * @brief Type 0, the course's standing objects: the act picks how one
+ *        reacts to the player. Act 0 (and any act without a case) is only
+ *        drawn; the others are solid, are knocked, tipped, slid or spun
+ *        away, tumble from a height, shatter or burst into pieces, smoke,
+ *        spray, or flip, each by its own step routine.
+ * @param t the trap
+ */
 void RunTrapType00(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -439,8 +510,17 @@ void RunTrapType00(StageTrap *t) {
     }
 }
 
+/** @brief A type-10 trap's charge distance, by its act / 5. */
 const Speeds sChargeRanges = {{1500, 2000, 2500, 3000, 4000, 5000}};
 
+/**
+ * @brief Types 5 and 6: a trap that runs ahead, then turns a quarter turn.
+ *        Acts 1 to 20 set its speed (20 to 60, by the act's place in each
+ *        group of five) and how far it runs before turning (1000, 1500,
+ *        2000 or 2500, by the group); act 0 does nothing.
+ * @param t   the trap
+ * @param dir the side it turns to: 2 for type 5, 1 for type 6
+ */
 void RunTrapType05(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 1:
@@ -506,6 +586,16 @@ void RunTrapType05(StageTrap *t, s8 dir) {
     }
 }
 
+/**
+ * @brief Types 7 and 8: a trap that waits for the player, then runs ahead
+ *        and turns a quarter turn. Acts 1 to 15 wait on the floor until the
+ *        player comes within `range`, then become act + 100; acts 101 to
+ *        115 run at 10 to 50 (by the act's place in each group of five) for
+ *        500, 1000 or 2000 units (by the group) before turning.
+ * @param t     the trap
+ * @param range how near the player must come to start it
+ * @param dir   the side it turns to: 2 for type 7, 1 for type 8
+ */
 void RunTrapType07(StageTrap *t, s32 range, s8 dir) {
     switch (t->act) {
         case 101:
@@ -578,6 +668,14 @@ void RunTrapType07(StageTrap *t, s32 range, s8 dir) {
 
 #elif ENGINE_PART == 4
 
+/**
+ * @brief Type 255 act 100: a roller that rolls 10 units a frame against
+ *        its placed heading, spinning and bouncing up to 150 units, with a
+ *        thud each time it lands while in view; touching a player who can
+ *        be hit plays the hit sound.
+ * @param t   the roller
+ * @param arg unused
+ */
 void StepBouncingRoller(StageTrap *t, s32 arg) {
     s32 d;
 
@@ -606,6 +704,15 @@ void StepBouncingRoller(StageTrap *t, s32 arg) {
 
 #elif ENGINE_PART == 5
 
+/**
+ * @brief Type 0 act 5: an object that bursts when the player touches it.
+ *        Until then it is drawn and tested; on a touch it plays the burst
+ *        sound (when the player can be hit) and is drawn as eight pieces
+ *        that fly out quickly, arcing and spinning, for 30 frames, then is
+ *        gone. The pieces' model depends on the stage; stages without a
+ *        case leave it unset.
+ * @param t the trap
+ */
 void BurstTrapFast(StageTrap *t) {
     StageTrap c;
     u16 i;
@@ -661,6 +768,11 @@ void BurstTrapFast(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 0 act 25: the same burst as BurstTrapFast, eight fast pieces
+ *        for 30 frames, with another choice of piece model per stage.
+ * @param t the trap
+ */
 void BurstTrapFastAlt(StageTrap *t) {
     StageTrap c;
     u16 i;
@@ -719,6 +831,13 @@ void BurstTrapFastAlt(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 0 act 6: an object that bursts when the player touches it,
+ *        into eight pieces that spread slowly, flickering (drawn on two
+ *        frames of every three), for 40 frames. The pieces' model depends
+ *        on the stage.
+ * @param t the trap
+ */
 void BurstTrapSlow(StageTrap *t) {
     StageTrap c;
     u16 i;
@@ -783,6 +902,13 @@ void BurstTrapSlow(StageTrap *t) {
 
 #elif ENGINE_PART == 6
 
+/**
+ * @brief Type 0 acts 10 and 21: an object that bursts when the player
+ *        touches it, into eight flickering pieces that spread faster than
+ *        BurstTrapSlow's, for 40 frames. The pieces' model depends on the
+ *        stage.
+ * @param t the trap
+ */
 void BurstTrapMedium(StageTrap *t) {
     StageTrap c;
     u16 i;
@@ -846,6 +972,13 @@ void BurstTrapMedium(StageTrap *t) {
 
 #elif ENGINE_PART == 7
 
+/**
+ * @brief Type 0 acts 14 and 20: a panel that flips up under the player.
+ *        When the player touches it, it plays a sound, centres the player
+ *        on it, opens a quarter turn in 3 frames, shakes open for 20 frames,
+ *        closes in 8 and then waits 60 frames before it can flip again.
+ * @param t the panel
+ */
 void StepFlipPanel(StageTrap *t) {
     switch (t->state) {
         case 0:
@@ -908,6 +1041,12 @@ void StepFlipPanel(StageTrap *t) {
 
 #elif ENGINE_PART == 8
 
+/**
+ * @brief Type 0 act 19: an object that tips over and is pushed away along
+ *        the player's heading when the player touches it, flickering, for
+ *        25 frames; then it is gone.
+ * @param t the trap
+ */
 void TipTrapAway(StageTrap *t) {
     switch (t->state) {
         case 0:
@@ -949,6 +1088,12 @@ void TipTrapAway(StageTrap *t) {
 
 #elif ENGINE_PART == 9
 
+/**
+ * @brief Steps the stage's events, once a frame before the traps, while
+ *        the stage is playing or a miss is playing out: the miss sequence,
+ *        the stage's own event and the goal's events, the first two being
+ *        each overlay's own.
+ */
 void UpdateStageEvents(void) {
     if (gMissState <= 0) {
         StepMissSequence();
@@ -957,6 +1102,11 @@ void UpdateStageEvents(void) {
     }
 }
 
+/**
+ * @brief Plays the sound a stage sprite makes when the player hits it.
+ * @param se the sprite's sound: 0 none, 1 to 4 one of four sounds; any
+ *           other is silent
+ */
 void PlaySpriteHitSe(u8 se) {
     switch (se) {
         case 0:
@@ -976,6 +1126,11 @@ void PlaySpriteHitSe(u8 se) {
     }
 }
 
+/**
+ * @brief Clears the walking sprites' states on a start or restart, or the
+ *        first time it runs, and turns the goal lights back to their first
+ *        set.
+ */
 void ResetSpriteWalks(void) {
     if (gSkipLandRumble == 1 || sWalksReady == 0) {
         bzero(sWalkState, 100);
@@ -984,6 +1139,14 @@ void ResetSpriteWalks(void) {
     }
 }
 
+/**
+ * @brief Starts a sprite's walk: keeps its start position, sets its
+ *        heading, takes its current sprite as the walk's first frame and
+ *        starts on a random frame.
+ * @param r     the sprite
+ * @param i     its index in gStageSprites, which picks its walk state
+ * @param angle its heading in degrees
+ */
 void StartSpriteWalk(EngSprite *r, u16 i, s16 angle) {
     r->driftBaseY = 0;
     r->driftCount = r->x;
@@ -994,6 +1157,15 @@ void StartSpriteWalk(EngSprite *r, u16 i, s16 angle) {
     sWalkTimer[i] = 0;
 }
 
+/**
+ * @brief Type 255, the special objects, by act: 1 is drawn only while a
+ *        linked trap is in its early states, 5 gives off particles, 10 to
+ *        13 are the checkpoints (1 and 2; 12 and 13 rise as the player
+ *        nears), 100 a bouncing roller, 101 and 102 stage 4-1's own object,
+ *        103 and 104 the overlay's own, 105 a piece flung from the player
+ *        and 106 a miss's debris. Act 0 and any other do nothing.
+ * @param t the trap
+ */
 void RunTrapTypeFF(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1040,6 +1212,13 @@ void RunTrapTypeFF(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Types 1 and 3: a trap that runs straight ahead on the floor. Acts
+ *        1 to 10 run at act * 10 for up to 150 frames; acts 11 to 25 at
+ *        (act - 10) * 10 without stopping; act 0 (and any other) stands.
+ * @param t       the trap
+ * @param reverse 1 (type 3) to run backwards
+ */
 void RunTrapType01(StageTrap *t, s8 reverse) {
     s16 dir;
 
@@ -1084,6 +1263,13 @@ void RunTrapType01(StageTrap *t, s8 reverse) {
     }
 }
 
+/**
+ * @brief Type 2: a trap that runs along the course on the floor for up to
+ *        150 frames. Acts 1 to 10 run ahead at act * 10; acts 11 to 19 face
+ *        back along the course at (act - 10) * 10; act 0 (and any other)
+ *        stands.
+ * @param t the trap
+ */
 void RunTrapType02(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1121,6 +1307,12 @@ void RunTrapType02(StageTrap *t) {
 
 #elif ENGINE_PART == 10
 
+/**
+ * @brief Type 9: a trap that runs along the course at act * 10 + 60 for up
+ *        to 150 frames, sounding a warning on its first frame.
+ * @param t       the trap
+ * @param reverse 1 to take 60 off the speed instead
+ */
 void RunTrapType09(StageTrap *t, s8 reverse) {
     s16 dir;
 
@@ -1135,6 +1327,12 @@ void RunTrapType09(StageTrap *t, s8 reverse) {
     }
 }
 
+/**
+ * @brief Type 10: a trap that charges at act * 10 + 60, sounding a warning
+ *        on its first frame: it charges until it has gone its act's
+ *        distance (sChargeRanges), recoils, then stands kicking up dust.
+ * @param t the trap
+ */
 void RunTrapType0A(StageTrap *t) {
     Speeds sp = sChargeRanges;
 
@@ -1150,6 +1348,14 @@ void RunTrapType0A(StageTrap *t) {
 
 #elif ENGINE_PART == 11
 
+/**
+ * @brief Types 50 and 51: hands the act's speed to the overlay's type-50
+ *        step. With mode 0, acts 0 to 10 give act * 10 and acts 11 to 20
+ *        (act - 10) * 10 backwards in mode 2; with mode 1, acts 0 to 3 give
+ *        (act + 1) * 10.
+ * @param t    the trap
+ * @param mode 0 for type 50, 1 for type 51
+ */
 void RunTrapType32(StageTrap *t, s8 mode) {
     if (mode == 0) {
         switch (t->act) {
@@ -1196,6 +1402,12 @@ void RunTrapType32(StageTrap *t, s8 mode) {
 
 #elif ENGINE_PART == 12
 
+/**
+ * @brief Type 15: hands the overlay's type-15 step a speed of act * 10 for
+ *        acts 0 to 10, or 60 in mode 5 for act 11.
+ * @param t   the trap
+ * @param dir the step's mode for acts 0 to 10: 0
+ */
 void RunTrapType0F(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 0:
@@ -1217,6 +1429,13 @@ void RunTrapType0F(StageTrap *t, s8 dir) {
     }
 }
 
+/**
+ * @brief Type 16: hands the overlay's type-15 step a speed of act * 10 for
+ *        acts 0 to 10, or (act - 10) * 10 in the next mode for acts 11 to
+ *        20.
+ * @param t   the trap
+ * @param dir the step's mode for acts 0 to 10: 1
+ */
 void RunTrapType10(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 0:
@@ -1247,6 +1466,12 @@ void RunTrapType10(StageTrap *t, s8 dir) {
     }
 }
 
+/**
+ * @brief Type 17: hands the overlay's type-15 step a speed of
+ *        (act + 6) * 10 for acts 0 to 6.
+ * @param t   the trap
+ * @param dir the step's mode: 3
+ */
 void RunTrapType11(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 0:
@@ -1261,6 +1486,12 @@ void RunTrapType11(StageTrap *t, s8 dir) {
     }
 }
 
+/**
+ * @brief Type 18: a two-part trap that runs ahead, then skids to a stop
+ *        spinning and throwing out effects: acts 0 to 2 run at (act + 1) * 10 for 60
+ *        frames, acts 3 to 5 at (act - 2) * 10 for 90.
+ * @param t the trap
+ */
 void RunTrapType12(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1276,6 +1507,12 @@ void RunTrapType12(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 43: hands the overlay's type-15 step, in mode 4, a speed of
+ *        5 or 10 and a distance of 250 or 500 by act (0 to 3); act 4 does
+ *        nothing.
+ * @param t the trap
+ */
 void RunTrapType2B(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1295,26 +1532,60 @@ void RunTrapType2B(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 31: a trap that rolls ahead, bouncing, at its act's speed
+ *        from sType1FSpeeds. Act 5 reads the halfword after the table's
+ *        five speeds, which differs per overlay.
+ * @param t the trap
+ */
 void RunTrapType1F(StageTrap *t) {
     StepTrapType1F(t, sType1FSpeeds[t->act]);
 }
 
+/**
+ * @brief Types 13 and 14: hands the overlay's type-13 step a speed of
+ *        act * 10 + 70 and 45.
+ * @param t   the trap
+ * @param dir the side: 2 for type 13, 1 for type 14
+ */
 void RunTrapType0D(StageTrap *t, s8 dir) {
     StepTrapType0D(t, t->act * 10 + 70, 45, dir);
 }
 
+/**
+ * @brief Type 27: hands the overlay's type-27 step a speed of
+ *        act * 10 + 20 and a range of 5000.
+ * @param t the trap
+ */
 void RunTrapType1B(StageTrap *t) {
     StepTrapType1B(t, t->act * 10 + 20, 5000);
 }
 
+/**
+ * @brief Type 29: a three-part trap, a body and two swinging parts, that
+ *        walks ahead at act * 10 + 10.
+ * @param t the trap
+ */
 void RunTrapType1D(StageTrap *t) {
     StepTrapType1D(t, t->act * 10 + 10);
 }
 
+/**
+ * @brief Type 48: hands the overlay's type-48 step a speed of
+ *        act * 10 + 80 and a range of 7000.
+ * @param t the trap
+ */
 void RunTrapType30(StageTrap *t) {
     StepTrapType30(t, t->act * 10 + 80, 7000);
 }
 
+/**
+ * @brief Types 24 and 25: hands the overlay's type-24 step a speed of
+ *        act * 10 + 10 for acts below 10, or the same counted from 10 and
+ *        backwards for the rest, and a range of 1200.
+ * @param t   the trap
+ * @param dir 0 for type 24, 1 for type 25
+ */
 void RunTrapType18(StageTrap *t, s8 dir) {
     if (t->act < 10) {
         StepTrapType18(t, t->act * 10 + 10, 1200, dir);
@@ -1323,10 +1594,22 @@ void RunTrapType18(StageTrap *t, s8 dir) {
     }
 }
 
+/**
+ * @brief Type 26: hands the overlay's type-26 step a speed of
+ *        act * 10 + 10 and a range of 1200.
+ * @param t   the trap
+ * @param dir the step's mode: 0
+ */
 void RunTrapType1A(StageTrap *t, s8 dir) {
     StepTrapType1A(t, t->act * 10 + 10, 1200, dir);
 }
 
+/**
+ * @brief Type 28: a trap that falls over a quarter turn to one side when
+ *        the player comes within 1000, 2000 or 3000 units, then bounces;
+ *        even acts (0 to 4) fall one way, odd acts (1 to 5) the other.
+ * @param t the trap
+ */
 void RunTrapType1C(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1350,14 +1633,31 @@ void RunTrapType1C(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 30: hands the overlay's type-30 step a speed of
+ *        act * 5 + 10.
+ * @param t the trap
+ */
 void RunTrapType1E(StageTrap *t) {
     StepTrapType1E(t, t->act * 5 + 10);
 }
 
+/**
+ * @brief Types 32 and 33: hands the overlay's type-32 step a speed of 10,
+ *        20 or 30 (by the act modulo 3) and a range of 700.
+ * @param t   the trap
+ * @param dir 0 for type 32, 1 for type 33
+ */
 void RunTrapType20(StageTrap *t, s8 dir) {
     StepTrapType20(t, (u8)(t->act % 3) * 10 + 10, 700, dir);
 }
 
+/**
+ * @brief Type 42: a trap that backs away along the floor, at 5 or 10, until
+ *        it is 250 or 500 units from where it started (by act, 0 to 3), then
+ *        stands.
+ * @param t the trap
+ */
 void RunTrapType2A(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1375,6 +1675,12 @@ void RunTrapType2A(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 41: hands the overlay's type-41 step 2 for acts 0 to 2 and 1
+ *        for acts 3 to 5, with the act modulo 3.
+ * @param t      the trap
+ * @param unused unused
+ */
 void RunTrapType29(StageTrap *t, s8 unused) {
     switch (t->act) {
         case 0:
@@ -1390,6 +1696,12 @@ void RunTrapType29(StageTrap *t, s8 unused) {
     }
 }
 
+/**
+ * @brief Type 39: a trap that drops to the floor when the player comes
+ *        within act * 1000 + 1000 units (acts 0 to 3), bounces and tips
+ *        over.
+ * @param t the trap
+ */
 void RunTrapType27(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1401,6 +1713,10 @@ void RunTrapType27(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 49: hands the overlay's type-49 step its act, 0 or 1.
+ * @param t the trap
+ */
 void RunTrapType31(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1412,6 +1728,12 @@ void RunTrapType31(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 47: a trap that flies straight ahead at its own height at
+ *        act * 10 + 30, with a sound as it starts and as the player first
+ *        comes near.
+ * @param t the trap
+ */
 void RunTrapType2F(StageTrap *t) {
     RunTrapAheadAtHeight(t, t->act * 10 + 30);
 }
@@ -1421,6 +1743,11 @@ void RunTrapType2F(StageTrap *t) {
 
 #elif ENGINE_PART == 13
 
+/**
+ * @brief Type 0 act 1: a solid object that never moves; it is drawn and
+ *        tested, and touching a player who can be hit plays the hit sound.
+ * @param t the trap
+ */
 void StepSolidTrap(StageTrap *t) {
     if (gSection - UpdatePathSegment(t) < 2) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
@@ -1435,6 +1762,15 @@ void StepSolidTrap(StageTrap *t) {
 
 #elif ENGINE_PART == 14
 
+/**
+ * @brief Keeps a waiting trap standing on the floor until the player comes
+ *        within `range`, then turns it into `type` and `act` from its first
+ *        state.
+ * @param t     the trap
+ * @param range how near the player must come
+ * @param type  the type it becomes
+ * @param act   the act it becomes
+ */
 void ArmTrapByRange(StageTrap *t, s32 range, u8 type, u8 act) {
     if (t->state == 0) {
         RunTrapAhead(t, 0);
@@ -1452,6 +1788,12 @@ void ArmTrapByRange(StageTrap *t, s32 range, u8 type, u8 act) {
 
 #elif ENGINE_PART == 15
 
+/**
+ * @brief Type 19: a trap that turns an eighth of a turn to one side when
+ *        the player comes within 500, 1000, 2000 or 3000 units (by act, 0
+ *        to 7); even acts turn one way, odd acts the other.
+ * @param t the trap
+ */
 void RunTrapType13(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1481,6 +1823,12 @@ void RunTrapType13(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Type 20: a two-part gate. Acts 0 to 5 swing it half a turn open,
+ *        to one side or the other, when the player comes within 1000, 2000
+ *        or 3000 units; act 6 swings it to and fro for ever, act 7 once.
+ * @param t the trap
+ */
 void RunTrapType14(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1510,6 +1858,14 @@ void RunTrapType14(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Types 21 and 22: a trap that falls when the player comes within
+ *        1000, 2000 or 3000 units (by act, 0 to 8): tilting to one side or
+ *        the other as it drops, or dropping straight to the floor.
+ * @param t   the trap
+ * @param arg how fast it tilts: 0 (type 21) over 12 frames, 1 (type 22)
+ *            over 10
+ */
 void RunTrapType15(StageTrap *t, u8 arg) {
     switch (t->act) {
         case 0:
@@ -1542,6 +1898,12 @@ void RunTrapType15(StageTrap *t, u8 arg) {
     }
 }
 
+/**
+ * @brief Type 23: a trap that moves 150 units up or down (even acts one
+ *        way, odd acts the other) when the player comes within 1000, 2000
+ *        or 3000 units (by act, 0 to 7).
+ * @param t the trap
+ */
 void RunTrapType17(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1576,6 +1938,13 @@ void RunTrapType17(StageTrap *t) {
 
 #elif ENGINE_PART == 16
 
+/**
+ * @brief Types 34 to 38 and 40: the stage's own trap, picked by the stage
+ *        being played. Act 0 runs stage 1-1's or 1-2's; act 1 (and act 0
+ *        in any other stage) runs stage 1-1's, 2-1's, 4-1's or 5-1's
+ *        second one. In the stages it does not list it does nothing.
+ * @param t the trap
+ */
 void RunTrapType22(StageTrap *t) {
     switch (t->act) {
         case 0:
@@ -1606,6 +1975,13 @@ void RunTrapType22(StageTrap *t) {
     }
 }
 
+/**
+ * @brief Types 44 and 45: a trap that changes model, with a sound, when
+ *        the player comes within 500, 1000 or 1500 units (by act, 0 to 2).
+ * @param t   the trap
+ * @param arg 0 (type 44) to take the next model, which is then solid; 1
+ *            (type 45) the previous, which is only drawn
+ */
 void RunTrapType2C(StageTrap *t, u8 arg) {
     switch (t->act) {
         case 0:
@@ -1620,6 +1996,11 @@ void RunTrapType2C(StageTrap *t, u8 arg) {
     }
 }
 
+/**
+ * @brief Type 46: a trap that hops in place, by its act swaying side to
+ *        side or moving in one of four directions.
+ * @param t the trap
+ */
 void RunTrapType2E(StageTrap *t) {
     StepHoppingTrap(t, t->act);
 }
@@ -1629,6 +2010,11 @@ void RunTrapType2E(StageTrap *t) {
 
 #elif ENGINE_PART == 17
 
+/**
+ * @brief Type 0 act 17: a stack of two that bursts as BurstTrapSlow does,
+ *        a second burst 150 units above the first while it lasts.
+ * @param t the trap
+ */
 void BurstTrapStacked(StageTrap *t) {
     StageTrap copy;
 
@@ -1645,6 +2031,8 @@ void BurstTrapStacked(StageTrap *t) {
 
 #elif ENGINE_PART == 18
 
+/** @brief Steps the goal's events: the overlay's goal hook and goal
+ *         sequence, then the goal's flashing lights. */
 void UpdateGoalEvents(void) {
     UpdateGoalEventHook();
     StepGoalSequence();

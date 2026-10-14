@@ -1,3 +1,22 @@
+/**
+ * @file sound.c
+ * @brief The game's sound and its movie player: the VAB banks, the BGM and
+ *        sound-effect sequences, their fades, reverb, XA audio and the
+ *        streamed STR movies.
+ *
+ * LoadSoundData runs at boot, a step a frame: it reads the sound pack (the
+ * SEQ files, opened in place) and the first VAB, which stays open as
+ * gBgmVab, then the first swappable VAB, opened as gSeVab; LoadVabBank later
+ * swaps another numbered bank into that second slot. Sequence slot 0 plays
+ * the background music (PlayBgm), slots 2 to 9 the sound effects (PlaySe),
+ * and UpdateSoundFade, run every frame, fades the music, the effects or the
+ * CD audio out over 50 frames. The CD mix follows the stereo setting
+ * (SetCdVolume, PlayXa). PlayMovie streams an STR file from the disc and
+ * decodes it a frame at a time: the frame's data is VLC-decoded into one of
+ * two buffers while the MDEC turns the other into 24-bit slices that its
+ * callback loads into one of two VRAM frame areas, the other being shown.
+ */
+
 #include "common.h"
 #include "ram.h"
 #include "sbss.h"
@@ -24,32 +43,35 @@ typedef struct {
 } DECENV;
 
 /* MATCHING: every access reloads after the store, as a volatile does. */
-extern volatile s32 gMovieTimeout;
+extern volatile s32 gMovieTimeout; /**< the movie waits' countdown: each gives up when it reaches 0 */
 
 u_long *GetNextMovieFrame(DECENV *dec);
 s32 LoadVab(s16 bank);
 
-extern s16 gSeqIds[];
+extern s16 gSeqIds[]; /**< the open SEQ ids: 0 the BGM, 2 to 9 the sound-effect slots; 1 never opens */
 extern char sSeqAttrTable[]; /**< SsSetTableSize's SEQ attribute table */
-extern s32 gMovieEnded;
-extern u16 gSeSlot;
-extern s16 gBgmVab;
-extern u8 *sVabBody; /**< the sound VAB body address: worked out for bank 0, reused for bank 1 */
-extern s16 gBgmVolume;
-extern s16 gSeVab;
-extern s16 D_80095AEA;
-extern u16 gVabBank;
-extern s16 gMovieOffsetX;
-extern s16 gMovieDisplayHeight;
+extern s32 gMovieEnded;      /**< set once the movie's last frame has been read */
+extern u16 gSeSlot;          /**< the sound-effect slot, 2 to 9, PlaySe tries first */
+extern s16 gBgmVab;          /**< VAB id of the first bank, open for good; gSeVab follows it */
+extern u8 *sVabBody;   /**< the sound VAB body address: worked out for bank 0, reused for bank 1 */
+extern s16 gBgmVolume; /**< the BGM sequence's volume, as the fade sets it */
+extern s16 gSeVab;     /**< VAB id of the swappable bank, the one gVabBank names */
+extern s16 D_80095AEA; /**< cleared by InitSeSeqs; read by no code */
+extern u16 gVabBank;   /**< the numbered VAB bank open as gSeVab, 1 on */
+extern s16 gMovieOffsetX;       /**< where the picture starts across a frame area, in VRAM units */
+extern s16 gMovieDisplayHeight; /**< the movie picture's height in lines, centred on 240 */
 
 /* The disc file table's 26th and 27th copies (disc_files.inc), the
  * executable's last: LoadSoundData and LoadVabBank read the SEQ pack and
  * the VAB banks from the second, at sFiles27BootLoc[4] on. */
-#define DISC_FILE(x) sFiles26##x
+#define DISC_FILE(x) sFiles26##x /**< names the 26th copy's array x */
 #include "disc_files.inc"
-#define DISC_FILE(x) sFiles27##x
+#define DISC_FILE(x) sFiles27##x /**< names the 27th copy's array x */
 #include "disc_files.inc"
 
+/** @brief Stage 0's overlay hook for a collected can group; the overlay
+ *         defines it empty.
+ *  @param index the can group */
 void func_800FA610(s16 index);
 void StartMovieRead(CdlLOC *loc);
 
@@ -73,14 +95,20 @@ void InitMovieStream(CdlLOC *loc, void (*callback)());
 s32 DecodeNextMovieFrame(DECENV *dec);
 void WaitMovieFrameDecoded(DECENV *dec, s32 mode);
 
-extern CdlLOC gMovieLoc;
-extern s32 gMovieLastFrame;
-extern RECT gMovieClearRect;
-extern DECENV gMovieDec;
-extern CdlFILE gMovieFile;
-extern DRAWENV gMovieDrawEnv;
-extern DISPENV gMovieDispEnv;
+extern CdlLOC gMovieLoc;      /**< where the movie being played starts on the disc */
+extern s32 gMovieLastFrame;   /**< the frame number the movie ends at */
+extern RECT gMovieClearRect;  /**< the VRAM area a movie clears to black: both frame areas */
+extern DECENV gMovieDec;      /**< the movie decoder */
+extern CdlFILE gMovieFile;    /**< the movie file CdSearchFile found */
+extern DRAWENV gMovieDrawEnv; /**< the drawing environment while a movie plays */
+extern DISPENV gMovieDispEnv; /**< the display environment while a movie plays, 24-bit */
 
+/** @brief Plays the movie at gMovieLoc, or the file @p name, showing each
+ *         frame in 24-bit colour until the last frame or START; then clears
+ *         the screen, stops the stream and goes back to 16-bit display.
+ *  @param name      the movie file's name; empty to play from gMovieLoc
+ *  @param skippable 1 when START may end the movie early
+ *  @return 1 when START skipped the movie, 0 when it played to the end */
 s32 PlayMovieFile(char *name, s16 skippable) {
     CdlATV atv;
     s16 one;
@@ -172,6 +200,9 @@ s32 PlayMovieFile(char *name, s16 skippable) {
 
 extern s32 StCdIntrFlag; /**< libcd streaming's flag: set when StCdInterrupt is owed */
 
+/** @brief The MDEC's output callback: loads the slice just decoded into
+ *         VRAM and starts the next, or, once the frame area is full, marks
+ *         the frame done and moves the slice to the other frame area. */
 void OnMovieSliceDecoded(void) {
     if (StCdIntrFlag) {
         StCdInterrupt();
@@ -189,11 +220,11 @@ void OnMovieSliceDecoded(void) {
     }
 }
 
-extern u_long gMovieFrameNo;
-extern StHEADER *gMovieHeader;
-extern u_long *gMovieAddr;
-extern s32 gMovieWidth;
-extern s32 gMovieHeight;
+extern u_long gMovieFrameNo;   /**< the number of the movie frame last read; read by no code */
+extern StHEADER *gMovieHeader; /**< the sector header of the movie frame last read */
+extern u_long *gMovieAddr;     /**< the data of the movie frame last read */
+extern s32 gMovieWidth;        /**< the movie frame's width in pixels */
+extern s32 gMovieHeight;       /**< the movie frame's height in lines */
 
 /* sound's small data, in address order. */
 s16 D_800956C0 SDATA = 320; /**< read by no code */
@@ -202,6 +233,11 @@ s32 gMovieWidth SDATA = 0;
 s32 gMovieHeight SDATA = 0;
 s32 D_800956CC SDATA = 0; /**< read by no code */
 
+/** @brief Waits for the next movie frame in the stream's ring buffer, notes
+ *         when it is the last, and sizes the decoder's frame areas to it,
+ *         clearing VRAM when the size changes.
+ *  @param dec the movie decoder
+ *  @return the frame's data, or NULL when none arrived in time */
 u_long *GetNextMovieFrame(DECENV *dec) {
     gMovieTimeout = 0x800000;
     while (StGetNext(&gMovieAddr, (u_long **)&gMovieHeader)) {
@@ -252,6 +288,14 @@ void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable
     PlayMovieFile(name, skippable);
 }
 
+/** @brief Sets up the movie decoder: its buffers, its two 480 by 240 frame
+ *         areas and its first slice, which starts gMovieOffsetX across and
+ *         centres gMovieDisplayHeight lines.
+ *  @param dec the movie decoder
+ *  @param x0  the first frame area's left edge in VRAM
+ *  @param y0  the first frame area's top edge
+ *  @param x1  the second frame area's left edge
+ *  @param y1  the second frame area's top edge */
 void InitMovieDecoder(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
     dec->vlcbuf[0] = (u_long *)RAM_MOVIE_VLC0;
     dec->vlcbuf[1] = (u_long *)RAM_MOVIE_VLC1;
@@ -265,6 +309,10 @@ void InitMovieDecoder(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
             gMovieDisplayHeight);
 }
 
+/** @brief Resets the MDEC, sets up a 32-sector ring buffer for a 24-bit
+ *         stream of every frame, and starts reading the movie.
+ *  @param loc      where the movie file starts on the disc
+ *  @param callback the MDEC's output callback, run after each slice */
 void InitMovieStream(CdlLOC *loc, void (*callback)()) {
     DecDCTReset(0);
     gMovieEnded = 0;
@@ -274,6 +322,10 @@ void InitMovieStream(CdlLOC *loc, void (*callback)()) {
     StartMovieRead(loc);
 }
 
+/** @brief Takes the next movie frame from the stream, VLC-decodes it into
+ *         the decoder's other VLC buffer and frees its ring sectors.
+ *  @param dec the movie decoder
+ *  @return 0, or -1 when no frame arrived in time */
 s32 DecodeNextMovieFrame(DECENV *dec) {
     u_long *next;
 
@@ -289,6 +341,10 @@ s32 DecodeNextMovieFrame(DECENV *dec) {
     return 0;
 }
 
+/** @brief Waits until the MDEC has finished the frame being decoded; on a
+ *         time-out prints a message and treats the frame as done.
+ *  @param dec  the movie decoder
+ *  @param mode unused */
 void WaitMovieFrameDecoded(DECENV *dec, s32 mode) {
     gMovieTimeout = 0x800000;
     while (dec->isdone == 0) {
@@ -303,6 +359,9 @@ void WaitMovieFrameDecoded(DECENV *dec, s32 mode) {
     dec->isdone = 0;
 }
 
+/** @brief Seeks the drive to a movie and starts the double-speed streamed
+ *         read, retrying each command until the drive takes it.
+ *  @param loc where the movie file starts on the disc */
 void StartMovieRead(CdlLOC *loc) {
     do {
         while (CdControl(CdlSetloc, (u_char *)loc, 0) == 0) {
@@ -310,6 +369,13 @@ void StartMovieRead(CdlLOC *loc) {
     } while (CdRead2(CdlModeStream | CdlModeSpeed | CdlModeRT) == 0);
 }
 
+/** @brief Opens the VAB file just read to the work buffer in one of the two
+ *         VAB slots and sends its waveforms to the sound RAM.
+ *
+ *  Bank 0's header is copied to just past the sound pack's last SEQ;
+ *  bank 1's goes straight after bank 0's, at sVabBody.
+ *  @param bank 0 for gBgmVab's slot, 1 for gSeVab's
+ *  @return 0, or -1 when the VAB header did not open (gVabError is set) */
 s32 LoadVab(s16 bank) {
     u32 *vh = (u32 *)RAM_WORK_A;
     u32 *rec;
@@ -347,6 +413,10 @@ s32 LoadVab(s16 bank) {
     return -1;
 }
 
+/** @brief Sets up the CD audio input to the sound mix and the eight
+ *         sound-effect slots: opens the pack's first SEQ in each, on gSeVab,
+ *         and silences every slot.
+ *  @return 0 */
 s32 InitSeSeqs(void) {
     s16 i;
     u32 *hdr;
@@ -365,6 +435,10 @@ s32 InitSeSeqs(void) {
     return 0;
 }
 
+/** @brief Stops the music and starts SEQ @p song of the sound pack in its
+ *         place, looping, on gBgmVab, at volume 100, ending any fade.
+ *  @param song the SEQ's index in the sound pack
+ *  @return -1 when a sound bank failed to load; no value otherwise */
 s32 PlayBgm(u16 song) {
     u32 *hdr;
 
@@ -384,10 +458,17 @@ s32 PlayBgm(u16 song) {
 
 /* MATCHING: model defines it with s16 arguments and result; this unit
  * passes and reads them as s32. */
+/** @brief Model's linear interpolation: the value @p step of @p steps of
+ *         the way from @p from to @p to.
+ *  @param from  the value at step 0
+ *  @param to    the value at step @p steps
+ *  @param step  how far along
+ *  @param steps the number of steps
+ *  @return the interpolated value */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 
-extern s16 gSoundFadeTimer;
-extern s16 gSeVolume;
+extern s16 gSoundFadeTimer; /**< the frames a fade has left, from 50 */
+extern s16 gSeVolume;       /**< the sound effects' volume, as the fade sets it */
 
 void UpdateSoundFade(void) {
     s16 i;
@@ -449,13 +530,18 @@ void UpdateSoundFade(void) {
     }
 }
 
-/** Which open VAB plays each sound from id 70 on: 0 gBgmVab's, 1 the next
+/** @brief Which open VAB plays each sound from id 70 on: 0 gBgmVab's, 1 the next
  *  one (gSeVab's). Ids below 70 all play from gBgmVab's. */
 u8 sSeVabBanks[64] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
     1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
 };
 
+/** @brief Plays SEQ @p id of the sound pack once as a sound effect, in the
+ *         first effect slot not playing (the last slot when all are), on
+ *         the VAB sSeVabBanks picks, at full volume. @p id is the SEQ's
+ *         index in the sound pack.
+ *  @return -1 when a sound bank failed to load; no value otherwise */
 s32 PlaySe(s32 id) {
     s16 *seq;
     s16 i;
@@ -490,6 +576,10 @@ s32 PlaySe(s32 id) {
     }
 }
 
+/** @brief Loads the game's sound at boot, one gSubStep a call: reads the
+ *         sound pack and the first VAB, opens it, reads and opens VAB bank 1
+ *         with the effect slots, then turns on the Studio B reverb.
+ *  @return 1 once everything is loaded, else 0 */
 s32 LoadSoundData(void) {
     s32 ret = 0;
 
@@ -548,6 +638,8 @@ void InitSound(void) {
     SsSetTickMode(1);
 }
 
+/** @brief Sets the master volume and the Studio B reverb as LoadSoundData's
+ *         last step does, silencing both for a frame first; no code calls it. */
 void InitReverb(void) {
     SsSetMVol(0, 0);
     SsSetRVol(0, 0);
@@ -580,11 +672,13 @@ void SetCdVolume(s32 vol) {
     CdMix(&atv);
 }
 
+/** @brief Stops the music and closes its SEQ. */
 void StopBgm(void) {
     SsSeqStop(gSeqIds[0]);
     SsSeqClose(gSeqIds[0]);
 }
 
+/** @brief Stops every sound-effect slot whose sequence is still playing. */
 void StopFinishedSe(void) {
     s16 *seq;
 
@@ -598,6 +692,11 @@ void StopFinishedSe(void) {
     }
 }
 
+/** @brief Swaps VAB bank @p bank in as gSeVab, one gVabLoadStep a call:
+ *         reads it from the disc to the work buffer, then closes the old
+ *         bank and opens it.
+ *  @param bank the numbered bank, 1 on; 0 asks for nothing
+ *  @return 1 once the bank is in place (at once when it already is), else 0 */
 s32 LoadVabBank(u16 bank) {
     s32 ret = 0;
 

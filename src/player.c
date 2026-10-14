@@ -1,3 +1,24 @@
+/**
+ * @file player.c
+ * @brief The player: Pepsiman's frame step (running, steering, jumping,
+ *        falling and landing), his reactions to hits and the actions they
+ *        start, the rides and the held object, his shadow, the stage's
+ *        lights and fog, and the play state's clock, miss and retry.
+ *
+ * UpdatePlayer runs once a stage frame. It checks for a fall off the
+ * course, applies gravity, hangs the ride and the held object from the
+ * player's model, steps the speed, jump and slide of whatever the player
+ * rides (on foot and the roller and cover here, the boards in their
+ * stages' overlays), moves the player along the course heading and steers
+ * him within 30 degrees of it. ReactToHits turns the hit records into a
+ * PlayerAction from gHitReactions, and UpdatePlayerAction plays the action
+ * out: its motions, the knockdown and throw arcs that LandPlayer ends, and
+ * getting up again while the bonus level allows it, or a miss.
+ * UpdatePlayState runs the clock, the HUD and the miss and retry sequence.
+ * Around these sit the drawing helpers (the shadow blob, the ride models,
+ * the flat lights and fog), the dust puffs, and a debug grid test screen.
+ */
+
 #include "common.h"
 #include "sbss.h"
 #include "libetc.h"
@@ -32,7 +53,7 @@ typedef struct {
 extern s32 sGridAngle;          /**< UpdateGridTest's angle, moved by L1 and R1 */
 extern GridPoint sGridPoints[]; /**< UpdateGridTest's 21 x 16 grid */
 extern DVECTOR sGridScreen[];   /**< each grid point projected to the screen */
-extern s32 D_800DED50[];
+extern s32 D_800DED50[]; /**< the depth word of grid point 158 (row 7, column 11, by the screen centre), inside sGridPoints */
 extern s32 gGridLastValue; /**< the grid test's last table value */
 extern s32 gGridLastX;     /**< the grid test's first point on screen, x */
 extern s32 gGridLastY;     /**< the grid test's first point on screen, y */
@@ -45,6 +66,7 @@ typedef struct {
     GsF_LIGHT l[3]; /**< one per light index */
 } LightTable;
 
+/** @brief The scene's three flat lights: gFlatLights seen as a LightTable. */
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)gFlatLights)
 
@@ -80,12 +102,18 @@ typedef struct {
 
 extern SlotRec gModeObjects[]; /**< the mode objects' records, one per gModeObjectModels slot */
 /* MATCHING: main declares this as its ModelSlot; this unit's view names the word at 0x58. */
-extern ObjRec gModeObjectModels[];
+extern ObjRec gModeObjectModels[]; /**< the mode objects' model slots: the rides and the held object */
+/**
+ * @brief Places and sorts a model for a record (defined in object): here a
+ *        ride or the held object, at the player.
+ * @param rec the model slot to draw
+ * @param r   the record giving its position and angles
+ */
 /* MATCHING: object types these ObjectModel and Trap; this unit's records are views of them. */
 void DrawObjectModel(ObjectModel *rec, Trap *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
-extern u8 D_800D3358[];
+extern u8 D_800D3358[]; /**< [0] is 1 once a lost ride is placed as a stage object; its flung piece sets -1 when gone */
 
 void ApplySteer(u8 mode, u16 a, s16 b);
 void SteerPlayer(void);
@@ -105,7 +133,7 @@ void PolarOffset(s32 deg, s32 radius, VECTOR *out);
 void AttachHeldItem(void);
 s32 TrySlide(void);
 /* MATCHING: editor stores it as u8; this unit's tests load it lb. */
-extern s8 gToolExited;
+extern s8 gToolExited; /**< 1 after leaving the hit tool: no fall check, and hits are ignored */
 
 /** @brief How the player reacts to one kind of hit. b[0] to b[4] are the
  *         PlayerAction it starts while running, jumping, sliding, dashing
@@ -120,9 +148,9 @@ typedef struct {
 /* The disc file table's thirteenth and fourteenth copies (disc_files.inc),
  * which no code here reads; they sit between draw_tmd's copy and
  * gHitReactions. */
-#define DISC_FILE(x) sFiles13##x
+#define DISC_FILE(x) sFiles13##x /**< names the 13th copy's array x */
 #include "disc_files.inc"
-#define DISC_FILE(x) sFiles14##x
+#define DISC_FILE(x) sFiles14##x /**< names the 14th copy's array x */
 #include "disc_files.inc"
 
 /** The HitReaction of each kind of hit, by PlayerHit.kind; 0 starts no
@@ -156,20 +184,47 @@ HitReaction gHitReactions[] = {
 };
 
 /* Overlay entry points: the stage modes' own code. */
+/** @brief The board's speed step (STAGE_1_2's overlay): rises toward 80
+ *         on its own, faster with up held; down held brakes it to 40. */
 void func_800F8A58(void);
+/** @brief The board's jump (STAGE_1_2's overlay): the on-foot jump with
+ *         stronger power and the ride's jump motions. */
 void func_800F8B60(void);
+/** @brief The second board's speed step (STAGE_5_2's overlay): builds up
+ *         to 100 and holds it there. */
 void func_800F6FA0(void);
+/** @brief The second board's jump (STAGE_5_2's overlay). */
 void func_800F70A8(void);
+/** @brief The board's steering (STAGE_1_2's overlay): steers, leans and
+ *         drifts the player sideways. */
 void func_800F8D64(void);
+/** @brief The second board's steering (STAGE_5_2's overlay). */
 void func_800F729C(void);
 void RecentreSteer(void);
 void SetStageFog(void);
 void UpdateBrake(void);
 
+/**
+ * @brief Starts a rumble pattern (defined in main): its step's wait,
+ *        duration, motor strengths, repeats and next step.
+ * @param table the pattern table, gRumblePatterns
+ * @param index the step to start, a RUMBLE_ value
+ */
+/* MATCHING: a per-unit view; main takes a RumbleStep * and a u16. */
+void StartRumble(u16 *table, s32 index);
+/**
+ * @brief Starts an effect (defined in stage): takes a free effect slot and
+ *        sets its kind, position and start delay.
+ * @param kind  the effect, an EFFECT_ value
+ * @param x     where it is, x
+ * @param y     where it is, y
+ * @param z     where it is, z
+ * @param delay the frames before it starts
+ * @return 0, or -1 when no effect slot is free
+ */
 /* MATCHING: stage defines x..n as s16; this unit's calls pass them
  * unextended, so its prototype takes s32. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
-void StartRumble(u16 *table, s32 index);
 extern s32 gGamePad;
 extern u16 sViewSpeed;     /**< follows speed by 1 a frame */
 extern s16 gSteerYawHalf;  /**< moved by half of gSteerYaw's steering steps */
@@ -186,20 +241,31 @@ typedef struct {
 extern s32 sSavedPos[]; /**< the player's position, saved and held through the miss sequence */
 /* MATCHING: a per-unit view; object declares it the same way, editor
  * as words. */
-extern SwitchBox gSwitches[];
-extern u8 D_800959B0;
+extern SwitchBox gSwitches[]; /**< the stage's 200 switches; a time-up clears them, and 196 or 198 on holds off its action */
+extern u8 D_800959B0; /**< cleared when time runs out; no code reads it */
 extern s16 gMissTimer;
+/** @brief Draws the running HUD: the cans, the bonus level's figure, the
+ *         time left, the course progress and the lives (defined in stage). */
 void DrawHud(void);
+/** @brief Restarts the stage after a miss, with the player back at the
+ *         course start and a full bonus level (defined in stage_flow). */
 /* MATCHING: stage_flow defines this with a u8 parameter; this unit's call passes none. */
 void RestartStage();
 void StepQuitEffect(s32 level);
 /* MATCHING: stage_flow stores this as u8; this unit's test loads it lb. */
 extern s8 gSkipLandRumble; /**< 1 after a start or restart: the next landing does not rumble */
 s32 DistanceSquared(VECTOR *a, VECTOR *b);
+/**
+ * @brief Empty; called with the player when a jump starts (defined in model).
+ * @param g the player's state
+ */
 /* MATCHING: model defines this as an empty void(void); this unit's call
  * passes the state block in $a0. */
 void OnJumpStart(PlayerState *g);
 
+/** @brief Draws the player's shadow while PlayerState.showShadow is set: a
+ *         subtractive blob on the floor under the drawn position, smaller
+ *         and fainter the higher the player is above the ground. */
 void DrawPlayerShadow(void) {
     GsCOORDINATE2 coord;
     MATRIX ls;
@@ -224,6 +290,9 @@ void DrawPlayerShadow(void) {
     }
 }
 
+/** @brief Sets up the grid test screen: the 21 x 16 grid of points 16
+ *         pixels apart about the screen centre, viewed from 1000 units in
+ *         front of it. */
 void InitGridTest(void) {
     for (gLoopJ = 0; gLoopJ < 16; gLoopJ++) {
         for (gLoopI = 0; gLoopI < 21; gLoopI++) {
@@ -241,6 +310,12 @@ void InitGridTest(void) {
     gRefView[5] = 0;
 }
 
+/** @brief The grid test screen's frame: draws each grid point as a dot and
+ *         the grid as a checkerboard of flat quads. The d-pad moves the
+ *         viewpoint, L1 and R1 turn sGridAngle (which moves nothing),
+ *         triangle zeroes it, and Start leaves for GM_OVERLAY0_LOAD. The
+ *         angle, the first point's screen position and one point's depth
+ *         are left in the gGridLast globals. */
 /* MATCHING: the parity mask through y, the first loop's local, keeps 0xFF out of the preheader. */
 void UpdateGridTest(void) {
     DVECTOR sxy;
@@ -346,11 +421,22 @@ void UnusedHook1(void) {}
 /** @brief Empty and never called. */
 void UnusedHook2(void) {}
 
+/**
+ * @brief Puts a dust puff (EFFECT_DUST) at a random spot within 80 units of
+ *        a position in x and z, starting next frame: the dust kicked up at
+ *        the player's feet.
+ * @param pos where the dust goes, each coordinate taken as 16 bits
+ */
 void ScatterDust(VECTOR *pos) {
     SpawnEffect(EFFECT_DUST, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                 (s16)pos->vz + (rand() % 160 - 80), 1);
 }
 
+/**
+ * @brief ScatterDust with dark, subtractive dust (EFFECT_DARK_DUST); no code
+ *        calls it.
+ * @param pos where the dust goes, each coordinate taken as 16 bits
+ */
 void ScatterDarkDust(VECTOR *pos) {
     SpawnEffect(EFFECT_DARK_DUST, (s16)pos->vx + (rand() % 160 - 80), (s16)pos->vy,
                 (s16)pos->vz + (rand() % 160 - 80), 1);
@@ -384,6 +470,13 @@ void ProjectToScreen(VECTOR *pos, SVECTOR *out) {
     out->vy = sxy.vy;
 }
 
+/**
+ * @brief Finds where a point given in a model part's frame is in the world,
+ *        and leaves that part's local-to-screen matrix set for drawing.
+ * @param coord the part's coordinate system
+ * @param pos   the point, in the part's frame
+ * @param out   the point in world coordinates
+ */
 /* MATCHING: the unused pair puts flag at sp+0x70 and the frame at 0x88. */
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     MATRIX world;
@@ -405,6 +498,21 @@ void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out) {
     GsSetLsMatrix(&world);
 }
 
+/**
+ * @brief The player's frame step, run once a stage frame: falling, gravity,
+ *        speed, jumps and slides, movement and steering for the ride.
+ *
+ * In order: the fall check (skipped after leaving the hit tool), the speed
+ * band, gravity, the ride (while the pad steers) and the held object hung
+ * from the player's model, and a lost ride left behind; then the ride's
+ * speed step (on foot also the brake, dash, jump and slide), the stage's
+ * speed settings (gStageParams bits 22 and 20: a set speed for the next
+ * step, or a 30-unit push back or forward along the course on the ground),
+ * the move along the course heading (the roller along its own), the ride's
+ * steering, the heading held within 30 degrees of the course, and the
+ * body's position and rotation. gWorldShift then puts the player at the
+ * origin.
+ */
 /* MATCHING: g keeps the gPlayer base in a register for the clamp's store at the join;
  * cases 1 and 2 of the second switch are separate arms, merged by cross-jumping. */
 void UpdatePlayer(void) {
@@ -544,6 +652,9 @@ void UpdatePlayer(void) {
     gWorldShift[2] = -gPlayer.z;
 }
 
+/** @brief On-foot steering: left or right on a digital pad, or an analog
+ *         pad in analog mode, steers and side-steps the player, and nothing
+ *         held recentres; without control the heading is the course's. */
 void SteerPlayer(void) {
     if (gPlayer.control != 0) {
         switch (gPadType) {
@@ -576,6 +687,12 @@ void SteerPlayer(void) {
     gPlayer.yaw = gCourse.rot.vy;
 }
 
+/**
+ * @brief Moves the player some units in a direction measured from the
+ *        course heading: 0 degrees is forward, 90 and -90 sideways.
+ * @param deg  the direction, in degrees from the course heading
+ * @param dist how far
+ */
 static __inline__ void pushBack(s32 deg, s32 dist) {
     s32 angle;
     SVECTOR *rot;
@@ -586,6 +703,17 @@ static __inline__ void pushBack(s32 deg, s32 dist) {
     gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
 }
 
+/**
+ * @brief One steering step to one side: turns the heading 2 * a that way
+ *        (gSteerYaw held within 22.5 degrees of the course heading and,
+ *        except on the roller, the heading kept on that side of it), leans
+ *        the body and side-steps the player. Standing on a ride quad, the
+ *        player is kept at the ground's height. When mode repeats
+ *        PlayerState.lastSteer the step only resets the heading.
+ * @param mode 3 steers one way (left on foot), 2 the other
+ * @param a    half the turn, in 4096ths of a circle
+ * @param b    the side-step distance
+ */
 /* MATCHING: the (u16) read is the separate lhu retail stores when the heading is in range. */
 void ApplySteer(u8 mode, u16 a, s16 b) {
     s16 yaw;
@@ -651,6 +779,10 @@ void ApplySteer(u8 mode, u16 a, s16 b) {
     }
 }
 
+/** @brief Steers back to centre while no direction is held: three times a
+ *         call, eases the lean toward 0 by 1 and the heading toward the
+ *         course heading by 56 units (by 11 once within 56), with gSteerYaw
+ *         following it. */
 /* MATCHING: the inline ternary abs (not an if on d) lets the first +56 test reuse the
  * loaded value when it skips the store. */
 void RecentreSteer(void) {
@@ -686,6 +818,15 @@ void RecentreSteer(void) {
     }
 }
 
+/**
+ * @brief Drops the player off the course where the floor is a drop
+ *        (gFloorFlags 0x40), unless time is up.
+ *
+ * A ride is lost (a cover only once 140 below the floor) and control is
+ * taken away. Once the player is 100 below the floor the miss starts
+ * (MISS_FELL) and the fall speeds up; at 1000 below he plays MOT_FALL_OFF.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return keeps the last beqz delay slot a nop. */
 s32 CheckFall(void) {
     s32 unused[2];
@@ -723,6 +864,17 @@ s32 CheckFall(void) {
     }
 }
 
+/**
+ * @brief Gravity, outside the arcs the jump code flies: snaps the player to
+ *        the ground within 50 units, else drops him fallSpeed * 5 a step
+ *        until he lands on the ground or on top of a ride quad.
+ *
+ * It also keeps the jump's highest points (sJumpPeakY, PlayerState.peakY).
+ * Jump motions, and ride jumps except on a cover, are left alone. The
+ * first landing after a jump records sJumpLanding and sJumpDistance and
+ * rumbles, unless gSkipLandRumble is set.
+ * @return nothing: no value is set
+ */
 /* MATCHING: y reloaded, reused for rideQuadY and killed by the dead y = 0 keeps retail's copy. */
 s32 ApplyGravity(void) {
     s32 x;
@@ -923,6 +1075,15 @@ void ReactToHits(PlayerState *state) {
     sLastHitMask = 0;
 }
 
+/**
+ * @brief Eases between two values (defined in model): step of steps
+ *        steps of the way from from to to.
+ * @param from  the value at step 0
+ * @param to    the value at the last step
+ * @param step  how far along
+ * @param steps how many steps the whole way takes
+ * @return the value at step; to itself once step reaches steps
+ */
 /* MATCHING: model defines this with s16/u16 parameters and an s16 result; this unit's
  * calls pass halfwords unextended and store the result as a word. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
@@ -932,6 +1093,19 @@ void OnJumpLand();
 s32 LandPlayer(PlayerState *g);
 void ResetPlayerAction(void);
 
+/**
+ * @brief The player's action and motion step, run once a stage frame.
+ *
+ * It counts invulnerability down (held while a hit record is still set),
+ * steps the animation channels, and starts any pending *_START action: its
+ * motion, timers, sound and rumble. Then the playing motion does its frame:
+ * footsteps while running, the jump's arc and landing, the knockdown, throw
+ * and launch arcs (LandPlayer), the skids, spins, reels and twirls, and at
+ * their end either getting up (ResetPlayerAction) while the bonus level is
+ * above 0, or a miss (MISS_RETRY).
+ * @param state the player's state
+ * @return nothing: no value is set
+ */
 /* MATCHING: s32 with no return keeps the delay slots before the exit nops; d is one pseudo for
  * every step so global-alloc gives it $a1, the step's argument register. */
 s32 UpdatePlayerAction(PlayerState *state) {
@@ -2038,6 +2212,13 @@ top:
     }
 }
 
+/**
+ * @brief On-foot speed, while in control and not jumping: rises by 1 a step
+ *        to the cruising 40 and eases back to it from above (up and down
+ *        only hold it there); a dash holds 70. At a run loop's end the run
+ *        motion follows the speed band.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return keeps two bnez delay slots nops. */
 s32 UpdateRunSpeed(void) {
     s16 v;
@@ -2079,6 +2260,13 @@ s32 UpdateRunSpeed(void) {
     }
 }
 
+/**
+ * @brief On-foot brake and dash: running on the ground, the slide button
+ *        (PADRdown) with down held starts a brake, and with up held at
+ *        cruising speed (38 to 42) a dash; a dash ends when the action is
+ *        back to ACT_RUN.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return keeps li 0x71 first in the call block. */
 s32 UpdateSlideDash(void) {
     s32 btn;
@@ -2119,6 +2307,11 @@ s32 UpdateSlideDash(void) {
     }
 }
 
+/** @brief The on-foot jump: the jump button (PADRright) on the ground or a
+ *         ride quad's top starts one and records sJumpStart; holding it sets
+ *         the jump power each step, and the step it is let go (3, 7 or
+ *         later) makes a low, mid or high jump. UpdatePlayerAction flies
+ *         the arc. */
 /* MATCHING: as UpdateCoverJump for the switch; the volatile read keeps the unk348 and
  * unk350 loads below the stores to sJumpDistance, sJumpStart[1] and sJumpPeakY. */
 void UpdateJump(void) {
@@ -2182,6 +2375,13 @@ void UpdateJump(void) {
     }
 }
 
+/**
+ * @brief Sets the view words behind the player: the viewpoint 400 units
+ *        back along the course heading, the reference point 900 ahead at
+ *        the player's height; eases sViewSpeed toward the speed. No code
+ *        calls it, and it never hands gRefView to the library.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return keeps the last branch's delay slot a nop. */
 s32 SetPlayerView(void) {
     gRefView[0] = 0;
@@ -2200,6 +2400,10 @@ s32 SetPlayerView(void) {
     }
 }
 
+/** @brief Sets the scene's three flat lights, one from above in front and
+ *         two from behind to the sides, in the stage's light colour
+ *         (gStageParams bits 12); sets the fog too once it has faded in, or
+ *         on a world's third act. */
 /* MATCHING: the index-first integer sum gives retail's addu operand order. */
 void UpdateStageLights(void) {
     u8 *c;
@@ -2225,6 +2429,17 @@ void UpdateStageLights(void) {
     }
 }
 
+/**
+ * @brief The play state's frame step (gMissState), skipped on a world's
+ *        third act; no value is set as its result.
+ *
+ * While playing it clamps the bonus level, runs the clock while the level
+ * is above 0, fades the fog in and draws the HUD. At time 0 the player
+ * stops (a ride is lost) and MISS_TIME_UP freezes the play and holds his
+ * position. A fall stops the music and waits 60 frames; a retry restarts
+ * the stage or, with no retries left, goes to the menus; MISS_TO_MENU
+ * steps the quit effect and leaves after 0x180 frames.
+ */
 /* MATCHING: the empty case -2 sets the switch's compare tree; non-void with no return keeps
  * the guards' delay slots nops; the unused words give retail's frame. */
 s32 UpdatePlayState(void) {
@@ -2362,6 +2577,10 @@ top:
 end:;
 }
 
+/** @brief Draws the ride's model where the player's model carries it: a
+ *         board at the feet, a roller turning with the speed (with its
+ *         rolling sound every 20 frames), a cover on the body; and the held
+ *         object while PlayerState.rideMode shows it. */
 void DrawModeObject(void) {
     switch (gPlayer.rideMode & RIDE_MASK) {
         case RIDE_BOARD:
@@ -2443,6 +2662,11 @@ void DrawModeObject(void) {
     }
 }
 
+/**
+ * @brief Hangs the ride's model from the player's model and, for a board or
+ *        roller not already in a ride motion, starts MOT_RIDE.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return makes the guards fill their delay slots with the lui. */
 s32 AttachModeObject(void) {
     switch (gPlayer.rideMode & RIDE_MASK) {
@@ -2490,6 +2714,11 @@ s32 AttachModeObject(void) {
     }
 }
 
+/**
+ * @brief Finds the first free record (no model) of the slot table.
+ * @param slot the table's first record
+ * @return the free record's index, or -1 when every one is in use
+ */
 static __inline__ s16 findFreeSlot(SlotRec *slot) {
     u32 i;
 
@@ -2502,6 +2731,9 @@ static __inline__ s16 findFreeSlot(SlotRec *slot) {
     return -1;
 }
 
+/** @brief Leaves a lost ride behind (PlayerState.dropRide): the stage's ride
+ *         model goes, no longer hung from the player, into a free slot
+ *         record as a stage object, and the dropped-ride flag is set. */
 void SpawnModeObject(void) {
     SlotRec *slot;
     s16 idx;
@@ -2548,6 +2780,12 @@ void SpawnModeObject(void) {
     }
 }
 
+/** @brief Roller steering: left or right steers, side-steps 5 units and
+ *         builds a drift (within 10) that pushes the player a unit sideways
+ *         at its full value; nothing held rolls straight and lets the drift
+ *         decay. The player rides 90 (STAGE_2_1) or 80 (STAGE_4_2) above
+ *         the ground, and the heading stays within 10 degrees of the
+ *         course. */
 /* MATCHING: PushPlayer's body as an inline helper; calling it with the s16 step
  * keeps the step's sign extension ahead of the rsin call. */
 void SteerRoller(void) {
@@ -2602,6 +2840,8 @@ void SteerRoller(void) {
     }
 }
 
+/** @brief Roller speed, while in control and in a ride motion: as on foot,
+ *         but cruising at 35. */
 /* MATCHING: the unsigned range test is the single subtract-and-compare retail does. */
 void UpdateRollerSpeed(void) {
     s16 v;
@@ -2629,6 +2869,8 @@ void UpdateRollerSpeed(void) {
     }
 }
 
+/** @brief Cover speed, while in control and in MOT_RIDE: as on foot, but
+ *         cruising at 30. */
 void UpdateCoverSpeed(void) {
     s16 v;
 
@@ -2655,6 +2897,8 @@ void UpdateCoverSpeed(void) {
     }
 }
 
+/** @brief UpdateJump without the jump start's record, playing MOT_JUMP or
+ *         MOT_JUMP_HIGH; no code calls it. */
 /* MATCHING: the switch lays the default arm out last, after its own base reload, as retail. */
 void UpdateCoverJump(void) {
     s16 n;
@@ -2712,6 +2956,10 @@ void UpdateCoverJump(void) {
     }
 }
 
+/** @brief Cover steering, mirrored: right steers mode 3 and left mode 2,
+ *         side-stepping 8 units; nothing held on the ground rides straight.
+ *         The drift stays within 7, so its tenth never pushes the player.
+ *         The heading stays within 10 degrees of the course. */
 void SteerCover(void) {
     s16 step;
     s32 v;
@@ -2757,6 +3005,13 @@ void SteerCover(void) {
     }
 }
 
+/**
+ * @brief Ends a knockdown, throw or launch arc: lands a falling player on a
+ *        ride quad's top or the ground, with the landing sound and a hard
+ *        rumble.
+ * @param g the player's state
+ * @return 2 on a ride quad, 1 on the ground, 0 still in the air
+ */
 s32 LandPlayer(PlayerState *g) {
     s32 ret;
 
@@ -2796,6 +3051,12 @@ s32 AddBonusLevel(s32 n) {
     return gBonusLevel;
 }
 
+/**
+ * @brief The board stage's side-step: moves the player some units in a
+ *        direction measured from the course heading (0 is forward).
+ * @param deg  the direction, in degrees from the course heading
+ * @param dist how far
+ */
 /* MATCHING: the local pointer lets angle and the gPlayer base share $s0. */
 void PushPlayer(s32 deg, s32 dist) {
     s32 angle;
@@ -2807,6 +3068,11 @@ void PushPlayer(s32 deg, s32 dist) {
     gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
 }
 
+/**
+ * @brief Sets PlayerState.speedBand from the speed: 0 below 13, 1 below
+ *        26, else 2.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return keeps the first delay slot a nop. */
 s32 UpdateSpeedBand(void) {
     s16 v;
@@ -2821,6 +3087,9 @@ s32 UpdateSpeedBand(void) {
     }
 }
 
+/** @brief Back to running under control at the end of a hit's action:
+ *         MOT_RUN_SLOW (MOT_RIDE on a cover), ACT_RUN, no slide; after a
+ *         hit reaction that asked for it, 60 frames of invulnerability. */
 void ResetPlayerAction(void) {
     gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.action = ACT_RUN;
@@ -2836,6 +3105,8 @@ void ResetPlayerAction(void) {
     }
 }
 
+/** @brief On every tenth can: raises the bonus level, with the power-up
+ *         sound unless the level is already full or locked. */
 /* MATCHING: `one` is the 1 retail keeps in $a0 for both compares. */
 void CheckCanBonus(void) {
     s32 one;
@@ -2863,6 +3134,12 @@ void UnusedHook4(void) {}
 /** @brief Empty; runs every frame of SLIDE_BRAKING. */
 void UpdateBrake(void) {}
 
+/**
+ * @brief Starts a slide (MOT_SLIDE_START, with its sound) on the slide
+ *        button without up held, while in control, not already sliding,
+ *        and on the ground or past the strong part of a jump's rise.
+ * @return nothing: no value is set
+ */
 /* MATCHING: non-void with no return keeps the second bnez's delay slot a nop. */
 s32 TrySlide(void) {
     if (gPlayer.control != 0 && (gPlayer.motion[0] < MOT_SLIDE_START || gPlayer.motion[0] >= MOT_JUMP) &&
@@ -2873,11 +3150,19 @@ s32 TrySlide(void) {
     }
 }
 
+/** @brief Cuts a jump short: no jump power left, and the jump released. */
 void EndJump(void) {
     gPlayer.jumpPower = 0;
     gPlayer.jumpState = JUMP_RELEASED;
 }
 
+/**
+ * @brief The x and z of a point at a distance and angle from the origin;
+ *        y is left as it was.
+ * @param deg    the angle, in degrees
+ * @param radius the distance
+ * @param out    receives x and z
+ */
 void PolarOffset(s32 deg, s32 radius, VECTOR *out) {
     s32 angle;
 
@@ -2886,6 +3171,8 @@ void PolarOffset(s32 deg, s32 radius, VECTOR *out) {
     out->vz = rcos(angle) * radius >> FIX12_SHIFT;
 }
 
+/** @brief Sets the fog: from 3000 to 8000 in depth, in the stage's far
+ *         colour (gStageParams bits 8 pick it from gFogColors). */
 void SetStageFog(void) {
     s32 i;
 
@@ -2894,6 +3181,20 @@ void SetStageFog(void) {
     SetFarColor(gFogColors[i * 4], gFogColors[i * 4 + 1], gFogColors[i * 4 + 2]);
 }
 
+/**
+ * @brief Sorts a flat quad into the sprite ordering table, its corners given
+ *        in order round the edge; no code calls it.
+ * @param col a 15-bit colour, five bits each of red, green and blue
+ * @param x0  the first corner's x
+ * @param y0  the first corner's y
+ * @param x1  the second corner's x
+ * @param y1  the second corner's y
+ * @param x2  the third corner's x
+ * @param y2  the third corner's y
+ * @param x3  the fourth corner's x
+ * @param y3  the fourth corner's y
+ * @param pri its depth in the ordering table
+ */
 /* MATCHING: the red channel through its own local moves the spill to y2, as retail. */
 void SortQuad15(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3, s16 y3, u16 pri) {
     POLY_F4 poly;
@@ -2917,16 +3218,22 @@ void SortQuad15(u16 col, s16 x0, s16 y0, s16 x1, s16 y1, s16 x2, s16 y2, s16 x3,
     GsSortPoly(p, &gSubOt[gActiveBuff], pri);
 }
 
+/** @brief Stops the player, with the stepped speed back at 40 for the speed
+ *         steps to build from. */
 void ResetSpeed(void) {
     gPlayer.speed = 0;
     gSpeedFixed = 0x280;
 }
 
+/** @brief Stops the player dead: the speed and the stepped speed both 0. */
 void StopSpeed(void) {
     gPlayer.speed = 0;
     gSpeedFixed = 0;
 }
 
+/** @brief While the player holds the stop pose's object (RIDE_ITEM in
+ *         PlayerState.rideMode's high nibble), hangs its model from part 8
+ *         of the player's model. */
 void AttachHeldItem(void) {
     if ((gPlayer.rideMode >> 4) == RIDE_ITEM) {
         gModeObjectModels[1].parent = (s32)&gTodCoords[8];

@@ -22,7 +22,9 @@ void OnCanCollected(s16 index);
  *  @param skippable 1 when START may end the movie early */
 void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable);
 
-/** @brief Defined in sound. */
+/** @brief Runs one frame of the fade gSoundFade names: lowers the music, the
+ *         effects or the CD audio over 50 frames, then stops them and
+ *         restores full volume; with no fade, keeps the volumes at full. */
 void UpdateSoundFade(void);
 
 /** @brief Plays XA channel @p chan of the file the drive is positioned on,

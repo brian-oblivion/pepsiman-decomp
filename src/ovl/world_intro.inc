@@ -38,7 +38,7 @@ typedef struct {
 } CaptionTimes;
 #endif
 
-/* The overlay's data, in retail's order. All of it is initialised, so all
+/* The overlay's data, in address order. All of it is initialised, so all
  * of it is .data. */
 
 /* Two copies of the disc's file table; the intro loads from the first. */

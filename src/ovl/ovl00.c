@@ -9,6 +9,7 @@
 #include "libetc.h"
 #include "object.h"
 #include "model.h"
+#include "disc_files.h"
 
 /* MATCHING: views of routines their units declare only where defined. */
 s32 LoadVabBank(s32 bank);
@@ -38,10 +39,16 @@ extern s32 gGridLastY;
 extern s32 D_80095814;
 extern s32 D_80095818;
 
-/* The sound test's choices: the VAB bank, the sound effect, the BGM. */
-extern u16 sSoundTestVab;
-extern u16 sSoundTestSe;
-extern u16 sSoundTestBgm;
+/* The overlay's data, in address order: two copies of the disc's file
+ * table, which the menu never reads, and the sound test's choices. */
+#define DISC_FILE_PREFIX sDisc
+#include "disc_file_tables.inc"
+#define DISC_FILE_PREFIX sDiscCopy
+#include "disc_file_tables.inc"
+
+u16 sSoundTestVab = 0; /* the VAB bank */
+u16 sSoundTestSe = 0;  /* the sound effect */
+u16 sSoundTestBgm = 0; /* the BGM */
 
 /* The highlighted line's colour, and the others'. */
 #define PRINT_LINE(n)       \

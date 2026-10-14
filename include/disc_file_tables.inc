@@ -1,4 +1,4 @@
-/* One copy of the disc's file table (disc_files.h), as retail has it in
+/* One copy of the disc's file table (disc_files.h), the same in
  * every copy: static arrays named with the copy's prefix. The including
  * unit names the copy first,
  *   #define DISC_FILE_PREFIX sDisc

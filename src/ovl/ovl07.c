@@ -298,14 +298,16 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 #include "engine/cycle_goal_lights.inc"
 
 #include "engine/step_stage_frame.inc"
-#ifdef NON_MATCHING
 void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
     u16 i;
     s32 tp;
     DirEnt16 *e;
     TimInfo *t;
 
-    e = (DirEnt16 *)dir + first;
+    /* MATCHING: the entry pointer set in two steps outranks the counter
+     * for the first saved register. */
+    e = (DirEnt16 *)dir;
+    e += first;
     for (i = first; i < first + count; i++) {
         LoadTim(dir + e->offset);
         DrawSync(0);
@@ -318,9 +320,6 @@ void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
         e++;
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl07/nonmatchings/ovl07", func_800F8184);
-#endif
 s8 func_800F82CC(StageTrap *t) {
     s8 ret = 0;
 

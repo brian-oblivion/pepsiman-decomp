@@ -64,10 +64,10 @@ extern u8 gSkipLandRumble; /**< 1 after a start or restart: the next landing doe
 /** 1 for a stage whose start looks up the floor, by stage. */
 s8 sStageFindsFloor[16] = {1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0};
 
-/* Three positions per stage, x y z, that the stage overlays move the
- * player to in their scripted sequences (all 0 for a stage with none):
- * the first after a miss, the other two in turn at the goal. Only the
- * overlays read them. */
+/* Three positions per stage, x y z, that the stage overlays' scripted
+ * falls move the player to (all 0 for a stage with none): the first when
+ * gMissState is -1 (StepMissSequence), the other two in turn when it is
+ * -2. Only the overlays read them. */
 Vec3 D_8007AD68[] = {
     {-5700, -9080, 18500},  /* 0 */
     {17332, -9080, 27535},  /* 1 */

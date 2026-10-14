@@ -648,7 +648,14 @@ void StepTrapFFAct68(StageTrap *t) {}
 
 void StepTrapAct23(StageTrap *t) {}
 
-INCLUDE_ASM("asm/ovl/ovl13/nonmatchings/ovl13", StepTrapAct24);
+void StepTrapAct24(StageTrap *t) {
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(0x3F);
+    }
+}
 
 void StepTrapAct25(StageTrap *t, s32 arg) {}
 

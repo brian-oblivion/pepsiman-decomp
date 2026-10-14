@@ -604,7 +604,10 @@ void func_800F79A0(StageTrap *t, s32 arg) {
     }
 }
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", func_800F7D24);
+/* Whether the trap is back in its first state. */
+s8 func_800F7D24(StageTrap *t) {
+    return t->state == 0;
+}
 
 void func_800F7D30(StageTrap *t, s16 period) {
     if (t->timer % period == 1) {
@@ -748,7 +751,15 @@ void UpdateStageEventHook(void) {}
 
 #include "engine_code.inc" /* UpdateGoalEvents */
 
-INCLUDE_ASM("asm/ovl/ovl12/nonmatchings/ovl12", StepMissSequence);
+/* The miss sequence, empty on this stage. MATCHING: the unused 72 bytes of
+ * locals give retail's frame (the other engine stages' sequence declares
+ * the same), and the empty asm makes cc1 emit the epilogue with the frame
+ * pop in the return's delay slot, as for any body with an insn. */
+void StepMissSequence(void) {
+    s32 unused[18];
+
+    __asm__("");
+}
 
 void StepGoalSequence(void) {}
 

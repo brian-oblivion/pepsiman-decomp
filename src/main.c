@@ -15,7 +15,8 @@
 #include "object.h"
 #include "spad.h"
 
-INCLUDE_RODATA("asm/nonmatchings/main", sStageMusicTracks);
+/** The CD-DA track each stage plays, indexed by gStage (PlayStageMusic). */
+const u8 sStageMusicTracks[15] = {3, 3, 2, 4, 4, 2, 5, 5, 2, 5, 5, 2, 6, 6, 2};
 
 /** @brief Two words, cleared or copied as a pair (a unit-local view). */
 typedef struct {
@@ -26,7 +27,7 @@ typedef struct {
 /* MATCHING: per-unit views; stage reads the same pairs as words. */
 extern Pair8 gBestCans[];
 extern Pair8 gBestTimes[];
-extern Pair8 gTargetTimes[];
+extern const Pair8 gTargetTimes[];
 extern u8 gRumbleEnabled;
 extern s8 D_800957A0;
 extern u8 gGameCleared; /**< 1 once the last movie has played with the first stage table */
@@ -793,12 +794,10 @@ typedef struct {
     u8 b[15]; /**< the bytes */
 } Bytes15;
 
-extern u8 sStageMusicTracks[];
-
 void PlayStageMusic(u8 idx) {
     Bytes15 tbl;
 
-    tbl = *(Bytes15 *)sStageMusicTracks;
+    tbl = *(const Bytes15 *)sStageMusicTracks;
     if (gSoundFade != FADE_NONE) {
         gSoundFade = FADE_NONE;
     }
@@ -1109,7 +1108,7 @@ void StartPads(u8 *a, u8 *b) {
     PadStartCom();
 }
 
-INCLUDE_RODATA("asm/nonmatchings/main", sCantOpenFmt);
+const char sCantOpenFmt[] = "Can't open %s\n";
 
 extern s16 gCdLoadIndex;
 extern s32 gCdLoadReadSectors;
@@ -1162,8 +1161,6 @@ s8 UpdateCdLoad(void) {
     }
     return gCdLoadState;
 }
-
-extern char sCantOpenFmt[]; /**< "Can't open %s\n" */
 
 void LoadFile(char *name, void *buf) {
     s32 fd;
@@ -1986,5 +1983,3 @@ void PlayCdTrack(s32 track, s32 loop) {
     SendCdTrackCommand(CdlPlay);
     gCdTrackPlaying = 1;
 }
-
-INCLUDE_RODATA("asm/nonmatchings/main", gMotionFmt);

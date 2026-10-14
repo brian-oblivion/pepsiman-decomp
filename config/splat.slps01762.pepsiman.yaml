@@ -63,11 +63,11 @@ segments:
     align: 4
     subsegments:
       - [0x800, .rodata, main]
-      - [0xC14, .rodata, model]
+      - [0xC04, .rodata, model]
       - [0xC74, .rodata, draw]
       - [0xC8C, .rodata, draw_tmd]
       - [0xCE8, .rodata, player]
-      - [0x1320, .rodata, collision]
+      - [0x1150, .rodata, collision]
       - [0x137C, .rodata, editor]
       - [0x1CDC, .rodata, hit_tool]
       - [0x2198, .rodata, card]

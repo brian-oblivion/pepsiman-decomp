@@ -2898,9 +2898,3 @@ void AttachHeldItem(void) {
         gModeObjects[1].model = 1;
     }
 }
-
-INCLUDE_RODATA("asm/nonmatchings/player", sPlayerPointSpecs);
-
-INCLUDE_RODATA("asm/nonmatchings/player", sQuadTemplate);
-
-INCLUDE_RODATA("asm/nonmatchings/player", sQuadOrigin);

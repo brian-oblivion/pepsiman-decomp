@@ -82,8 +82,40 @@ typedef struct {
     s8 b[3]; /**< 7, 13, 19 */
 } Bytes3;
 
-extern PointSpec25 sPlayerPointSpecs; /**< the 25 collision points, each on a TOD coordinate system */
-extern Bytes3 sPointGroupStarts[];    /**< 7, 13 and 19: where the three point groups start */
+/** The player's 25 collision points, each a local offset on one of the TOD
+ * coordinate systems: one group of 7, then three of 6 (sPointGroupStarts). */
+const PointSpec25 sPlayerPointSpecs = {{
+    {0, 0, 0, 10},
+    {0, 0, 0, 1},
+    {0, 70, 0, 1},
+    {0, -10, 0, 10},
+    {0, 0, 0, 0},
+    {-5, 0, 0, 7},
+    {5, 0, 0, 4},
+    /* 7 */
+    {0, 0, -10, 10},
+    {0, 0, 10, 10},
+    {-10, 0, 0, 10},
+    {10, 0, 0, 10},
+    {0, -10, 0, 10},
+    {0, 10, 0, 10},
+    /* 13 */
+    {0, -10, -30, 1},
+    {0, -10, 30, 1},
+    {-30, -10, 0, 1},
+    {30, -10, 0, 1},
+    {0, -60, 0, 1},
+    {0, 40, 0, 1},
+    /* 19 */
+    {0, 60, -20, 1},
+    {0, 60, 20, 1},
+    {-20, 60, 0, 1},
+    {20, 60, 0, 1},
+    {0, 0, 0, 1},
+    {0, 120, 0, 1},
+}};
+
+extern Bytes3 sPointGroupStarts[]; /**< 7, 13 and 19: where the three point groups start */
 
 /** @brief Three halfwords, a corner or an edge of a quad. */
 typedef struct {
@@ -112,8 +144,17 @@ typedef struct {
 /* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
 #define sProject ((s32 (*)(VECTOR *, SVECTOR *))ProjectToScreen)
 
-extern Quad8 sQuadTemplate; /**< the quad GetQuadHeightUnderPlayer starts from */
-extern Point12 sQuadOrigin; /**< its origin */
+/** The quad GetQuadHeightUnderPlayer starts from: four corners, the edge
+ * slots empty. */
+const Quad8 sQuadTemplate = {{
+    {-250, 0, -250},
+    {-250, -100, 250},
+    {250, -100, -250},
+    {250, -200, 250},
+}};
+
+/** The quad's origin. */
+const Point12 sQuadOrigin = {0, -150, 0};
 
 void PlacePlayerPoints(void);
 s32 SpheresOverlap(Sphere *a, Sphere *b);

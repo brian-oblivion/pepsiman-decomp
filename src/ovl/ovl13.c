@@ -652,14 +652,7 @@ void StepTrapFFAct68(StageTrap *t) {}
 
 void StepTrapAct23(StageTrap *t) {}
 
-void StepTrapAct24(StageTrap *t) {
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x3F);
-    }
-}
+#include "engine/step_trap_act24.inc"
 
 void StepTrapAct25(StageTrap *t, s32 arg) {}
 

@@ -728,25 +728,11 @@ void StepTrapAct22(StageTrap *t) {}
 
 #include "engine/step_trap_act23.inc"
 
-void StepTrapAct24(StageTrap *t) {
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x3F);
-    }
-}
+#include "engine/step_trap_act24.inc"
 
 void StepTrapAct25(StageTrap *t, s32 arg) {}
 
-void StepTrapAct28(StageTrap *t) {
-    if (gSection - UpdatePathSegment(t) < 2) {
-        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-    }
-    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x3F);
-    }
-}
+#include "engine/step_trap_act28.inc"
 
 #include "engine_code.inc" /* ArmTrapByRange */
 

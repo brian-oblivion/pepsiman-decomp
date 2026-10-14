@@ -441,9 +441,6 @@ void func_800F5E80(void) {
     func_800F8BD4();
 }
 
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F60CC(StageTrap *t) {
     s8 ret = 0;

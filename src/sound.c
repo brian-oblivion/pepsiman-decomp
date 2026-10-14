@@ -38,10 +38,16 @@ extern s16 gBgmVolume;
 extern s16 gSeVab;
 extern s16 D_80095AEA;
 extern u16 gVabBank;
-extern s32 sSoundFileLoc[]; /**< the sound files' disc positions: the SEQ pack, then the VAB banks from [2] */
-extern s32 sSoundFileSectors[]; /**< their sizes in sectors, indexed 4 past the matching position */
 extern s16 gMovieOffsetX;
 extern s16 gMovieDisplayHeight;
+
+/* The disc file table's 26th and 27th copies (disc_files.inc), the
+ * executable's last: LoadSoundData and LoadVabBank read the SEQ pack and
+ * the VAB banks from the second, at sFiles27BootLoc[4] on. */
+#define DISC_FILE(x) sFiles26##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles27##x
+#include "disc_files.inc"
 
 void func_800FA610(s16 index);
 void StartMovieRead(CdlLOC *loc);
@@ -436,7 +442,12 @@ void UpdateSoundFade(void) {
     }
 }
 
-extern u8 sSeVabBanks[]; /**< the VAB bank of each sound from id 70 on */
+/** Which open VAB plays each sound from id 70 on: 0 gBgmVab's, 1 the next
+ *  one (gSeVab's). Ids below 70 all play from gBgmVab's. */
+u8 sSeVabBanks[64] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+};
 
 s32 PlaySe(s32 id) {
     s16 *seq;
@@ -477,14 +488,14 @@ s32 LoadSoundData(void) {
 
     switch (gSubStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&sSoundFileLoc[0];
+            gCdLoadLoc[0] = (s32)&sFiles27BootLoc[4];
             gCdLoadDest[0] = 0x80101000;
-            gCdLoadLoc[1] = (s32)&sSoundFileLoc[2];
+            gCdLoadLoc[1] = (s32)&sFiles27BootLoc[6];
             gCdLoadDest[1] = 0x8016D000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sSoundFileSectors[4];
-            gCdLoadSectors[1] = sSoundFileSectors[6];
+            gCdLoadSectors[0] = sFiles27BootSectors[4];
+            gCdLoadSectors[1] = sFiles27BootSectors[6];
             gSubStep++;
             break;
         case 1:
@@ -494,11 +505,11 @@ s32 LoadSoundData(void) {
             }
             break;
         case 2:
-            gCdLoadLoc[0] = (s32)&sSoundFileLoc[3];
+            gCdLoadLoc[0] = (s32)&sFiles27BootLoc[7];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sSoundFileSectors[7];
+            gCdLoadSectors[0] = sFiles27BootSectors[7];
             gSubStep++;
             break;
         case 3:
@@ -591,8 +602,8 @@ s32 LoadVabBank(u16 bank) {
     }
     switch (gVabLoadStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&sSoundFileLoc[bank + 2];
-            gCdLoadSectors[0] = sSoundFileSectors[bank + 6];
+            gCdLoadLoc[0] = (s32)&sFiles27BootLoc[bank + 6];
+            gCdLoadSectors[0] = sFiles27BootSectors[bank + 6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;

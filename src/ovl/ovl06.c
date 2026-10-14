@@ -292,8 +292,6 @@ FUNC_ALIAS(func_800F7968, StepMissSequence, 0xB4);
 FUNC_ALIAS(func_800F79A0, StepMissSequence, 0xEC);
 
 extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
 /* MATCHING: main's view of the loader. */
 void BeginLoadScreen(void);
 s8 func_800F8960(StageTrap *t);

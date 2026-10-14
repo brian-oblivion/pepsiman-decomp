@@ -393,8 +393,6 @@ void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {
 #include "engine/scatter_trap_dust.inc"
 
 extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
 s8 func_800F7D24(StageTrap *t);
 
 /* MATCHING: the two stage groups set the counts separately; one set is

@@ -25,8 +25,11 @@ void func_800FAB9C(void);
 void func_800FABC4(void);
 void func_800FAE44(void);
 
-extern u16 sNextStage[];     /**< each stage's successor: stage + 1 */
-extern u16 sStageVabBanks[]; /**< each stage's VAB bank */
+/** Each stage's successor: the next stage, and 0 after the last. */
+u16 sNextStage[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0};
+
+/** Each stage's VAB bank: one per world of three stages, from bank 2. */
+u16 sStageVabBanks[16] = {2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 0};
 
 u16 GetNextStage(u16 i) {
     return sNextStage[i];

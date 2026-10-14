@@ -532,9 +532,6 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 FUNC_ALIAS(func_800F7968, StepStageFrame, 0x124);
 FUNC_ALIAS(func_800F79A0, StepStageFrame, 0x15C);
 
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
-
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F7A88(StageTrap *t) {
     s8 ret = 0;

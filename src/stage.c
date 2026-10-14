@@ -3,6 +3,7 @@
 #include "libgpu.h"
 #include "libetc.h"
 #include "libgs.h"
+#include "libcd.h"
 #include "draw.h"
 #include "model.h"
 #include "spad.h"
@@ -1798,7 +1799,53 @@ s32 StepSkidDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
 /** @brief One frame of an effect; returns nonzero when it ends. */
 typedef s32 (*EffectStep)(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
 
-extern EffectStep gEffectSteps[];
+/* The disc file table's 15th to 24th copies (disc_files.inc), which no
+ * code here reads; they sit between player's gHitReactions and
+ * gEffectSteps. */
+#define DISC_FILE(x) sFiles15##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles16##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles17##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles18##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles19##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles20##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles21##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles22##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles23##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles24##x
+#include "disc_files.inc"
+
+s32 StepBurst(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
+s32 StepSmoke(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
+s32 StepFlash(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
+s32 StepDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
+s32 StepDarkDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
+s32 StepFloat(Effect *p, GsOT *ot, s16 x, s16 y, s16 z);
+
+/** Each EffectKind's step function. StepHurry takes the effect alone. */
+EffectStep gEffectSteps[] = {
+    StepBurst,             /* EFFECT_BURST */
+    StepTwinkle,           /* EFFECT_TWINKLE */
+    StepSmoke,             /* EFFECT_SMOKE */
+    StepFlash,             /* EFFECT_FLASH */
+    StepDust,              /* EFFECT_DUST */
+    StepGlint,             /* EFFECT_GLINT */
+    StepDarkDust,          /* EFFECT_DARK_DUST */
+    StepCanCollect,        /* EFFECT_CAN_COLLECT */
+    StepFiveCans,          /* EFFECT_FIVE_CANS */
+    StepFloat,             /* EFFECT_FLOAT */
+    (EffectStep)StepHurry, /* EFFECT_HURRY */
+    StepFlyingPiece,       /* EFFECT_FLYING_PIECE */
+    StepSkidDust,          /* EFFECT_SKID_DUST */
+};
 
 void UpdateEffects(s32 unused, s16 x, s16 y, s16 z) {
     u8 i;

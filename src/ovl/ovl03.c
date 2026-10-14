@@ -302,8 +302,6 @@ void UpdateStageEventHook(void) {
 FUNC_ALIAS(func_800F7968, UpdateStageEventHook, 0x18);
 FUNC_ALIAS(func_800F79A0, UpdateStageEventHook, 0x50);
 
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
 extern s8 D_800D36F0;
 s8 func_800F8DF0(StageTrap *t);
 /* MATCHING: stage's, declared only where defined. */

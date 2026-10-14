@@ -43,13 +43,6 @@ typedef struct {
     u8 unk41[7];     /**< not yet known */
 } StageTrap;
 
-/** @brief Three words, a position. */
-typedef struct {
-    s32 x; /**< x */
-    s32 y; /**< y */
-    s32 z; /**< z */
-} Vec3;
-
 /* MATCHING: object's view, with this unit's trap record. */
 s32 SnapToFloor(StageTrap *t);
 void PolarToXZ(s32 r, s32 deg, Vec3 *out);

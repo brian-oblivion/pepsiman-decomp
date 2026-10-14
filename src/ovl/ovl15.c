@@ -364,8 +364,6 @@ void UpdateStageEventHook(void) {
 }
 
 extern s8 D_800D36F0;
-extern Vec3 D_8007AE1C[];
-extern Vec3 D_8007AED0[];
 /* MATCHING: main's view of the loader. */
 void BeginLoadScreen(void);
 s8 func_800F7E34(StageTrap *t);

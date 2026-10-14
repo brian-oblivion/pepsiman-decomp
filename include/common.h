@@ -130,6 +130,13 @@ enum GameMode {
  * loads; a 4-byte one is s32 until a unit shows it is a pointer.
  */
 
+/** @brief Three words, a position. */
+typedef struct {
+    s32 x; /**< x */
+    s32 y; /**< y */
+    s32 z; /**< z */
+} Vec3;
+
 /** @brief A short-lived effect from the 128-record pool: a sprite or model
  *         drawn at a point for a few frames, then handed back. */
 typedef struct {
@@ -576,6 +583,12 @@ extern s32 gTmdSortMode; /**< SetTmdSortMode's argument for the models */
 /* Per-stage tables, three words per stage; a global flag picks the set. */
 extern s32 gTimeLimits[][3];    /**< 2 units */
 extern s32 gTimeLimitsAlt[][3]; /**< the second set; 2 units */
+
+/* Three positions per stage that stage_flow defines and only the stage
+ * overlays read: where their scripted sequences move the player. */
+extern Vec3 D_8007AD68[]; /**< after a miss */
+extern Vec3 D_8007AE1C[]; /**< at the goal, first */
+extern Vec3 D_8007AED0[]; /**< at the goal, then */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

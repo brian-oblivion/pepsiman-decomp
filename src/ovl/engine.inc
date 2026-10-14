@@ -90,13 +90,6 @@ typedef struct {
     u8 unk70[8];         /**< not yet known */
 } ModelSlot;
 
-/** @brief Three words, a position. */
-typedef struct {
-    s32 x; /**< x */
-    s32 y; /**< y */
-    s32 z; /**< z */
-} Vec3;
-
 /** @brief The 0x30-byte argument block of a position query: collision's
  *         Sphere. */
 typedef struct {
@@ -352,7 +345,6 @@ void ScatterDust(VECTOR *pos);
 
 extern s8 D_800D3638;
 extern StageTrap D_800AC6E0;
-extern Vec3 D_8007AD68[];
 extern s16 D_800AC6B8;
 /* MATCHING: player's, declared only where defined. */
 void StopSpeed(void);

@@ -39,13 +39,6 @@ typedef struct {
     s32 unk28;     /**< passed to the lookup and updated from it */
 } Obj2C;
 
-/** @brief Three words, a position. */
-typedef struct {
-    s32 x; /**< x */
-    s32 y; /**< y */
-    s32 z; /**< z */
-} Vec3;
-
 /** @brief The 0x30-byte argument block of a position query: collision's
  *         Sphere. */
 typedef struct {

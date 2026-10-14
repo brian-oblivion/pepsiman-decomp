@@ -3,6 +3,7 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "libcd.h"
 #include "draw.h"
 #include "model.h"
 #include "player.h"
@@ -55,7 +56,110 @@ typedef struct {
 /* MATCHING: stored as u8 here; player tests it as s8 (lb). */
 extern u8 gSkipLandRumble; /**< 1 after a start or restart: the next landing does not rumble */
 
-extern s8 sStageFindsFloor[]; /**< 1 for a stage whose start looks up the floor */
+/* The disc file table's 25th copy (disc_files.inc), which no code here
+ * reads. */
+#define DISC_FILE(x) sFiles25##x
+#include "disc_files.inc"
+
+/** 1 for a stage whose start looks up the floor, by stage. */
+s8 sStageFindsFloor[16] = {1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0};
+
+/* Three positions per stage, x y z, that the stage overlays move the
+ * player to in their scripted sequences (all 0 for a stage with none):
+ * the first after a miss, the other two in turn at the goal. Only the
+ * overlays read them. */
+Vec3 D_8007AD68[] = {
+    {-5700, -9080, 18500},  /* 0 */
+    {17332, -9080, 27535},  /* 1 */
+    {0, 0, 0},              /* 2 */
+    {-12481, -300, 18310},  /* 3 */
+    {0, 0, 0},              /* 4 */
+    {0, 0, 0},              /* 5 */
+    {0, 0, 0},              /* 6 */
+    {0, 0, 0},              /* 7 */
+    {0, 0, 0},              /* 8 */
+    {0, 0, 0},              /* 9 */
+    {20467, -117, 13079},   /* 10 */
+    {0, 0, 0},              /* 11 */
+    {6471, 0, -10182},      /* 12 */
+    {18200, -2000, -26512}, /* 13 */
+    {0, 0, 0},              /* 14 */
+};
+
+Vec3 D_8007AE1C[] = {
+    {26696, -9080, -5923},  /* 0 */
+    {6385, 0, -23383},      /* 1 */
+    {0, 0, 0},              /* 2 */
+    {-13000, -300, -24971}, /* 3 */
+    {0, 0, 0},              /* 4 */
+    {0, 0, 0},              /* 5 */
+    {0, 0, 0},              /* 6 */
+    {0, 0, 0},              /* 7 */
+    {0, 0, 0},              /* 8 */
+    {-5799, 0, 3725},       /* 9 */
+    {10417, 610, -21361},   /* 10 */
+    {0, 0, 0},              /* 11 */
+    {19644, 0, 19346},      /* 12 */
+    {27178, -2000, 16214},  /* 13 */
+    {0, 0, 0},              /* 14 */
+};
+
+Vec3 D_8007AED0[] = {
+    {26695, -9080, -6120},  /* 0 */
+    {6123, 0, -23383},      /* 1 */
+    {0, 0, 0},              /* 2 */
+    {-13409, -300, -25402}, /* 3 */
+    {0, 0, 0},              /* 4 */
+    {0, 0, 0},              /* 5 */
+    {0, 0, 0},              /* 6 */
+    {0, 0, 0},              /* 7 */
+    {0, 0, 0},              /* 8 */
+    {-5637, 0, 3858},       /* 9 */
+    {10794, 610, -21361},   /* 10 */
+    {0, 0, 0},              /* 11 */
+    {19646, 0, 19607},      /* 12 */
+    {27178, -2000, 16480},  /* 13 */
+    {0, 0, 0},              /* 14 */
+};
+
+/** Each stage's time limit in seconds, by where it starts: [0] from the
+ *  beginning, [1] and [2] from a saved start (SavedStart.valid). */
+s32 gTimeLimits[][3] = {
+    {115, 82, 40},  /* 0 */
+    {98, 60, 45},   /* 1 */
+    {60, 60, 60},   /* 2 */
+    {120, 100, 70}, /* 3 */
+    {125, 75, 35},  /* 4 */
+    {60, 60, 60},   /* 5 */
+    {60, 60, 60},   /* 6 */
+    {60, 60, 60},   /* 7 */
+    {60, 60, 60},   /* 8 */
+    {160, 125, 75}, /* 9 */
+    {150, 110, 85}, /* 10 */
+    {60, 60, 60},   /* 11 */
+    {115, 75, 30},  /* 12 */
+    {140, 85, 23},  /* 13 */
+    {60, 60, 60},   /* 14 */
+};
+
+/** The time limits when gStageTableSet is 1. */
+s32 gTimeLimitsAlt[][3] = {
+    {100, 65, 30},  /* 0 */
+    {85, 50, 40},   /* 1 */
+    {60, 60, 60},   /* 2 */
+    {105, 80, 60},  /* 3 */
+    {110, 65, 25},  /* 4 */
+    {60, 60, 60},   /* 5 */
+    {60, 60, 60},   /* 6 */
+    {60, 60, 60},   /* 7 */
+    {60, 60, 60},   /* 8 */
+    {140, 110, 65}, /* 9 */
+    {130, 95, 75},  /* 10 */
+    {60, 60, 60},   /* 11 */
+    {100, 60, 23},  /* 12 */
+    {125, 80, 21},  /* 13 */
+    {60, 60, 60},   /* 14 */
+};
 
 /** @brief The record the start heading is read from. */
 typedef struct {

@@ -142,6 +142,8 @@ function's match report, not here.
 - **A call whose argument moves lose to a boosted load: the callee is
   unprototyped and one call site passes fewer arguments.** (UpdatePlayerAction)
 
+## Data
+
 - **A named string in `.rodata`: `const char name[] = "...";` at file
   scope, where the bytes sit among the unit's rodata.** cc1 writes it to
   `.rdata` at its source position, between the jump tables of the functions
@@ -149,6 +151,44 @@ function's match report, not here.
   to `.sdata` instead, so a retail `.rodata` string is always 9 bytes or
   more. The link's `SUBALIGN(4)` supplies the padding after a unit's last
   string. (collision's debug formats)
+- **Zero words after a string that its padding does not explain can be
+  cc1's own alignment before the next jump table** (`.align 3`); the
+  string is still plain. Read every string from its bytes, never by
+  analogy with its neighbours. (sEdDataFilePath2)
+- **`INCLUDE_RODATA` ends with `.section .text`, which cc1 does not know
+  about**: a `const` definition after one is written to `.text`. Convert a
+  unit's blocks all at once, or only those after the last one kept.
+  (hit_tool)
+- **Rodata after a unit's last function that none of its functions read is
+  the head of the next unit's rodata** (splat's
+  `migrate_rodata_to_functions` leaves it behind): define it at the top of
+  its reader's file and move that unit's subsegment start. (gMotionFmt,
+  sButtonMaps)
+- **A record of positions and sizes that retail reads with a `lui`/`addiu`
+  per array is two arrays, not one struct.** With one object cc1 derives
+  one address from the other and merges code (a loader lost 35
+  instructions). Check whether the readers could share an address before
+  choosing. (the disc file table, `include/disc_files.inc`)
+- **Retail's padding between objects can be junk, not zeros.** Write it
+  out with a `MATCHING:` note: as lone `const u8` scalars after the object
+  (cc1 aligns a lone byte to nothing, any array or struct to a word), or
+  as a member, but never inside a type that code copies whole. (engine
+  sprite shapes, stage 3 shapes)
+- **Zero state: `= {0}` puts it in `.data` where it is; a tentative
+  definition (no initializer) goes to `.bss`, at the end of the unit,
+  ordered by each name's first declaration (externs included), not by
+  where it is defined.** Order such state by declaring it early. (engine
+  buffers in `.data`; the chases' state in `.bss`, `chase_head.inc`)
+- **Unused file-scope data is still emitted, static or not**, but `-Wall`
+  warns about each unused static: keep unread data as plain globals with
+  unique names. (ovl02, world intros)
+- **A struct made only of bytes has alignment 1.** (CardTitle)
+- **A label splat cut inside a table often points at entry 1, not 0**;
+  check each label's offset before rewriting its readers to index the
+  table. (sChaseFileLoc)
+- **A data-only Sony object is placed by its readers**: the external pin
+  `ldfrag` writes for its name is the address, and the whole `.data`
+  matching retail there confirms it. (libgte/sincos, libpress/table)
 
 ## Types
 

@@ -13,6 +13,7 @@
 #include "draw.h"
 #include "spad.h"
 #include "world_intro.h"
+#include "disc_files.h"
 
 /* MATCHING: non-static inline, emitted at the file's end in this order. */
 inline void func_800F80F8(void);
@@ -33,8 +34,173 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the table's base in a register. */
 #define sLights (*(LightTable *)gFlatLights)
 
-extern s32 sOpeningTime;
-extern s32 sFadeMode;
+/** @brief Two words, copied as a pair (a unit-local view). */
+typedef struct {
+    s32 a; /**< first word */
+    s32 b; /**< second word */
+} Pair8;
+
+/** @brief The game's save as the title reads it from the memory card. */
+typedef struct {
+    Pair8 times[4];  /**< gBestTimes */
+    Pair8 cans[4];   /**< gBestCans */
+    u8 pad40[8];     /**< not read here */
+    Pair8 unk48;     /**< copied to the pair after gBestTimes and gBestCans */
+    u8 stereo;       /**< gStereo */
+    u8 rumble;       /**< gRumbleEnabled */
+    s8 sortMode;     /**< gTmdSortMode */
+    s8 buttonConfig; /**< gButtonConfig */
+    s8 unk54;        /**< a signed byte the boot code sets to -1 */
+    u8 gameCleared;  /**< gGameCleared */
+    u8 allTargets;   /**< gAllTargetsBeaten */
+    u8 unlocks;      /**< gUnlocks */
+    s32 checksum;    /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
+} SaveData;
+
+/** @brief A memory card file's header: the first 0x200 bytes of the file,
+ *         which the BIOS's card screen reads. */
+typedef struct {
+    char magic[2];   /**< "SC" */
+    u8 iconFlag;     /**< 0x13: an icon of three frames */
+    u8 blocks;       /**< the file's size in 8 KB blocks */
+    char title[64];  /**< the title, in Shift-JIS */
+    u8 pad44[28];    /**< zero */
+    u16 clut[16];    /**< the icon's palette */
+    u8 icon[3][128]; /**< the icon's frames, 16x16 at 4 bits a pixel */
+} CardFileHeader;
+
+/* The overlay's data, in address order. */
+
+extern const char sSaveFileName[]; /* in the rodata, below */
+
+#define DISC_FILE_PREFIX sDiscCopy1
+#include "disc_file_tables.inc"
+#define DISC_FILE_PREFIX sDiscCopy2
+#include "disc_file_tables.inc"
+
+/* The save file's header, the first 0x200 bytes the card holds. */
+CardFileHeader sCardFileHeader = {
+    {'S', 'C'},
+    0x13,
+    1,
+    /* "PEPSIMAN" in katakana, Shift-JIS */
+    "\x83\x79\x83\x76\x83\x56\x83\x7D\x83\x93",
+    {0},
+    {0x39CE, 0x5674, 0x2929, 0x4C00, 0x54E7, 0x8000, 0x1C00, 0x3000, 0x673B, 0x0004, 0x0012, 0x000A,
+     0x043A, 0x18DD, 0x2116, 0x7FFF},
+    /* clang-format off: one line per row of 16 pixels */
+    {
+        {
+            0x55, 0x55, 0x95, 0xB5, 0xBB, 0x5B, 0x55, 0x55, 0x55, 0x55, 0xB9, 0xAA, 0xCA,
+            0xAA, 0x59, 0x55, 0x55, 0xB5, 0xAA, 0xAA, 0xCA, 0xCC, 0xBC, 0x55, 0x55, 0xBB,
+            0xAB, 0xCA, 0xCC, 0xCC, 0xCC, 0x59, 0x95, 0xBB, 0xAB, 0xAC, 0xCC, 0xDD, 0xCD,
+            0x5C, 0xB9, 0xBB, 0xAA, 0xCA, 0xDC, 0xDD, 0xDD, 0xBC, 0x29, 0x02, 0x10, 0xE0,
+            0xDE, 0xDD, 0xDD, 0x0D, 0x02, 0x00, 0x11, 0x88, 0xF8, 0xF8, 0xF8, 0x8F, 0x02,
+            0x00, 0x11, 0x81, 0xF8, 0xFF, 0xFF, 0x1F, 0x22, 0x76, 0x37, 0x44, 0x11, 0xFF,
+            0xFF, 0x4F, 0x76, 0x77, 0x77, 0x37, 0x33, 0x44, 0x41, 0x54, 0x65, 0x77, 0x77,
+            0x33, 0x33, 0x33, 0x33, 0x53, 0x65, 0x77, 0x77, 0x37, 0x37, 0x33, 0x33, 0x56,
+            0x55, 0x76, 0x77, 0x77, 0x33, 0x33, 0x73, 0x55, 0x55, 0x65, 0x77, 0x77, 0x37,
+            0x37, 0x56, 0x55, 0x55, 0x55, 0x65, 0x76, 0x66, 0x56, 0x55, 0x55,
+        },
+        {
+            0x55, 0x55, 0x95, 0xB5, 0xBB, 0x5B, 0x55, 0x55, 0x55, 0x55, 0xB9, 0xAA, 0xCA,
+            0xAA, 0x59, 0x55, 0x55, 0xB5, 0xAA, 0xAA, 0xCA, 0xCC, 0xBC, 0x55, 0x55, 0xBB,
+            0xAB, 0xCA, 0xCC, 0xCC, 0xCC, 0x59, 0xB5, 0xBB, 0xAB, 0xCA, 0xCC, 0xDD, 0xCD,
+            0x5C, 0xB9, 0xBB, 0xAA, 0xAE, 0xCD, 0xDD, 0xDD, 0xBC, 0xB5, 0x0B, 0x10, 0x88,
+            0x88, 0xE8, 0xDD, 0xAC, 0x22, 0x00, 0x11, 0x81, 0xF8, 0xFF, 0x8F, 0x18, 0x02,
+            0x00, 0x11, 0x11, 0xF1, 0xFF, 0xFF, 0x8F, 0x02, 0x20, 0x42, 0x44, 0x44, 0x14,
+            0xF8, 0x1F, 0x26, 0x67, 0x77, 0x37, 0x33, 0x33, 0x43, 0x24, 0x75, 0x77, 0x77,
+            0x33, 0x33, 0x33, 0x33, 0x63, 0x65, 0x77, 0x77, 0x37, 0x37, 0x33, 0x33, 0x56,
+            0x55, 0x76, 0x77, 0x77, 0x33, 0x33, 0x73, 0x55, 0x55, 0x65, 0x77, 0x77, 0x37,
+            0x37, 0x56, 0x55, 0x55, 0x55, 0x65, 0x76, 0x66, 0x56, 0x55, 0x55,
+        },
+        {
+            0x55, 0x55, 0x95, 0xB5, 0xBB, 0x5B, 0x55, 0x55, 0x55, 0x55, 0xB9, 0xAA, 0xCA,
+            0xAA, 0x59, 0x55, 0x55, 0xB5, 0xAA, 0xAA, 0xCA, 0xCC, 0xBC, 0x55, 0x55, 0xBB,
+            0xAB, 0xCA, 0xCC, 0xCC, 0xCC, 0x59, 0x95, 0xBB, 0xAA, 0xAC, 0xCC, 0xDD, 0xDD,
+            0x5C, 0xB9, 0xBB, 0xAA, 0xCA, 0xDC, 0xDD, 0xDD, 0xBC, 0xB5, 0xAB, 0xAA, 0xEE,
+            0x88, 0xFF, 0x8F, 0xA8, 0x02, 0x02, 0x10, 0x81, 0xF8, 0xFF, 0xFF, 0x1F, 0x02,
+            0x00, 0x10, 0x88, 0xF8, 0xFF, 0xFF, 0x8F, 0x06, 0x00, 0x11, 0x11, 0x11, 0x44,
+            0x34, 0x14, 0x76, 0x27, 0x42, 0x74, 0x33, 0x33, 0x33, 0x73, 0x65, 0x77, 0x77,
+            0x73, 0x33, 0x33, 0x33, 0x53, 0x65, 0x77, 0x77, 0x37, 0x37, 0x33, 0x33, 0x56,
+            0x55, 0x76, 0x77, 0x77, 0x33, 0x33, 0x73, 0x55, 0x55, 0x65, 0x77, 0x77, 0x37,
+            0x37, 0x56, 0x55, 0x55, 0x55, 0x65, 0x76, 0x76, 0x56, 0x55, 0x55,
+        },
+    },
+    /* clang-format on */
+};
+
+/* Each button config's icons for the two actions the options screen shows
+ * (and a third), as sprite offsets from 0x69. */
+s8 sButtonIcons[4][4] = {{1, 2, 0, 0}, {2, 1, 0, 0}, {1, 0, 2, 0}, {0, 1, 2, 0}};
+
+/* The copy of the disc's file table the menu loads from. */
+#define DISC_FILE_PREFIX sDisc
+#include "disc_file_tables.inc"
+
+/* The title model's rotation after it lands, one per frame. */
+SVECTOR sWobbleRots[30] = {
+    /*   0 */ {0, -716, 0, 0},
+    /*   1 */ {-3, -716, 0, 0},
+    /*   2 */ {-6, -716, 0, 0},
+    /*   3 */ {-11, -728, 0, 0},
+    /*   4 */ {-14, -728, 0, 0},
+    /*   5 */ {-18, -728, 0, 0},
+    /*   6 */ {-22, -739, 0, 0},
+    /*   7 */ {-11, -739, 0, 0},
+    /*   8 */ {0, -739, 0, 0},
+    /*   9 */ {11, -762, 0, 0},
+    /*  10 */ {11, -762, 0, 0},
+    /*  11 */ {5, -807, 0, 0},
+    /*  12 */ {0, -853, 0, 0},
+    /*  13 */ {0, -898, 0, 0},
+    /*  14 */ {-11, -944, 0, 0},
+    /*  15 */ {-22, -989, 0, 0},
+    /*  16 */ {-22, -1012, 0, 0},
+    /*  17 */ {-11, -1035, 0, 0},
+    /*  18 */ {-5, -1046, 0, 0},
+    /*  19 */ {0, -1058, 0, 0},
+    /*  20 */ {11, -1058, 0, 0},
+    /*  21 */ {22, -1069, 0, 0},
+    /*  22 */ {17, -1069, 0, 0},
+    /*  23 */ {0, -1080, 0, 0},
+    /*  24 */ {0, -1069, 0, 0},
+    /*  25 */ {0, -1069, 0, 0},
+    /*  26 */ {0, -1069, 0, 0},
+    /*  27 */ {0, -1069, 0, 0},
+    /*  28 */ {0, -1069, 0, 0},
+    /*  29 */ {0, -1069, 0, 0},
+};
+
+#define DISC_FILE_PREFIX sDiscCopy3
+#include "disc_file_tables.inc"
+
+s32 sOpeningTime = 0;           /* frames the opening has run */
+u32 sOpeningSpare = 0xEDF014FE; /* never read */
+s32 sCardStep = 0;              /* the memory card load's step */
+s32 sCardStepSpare = 0;         /* never read */
+SVECTOR sMenuModelRot = {0};    /* the menu model's rotation */
+s32 sCardMessage = 0;           /* the sprite of the card error shown */
+s32 sOptionsCursor = 0;         /* the options menu's line */
+s32 sSaveChecksum = 0;          /* the checksum the save holds */
+s32 sMenuTime = 0;              /* frames since the menu began sliding */
+s32 sMenuCancelled = 0;         /* 1 when the stage select was backed out of */
+SaveData *sSave = NULL;         /* the save, in the card buffer */
+s32 sSaveSum = 0;               /* the checksum computed */
+s32 sPadHasRumble = 0;          /* 1 when the pad can vibrate */
+s32 sMenuScene = 0;             /* which model the menu draws */
+s32 sBootCardWait = 0;          /* frames the boot's card read waits */
+s8 sMenuItems[8] = {0};         /* the main menu's entries */
+s8 sMenuItemCount = 0;          /* how many */
+s32 sCardMessageTime = 0;       /* frames the card error has shown */
+long sCardResult = 0;           /* the last MemCardSync result */
+s32 sMenuCursor = 0;            /* the main menu's entry */
+s32 sTitleStarted = 0;          /* 1 once START was pressed on the title */
+s32 sWobbleTime = 0;            /* the title model's frame */
+s32 sTitleCamTime = 0;          /* the title camera's clock */
+s32 sTitleExitTime = 0;         /* frames since START on the title */
+s32 sFadeTime = 0;              /* the screen fade's frame */
+s32 sFadeMode = 0;              /* the fade: 2 fading in, then 1; 3 fading out, then 0 */
 
 void func_800F01EC(void) {
     SVECTOR pos;
@@ -181,29 +347,6 @@ void func_800F04EC(SVECTOR *pos, s32 count, s32 frames) {
     }
 }
 
-/** @brief Two words, copied as a pair (a unit-local view). */
-typedef struct {
-    s32 a; /**< first word */
-    s32 b; /**< second word */
-} Pair8;
-
-/** @brief The game's save as the title reads it from the memory card. */
-typedef struct {
-    Pair8 times[4];  /**< gBestTimes */
-    Pair8 cans[4];   /**< gBestCans */
-    u8 pad40[8];     /**< not read here */
-    Pair8 unk48;     /**< copied to the pair after gBestTimes and gBestCans */
-    u8 stereo;       /**< gStereo */
-    u8 rumble;       /**< gRumbleEnabled */
-    s8 sortMode;     /**< gTmdSortMode */
-    s8 buttonConfig; /**< gButtonConfig */
-    s8 unk54;        /**< a signed byte the boot code sets to -1 */
-    u8 gameCleared;  /**< gGameCleared */
-    u8 allTargets;   /**< gAllTargetsBeaten */
-    u8 unlocks;      /**< gUnlocks */
-    s32 checksum;    /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
-} SaveData;
-
 /* MATCHING: per-unit views, as in main.c. */
 extern Pair8 gBestCans[];
 extern Pair8 gBestTimes[];
@@ -211,12 +354,6 @@ extern Pair8 D_80095978;
 extern u8 gRumbleEnabled;
 extern s8 D_800957A0;
 extern u8 gGameCleared;
-extern s32 sSaveChecksum;
-extern SaveData *sSave;
-extern s32 sSaveSum;
-extern s32 sBootCardWait;
-extern long sCardResult;
-extern char sSaveFileName[]; /* "BISLPS-01762", the save file's name */
 
 void func_800F0AD4(void) {
     s32 bad;
@@ -246,7 +383,7 @@ void func_800F0AD4(void) {
                         break;
                 }
                 if (bad == 0) {
-                    MemCardReadFile(0, sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
+                    MemCardReadFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
                     MemCardSync(0, 0, &sCardResult);
                     if (sCardResult == 0) {
                         sSave = (SaveData *)0x8016D000;
@@ -375,24 +512,11 @@ void func_800F1494(s32 i) {
     GsSortObject4J(&sAct3Objs[i], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
 }
 
-INCLUDE_RODATA("asm/ovl/ovl02/nonmatchings/ovl02", sSaveFileName);
+/* The save file's name on the memory card. */
+const char sSaveFileName[] = "BISLPS-01762";
 
-extern SVECTOR sMenuModelRot;
-extern s32 sCardStep;
-extern s32 sCardMessage;
-extern s32 sOptionsCursor;
-extern s32 sMenuTime;
-extern s32 sMenuCancelled;
-extern s32 sPadHasRumble;
-extern s32 sMenuScene;
-extern s8 sMenuItems[];
-extern s8 sMenuItemCount;
-extern s32 sCardMessageTime;
-extern s32 sMenuCursor;
 extern s32 D_80095984;
 extern s32 D_80095998;
-extern u8 sCardFileHeader[];
-extern s8 sButtonIcons[][4];
 extern Pair8 gActTimes;
 extern Pair8 gActCans;
 extern Pair8 D_800958C0;
@@ -1637,7 +1761,7 @@ void func_800F1570(void) {
                     }
                     break;
                 case 12:
-                    MemCardReadFile(0, sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
+                    MemCardReadFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
                     sCardStep = 13;
                     break;
                 case 13:
@@ -1792,7 +1916,7 @@ void func_800F1570(void) {
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
-                                switch (MemCardCreateFile(0, sSaveFileName, 1)) {
+                                switch (MemCardCreateFile(0, (char *)sSaveFileName, 1)) {
                                     case 0:
                                         sCardStep = 12;
                                         break;
@@ -1850,7 +1974,7 @@ void func_800F1570(void) {
                         switch (sCardResult) {
                             case 0:
                             case 3:
-                                switch (MemCardCreateFile(0, sSaveFileName, 1)) {
+                                switch (MemCardCreateFile(0, (char *)sSaveFileName, 1)) {
                                     case 0:
                                         sCardStep = 12;
                                         break;
@@ -1900,7 +2024,7 @@ void func_800F1570(void) {
                     break;
                 case 12:
                     for (i = 0; (s32)i < 0x200; i++) {
-                        ((u8 *)0x8016D000)[i] = sCardFileHeader[i];
+                        ((u8 *)0x8016D000)[i] = ((u8 *)&sCardFileHeader)[i];
                     }
                     sSave = (SaveData *)0x8016D200;
                     sSave->times[0].a = gBestTimes[0].a;
@@ -1936,7 +2060,7 @@ void func_800F1570(void) {
                     }
                     sSaveSum = ~sSaveSum;
                     sSave->checksum = sSaveSum;
-                    MemCardWriteFile(0, sSaveFileName, (unsigned long *)0x8016D000, 0, 0x280);
+                    MemCardWriteFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000, 0, 0x280);
                     sCardStep = 15;
                     break;
                 case 13:
@@ -1986,7 +2110,8 @@ void func_800F1570(void) {
                         }
                         sSaveSum = ~sSaveSum;
                         sSave->checksum = sSaveSum;
-                        MemCardWriteFile(0, sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
+                        MemCardWriteFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000,
+                                         0x200, 0x80);
                         sCardStep = 15;
                     }
                     break;
@@ -2114,10 +2239,6 @@ void func_800F1570(void) {
     }
 }
 
-extern CdlLOC D_800F96F8;
-extern CdlLOC D_800F96FC;
-extern s32 D_800F9748;
-extern s32 D_800F974C;
 void func_800F0AD4(void);
 void func_800F1570(void);
 void func_800F69B0(void);
@@ -2127,12 +2248,12 @@ void func_800F6670(void) {
     switch (gModeStep) {
         case 0:
             gSubStep = 0;
-            gCdLoadLoc[0] = (s32)&D_800F96F8;
+            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gModeStep = 1;
-            gCdLoadSectors[0] = D_800F9748;
+            gCdLoadSectors[0] = sDiscSharedSectors[2];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -2190,12 +2311,12 @@ void func_800F6670(void) {
             break;
         case 50:
             gSubStep = 0;
-            gCdLoadLoc[0] = (s32)&D_800F96FC;
+            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[3];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gModeStep = 51;
-            gCdLoadSectors[0] = D_800F974C;
+            gCdLoadSectors[0] = sDiscSharedSectors[3];
             break;
         case 51:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -2254,10 +2375,6 @@ inline void func_800F81B4(void) {
     color.g = color.b = color.cd = 0x60;
     DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
-
-extern s32 sTitleStarted;
-extern s32 sTitleCamTime;
-extern s32 sTitleExitTime;
 
 void func_800F69B0(void) {
     SVECTOR pos;
@@ -2546,10 +2663,6 @@ void func_800F69B0(void) {
     }
 }
 
-extern CdlLOC D_800F9BC8;
-extern SVECTOR sWobbleRots[];
-extern s32 sWobbleTime;
-
 s32 func_800F7A4C(void) {
     SVECTOR pos;
     SColor color;
@@ -2598,7 +2711,7 @@ s32 func_800F7A4C(void) {
             sLights.l[2].vz = -50;
             GsSetFlatLight(2, &sLights.l[2]);
             sWobbleTime = 0;
-            CdControlF(CdlSeekL, (u_char *)&D_800F9BC8);
+            CdControlF(CdlSeekL, (u_char *)&sDiscXaLoc[0]);
             CdSync(0, NULL);
             PlayXa(5);
             gSubStep++;
@@ -2716,8 +2829,6 @@ inline void func_800F8264(void) {
         __asm__("");
     }
 }
-
-extern s32 sFadeTime;
 
 inline void func_800F83E0(void) {
     GsOT *ot;

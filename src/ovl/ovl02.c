@@ -13,7 +13,6 @@
 #include "draw.h"
 #include "spad.h"
 #include "world_intro.h"
-#include "disc_files.h"
 
 /* MATCHING: non-static inline, emitted at the file's end in this order. */
 inline void func_800F80F8(void);
@@ -73,10 +72,10 @@ typedef struct {
 
 extern const char sSaveFileName[]; /* in the rodata, below */
 
-#define DISC_FILE_PREFIX sDiscCopy1
-#include "disc_file_tables.inc"
-#define DISC_FILE_PREFIX sDiscCopy2
-#include "disc_file_tables.inc"
+#define DISC_FILE(x) sFiles1##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles2##x
+#include "disc_files.inc"
 
 /* The save file's header, the first 0x200 bytes the card holds. */
 CardFileHeader sCardFileHeader = {
@@ -135,8 +134,8 @@ CardFileHeader sCardFileHeader = {
 s8 sButtonIcons[4][4] = {{1, 2, 0, 0}, {2, 1, 0, 0}, {1, 0, 2, 0}, {0, 1, 2, 0}};
 
 /* The copy of the disc's file table the menu loads from. */
-#define DISC_FILE_PREFIX sDisc
-#include "disc_file_tables.inc"
+#define DISC_FILE(x) sFiles3##x
+#include "disc_files.inc"
 
 /* The title model's rotation after it lands, one per frame. */
 SVECTOR sWobbleRots[30] = {
@@ -172,8 +171,8 @@ SVECTOR sWobbleRots[30] = {
     /*  29 */ {0, -1069, 0, 0},
 };
 
-#define DISC_FILE_PREFIX sDiscCopy3
-#include "disc_file_tables.inc"
+#define DISC_FILE(x) sFiles4##x
+#include "disc_files.inc"
 
 s32 sOpeningTime = 0;           /* frames the opening has run */
 u32 sOpeningSpare = 0xEDF014FE; /* never read */
@@ -2248,12 +2247,12 @@ void func_800F6670(void) {
     switch (gModeStep) {
         case 0:
             gSubStep = 0;
-            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[2];
+            gCdLoadLoc[0] = (s32)&sFiles3OvlLoc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gModeStep = 1;
-            gCdLoadSectors[0] = sDiscSharedSectors[2];
+            gCdLoadSectors[0] = sFiles3OvlSectors[2];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -2311,12 +2310,12 @@ void func_800F6670(void) {
             break;
         case 50:
             gSubStep = 0;
-            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[3];
+            gCdLoadLoc[0] = (s32)&sFiles3OvlLoc[3];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gModeStep = 51;
-            gCdLoadSectors[0] = sDiscSharedSectors[3];
+            gCdLoadSectors[0] = sFiles3OvlSectors[3];
             break;
         case 51:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -2711,7 +2710,7 @@ s32 func_800F7A4C(void) {
             sLights.l[2].vz = -50;
             GsSetFlatLight(2, &sLights.l[2]);
             sWobbleTime = 0;
-            CdControlF(CdlSeekL, (u_char *)&sDiscXaLoc[0]);
+            CdControlF(CdlSeekL, (u_char *)&sFiles3LastLoc[0]);
             CdSync(0, NULL);
             PlayXa(5);
             gSubStep++;

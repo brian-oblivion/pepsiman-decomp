@@ -24,12 +24,12 @@ void StepWorldIntro(void) {
 
     switch (gWorldIntroStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[INTRO_PACK];
+            gCdLoadLoc[0] = (s32)&sFiles1OvlLoc[INTRO_PACK];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gWorldIntroStep = 1;
-            gCdLoadSectors[0] = sDiscSharedSectors[INTRO_PACK];
+            gCdLoadSectors[0] = sFiles1OvlSectors[INTRO_PACK];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -41,7 +41,7 @@ void StepWorldIntro(void) {
         case 2:
             if (LoadVabBank(2) == 1) {
                 gLoading = 0;
-                CdControlF(CdlSeekL, (u_char *)&sDiscXaLoc[0]);
+                CdControlF(CdlSeekL, (u_char *)&sFiles1LastLoc[0]);
                 gWorldIntroStep = 3;
             }
             break;

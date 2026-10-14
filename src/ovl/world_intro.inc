@@ -23,7 +23,6 @@
 #include "sound.h"
 #include "spad.h"
 #include "world_intro.h"
-#include "disc_files.h"
 
 /* MATCHING: model types the table as its own record; here it is the
  * overlay's words, as in main. */
@@ -42,13 +41,14 @@ typedef struct {
  * of it is .data. */
 
 /* Two copies of the disc's file table; the intro loads from the first. */
-#define DISC_FILE_PREFIX sDisc
-#include "disc_file_tables.inc"
-#define DISC_FILE_PREFIX sDiscCopy
-#include "disc_file_tables.inc"
+#define DISC_FILE(x) sFiles1##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles2##x
+#include "disc_files.inc"
 
-/* The shared file holding the intro's models, animations and sprites. */
-#define INTRO_PACK DISC_INTRO_PACK(INTRO_WORLD)
+/* The intro's pack of models, animations and sprites: in LoadOverlay's
+ * list, the entry after the intro's own overlay. */
+#define INTRO_PACK (INTRO_WORLD * 2 + 9)
 
 /* The intro's own variables. */
 #if INTRO_XA

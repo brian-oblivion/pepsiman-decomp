@@ -7,9 +7,9 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "libetc.h"
+#include "libcd.h"
 #include "object.h"
 #include "model.h"
-#include "disc_files.h"
 
 /* MATCHING: views of routines their units declare only where defined. */
 s32 LoadVabBank(s32 bank);
@@ -41,10 +41,10 @@ extern s32 D_80095818;
 
 /* The overlay's data, in address order: two copies of the disc's file
  * table, which the menu never reads, and the sound test's choices. */
-#define DISC_FILE_PREFIX sDisc
-#include "disc_file_tables.inc"
-#define DISC_FILE_PREFIX sDiscCopy
-#include "disc_file_tables.inc"
+#define DISC_FILE(x) sFiles1##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles2##x
+#include "disc_files.inc"
 
 u16 sSoundTestVab = 0; /* the VAB bank */
 u16 sSoundTestSe = 0;  /* the sound effect */

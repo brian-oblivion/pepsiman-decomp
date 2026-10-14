@@ -56,12 +56,12 @@ s32 StepWorldIntro(void) {
 
     switch (gWorldIntroStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[INTRO_PACK];
+            gCdLoadLoc[0] = (s32)&sFiles1OvlLoc[INTRO_PACK];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gWorldIntroStep = 1;
-            gCdLoadSectors[0] = sDiscSharedSectors[INTRO_PACK];
+            gCdLoadSectors[0] = sFiles1OvlSectors[INTRO_PACK];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {

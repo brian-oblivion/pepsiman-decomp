@@ -7,8 +7,9 @@
 # and anything it calls lands in this overlay's undefined_*_auto files.
 #
 # SEGMENTATION, measured: rodata, then code from the first function to the
-# last `jr $ra`, then data to the end of the file. Not yet worked: the rodata
-# and data are one block each.
+# last `jr $ra`, then data to the end of the file: the main unit's .data,
+# the tail's (which starts at its own copy of disc_files.inc's table, the
+# second in the file), then the main unit's .bss, zeros in the file.
 #
 # TWO UNITS. The stage's tail (chase_tail.inc: lights, placement, loader,
 # reset) is its own unit, ovl17_tail, whose rodata starts at the loader's
@@ -65,5 +66,6 @@ segments:
       - [0x1B0, .rodata, ovl17_tail]
       - [0x1F0, c, ovl17]
       - [0x36A8, c, ovl17_tail]
-      - [0x3A4C, data]
+      - [0x3A4C, .data, ovl17]
+      - [0x4578, .data, ovl17_tail]
   - [0x4B1C]

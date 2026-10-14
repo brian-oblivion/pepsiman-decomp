@@ -183,6 +183,13 @@ function's match report, not here.
   warns about each unused static: keep unread data as plain globals with
   unique names. (ovl02, world intros)
 - **A struct made only of bytes has alignment 1.** (CardTitle)
+- **Under `-G8` an object of 8 bytes or less stays in `.data` only when
+  declared unsized with a brace initializer** (`u8 x[] = {...};`); sized,
+  it goes to `.sdata`. (disc table's LastLoc, sPadActAlign)
+- **cc1 decides whether a symbol is small when it first builds RTL for
+  it**: an `extern char s[];` before the uses keeps the split `lui`/`addiu`
+  addressing even when the definition after them is small; defining it
+  first gives the one-register `la`. (the executable's `.sdata` strings)
 - **A label splat cut inside a table often points at entry 1, not 0**;
   check each label's offset before rewriting its readers to index the
   table. (sChaseFileLoc)

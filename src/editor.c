@@ -150,50 +150,25 @@ typedef struct {
  * unit through its own view (StageSprite, EditorState here; StageSprite, EditorReset there). */
 extern StageSprite gStageSprites[]; /**< 100 StageSprite records */
 extern u8 gEditorState[];           /**< the editor's state, an EditorState */
-extern char sEdTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0" */
 #define sTotals (*(EditorState *)gEditorState)
-extern char sEdNewlines2[];           /**< "\n\n" */
-extern char sEdColorWhite[];          /**< colour code of a highlighted menu line, "~c888" */
-extern char sEdColorBlue[];           /**< colour code of a plain menu line, "~c008" */
-extern char sEdYesText[];             /**< "  YES\n" */
-extern char sEdNoText[];              /**< "  NO" */
-extern char sEdSaveText[];            /**< "  SAVE\n" */
-extern char sEdLoadText[];            /**< "  LOAD\n" */
-extern char sEdDataNoFmt[];           /**< "DATA:%d " */
-extern char sEdStageFmt[];            /**< "STAGE %d-" */
-extern char sEdNoDataText[];          /**< "NO DATA\n" */
-extern char sEdArea1Text[];           /**< "1" */
-extern char sEdArea2Text[];           /**< "2" */
-extern char sEdBossText[];            /**< "BOSS" */
-extern char sEdNewline[];             /**< "\n" */
-extern char sEdCanNoFmt[];            /**< "\n\nCAN NO.  %d\n" */
-extern char sEdCanNumFmt[];           /**< "CAN NUM. %d\n" */
-extern char sEdInfoSwitchNoFmt[];     /**< "\n\nSWITCH NO.%d\n" */
-extern char sEdInfoTrapNoFmt[];       /**< "\n\nTRAP NO. %d / " */
-extern char sEdInfoTrapModelFmt[];    /**< "MODEL.%2d / " */
-extern char sEdOptionsText[];         /**< "OPTIONS  / " */
-extern char sEdInfoTrapSwitchFmt[];   /**< "SWITCH NO.%d\n" */
-extern char sEdInfoTypeFmt[];         /**< "TYPE. %d / " */
-extern char sEdInfoActFmt[];          /**< "ACT. %d\n" */
-extern char sEdInfoSpriteFmt[];       /**< "\n\nSPRITE. %d / " */
-extern char sEdInfoSpriteModelFmt[];  /**< "MODEL. %d / " */
-extern char sEdInfoSpriteSwitchFmt[]; /**< "SWITCH. %d\n" */
-extern char sEdNoActText[];           /**< "NO ACT  / " */
-extern char sEdInfoNearActText[];     /**< "NEAR ACT/ " */
-extern char sEdInfoHitActText[];      /**< "HIT ACT / " */
-extern char sEdInfoWalkTypeFmt[];     /**< "TYPE %d\n" */
-extern char sEdNoSeText[];            /**< "NO SE / " */
-extern char sEdManText[];             /**< "MAN   / " */
-extern char sEdWomanText[];           /**< "WOMAN / " */
-extern char sEdChildText[];           /**< "CHILD / " */
-extern char sEdDogText[];             /**< "DOG   / " */
-extern char sEdInfoHitLabel[];        /**< "HIT. " */
-extern char sEdInfoOffText[];         /**< " OFF / " */
-extern char sEdInfoOnText[];          /**< " ON  / " */
-extern char sEdInfoActLabel[];        /**< "ACT. " */
-extern char sEdInfoWalkLabel[];       /**< "WALK." */
-extern char sEdInfoOffLine[];         /**< " OFF\n" */
-extern char sEdInfoSeLabel[];         /**< "SE. " */
+extern char sEdNewlines2[];     /**< "\n\n" */
+extern char sEdColorWhite[];    /**< colour code of a highlighted menu line, "~c888" */
+extern char sEdColorBlue[];     /**< colour code of a plain menu line, "~c008" */
+extern char sEdYesText[];       /**< "  YES\n" */
+extern char sEdNoText[];        /**< "  NO" */
+extern char sEdSaveText[];      /**< "  SAVE\n" */
+extern char sEdLoadText[];      /**< "  LOAD\n" */
+extern char sEdArea1Text[];     /**< "1" */
+extern char sEdArea2Text[];     /**< "2" */
+extern char sEdBossText[];      /**< "BOSS" */
+extern char sEdNewline[];       /**< "\n" */
+extern char sEdInfoHitLabel[];  /**< "HIT. " */
+extern char sEdInfoOffText[];   /**< " OFF / " */
+extern char sEdInfoOnText[];    /**< " ON  / " */
+extern char sEdInfoActLabel[];  /**< "ACT. " */
+extern char sEdInfoWalkLabel[]; /**< "WALK." */
+extern char sEdInfoOffLine[];   /**< " OFF\n" */
+extern char sEdInfoSeLabel[];   /**< "SE. " */
 
 
 /* MATCHING: also declared in object, which only zeroes it. */
@@ -299,8 +274,6 @@ typedef struct {
     Size2 s[3]; /**< the sizes */
 } Sizes3;
 
-extern Sizes3 sBoxSizes; /**< the three box sizes, 2000, 1000 and 4000 */
-
 /* MATCHING: object defines it on its Box4. */
 void SetBoxCentred(EditorSwitch *b, s16 w, s16 d);
 
@@ -315,27 +288,8 @@ void DrawPin(VECTOR *pos);
 void MoveGamePos(s32 deg, s32 dist);
 
 void PrintEditorSlots(void);
-extern char sEdNewlines3[];           /**< "\n\n\n" */
-extern char sEdCheckText[];           /**< "CHECK" */
-extern char sEdDataModeText[];        /**< "DATA MODE" */
-extern char sEdModeSelectText[];      /**< "  MODE SELECT\n\n" */
-extern char sEdBufferSelectText[];    /**< "BUFFER SELECT\n\n" */
-extern char sEdCreateFileText[];      /**< "  CREATE FILE" */
-extern char sEdCardFormatText[];      /**< "  CARD FORMAT" */
-extern char sEdSaveToDataFmt[];       /**< "SAVE TO DATA %d\n\n" */
-extern char sEdOverwriteOkText[];     /**< "OVER WRITE OK ?" */
-extern char sEdDataWritingText[];     /**< "DATA WRITING..." */
-extern char sEdLoadFromDataFmt[];     /**< "LOAD TO DATA %d\n\n" */
-extern char sEdLoadOkText[];          /**< "    LOAD OK ?" */
-extern char sEdCantOpenDataFmt[];     /**< "CAN NOT OPEN DATA %d" */
-extern char sEdCompleteText[];        /**< "   COMPLATE" */
-extern char sEdErrorText[];           /**< "    !!!! ERROR!!!!" */
-extern char sEdNotEnoughMemoryText[]; /**< "   NOT ENOUGH MEMORY" */
-extern char sEdNoCardText[];          /**< "NO CONNECT CARD" */
-extern char sEdNoFileText[];          /**< "NO FILE\n\n" */
-extern char sEdCreateNewFileText[];   /**< "CREATE NEW FILE ?" */
-extern char sEdUnformattedText[];     /**< "    UN FORMAT\n\n" */
-extern char sEdFormatOkText[];        /**< "   FORMAT OK ?" */
+extern char sEdNewlines3[]; /**< "\n\n\n" */
+extern char sEdCheckText[]; /**< "CHECK" */
 
 /* Defined in other units, without a header. */
 /* MATCHING: object defines it with no parameter; called with an OT. */
@@ -397,235 +351,238 @@ void RestoreEditorState(s16 a);
 s32 WriteEditorFile(void);
 s32 ReadEditorFile(void);
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPositionFmt);
+const char sEdPositionFmt[] = "\nPOSITION X %d "; /**< the editor's position format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchNoFmt);
+const char sEdSwitchNoFmt[] = "\nSWITCH NO(%2d/ %2d)"; /**< the editor's switch number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapNoFmt);
+const char sEdTrapNoFmt[] = " TRAP NO(%3d/ %3d)"; /**< the editor's trap number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiNoFmt);
+const char sEdPepsiNoFmt[] = "\nPEPSI NO(%3d/ %3d)"; /**< the editor's pepsi number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdItemText);
+const char sEdItemText[] = " ITEM : "; /**< the editor's item text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiFmt);
+const char sEdPepsiFmt[] = "PEPSI %2d"; /**< the editor's pepsi format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchFmt);
+const char sEdSwitchFmt[] = "SWITCH %2d"; /**< the editor's switch format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapFmt);
+const char sEdTrapFmt[] = "TRAP %2d"; /**< the editor's trap format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteFmt);
+const char sEdSpriteFmt[] = "SPRITE %2d"; /**< the editor's sprite format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoText);
+const char sEdInfoText[] = "INFO    "; /**< the editor's info text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDeleteText);
+const char sEdDeleteText[] = "DELETE  "; /**< the editor's delete text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdMoveModeText);
+const char sEdMoveModeText[] = "MOVE MODE"; /**< the editor's move mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdMenuModeText);
+const char sEdMenuModeText[] = "MENU MODE"; /**< the editor's menu mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiSelModeText);
+const char sEdPepsiSelModeText[] = "PEPSI SEL MODE"; /**< the editor's pepsi select mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNewlines9);
+const char sEdNewlines9[] = "\n\n\n\n\n\n\n\n\n"; /**< nine newlines */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiTypeSelText);
+const char sEdPepsiTypeSelText[] = "PEPSI TYPE SEL\n\n"; /**< the editor's pepsi type select text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPepsiTypeRangeFmt);
+const char sEdPepsiTypeRangeFmt[] = "   1<-%2d->200"; /**< the editor's pepsi type range format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchSelModeText);
+const char sEdSwitchSelModeText[] = "SWITCH SEL MODE"; /**< the editor's switch select mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNewlines8);
+const char sEdNewlines8[] = "\n\n\n\n\n\n\n\n"; /**< eight newlines */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchSelText);
+const char sEdSwitchSelText[] = "  SWITCH SEL\n\n"; /**< the editor's switch select text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchNoRangeText);
+const char sEdSwitchNoRangeText[] = "NO.  0<-"; /**< the editor's switch number range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchTypeRangeFmt);
+const char sEdSwitchTypeRangeFmt[] = "TYPE. 0<-%1d->%d"; /**< the editor's switch type range format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapSelModeText);
+const char sEdTrapSelModeText[] = "TRAP SEL MODE"; /**< the editor's trap select mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapSelText);
+const char sEdTrapSelText[] = "   TRAP  SEL\n\n"; /**< the editor's trap select text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapNoRangeText);
+const char sEdTrapNoRangeText[] = "NO.    0<-"; /**< the editor's trap number range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapModelRangeFmt);
+const char sEdTrapModelRangeFmt[] = "MODEL. 0<-%2d->%2d\n"; /**< the editor's trap model range format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdUseBufferFmt);
+const char sEdUseBufferFmt[] = "   USE BUFFER %d\n"; /**< the editor's use buffer format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapSwitchRangeText);
+const char sEdTrapSwitchRangeText[] = "SWITCH.0<-"; /**< the editor's trap switch range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapTypeRangeText);
+const char sEdTrapTypeRangeText[] = "TYPENO.0<-"; /**< the editor's trap type range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapActRangeText);
+const char sEdTrapActRangeText[] = "ACT NO.0<-"; /**< the editor's trap act range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdAngleRangeFmt);
+const char sEdAngleRangeFmt[] = "  L1 0<-%3d->360 R1\n"; /**< the editor's angle range format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSelModeText);
+const char sEdSpriteSelModeText[] = "SPR SEL MODE"; /**< the editor's sprite select mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSelText);
+const char sEdSpriteSelText[] = "   SPRITE SEL\n\n"; /**< the editor's sprite select text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteNoRangeText);
+const char sEdSpriteNoRangeText[] = "  NO.    0<-"; /**< the editor's sprite number range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteModelRangeFmt);
+const char sEdSpriteModelRangeFmt[] = "  MODEL. 0<-%3d->%3d\n"; /**< the editor's sprite model range format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSwitchRangeText);
+const char sEdSpriteSwitchRangeText[] = "  SWITCH.0<-"; /**< the editor's sprite switch range text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSpriteSizeRangeFmt);
+const char sEdSpriteSizeRangeFmt[] = "  SIZE. 0<-%3d->%3d\n"; /**< the editor's sprite size range format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdHitLabel);
+const char sEdHitLabel[] = "  HIT.  "; /**< the editor's hit label */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdFlipLabel);
+const char sEdFlipLabel[] = "  FLIP.  "; /**< the editor's flip label */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdActLabel);
+const char sEdActLabel[] = "  ACT.   "; /**< the editor's act label */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNearActText);
+const char sEdNearActText[] = "NEAR ACT\n"; /**< the editor's near act text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdHitActText);
+const char sEdHitActText[] = "HIT ACT\n"; /**< the editor's hit act text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdWalkLabel);
+const char sEdWalkLabel[] = "  WALK.  "; /**< the editor's walk label */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSeLabel);
+const char sEdSeLabel[] = "  SE.    "; /**< the editor's sound effect label */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdWarningText);
+const char sEdWarningText[] = "!!! WARNING !!!"; /**< the editor's warning text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCansTrapsLine);
+const char sEdCansTrapsLine[] = "PEPSICAN TO TRAP TO"; /**< the editor's cans traps line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchesCantPlaceLine);
+const char sEdSwitchesCantPlaceLine[] = "SWITCH GA OKEMASEN."; /**< the editor's switches cant place line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdGroundHitLine);
+const char sEdGroundHitLine[] = "JIMEN NO HIT GA"; /**< the editor's ground hit line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdUntakeableHereLine);
+const char sEdUntakeableHereLine[] = "TORENAI BASHO NI"; /**< the editor's untakeable here line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPushCrossText);
+const char sEdPushCrossText[] = "            PUSH BATU"; /**< the editor's push cross text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdBufferMaxLine);
+const char sEdBufferMaxLine[] = "BAFFER GA MAX NI NARI"; /**< the editor's buffer max line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdReachedNoMoreLine);
+const char sEdReachedNoMoreLine[] = "MASITA. KORE IJYOU HA"; /**< the editor's reached no more line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCantPlaceLine);
+const char sEdCantPlaceLine[] = "OKEMASEN."; /**< the editor's cant place line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdAskMiyagoeLine);
+const char sEdAskMiyagoeLine[] = "MIYAGOE SAMA NI KIITE"; /**< the editor's ask miyagoe line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPleaseLine);
+const char sEdPleaseLine[] = "KUDASAI."; /**< the editor's please line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSwitchesDeleteLine);
+const char sEdSwitchesDeleteLine[] = "SWITCH GA SAKUJYO"; /**< the editor's switches delete line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCannotLine);
+const char sEdCannotLine[] = "DEKIMASEN."; /**< the editor's cannot line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdBufferZeroLine);
+const char sEdBufferZeroLine[] = "BAFFER GA ZERO NI NARI"; /**< the editor's buffer zero line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCantDeleteLine);
+const char sEdCantDeleteLine[] = "SAKUJYO DEKIMASEN."; /**< the editor's cant delete line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdAreaDeleteLine);
+const char sEdAreaDeleteLine[] = "KONO AREA NI SAKUJYO"; /**< the editor's area delete line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDeletableLine);
+const char sEdDeletableLine[] = "DEKIRU MONO HA"; /**< the editor's deletable line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdThereAreNoneLine);
+const char sEdThereAreNoneLine[] = "ARIMASEN."; /**< the editor's there are none line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTrapsSwitchesLine);
+const char sEdTrapsSwitchesLine[] = "TRAP TO SWITCH GA"; /**< the editor's traps switches line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNotNearbyLine);
+const char sEdNotNearbyLine[] = "CHIKAKU NI ARIMASEN."; /**< the editor's not nearby line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdWhatToEraseLine);
+const char sEdWhatToEraseLine[] = "KESITAI MONO NO "; /**< the editor's what to erase line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdMoveNearLine);
+const char sEdMoveNearLine[] = "CHIKAKU NI IDOU"; /**< the editor's move near line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdPleaseDoLine);
+const char sEdPleaseDoLine[] = "SITEKUDASAI."; /**< the editor's please do line */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCanNoFmt);
+const char sEdCanNoFmt[] = "\n\nCAN NO.  %d\n"; /**< the editor's can number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCanNumFmt);
+const char sEdCanNumFmt[] = "CAN NUM. %d\n"; /**< the editor's can count format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSwitchNoFmt);
+const char sEdInfoSwitchNoFmt[] = "\n\nSWITCH NO.%d\n"; /**< the editor's info switch number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTrapNoFmt);
+const char sEdInfoTrapNoFmt[] = "\n\nTRAP NO. %d / "; /**< the editor's info trap number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTrapModelFmt);
+const char sEdInfoTrapModelFmt[] = "MODEL.%2d / "; /**< the editor's info trap model format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdOptionsText);
+const char sEdOptionsText[] = "OPTIONS  / "; /**< the editor's options text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTrapSwitchFmt);
+const char sEdInfoTrapSwitchFmt[] = "SWITCH NO.%d\n"; /**< the editor's info trap switch format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoTypeFmt);
+const char sEdInfoTypeFmt[] = "TYPE. %d / "; /**< the editor's info type format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoActFmt);
+const char sEdInfoActFmt[] = "ACT. %d\n"; /**< the editor's info act format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSpriteFmt);
+const char sEdInfoSpriteFmt[] = "\n\nSPRITE. %d / "; /**< the editor's info sprite format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSpriteModelFmt);
+const char sEdInfoSpriteModelFmt[] = "MODEL. %d / "; /**< the editor's info sprite model format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoSpriteSwitchFmt);
+const char sEdInfoSpriteSwitchFmt[] = "SWITCH. %d\n"; /**< the editor's info sprite switch format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoActText);
+const char sEdNoActText[] = "NO ACT  / "; /**< the editor's no act text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoNearActText);
+const char sEdInfoNearActText[] = "NEAR ACT/ "; /**< the editor's info near act text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoHitActText);
+const char sEdInfoHitActText[] = "HIT ACT / "; /**< the editor's info hit act text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdInfoWalkTypeFmt);
+const char sEdInfoWalkTypeFmt[] = "TYPE %d\n"; /**< the editor's info walk type format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoSeText);
+const char sEdNoSeText[] = "NO SE / "; /**< the editor's no sound effect text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdManText);
+const char sEdManText[] = "MAN   / "; /**< the editor's man text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdWomanText);
+const char sEdWomanText[] = "WOMAN / "; /**< the editor's woman text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdChildText);
+const char sEdChildText[] = "CHILD / "; /**< the editor's child text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDogText);
+const char sEdDogText[] = "DOG   / "; /**< the editor's dog text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sBoxSizes);
+const Sizes3 sBoxSizes = {{{2000, 2000}, {1000, 1000}, {4000, 4000}}}; /**< the three box sizes (width, depth) */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataModeText);
+const char sEdDataModeText[] = "DATA MODE"; /**< the editor's data mode text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdModeSelectText);
+const char sEdModeSelectText[] = "  MODE SELECT\n\n"; /**< the editor's mode select text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdBufferSelectText);
+const char sEdBufferSelectText[] = "BUFFER SELECT\n\n"; /**< the editor's buffer select text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCreateFileText);
+const char sEdCreateFileText[] = "  CREATE FILE"; /**< the editor's create file text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCardFormatText);
+const char sEdCardFormatText[] = "  CARD FORMAT"; /**< the editor's card format text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdSaveToDataFmt);
+const char sEdSaveToDataFmt[] = "SAVE TO DATA %d\n\n"; /**< the editor's save to data format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdOverwriteOkText);
+const char sEdOverwriteOkText[] = "OVER WRITE OK ?"; /**< the editor's overwrite ok text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataWritingText);
+const char sEdDataWritingText[] = "DATA WRITING..."; /**< the editor's data writing text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdLoadFromDataFmt);
+const char sEdLoadFromDataFmt[] = "LOAD TO DATA %d\n\n"; /**< the editor's load from data format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdLoadOkText);
+const char sEdLoadOkText[] = "    LOAD OK ?"; /**< the editor's load ok text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCantOpenDataFmt);
+const char sEdCantOpenDataFmt[] = "CAN NOT OPEN DATA %d"; /**< the editor's cant open data format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCompleteText);
+const char sEdCompleteText[] = "   COMPLATE"; /**< the editor's complete text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdErrorText);
+const char sEdErrorText[] = "    !!!! ERROR!!!!"; /**< the editor's error text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNotEnoughMemoryText);
+const char sEdNotEnoughMemoryText[] = "   NOT ENOUGH MEMORY"; /**< the editor's not enough memory text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoCardText);
+const char sEdNoCardText[] = "NO CONNECT CARD"; /**< the editor's no card text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoFileText);
+const char sEdNoFileText[] = "NO FILE\n\n"; /**< the editor's no file text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdCreateNewFileText);
+const char sEdCreateNewFileText[] = "CREATE NEW FILE ?"; /**< the editor's create new file text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdUnformattedText);
+const char sEdUnformattedText[] = "    UN FORMAT\n\n"; /**< the editor's unformatted text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdFormatOkText);
+const char sEdFormatOkText[] = "   FORMAT OK ?"; /**< the editor's format ok text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataNoFmt);
+const char sEdDataNoFmt[] = "DATA:%d "; /**< the editor's data number format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdStageFmt);
+const char sEdStageFmt[] = "STAGE %d-"; /**< the editor's stage format */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdNoDataText);
+const char sEdNoDataText[] = "NO DATA\n"; /**< the editor's no data text */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdTmpFilePath);
+const char sEdTmpFilePath[] = "sim:\\PS\\PEPSI\\DATA\\TOOL0\\TMP.TL0"; /**< path of the tool file on the host */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath0);
+const char sEdDataFilePath0[] =
+    "sim:\\PS\\PEPSI\\DATA\\TOOL0\\DATA0.TLD"; /**< path of slot 0's file on the host */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath1);
+const char sEdDataFilePath1[] =
+    "sim:\\PS\\PEPSI\\DATA\\TOOL0\\DATA1.TLD"; /**< path of slot 1's file on the host */
 
-INCLUDE_RODATA("asm/nonmatchings/editor", sEdDataFilePath2);
+const char sEdDataFilePath2[] =
+    "sim:\\PS\\PEPSI\\DATA\\TOOL0\\DATA2.TLD"; /**< path of slot 2's file on the host */
 
 /** @brief The tool's main step: sets the tool up on the first pass;
  *         then runs the current tool mode's editor, the camera and the
@@ -834,102 +791,35 @@ s32 UpdateEditor(void) {
     }
 }
 
-extern char sEdPositionFmt[];           /**< "\nPOSITION X %d " */
-extern char sEdSwitchNoFmt[];           /**< "\nSWITCH NO(%2d/ %2d)" */
-extern char sEdTrapNoFmt[];             /**< " TRAP NO(%3d/ %3d)" */
-extern char sEdPepsiNoFmt[];            /**< "\nPEPSI NO(%3d/ %3d)" */
-extern char sEdItemText[];              /**< " ITEM : " */
-extern char sEdPepsiFmt[];              /**< "PEPSI %2d" */
-extern char sEdSwitchFmt[];             /**< "SWITCH %2d" */
-extern char sEdTrapFmt[];               /**< "TRAP %2d" */
-extern char sEdSpriteFmt[];             /**< "SPRITE %2d" */
-extern char sEdInfoText[];              /**< "INFO    " */
-extern char sEdDeleteText[];            /**< "DELETE  " */
-extern char sEdMoveModeText[];          /**< "MOVE MODE" */
-extern char sEdMenuModeText[];          /**< "MENU MODE" */
-extern char sEdPepsiSelModeText[];      /**< "PEPSI SEL MODE" */
-extern char sEdNewlines9[];             /**< nine newlines */
-extern char sEdPepsiTypeSelText[];      /**< "PEPSI TYPE SEL\n\n" */
-extern char sEdPepsiTypeRangeFmt[];     /**< "   1<-%2d->200" */
-extern char sEdSwitchSelModeText[];     /**< "SWITCH SEL MODE" */
-extern char sEdNewlines8[];             /**< eight newlines */
-extern char sEdSwitchSelText[];         /**< "  SWITCH SEL\n\n" */
-extern char sEdSwitchNoRangeText[];     /**< "NO.  0<-" */
-extern char sEdSwitchTypeRangeFmt[];    /**< "TYPE. 0<-%1d->%d" */
-extern char sEdTrapSelModeText[];       /**< "TRAP SEL MODE" */
-extern char sEdTrapSelText[];           /**< "   TRAP  SEL\n\n" */
-extern char sEdTrapNoRangeText[];       /**< "NO.    0<-" */
-extern char sEdTrapModelRangeFmt[];     /**< "MODEL. 0<-%2d->%2d\n" */
-extern char sEdUseBufferFmt[];          /**< "   USE BUFFER %d\n" */
-extern char sEdTrapSwitchRangeText[];   /**< "SWITCH.0<-" */
-extern char sEdTrapTypeRangeText[];     /**< "TYPENO.0<-" */
-extern char sEdTrapActRangeText[];      /**< "ACT NO.0<-" */
-extern char sEdAngleRangeFmt[];         /**< "  L1 0<-%3d->360 R1\n" */
-extern char sEdSpriteSelModeText[];     /**< "SPR SEL MODE" */
-extern char sEdSpriteSelText[];         /**< "   SPRITE SEL\n\n" */
-extern char sEdSpriteNoRangeText[];     /**< "  NO.    0<-" */
-extern char sEdSpriteModelRangeFmt[];   /**< "  MODEL. 0<-%3d->%3d\n" */
-extern char sEdSpriteSwitchRangeText[]; /**< "  SWITCH.0<-" */
-extern char sEdSpriteSizeRangeFmt[];    /**< "  SIZE. 0<-%3d->%3d\n" */
-extern char sEdHitLabel[];              /**< "  HIT.  " */
-extern char sEdFlipLabel[];             /**< "  FLIP.  " */
-extern char sEdActLabel[];              /**< "  ACT.   " */
-extern char sEdNearActText[];           /**< "NEAR ACT\n" */
-extern char sEdHitActText[];            /**< "HIT ACT\n" */
-extern char sEdWalkLabel[];             /**< "  WALK.  " */
-extern char sEdSeLabel[];               /**< "  SE.    " */
-extern char sEdWarningText[];           /**< "!!! WARNING !!!" */
-extern char sEdCansTrapsLine[];         /**< "PEPSICAN TO TRAP TO" */
-extern char sEdSwitchesCantPlaceLine[]; /**< "SWITCH GA OKEMASEN." */
-extern char sEdGroundHitLine[];         /**< "JIMEN NO HIT GA" */
-extern char sEdUntakeableHereLine[];    /**< "TORENAI BASHO NI" */
-extern char sEdPushCrossText[];         /**< "            PUSH BATU" */
-extern char sEdBufferMaxLine[];         /**< "BAFFER GA MAX NI NARI" */
-extern char sEdReachedNoMoreLine[];     /**< "MASITA. KORE IJYOU HA" */
-extern char sEdCantPlaceLine[];         /**< "OKEMASEN." */
-extern char sEdAskMiyagoeLine[];        /**< "MIYAGOE SAMA NI KIITE" */
-extern char sEdPleaseLine[];            /**< "KUDASAI." */
-extern char sEdSwitchesDeleteLine[];    /**< "SWITCH GA SAKUJYO" */
-extern char sEdCannotLine[];            /**< "DEKIMASEN." */
-extern char sEdBufferZeroLine[];        /**< "BAFFER GA ZERO NI NARI" */
-extern char sEdCantDeleteLine[];        /**< "SAKUJYO DEKIMASEN." */
-extern char sEdAreaDeleteLine[];        /**< "KONO AREA NI SAKUJYO" */
-extern char sEdDeletableLine[];         /**< "DEKIRU MONO HA" */
-extern char sEdThereAreNoneLine[];      /**< "ARIMASEN." */
-extern char sEdTrapsSwitchesLine[];     /**< "TRAP TO SWITCH GA" */
-extern char sEdNotNearbyLine[];         /**< "CHIKAKU NI ARIMASEN." */
-extern char sEdWhatToEraseLine[];       /**< "KESITAI MONO NO " */
-extern char sEdMoveNearLine[];          /**< "CHIKAKU NI IDOU" */
-extern char sEdPleaseDoLine[];          /**< "SITEKUDASAI." */
-extern char sEdColorCyan[];             /**< "~c088" */
-extern char sEdColorRed[];              /**< "~c800" */
-extern char sEdPosYFmt[];               /**< "Y %d " */
-extern char sEdPosZFmt[];               /**< "Z %d" */
-extern char sEdMenuPepsiText[];         /**< "PEPSI\n" */
-extern char sEdMenuSwitchText[];        /**< "SWITCH\n" */
-extern char sEdMenuTrapText[];          /**< "TRAP\n" */
-extern char sEdMenuSpriteText[];        /**< "SPRITE\n" */
-extern char sEdMenuDeleteText[];        /**< "DELETE\n" */
-extern char sEdMenuInfoText[];          /**< "INFO\n" */
-extern char sEdMenuDefPosText[];        /**< "DEFPOS\n" */
-extern char sEdMenuDataText[];          /**< "DATA\n" */
-extern char sEdColorGrey[];             /**< "~c444" */
-extern char sEdNum2Fmt[];               /**< "%2d" */
-extern char sEdRangeEndBlankFmt[];      /**< "->%d\n\n" */
-extern char sEdNewlines4[];             /**< "\n\n\n\n" */
-extern char sEdRangeEndFmt[];           /**< "->%d\n" */
-extern char sEdRangeEnd2Fmt[];          /**< "->%2d\n" */
-extern char sEdNewlines5[];             /**< "\n\n\n\n\n" */
-extern char sEdOffLine[];               /**< "OFF\n" */
-extern char sEdOnLine[];                /**< "ON\n" */
-extern char sEdNoActLine[];             /**< "NO ACT\n" */
-extern char sEdSeNoFmt[];               /**< "NO %3d\n" */
-extern char sEdManLine[];               /**< "MAN\n" */
-extern char sEdWomanLine[];             /**< "WOMAN\n" */
-extern char sEdChildLine[];             /**< "CHILD\n" */
-extern char sEdDogLine[];               /**< "DOG\n" */
-extern char sEdYouAreLine[];            /**< "IMASU." */
-extern VECTOR sStatusPos;               /**< the position printed on the status panel */
+extern char sEdColorCyan[];        /**< "~c088" */
+extern char sEdColorRed[];         /**< "~c800" */
+extern char sEdPosYFmt[];          /**< "Y %d " */
+extern char sEdPosZFmt[];          /**< "Z %d" */
+extern char sEdMenuPepsiText[];    /**< "PEPSI\n" */
+extern char sEdMenuSwitchText[];   /**< "SWITCH\n" */
+extern char sEdMenuTrapText[];     /**< "TRAP\n" */
+extern char sEdMenuSpriteText[];   /**< "SPRITE\n" */
+extern char sEdMenuDeleteText[];   /**< "DELETE\n" */
+extern char sEdMenuInfoText[];     /**< "INFO\n" */
+extern char sEdMenuDefPosText[];   /**< "DEFPOS\n" */
+extern char sEdMenuDataText[];     /**< "DATA\n" */
+extern char sEdColorGrey[];        /**< "~c444" */
+extern char sEdNum2Fmt[];          /**< "%2d" */
+extern char sEdRangeEndBlankFmt[]; /**< "->%d\n\n" */
+extern char sEdNewlines4[];        /**< "\n\n\n\n" */
+extern char sEdRangeEndFmt[];      /**< "->%d\n" */
+extern char sEdRangeEnd2Fmt[];     /**< "->%2d\n" */
+extern char sEdNewlines5[];        /**< "\n\n\n\n\n" */
+extern char sEdOffLine[];          /**< "OFF\n" */
+extern char sEdOnLine[];           /**< "ON\n" */
+extern char sEdNoActLine[];        /**< "NO ACT\n" */
+extern char sEdSeNoFmt[];          /**< "NO %3d\n" */
+extern char sEdManLine[];          /**< "MAN\n" */
+extern char sEdWomanLine[];        /**< "WOMAN\n" */
+extern char sEdChildLine[];        /**< "CHILD\n" */
+extern char sEdDogLine[];          /**< "DOG\n" */
+extern char sEdYouAreLine[];       /**< "IMASU." */
+extern VECTOR sStatusPos;          /**< the position printed on the status panel */
 
 void PrintEditorCaption(void);
 void PrintEditorData(void);
@@ -2992,10 +2882,6 @@ void LoadEditorSlot(s16 a, u8 *buf) {
     *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
     *(EditorStateCopy *)gEditorState = *(EditorStateCopy *)&((SaveSlot *)buf)[a].state;
 }
-
-extern char sEdDataFilePath0[]; /**< path of slot 0's file on the host */
-extern char sEdDataFilePath1[]; /**< path of slot 1's file on the host */
-extern char sEdDataFilePath2[]; /**< path of slot 2's file on the host */
 
 /** @brief Writes the four data blocks of each save slot of the tool buffer
  *         to its file on the host.

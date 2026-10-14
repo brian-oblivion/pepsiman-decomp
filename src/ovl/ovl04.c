@@ -3,6 +3,21 @@
 
 #include "engine.inc"
 
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc to sFiles3LastSectors */
+
+/* The camera view saved before a shot and restored after it. */
+s32 sSavedView[8] = {0};
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
+
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
 #include "engine/reset_spawned_traps.inc"
@@ -360,7 +375,6 @@ void func_800F7CE0(StageTrap *m) {
 
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
-extern s32 D_800FC060[];
 
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F7EFC(StageTrap *t) {
@@ -393,12 +407,12 @@ s8 func_800F7EFC(StageTrap *t) {
                 gPlayer.motion[0] = 0x13;
                 t->timer = 0;
                 t->state++;
-                D_800FC060[0] = gView[0];
-                D_800FC060[1] = gView[1];
-                D_800FC060[2] = gView[2];
-                D_800FC060[3] = gView[3];
-                D_800FC060[4] = gView[4];
-                D_800FC060[5] = gView[5];
+                sSavedView[0] = gView[0];
+                sSavedView[1] = gView[1];
+                sSavedView[2] = gView[2];
+                sSavedView[3] = gView[3];
+                sSavedView[4] = gView[4];
+                sSavedView[5] = gView[5];
             }
             break;
         case 2:
@@ -443,12 +457,12 @@ s8 func_800F7EFC(StageTrap *t) {
             }
             if (IsScreenWipeActive() == 0) {
                 t->state++;
-                gView[0] = D_800FC060[0];
-                gView[1] = D_800FC060[1];
-                gView[2] = D_800FC060[2];
-                gView[3] = D_800FC060[3];
-                gView[4] = D_800FC060[4] + 10;
-                gView[5] = D_800FC060[5];
+                gView[0] = sSavedView[0];
+                gView[1] = sSavedView[1];
+                gView[2] = sSavedView[2];
+                gView[3] = sSavedView[3];
+                gView[4] = sSavedView[4] + 10;
+                gView[5] = sSavedView[5];
                 GsSetRefView2((GsRVIEW2 *)gView);
             }
             break;
@@ -822,9 +836,6 @@ void UpdateGoalEventHook(void) {}
 
 #include "engine/emit_trap_particles.inc"
 
-extern s32 D_800FB70C[];
-extern s32 D_800FB72C[];
-
 s32 func_800FA804(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
@@ -833,11 +844,11 @@ s32 func_800FA804(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800FB70C[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl04Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB72C[1];
+            gCdLoadSectors[0] = sFiles2Ovl04Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -853,11 +864,11 @@ s32 func_800FA804(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800FB70C[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl04Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB72C[2];
+            gCdLoadSectors[0] = sFiles2Ovl04Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -867,14 +878,14 @@ s32 func_800FA804(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800FB70C[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl04Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800FB70C[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl04Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB72C[3];
-            gCdLoadSectors[1] = D_800FB72C[4];
+            gCdLoadSectors[0] = sFiles2Ovl04Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl04Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -884,11 +895,11 @@ s32 func_800FA804(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800FB70C[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl04Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB72C[5];
+            gCdLoadSectors[0] = sFiles2Ovl04Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -902,11 +913,11 @@ s32 func_800FA804(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800FB70C[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl04Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB72C[6];
+            gCdLoadSectors[0] = sFiles2Ovl04Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -918,11 +929,11 @@ s32 func_800FA804(void) {
             }
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)&D_800FB70C[6];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl04Loc[7];
             gCdLoadDest[0] = 0x8018D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB72C[7];
+            gCdLoadSectors[0] = sFiles2Ovl04Sectors[7];
             gSubStep++;
             break;
         case 13:
@@ -1005,13 +1016,19 @@ u16 func_800FAD04(s16 id, StageTrap *src, StageTrap *dst) {
     return ret;
 }
 
-extern const SpriteShapes D_800F0910;
+extern const SpriteShapes sStageSpriteShapes;
 
 void func_800FAE44(void) {
     SpriteShapes shapes;
 
-    shapes = D_800F0910;
+    shapes = sStageSpriteShapes;
     *(SpriteShapes *)sSpriteShapes = shapes;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl04/nonmatchings/ovl04", D_800F0910);
+/* This stage's sprite shapes. */
+const SpriteShapes sStageSpriteShapes = {{
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+}};

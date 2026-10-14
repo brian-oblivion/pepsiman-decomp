@@ -396,3 +396,22 @@
 4.4  libc/c21           0x624B4
 4.4  libmcrd/userfunc   0x624C4
 4.4  libmcrd/bios       0x625D4
+
+# Data-only objects: a table and no code, so `match` (which matches .text)
+# cannot place them. The offset is their .data's, decided by where the placed
+# objects' code reads their symbols (s_ini -> _spu_AllocBlockNum, s_crwa ->
+# _spu_zerobuf, s_srmp -> _spu_rev_param, geo_00 -> rsin_tbl, msc01 -> SQRT,
+# fgo_01 -> rcossin_tbl, vlc -> CF_DVLC; crt0 reads _stacksize at 0x8007C69C;
+# libgs/global is linked for the Gs* variables in its .bss, and its 16 bytes of
+# GsADIV* occur once in retail) and confirmed by the bytes (`install` compares the whole .data). They sit in
+# link order among the other objects' .data. See data_only() in psyq_sdk.py.
+4.4  libspu/s_m         0x6C54C
+4.4  libspu/zerobuf     0x6C55C
+4.4  libspu/s_rmp0      0x6C95C
+4.4  libspu/s_rmp2      0x6C9AC
+4.4  libsn/sndef        0x6CE9C
+4.4  libgte/sincos      0x6E514
+4.4  libgte/sqrtbl      0x6ED24
+4.4  libgte/cstbl       0x6F044
+4.4  libgs/global       0x73B94
+4.4  libpress/table     0x74B84

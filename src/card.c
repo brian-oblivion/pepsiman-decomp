@@ -52,12 +52,12 @@ enum CardError {
 
 extern CardFile gCardFiles[];
 extern u16 gCardStatus; /**< ProbeCard's CardEvent; 0xFFFF when the directory scan finds no file */
-extern s32 gCardFileCount;   /**< number of records in use */
-extern s16 gCardError;       /**< the step that failed, a CardError */
-extern char *gCardFileName;  /**< name of the file last erased */
-extern char sCardDevice[];   /**< "bu10:" */
-extern char sToolCardFile[]; /**< "bu10:BISLPS-12345PEPTOOL" */
-extern char sHitCardFile[];  /**< "bu10:BISLPS-67890PEPTOOL" */
+extern s32 gCardFileCount;         /**< number of records in use */
+extern s16 gCardError;             /**< the step that failed, a CardError */
+extern char *gCardFileName;        /**< name of the file last erased */
+extern char sCardDevice[];         /**< "bu10:" */
+extern const char sToolCardFile[]; /**< "bu10:BISLPS-12345PEPTOOL" */
+extern const char sHitCardFile[];  /**< "bu10:BISLPS-67890PEPTOOL" */
 
 /** @brief A loaded record bank file: a count word, then the bank. */
 typedef struct {
@@ -88,6 +88,26 @@ typedef struct {
     IconBits bits;  /**< the pixels */
 } IconTim;
 
+/** @brief A TIM block header: the CLUT's or the image's. */
+typedef struct {
+    u32 len; /**< the block's bytes, this header included */
+    u16 x;   /**< VRAM x */
+    u16 y;   /**< VRAM y */
+    u16 w;   /**< width in VRAM halfwords */
+    u16 h;   /**< height */
+} TimBlockHead;
+
+/** @brief A memory card icon frame as its TIM file: 16x16 pixels of 4 bits
+ *         with a 16-colour CLUT (the layout IconTim copies as bytes). */
+typedef struct {
+    u32 id;                /**< 0x10, a TIM */
+    u32 flags;             /**< 8: 4-bit pixels, a CLUT follows */
+    TimBlockHead clutHead; /**< the CLUT's block, at (0, 480) */
+    u16 clut[16];          /**< 15-bit colours, bit 15 the STP bit */
+    TimBlockHead imgHead;  /**< the pixels' block, 4 halfwords by 16 rows */
+    u8 pixels[16][8];      /**< rows of 16 CLUT indices, low nibble first */
+} CardIconTim;
+
 /** @brief The start of a memory card file header. */
 typedef struct {
     u8 magic[2];     /**< "SC" */
@@ -97,14 +117,14 @@ typedef struct {
 } CardHeader;
 
 extern CardHeader gCardHeader;
-extern u8 sToolCardTitle[]; /**< title of the first save file */
-extern u8 sHitCardTitle[];  /**< title of the second save file */
-extern u8 sToolCardIcon0[]; /**< first save file's icon frames, three TIMs */
-extern u8 sToolCardIcon1[];
-extern u8 sToolCardIcon2[];
-extern u8 sHitCardIcon0[]; /**< second save file's icon frames, three TIMs */
-extern u8 sHitCardIcon1[];
-extern u8 sHitCardIcon2[];
+extern const CardTitle sToolCardTitle;   /**< title of the first save file */
+extern const CardTitle sHitCardTitle;    /**< title of the second save file */
+extern const CardIconTim sToolCardIcon0; /**< first save file's icon frames */
+extern const CardIconTim sToolCardIcon1;
+extern const CardIconTim sToolCardIcon2;
+extern const CardIconTim sHitCardIcon0; /**< second save file's icon frames */
+extern const CardIconTim sHitCardIcon1;
+extern const CardIconTim sHitCardIcon2;
 /* MATCHING: the icon CLUT and frames inside gCardHeader (+0x60, +0x100,
  * +0x180); as fields of a full CardHeader the block copies change. */
 extern u8 sHeaderIcon0[]; /**< the card header's icon CLUT and first frame */
@@ -294,7 +314,7 @@ s32 ReadSave1(void) {
 
     ret = CARD_OK;
     for (i = 0; i < 10; i++) {
-        fd = open(sToolCardFile, 1);
+        fd = open((char *)sToolCardFile, 1);
         if (fd != -1) {
             goto opened;
         }
@@ -348,7 +368,7 @@ s32 RewriteSave1(void) {
 
     ret = CARD_OK;
     for (i = 0; i < 10; i++) {
-        fd = open(sToolCardFile, 2);
+        fd = open((char *)sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -401,7 +421,7 @@ s32 CreateSave1(void) {
 
     ret = CARD_OK;
     for (i = 0; i < 10; i++) {
-        fd = open(sToolCardFile, 0xF0200);
+        fd = open((char *)sToolCardFile, 0xF0200);
         if (fd != -1) {
             goto created;
         }
@@ -413,7 +433,7 @@ s32 CreateSave1(void) {
 created:
     close(fd);
     for (i = 0; i < 10; i++) {
-        fd = open(sToolCardFile, 2);
+        fd = open((char *)sToolCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -472,9 +492,9 @@ loop:
 void CopySave1Icon(void) {
     IconTim tim[3];
 
-    tim[0] = *(IconTim *)sToolCardIcon0;
-    tim[1] = *(IconTim *)sToolCardIcon1;
-    tim[2] = *(IconTim *)sToolCardIcon2;
+    tim[0] = *(IconTim *)&sToolCardIcon0;
+    tim[1] = *(IconTim *)&sToolCardIcon1;
+    tim[2] = *(IconTim *)&sToolCardIcon2;
     *(IconClut *)sHeaderIcon0 = tim[0].clut;
     *(IconBits *)(sHeaderIcon0 + 0x20) = tim[0].bits;
     *(IconBits *)sHeaderIcon1 = tim[1].bits;
@@ -592,7 +612,7 @@ s32 EraseSave1(void) {
     s16 i;
 
     ret = CARD_OK;
-    gCardFileName = sToolCardFile;
+    gCardFileName = (char *)sToolCardFile;
     for (i = 0; i < 10; i++) {
         if (erase(gCardFileName) != 0) {
             return ret;
@@ -602,7 +622,7 @@ s32 EraseSave1(void) {
     return -1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/card", sToolCardFile);
+const char sToolCardFile[] = "bu10:BISLPS-12345PEPTOOL";
 
 s32 FindSave1(void) {
     s16 i;
@@ -635,7 +655,7 @@ void BuildSave1Header(void) {
     gCardHeader.magic[1] = 'C';
     gCardHeader.iconFlag = 0x13;
     gCardHeader.blocks = 15;
-    gCardHeader.title = *(CardTitle *)sToolCardTitle;
+    gCardHeader.title = sToolCardTitle;
     CopySave1Icon();
 }
 
@@ -826,7 +846,7 @@ s32 ReadSave2(void) {
 
     ret = CARD_OK;
     for (i = 0; i < 10; i++) {
-        fd = open(sHitCardFile, 1);
+        fd = open((char *)sHitCardFile, 1);
         if (fd != -1) {
             goto opened;
         }
@@ -880,7 +900,7 @@ s32 RewriteSave2(void) {
 
     ret = CARD_OK;
     for (i = 0; i < 10; i++) {
-        fd = open(sHitCardFile, 2);
+        fd = open((char *)sHitCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -933,7 +953,7 @@ s32 CreateSave2(void) {
 
     ret = CARD_OK;
     for (i = 0; i < 10; i++) {
-        fd = open(sHitCardFile, 0xC0200);
+        fd = open((char *)sHitCardFile, 0xC0200);
         if (fd != -1) {
             goto created;
         }
@@ -945,7 +965,7 @@ s32 CreateSave2(void) {
 created:
     close(fd);
     for (i = 0; i < 10; i++) {
-        fd = open(sHitCardFile, 2);
+        fd = open((char *)sHitCardFile, 2);
         if (fd != -1) {
             goto opened;
         }
@@ -973,9 +993,9 @@ end:
 void CopySave2Icon(void) {
     IconTim tim[3];
 
-    tim[0] = *(IconTim *)sHitCardIcon0;
-    tim[1] = *(IconTim *)sHitCardIcon1;
-    tim[2] = *(IconTim *)sHitCardIcon2;
+    tim[0] = *(IconTim *)&sHitCardIcon0;
+    tim[1] = *(IconTim *)&sHitCardIcon1;
+    tim[2] = *(IconTim *)&sHitCardIcon2;
     *(IconClut *)sHeaderIcon0 = tim[0].clut;
     *(IconBits *)(sHeaderIcon0 + 0x20) = tim[0].bits;
     *(IconBits *)sHeaderIcon1 = tim[1].bits;
@@ -992,7 +1012,7 @@ s32 EraseSave2(void) {
     s16 i;
 
     ret = CARD_OK;
-    gCardFileName = sHitCardFile;
+    gCardFileName = (char *)sHitCardFile;
     for (i = 0; i < 10; i++) {
         if (erase(gCardFileName) != 0) {
             return ret;
@@ -1002,15 +1022,96 @@ s32 EraseSave2(void) {
     return -1;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/card", sToolCardTitle);
+/** The save file's title, Shift-JIS for "ペプシマン開発ツールデータ". */
+const CardTitle sToolCardTitle = {"\x83\x79\x83\x76\x83\x56\x83\x7D\x83\x93\x8A\x4A\x94\xAD"
+                                  "\x83\x63\x81\x5B\x83\x8B\x83\x66\x81\x5B\x83\x5E"};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sToolCardIcon0);
+/** The first save file's icon, frame 0: a 16x16 4-bit TIM. Each pixel row's
+ * comment spells its CLUT indices left to right. */
+const CardIconTim sToolCardIcon0 = {
+    0x10, /* a TIM */
+    8,    /* 4-bit pixels, with a CLUT */
+    {0x2C, 0, 480, 16, 1},
+    {0x7FFF, 0x0842, 0x1084, 0x18C6, 0x2108, 0x318C, 0x39CE, 0x4210, 0x4E73, 0x56B5, 0x5EF7, 0x6739,
+     0x6F7B, 0x77BD, 0x8000, 0x10C7},
+    {0x8C, 0, 0, 4, 16},
+    {
+        {0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE}, /* eeeeeeeeeeeeeeee */
+        {0x41, 0x44, 0x44, 0xE3, 0x44, 0x44, 0x44, 0xE1}, /* 1444443e4444441e */
+        {0x04, 0x00, 0x00, 0xEA, 0x00, 0x00, 0x00, 0xE4}, /* 400000ae0000004e */
+        {0x04, 0x38, 0x04, 0xEA, 0xB0, 0x43, 0x08, 0xE3}, /* 408340ae0b34803e */
+        {0x04, 0x00, 0x00, 0xEA, 0x00, 0x00, 0x00, 0xE4}, /* 400000ae0000004e */
+        {0x03, 0x48, 0x04, 0xEA, 0xB0, 0x44, 0x08, 0xE4}, /* 308440ae0b44804e */
+        {0x04, 0x00, 0x00, 0xEA, 0x00, 0x00, 0x00, 0xE4}, /* 400000ae0000004e */
+        {0x04, 0x37, 0x44, 0x44, 0x44, 0x14, 0x07, 0xE3}, /* 407344444441703e */
+        {0x04, 0xA6, 0x00, 0x00, 0x00, 0x70, 0x07, 0xE4}, /* 406a00000007704e */
+        {0x03, 0xE7, 0xAE, 0xE0, 0x0A, 0xEE, 0x06, 0xE4}, /* 307eea0ea0ee604e */
+        {0x04, 0xA9, 0xDA, 0xA0, 0x0D, 0xAA, 0x07, 0xE4}, /* 409aad0ad0aa704e */
+        {0x04, 0x78, 0xC7, 0x70, 0x0C, 0x77, 0x07, 0xE3}, /* 40877c07c077703e */
+        {0x04, 0xE7, 0xDE, 0xED, 0x0A, 0xEE, 0x06, 0xE4}, /* 407eeddea0ee604e */
+        {0x03, 0x27, 0x0B, 0xE7, 0x0A, 0xEE, 0x07, 0xE4}, /* 3072b07ea0ee704e */
+        {0x04, 0x97, 0x80, 0xEE, 0x0A, 0xDE, 0x00, 0xE4}, /* 407908eea0ed004e */
+        {0x72, 0x23, 0xE3, 0xEE, 0xEE, 0x5E, 0x67, 0xEE}, /* 27323eeeeee576ee */
+    },
+};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sToolCardIcon1);
+/** Frame 1 of the first save file's icon. */
+const CardIconTim sToolCardIcon1 = {
+    0x10, /* a TIM */
+    8,    /* 4-bit pixels, with a CLUT */
+    {0x2C, 0, 480, 16, 1},
+    {0x7FFF, 0x0842, 0x1084, 0x18C6, 0x2108, 0x294A, 0x318C, 0x39CE, 0x4631, 0x4E73, 0x56B5, 0x5EF7,
+     0x6739, 0x6F7B, 0x77BD, 0x8000},
+    {0x8C, 0, 0, 4, 16},
+    {
+        {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, /* ffffffffffffffff */
+        {0xFF, 0x41, 0x44, 0x75, 0xF1, 0xFF, 0xFF, 0xFF}, /* ff1444571fffffff */
+        {0xFF, 0x04, 0x00, 0x00, 0x18, 0xEC, 0xF2, 0xFF}, /* ff40000081ce2fff */
+        {0xFF, 0xAB, 0x94, 0x00, 0xD0, 0xA0, 0x6B, 0xFF}, /* ffba49000d0ab6ff */
+        {0x3F, 0x0E, 0x0B, 0x5E, 0x00, 0xCA, 0x90, 0xFF}, /* f3e0b0e500ac09ff */
+        {0xFF, 0xE2, 0xE0, 0xF3, 0xE6, 0x00, 0xF7, 0xFF}, /* ff2e0e3f6e007fff */
+        {0x6F, 0x0D, 0xD0, 0xBB, 0xDB, 0x00, 0x8E, 0xF3}, /* f6d00dbbbd00e83f */
+        {0x0D, 0xA0, 0x0B, 0xBE, 0xE0, 0x8B, 0x0E, 0xF8}, /* d00ab0eb0eb8e08f */
+        {0x87, 0xF2, 0x0F, 0xFB, 0xB0, 0xFF, 0x4F, 0xFF}, /* 782ff0bf0bfff4ff */
+        {0x8F, 0xBB, 0x0B, 0xBE, 0xE0, 0xBB, 0x6B, 0xFF}, /* f8bbb0eb0ebbb6ff */
+        {0x8F, 0xBB, 0x0C, 0xBD, 0xE0, 0xBB, 0x6B, 0xFF}, /* f8bbc0db0ebbb6ff */
+        {0xFF, 0xFF, 0x06, 0xF8, 0xB0, 0xFF, 0x22, 0xFF}, /* ffff608f0bff22ff */
+        {0xFF, 0x4F, 0x0E, 0xF2, 0xB0, 0xFF, 0x08, 0xF4}, /* fff4e02f0bff804f */
+        {0x62, 0x0A, 0x80, 0xFF, 0xE0, 0x78, 0x0E, 0xF3}, /* 26a008ff0e87e03f */
+        {0x07, 0xC0, 0xF5, 0xFF, 0x0C, 0x00, 0x90, 0xFF}, /* 700c5fffc00009ff */
+        {0x4F, 0xF2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, /* f42fffffffffffff */
+    },
+};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sToolCardIcon2);
+/** Frame 2 of the first save file's icon. */
+const CardIconTim sToolCardIcon2 = {
+    0x10, /* a TIM */
+    8,    /* 4-bit pixels, with a CLUT */
+    {0x2C, 0, 480, 16, 1},
+    {0x7FFF, 0x0842, 0x18C6, 0x2108, 0x294A, 0x318C, 0x39CE, 0x4210, 0x4631, 0x4E73, 0x5EF7, 0x6739,
+     0x6F7B, 0x8000, 0x6B7B, 0x6F7B},
+    {0x8C, 0, 0, 4, 16},
+    {
+        {0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}, /* dddddddddddddddd */
+        {0x1D, 0x33, 0x33, 0x33, 0x33, 0x33, 0x23, 0xDD}, /* d1333333333332dd */
+        {0x3D, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA0, 0xDD}, /* d300000000000add */
+        {0x3D, 0x90, 0x23, 0x06, 0x39, 0x32, 0xA0, 0xDD}, /* d309326093230add */
+        {0x3D, 0x70, 0xDD, 0x03, 0xD7, 0xDD, 0xA0, 0xDD}, /* d307dd307ddd0add */
+        {0x2D, 0xC0, 0xAA, 0x0B, 0xAC, 0xAA, 0xA0, 0xDD}, /* d20caab0caaa0add */
+        {0x3D, 0xC0, 0xAA, 0x0B, 0xAC, 0xAA, 0xA0, 0xDD}, /* d30caab0caaa0add */
+        {0x3D, 0x70, 0xDD, 0x03, 0xD7, 0xDD, 0xA0, 0xDD}, /* d307dd307ddd0add */
+        {0x3D, 0x90, 0x33, 0x06, 0x39, 0x33, 0xA0, 0xDD}, /* d309336093330add */
+        {0x2D, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA0, 0xDD}, /* d200000000000add */
+        {0x3D, 0x90, 0x33, 0x06, 0x39, 0x33, 0xA0, 0xDD}, /* d309336093330add */
+        {0x6D, 0x70, 0xDD, 0x02, 0xD7, 0xDD, 0xA0, 0xDD}, /* d607dd207ddd0add */
+        {0xAD, 0x20, 0xDD, 0x03, 0xD6, 0xDD, 0xA0, 0xDD}, /* da02dd306ddd0add */
+        {0x05, 0xDC, 0xDD, 0x03, 0xD7, 0xA8, 0xA0, 0xDD}, /* 50cddd307d8a0add */
+        {0x08, 0xD4, 0xDD, 0xA2, 0xD5, 0x08, 0x80, 0xDD}, /* 804ddd2a5d8008dd */
+        {0x2D, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}, /* d2dddddddddddddd */
+    },
+};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sHitCardFile);
+const char sHitCardFile[] = "bu10:BISLPS-67890PEPTOOL";
 
 s32 FindSave2(void) {
     s16 i;
@@ -1043,16 +1144,94 @@ void BuildSave2Header(void) {
     gCardHeader.magic[1] = 'C';
     gCardHeader.iconFlag = 0x13;
     gCardHeader.blocks = 12;
-    gCardHeader.title = *(CardTitle *)sHitCardTitle;
+    gCardHeader.title = sHitCardTitle;
     CopySave2Icon();
 }
 
-INCLUDE_RODATA("asm/nonmatchings/card", sHitCardTitle);
+/** The save file's title, Shift-JIS for "ペプシマン開発ヒットデータ". */
+const CardTitle sHitCardTitle = {"\x83\x79\x83\x76\x83\x56\x83\x7D\x83\x93\x8A\x4A\x94\xAD"
+                                 "\x83\x71\x83\x62\x83\x67\x83\x66\x81\x5B\x83\x5E"};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon0);
+/** The second save file's icon, frame 0 (the same images as the first's). */
+const CardIconTim sHitCardIcon0 = {
+    0x10, /* a TIM */
+    8,    /* 4-bit pixels, with a CLUT */
+    {0x2C, 0, 480, 16, 1},
+    {0x7FFF, 0x0842, 0x1084, 0x18C6, 0x2108, 0x318C, 0x39CE, 0x4210, 0x4E73, 0x56B5, 0x5EF7, 0x6739,
+     0x6F7B, 0x77BD, 0x8000, 0x10C7},
+    {0x8C, 0, 0, 4, 16},
+    {
+        {0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE}, /* eeeeeeeeeeeeeeee */
+        {0x41, 0x44, 0x44, 0xE3, 0x44, 0x44, 0x44, 0xE1}, /* 1444443e4444441e */
+        {0x04, 0x00, 0x00, 0xEA, 0x00, 0x00, 0x00, 0xE4}, /* 400000ae0000004e */
+        {0x04, 0x38, 0x04, 0xEA, 0xB0, 0x43, 0x08, 0xE3}, /* 408340ae0b34803e */
+        {0x04, 0x00, 0x00, 0xEA, 0x00, 0x00, 0x00, 0xE4}, /* 400000ae0000004e */
+        {0x03, 0x48, 0x04, 0xEA, 0xB0, 0x44, 0x08, 0xE4}, /* 308440ae0b44804e */
+        {0x04, 0x00, 0x00, 0xEA, 0x00, 0x00, 0x00, 0xE4}, /* 400000ae0000004e */
+        {0x04, 0x37, 0x44, 0x44, 0x44, 0x14, 0x07, 0xE3}, /* 407344444441703e */
+        {0x04, 0xA6, 0x00, 0x00, 0x00, 0x70, 0x07, 0xE4}, /* 406a00000007704e */
+        {0x03, 0xE7, 0xAE, 0xE0, 0x0A, 0xEE, 0x06, 0xE4}, /* 307eea0ea0ee604e */
+        {0x04, 0xA9, 0xDA, 0xA0, 0x0D, 0xAA, 0x07, 0xE4}, /* 409aad0ad0aa704e */
+        {0x04, 0x78, 0xC7, 0x70, 0x0C, 0x77, 0x07, 0xE3}, /* 40877c07c077703e */
+        {0x04, 0xE7, 0xDE, 0xED, 0x0A, 0xEE, 0x06, 0xE4}, /* 407eeddea0ee604e */
+        {0x03, 0x27, 0x0B, 0xE7, 0x0A, 0xEE, 0x07, 0xE4}, /* 3072b07ea0ee704e */
+        {0x04, 0x97, 0x80, 0xEE, 0x0A, 0xDE, 0x00, 0xE4}, /* 407908eea0ed004e */
+        {0x72, 0x23, 0xE3, 0xEE, 0xEE, 0x5E, 0x67, 0xEE}, /* 27323eeeeee576ee */
+    },
+};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon1);
+/** Frame 1 of the second save file's icon. */
+const CardIconTim sHitCardIcon1 = {
+    0x10, /* a TIM */
+    8,    /* 4-bit pixels, with a CLUT */
+    {0x2C, 0, 480, 16, 1},
+    {0x7FFF, 0x0842, 0x1084, 0x18C6, 0x2108, 0x294A, 0x318C, 0x39CE, 0x4631, 0x4E73, 0x56B5, 0x5EF7,
+     0x6739, 0x6F7B, 0x77BD, 0x8000},
+    {0x8C, 0, 0, 4, 16},
+    {
+        {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, /* ffffffffffffffff */
+        {0xFF, 0x41, 0x44, 0x75, 0xF1, 0xFF, 0xFF, 0xFF}, /* ff1444571fffffff */
+        {0xFF, 0x04, 0x00, 0x00, 0x18, 0xEC, 0xF2, 0xFF}, /* ff40000081ce2fff */
+        {0xFF, 0xAB, 0x94, 0x00, 0xD0, 0xA0, 0x6B, 0xFF}, /* ffba49000d0ab6ff */
+        {0x3F, 0x0E, 0x0B, 0x5E, 0x00, 0xCA, 0x90, 0xFF}, /* f3e0b0e500ac09ff */
+        {0xFF, 0xE2, 0xE0, 0xF3, 0xE6, 0x00, 0xF7, 0xFF}, /* ff2e0e3f6e007fff */
+        {0x6F, 0x0D, 0xD0, 0xBB, 0xDB, 0x00, 0x8E, 0xF3}, /* f6d00dbbbd00e83f */
+        {0x0D, 0xA0, 0x0B, 0xBE, 0xE0, 0x8B, 0x0E, 0xF8}, /* d00ab0eb0eb8e08f */
+        {0x87, 0xF2, 0x0F, 0xFB, 0xB0, 0xFF, 0x4F, 0xFF}, /* 782ff0bf0bfff4ff */
+        {0x8F, 0xBB, 0x0B, 0xBE, 0xE0, 0xBB, 0x6B, 0xFF}, /* f8bbb0eb0ebbb6ff */
+        {0x8F, 0xBB, 0x0C, 0xBD, 0xE0, 0xBB, 0x6B, 0xFF}, /* f8bbc0db0ebbb6ff */
+        {0xFF, 0xFF, 0x06, 0xF8, 0xB0, 0xFF, 0x22, 0xFF}, /* ffff608f0bff22ff */
+        {0xFF, 0x4F, 0x0E, 0xF2, 0xB0, 0xFF, 0x08, 0xF4}, /* fff4e02f0bff804f */
+        {0x62, 0x0A, 0x80, 0xFF, 0xE0, 0x78, 0x0E, 0xF3}, /* 26a008ff0e87e03f */
+        {0x07, 0xC0, 0xF5, 0xFF, 0x0C, 0x00, 0x90, 0xFF}, /* 700c5fffc00009ff */
+        {0x4F, 0xF2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, /* f42fffffffffffff */
+    },
+};
 
-INCLUDE_RODATA("asm/nonmatchings/card", sHitCardIcon2);
-
-INCLUDE_RODATA("asm/nonmatchings/card", sButtonMaps);
+/** Frame 2 of the second save file's icon. */
+const CardIconTim sHitCardIcon2 = {
+    0x10, /* a TIM */
+    8,    /* 4-bit pixels, with a CLUT */
+    {0x2C, 0, 480, 16, 1},
+    {0x7FFF, 0x0842, 0x18C6, 0x2108, 0x294A, 0x318C, 0x39CE, 0x4210, 0x4631, 0x4E73, 0x5EF7, 0x6739,
+     0x6F7B, 0x8000, 0x6B7B, 0x6F7B},
+    {0x8C, 0, 0, 4, 16},
+    {
+        {0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}, /* dddddddddddddddd */
+        {0x1D, 0x33, 0x33, 0x33, 0x33, 0x33, 0x23, 0xDD}, /* d1333333333332dd */
+        {0x3D, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA0, 0xDD}, /* d300000000000add */
+        {0x3D, 0x90, 0x23, 0x06, 0x39, 0x32, 0xA0, 0xDD}, /* d309326093230add */
+        {0x3D, 0x70, 0xDD, 0x03, 0xD7, 0xDD, 0xA0, 0xDD}, /* d307dd307ddd0add */
+        {0x2D, 0xC0, 0xAA, 0x0B, 0xAC, 0xAA, 0xA0, 0xDD}, /* d20caab0caaa0add */
+        {0x3D, 0xC0, 0xAA, 0x0B, 0xAC, 0xAA, 0xA0, 0xDD}, /* d30caab0caaa0add */
+        {0x3D, 0x70, 0xDD, 0x03, 0xD7, 0xDD, 0xA0, 0xDD}, /* d307dd307ddd0add */
+        {0x3D, 0x90, 0x33, 0x06, 0x39, 0x33, 0xA0, 0xDD}, /* d309336093330add */
+        {0x2D, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA0, 0xDD}, /* d200000000000add */
+        {0x3D, 0x90, 0x33, 0x06, 0x39, 0x33, 0xA0, 0xDD}, /* d309336093330add */
+        {0x6D, 0x70, 0xDD, 0x02, 0xD7, 0xDD, 0xA0, 0xDD}, /* d607dd207ddd0add */
+        {0xAD, 0x20, 0xDD, 0x03, 0xD6, 0xDD, 0xA0, 0xDD}, /* da02dd306ddd0add */
+        {0x05, 0xDC, 0xDD, 0x03, 0xD7, 0xA8, 0xA0, 0xDD}, /* 50cddd307d8a0add */
+        {0x08, 0xD4, 0xDD, 0xA2, 0xD5, 0x08, 0x80, 0xDD}, /* 804ddd2a5d8008dd */
+        {0x2D, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}, /* d2dddddddddddddd */
+    },
+};

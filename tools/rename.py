@@ -326,12 +326,57 @@ def sony_only_accessors(name):
     return []
 
 
+def linked_sony_data(addr):
+    """(name, name_addr, size) when `addr` lies in a data section the image
+    links straight from a Sony object (a yaml `- [0xOFF, o, lib/module, .data]`
+    line): the object's own symbol at or below it. Such a symbol needs no
+    psyq-objects.ld pin -- the object defines it where the yaml puts it -- so
+    the pin lookup below cannot see it (libgte/cstbl's rcossin_tbl, libpress/
+    table's CF_DVLC once those data-only objects were linked)."""
+    yaml = ROOT / "config/splat.slps01762.pepsiman.yaml"
+    best = None
+    for m in re.finditer(r"^\s+- \[\s*(0x[0-9A-Fa-f]+)\s*,\s*o\s*,\s*([\w/]+)\s*,\s*(\.\w+)\s*\]",
+                         yaml.read_text(), re.M):
+        start = int(m.group(1), 16) - 0x800 + 0x80010000
+        if start <= addr and (best is None or start > best[0]):
+            best = (start, m.group(2), m.group(3))
+    if best is None:
+        return None
+    start, mod, sec = best
+    obj = ROOT / "lib" / f"{mod}.o"
+    if not obj.exists():
+        return None
+    readelf = ROOT / "tools/binutils/bin/mipsel-linux-gnu-readelf"
+    out = subprocess.run([str(readelf), "-SsW", str(obj)], capture_output=True, text=True).stdout
+    idx = size = None
+    for line in out.splitlines():
+        sm = re.match(r"\s*\[\s*(\d+)\]\s+(\S+)\s+\S+\s+[0-9a-f]+\s+[0-9a-f]+\s+([0-9a-f]+)", line)
+        if sm and sm.group(2) == sec:
+            idx, size = sm.group(1), int(sm.group(3), 16)
+    if idx is None or addr >= start + size:
+        return None
+    syms = []
+    for line in out.splitlines():
+        p = line.split()
+        if len(p) == 8 and p[6] == idx and p[3] != "SECTION":
+            syms.append((int(p[1], 16), p[7]))
+    below = [(v, n) for v, n in syms if start + v <= addr]
+    if not below:
+        return None
+    v, n = max(below)
+    nxt = min((w for w, _ in syms if w > v), default=size)
+    return n, start + v, nxt - v
+
+
 def sony_data_owner(addr):
     """(pin_name, pin_addr, size) when `addr` is a Sony variable that
     config/psyq-objects.ld pins, or lies inside one; else None. Sizes come from
     the defining objects on the SDK discs (sdk/work/*/elf); a pin whose size no
     object gives covers its own address only. Round 75 named 24 libsnd
     variables in game words, five of them offsets inside `_svm_cur`."""
+    linked = linked_sony_data(addr)
+    if linked:
+        return linked
     ld = ROOT / "config/psyq-objects.ld"
     if not ld.exists():
         return None
@@ -421,7 +466,7 @@ def main():
         pin, pa, size = owner
         where = "is" if pa == addr else f"lies at +{addr - pa:#x} inside"
         sys.exit(f"FATAL: {addr:#x} {where} Sony's `{pin}` ({pa:#x}, {size:#x} bytes, pinned in "
-                 f"config/psyq-objects.ld). Sony data keeps Sony's name (FINISHING-PLAN track 3); "
+                 f"config/psyq-objects.ld, or linked from its object). Sony data keeps Sony's name (FINISHING-PLAN track 3); "
                  f"the only rename allowed here is to `{pin}` itself.")
 
     code_hits, prose_hits = name_in_use(new)

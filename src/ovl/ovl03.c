@@ -3,6 +3,18 @@
 
 #include "engine.inc"
 
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc to sFiles3LastSectors */
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
+
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
 #include "engine/reset_spawned_traps.inc"
@@ -846,9 +858,6 @@ void func_800FA610(void) {}
 
 #include "engine/emit_trap_particles.inc"
 
-extern s32 D_800FB55C[];
-extern s32 D_800FB57C[];
-
 s32 func_800FA6C8(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
@@ -857,11 +866,11 @@ s32 func_800FA6C8(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800FB55C[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl03Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB57C[1];
+            gCdLoadSectors[0] = sFiles2Ovl03Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -877,11 +886,11 @@ s32 func_800FA6C8(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800FB55C[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl03Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB57C[2];
+            gCdLoadSectors[0] = sFiles2Ovl03Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -891,14 +900,14 @@ s32 func_800FA6C8(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800FB55C[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl03Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800FB55C[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl03Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB57C[3];
-            gCdLoadSectors[1] = D_800FB57C[4];
+            gCdLoadSectors[0] = sFiles2Ovl03Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl03Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -908,11 +917,11 @@ s32 func_800FA6C8(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800FB55C[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl03Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB57C[5];
+            gCdLoadSectors[0] = sFiles2Ovl03Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -926,11 +935,11 @@ s32 func_800FA6C8(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800FB55C[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl03Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB57C[6];
+            gCdLoadSectors[0] = sFiles2Ovl03Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -997,12 +1006,12 @@ void func_800FAA30(void) {
     func_800FA5D0();
 }
 
-extern const SpriteShapes D_800F08FC;
+extern const SpriteShapes sStageSpriteShapes;
 
 void func_800FAB9C(void) {
     SpriteShapes shapes;
 
-    shapes = D_800F08FC;
+    shapes = sStageSpriteShapes;
     *(SpriteShapes *)sSpriteShapes = shapes;
 }
 
@@ -1011,13 +1020,13 @@ typedef struct {
     u8 b[80]; /**< a model per entry */
 } Models80;
 
-extern const Models80 D_800F0960;
+extern const Models80 sTrapModels;
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register (as ovl07's func_800FA580). */
 u16 func_800FAD08(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
-    Models80 models = D_800F0960;
+    Models80 models = sTrapModels;
 
     if (id < 80) {
         if (id >= 0) {
@@ -1035,6 +1044,18 @@ u16 func_800FAD08(s16 id, StageTrap *src, StageTrap *dst) {
     return ret;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", D_800F08FC);
+/* This stage's sprite shapes. */
+const SpriteShapes sStageSpriteShapes = {{
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+}};
 
-INCLUDE_RODATA("asm/ovl/ovl03/nonmatchings/ovl03", D_800F0960);
+/* Trap model n is model n. */
+const Models80 sTrapModels = {{
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+    40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+    60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+}};

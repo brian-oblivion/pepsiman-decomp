@@ -487,6 +487,19 @@ function's match report, not here.
 - **A function splat cut at an address other code calls (a stage entry
   point that lands mid-function in this overlay) is one C function plus
   `FUNC_ALIAS(name, base, offset)`.** (engine overlays)
+- **An empty function whose frame is freed in `jr ra`'s delay slot
+  (`addiu sp,-N; jr ra; addiu sp,N`): a loop that never runs**, `for (i =
+  0; i < 0; i++) unused[i] = 0;`. With no instruction in the body 2.8.1
+  takes its simple-return path and frees the frame before the `jr`. (ovl12
+  StepMissSequence)
+- **A value the test just loaded, reused in a compare-tree switch where
+  retail reloads it (and rebuilds its `%hi`): a block boundary at the
+  switch.** A few cases compile to compares, not a jump table, so cse runs
+  on into them. A label at the switch kept alive by an unreachable loop
+  after the arm's `return;` (`for (;;) { if (c) goto top; }`) stops both cse
+  passes and emits nothing; `do { } while (0)` stops only the first. Read
+  the `cc1 -da` `.cse` dump's block lines to see it. (ovl16
+  StepMissSequence)
 
 ## Scheduling
 
@@ -659,6 +672,16 @@ function's match report, not here.
   `b = D[k + 2] << 8; b |= D[k + 3]; b ^= 0xFFFF;`. A narrowed copy reused in
   one block goes in a new local (`n = (u16)b;`), which local-alloc places and
   which moves a neighbouring load. (PollPads)
+- **A global's `lui` heading a branch, ahead of the arithmetic: write the
+  expression in the store**, `p->x = gPlayer.x - 500 + n * 50;`. Computing
+  it into locals first lets sched put the `lui` after it. A chained
+  `a = b = v;` stores `b` first. (ovl02 func_800F69B0)
+- **A short-lived value taking the argument register retail gives a
+  longer-lived pointer: make it live out of its block.** A redundant store
+  that repeats one already done (`n = 500;` where the branch's delay slot
+  stores 500) emits nothing, but moves the value to global allocation, and
+  local-alloc's priority order (refs and length) then matches retail's.
+  (ovl02 func_800F69B0)
 - **Add order around a call: `x + (rand() % n - k)` or `x - (k - rand() % n)`
   keeps retail's `x - k` before the remainder is added**; `x - k + rand() % n`
   folds `-k` onto the remainder. (ovl07 trap steps)
@@ -684,3 +707,13 @@ function's match report, not here.
   written before the copy**; the scheduler sinks them. (ovl08 frame step)
 - **`t->timer++;` as its own statement, then the test, puts the halfword
   store in the compare's delay slot**; `if (++t->timer ...)` stores early.
+
+## Units
+
+- **Rodata placed where no single object can put it marks a unit boundary.**
+  cc1 aligns a jump table to 8 within its object, and overlays link with
+  `SUBALIGN(2)`, so a table 4 past an absolute 8-byte boundary means its
+  object's rodata starts 4 past one. Measure where the table sits relative
+  to the strings before it in every copy of the code: in the chases it is
+  always 0x10 past `"CDEXEC %d"`, the boundary of an object starting at that
+  string. (ovl08, ovl11 LoadChaseStage: the chases' `_tail` units)

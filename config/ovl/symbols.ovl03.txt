@@ -142,3 +142,5 @@ StepTrapFFAct67 = 0x800F453C; // type:func
 StepTrapFFAct68 = 0x800F46B4; // type:func
 StepTrapForward = 0x800F2A00; // type:func
 StepTrapForwardLevel = 0x800F2D24; // type:func
+sStageSpriteShapes = 0x800F08FC;
+sTrapModels = 0x800F0960;

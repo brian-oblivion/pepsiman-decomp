@@ -3,6 +3,42 @@
 
 #include "engine.inc"
 
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0x1324
+#define ENGINE_HINT_FILE
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+/* The goal's three lights, lit one by one as the goal sequence counts down;
+ * CycleGoalLights draws a lit one's other pair of frames. */
+s8 sGoalLightLit[3] = {0};
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc on, sHintBurstSpins on */
+
+/* The stage-hint file's data: the hint being watched, the hints and their
+ * count. Nothing in this overlay reads them. */
+s32 sHintIndex = 0;
+StageHint sHints[12] = {
+    {16, 30, 2},  {27, 30, 2},  {30, 30, 2},  {45, 30, 2},  {58, 30, 2},  {129, 30, 1},
+    {208, 30, 2}, {260, 30, 2}, {267, 30, 2}, {271, 30, 2}, {276, 30, 2}, {-1},
+};
+s32 sHintCount = 12;
+
+/* MATCHING: the word retail's link padded the file's data with, whatever
+ * its buffer held. */
+s32 sHintPad = 0x2E22ED1C;
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
+
+/* The view a camera shot (a fall's, the goal's) moves the camera to. */
+s32 sShotView[8] = {0};
+
+/* 400 zeroed bytes nothing in this overlay reads. */
+s32 sUnusedWords[100] = {0};
+
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
 void ResetSpawnedTraps(void) {
@@ -338,7 +374,6 @@ void StepGoalSequence(void) {
     }
 }
 
-extern s8 D_800F9A60[];
 void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count);
 
 void CycleGoalLights(s8 arg) {
@@ -349,9 +384,9 @@ void CycleGoalLights(s8 arg) {
     if (gSectionEdges[-1] - gSection < 20) {
         for (i = 0; i < 8; i++) {
             if (gFrameCount % periods[i] == 0) {
-                func_800F8B4C((DirEnt16 *)0x8018D000, i * 4 + D_800F9A60[lights[i]] * 2, 1);
+                func_800F8B4C((DirEnt16 *)0x8018D000, i * 4 + sGoalLightLit[lights[i]] * 2, 1);
             } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                func_800F8B4C((DirEnt16 *)0x8018D000, i * 4 + 1 + D_800F9A60[lights[i]] * 2, 1);
+                func_800F8B4C((DirEnt16 *)0x8018D000, i * 4 + 1 + sGoalLightLit[lights[i]] * 2, 1);
             }
         }
     }
@@ -408,7 +443,6 @@ void func_800F5E80(void) {
 
 extern Vec3 D_8007AE1C[];
 extern Vec3 D_8007AED0[];
-extern s32 D_800FE590[];
 
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
 s8 func_800F60CC(StageTrap *t) {
@@ -447,12 +481,12 @@ s8 func_800F60CC(StageTrap *t) {
             if (++t->timer >= 16) {
                 gPlayer.action = 0x19;
                 gFellOff = 1;
-                D_800FE590[0] = rsin(gCourse.rot.vy + 0x8E3) * 200 >> 12;
-                D_800FE590[2] = rcos(gCourse.rot.vy + 0x8E3) * 200 >> 12;
-                D_800FE590[1] = gPlayer.y - 80;
-                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
-                D_800FE590[4] = gPlayer.y - 130;
+                sShotView[0] = rsin(gCourse.rot.vy + 0x8E3) * 200 >> 12;
+                sShotView[2] = rcos(gCourse.rot.vy + 0x8E3) * 200 >> 12;
+                sShotView[1] = gPlayer.y - 80;
+                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[4] = gPlayer.y - 130;
                 t->homeRotZ = 0;
                 gRefView[0] = rsin(gCourse.rot.vy + 0x8E3) * 30 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x8E3) * 30 >> 12;
@@ -465,12 +499,12 @@ s8 func_800F60CC(StageTrap *t) {
             }
             break;
         case 3:
-            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 20);
-            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 20);
-            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 20);
-            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 20);
-            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 20);
-            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 20);
+            gView[0] = Lerp(gRefView[0], sShotView[0], t->timer, 20);
+            gView[1] = Lerp(gRefView[1], sShotView[1], t->timer, 20);
+            gView[2] = Lerp(gRefView[2], sShotView[2], t->timer, 20);
+            gView[3] = Lerp(gRefView[3], sShotView[3], t->timer, 20);
+            gView[4] = Lerp(gRefView[4], sShotView[4], t->timer, 20);
+            gView[5] = Lerp(gRefView[5], sShotView[5], t->timer, 20);
             GsSetRefView2((GsRVIEW2 *)gView);
             if (t->timer < 20) {
                 t->timer++;
@@ -488,12 +522,12 @@ s8 func_800F60CC(StageTrap *t) {
                 gPlayer.curMotion[0] = 0xFF;
                 gPlayer.action = 0x19;
                 gFellOff = 1;
-                D_800FE590[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
-                D_800FE590[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
-                D_800FE590[1] = gPlayer.y - 200;
-                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
-                D_800FE590[4] = gPlayer.y - 130;
+                sShotView[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
+                sShotView[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
+                sShotView[1] = gPlayer.y - 200;
+                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[4] = gPlayer.y - 130;
                 gRefView[0] = rsin(gCourse.rot.vy + 0x71D) * 30 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x71D) * 30 >> 12;
                 gRefView[1] = gPlayer.y - 150;
@@ -506,12 +540,12 @@ s8 func_800F60CC(StageTrap *t) {
             }
             break;
         case 5:
-            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 20);
-            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 20);
-            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 20);
-            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 20);
-            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 20);
-            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 20);
+            gView[0] = Lerp(gRefView[0], sShotView[0], t->timer, 20);
+            gView[1] = Lerp(gRefView[1], sShotView[1], t->timer, 20);
+            gView[2] = Lerp(gRefView[2], sShotView[2], t->timer, 20);
+            gView[3] = Lerp(gRefView[3], sShotView[3], t->timer, 20);
+            gView[4] = Lerp(gRefView[4], sShotView[4], t->timer, 20);
+            gView[5] = Lerp(gRefView[5], sShotView[5], t->timer, 20);
             GsSetRefView2((GsRVIEW2 *)gView);
             if (t->timer < 20) {
                 t->timer++;
@@ -529,12 +563,12 @@ s8 func_800F60CC(StageTrap *t) {
                 gPlayer.curMotion[0] = 0xFF;
                 gPlayer.action = 0x19;
                 gFellOff = 1;
-                D_800FE590[0] = rsin(gCourse.rot.vy + 0x800) * 200 >> 12;
-                D_800FE590[2] = rcos(gCourse.rot.vy + 0x800) * 200 >> 12;
-                D_800FE590[1] = gPlayer.y - 150;
-                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
-                D_800FE590[4] = gPlayer.y - 150;
+                sShotView[0] = rsin(gCourse.rot.vy + 0x800) * 200 >> 12;
+                sShotView[2] = rcos(gCourse.rot.vy + 0x800) * 200 >> 12;
+                sShotView[1] = gPlayer.y - 150;
+                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[4] = gPlayer.y - 150;
                 gRefView[0] = rsin(gCourse.rot.vy + 0x800) * 30 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x800) * 30 >> 12;
                 gRefView[1] = gPlayer.y - 150;
@@ -547,12 +581,12 @@ s8 func_800F60CC(StageTrap *t) {
             }
             break;
         case 7:
-            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 20);
-            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 20);
-            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 20);
-            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 20);
-            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 20);
-            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 20);
+            gView[0] = Lerp(gRefView[0], sShotView[0], t->timer, 20);
+            gView[1] = Lerp(gRefView[1], sShotView[1], t->timer, 20);
+            gView[2] = Lerp(gRefView[2], sShotView[2], t->timer, 20);
+            gView[3] = Lerp(gRefView[3], sShotView[3], t->timer, 20);
+            gView[4] = Lerp(gRefView[4], sShotView[4], t->timer, 20);
+            gView[5] = Lerp(gRefView[5], sShotView[5], t->timer, 20);
             GsSetRefView2((GsRVIEW2 *)gView);
             if (t->timer < 20) {
                 t->timer++;
@@ -565,12 +599,12 @@ s8 func_800F60CC(StageTrap *t) {
                 t->state++;
                 StartScreenWipe();
                 gFellOff = 1;
-                D_800FE590[0] = rsin(gCourse.rot.vy + 0x800) * 300 >> 12;
-                D_800FE590[2] = rcos(gCourse.rot.vy + 0x800) * 300 >> 12;
-                D_800FE590[1] = gPlayer.y - 250;
-                D_800FE590[3] = rsin(gCourse.rot.vy + 0x800) * 1500 >> 12;
-                D_800FE590[5] = rcos(gCourse.rot.vy + 0x800) * 1500 >> 12;
-                D_800FE590[4] = gPlayer.y - 400;
+                sShotView[0] = rsin(gCourse.rot.vy + 0x800) * 300 >> 12;
+                sShotView[2] = rcos(gCourse.rot.vy + 0x800) * 300 >> 12;
+                sShotView[1] = gPlayer.y - 250;
+                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                sShotView[4] = gPlayer.y - 400;
                 gRefView[0] = rsin(gCourse.rot.vy) * 500 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy) * 500 >> 12;
                 gRefView[1] = gPlayer.y - 250;
@@ -583,24 +617,24 @@ s8 func_800F60CC(StageTrap *t) {
         case 8:
             t->timer++;
             if (IsScreenWipeActive() == 0) {
-                gView[0] = Lerp(gRefView[0], D_800FE590[0], 0, 90);
-                gView[1] = Lerp(gRefView[1], D_800FE590[1], 0, 90);
-                gView[2] = Lerp(gRefView[2], D_800FE590[2], 0, 90);
-                gView[3] = Lerp(gRefView[3], D_800FE590[3], 0, 90);
-                gView[4] = Lerp(gRefView[4], D_800FE590[4], 0, 90);
-                gView[5] = Lerp(gRefView[5], D_800FE590[5], 0, 90);
+                gView[0] = Lerp(gRefView[0], sShotView[0], 0, 90);
+                gView[1] = Lerp(gRefView[1], sShotView[1], 0, 90);
+                gView[2] = Lerp(gRefView[2], sShotView[2], 0, 90);
+                gView[3] = Lerp(gRefView[3], sShotView[3], 0, 90);
+                gView[4] = Lerp(gRefView[4], sShotView[4], 0, 90);
+                gView[5] = Lerp(gRefView[5], sShotView[5], 0, 90);
                 GsSetRefView2((GsRVIEW2 *)gView);
                 t->timer = 0;
                 t->state++;
             }
             break;
         case 9:
-            gView[0] = Lerp(gRefView[0], D_800FE590[0], t->timer, 90);
-            gView[1] = Lerp(gRefView[1], D_800FE590[1], t->timer, 90);
-            gView[2] = Lerp(gRefView[2], D_800FE590[2], t->timer, 90);
-            gView[3] = Lerp(gRefView[3], D_800FE590[3], t->timer, 90);
-            gView[4] = Lerp(gRefView[4], D_800FE590[4], t->timer, 90);
-            gView[5] = Lerp(gRefView[5], D_800FE590[5], t->timer, 90);
+            gView[0] = Lerp(gRefView[0], sShotView[0], t->timer, 90);
+            gView[1] = Lerp(gRefView[1], sShotView[1], t->timer, 90);
+            gView[2] = Lerp(gRefView[2], sShotView[2], t->timer, 90);
+            gView[3] = Lerp(gRefView[3], sShotView[3], t->timer, 90);
+            gView[4] = Lerp(gRefView[4], sShotView[4], t->timer, 90);
+            gView[5] = Lerp(gRefView[5], sShotView[5], t->timer, 90);
             GsSetRefView2((GsRVIEW2 *)gView);
             if (++t->timer > 90) {
                 t->timer = 0;
@@ -610,15 +644,15 @@ s8 func_800F60CC(StageTrap *t) {
             break;
         case 10:
             if (++t->timer == 15) {
-                D_800F9A60[2] = 1;
+                sGoalLightLit[2] = 1;
                 PlaySe(0x71);
             }
             if (t->timer == 45) {
-                D_800F9A60[1] = 1;
+                sGoalLightLit[1] = 1;
                 PlaySe(0x71);
             }
             if (t->timer == 75) {
-                D_800F9A60[0] = 1;
+                sGoalLightLit[0] = 1;
                 PlaySe(0x71);
             }
             if (t->timer == 80) {
@@ -943,9 +977,6 @@ void func_800F8BD4(void) {
 
 #include "engine/emit_trap_particles.inc"
 
-extern s32 D_800F9FC0[];
-extern s32 D_800F9FE0[];
-
 s32 func_800F8D34(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
@@ -954,11 +985,11 @@ s32 func_800F8D34(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800F9FC0[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl16Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800F9FE0[1];
+            gCdLoadSectors[0] = sFiles2Ovl16Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -974,11 +1005,11 @@ s32 func_800F8D34(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800F9FC0[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl16Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800F9FE0[2];
+            gCdLoadSectors[0] = sFiles2Ovl16Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -988,14 +1019,14 @@ s32 func_800F8D34(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800F9FC0[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl16Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800F9FC0[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl16Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800F9FE0[3];
-            gCdLoadSectors[1] = D_800F9FE0[4];
+            gCdLoadSectors[0] = sFiles2Ovl16Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl16Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -1005,11 +1036,11 @@ s32 func_800F8D34(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800F9FC0[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl16Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800F9FE0[5];
+            gCdLoadSectors[0] = sFiles2Ovl16Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -1023,11 +1054,11 @@ s32 func_800F8D34(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800F9FC0[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl16Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800F9FE0[6];
+            gCdLoadSectors[0] = sFiles2Ovl16Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -1039,11 +1070,11 @@ s32 func_800F8D34(void) {
             }
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)&D_800F9FC0[6];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl16Loc[7];
             gCdLoadDest[0] = 0x8018D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800F9FE0[7];
+            gCdLoadSectors[0] = sFiles2Ovl16Sectors[7];
             gSubStep++;
             break;
         case 13:
@@ -1131,13 +1162,27 @@ typedef struct {
     u8 shape[41]; /**< a shape per sprite id from SPR_STAGE on */
 } StageShapes;
 
-extern const StageShapes D_800F08F0;
+/** @brief The shapes as this overlay's rodata holds them: the link
+ *         padded the block to a word. */
+typedef struct {
+    StageShapes shapes; /**< the shapes */
+    u8 pad[3];          /**< MATCHING: the link's padding, whatever its buffer held */
+} StageShapesRodata;
+
+extern const StageShapesRodata sStageSpriteShapes;
 
 void func_800F936C(void) {
     StageShapes shapes;
 
-    shapes = D_800F08F0;
+    shapes = sStageSpriteShapes.shapes;
     *(StageShapes *)sSpriteShapes = shapes;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl16/nonmatchings/ovl16", D_800F08F0);
+/* This stage's sprite shapes. */
+const StageShapesRodata sStageSpriteShapes = {
+    {{
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    }},
+    {35, 208, 15},
+};

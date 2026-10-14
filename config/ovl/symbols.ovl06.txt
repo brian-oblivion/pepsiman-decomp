@@ -145,3 +145,4 @@ StepTrapForwardLevel = 0x800F27D4; // type:func
 ScatterTrapDust = 0x800F6EF4; // type:func
 StepRollingTrap = 0x800F3158; // type:func
 RevealStartCans = 0x800FA2FC; // type:func
+sStageSpriteShapes = 0x800F0924;

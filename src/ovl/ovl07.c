@@ -3,6 +3,21 @@
 
 #include "engine.inc"
 
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0x0200
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc to sFiles3LastSectors */
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
+
+/* The camera view saved before a shot, which the camera then moves from. */
+GsRVIEW2 sSavedView = {0};
+
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
 #include "engine/reset_spawned_traps.inc"
@@ -338,7 +353,7 @@ s8 func_800F82CC(StageTrap *t) {
             gRefView[1] = gPlayer.y - 150;
             gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 150 >> 12;
             gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 150 >> 12;
-            D_800FF8DC = *(GsRVIEW2 *)gView;
+            sSavedView = *(GsRVIEW2 *)gView;
             gRefView[4] = gPlayer.y - 100;
             t->homeRotZ = 0;
             t->timer = 0;
@@ -358,12 +373,12 @@ s8 func_800F82CC(StageTrap *t) {
             if (t->timer < 60) {
                 t->timer++;
             }
-            gView[0] = Lerp(((s32 *)&D_800FF8DC)[0], gRefView[0], t->timer, 60);
-            gView[1] = Lerp(((s32 *)&D_800FF8DC)[1], gRefView[1], t->timer, 60);
-            gView[2] = Lerp(((s32 *)&D_800FF8DC)[2], gRefView[2], t->timer, 60);
-            gView[3] = Lerp(((s32 *)&D_800FF8DC)[3], gRefView[3], t->timer, 60);
-            gView[4] = Lerp(((s32 *)&D_800FF8DC)[4], gRefView[4], t->timer, 60);
-            gView[5] = Lerp(((s32 *)&D_800FF8DC)[5], gRefView[5], t->timer, 60);
+            gView[0] = Lerp(((s32 *)&sSavedView)[0], gRefView[0], t->timer, 60);
+            gView[1] = Lerp(((s32 *)&sSavedView)[1], gRefView[1], t->timer, 60);
+            gView[2] = Lerp(((s32 *)&sSavedView)[2], gRefView[2], t->timer, 60);
+            gView[3] = Lerp(((s32 *)&sSavedView)[3], gRefView[3], t->timer, 60);
+            gView[4] = Lerp(((s32 *)&sSavedView)[4], gRefView[4], t->timer, 60);
+            gView[5] = Lerp(((s32 *)&sSavedView)[5], gRefView[5], t->timer, 60);
             GsSetRefView2((GsRVIEW2 *)gView);
             if (++t->homeRotZ > 60) {
                 gRefView[0] = rsin(gCourse.rot.vy + 0x471) * 800 >> 12;
@@ -544,11 +559,11 @@ s32 func_800FA1C0(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800FB1A0[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl07Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB1C0[1];
+            gCdLoadSectors[0] = sFiles2Ovl07Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -564,11 +579,11 @@ s32 func_800FA1C0(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800FB1A0[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl07Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB1C0[2];
+            gCdLoadSectors[0] = sFiles2Ovl07Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -578,14 +593,14 @@ s32 func_800FA1C0(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800FB1A0[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl07Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800FB1A0[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl07Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB1C0[3];
-            gCdLoadSectors[1] = D_800FB1C0[4];
+            gCdLoadSectors[0] = sFiles2Ovl07Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl07Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -595,11 +610,11 @@ s32 func_800FA1C0(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800FB1A0[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl07Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB1C0[5];
+            gCdLoadSectors[0] = sFiles2Ovl07Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -613,11 +628,11 @@ s32 func_800FA1C0(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800FB1A0[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl07Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB1C0[6];
+            gCdLoadSectors[0] = sFiles2Ovl07Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -629,11 +644,11 @@ s32 func_800FA1C0(void) {
             }
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)&D_800FB1A0[6];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl07Loc[7];
             gCdLoadDest[0] = 0x8018D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FB1C0[7];
+            gCdLoadSectors[0] = sFiles2Ovl07Sectors[7];
             gSubStep++;
             break;
         case 13:
@@ -716,11 +731,19 @@ void func_800FA6C0(void) {
     RevealStartCans();
 }
 
+extern const SpriteShapes sStageSpriteShapes;
+
 void func_800FA800(void) {
     SpriteShapes shapes;
 
-    shapes = D_800F08E8;
+    shapes = sStageSpriteShapes;
     *(SpriteShapes *)sSpriteShapes = shapes;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl07/nonmatchings/ovl07", D_800F08E8);
+/* This stage's sprite shapes. */
+const SpriteShapes sStageSpriteShapes = {{
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+}};

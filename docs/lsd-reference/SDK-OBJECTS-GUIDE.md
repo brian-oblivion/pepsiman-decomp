@@ -178,11 +178,18 @@ In `config/splat.slps01556.lsdde.yaml`:
   early, the link is clean and the SHA1 fails; with it the image is exact.
   Do the arithmetic (`start + size`, then the next object's start) for
   every data section in the run before the first build.
-- **A data-only object cannot be placed and is not yours to convert.**
-  `libgte`'s `rcossin_tbl` (`0x573E0`, vram `0x80066BE0`) has no `.text`,
-  so no disc places it; its bytes stay in the plain `data` slot and
-  `ldfrag` pins the name as an external because placed objects reference
-  it. Do not go looking for the object.
+- **A data-only object is placed by its readers, not by `match`.**
+  `libgte/cstbl` (`rcossin_tbl`) has no `.text`, so `match` never lists
+  it, and until it is linked `ldfrag` pins the name as an external at the
+  address placed objects read. That pin IS the placement: find the object
+  that defines the name (`readelf -s` over `sdk/work/4.4/elf/*/*.o`),
+  check its whole `.data` equals retail's bytes there, and add a manifest
+  row whose offset is the `.data`'s file offset (`data_only()` in
+  `psyq_sdk.py`: `install` then verifies the data, `check` wants the
+  `[0xOFF, o, lib/module, .data]` line) plus that yaml line. The pin drops
+  out of the fragment by itself. Pepsiman linked ten this way (libspu
+  s_m/zerobuf/s_rmp0/s_rmp2, libsn/sndef, libgte sincos/sqrtbl/cstbl,
+  libgs/global, libpress/table).
 - **Convert a long run in chunks, one commit each.** A 29-object run
   (`psyq_2258`) is too much yaml to debug at once. Split at object
   boundaries; the unconverted tail stays as a temporary `asm` segment named

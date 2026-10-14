@@ -12,6 +12,21 @@ typedef struct {
     u8 b[8]; /**< the bytes */
 } Bytes8;
 
+/** @brief Sixteen signed bytes, copied together as one unaligned block. */
+typedef struct {
+    s8 b[4][4]; /**< four rows of four */
+} Bytes16;
+
+/** RemapButtons' table, a row per gButtonConfig: for the pad's three face
+ * buttons (0x20, 0x40, 0x80), the action bit each one sets, as a shift
+ * from 0x20; the fourth byte is padding. */
+const Bytes16 sButtonMaps = {{
+    {2, 0, 1, 0},
+    {2, 1, 0, 0},
+    {1, 0, 2, 0},
+    {0, 1, 2, 0},
+}};
+
 extern s32 gWipeFrame;
 extern s32 gTallyCans;
 extern s32 gResultsActive;
@@ -1363,13 +1378,6 @@ void UpdateWorldResults(void) {
     pos.vx = gResultsSlide[6] * 32 + 128;
     DrawResultTime(&pos, gWorldTime);
 }
-
-/** @brief Sixteen signed bytes, copied together as one unaligned block. */
-typedef struct {
-    s8 b[4][4]; /**< four rows of four */
-} Bytes16;
-
-extern Bytes16 sButtonMaps; /**< RemapButtons' table, a row per gButtonConfig */
 
 void RemapButtons(void) {
     Bytes16 tbl;

@@ -63,15 +63,15 @@ segments:
     align: 4
     subsegments:
       - [0x800, .rodata, main]
-      - [0xC14, .rodata, model]
+      - [0xC04, .rodata, model]
       - [0xC74, .rodata, draw]
       - [0xC8C, .rodata, draw_tmd]
       - [0xCE8, .rodata, player]
-      - [0x1320, .rodata, collision]
+      - [0x1150, .rodata, collision]
       - [0x137C, .rodata, editor]
       - [0x1CDC, .rodata, hit_tool]
       - [0x2198, .rodata, card]
-      - [0x26C0, .rodata, stage]
+      - [0x26B0, .rodata, stage]
       - [0x278C, .rodata, stage_flow]
       - [0x285C, .rodata, stage_overlay]
       - [0x2910, .rodata, sound]
@@ -518,42 +518,55 @@ segments:
       - [0x6C43C, o, libsnd/ssinit, .data]
       - [0x6C46C, o, libspu/s_ini, .data]
       - [0x6C4EC, o, libspu/spu, .data]
-      - [0x6C54C, data]
+      - [0x6C54C, o, libspu/s_m, .data]       # _spu_AllocBlockNum, _spu_AllocLastNum, _spu_memList
+      - [0x6C55C, o, libspu/zerobuf, .data]   # _spu_zerobuf
+      - [0x6C95C, o, libspu/s_rmp0, .data]    # _spu_rev_startaddr
       - [0x6C98C, o, libsnd/ssstart, .data]
-      - [0x6C9AC, data]
+      - [0x6C9AC, o, libspu/s_rmp2, .data]    # _spu_rev_param
       - [0x6CC5C, o, libspu/s_n2p, .data]
       - [0x6CD7C, o, libsnd/vm_n2p, .data]
-      - [0x6CE9C, data]
+      - [0x6CE9C, o, libsn/sndef, .data]      # _stacksize, _ramsize
       - [0x6CEA4, o, libetc/vsync, .data]
       - [0x6CEC4, o, libetc/intr, .data]
       - [0x6DFC4, o, libetc/intr_vb, .data]
       - [0x6DFF4, o, libetc/intr_dma, .data]
       - [0x6E024, o, libetc/vmode, .data]
-      - [0x6E034, data]
+      # libcd's cdrom and c_0xx objects each carry the same unreferenced
+      # 16-byte .data (four CD register addresses from a header). Nothing
+      # derives which copy is which; they go in link (= .text) order, the
+      # order every derived libcd .data here follows. The image is the same
+      # whichever way round.
+      - [0x6E034, o, libcd/cdrom, .data]
       - [0x6E044, o, libcd/event, .data]
       - [0x6E054, o, libcd/sys, .data]
       - [0x6E0D4, o, libcd/bios, .data]
       - [0x6E3F4, o, libcd/iso9660, .data]
       - [0x6E404, o, libcd/cdread, .data]
-      - [0x6E444, data]
+      - [0x6E444, o, libcd/c_002, .data]
       - [0x6E454, o, libcd/c_003, .data]
-      - [0x6E464, data]
+      - [0x6E464, o, libcd/c_004, .data]
+      - [0x6E474, o, libcd/c_005, .data]
+      - [0x6E484, o, libcd/c_007, .data]
+      - [0x6E494, o, libcd/c_008, .data]
+      - [0x6E4A4, o, libcd/c_009, .data]
+      - [0x6E4B4, o, libcd/c_010, .data]
       - [0x6E4C4, o, libcd/c_011, .data]
-      - [0x6E514, data]
+      - [0x6E514, o, libgte/sincos, .data]    # rsin_tbl
+      - [0x6ED24, o, libgte/sqrtbl, .data]    # SQRT
       - [0x6EEA4, o, libgte/msc02, .data]
-      - [0x6F044, data]
+      - [0x6F044, o, libgte/cstbl, .data]     # rcossin_tbl
       - [0x73044, o, libgte/clip_ini, .data]
       - [0x73054, o, libgte/ratan, .data]
-      - [0x73864, data]
+      - [0x73864, data]                       # libgs/gs_001's .data: gs_001 stays asm (KEPT_ASM)
       - [0x73874, o, libgte/mtx_006, .data]
       - [0x73B84, o, libgte/msc00, .data]
-      - [0x73B94, data]
+      - [0x73B94, o, libgs/global, .data]     # GsADIVZ, GsADIVW, GsADIVH
       - [0x73BA4, o, libgs/objt2, .data]
       - [0x73CD4, o, libgpu/font, .data]
       - [0x74864, o, libgpu/sys, .data]
       - [0x74A04, o, libpress/libpress, .data]
       - [0x74B54, o, libpress/vlc, .data]
-      - [0x74B84, data]
+      - [0x74B84, o, libpress/table, .data]   # DCL_DVLC, DCC_DVLC, CF_DVLC, CF2_DVLC
       - [0x85B84, o, libcard/init, .data]
       - [0x85B94, o, libapi/counter, .data]
       - [0x85BB4, o, libapi/pad, .data]

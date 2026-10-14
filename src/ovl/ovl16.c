@@ -209,15 +209,13 @@ void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {
 
 #include "engine/swap_trap_model_on_approach.inc"
 
-/* Near: the miss phase's value is reused as the case-1 constant and its
- * address kept for the `= 2` store, where the original reloads both. */
-#ifdef NON_MATCHING
 void StepMissSequence(void) {
     s32 unused[18];
     StageTrap *m;
 
     m = &D_800AC6E0;
     if (D_800D3638 == 1) {
+    top:
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
@@ -268,11 +266,15 @@ void StepMissSequence(void) {
                 }
                 break;
         }
+        return;
+        /* MATCHING: unreachable; its label splits the cse block at the switch. */
+        for (;;) {
+            if (m->state != 0) {
+                goto top;
+            }
+        }
     }
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", StepMissSequence);
-#endif
 
 /* This stage's goal walk, defined below. */
 s8 func_800F60CC(StageTrap *t);

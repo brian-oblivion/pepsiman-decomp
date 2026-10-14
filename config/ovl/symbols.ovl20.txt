@@ -1,6 +1,4 @@
 // Overlay 20 (world 3 intro): names for addresses inside the overlay.
-sIntroPackLoc = 0x800F1368;
-sIntroPackSectors = 0x800F13B8;
 sPropCoord = 0x800F1D70;
 sPartner = 0x800F1DC0;
 sPartnerObjs = 0x800F2198;

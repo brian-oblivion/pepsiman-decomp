@@ -17,11 +17,10 @@
         DefineSprite(SPR_STAGE + 8 + i, 0, 0xFF, 0x20, 6, 0, (u8)(i * 32), 0, 0x1FE); \
     }
 
-#include "world_intro.inc"
+#define INTRO_WORLD 5
+#define INTRO_XA 1
 
-extern CdlLOC sXaLoc;
-extern s32 sIntroFrame;
-extern s32 sScriptPaused;
+#include "world_intro.inc"
 
 void StepWorldIntro(void) {
     /* MATCHING: never used; its slot puts the inline functions' frames at
@@ -30,12 +29,12 @@ void StepWorldIntro(void) {
 
     switch (gWorldIntroStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)sIntroPackLoc;
+            gCdLoadLoc[0] = (s32)&sDiscSharedLoc[INTRO_PACK];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gWorldIntroStep = 1;
-            gCdLoadSectors[0] = sIntroPackSectors[0];
+            gCdLoadSectors[0] = sDiscSharedSectors[INTRO_PACK];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -47,7 +46,7 @@ void StepWorldIntro(void) {
         case 2:
             if (LoadVabBank(6) == 1) {
                 gLoading = 0;
-                CdControlF(CdlSeekL, (u_char *)&sXaLoc);
+                CdControlF(CdlSeekL, (u_char *)&sDiscXaLoc[0]);
                 gWorldIntroStep = 3;
             }
             break;

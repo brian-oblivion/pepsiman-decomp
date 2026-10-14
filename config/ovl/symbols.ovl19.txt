@@ -1,8 +1,5 @@
 // Overlay 19 (world 2 intro): names for addresses inside the overlay.
 sCaptionTimes = 0x800F0000;
-sIntroPackLoc = 0x800F147C;
-sIntroPackSectors = 0x800F14CC;
-sXaLoc = 0x800F1920;
 sIntroFrame = 0x800F1E88;
 sScriptPaused = 0x800F1E8C;
 sPropCoord = 0x800F1E90;

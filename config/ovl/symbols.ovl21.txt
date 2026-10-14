@@ -1,8 +1,5 @@
 // Overlay 21 (world 4 intro): names for addresses inside the overlay.
 sCaptionTimes = 0x800F0000;
-sIntroPackLoc = 0x800F1494;
-sIntroPackSectors = 0x800F14E4;
-sXaLoc = 0x800F1928;
 sIntroFrame = 0x800F1E90;
 sScriptPaused = 0x800F1E94;
 sPropCoord = 0x800F1E98;

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "memory.h"
 #include "libsnd.h"
 #include "libcd.h"
@@ -31,7 +32,6 @@ extern s16 gSeqIds[];
 extern char sSeqAttrTable[]; /**< SsSetTableSize's SEQ attribute table */
 extern s32 gMovieEnded;
 extern u16 gSeSlot;
-extern s32 gVabError;
 extern s16 gBgmVab;
 extern u8 *sVabBody; /**< the sound VAB body address: worked out for bank 0, reused for bank 1 */
 extern s16 gBgmVolume;
@@ -385,7 +385,6 @@ s32 PlayBgm(u16 song) {
  * passes and reads them as s32. */
 s32 Lerp(s32 from, s32 to, s32 step, s32 steps);
 
-extern s16 gCdVolume;
 extern s16 gSoundFadeTimer;
 extern s16 gSeVolume;
 

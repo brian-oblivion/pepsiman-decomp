@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "libetc.h"
 #include "libgte.h"
 #include "libgpu.h"
@@ -32,7 +33,6 @@ extern s32 sGridAngle;          /**< UpdateGridTest's angle, moved by L1 and R1 
 extern GridPoint sGridPoints[]; /**< UpdateGridTest's 21 x 16 grid */
 extern DVECTOR sGridScreen[];   /**< each grid point projected to the screen */
 extern s32 D_800DED50[];
-extern s32 gGridLastAngle; /**< the grid test's last angle */
 extern s32 gGridLastValue; /**< the grid test's last table value */
 extern s32 gGridLastX;     /**< the grid test's first point on screen, x */
 extern s32 gGridLastY;     /**< the grid test's first point on screen, y */
@@ -155,7 +155,6 @@ HitReaction gHitReactions[] = {
     /* 22 */ {{ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, 1, 0, 1}},
 };
 
-extern s8 sLastHitMask; /**< the hit flags of gPlayerHits, or-ed, when last reacted to */
 /* Overlay entry points: the stage modes' own code. */
 void func_800F8A58(void);
 void func_800F8B60(void);

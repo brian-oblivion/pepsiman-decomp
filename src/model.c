@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "libetc.h"
 #include "rand.h"
 #include "libgte.h"
@@ -38,8 +39,7 @@ typedef struct {
     s32 z; /**< z */
 } Vec3i;
 
-extern s8 gViewerReplay; /**< set to 1 when the level is applied */
-extern s16 D_80095918;   /**< cleared when the viewer starts */
+extern s16 D_80095918; /**< cleared when the viewer starts */
 
 /** The model viewer's motion-number line. */
 const char gMotionFmt[] = "\n\n\tMOTION %3d";

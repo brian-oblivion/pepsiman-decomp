@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "libetc.h"
 #include "libgte.h"
 #include "libgpu.h"
@@ -195,7 +196,6 @@ typedef struct {
 /* MATCHING: a struct lvalue keeps the base in a register. */
 #define sSaved (*(SavedStart *)gSavedStart)
 
-extern s32 D_800957A4;
 extern u16 sPauseFrames; /**< frames shown paused */
 
 void func_800F00A0(void);

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "libetc.h"
 #include "memory.h"
 #include "libapi.h"
@@ -140,8 +141,6 @@ extern u8 sToolInfoMode; /**< 1 while the picked record's INFO is shown */
 
 void ClearHitPoints(void);
 void ClearHitQuads(void);
-
-extern u8 sPreviewing; /**< 1 while RefreshToolPreview runs */
 
 
 void MoveToolCursor(void);

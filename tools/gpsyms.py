@@ -189,6 +189,8 @@ def derive():
                           f'holds its symbols-file address')
     units = {unit: sorted(retail_targets(syms, (lo, hi), addr=True))
              for unit, lo, hi in unit_code()}
+    for unit, _, _, _ in ranges:   # a data-only unit (sbss) has no code to reach anything
+        units.setdefault(unit, [])
     return sorted(set(owned) | retail_targets(syms)), units, errors
 
 

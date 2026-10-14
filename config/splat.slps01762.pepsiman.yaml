@@ -594,6 +594,6 @@ segments:
       - [0x85EA8, .sdata, card]
       - [0x85EB0, .sdata, stage]
       - [0x85EC0, .sdata, sound]
-      - [0x85ED0, sbss]
+      - [0x85ED0, .sbss, sbss]
 
   - [0x86000]

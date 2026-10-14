@@ -520,6 +520,8 @@ extern Pair8 gActTimes;
 extern Pair8 gActCans;
 extern Pair8 D_800958C0;
 extern u16 gRumbleTime;
+/* MATCHING: the small and large strengths read as one array; sbss.c has two
+ * scalars. */
 extern u16 gRumbleSmall[];
 
 void func_800F1570(void) {

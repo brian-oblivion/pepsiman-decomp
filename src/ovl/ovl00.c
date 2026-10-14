@@ -3,6 +3,7 @@
  * vibration test's readings, and the sound test it hands over to. */
 
 #include "common.h"
+#include "sbss.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
@@ -32,7 +33,6 @@ extern u8 gRumbleEnabled;
 /* The vibration test's pattern, an index into gRumblePatterns. */
 extern s16 D_800958B8[];
 
-extern s32 gGridLastAngle;
 extern s32 gGridLastValue;
 extern s32 gGridLastX;
 extern s32 gGridLastY;

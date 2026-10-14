@@ -80,6 +80,8 @@ extern SVECTOR D_8009EB58[2]; /* the body's and the lid's rotations */
 #define sCanRot D_8009EB58
 extern u8 gRumbleEnabled;
 extern s16 gRumbleTime;
+/* MATCHING: the small and large strengths read as one array; sbss.c has two
+ * scalars. */
 extern s16 gRumbleSmall[];
 /* MATCHING: stage defines it with s16 positions; this unit passes words. */
 s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);

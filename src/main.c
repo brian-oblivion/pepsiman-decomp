@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libetc.h"
@@ -623,12 +624,6 @@ extern s32 gPadPrev[2];
 extern s32 gPadPressed[2];
 extern s32 gPadHeld[2];
 
-extern s8 gRepeatSpeed;
-extern u8 gRepeatUp;
-extern u8 gRepeatDown;
-extern u8 gRepeatSides[2];
-extern u8 gRepeatButtons[3];
-
 void PollPads(void);
 
 /**
@@ -718,7 +713,6 @@ extern char sTab[];           /**< "\t" */
 extern char sWhiteLineText[]; /**< "~c888\n" */
 extern char sHexAddrFmt[];    /**< "%x\n" */
 extern char sHexByteFmt[];    /**< " %2x" */
-extern s32 sDumpOffset;
 
 void DumpMemory(u8 *base) {
     u8 *p;
@@ -848,7 +842,6 @@ typedef struct {
 } RumbleStep;
 
 extern RumbleStep *gRumblePattern;
-extern u16 gRumbleIndex;
 extern u16 gRumbleWait;
 extern u16 gRumbleTime;
 /* MATCHING: signed, so the zero test in UpdateRumble is its own `lh`. */
@@ -1004,8 +997,6 @@ void PollPads(void) {
     }
 }
 
-extern u8 *sPadBufPtr;
-extern u8 *sPadActPtr;
 /* MATCHING: a known small size, so its address is one `la` register. */
 extern u8 sPadActAlign[8];
 
@@ -1170,7 +1161,6 @@ const char sCantOpenFmt[] = "Can't open %s\n";
 
 extern s16 gCdLoadIndex;
 extern s32 gCdLoadReadSectors;
-extern u8 gCdLoadRetries;
 
 /* main's small data, in address order. */
 /* MATCHING: declared above first (strings as arrays of unknown size), so
@@ -1989,8 +1979,6 @@ void StepStepper(PlayerState *obj) {
 }
 
 extern CdlLOC gCdToc[];
-extern s32 gCdTrackEnd;
-extern s32 gCdTrackLoop;
 /* MATCHING: a known small size, so the byte store is `$gp`-relative. */
 extern u8 sCdModeParam[4];
 

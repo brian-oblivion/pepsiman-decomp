@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sbss.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libetc.h"
@@ -71,7 +72,6 @@ typedef struct {
 extern Edge *gBoundaryEdges;
 
 extern GsDOBJ2 gStageObjs[];
-extern u32 gPropObjCount;
 extern GsDOBJ2 gPropObjs[];
 extern GsCOORDINATE2 gStageCoord;
 
@@ -681,7 +681,6 @@ extern s32 sCamTurnStep; /**< how far gCameraYaw turns this frame toward the sec
 extern s16 sCamOffsetX;
 extern s16 sCamOffsetZ;
 extern s16 sCamHeight; /**< the camera height, eased by 10 toward the section's */
-extern s16 sPrevViewY; /**< the view point's y before this frame's clamp */
 
 #define sView (*(GsRVIEW2 *)gView)
 

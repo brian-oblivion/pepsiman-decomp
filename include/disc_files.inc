@@ -169,11 +169,13 @@ CdlLOC DISC_FILE(Ovl17Loc)[9] = {
 
 s32 DISC_FILE(Ovl17Sectors)[9] = {10, 52, 63, 0, 0, 0, 0, 0, 0};
 
-/* A 9034-sector file at the end, which the engine never reads. */
-CdlLOC DISC_FILE(LastLoc)[1] = {
+/* A 9034-sector file at the end, which the engine never reads.
+ * MATCHING: unsized, so the executable's -G8 keeps these single entries out
+ * of small data. */
+CdlLOC DISC_FILE(LastLoc)[] = {
     CD_LOC(01, 47, 62),
 };
 
-s32 DISC_FILE(LastSectors)[1] = {9034};
+s32 DISC_FILE(LastSectors)[] = {9034};
 
 #undef DISC_FILE

@@ -298,6 +298,7 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 #include "engine/cycle_goal_lights.inc"
 
 #include "engine/step_stage_frame.inc"
+
 void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
     u16 i;
     s32 tp;
@@ -320,6 +321,7 @@ void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
         e++;
     }
 }
+
 s8 func_800F82CC(StageTrap *t) {
     s8 ret = 0;
 

@@ -828,8 +828,13 @@ void UpdateStageEventHook(void) {}
 /* MATCHING: an unused 72-byte local gives the frame; the empty asm puts the frame pop after the return. */
 void StepMissSequence(void) {
     s32 unused[18];
+    s32 i;
 
-    __asm__("");
+    /* MATCHING: a loop that never runs leaves the body an instruction, so
+     * the frame is freed in the return's delay slot. */
+    for (i = 0; i < 0; i++) {
+        unused[i] = 0;
+    }
 }
 
 void StepGoalSequence(void) {}

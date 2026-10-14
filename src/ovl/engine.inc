@@ -5,6 +5,7 @@
 
 
 #include "common.h"
+#include "ram.h"
 #include "memory.h"
 #include "libgte.h"
 #include "libgpu.h"

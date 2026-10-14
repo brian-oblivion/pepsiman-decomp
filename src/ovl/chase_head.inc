@@ -119,7 +119,7 @@ void DrawChasePlayer(void) {
             GsSetLsMatrix(&m);
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
-            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
         }
     }
 }
@@ -153,7 +153,7 @@ void DrawChasePlayerScaled(s32 sz) {
                 GsSetLsMatrix(&m);
                 GsGetLw(o->coord2, &m);
                 GsSetLightMatrix(&m);
-                GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4J(o, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             }
         }
     }

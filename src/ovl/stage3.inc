@@ -6,6 +6,7 @@
  * including unit defines. */
 
 #include "common.h"
+#include "ram.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libcd.h"
@@ -93,7 +94,7 @@ typedef struct {
     u8 b[0x800]; /**< the area */
 } BlockArea;
 
-/** @brief The stage's object file as it is read to 0x8016D000: the tables
+/** @brief The stage's object file as it is read to RAM_WORK_A: the tables
  *         a stage starts with. */
 typedef struct {
     TrapTable traps;      /**< the Trap table */
@@ -542,7 +543,7 @@ s32 func_800F1080(void) {
         case 0:
             SetBootReady(0);
             gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[1];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = STAGE3_FILE_SECTORS[1];
@@ -550,7 +551,7 @@ s32 func_800F1080(void) {
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimList((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)RAM_STAGE_LOAD);
                 gVabLoadStep = 0;
                 gSubStep++;
             }
@@ -562,7 +563,7 @@ s32 func_800F1080(void) {
             break;
         case 3:
             gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[2];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = STAGE3_FILE_SECTORS[2];
@@ -570,15 +571,15 @@ s32 func_800F1080(void) {
             break;
         case 4:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimPack((void *)0x8019D000);
+                LoadTimPack((void *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
         case 5:
             gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[3];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadLoc[1] = (s32)&STAGE3_FILE_LOC[4];
-            gCdLoadDest[1] = 0x80155000;
+            gCdLoadDest[1] = RAM_OBJECT_MODELS;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = STAGE3_FILE_SECTORS[3];
@@ -587,13 +588,13 @@ s32 func_800F1080(void) {
             break;
         case 6:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadStageData((unsigned long *)0x8019D000);
+                LoadStageData((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
         case 7:
             gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[5];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = STAGE3_FILE_SECTORS[5];
@@ -601,7 +602,7 @@ s32 func_800F1080(void) {
             break;
         case 8:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadSpritePack((void *)0x8016D000, SPR_STAGE);
+                LoadSpritePack((void *)RAM_WORK_A, SPR_STAGE);
                 gSubStep++;
             }
             break;
@@ -611,7 +612,7 @@ s32 func_800F1080(void) {
             break;
         case 10:
             gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[6];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = STAGE3_FILE_SECTORS[6];
@@ -619,13 +620,13 @@ s32 func_800F1080(void) {
             break;
         case 11:
             if (gCdLoadState == CD_LOAD_DONE) {
-                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                SetHitBanks((void *)RAM_WORK_A, (void *)(RAM_WORK_A + 0x4744));
                 gSubStep++;
             }
             break;
         case 12:
             gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[7];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = STAGE3_FILE_SECTORS[7];
@@ -633,12 +634,12 @@ s32 func_800F1080(void) {
             break;
         case 13:
             if (gCdLoadState == CD_LOAD_DONE) {
-                f = (StageObjects *)0x8016D000;
+                f = (StageObjects *)RAM_WORK_A;
                 *(TrapTable *)gTraps = f->traps;
                 *(SwitchTable *)gSwitches = f->switches;
                 *(SpriteTable *)gStageSprites = f->sprites;
-                *(BlockArea *)0x801FD000 = f->block;
-                SetCurrentBlock((BlockHeader *)0x801FD000);
+                *(BlockArea *)RAM_CUR_BLOCK = f->block;
+                SetCurrentBlock((BlockHeader *)RAM_CUR_BLOCK);
                 gSubStep++;
             }
             break;
@@ -656,44 +657,44 @@ s32 func_800F1080(void) {
 
 void func_800F15E4(void) {
     gSectionCount = 0;
-    InitModel(&gObjectModels[0], (unsigned long *)0x80155000, 0);
-    InitModel(&gObjectModels[1], (unsigned long *)0x80155000, 1);
-    InitModel(&gObjectModels[2], (unsigned long *)0x80155000, 2);
-    InitModel(&gObjectModels[3], (unsigned long *)0x80155000, 3);
-    InitModel(&gObjectModels[4], (unsigned long *)0x80155000, 4);
-    InitModel(&gObjectModels[5], (unsigned long *)0x80155000, 5);
-    InitModel(&gObjectModels[6], (unsigned long *)0x80155000, 6);
-    InitModel(&gObjectModels[7], (unsigned long *)0x80155000, 7);
-    InitModel(&gObjectModels[8], (unsigned long *)0x80155000, 8);
-    InitModel(&gObjectModels[9], (unsigned long *)0x80155000, 9);
-    InitModel(&gObjectModels[10], (unsigned long *)0x80155000, 10);
-    InitModel(&gObjectModels[11], (unsigned long *)0x80155000, 11);
-    InitModel(&gObjectModels[12], (unsigned long *)0x80155000, 12);
-    InitModel(&gObjectModels[13], (unsigned long *)0x80155000, 13);
-    InitModel(&gObjectModels[14], (unsigned long *)0x80155000, 14);
-    InitModel(&gObjectModels[15], (unsigned long *)0x80155000, 15);
-    InitModel(&gObjectModels[16], (unsigned long *)0x80155000, 16);
-    InitModel(&gObjectModels[17], (unsigned long *)0x80155000, 17);
-    InitModel(&gObjectModels[18], (unsigned long *)0x80155000, 18);
-    InitModel(&gObjectModels[19], (unsigned long *)0x80155000, 19);
-    InitModel(&gObjectModels[20], (unsigned long *)0x80155000, 20);
-    InitModel(&gObjectModels[21], (unsigned long *)0x80155000, 21);
-    InitModel(&gObjectModels[22], (unsigned long *)0x80155000, 22);
-    InitModel(&gObjectModels[23], (unsigned long *)0x80155000, 23);
-    InitModel(&gObjectModels[24], (unsigned long *)0x80155000, 24);
-    InitModel(&gObjectModels[25], (unsigned long *)0x80155000, 25);
-    InitModel(&gObjectModels[26], (unsigned long *)0x80155000, 26);
-    InitModel(&gObjectModels[27], (unsigned long *)0x80155000, 27);
-    InitModel(&gObjectModels[28], (unsigned long *)0x80155000, 28);
-    InitModel(&gObjectModels[29], (unsigned long *)0x80155000, 29);
-    InitModel(&gObjectModels[30], (unsigned long *)0x80155000, 30);
-    InitModel(&gObjectModels[31], (unsigned long *)0x80155000, 31);
-    InitModel(&gObjectModels[32], (unsigned long *)0x80155000, 32);
-    InitModel(&gObjectModels[33], (unsigned long *)0x80155000, 33);
-    InitModel(&gObjectModels[34], (unsigned long *)0x80155000, 34);
-    InitModel(&gObjectModels[35], (unsigned long *)0x80155000, 35);
-    InitModel(&gObjectModels[36], (unsigned long *)0x80155000, 36);
-    InitModel(&gObjectModels[37], (unsigned long *)0x80155000, 37);
+    InitModel(&gObjectModels[0], (unsigned long *)RAM_OBJECT_MODELS, 0);
+    InitModel(&gObjectModels[1], (unsigned long *)RAM_OBJECT_MODELS, 1);
+    InitModel(&gObjectModels[2], (unsigned long *)RAM_OBJECT_MODELS, 2);
+    InitModel(&gObjectModels[3], (unsigned long *)RAM_OBJECT_MODELS, 3);
+    InitModel(&gObjectModels[4], (unsigned long *)RAM_OBJECT_MODELS, 4);
+    InitModel(&gObjectModels[5], (unsigned long *)RAM_OBJECT_MODELS, 5);
+    InitModel(&gObjectModels[6], (unsigned long *)RAM_OBJECT_MODELS, 6);
+    InitModel(&gObjectModels[7], (unsigned long *)RAM_OBJECT_MODELS, 7);
+    InitModel(&gObjectModels[8], (unsigned long *)RAM_OBJECT_MODELS, 8);
+    InitModel(&gObjectModels[9], (unsigned long *)RAM_OBJECT_MODELS, 9);
+    InitModel(&gObjectModels[10], (unsigned long *)RAM_OBJECT_MODELS, 10);
+    InitModel(&gObjectModels[11], (unsigned long *)RAM_OBJECT_MODELS, 11);
+    InitModel(&gObjectModels[12], (unsigned long *)RAM_OBJECT_MODELS, 12);
+    InitModel(&gObjectModels[13], (unsigned long *)RAM_OBJECT_MODELS, 13);
+    InitModel(&gObjectModels[14], (unsigned long *)RAM_OBJECT_MODELS, 14);
+    InitModel(&gObjectModels[15], (unsigned long *)RAM_OBJECT_MODELS, 15);
+    InitModel(&gObjectModels[16], (unsigned long *)RAM_OBJECT_MODELS, 16);
+    InitModel(&gObjectModels[17], (unsigned long *)RAM_OBJECT_MODELS, 17);
+    InitModel(&gObjectModels[18], (unsigned long *)RAM_OBJECT_MODELS, 18);
+    InitModel(&gObjectModels[19], (unsigned long *)RAM_OBJECT_MODELS, 19);
+    InitModel(&gObjectModels[20], (unsigned long *)RAM_OBJECT_MODELS, 20);
+    InitModel(&gObjectModels[21], (unsigned long *)RAM_OBJECT_MODELS, 21);
+    InitModel(&gObjectModels[22], (unsigned long *)RAM_OBJECT_MODELS, 22);
+    InitModel(&gObjectModels[23], (unsigned long *)RAM_OBJECT_MODELS, 23);
+    InitModel(&gObjectModels[24], (unsigned long *)RAM_OBJECT_MODELS, 24);
+    InitModel(&gObjectModels[25], (unsigned long *)RAM_OBJECT_MODELS, 25);
+    InitModel(&gObjectModels[26], (unsigned long *)RAM_OBJECT_MODELS, 26);
+    InitModel(&gObjectModels[27], (unsigned long *)RAM_OBJECT_MODELS, 27);
+    InitModel(&gObjectModels[28], (unsigned long *)RAM_OBJECT_MODELS, 28);
+    InitModel(&gObjectModels[29], (unsigned long *)RAM_OBJECT_MODELS, 29);
+    InitModel(&gObjectModels[30], (unsigned long *)RAM_OBJECT_MODELS, 30);
+    InitModel(&gObjectModels[31], (unsigned long *)RAM_OBJECT_MODELS, 31);
+    InitModel(&gObjectModels[32], (unsigned long *)RAM_OBJECT_MODELS, 32);
+    InitModel(&gObjectModels[33], (unsigned long *)RAM_OBJECT_MODELS, 33);
+    InitModel(&gObjectModels[34], (unsigned long *)RAM_OBJECT_MODELS, 34);
+    InitModel(&gObjectModels[35], (unsigned long *)RAM_OBJECT_MODELS, 35);
+    InitModel(&gObjectModels[36], (unsigned long *)RAM_OBJECT_MODELS, 36);
+    InitModel(&gObjectModels[37], (unsigned long *)RAM_OBJECT_MODELS, 37);
 }
 
 void func_800F1908(void) {

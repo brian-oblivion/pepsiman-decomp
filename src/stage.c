@@ -289,18 +289,34 @@ void DrawStage(s16 x, s16 y, s16 z) {
     for (i = 0; i < gStageRuns[gSection].count; i++) {
         k = gStageRunObjs[gStageRuns[gSection].start + i];
         if ((u32)k < gStageObjCount) {
-            GsSortObject4J(&gStageObjs[k], gCurOt, 2, (u_long *)0x1F800000);
+            GsSortObject4J(&gStageObjs[k], gCurOt, 2, getScratchAddr(0));
         }
     }
     for (i = 0; i < gPropRuns[gSection].count; i++) {
         k = gPropRunObjs[gPropRuns[gSection].start + i];
         if ((u32)k < gPropObjCount && k != -1) {
-            GsSortObject4J(&gPropObjs[k], gCurOt, 2, (u_long *)0x1F800000);
+            GsSortObject4J(&gPropObjs[k], gCurOt, 2, getScratchAddr(0));
         }
     }
     ResetSpadStack();
 }
 
+/** The length of one tile of a repeating stage, along x. */
+#define REPEAT_TILE_LEN 5000
+/** Added to a position so that it divides as a positive number: a whole,
+ * even number of tiles, so neither the remainder nor the tile's parity
+ * changes. */
+#define REPEAT_BIAS (2000 * REPEAT_TILE_LEN)
+
+/**
+ * @brief Draws a stage that repeats along x, the act-3 chases' endless
+ *        corridor: the tiles before, under and after `pos`. Objects 1 and 2
+ *        alternate; 0 is the tile the run starts in and 3 the one it ends in.
+ * @param pos    the position along x
+ * @param unused unused
+ * @param z      the stage's z
+ * @param range  how far the run goes: past `-range` the end tile is drawn
+ */
 void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
     s32 i;
     s32 k;
@@ -310,34 +326,34 @@ void DrawRepeatingStage(s32 pos, s32 unused, s32 z, s32 range) {
     MATRIX ls;
 
     for (i = -1; i < 2; i++) {
-        k = (((pos + 10000000) / 5000 + i) & 1) + 1;
-        d = pos - i * 5000;
+        k = (((pos + REPEAT_BIAS) / REPEAT_TILE_LEN + i) & 1) + 1;
+        d = pos - i * REPEAT_TILE_LEN;
         if (d >= 0) {
-            if (d >= 5000) {
+            if (d >= REPEAT_TILE_LEN) {
                 continue;
             }
             k = 0;
         }
         if (d < -range) {
-            if (d < -(range + 5000)) {
+            if (d < -(range + REPEAT_TILE_LEN)) {
                 continue;
             }
             k = 3;
         }
         if (pos >= 0) {
-            r = pos % 5000;
+            r = pos % REPEAT_TILE_LEN;
         } else {
-            r = (pos + 10000000) % 5000;
+            r = (pos + REPEAT_BIAS) % REPEAT_TILE_LEN;
         }
-        gStageCoord.coord.t[0] = r + (i - 1) * 5000;
+        gStageCoord.coord.t[0] = r + (i - 1) * REPEAT_TILE_LEN;
         gStageCoord.coord.t[1] = 0;
         gStageCoord.coord.t[2] = z;
         rot.vx = rot.vy = rot.vz = 0;
         SetCoordRotation(&rot, &gStageCoord);
         GsGetLs(&gStageCoord, &ls);
         GsSetLsMatrix(&ls);
-        GsSortObject4J(&gStageObjs[k], gCurOt, 2, (u_long *)0x1F800000);
-        GsSortObject4J(&gPropObjs[k], gCurOt, 2, (u_long *)0x1F800000);
+        GsSortObject4J(&gStageObjs[k], gCurOt, 2, getScratchAddr(0));
+        GsSortObject4J(&gPropObjs[k], gCurOt, 2, getScratchAddr(0));
     }
 }
 
@@ -1769,7 +1785,7 @@ s32 StepFlyingPiece(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
                         p->y - rsin(p->frame * 3 * 8192 / 360) * p->param2 / 4096, p->z, 0);
         }
         p->x += p->param1;
-        GsSortObject4(&sPieceObjs[p->param0 + 10], ot, 2, (u_long *)0x1F800000);
+        GsSortObject4(&sPieceObjs[p->param0 + 10], ot, 2, getScratchAddr(0));
         return ++p->frame > 29;
     }
     p->delay--;

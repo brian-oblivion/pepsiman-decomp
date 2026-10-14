@@ -368,7 +368,7 @@ s32 func_800F4794(void) {
             GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);
             GsSetLightMatrix(&sChaseMatrix);
             SetTmdSortMode(0);
-            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             sAct3Coords[1].coord.t[0] = sCan.lidX;
             sAct3Coords[1].coord.t[1] = sCan.lidY;
             sAct3Coords[1].coord.t[2] = sCan.lidZ;
@@ -377,7 +377,7 @@ s32 func_800F4794(void) {
             GsSetLsMatrix(&sChaseMatrix);
             GsGetLw(sAct3Objs[1].coord2, &sChaseMatrix);
             GsSetLightMatrix(&sChaseMatrix);
-            GsSortObject4(&sAct3Objs[1], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4(&sAct3Objs[1], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             DrawRepeatingStage(0, 0, 0, 30000);
             DrawSky(0);
             if (gPadTrig & PADstart) {
@@ -475,7 +475,7 @@ s32 func_800F4794(void) {
                 GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);
                 GsSetLightMatrix(&sChaseMatrix);
                 SetTmdSortMode(0);
-                GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             }
             i = 0;
             DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 30000);
@@ -642,7 +642,7 @@ s32 func_800F4794(void) {
             GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);
             GsSetLightMatrix(&sChaseMatrix);
             SetTmdSortMode(0);
-            GsSortObject4J(&sAct3Objs[0], &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(&sAct3Objs[0], &gOt[gActiveBuff], 2, getScratchAddr(0));
             DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 30000);
             DrawSky(0);
             if (sSceneTimer >= 223) {

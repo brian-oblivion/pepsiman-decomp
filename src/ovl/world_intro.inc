@@ -12,6 +12,7 @@
  * and then writes its own scene script, the step main calls each frame. */
 
 #include "common.h"
+#include "ram.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
@@ -169,7 +170,7 @@ inline void DrawIntroProp(void) {
     GsSetLsMatrix(&m);
     GsGetLw(sProp.coord2, &m);
     GsSetLightMatrix(&m);
-    GsSortObject4(&sProp, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4(&sProp, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
 }
 
 /* Draws a model's objects at its position and yaw. It counts the player's
@@ -196,7 +197,7 @@ static inline void DrawIntroModel(PlayerState *p, s32 *list) {
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
             SetSpadStack();
-            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             ResetSpadStack();
         }
         /* MATCHING: three barriers lengthen the loop so that global-alloc

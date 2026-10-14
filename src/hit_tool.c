@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "sbss.h"
 #include "libetc.h"
 #include "memory.h"
@@ -255,15 +256,15 @@ void UpdateTool(void) {
             gWorldShift[0] = 0;
             gWorldShift[2] = 0;
             gSectionCount = 80;
-            bzero((u8 *)0x8016D000, 0x10000);
-            *(s32 *)0x8016D000 = 80;
+            bzero((u8 *)RAM_WORK_A, RAM_WORK_SIZE);
+            *(s32 *)RAM_WORK_A = 80;
             gHitPointSections = 80;
-            gHitPoints = 0x8016D004;
+            gHitPoints = (RAM_WORK_A + 4);
             ClearHitPoints();
-            bzero((u8 *)0x8017D000, 0x10000);
-            *(s32 *)0x8017D000 = 80;
+            bzero((u8 *)RAM_WORK_B, RAM_WORK_SIZE);
+            *(s32 *)RAM_WORK_B = 80;
             gHitQuadSections = 80;
-            gHitQuads = 0x8017D004;
+            gHitQuads = (RAM_WORK_B + 4);
             ClearHitQuads();
             gPlayer.x = 0;
             gPlayer.y = 0;
@@ -1262,37 +1263,40 @@ typedef struct {
     HitSlot slots[3]; /**< one per HITDATA file */
 } ToolBuf;
 
-void StoreHitSlot(s16 n) {
-    ToolBuf *tool = (ToolBuf *)0x8018D000;
+/** The tool buffer, in the third work buffer. */
+#define TOOL_BUF ((ToolBuf *)RAM_WORK_C)
 
-    tool->slots[n].a = *(HitBlockA *)0x8016D000;
-    (&tool->slots[n])->b = *(HitBlockB *)0x8017D000;
+void StoreHitSlot(s16 n) {
+    ToolBuf *tool = TOOL_BUF;
+
+    tool->slots[n].a = *(HitBlockA *)RAM_WORK_A;
+    (&tool->slots[n])->b = *(HitBlockB *)RAM_WORK_B;
 }
 
 s32 WriteHitDataFiles(void) {
     s32 fd;
 
     fd = open((char *)sHitDataFilePath0, O_CREAT | O_WRONLY);
-    if (write(fd, (void *)0x8018D200, 0x4744) == -1) {
+    if (write(fd, &TOOL_BUF->slots[0].a, sizeof(HitBlockA)) == -1) {
         goto fail;
     }
-    if (write(fd, (void *)0x80191944, 0x2034) == -1) {
+    if (write(fd, &TOOL_BUF->slots[0].b, sizeof(HitBlockB)) == -1) {
         goto fail;
     }
     close(fd);
     fd = open((char *)sHitDataFilePath1, O_CREAT | O_WRONLY);
-    if (write(fd, (void *)0x80193978, 0x4744) == -1) {
+    if (write(fd, &TOOL_BUF->slots[1].a, sizeof(HitBlockA)) == -1) {
         goto fail;
     }
-    if (write(fd, (void *)0x801980BC, 0x2034) == -1) {
+    if (write(fd, &TOOL_BUF->slots[1].b, sizeof(HitBlockB)) == -1) {
         goto fail;
     }
     close(fd);
     fd = open((char *)sHitDataFilePath2, O_CREAT | O_WRONLY);
-    if (write(fd, (void *)0x8019A0F0, 0x4744) == -1) {
+    if (write(fd, &TOOL_BUF->slots[2].a, sizeof(HitBlockA)) == -1) {
         goto fail;
     }
-    if (write(fd, (void *)0x8019E834, 0x2034) == -1) {
+    if (write(fd, &TOOL_BUF->slots[2].b, sizeof(HitBlockB)) == -1) {
         goto fail;
     }
     close(fd);
@@ -1427,25 +1431,25 @@ void DrawToolRadius(VECTOR *pos, u16 scale) {
 
 /* MATCHING: (&slot)->b puts the second address sum offset-first. */
 void LoadHitSlot(s16 n) {
-    ToolBuf *tool = (ToolBuf *)0x8018D000;
+    ToolBuf *tool = TOOL_BUF;
 
-    *(HitBlockA *)0x8016D000 = tool->slots[n].a;
-    *(HitBlockB *)0x8017D000 = (&tool->slots[n])->b;
+    *(HitBlockA *)RAM_WORK_A = tool->slots[n].a;
+    *(HitBlockB *)RAM_WORK_B = (&tool->slots[n])->b;
 }
 
 void ResetTool(void) {
     gWorldShift[0] = 0;
     gWorldShift[2] = 0;
     gSectionCount = 80;
-    bzero((u8 *)0x8016D000, 0x10000);
-    *(s32 *)0x8016D000 = 80;
+    bzero((u8 *)RAM_WORK_A, RAM_WORK_SIZE);
+    *(s32 *)RAM_WORK_A = 80;
     gHitPointSections = 80;
-    gHitPoints = 0x8016D004;
+    gHitPoints = (RAM_WORK_A + 4);
     ClearHitPoints();
-    bzero((u8 *)0x8017D000, 0x10000);
-    *(s32 *)0x8017D000 = 80;
+    bzero((u8 *)RAM_WORK_B, RAM_WORK_SIZE);
+    *(s32 *)RAM_WORK_B = 80;
     gHitQuadSections = 80;
-    gHitQuads = 0x8017D004;
+    gHitQuads = (RAM_WORK_B + 4);
     ClearHitQuads();
     gPlayer.x = 0;
     gPlayer.y = 0;
@@ -1622,7 +1626,7 @@ s32 WriteToolFile(void) {
     s32 n;
 
     fd = open((char *)sHitTmpFilePath, O_CREAT | O_WRONLY);
-    n = write(fd, (void *)0x8018D000, 0x13868);
+    n = write(fd, TOOL_BUF, sizeof(ToolBuf));
     close(fd);
     return n;
 }
@@ -1632,7 +1636,7 @@ s32 ReadToolFile(void) {
     s32 n;
 
     fd = open((char *)sHitTmpFilePath, O_RDONLY);
-    n = read(fd, (void *)0x8018D000, 0x13868);
+    n = read(fd, TOOL_BUF, sizeof(ToolBuf));
     close(fd);
     return n;
 }

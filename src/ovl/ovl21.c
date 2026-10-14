@@ -25,7 +25,7 @@ void StepWorldIntro(void) {
     switch (gWorldIntroStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&sFiles1OvlLoc[INTRO_PACK];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gWorldIntroStep = 1;
@@ -33,7 +33,7 @@ void StepWorldIntro(void) {
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadIntroPack((s32 *)0x8019D000);
+                LoadIntroPack((s32 *)RAM_STAGE_LOAD);
                 gVabLoadStep = 0;
                 gWorldIntroStep = 2;
             }

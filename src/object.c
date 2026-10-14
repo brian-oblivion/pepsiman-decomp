@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "libetc.h"
 #include "memory.h"
 #include "libapi.h"
@@ -554,11 +555,11 @@ void DrawObjectModel(ObjectModel *rec, Trap *r) {
     ScaleMatrix(&mat, &param.scale);
     GsSetLsMatrix(&mat);
     if (gGameMode == GM_HIT_TOOL) {
-        GsSortObject4(&m->obj, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+        GsSortObject4(&m->obj, &gOt[gActiveBuff], 2, getScratchAddr(0));
     } else if (absInt(m->coord.coord.t[0]) > 700 || absInt(m->coord.coord.t[2]) > 700) {
-        GsSortObject4J(&m->obj, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+        GsSortObject4J(&m->obj, &gOt[gActiveBuff], 2, getScratchAddr(0));
     } else {
-        GsSortObject4(&m->obj, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+        GsSortObject4(&m->obj, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
     }
     m->coord.coord.t[0] -= gWorldShift[0];
     m->coord.coord.t[2] -= gWorldShift[2];
@@ -1146,11 +1147,11 @@ s32 LoadStageSprites(void) {
 
     /* MATCHING: non-void with no return orders the loop preheader; the
      * pointer is assigned inside the store so the index loads first. */
-    e = (DirEnt16 *)0x8017D708;
+    e = (DirEnt16 *)(RAM_WORK_A + 0x10708);
     gLoopI = 0x33;
     gLoopJ = e->count;
     for (; gLoopI < gLoopJ + 0x33; gLoopI++) {
-        gAnimations[gLoopI] = (p = (s32 *)((u8 *)0x8017D708 + e->offset)) + 1;
+        gAnimations[gLoopI] = (p = (s32 *)((u8 *)(RAM_WORK_A + 0x10708) + e->offset)) + 1;
         e++;
         gPlayer.motionLen[gLoopI] = *gAnimations[gLoopI];
         gAnimations[gLoopI]++;
@@ -1213,12 +1214,12 @@ void InitModel(Model70 *m, unsigned long *tmd, u8 n) {
 void RestoreStageObjects(void) {
     SavedTables *s;
 
-    s = (SavedTables *)0x80173778;
+    s = (SavedTables *)(RAM_WORK_A + 0x6778);
     *(Recs48Copy *)sTraps = s->recs48;
     *(Recs5CCopy *)gSwitches = s->recs5C;
     *(Recs3CCopy *)gStageSprites = s->recs3C;
-    *(BlockCopy *)0x801FD000 = s->block;
-    SetCurrentBlock((BlockHeader *)0x801FD000);
+    *(BlockCopy *)RAM_CUR_BLOCK = s->block;
+    SetCurrentBlock((BlockHeader *)RAM_CUR_BLOCK);
 }
 
 /** @brief Updates `p->unk28` from a lookup unless the lookup fails (-1). */
@@ -1448,7 +1449,7 @@ void InitEntryModels(void) {
 
     gSectionCount = 0;
     for (i = 0; i < 80; i++) {
-        setupModel((Model70 *)&gObjectModels[i], (unsigned long *)0x80155000, i);
+        setupModel((Model70 *)&gObjectModels[i], (unsigned long *)RAM_OBJECT_MODELS, i);
     }
 }
 
@@ -1637,8 +1638,8 @@ void ResetGameState(Trap *recs) {
         recs->model = -1;
         recs++;
     }
-    bzero((u8 *)0x801FD000, 0x800);
-    BuildEmptyBlock((u8 *)0x801FD000);
+    bzero((u8 *)RAM_CUR_BLOCK, 0x800);
+    BuildEmptyBlock((u8 *)RAM_CUR_BLOCK);
     bzero((u8 *)gSwitches, sizeof(SwitchBox) * 200);
     ClearSwitches(gSwitches);
     bzero((u8 *)sTraps, sizeof(Trap) * 200);

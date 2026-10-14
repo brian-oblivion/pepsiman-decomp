@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "sbss.h"
 #include "memory.h"
 #include "libsnd.h"
@@ -252,10 +253,10 @@ void PlayMovie(char *name, CdlLOC *loc, s32 lastFrame, s16 height, s16 skippable
 }
 
 void InitMovieDecoder(DECENV *dec, s32 x0, s32 y0, s32 x1, s32 y1) {
-    dec->vlcbuf[0] = (u_long *)0x8015D000;
-    dec->vlcbuf[1] = (u_long *)0x80171000;
+    dec->vlcbuf[0] = (u_long *)RAM_MOVIE_VLC0;
+    dec->vlcbuf[1] = (u_long *)RAM_MOVIE_VLC1;
     dec->vlcid = 0;
-    dec->imgbuf = (u_short *)0x80195000;
+    dec->imgbuf = (u_short *)RAM_MOVIE_IMAGE;
     dec->rectid = 0;
     dec->isdone = 0;
     setRECT(&dec->rect[0], x0, y0, 480, 240);
@@ -268,7 +269,7 @@ void InitMovieStream(CdlLOC *loc, void (*callback)()) {
     DecDCTReset(0);
     gMovieEnded = 0;
     DecDCToutCallback(callback);
-    StSetRing((u_long *)0x80185000, 32);
+    StSetRing((u_long *)RAM_MOVIE_RING, 32);
     StSetStream(1, 1, -1, 0, 0);
     StartMovieRead(loc);
 }
@@ -310,7 +311,7 @@ void StartMovieRead(CdlLOC *loc) {
 }
 
 s32 LoadVab(s16 bank) {
-    u32 *vh = (u32 *)0x8016D000;
+    u32 *vh = (u32 *)RAM_WORK_A;
     u32 *rec;
     u8 *dst;
     u32 src;
@@ -320,25 +321,25 @@ s32 LoadVab(s16 bank) {
     gVabError = 0;
     switch (bank) {
         case 0:
-            rec = (u32 *)0x80101000;
+            rec = (u32 *)RAM_SOUND_PACK;
             rec += (u16)(((u16 *)rec)[7] - 1) * 4;
             dst = (u8 *)rec[0];
             dst += rec[1];
-            dst += 0x80101000;
+            dst += RAM_SOUND_PACK;
             sVabBody = dst + vh[1];
             break;
         case 1:
             dst = sVabBody;
             break;
     }
-    src = 0x8016D000;
+    src = RAM_WORK_A;
     memcpy(dst, vh[0] + src, vh[1]);
-    src = 0; /* MATCHING: a dead store, so cse rebuilds 0x8016D000 below. */
+    src = 0; /* MATCHING: a dead store, so cse rebuilds RAM_WORK_A below. */
     vab = SsVabOpenHead(dst, -1);
     slot = &(&gBgmVab)[bank];
     *slot = vab;
     if (vab != -1) {
-        *slot = SsVabTransBody((u8 *)(vh[4] + 0x8016D000), vab);
+        *slot = SsVabTransBody((u8 *)(vh[4] + RAM_WORK_A), vab);
         SsVabTransCompleted(1);
         return 0;
     }
@@ -354,9 +355,9 @@ s32 InitSeSeqs(void) {
     SsSetSerialVol(SS_SERIAL_A, 127, 127);
     D_80095AEA = 0;
     gSeSlot = 0;
-    hdr = (u32 *)0x80101000;
+    hdr = (u32 *)RAM_SOUND_PACK;
     for (i = 2; i < 10; i++) {
-        gSeqIds[i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), gSeVab);
+        gSeqIds[i] = SsSeqOpen((unsigned long *)(*hdr + RAM_SOUND_PACK), gSeVab);
     }
     for (i = 0; i < 10; i++) {
         SsSeqSetVol(gSeqIds[i], 0, 0);
@@ -372,9 +373,9 @@ s32 PlayBgm(u16 song) {
     if (gVabError != 0) {
         return -1;
     }
-    hdr = (u32 *)0x80101000;
+    hdr = (u32 *)RAM_SOUND_PACK;
     hdr += song * 4;
-    gSeqIds[0] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), gBgmVab);
+    gSeqIds[0] = SsSeqOpen((unsigned long *)(*hdr + RAM_SOUND_PACK), gBgmVab);
     SsSeqPlay(gSeqIds[0], 1, 0);
     gBgmVolume = 100;
     SsSeqSetVol(gSeqIds[0], 100, 100);
@@ -473,7 +474,7 @@ s32 PlaySe(s32 id) {
     if (gVabError != 0) {
         return -1;
     }
-    hdr = (u32 *)0x80101000;
+    hdr = (u32 *)RAM_SOUND_PACK;
     hdr += (u16)id * 4;
     vabs = &gBgmVab;
     if ((u16)id < 70) {
@@ -481,7 +482,7 @@ s32 PlaySe(s32 id) {
     } else {
         bank = sSeVabBanks[(u16)id - 70];
     }
-    gSeqIds[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + 0x80101000), vabs[bank]);
+    gSeqIds[(u16)i] = SsSeqOpen((unsigned long *)(*hdr + RAM_SOUND_PACK), vabs[bank]);
     SsSeqPlay(gSeqIds[(u16)i], 1, 1);
     SsSeqSetVol(gSeqIds[(u16)i], 127, 127);
     if (++gSeSlot >= 10) {
@@ -495,9 +496,9 @@ s32 LoadSoundData(void) {
     switch (gSubStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&sFiles27BootLoc[4];
-            gCdLoadDest[0] = 0x80101000;
+            gCdLoadDest[0] = RAM_SOUND_PACK;
             gCdLoadLoc[1] = (s32)&sFiles27BootLoc[6];
-            gCdLoadDest[1] = 0x8016D000;
+            gCdLoadDest[1] = RAM_WORK_A;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles27BootSectors[4];
@@ -512,7 +513,7 @@ s32 LoadSoundData(void) {
             break;
         case 2:
             gCdLoadLoc[0] = (s32)&sFiles27BootLoc[7];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles27BootSectors[7];
@@ -610,7 +611,7 @@ s32 LoadVabBank(u16 bank) {
         case 0:
             gCdLoadLoc[0] = (s32)&sFiles27BootLoc[bank + 6];
             gCdLoadSectors[0] = sFiles27BootSectors[bank + 6];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gVabLoadStep++;

@@ -58,7 +58,7 @@ s32 func_800F0BE0(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsGetLw(&sPieceCoords[10], &m);
                 GsSetLightMatrix(&m);
-                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 140 < gPlayer.z &&
                     gPlayer.z < o->z + 140 && o->y - 25 < gPlayer.y && gPlayer.y < o->y + 205) {
                     PlaySe(0x38);
@@ -115,7 +115,7 @@ s32 func_800F0EA8(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsGetLw(&sPieceCoords[10], &m);
                 GsSetLightMatrix(&m);
-                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 140 < gPlayer.z &&
                     gPlayer.z < o->z + 140 && o->y - 25 < gPlayer.y && gPlayer.y < o->y + 205) {
                     PlaySe(0x38);
@@ -168,7 +168,7 @@ void func_800F1248(s32 x, s32 y, s32 z, s32 n) {
     GsSetLsMatrix(&m);
     GsGetLw(sPieceObjs[11].coord2, &m);
     GsSetLightMatrix(&m);
-    GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
     sPieceCoords[12].coord.t[0] = 100;
     sPieceCoords[12].coord.t[1] = -100;
     sPieceCoords[12].coord.t[2] = 0;
@@ -181,7 +181,7 @@ void func_800F1248(s32 x, s32 y, s32 z, s32 n) {
     GsSetLsMatrix(&m);
     GsGetLw(sPieceObjs[12].coord2, &m);
     GsSetLightMatrix(&m);
-    GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
     sPieceCoords[13].coord.t[0] = 33;
     sPieceCoords[13].coord.t[1] = -75;
     sPieceCoords[13].coord.t[2] = 0;
@@ -193,7 +193,7 @@ void func_800F1248(s32 x, s32 y, s32 z, s32 n) {
     GsSetLsMatrix(&m);
     GsGetLw(sPieceObjs[13].coord2, &m);
     GsSetLightMatrix(&m);
-    GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
     sPieceCoords[14].coord.t[0] = -80;
     sPieceCoords[14].coord.t[1] = -88;
     sPieceCoords[14].coord.t[2] = 0;
@@ -205,7 +205,7 @@ void func_800F1248(s32 x, s32 y, s32 z, s32 n) {
     GsSetLsMatrix(&m);
     GsGetLw(sPieceObjs[14].coord2, &m);
     GsSetLightMatrix(&m);
-    GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
 }
 
 /* The frame step's state. */
@@ -298,60 +298,60 @@ static inline void StepChaseRun(void) {
  * its own phase. */
 /* MATCHING: a plain block; a do-while(0) adds a loop level to the refs and
  * reorders the saved registers. */
-#define DRAW_CANS()                                                                       \
-    {                                                                                     \
-        s32 t;                                                                            \
-        s32 t2;                                                                           \
-        s32 t3;                                                                           \
-                                                                                          \
-        sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];                              \
-        t = rsin(gFrameCount * 40960 / 360) * 100;                                        \
-        sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);           \
-        sCanRot[0].vx = 0x800;                                                            \
-        sCanRot[0].vy = 0;                                                                \
-        sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                              \
-        sCanRot[0].vz = -(gFrameCount * 61440 / 360);                                     \
-        if (gPlayer.x + 500 > sCan.x + 120) {                                             \
-            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
-            GsSetLsMatrix(&sChaseMatrix);                                                 \
-            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
-            GsSetLightMatrix(&sChaseMatrix);                                              \
-            SetTmdSortMode(4);                                                            \
-            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
-        }                                                                                 \
-        sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0] - 100;                        \
-        t2 = rsin(((gFrameCount * 10 + 45) << 12) / 360) * 100;                           \
-        sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t2 / 4096);          \
-        sCanRot[0].vx = 0x800;                                                            \
-        sCanRot[0].vy = 0;                                                                \
-        sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                              \
-        sCanRot[0].vz = -(gFrameCount * 40960 / 360);                                     \
-        if (gPlayer.x + 500 > sCan.x + 120) {                                             \
-            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
-            GsSetLsMatrix(&sChaseMatrix);                                                 \
-            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
-            GsSetLightMatrix(&sChaseMatrix);                                              \
-            SetTmdSortMode(4);                                                            \
-            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
-        }                                                                                 \
-        sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0] - 200;                        \
-        t3 = rsin(((gFrameCount * 10 + 90) << 12) / 360) * 100;                           \
-        sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t3 / 4096);          \
-        sCanRot[0].vx = 0x800;                                                            \
-        sCanRot[0].vy = 0;                                                                \
-        sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                              \
-        sCanRot[0].vz = -(gFrameCount * 20480 / 360);                                     \
-        if (gPlayer.x + 500 > sCan.x + 120) {                                             \
-            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
-            GsSetLsMatrix(&sChaseMatrix);                                                 \
-            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
-            GsSetLightMatrix(&sChaseMatrix);                                              \
-            SetTmdSortMode(4);                                                            \
-            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
-        }                                                                                 \
+#define DRAW_CANS()                                                                    \
+    {                                                                                  \
+        s32 t;                                                                         \
+        s32 t2;                                                                        \
+        s32 t3;                                                                        \
+                                                                                       \
+        sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];                           \
+        t = rsin(gFrameCount * 40960 / 360) * 100;                                     \
+        sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);        \
+        sCanRot[0].vx = 0x800;                                                         \
+        sCanRot[0].vy = 0;                                                             \
+        sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                           \
+        sCanRot[0].vz = -(gFrameCount * 61440 / 360);                                  \
+        if (gPlayer.x + 500 > sCan.x + 120) {                                          \
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                            \
+            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                               \
+            GsSetLsMatrix(&sChaseMatrix);                                              \
+            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                               \
+            GsSetLightMatrix(&sChaseMatrix);                                           \
+            SetTmdSortMode(4);                                                         \
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0)); \
+        }                                                                              \
+        sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0] - 100;                     \
+        t2 = rsin(((gFrameCount * 10 + 45) << 12) / 360) * 100;                        \
+        sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t2 / 4096);       \
+        sCanRot[0].vx = 0x800;                                                         \
+        sCanRot[0].vy = 0;                                                             \
+        sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                           \
+        sCanRot[0].vz = -(gFrameCount * 40960 / 360);                                  \
+        if (gPlayer.x + 500 > sCan.x + 120) {                                          \
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                            \
+            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                               \
+            GsSetLsMatrix(&sChaseMatrix);                                              \
+            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                               \
+            GsSetLightMatrix(&sChaseMatrix);                                           \
+            SetTmdSortMode(4);                                                         \
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0)); \
+        }                                                                              \
+        sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0] - 200;                     \
+        t3 = rsin(((gFrameCount * 10 + 90) << 12) / 360) * 100;                        \
+        sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t3 / 4096);       \
+        sCanRot[0].vx = 0x800;                                                         \
+        sCanRot[0].vy = 0;                                                             \
+        sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                           \
+        sCanRot[0].vz = -(gFrameCount * 20480 / 360);                                  \
+        if (gPlayer.x + 500 > sCan.x + 120) {                                          \
+            SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                            \
+            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                               \
+            GsSetLsMatrix(&sChaseMatrix);                                              \
+            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                               \
+            GsSetLightMatrix(&sChaseMatrix);                                           \
+            SetTmdSortMode(4);                                                         \
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0)); \
+        }                                                                              \
     }
 
 /* Draws the still can at an offset from its place. */
@@ -365,7 +365,7 @@ static inline void DrawStillCan(SVECTOR *rot, GsCOORDINATE2 *coord, s32 dx, s32 
     GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);
     GsSetLightMatrix(&sChaseMatrix);
     SetTmdSortMode(4);
-    GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
 }
 
 /* MATCHING: a view of a routine model.c declares only where defined. */

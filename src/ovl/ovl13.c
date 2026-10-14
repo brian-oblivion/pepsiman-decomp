@@ -757,7 +757,7 @@ s32 func_800F98E4(void) {
         case 0:
             SetBootReady(0);
             gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[1];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles2Ovl13Sectors[1];
@@ -765,7 +765,7 @@ s32 func_800F98E4(void) {
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimList((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)RAM_STAGE_LOAD);
                 gVabLoadStep = 0;
                 gSubStep++;
             }
@@ -777,7 +777,7 @@ s32 func_800F98E4(void) {
             break;
         case 3:
             gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[2];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles2Ovl13Sectors[2];
@@ -785,15 +785,15 @@ s32 func_800F98E4(void) {
             break;
         case 4:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimPack((void *)0x8019D000);
+                LoadTimPack((void *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
         case 5:
             gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[3];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadLoc[1] = (s32)&sFiles2Ovl13Loc[4];
-            gCdLoadDest[1] = 0x80155000;
+            gCdLoadDest[1] = RAM_OBJECT_MODELS;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles2Ovl13Sectors[3];
@@ -802,13 +802,13 @@ s32 func_800F98E4(void) {
             break;
         case 6:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadStageData((unsigned long *)0x8019D000);
+                LoadStageData((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
         case 7:
             gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[5];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles2Ovl13Sectors[5];
@@ -816,7 +816,7 @@ s32 func_800F98E4(void) {
             break;
         case 8:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadSpritePack((void *)0x8016D000, SPR_STAGE);
+                LoadSpritePack((void *)RAM_WORK_A, SPR_STAGE);
                 gSubStep++;
             }
             break;
@@ -826,7 +826,7 @@ s32 func_800F98E4(void) {
             break;
         case 10:
             gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[6];
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles2Ovl13Sectors[6];
@@ -834,7 +834,7 @@ s32 func_800F98E4(void) {
             break;
         case 11:
             if (gCdLoadState == CD_LOAD_DONE) {
-                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                SetHitBanks((void *)RAM_WORK_A, (void *)(RAM_WORK_A + 0x4744));
                 RestoreStageObjects();
                 LoadStageSprites();
                 gSubStep++;
@@ -842,7 +842,7 @@ s32 func_800F98E4(void) {
             break;
         case 12:
             gCdLoadLoc[0] = (s32)&sFiles2Ovl13Loc[7];
-            gCdLoadDest[0] = 0x8018D000;
+            gCdLoadDest[0] = RAM_WORK_C;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = sFiles2Ovl13Sectors[7];

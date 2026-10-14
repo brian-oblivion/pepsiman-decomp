@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "libapi.h"
 #include "string.h"
 
@@ -199,8 +200,8 @@ s32 RunCardOp1(s16 mode) {
     retry = 0;
     gCardStatus = CARD_EV_IOE;
     gCardError = CARD_ERR_NONE;
-    sSaveData = (u8 *)0x8018D000;
-    gSaveBuf = (u8 *)0x8016D000;
+    sSaveData = (u8 *)RAM_WORK_C;
+    gSaveBuf = (u8 *)RAM_WORK_A;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
     gCardStatus = ProbeCard();
@@ -579,8 +580,8 @@ s16 CheckSaveSum(u16 expected) {
 }
 
 void SetSave1Buffers(void) {
-    sSaveData = (u8 *)0x8018D000;
-    gSaveBuf = (u8 *)0x8016D000;
+    sSaveData = (u8 *)RAM_WORK_C;
+    gSaveBuf = (u8 *)RAM_WORK_A;
 }
 
 s16 CheckCard(void) {
@@ -766,8 +767,8 @@ s32 RunCardOp2(s16 mode) {
     retry = 0;
     gCardStatus = CARD_EV_IOE;
     gCardError = CARD_ERR_NONE;
-    sSaveData = (u8 *)0x80195000;
-    gSaveBuf = (u8 *)0x8018D000;
+    sSaveData = (u8 *)(RAM_WORK_C + 0x8000);
+    gSaveBuf = (u8 *)RAM_WORK_C;
     EnableCardEvents();
 again: /* MATCHING: a goto loop; a C loop hoists (s16)mode out of it */
     gCardStatus = ProbeCard();
@@ -1007,8 +1008,8 @@ void CopySave2Icon(void) {
 }
 
 void SetSave2Buffers(void) {
-    sSaveData = (u8 *)0x80195000;
-    gSaveBuf = (u8 *)0x8018D000;
+    sSaveData = (u8 *)(RAM_WORK_C + 0x8000);
+    gSaveBuf = (u8 *)RAM_WORK_C;
 }
 
 s32 EraseSave2(void) {

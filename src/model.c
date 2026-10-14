@@ -464,9 +464,9 @@ s32 DrawTodObjects(void) {
             GsSetLightMatrix(&m);
             SetSpadStack();
             if (gPlayer.falling == 0) {
-                GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4J(o, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             } else {
-                GsSortObject4J(o, &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4J(o, &gOt[gActiveBuff], 2, getScratchAddr(0));
             }
             ResetSpadStack();
             /* MATCHING: the loop pointer is reloaded from the copy. */

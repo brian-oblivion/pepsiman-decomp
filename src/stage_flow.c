@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "sbss.h"
 #include "libetc.h"
 #include "libgte.h"
@@ -476,7 +477,7 @@ void ResetStage(void) {
         gBonusLevel = 3;
     }
     gMissState = MISS_NONE;
-    SetCurrentBlock((BlockHeader *)0x801FD000);
+    SetCurrentBlock((BlockHeader *)RAM_CUR_BLOCK);
     gWorldIntroStep = 0;
     gPlayer.motion[0] = MOT_RUN;
     gPlayer.falling = 0;

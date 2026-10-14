@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "sbss.h"
 #include "libgte.h"
 #include "libgpu.h"
@@ -432,15 +433,15 @@ s8 LoadBootData(void) {
     switch (gSubStep) {
         case 0:
             gCdLoadLoc[0] = (s32)&sFiles1BootLoc[0];
-            gCdLoadDest[0] = 0x8014D000;
+            gCdLoadDest[0] = RAM_COMMON_MODELS;
             gCdLoadLoc[1] = (s32)&sFiles1BootLoc[1];
-            gCdLoadDest[1] = 0x8018D000;
+            gCdLoadDest[1] = RAM_WORK_C;
             gCdLoadLoc[2] = (s32)&sFiles1BootLoc[2];
-            gCdLoadDest[2] = 0x80123000;
+            gCdLoadDest[2] = RAM_COMMON_ANIMS;
             gCdLoadLoc[3] = (s32)&sFiles1BootLoc[3];
-            gCdLoadDest[3] = 0x8016D000;
+            gCdLoadDest[3] = RAM_WORK_A;
             gCdLoadLoc[4] = (s32)&sFiles1BootLoc[4];
-            gCdLoadDest[4] = 0x80101000;
+            gCdLoadDest[4] = RAM_SOUND_PACK;
             gCdLoadCount = 5;
             gCdLoadSectors[0] = sFiles1BootSectors[0];
             gCdLoadSectors[1] = sFiles1BootSectors[1];
@@ -459,8 +460,8 @@ s8 LoadBootData(void) {
         case 2:
             ret = 1;
             LoadCommonModels();
-            LoadTimPack((void *)0x8018D000);
-            LoadTimList((unsigned long *)(*(s32 *)0x8016D000 + 0x8016D000));
+            LoadTimPack((void *)RAM_WORK_C);
+            LoadTimList((unsigned long *)(*(s32 *)RAM_WORK_A + RAM_WORK_A));
             DefineHudSprites();
             SetBootReady(1);
             break;
@@ -512,25 +513,25 @@ void LoadCommonModels(void) {
     s32 *p;
     s32 *q;
 
-    p = (s32 *)0x8014D000;
+    p = (s32 *)RAM_COMMON_MODELS;
     gModelTmd = (s32)((unsigned long *)((u8 *)p + *p) + 1);
     GsMapModelingData((unsigned long *)gModelTmd);
     InitModel(&gAltModel, (unsigned long *)((u8 *)p + *p), 16);
-    p = (s32 *)0x8014D010;
-    InitModel(&gModeObjectModels[0].m, (unsigned long *)(*p + 0x8014D000), 0);
-    InitModel(&gModeObjectModels[1].m, (unsigned long *)(*p + 0x8014D000), 1);
-    InitModel(&gModeObjectModels[2].m, (unsigned long *)(*p + 0x8014D000), 2);
-    InitModel(&gModeObjectModels[3].m, (unsigned long *)(*p + 0x8014D000), 3);
-    InitModel(&gModeObjectModels[4].m, (unsigned long *)(*p + 0x8014D000), 4);
-    InitModel(&gModeObjectModels[5].m, (unsigned long *)(*p + 0x8014D000), 5);
-    InitModel(&gModeObjectModels[6].m, (unsigned long *)(*p + 0x8014D000), 6);
+    p = (s32 *)(RAM_COMMON_MODELS + 0x10);
+    InitModel(&gModeObjectModels[0].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 0);
+    InitModel(&gModeObjectModels[1].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 1);
+    InitModel(&gModeObjectModels[2].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 2);
+    InitModel(&gModeObjectModels[3].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 3);
+    InitModel(&gModeObjectModels[4].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 4);
+    InitModel(&gModeObjectModels[5].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 5);
+    InitModel(&gModeObjectModels[6].m, (unsigned long *)(*p + RAM_COMMON_MODELS), 6);
     InitTodObjTable(gTodObjTable, gTodObjs, gTodCoords, gTodCoordParams, 20);
-    p = (s32 *)0x80123000;
+    p = (s32 *)RAM_COMMON_ANIMS;
     gLoopI = 0;
     gLoopJ = ((DirEnt16 *)p)->count;
     for (; gLoopI < gLoopJ; gLoopI++) {
         /* MATCHING: assigned inside the store, as in LoadStageSprites. */
-        gAnimations[gLoopI] = (q = (s32 *)((u8 *)0x80123000 + *p)) + 1;
+        gAnimations[gLoopI] = (q = (s32 *)((u8 *)RAM_COMMON_ANIMS + *p)) + 1;
         p += 4;
         gPlayer.motionLen[gLoopI] = *gAnimations[gLoopI];
         gAnimations[gLoopI]++;
@@ -748,7 +749,7 @@ extern u8 D_80095820;
 
 void InitSystem(void) {
     ResetCallback();
-    bzero((u8 *)0x80101000, 0xFC800);
+    bzero((u8 *)RAM_BUFFERS, RAM_BUFFERS_SIZE);
     InitCARD(1);
     StartCARD();
     MemCardInit(1);
@@ -1401,14 +1402,14 @@ void LoadAct3Stage(void) {
                     gCdLoadSectors[0] = sFiles5Ovl17Sectors[1];
                     break;
             }
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 5:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimList((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
@@ -1435,14 +1436,14 @@ void LoadAct3Stage(void) {
                     gCdLoadSectors[0] = sFiles5Ovl17Sectors[2];
                     break;
             }
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 7:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadAct3Data((unsigned long *)0x8019D000);
+                LoadAct3Data((unsigned long *)RAM_STAGE_LOAD);
                 switch (gStage) {
                     case STAGE_1_3:
                         func_800F6C60();
@@ -1541,14 +1542,14 @@ void LoadStage(void) {
                     gCdLoadSectors[0] = sFiles5Ovl16Sectors[1];
                     break;
             }
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 5:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimList((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
@@ -1595,14 +1596,14 @@ void LoadStage(void) {
                     gCdLoadSectors[0] = sFiles5Ovl16Sectors[2];
                     break;
             }
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 7:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimPack((void *)0x8019D000);
+                LoadTimPack((void *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
@@ -1669,15 +1670,15 @@ void LoadStage(void) {
                     gCdLoadSectors[1] = sFiles5Ovl16Sectors[4];
                     break;
             }
-            gCdLoadDest[0] = 0x8019D000;
-            gCdLoadDest[1] = 0x80155000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
+            gCdLoadDest[1] = RAM_OBJECT_MODELS;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 9:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadStageData((unsigned long *)0x8019D000);
+                LoadStageData((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
@@ -1724,14 +1725,14 @@ void LoadStage(void) {
                     gCdLoadSectors[0] = sFiles5Ovl16Sectors[5];
                     break;
             }
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 11:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadSpritePack((DirEnt16 *)0x8016D000, SPR_STAGE);
+                LoadSpritePack((DirEnt16 *)RAM_WORK_A, SPR_STAGE);
                 gSubStep++;
             }
             break;
@@ -1782,14 +1783,14 @@ void LoadStage(void) {
                     gCdLoadSectors[0] = sFiles5Ovl16Sectors[6];
                     break;
             }
-            gCdLoadDest[0] = 0x8016D000;
+            gCdLoadDest[0] = RAM_WORK_A;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gSubStep++;
             break;
         case 14:
             if (gCdLoadState == CD_LOAD_DONE) {
-                SetHitBanks((void *)0x8016D000, (void *)0x80171744);
+                SetHitBanks((void *)RAM_WORK_A, (void *)(RAM_WORK_A + 0x4744));
                 RestoreStageObjects();
                 LoadStageSprites();
                 gSubStep++;
@@ -1819,7 +1820,7 @@ void LoadStage(void) {
                         gCdLoadSectors[0] = sFiles5Ovl16Sectors[7];
                         break;
                 }
-                gCdLoadDest[0] = 0x8018D000;
+                gCdLoadDest[0] = RAM_WORK_C;
             }
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
@@ -1895,7 +1896,7 @@ static __inline__ void drawObj(PlayerState *obj) {
             GsSetLightMatrix(&m);
             /* MATCHING: retail runs this sort on the scratchpad stack. */
             SetSpadStack();
-            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             ResetSpadStack();
         }
     }

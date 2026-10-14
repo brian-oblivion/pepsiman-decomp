@@ -73,7 +73,7 @@ s32 LoadChaseStage(void) {
         case 0:
             SetBootReady(0);
             gCdLoadLoc[0] = (s32)&CHASE_FILE_LOC[1];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = CHASE_FILE_SECTORS[1];
@@ -81,13 +81,13 @@ s32 LoadChaseStage(void) {
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimList((unsigned long *)0x8019D000);
+                LoadTimList((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;
         case 2:
             gCdLoadLoc[0] = (s32)&CHASE_FILE_LOC[2];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gCdLoadSectors[0] = CHASE_FILE_SECTORS[2];
@@ -95,7 +95,7 @@ s32 LoadChaseStage(void) {
             break;
         case 3:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadAct3Data((unsigned long *)0x8019D000);
+                LoadAct3Data((unsigned long *)RAM_STAGE_LOAD);
                 gSubStep++;
             }
             break;

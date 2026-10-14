@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
@@ -382,10 +383,10 @@ void func_800F0AD4(void) {
                         break;
                 }
                 if (bad == 0) {
-                    MemCardReadFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
+                    MemCardReadFile(0, (char *)sSaveFileName, (unsigned long *)RAM_WORK_A, 0x200, 0x80);
                     MemCardSync(0, 0, &sCardResult);
                     if (sCardResult == 0) {
-                        sSave = (SaveData *)0x8016D000;
+                        sSave = (SaveData *)RAM_WORK_A;
                         sSaveChecksum = sSave->checksum;
                         sSave->checksum = 0;
                         sSaveSum = 0;
@@ -429,10 +430,12 @@ void func_800F0AD4(void) {
                                 case 0:
                                 case 2:
                                 case 3:
-                                    LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                                    LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) +
+                                                                  RAM_STAGE_LOAD));
                                     break;
                                 case 1:
-                                    LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                                    LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 8) +
+                                                                  RAM_STAGE_LOAD));
                                     break;
                             }
                         }
@@ -508,7 +511,7 @@ void func_800F1494(s32 i) {
     GsGetLw(sAct3Objs[i].coord2, &m);
     GsSetLightMatrix(&m);
     SetTmdSortMode(0);
-    GsSortObject4J(&sAct3Objs[i], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+    GsSortObject4J(&sAct3Objs[i], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
 }
 
 /* The save file's name on the memory card. */
@@ -542,12 +545,12 @@ void func_800F1570(void) {
             GsInitCoordinate2(&sAct3Coords[0], NULL);
             GsInitCoordinate2(&sAct3Coords[1], NULL);
             GsInitCoordinate2(&sAct3Coords[2], NULL);
-            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D018 + 0x8019D004));
-            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D01C + 0x8019D004));
-            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D020 + 0x8019D004));
-            GsLinkObject4(*(s32 *)0x8019D018 + 0x8019D00C, &sAct3Objs[0], 0);
-            GsLinkObject4(*(s32 *)0x8019D01C + 0x8019D00C, &sAct3Objs[1], 0);
-            GsLinkObject4(*(s32 *)0x8019D020 + 0x8019D00C, &sAct3Objs[2], 0);
+            GsMapModelingData((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 0x18) + (RAM_STAGE_LOAD + 4)));
+            GsMapModelingData((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 0x1C) + (RAM_STAGE_LOAD + 4)));
+            GsMapModelingData((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 0x20) + (RAM_STAGE_LOAD + 4)));
+            GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 0x18) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[0], 0);
+            GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 0x1C) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[1], 0);
+            GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 0x20) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[2], 0);
             sAct3Objs[0].coord2 = &sAct3Coords[0];
             sAct3Objs[0].attribute = 0;
             sAct3Objs[1].coord2 = &sAct3Coords[1];
@@ -1381,10 +1384,12 @@ void func_800F1570(void) {
                             case 0:
                             case 2:
                             case 3:
-                                LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                                LoadTimList(
+                                    (unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) + RAM_STAGE_LOAD));
                                 break;
                             case 1:
-                                LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                                LoadTimList(
+                                    (unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 8) + RAM_STAGE_LOAD));
                                 break;
                         }
                         break;
@@ -1420,10 +1425,12 @@ void func_800F1570(void) {
                             case 0:
                             case 2:
                             case 3:
-                                LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                                LoadTimList(
+                                    (unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) + RAM_STAGE_LOAD));
                                 break;
                             case 1:
-                                LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                                LoadTimList(
+                                    (unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 8) + RAM_STAGE_LOAD));
                                 break;
                         }
                         break;
@@ -1762,7 +1769,7 @@ void func_800F1570(void) {
                     }
                     break;
                 case 12:
-                    MemCardReadFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000, 0x200, 0x80);
+                    MemCardReadFile(0, (char *)sSaveFileName, (unsigned long *)RAM_WORK_A, 0x200, 0x80);
                     sCardStep = 13;
                     break;
                 case 13:
@@ -1798,7 +1805,7 @@ void func_800F1570(void) {
                     }
                     break;
                 case 20:
-                    sSave = (SaveData *)0x8016D000;
+                    sSave = (SaveData *)RAM_WORK_A;
                     sSaveChecksum = sSave->checksum;
                     sSave->checksum = 0;
                     sSaveSum = 0;
@@ -1847,10 +1854,10 @@ void func_800F1570(void) {
                         case 0:
                         case 2:
                         case 3:
-                            LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                            LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) + RAM_STAGE_LOAD));
                             break;
                         case 1:
-                            LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                            LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 8) + RAM_STAGE_LOAD));
                             break;
                     }
                     sCardMessage = 0x66;
@@ -2025,9 +2032,9 @@ void func_800F1570(void) {
                     break;
                 case 12:
                     for (i = 0; (s32)i < 0x200; i++) {
-                        ((u8 *)0x8016D000)[i] = ((u8 *)&sCardFileHeader)[i];
+                        ((u8 *)RAM_WORK_A)[i] = ((u8 *)&sCardFileHeader)[i];
                     }
-                    sSave = (SaveData *)0x8016D200;
+                    sSave = (SaveData *)(RAM_WORK_A + 0x200);
                     sSave->times[0].a = gBestTimes[0].a;
                     sSave->times[1].a = gBestTimes[1].a;
                     sSave->times[2].a = gBestTimes[2].a;
@@ -2061,7 +2068,7 @@ void func_800F1570(void) {
                     }
                     sSaveSum = ~sSaveSum;
                     sSave->checksum = sSaveSum;
-                    MemCardWriteFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000, 0, 0x280);
+                    MemCardWriteFile(0, (char *)sSaveFileName, (unsigned long *)RAM_WORK_A, 0, 0x280);
                     sCardStep = 15;
                     break;
                 case 13:
@@ -2077,7 +2084,7 @@ void func_800F1570(void) {
                         gSubStep = 102;
                     } else if (gPadTrig & PADRright) {
                         PlaySe(0xC);
-                        sSave = (SaveData *)0x8016D000;
+                        sSave = (SaveData *)RAM_WORK_A;
                         sSave->times[0].a = gBestTimes[0].a;
                         sSave->times[1].a = gBestTimes[1].a;
                         sSave->times[2].a = gBestTimes[2].a;
@@ -2111,7 +2118,7 @@ void func_800F1570(void) {
                         }
                         sSaveSum = ~sSaveSum;
                         sSave->checksum = sSaveSum;
-                        MemCardWriteFile(0, (char *)sSaveFileName, (unsigned long *)0x8016D000,
+                        MemCardWriteFile(0, (char *)sSaveFileName, (unsigned long *)RAM_WORK_A,
                                          0x200, 0x80);
                         sCardStep = 15;
                     }
@@ -2250,7 +2257,7 @@ void func_800F6670(void) {
         case 0:
             gSubStep = 0;
             gCdLoadLoc[0] = (s32)&sFiles3OvlLoc[2];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gModeStep = 1;
@@ -2260,10 +2267,10 @@ void func_800F6670(void) {
             if (gCdLoadState == CD_LOAD_DONE) {
                 gPlayer.rideMode = 0;
                 gPlayer.flattened = 0;
-                LoadTimList((unsigned long *)(*(s32 *)0x8019D000 + 0x8019D000));
+                LoadTimList((unsigned long *)(*(s32 *)RAM_STAGE_LOAD + RAM_STAGE_LOAD));
                 gSubStep = 50;
                 if (gStageTableSet == -1) {
-                    LoadTimList((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D000));
+                    LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) + RAM_STAGE_LOAD));
                     gModeStep = 2;
                 } else {
                     gModeStep = 40;
@@ -2291,7 +2298,7 @@ void func_800F6670(void) {
             gSubStep = 50;
             break;
         case 9:
-            LoadTimList((unsigned long *)(*(s32 *)0x8019D000 + 0x8019D000));
+            LoadTimList((unsigned long *)(*(s32 *)RAM_STAGE_LOAD + RAM_STAGE_LOAD));
             gModeStep = 10;
             gSubStep = 50;
             break;
@@ -2313,7 +2320,7 @@ void func_800F6670(void) {
         case 50:
             gSubStep = 0;
             gCdLoadLoc[0] = (s32)&sFiles3OvlLoc[3];
-            gCdLoadDest[0] = 0x8019D000;
+            gCdLoadDest[0] = RAM_STAGE_LOAD;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gModeStep = 51;
@@ -2321,11 +2328,11 @@ void func_800F6670(void) {
             break;
         case 51:
             if (gCdLoadState == CD_LOAD_DONE) {
-                LoadTimList((unsigned long *)(*(s32 *)0x8019D000 + 0x8019D000));
+                LoadTimList((unsigned long *)(*(s32 *)RAM_STAGE_LOAD + RAM_STAGE_LOAD));
                 if (gTmdSortMode == 1) {
-                    LoadTimList((unsigned long *)(*(s32 *)0x8019D00C + 0x8019D000));
+                    LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 0xC) + RAM_STAGE_LOAD));
                 } else {
-                    LoadTimList((unsigned long *)(*(s32 *)0x8019D008 + 0x8019D000));
+                    LoadTimList((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 8) + RAM_STAGE_LOAD));
                 }
                 gSubStep = 0;
                 gModeStep = 60;
@@ -2395,7 +2402,8 @@ void func_800F69B0(void) {
             for (gLoopI = 0; gLoopI < 2; gLoopI++) {
                 /* MATCHING: the entry assigned inside the store keeps the +1 off
                  * the directory's address. */
-                gAnimations[gLoopI + 51] = (dir = (s32 *)(((s32 *)0x8019D010)[gLoopI] + 0x8019D000)) + 1;
+                gAnimations[gLoopI + 51] =
+                    (dir = (s32 *)(((s32 *)(RAM_STAGE_LOAD + 0x10))[gLoopI] + RAM_STAGE_LOAD)) + 1;
                 gPlayer.motionLen[gLoopI + 51] = *gAnimations[gLoopI + 51];
                 gAnimations[gLoopI + 51]++;
                 gPlayer.motionStart[gLoopI + 51] = gAnimations[gLoopI + 51][1];
@@ -2403,8 +2411,8 @@ void func_800F69B0(void) {
             GsSetProjection(250);
             SetFogNearFar(2000, 6000, 250);
             SetFarColor(0, 0, 0);
-            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D00C + 0x8019D004));
-            GsLinkObject4(*(s32 *)0x8019D00C + 0x8019D00C, &sAct3Objs[0], 0);
+            GsMapModelingData((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 0xC) + (RAM_STAGE_LOAD + 4)));
+            GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 0xC) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[0], 0);
             sAct3Objs[0].coord2 = &sAct3Coords[0];
             sAct3Objs[0].attribute = 0x200;
             D_8009EB58[0].vx = 0;
@@ -2656,7 +2664,7 @@ void func_800F69B0(void) {
     GsGetLw(sAct3Objs[0].coord2, &m);
     GsSetLightMatrix(&m);
     if (gPlayer.x != -10000) {
-        GsSortObject4J(&sAct3Objs[0], &gOt[gActiveBuff], 2, (u_long *)0x1F800000);
+        GsSortObject4J(&sAct3Objs[0], &gOt[gActiveBuff], 2, getScratchAddr(0));
     }
     func_800F81B4();
     if ((gPadTrig & PADstart) && gSubStep < 1000) {
@@ -2674,8 +2682,8 @@ s32 func_800F7A4C(void) {
             DefineSprite(0x1E, 1, 0xFF, 0x20, 5, 0, 0, 0, 0x1E0);
             DefineSprite(0x1F, 1, 0xFF, 0x20, 5, 0, 0x20, 0, 0x1E0);
             GsInitCoordinate2(&sAct3Coords[0], NULL);
-            GsMapModelingData((unsigned long *)(*(s32 *)0x8019D004 + 0x8019D004));
-            GsLinkObject4(*(s32 *)0x8019D004 + 0x8019D00C, &sAct3Objs[0], 0);
+            GsMapModelingData((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) + (RAM_STAGE_LOAD + 4)));
+            GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 4) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[0], 0);
             sAct3Objs[0].coord2 = &sAct3Coords[0];
             D_8009EA78[0].vx = 0;
             sAct3Objs[0].attribute = 0;
@@ -2765,7 +2773,7 @@ s32 func_800F7A4C(void) {
             GsGetLw(sAct3Objs[0].coord2, &m);
             GsSetLightMatrix(&m);
             SetTmdSortMode(0);
-            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             sAct3Coords[0].flg = 0;
             sAct3Coords[0].coord.m[1][0] *= -1;
             sAct3Coords[0].coord.m[1][1] *= -1;
@@ -2774,7 +2782,7 @@ s32 func_800F7A4C(void) {
             GsGetLs(sAct3Objs[0].coord2, &m);
             GsSetLsMatrix(&m);
             SetTmdSortMode(5);
-            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             if (sWobbleTime == 150) {
                 if (gStageTableSet == 0) {
                     D_800957A0 = gStage;
@@ -2820,7 +2828,7 @@ inline void func_800F8264(void) {
             GsGetLw(o->coord2, &m);
             GsSetLightMatrix(&m);
             SetSpadStack();
-            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+            GsSortObject4J(o, &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             ResetSpadStack();
         }
         /* MATCHING: as in world_intro.inc's model draw, three barriers rank

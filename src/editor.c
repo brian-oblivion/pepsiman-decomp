@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ram.h"
 #include "libetc.h"
 #include "memory.h"
 #include "libapi.h"
@@ -599,7 +600,7 @@ s32 UpdateEditor(void) {
      * delay slot for the constant 100. */
     switch (gModeStep) {
         case 0:
-            ResetGameState((Trap *)0x8016D000);
+            ResetGameState((Trap *)RAM_WORK_A);
             gToolMode = ED_MOVE;
             ResetStageOverlay();
             gRepeatButtonsOn = 1;
@@ -1734,7 +1735,7 @@ void EditorInsertPoint(void) {
                 e->start++;
                 e++;
             }
-            SetCurrentBlock((BlockHeader *)0x801FD000);
+            SetCurrentBlock((BlockHeader *)RAM_CUR_BLOCK);
         }
     }
 }
@@ -2636,7 +2637,7 @@ s32 UpdateEditorData(void) {
                         gFloorIndex = FindFloor(&gPlayer.x);
                         gSection = 0;
                         gView[1] = (s16)(gCourse.y - 500);
-                        SetCurrentBlock((BlockHeader *)0x801FD000);
+                        SetCurrentBlock((BlockHeader *)RAM_CUR_BLOCK);
                         gToolCardStep = CS_MODE_SELECT;
                     }
                     break;
@@ -2879,7 +2880,7 @@ void PrintEditorSlots(void) {
     u16 part;
     u16 v;
 
-    slots = (SaveSlot *)0x8016D000;
+    slots = (SaveSlot *)RAM_WORK_A;
     FntPrint(sEdNewlines2);
     for (i = 0; i < 3; i++) {
         PrintTabs(3);
@@ -2920,7 +2921,7 @@ void SaveEditorSlot(s16 a, u8 *buf) {
     ((SaveSlot *)buf)[a].traps = *(TrapTable *)gTraps;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294) = *(SpriteTable *)gStageSprites;
-    *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)0x801FD000;
+    *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174) = *(BlockAreaCopy *)RAM_CUR_BLOCK;
     *(EditorStateCopy *)&((SaveSlot *)buf)[a].state = *(EditorStateCopy *)gEditorState;
 }
 
@@ -2931,7 +2932,7 @@ void LoadEditorSlot(s16 a, u8 *buf) {
     *(TrapTable *)gTraps = ((SaveSlot *)buf)[a].traps;
     /* MATCHING: byte offsets past 0x7FFF build the offset whole (ori). */
     *(SpriteTable *)gStageSprites = *(SpriteTable *)((u8 *)&((SaveSlot *)buf)[a] + 0x8294);
-    *(BlockAreaCopy *)0x801FD000 = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
+    *(BlockAreaCopy *)RAM_CUR_BLOCK = *(BlockAreaCopy *)((u8 *)&((SaveSlot *)buf)[a] + 0xB174);
     *(EditorStateCopy *)gEditorState = *(EditorStateCopy *)&((SaveSlot *)buf)[a].state;
 }
 
@@ -2943,7 +2944,7 @@ s32 WriteEditorSlotFiles(void) {
     s32 n;
     SaveSlot *s;
 
-    s = (SaveSlot *)0x8016D000;
+    s = (SaveSlot *)RAM_WORK_A;
     fd = open(sEdDataFilePath0, O_CREAT | O_WRONLY);
     if (write(fd, &s[0].traps, sizeof(TrapTable)) == -1) {
         close(fd);
@@ -3129,7 +3130,7 @@ void SaveEditorState(s16 a) {
     sTotals.savedView[3] = gRefView[3];
     sTotals.savedView[4] = gRefView[4];
     sTotals.savedView[5] = gRefView[5];
-    SaveEditorSlot(a, (u8 *)0x8016D000);
+    SaveEditorSlot(a, (u8 *)RAM_WORK_A);
 }
 
 /** @brief Checks that save slot `i` of the tool buffer is valid and
@@ -3138,7 +3139,7 @@ void SaveEditorState(s16 a) {
 s32 CheckEditorSlot(s16 i) {
     SaveSlot *slot;
 
-    slot = &((SaveSlot *)0x8016D000)[i];
+    slot = &((SaveSlot *)RAM_WORK_A)[i];
     /* MATCHING: two guards, each returning -1; an && test lays the success
      * path out as the branch target. */
     if (slot->state.magic != EDITOR_MAGIC) {
@@ -3153,7 +3154,7 @@ s32 CheckEditorSlot(s16 i) {
 /** @brief Runs a step on the tool buffer, then restores the game state
  *         the save step put in the tool state block. */
 void RestoreEditorState(s16 a) {
-    LoadEditorSlot(a, (u8 *)0x8016D000);
+    LoadEditorSlot(a, (u8 *)RAM_WORK_A);
     gPlayer.x = sTotals.savedPos[0];
     gPlayer.y = sTotals.savedPos[1];
     gPlayer.z = sTotals.savedPos[2];
@@ -3169,8 +3170,8 @@ void RestoreEditorState(s16 a) {
 /** @brief Clears and sets up a fixed 0x800-byte block near the top of RAM,
  *         then clears and resets the StageSprite table. */
 void ResetEditorBlock(void) {
-    bzero((u8 *)0x801FD000, 0x800);
-    BuildEmptyBlock((u8 *)0x801FD000);
+    bzero((u8 *)RAM_CUR_BLOCK, 0x800);
+    BuildEmptyBlock((u8 *)RAM_CUR_BLOCK);
     bzero((u8 *)gStageSprites, sizeof(StageSprite) * 100);
     ClearStageSprites(gStageSprites);
 }
@@ -3252,15 +3253,15 @@ void ClearStageSprites(StageSprite *recs) {
 /** @brief Runs a step on the tool buffer, then copies its first 64 KiB to
  *         the next 64 KiB. */
 void BackupToolBuffer(void) {
-    SaveEditorSlot(0, (u8 *)0x8016D000);
-    *(Page64K *)0x8017D000 = *(Page64K *)0x8016D000;
+    SaveEditorSlot(0, (u8 *)RAM_WORK_A);
+    *(Page64K *)RAM_WORK_B = *(Page64K *)RAM_WORK_A;
 }
 
 /** @brief Copies the second 64 KiB of the tool buffer back over the first,
  *         then runs a step on it. */
 void RestoreToolBuffer(void) {
-    *(Page64K *)0x8016D000 = *(Page64K *)0x8017D000;
-    LoadEditorSlot(0, (u8 *)0x8016D000);
+    *(Page64K *)RAM_WORK_A = *(Page64K *)RAM_WORK_B;
+    LoadEditorSlot(0, (u8 *)RAM_WORK_A);
 }
 
 /** @brief Moves the game position `dist` units along heading `deg`
@@ -3394,7 +3395,7 @@ s32 WriteEditorFile(void) {
     s32 n;
 
     fd = open(sEdTmpFilePath, O_CREAT | O_WRONLY);
-    n = write(fd, (void *)0x8016D000, 0x2285C);
+    n = write(fd, (void *)RAM_WORK_A, 0x2285C);
     close(fd);
     return n;
 }
@@ -3406,7 +3407,7 @@ s32 ReadEditorFile(void) {
     s32 n;
 
     fd = open(sEdTmpFilePath, O_RDONLY);
-    n = read(fd, (void *)0x8016D000, 0x2285C);
+    n = read(fd, (void *)RAM_WORK_A, 0x2285C);
     close(fd);
     return n;
 }

@@ -8,6 +8,7 @@
  * disc's file table, disc_files.inc. */
 
 #include "common.h"
+#include "ram.h"
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"

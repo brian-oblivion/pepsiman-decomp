@@ -23,7 +23,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 sPieceCoords[10].flg = 0;
                 GsGetLs(&sPieceCoords[10], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x38);
                     o->state = 1;
@@ -76,7 +76,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[10], &sPieceCoords[10]);
                 GsGetLs(&sPieceCoords[10], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -104,7 +104,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 sPieceCoords[11].flg = 0;
                 GsGetLs(&sPieceCoords[11], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -157,7 +157,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[11], &sPieceCoords[11]);
                 GsGetLs(&sPieceCoords[11], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[11], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -185,7 +185,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 sPieceCoords[12].flg = 0;
                 GsGetLs(&sPieceCoords[12], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -238,7 +238,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[12], &sPieceCoords[12]);
                 GsGetLs(&sPieceCoords[12], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[12], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -266,7 +266,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 sPieceCoords[13].flg = 0;
                 GsGetLs(&sPieceCoords[13], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x38);
                     o->state = 1;
@@ -319,7 +319,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[13], &sPieceCoords[13]);
                 GsGetLs(&sPieceCoords[13], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -347,7 +347,7 @@ s32 StepChasePiece4(Act3Obj *o) {
                 sPieceCoords[14].flg = 0;
                 GsGetLs(&sPieceCoords[14], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3A);
                     o->state = 1;
@@ -400,7 +400,7 @@ s32 StepChasePiece4(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[14], &sPieceCoords[14]);
                 GsGetLs(&sPieceCoords[14], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -429,7 +429,7 @@ s32 StepChasePiece5(Act3Obj *o) {
                 sPieceCoords[15].flg = 0;
                 GsGetLs(&sPieceCoords[15], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[15], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[15], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x39);
                     o->state = 1;
@@ -483,7 +483,7 @@ s32 StepChasePiece5(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[15], &sPieceCoords[15]);
                 GsGetLs(&sPieceCoords[15], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[15], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[15], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -511,7 +511,7 @@ s32 StepChasePiece6(Act3Obj *o) {
                 sPieceCoords[16].flg = 0;
                 GsGetLs(&sPieceCoords[16], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[16], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[16], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3A);
                     o->state = 1;
@@ -564,7 +564,7 @@ s32 StepChasePiece6(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[16], &sPieceCoords[16]);
                 GsGetLs(&sPieceCoords[16], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[16], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[16], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -593,7 +593,7 @@ s32 StepChasePiece7(Act3Obj *o) {
                 sPieceCoords[17].flg = 0;
                 GsGetLs(&sPieceCoords[17], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[17], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[17], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x39);
                     o->state = 1;
@@ -629,7 +629,7 @@ s32 StepChasePiece7(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[17], &sPieceCoords[17]);
                 GsGetLs(&sPieceCoords[17], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[17], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[17], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -659,7 +659,7 @@ s32 StepChasePiece8(Act3Obj *o) {
                 sPieceCoords[18].flg = 0;
                 GsGetLs(&sPieceCoords[18], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[18], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[18], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -716,7 +716,7 @@ s32 StepChasePiece8(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[18], &sPieceCoords[18]);
                 GsGetLs(&sPieceCoords[18], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[18], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[18], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -746,7 +746,7 @@ s32 StepChasePiece9(Act3Obj *o) {
                 sPieceCoords[19].flg = 0;
                 GsGetLs(&sPieceCoords[19], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[19], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[19], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -803,7 +803,7 @@ s32 StepChasePiece9(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[19], &sPieceCoords[19]);
                 GsGetLs(&sPieceCoords[19], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[19], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[19], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -833,7 +833,7 @@ s32 StepChasePiece10(Act3Obj *o) {
                 sPieceCoords[20].flg = 0;
                 GsGetLs(&sPieceCoords[20], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[20], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[20], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -890,7 +890,7 @@ s32 StepChasePiece10(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[20], &sPieceCoords[20]);
                 GsGetLs(&sPieceCoords[20], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[20], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[20], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -920,7 +920,7 @@ s32 StepChasePiece11(Act3Obj *o) {
                 sPieceCoords[21].flg = 0;
                 GsGetLs(&sPieceCoords[21], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[21], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[21], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -977,7 +977,7 @@ s32 StepChasePiece11(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[21], &sPieceCoords[21]);
                 GsGetLs(&sPieceCoords[21], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[21], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[21], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }
@@ -1007,7 +1007,7 @@ s32 StepChasePiece12(Act3Obj *o) {
                 sPieceCoords[22].flg = 0;
                 GsGetLs(&sPieceCoords[22], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[22], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[22], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->y >= -39) {
                     PlaySe(0x3B);
                     o->state = 1;
@@ -1070,7 +1070,7 @@ s32 StepChasePiece12(Act3Obj *o) {
                 SetCoordRotation(&sPieceRots[22], &sPieceCoords[22]);
                 GsGetLs(&sPieceCoords[22], &m);
                 GsSetLsMatrix(&m);
-                GsSortObject4(&sPieceObjs[22], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
+                GsSortObject4(&sPieceObjs[22], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (++o->timer >= 16) {
                     o->state = -1;
                 }

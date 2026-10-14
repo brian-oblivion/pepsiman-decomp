@@ -58,8 +58,9 @@ if ! make nonmatching -s "${targets[@]}" > build/nonmatching.log 2>&1; then
 fi
 
 # Symbols a verified image defines, any section. An overlay unit
-# (src/ovl/<ovl>.c) links into its own image, build/ovl/<ovl>.elf, which also
-# carries the executable's symbols.
+# (src/ovl/<ovl>.c, or a second unit src/ovl/<ovl>_<part>.c) links into its
+# overlay's own image, build/ovl/<ovl>.elf, which also carries the
+# executable's symbols.
 defined_in() {
     "$NM" "$1" | awk '$2 ~ /^[TtDdBbRrAa]$/ {print $3}' | sort -u
 }
@@ -70,7 +71,8 @@ for u in "${units[@]}"; do
     obj="build/nonmatching/src/$u.c.o"
     have=$defined
     if [[ $u == ovl/* ]]; then
-        oelf="build/ovl/${u#ovl/}.elf"
+        o=${u#ovl/}
+        oelf="build/ovl/${o%%_*}.elf"
         [ -f "$oelf" ] || { echo "FATAL: $oelf missing. Run ./build-and-verify.sh first." >&2; exit 1; }
         have=$(defined_in "$oelf")
     fi

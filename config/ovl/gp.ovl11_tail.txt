@@ -1,0 +1,2 @@
+# What maspsx makes $gp-relative in ovl11_tail. Written by hand (tools/gpsyms.py
+# reads only the executable): no instruction in disk/ovl/ovl11.bin uses $gp.

@@ -2,14 +2,7 @@
  * chase_tail.inc with its own player step and draws, and the chase pieces
  * without their sounds or the hurt they do in the other chases. */
 
-#define CHASE_PLACEMENTS 100
-#define CHASE_LIGHT_RG 0xFF
-#define CHASE_LIGHT_BLUE 0xFF
-#define CHASE_FAR_COLOR 0xB0, 0xB0, 0xB0
 #define CHASE_REACH 120
-/* MATCHING: the loader's jump table sits 4 bytes past an 8-byte boundary;
- * this toolchain aligns jump tables to 8, so the loader stays asm. */
-#define CHASE_LOADER INCLUDE_ASM("asm/ovl/ovl11/nonmatchings/ovl11", LoadChaseStage);
 
 #include "chase.inc"
 #include "rand.h"
@@ -1807,5 +1800,3 @@ s32 func_800F42E8(void) {
             break;
     }
 }
-
-#include "chase_tail.inc"

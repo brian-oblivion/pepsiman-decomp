@@ -2,10 +2,6 @@
  * chase.inc with its own objects and frame step. */
 
 #define CHASE_LENGTH 12800000
-#define CHASE_PLACEMENTS 90
-#define CHASE_VAB 6
-#define CHASE_LIGHT_BLUE 0x80
-#define CHASE_FAR_COLOR 0xB0, 0xB0, 0xB0
 
 #include "chase.inc"
 #include "rand.h"
@@ -841,5 +837,3 @@ s32 func_800F17B0(void) {
             break;
     }
 }
-
-#include "chase_tail.inc"

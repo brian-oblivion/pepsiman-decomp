@@ -1,10 +1,10 @@
 /* What the act-3 chase stages (1-3, 2-3, 4-3 and 5-3) share word for word:
  * the record views, the player's jump and step, its model and shadow draws
- * and the HUD. Each stage's unit defines
- *   CHASE_LENGTH       the run's length, which scales the progress bar,
- *   CHASE_PLACEMENTS   how many objects its placement list holds,
- * includes this, defines its own StartChaseJump, includes chase_head.inc,
- * and includes chase_tail.inc after its own objects, step and lights. */
+ * and the HUD. Each stage's main unit defines CHASE_LENGTH, the run's
+ * length, which scales the progress bar, includes this, defines its own
+ * StartChaseJump, includes chase_head.inc, and goes on with its own
+ * objects, step and lights. Its second unit, <ovl>_tail.c, includes this
+ * and chase_tail.inc. */
 
 #include "common.h"
 #include "libgte.h"
@@ -72,9 +72,6 @@ s32 SpawnEffect(s32 kind, s32 x, s32 y, s32 z, s32 delay);
 extern s32 sJumpSpeed; /* the jump's vertical speed */
 extern s32 sChaseLive;
 extern s32 sHurtTimer; /* frames the player flashes after a hit */
-extern Act3Place sPlacements[CHASE_PLACEMENTS];
-extern CdlLOC sChaseFileLoc[];
-extern s32 sChaseFileSectors[];
 
 /** @brief The three flat lights of the scene. */
 typedef struct {

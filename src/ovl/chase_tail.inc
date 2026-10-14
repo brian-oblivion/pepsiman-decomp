@@ -1,14 +1,19 @@
-/* The end the act-3 chase stages share: placing the objects, the loader
- * and the reset, after the scene's lights. The stage's unit defines
+/* The end the act-3 chase stages share: the scene's lights, placing the
+ * objects, the loader and the reset, all of a stage's second unit
+ * (<ovl>_tail.c, which includes chase.inc before this). That unit defines
+ * CHASE_PLACEMENTS (how many objects its placement list holds),
  * CHASE_LIGHT_BLUE (the lights' blue), CHASE_FAR_COLOR (the fog's colour,
- * three components) and CHASE_VAB, its sound bank, may define
- * CHASE_LIGHT_RG (the lights' red and green, 0x80 unless defined), and
- * may define CHASE_LOADER as the INCLUDE_ASM that stands for the loader
- * while its C does not build to the unit's bytes. */
+ * three components), and may define CHASE_VAB, the sound bank the loader
+ * loads if it loads one, and CHASE_LIGHT_RG (the lights' red and green,
+ * 0x80 unless defined). */
 
 #ifndef CHASE_LIGHT_RG
 #define CHASE_LIGHT_RG 0x80
 #endif
+
+extern Act3Place sPlacements[CHASE_PLACEMENTS];
+extern CdlLOC sChaseFileLoc[];
+extern s32 sChaseFileSectors[];
 
 /* Sets the scene's three lights and its fog. */
 void SetChaseLights(void) {
@@ -56,9 +61,6 @@ void PlaceChaseObjects(void) {
     }
 }
 
-#ifdef CHASE_LOADER
-CHASE_LOADER
-#else
 /* Loads the stage: its textures, its act-3 data and sound bank. */
 s32 LoadChaseStage(void) {
     /* MATCHING: an s16 result keeps gSubStep's increment off its register;
@@ -97,12 +99,14 @@ s32 LoadChaseStage(void) {
                 gSubStep++;
             }
             break;
+#ifdef CHASE_VAB
         case 4:
             if (LoadVabBank(CHASE_VAB) == 1) {
                 gCdLoadState = CD_LOAD_DONE;
                 gSubStep++;
             }
             break;
+#endif
         case 5:
         case 8:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -113,6 +117,9 @@ s32 LoadChaseStage(void) {
             gSectionCount = 0;
             gSubStep++;
             break;
+#ifndef CHASE_VAB
+        case 4:
+#endif
         case 7:
             gCdLoadState = CD_LOAD_DONE;
             gSubStep++;
@@ -138,7 +145,6 @@ s32 LoadChaseStage(void) {
     FntPrint("CDEXEC %d", gSubStep);
     return ret;
 }
-#endif
 
 /* Resets the stage: places its objects again. */
 void ResetChaseStage(void) {

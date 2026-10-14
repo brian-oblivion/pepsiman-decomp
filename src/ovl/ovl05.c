@@ -3,11 +3,7 @@
  * it. */
 
 #define CHASE_LENGTH 7680000
-#define CHASE_PLACEMENTS 103
-#define CHASE_VAB 2
 #define CHASE_REACH 120
-#define CHASE_LIGHT_BLUE 0x80
-#define CHASE_FAR_COLOR 0xB0, 0xB0, 0xB0
 
 #include "chase.inc"
 #include "rand.h"
@@ -693,5 +689,3 @@ s32 func_800F4794(void) {
             break;
     }
 }
-
-#include "chase_tail.inc"

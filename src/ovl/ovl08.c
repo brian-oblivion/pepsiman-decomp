@@ -2,14 +2,7 @@
  * from chase.inc with its own objects. */
 
 #define CHASE_LENGTH 10240000
-#define CHASE_PLACEMENTS 126
-#define CHASE_VAB 3
 #define CHASE_REACH 550
-#define CHASE_LIGHT_BLUE 0x40
-#define CHASE_FAR_COLOR 0, 0, 32
-/* MATCHING: the loader's jump table sits 4 bytes past an 8-byte boundary;
- * this toolchain aligns jump tables to 8, so the loader stays asm. */
-#define CHASE_LOADER INCLUDE_ASM("asm/ovl/ovl08/nonmatchings/ovl08", LoadChaseStage);
 
 #include "chase.inc"
 #include "rand.h"
@@ -626,5 +619,3 @@ s32 func_800F4758(void) {
             break;
     }
 }
-
-#include "chase_tail.inc"

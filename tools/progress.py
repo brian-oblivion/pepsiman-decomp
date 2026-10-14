@@ -425,13 +425,15 @@ def with_local_includes(path):
 
 def overlay_progress(reports):
     """Per built overlay: functions and code bytes matched and queued, from
-    its own unit and its own ELF. A name means something only inside its
-    overlay, so nothing here is pooled with the executable's counts."""
+    its own units (<ovl>.c and any <ovl>_*.c) and its own ELF. A name means
+    something only inside its overlay, so nothing here is pooled with the
+    executable's counts."""
     rows = {}
     for ovl in built_overlays():
-        c = ROOT / "src/ovl" / f"{ovl}.c"
+        units = [ROOT / "src/ovl" / f"{ovl}.c"]
+        units += sorted((ROOT / "src/ovl").glob(f"{ovl}_*.c"))
         info, text_b = overlay_text_symbols(ovl)
-        text = with_local_includes(c) if c.exists() else ""
+        text = "\n".join(with_local_includes(c) for c in units if c.exists())
         code = strip_dead_code(text)
         inc = INCLUDE_RE.findall(code)
         # A shared include of sections (engine_code.inc) is spliced once per

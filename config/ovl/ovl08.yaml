@@ -9,6 +9,12 @@
 # SEGMENTATION, measured: rodata, then code from the first function to the
 # last `jr $ra`, then data to the end of the file. Not yet worked: the rodata
 # and data are one block each.
+#
+# TWO UNITS. The stage's tail (chase_tail.inc: lights, placement, loader,
+# reset) is its own unit, ovl08_tail, whose rodata starts at the loader's
+# "CDEXEC %d". In every chase the loader's jump table sits 0x10 past that
+# string, the 8-byte boundary of an object starting there, which is 4 past
+# an absolute one in 08 and 11; one object cannot place it so.
 name: ovl08
 sha1: 6f3be02a829482b3b065b26946e850abbfcc02bd
 options:
@@ -39,7 +45,7 @@ options:
   asm_jtbl_label_macro: jlabel
   asm_data_macro: dlabel
 
-  section_order: [".rodata", ".text", ".data"]
+  section_order: [".rodata", ".text", ".data", ".bss"]
 
   subalign: 2
 
@@ -56,6 +62,8 @@ segments:
     align: 4
     subsegments:
       - [0x0, .rodata, ovl08]
+      - [0x174, .rodata, ovl08_tail]
       - [0x1B4, c, ovl08]
+      - [0x696C, c, ovl08_tail]
       - [0x6D14, data]
   - [0x8048]

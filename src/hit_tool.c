@@ -120,7 +120,6 @@ void SetBoxAround(EditorTrap *obj, u8 *p, s32 a, s32 b);
 extern char sHitNewlines2[];  /**< the menu's title, "\n\n" */
 extern char sHitColorWhite[]; /**< marker of the highlighted line, "~c888" */
 extern char sHitColorBlue[];  /**< marker of the other lines, "~c008" */
-extern char sHitDataNoFmt[];  /**< format of one numbered line */
 
 
 extern u16 gToolRadius; /**< saved value of menu line 0 */
@@ -144,10 +143,6 @@ void ClearHitQuads(void);
 
 extern u8 sPreviewing; /**< 1 while RefreshToolPreview runs */
 
-extern char sHitTmpFilePath[]; /**< path of the tool file, "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1" */
-extern char sHitDataFilePath0[]; /**< path of the first hit-data file, HITDATA0.T1D */
-extern char sHitDataFilePath1[]; /**< path of the second hit-data file, HITDATA1.T1D */
-extern char sHitDataFilePath2[]; /**< path of the third hit-data file, HITDATA2.T1D */
 
 void MoveToolCursor(void);
 void UpdateToolMenu(void);
@@ -191,89 +186,69 @@ void DrawPin(VECTOR *pos) {
     DrawSprite(SPR_POINTER, &size, 0, 5, &gSubOt[gActiveBuff]);
 }
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSyncFmt);
+/* The hit tool's status line and its point/quad info panel. */
+const char sHitSyncFmt[] = "SYNC %3d";
+const char sHitTrapFmt[] = " TRAP %2d";
+const char sHitGridFmt[] = " GRID %2d";
+const char sHitPosFmt[] = "\nPOS X %3d  Y %3d  Z %3d";
+const char sHitItemText[] = "\nITEM : ";
+const char sHitBallHitText[] = "BALL HIT";
+const char sHitRideHitText[] = "RIDE HIT";
+const char sHitInfoText[] = " <<< INFO";
+const char sHitDeleteNowText[] = " <<< !!! DELETE NOW !!!";
+const char sHitInfoTypeFmt[] = "TYPE:%d\n";
+const char sHitInfoPosFmt[] = "POS:X %d  Y %d  Z %d\n";
+const char sHitNoSupportText[] = "NO SUPORT\n";
+const char sHitInfoNormHitText[] = "NORM HIT\n";
+const char sHitInfoRideHitText[] = "RIDE HIT\n";
+const char sHitHitSelText[] = "   HIT  SEL\n\n";
+const char sHitSizeRangeFmt[] = "SIZE 0<-%3d->500\n";
+const char sHitTypeFmt[] = "TYPE. %d ";
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTrapFmt);
+/** @brief Five rows of three words, copied from rodata as one block. */
+typedef struct {
+    s32 v[5][3]; /**< per-row x, y, z */
+} Rows5;
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitGridFmt);
+/** The view presets the move goes to (x, y, z), scaled by the zoom. */
+const Rows5 sViewPresets = {{
+    {0, 0, -100},
+    {100, 0, 0},
+    {0, 0, 100},
+    {-100, 0, 0},
+    {0, -100, 0},
+}};
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitPosFmt);
+/* The hit tool's memory-card data menu (PrintToolCardMenu). */
+const char sHitDataModeText[] = "DATA MODE";
+const char sHitModeSelectText[] = "  MODE SELECT\n\n";
+const char sHitBufferSelectText[] = "BUFFER SELECT\n\n";
+const char sHitCreateFileText[] = "  CREATE FILE";
+const char sHitCardFormatText[] = "  CARD FORMAT";
+const char sHitSaveToDataFmt[] = "SAVE TO DATA %d\n\n";
+const char sHitOverwriteOkText[] = "OVER WRITE OK ?";
+const char sHitDataWritingText[] = "DATA WRITING...";
+const char sHitLoadFromDataFmt[] = "LOAD TO DATA %d\n\n";
+const char sHitLoadOkText[] = "    LOAD OK ?";
+const char sHitCantOpenDataFmt[] = "CAN NOT OPEN DATA %d";
+const char sHitCompleteText[] = "   COMPLATE";
+const char sHitErrorText[] = "    !!!! ERROR!!!!";
+const char sHitNotEnoughMemoryText[] = "   NOT ENOUGH MEMORY";
+const char sHitNoCardText[] = "NO CONNECT CARD";
+const char sHitNoFileText[] = "NO FILE\n\n";
+const char sHitCreateNewFileText[] = "CREATE NEW FILE ?";
+const char sHitUnformattedText[] = "    UN FORMAT\n\n";
+const char sHitFormatOkText[] = "   FORMAT OK ?";
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitItemText);
+/** Format of one numbered line of the data-file list. */
+const char sHitDataNoFmt[] = "DATA %d\n";
 
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitBallHitText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitRideHitText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDeleteNowText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoTypeFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoPosFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNoSupportText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoNormHitText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitInfoRideHitText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitHitSelText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSizeRangeFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTypeFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sViewPresets);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataModeText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitModeSelectText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitBufferSelectText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCreateFileText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCardFormatText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitSaveToDataFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitOverwriteOkText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataWritingText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitLoadFromDataFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitLoadOkText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCantOpenDataFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCompleteText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitErrorText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNotEnoughMemoryText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNoCardText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitNoFileText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitCreateNewFileText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitUnformattedText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitFormatOkText);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataNoFmt);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitTmpFilePath);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataFilePath0);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataFilePath1);
-
-INCLUDE_RODATA("asm/nonmatchings/hit_tool", sHitDataFilePath2);
+/* The host (sim:) files the tool saves its working buffer and its three
+ * hit-data slots to. */
+const char sHitTmpFilePath[] = "sim:\\PS\\PEPSI\\DATA\\TOOL1\\TMP.TL1";
+const char sHitDataFilePath0[] = "sim:\\PS\\PEPSI\\DATA\\TOOL1\\HITDATA0.T1D";
+const char sHitDataFilePath1[] = "sim:\\PS\\PEPSI\\DATA\\TOOL1\\HITDATA1.T1D";
+const char sHitDataFilePath2[] = "sim:\\PS\\PEPSI\\DATA\\TOOL1\\HITDATA2.T1D";
 
 void UpdateTool(void) {
     switch (gModeStep) {
@@ -467,29 +442,12 @@ void UpdateToolMenu(void) {
     }
 }
 
-extern char sHitSyncFmt[];         /**< "SYNC %3d" */
-extern char sHitTrapFmt[];         /**< " TRAP %2d" */
-extern char sHitGridFmt[];         /**< " GRID %2d" */
-extern char sHitPosFmt[];          /**< "\nPOS X %3d  Y %3d  Z %3d" */
-extern char sHitItemText[];        /**< "\nITEM : " */
-extern char sHitBallHitText[];     /**< "BALL HIT" */
-extern char sHitRideHitText[];     /**< "RIDE HIT" */
-extern char sHitInfoText[];        /**< " <<< INFO" */
-extern char sHitDeleteNowText[];   /**< " <<< !!! DELETE NOW !!!" */
-extern char sHitInfoTypeFmt[];     /**< "TYPE:%d\n" */
-extern char sHitInfoPosFmt[];      /**< "POS:X %d  Y %d  Z %d\n" */
-extern char sHitNoSupportText[];   /**< "NO SUPORT\n" */
-extern char sHitInfoNormHitText[]; /**< "NORM HIT\n" */
-extern char sHitInfoRideHitText[]; /**< "RIDE HIT\n" */
-extern char sHitHitSelText[];      /**< "   HIT  SEL\n\n" */
-extern char sHitSizeRangeFmt[];    /**< "SIZE 0<-%3d->500\n" */
-extern char sHitTypeFmt[];         /**< "TYPE. %d " */
-extern char sHitNewlines6[];       /**< "\n\n\n\n\n\n" */
-extern char sHitRadiusFmt[];       /**< "R:%d\n" */
-extern char sHitMenuDeleteText[];  /**< "DELETE\n" */
-extern char sHitMenuInfoText[];    /**< "INFO\n" */
-extern char sHitMenuDataText[];    /**< "DATA\n" */
-extern char sHitNewlines5[];       /**< "\n\n\n\n\n" */
+extern char sHitNewlines6[];      /**< "\n\n\n\n\n\n" */
+extern char sHitRadiusFmt[];      /**< "R:%d\n" */
+extern char sHitMenuDeleteText[]; /**< "DELETE\n" */
+extern char sHitMenuInfoText[];   /**< "INFO\n" */
+extern char sHitMenuDataText[];   /**< "DATA\n" */
+extern char sHitNewlines5[];      /**< "\n\n\n\n\n" */
 
 void PrintToolStatus(void) {
     FntPrint(sHitSyncFmt, gVSyncTime);
@@ -917,12 +875,6 @@ void SelectToolView(void) {
     gToolViewPreset = (s8)gToolViewPreset < 0 ? 4 : (s8)gToolViewPreset > 4 ? 0 : gToolViewPreset;
 }
 
-/** @brief Five rows of three words, copied from rodata as one block. */
-typedef struct {
-    s32 v[5][3]; /**< per-row x, y, z */
-} Rows5;
-
-extern Rows5 sViewPresets;  /**< the view presets the move goes to, scaled by the zoom */
 extern s32 sViewLerpFrom[]; /**< where the view move started, x y z */
 extern u8 sViewLerpStep;    /**< the view move's step, 0..30 */
 
@@ -1173,27 +1125,8 @@ s32 UpdateToolCard(void) {
     }
 }
 
-extern char sHitNewlines3[];           /**< a line prefix, "\n\n\n" */
-extern char sHitCheckText[];           /**< not yet known, "CHECK" */
-extern char sHitDataModeText[];        /**< "DATA MODE" */
-extern char sHitModeSelectText[];      /**< "  MODE SELECT\n\n" */
-extern char sHitBufferSelectText[];    /**< "BUFFER SELECT\n\n" */
-extern char sHitCreateFileText[];      /**< "  CREATE FILE" */
-extern char sHitCardFormatText[];      /**< "  CARD FORMAT" */
-extern char sHitSaveToDataFmt[];       /**< "SAVE TO DATA %d\n\n" */
-extern char sHitOverwriteOkText[];     /**< "OVER WRITE OK ?" */
-extern char sHitDataWritingText[];     /**< "DATA WRITING..." */
-extern char sHitLoadFromDataFmt[];     /**< "LOAD TO DATA %d\n\n" */
-extern char sHitLoadOkText[];          /**< "    LOAD OK ?" */
-extern char sHitCantOpenDataFmt[];     /**< "CAN NOT OPEN DATA %d" */
-extern char sHitCompleteText[];        /**< "   COMPLATE" */
-extern char sHitErrorText[];           /**< "    !!!! ERROR!!!!" */
-extern char sHitNotEnoughMemoryText[]; /**< "   NOT ENOUGH MEMORY" */
-extern char sHitNoCardText[];          /**< "NO CONNECT CARD" */
-extern char sHitNoFileText[];          /**< "NO FILE\n\n" */
-extern char sHitCreateNewFileText[];   /**< "CREATE NEW FILE ?" */
-extern char sHitUnformattedText[];     /**< "    UN FORMAT\n\n" */
-extern char sHitFormatOkText[];        /**< "   FORMAT OK ?" */
+extern char sHitNewlines3[]; /**< a line prefix, "\n\n\n" */
+extern char sHitCheckText[]; /**< not yet known, "CHECK" */
 
 void PrintToolCardMenu(void) {
     PrintTabs(5);
@@ -1325,7 +1258,7 @@ void StoreHitSlot(s16 n) {
 s32 WriteHitDataFiles(void) {
     s32 fd;
 
-    fd = open(sHitDataFilePath0, O_CREAT | O_WRONLY);
+    fd = open((char *)sHitDataFilePath0, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x8018D200, 0x4744) == -1) {
         goto fail;
     }
@@ -1333,7 +1266,7 @@ s32 WriteHitDataFiles(void) {
         goto fail;
     }
     close(fd);
-    fd = open(sHitDataFilePath1, O_CREAT | O_WRONLY);
+    fd = open((char *)sHitDataFilePath1, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x80193978, 0x4744) == -1) {
         goto fail;
     }
@@ -1341,7 +1274,7 @@ s32 WriteHitDataFiles(void) {
         goto fail;
     }
     close(fd);
-    fd = open(sHitDataFilePath2, O_CREAT | O_WRONLY);
+    fd = open((char *)sHitDataFilePath2, O_CREAT | O_WRONLY);
     if (write(fd, (void *)0x8019A0F0, 0x4744) == -1) {
         goto fail;
     }
@@ -1674,7 +1607,7 @@ s32 WriteToolFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(sHitTmpFilePath, O_CREAT | O_WRONLY);
+    fd = open((char *)sHitTmpFilePath, O_CREAT | O_WRONLY);
     n = write(fd, (void *)0x8018D000, 0x13868);
     close(fd);
     return n;
@@ -1684,7 +1617,7 @@ s32 ReadToolFile(void) {
     s32 fd;
     s32 n;
 
-    fd = open(sHitTmpFilePath, O_RDONLY);
+    fd = open((char *)sHitTmpFilePath, O_RDONLY);
     n = read(fd, (void *)0x8018D000, 0x13868);
     close(fd);
     return n;

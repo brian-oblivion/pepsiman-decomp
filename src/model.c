@@ -38,9 +38,12 @@ typedef struct {
     s32 z; /**< z */
 } Vec3i;
 
-extern s8 gViewerReplay;  /**< set to 1 when the level is applied */
-extern s16 D_80095918;    /**< cleared when the viewer starts */
-extern char gMotionFmt[]; /**< the motion-number format */
+extern s8 gViewerReplay; /**< set to 1 when the level is applied */
+extern s16 D_80095918;   /**< cleared when the viewer starts */
+
+/** The model viewer's motion-number line. */
+const char gMotionFmt[] = "\n\n\tMOTION %3d";
+
 /* MATCHING: a per-unit view; object defines it on its own floor
  * types, and this unit passes gFloorData's word as the data. */
 s32 QueryFloor(void *out, s32 index, Vec3i *pos, s32 data);
@@ -1042,4 +1045,12 @@ s32 *FindTmdById(s32 *table, s32 *keys, s32 key) {
     return table;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/model", gTargetTimes);
+/** Target times, four rows of two in gBestTimes' shape: the results screen
+ * sets gAllTargetsBeaten when every best time is under its target. main and
+ * stage read it through their own views. */
+const s32 gTargetTimes[4][2] = {
+    {2910, 2370},
+    {3060, 3480},
+    {4440, 4260},
+    {3450, 3900},
+};

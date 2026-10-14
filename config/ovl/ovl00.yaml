@@ -41,7 +41,7 @@ options:
 
   section_order: [".rodata", ".text", ".data"]
 
-  subalign: 2
+  subalign: 4
   # The file ends on a halfword; no padding after the last section.
   ld_align_section_vram_end: False
   ld_align_segment_vram_end: False

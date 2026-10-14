@@ -142,6 +142,14 @@ function's match report, not here.
 - **A call whose argument moves lose to a boosted load: the callee is
   unprototyped and one call site passes fewer arguments.** (UpdatePlayerAction)
 
+- **A named string in `.rodata`: `const char name[] = "...";` at file
+  scope, where the bytes sit among the unit's rodata.** cc1 writes it to
+  `.rdata` at its source position, between the jump tables of the functions
+  around it. Under `-G8` a constant of 8 bytes or less (literals too) goes
+  to `.sdata` instead, so a retail `.rodata` string is always 9 bytes or
+  more. The link's `SUBALIGN(4)` supplies the padding after a unit's last
+  string. (collision's debug formats)
+
 ## Types
 
 - **`sll r, r, 24` + `bnez` testing a byte: an `s8`.** A `u8` gives
@@ -712,7 +720,7 @@ function's match report, not here.
 
 - **Rodata placed where no single object can put it marks a unit boundary.**
   cc1 aligns a jump table to 8 within its object, and overlays link with
-  `SUBALIGN(2)`, so a table 4 past an absolute 8-byte boundary means its
+  `SUBALIGN(4)`, so a table 4 past an absolute 8-byte boundary means its
   object's rodata starts 4 past one. Measure where the table sits relative
   to the strings before it in every copy of the code: in the chases it is
   always 0x10 past `"CDEXEC %d"`, the boundary of an object starting at that

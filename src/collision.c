@@ -521,10 +521,10 @@ void ClearRideQuad(void) {
     gPlayer.onRideQuad = 0;
 }
 
-INCLUDE_RODATA("asm/nonmatchings/collision", gTrapNoFmt);
+const char gTrapNoFmt[] = "TRAP NO  (%2d / %2d)";
 
-INCLUDE_RODATA("asm/nonmatchings/collision", gSyncFmt);
+const char gSyncFmt[] = "SYNC %3d";
 
-INCLUDE_RODATA("asm/nonmatchings/collision", gGridFmt);
+const char gGridFmt[] = " GRID %4d";
 
-INCLUDE_RODATA("asm/nonmatchings/collision", gNowBlockFmt);
+const char gNowBlockFmt[] = " NOW BLOCK (%2d/%2d)";

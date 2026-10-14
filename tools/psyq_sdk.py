@@ -974,14 +974,14 @@ def cmd_ldfrag(args):
            " * variable is pinned to its retail address (a script assignment overrides the",
            " * object's own definition). NOLOAD: none of this is in the executable image. */",
            "SECTIONS {"]
-    # SUBALIGN(2) on every section here, as on splat's own output section: the
+    # SUBALIGN(4) on every section here, as on splat's own output section: the
     # converted objects claim alignment 8, and without it a section pinned to a
     # 4-aligned retail address is silently moved up (the libetc/intr .rdata
     # shadow at 0x800106BC landed at 0x800106C0 -- three bytes off, all the
     # +4 in the references to it).
     for name, sec, base, size, how in sections:
         tag = f".psyq_bss.{name.replace('/', '_')}{sec.replace('.', '_')}"
-        out.append(f"    {tag} 0x{base:08X} (NOLOAD) : SUBALIGN(2) {{ build/lib/{name}.o({sec}) }}   /* 0x{size:X} bytes; {how} */")
+        out.append(f"    {tag} 0x{base:08X} (NOLOAD) : SUBALIGN(4) {{ build/lib/{name}.o({sec}) }}   /* 0x{size:X} bytes; {how} */")
     # Shadowed PROGBITS sections: NOLOAD at the retail address the object's own
     # relocations derive, so its references resolve there while the image bytes
     # come from splat's plain slot (see read_shadows).
@@ -993,7 +993,7 @@ def cmd_ldfrag(args):
                 notes.append(f"{name} {sec}: shadow requested but relocations derive {[hex(b) for b in bases]}; not mapped, link will misplace it")
                 continue
             tag = f".psyq_shadow.{name.replace('/', '_')}{sec.replace('.', '_')}"
-            out.append(f"    {tag} 0x{bases[0]:08X} (NOLOAD) : SUBALIGN(2) {{ build/lib/{name}.o({sec}) }}   /* shadow: bytes stay in splat's slot at 0x{bases[0] - VRAM + HDR:X} */")
+            out.append(f"    {tag} 0x{bases[0]:08X} (NOLOAD) : SUBALIGN(4) {{ build/lib/{name}.o({sec}) }}   /* shadow: bytes stay in splat's slot at 0x{bases[0] - VRAM + HDR:X} */")
     out.append("}")
     for n, a, name in sorted(pins, key=lambda p: p[1]):
         out.append(f"{n} = 0x{a:08X};   /* {name} */")

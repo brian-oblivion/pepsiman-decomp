@@ -597,6 +597,13 @@ extern s32 gFlatLights[]; /**< 3 units, 4 functions */
 
 extern s32 *gAnimations[]; /**< per-sequence data pointers; 2 units */
 
+/* The debug lines' formats collision defines, which the stage editor and
+ * the object view print. */
+extern const char gTrapNoFmt[];   /**< "TRAP NO  (%2d / %2d)" */
+extern const char gSyncFmt[];     /**< "SYNC %3d" */
+extern const char gGridFmt[];     /**< " GRID %4d" */
+extern const char gNowBlockFmt[]; /**< " NOW BLOCK (%2d/%2d)" */
+
 /* --- Functions called from more than one unit, with the same prototype ---- */
 
 /** @brief Defined in sound.

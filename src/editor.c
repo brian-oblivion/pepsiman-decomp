@@ -834,9 +834,6 @@ s32 UpdateEditor(void) {
     }
 }
 
-extern char gSyncFmt[];                 /**< "SYNC %3d" */
-extern char gGridFmt[];                 /**< " GRID %4d" */
-extern char gNowBlockFmt[];             /**< " NOW BLOCK (%2d/%2d)" */
 extern char sEdPositionFmt[];           /**< "\nPOSITION X %d " */
 extern char sEdSwitchNoFmt[];           /**< "\nSWITCH NO(%2d/ %2d)" */
 extern char sEdTrapNoFmt[];             /**< " TRAP NO(%3d/ %3d)" */

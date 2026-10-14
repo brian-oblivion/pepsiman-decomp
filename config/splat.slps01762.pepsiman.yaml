@@ -44,7 +44,7 @@ options:
 
   section_order: [".rodata", ".text", ".data", ".sdata", ".sbss", ".bss"]
 
-  subalign: 2
+  subalign: 4
 
   string_encoding: ASCII
   data_string_encoding: ASCII

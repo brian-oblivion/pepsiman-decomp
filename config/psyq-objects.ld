@@ -7,41 +7,41 @@
  * variable is pinned to its retail address (a script assignment overrides the
  * object's own definition). NOLOAD: none of this is in the executable image. */
 SECTIONS {
-    .psyq_bss.libsnd_ssinit_bss 0x800E0CD8 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/ssinit.o(.bss) }   /* 0x92C bytes; first symbol _SsMarkCallback */
-    .psyq_bss.libspu_spu_bss 0x800E14E0 (NOLOAD) : SUBALIGN(2) { build/lib/libspu/spu.o(.bss) }   /* 0x14 bytes; first symbol _spu_RQ */
-    .psyq_bss.libspu_s_sca_bss 0x80100000 (NOLOAD) : SUBALIGN(2) { build/lib/libspu/s_sca.o(.bss) }   /* 0x4 bytes; unreferenced; spare NOLOAD area */
-    .psyq_bss.libsnd_vm_f_bss 0x800E14C8 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/vm_f.o(.bss) }   /* 0x738 bytes; section-relative refs */
-    .psyq_bss.libsnd_vm_init_bss 0x800E1E00 (NOLOAD) : SUBALIGN(2) { build/lib/libsnd/vm_init.o(.bss) }   /* 0x110 bytes; section-relative refs */
-    .psyq_bss.libcd_cdrom_bss 0x800E1F50 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/cdrom.o(.bss) }   /* 0x48 bytes; first symbol StRingAddr */
-    .psyq_bss.libcd_bios_bss 0x800E1F58 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/bios.o(.bss) }   /* 0x34 bytes; section-relative refs */
-    .psyq_bss.libcd_iso9660_bss 0x800E1F90 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/iso9660.o(.bss) }   /* 0x2400 bytes; section-relative refs */
-    .psyq_bss.libcd_c_004_bss 0x800E4390 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_004.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libcd_c_005_bss 0x800E43A0 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_005.o(.bss) }   /* 0x8 bytes; first symbol StFunc1 */
-    .psyq_bss.libcd_c_011_bss 0x800E43A8 (NOLOAD) : SUBALIGN(2) { build/lib/libcd/c_011.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libgte_clip_ini_bss 0x800E43D0 (NOLOAD) : SUBALIGN(2) { build/lib/libgte/clip_ini.o(.bss) }   /* 0x2D8 bytes; first symbol _tmp_evbf */
-    .psyq_bss.libgs_matrix_bss 0x800E4750 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/matrix.o(.bss) }   /* 0x80 bytes; first symbol DSTACK */
-    .psyq_bss.libgs_gs_104_bss 0x800E47D0 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/gs_104.o(.bss) }   /* 0x14 bytes; first symbol HWD0 */
-    .psyq_bss.libgs_gs_107_bss 0x800E47E8 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/gs_107.o(.bss) }   /* 0x40 bytes; first symbol GsLIGHTWSMATRIX */
-    .psyq_bss.libgte_patchgte_bss 0x800E4828 (NOLOAD) : SUBALIGN(2) { build/lib/libgte/patchgte.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libgs_gs_123_bss 0x800E4858 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/gs_123.o(.bss) }   /* 0x80 bytes; first symbol GsIDMATRIX */
-    .psyq_bss.libgs_objt3_bss 0x800E48E8 (NOLOAD) : SUBALIGN(2) { build/lib/libgs/objt3.o(.bss) }   /* 0x130 bytes; section-relative refs */
-    .psyq_bss.libgpu_font_bss 0x800E4A18 (NOLOAD) : SUBALIGN(2) { build/lib/libgpu/font.o(.bss) }   /* 0x4410 bytes; section-relative refs */
-    .psyq_bss.libgpu_sys_bss 0x800E8E28 (NOLOAD) : SUBALIGN(2) { build/lib/libgpu/sys.o(.bss) }   /* 0x1950 bytes; section-relative refs */
-    .psyq_bss.libcard_patch_bss 0x800EA778 (NOLOAD) : SUBALIGN(2) { build/lib/libcard/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libcard_end_bss 0x800EA788 (NOLOAD) : SUBALIGN(2) { build/lib/libcard/end.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libds_dscb_bss 0x800EA798 (NOLOAD) : SUBALIGN(2) { build/lib/libds/dscb.o(.bss) }   /* 0xC bytes; section-relative refs */
-    .psyq_bss.libapi_first_bss 0x800EA7A8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/first.o(.bss) }   /* 0x30 bytes; section-relative refs */
-    .psyq_bss.libapi_pad_bss 0x800EA7D8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/pad.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libapi_patch_bss 0x800EA7E8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libapi_chclrpad_bss 0x800EA7F8 (NOLOAD) : SUBALIGN(2) { build/lib/libapi/chclrpad.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libpad_padmain_bss 0x800EA808 (NOLOAD) : SUBALIGN(2) { build/lib/libpad/padmain.o(.bss) }   /* 0x20 bytes; section-relative refs */
-    .psyq_bss.libpad_padcmd_bss 0x800EA828 (NOLOAD) : SUBALIGN(2) { build/lib/libpad/padcmd.o(.bss) }   /* 0x10 bytes; section-relative refs */
-    .psyq_bss.libpad_padportd_bss 0x800EA838 (NOLOAD) : SUBALIGN(2) { build/lib/libpad/padportd.o(.bss) }   /* 0x270 bytes; section-relative refs */
-    .psyq_bss.libpad_waitrc2_bss 0x800EAAAC (NOLOAD) : SUBALIGN(2) { build/lib/libpad/waitrc2.o(.bss) }   /* 0x8 bytes; first symbol _waitTime */
-    .psyq_bss.libmcrd_libmcrd_bss 0x800EAAB0 (NOLOAD) : SUBALIGN(2) { build/lib/libmcrd/libmcrd.o(.bss) }   /* 0x90 bytes; section-relative refs */
-    .psyq_bss.libcard_format_bss 0x800EAB40 (NOLOAD) : SUBALIGN(2) { build/lib/libcard/format.o(.bss) }   /* 0x2B0 bytes; section-relative refs */
-    .psyq_bss.libmcrd_userfunc_bss 0x800EADF0 (NOLOAD) : SUBALIGN(2) { build/lib/libmcrd/userfunc.o(.bss) }   /* 0x50 bytes; section-relative refs */
-    .psyq_bss.libmcrd_bios_bss 0x800EAE40 (NOLOAD) : SUBALIGN(2) { build/lib/libmcrd/bios.o(.bss) }   /* 0x40 bytes; section-relative refs */
+    .psyq_bss.libsnd_ssinit_bss 0x800E0CD8 (NOLOAD) : SUBALIGN(4) { build/lib/libsnd/ssinit.o(.bss) }   /* 0x92C bytes; first symbol _SsMarkCallback */
+    .psyq_bss.libspu_spu_bss 0x800E14E0 (NOLOAD) : SUBALIGN(4) { build/lib/libspu/spu.o(.bss) }   /* 0x14 bytes; first symbol _spu_RQ */
+    .psyq_bss.libspu_s_sca_bss 0x80100000 (NOLOAD) : SUBALIGN(4) { build/lib/libspu/s_sca.o(.bss) }   /* 0x4 bytes; unreferenced; spare NOLOAD area */
+    .psyq_bss.libsnd_vm_f_bss 0x800E14C8 (NOLOAD) : SUBALIGN(4) { build/lib/libsnd/vm_f.o(.bss) }   /* 0x738 bytes; section-relative refs */
+    .psyq_bss.libsnd_vm_init_bss 0x800E1E00 (NOLOAD) : SUBALIGN(4) { build/lib/libsnd/vm_init.o(.bss) }   /* 0x110 bytes; section-relative refs */
+    .psyq_bss.libcd_cdrom_bss 0x800E1F50 (NOLOAD) : SUBALIGN(4) { build/lib/libcd/cdrom.o(.bss) }   /* 0x48 bytes; first symbol StRingAddr */
+    .psyq_bss.libcd_bios_bss 0x800E1F58 (NOLOAD) : SUBALIGN(4) { build/lib/libcd/bios.o(.bss) }   /* 0x34 bytes; section-relative refs */
+    .psyq_bss.libcd_iso9660_bss 0x800E1F90 (NOLOAD) : SUBALIGN(4) { build/lib/libcd/iso9660.o(.bss) }   /* 0x2400 bytes; section-relative refs */
+    .psyq_bss.libcd_c_004_bss 0x800E4390 (NOLOAD) : SUBALIGN(4) { build/lib/libcd/c_004.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libcd_c_005_bss 0x800E43A0 (NOLOAD) : SUBALIGN(4) { build/lib/libcd/c_005.o(.bss) }   /* 0x8 bytes; first symbol StFunc1 */
+    .psyq_bss.libcd_c_011_bss 0x800E43A8 (NOLOAD) : SUBALIGN(4) { build/lib/libcd/c_011.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libgte_clip_ini_bss 0x800E43D0 (NOLOAD) : SUBALIGN(4) { build/lib/libgte/clip_ini.o(.bss) }   /* 0x2D8 bytes; first symbol _tmp_evbf */
+    .psyq_bss.libgs_matrix_bss 0x800E4750 (NOLOAD) : SUBALIGN(4) { build/lib/libgs/matrix.o(.bss) }   /* 0x80 bytes; first symbol DSTACK */
+    .psyq_bss.libgs_gs_104_bss 0x800E47D0 (NOLOAD) : SUBALIGN(4) { build/lib/libgs/gs_104.o(.bss) }   /* 0x14 bytes; first symbol HWD0 */
+    .psyq_bss.libgs_gs_107_bss 0x800E47E8 (NOLOAD) : SUBALIGN(4) { build/lib/libgs/gs_107.o(.bss) }   /* 0x40 bytes; first symbol GsLIGHTWSMATRIX */
+    .psyq_bss.libgte_patchgte_bss 0x800E4828 (NOLOAD) : SUBALIGN(4) { build/lib/libgte/patchgte.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libgs_gs_123_bss 0x800E4858 (NOLOAD) : SUBALIGN(4) { build/lib/libgs/gs_123.o(.bss) }   /* 0x80 bytes; first symbol GsIDMATRIX */
+    .psyq_bss.libgs_objt3_bss 0x800E48E8 (NOLOAD) : SUBALIGN(4) { build/lib/libgs/objt3.o(.bss) }   /* 0x130 bytes; section-relative refs */
+    .psyq_bss.libgpu_font_bss 0x800E4A18 (NOLOAD) : SUBALIGN(4) { build/lib/libgpu/font.o(.bss) }   /* 0x4410 bytes; section-relative refs */
+    .psyq_bss.libgpu_sys_bss 0x800E8E28 (NOLOAD) : SUBALIGN(4) { build/lib/libgpu/sys.o(.bss) }   /* 0x1950 bytes; section-relative refs */
+    .psyq_bss.libcard_patch_bss 0x800EA778 (NOLOAD) : SUBALIGN(4) { build/lib/libcard/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libcard_end_bss 0x800EA788 (NOLOAD) : SUBALIGN(4) { build/lib/libcard/end.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libds_dscb_bss 0x800EA798 (NOLOAD) : SUBALIGN(4) { build/lib/libds/dscb.o(.bss) }   /* 0xC bytes; section-relative refs */
+    .psyq_bss.libapi_first_bss 0x800EA7A8 (NOLOAD) : SUBALIGN(4) { build/lib/libapi/first.o(.bss) }   /* 0x30 bytes; section-relative refs */
+    .psyq_bss.libapi_pad_bss 0x800EA7D8 (NOLOAD) : SUBALIGN(4) { build/lib/libapi/pad.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libapi_patch_bss 0x800EA7E8 (NOLOAD) : SUBALIGN(4) { build/lib/libapi/patch.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libapi_chclrpad_bss 0x800EA7F8 (NOLOAD) : SUBALIGN(4) { build/lib/libapi/chclrpad.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libpad_padmain_bss 0x800EA808 (NOLOAD) : SUBALIGN(4) { build/lib/libpad/padmain.o(.bss) }   /* 0x20 bytes; section-relative refs */
+    .psyq_bss.libpad_padcmd_bss 0x800EA828 (NOLOAD) : SUBALIGN(4) { build/lib/libpad/padcmd.o(.bss) }   /* 0x10 bytes; section-relative refs */
+    .psyq_bss.libpad_padportd_bss 0x800EA838 (NOLOAD) : SUBALIGN(4) { build/lib/libpad/padportd.o(.bss) }   /* 0x270 bytes; section-relative refs */
+    .psyq_bss.libpad_waitrc2_bss 0x800EAAAC (NOLOAD) : SUBALIGN(4) { build/lib/libpad/waitrc2.o(.bss) }   /* 0x8 bytes; first symbol _waitTime */
+    .psyq_bss.libmcrd_libmcrd_bss 0x800EAAB0 (NOLOAD) : SUBALIGN(4) { build/lib/libmcrd/libmcrd.o(.bss) }   /* 0x90 bytes; section-relative refs */
+    .psyq_bss.libcard_format_bss 0x800EAB40 (NOLOAD) : SUBALIGN(4) { build/lib/libcard/format.o(.bss) }   /* 0x2B0 bytes; section-relative refs */
+    .psyq_bss.libmcrd_userfunc_bss 0x800EADF0 (NOLOAD) : SUBALIGN(4) { build/lib/libmcrd/userfunc.o(.bss) }   /* 0x50 bytes; section-relative refs */
+    .psyq_bss.libmcrd_bios_bss 0x800EAE40 (NOLOAD) : SUBALIGN(4) { build/lib/libmcrd/bios.o(.bss) }   /* 0x40 bytes; section-relative refs */
 }
 SsFCALL = 0x800E0BB8;   /* libsnd/ssinit */
 _snd_ev_flag = 0x800E0C4C;   /* libsnd/ssinit */

@@ -783,7 +783,6 @@ s16 GetPathDirection(PathUser *u) {
     return ratan2(seg[1].x - seg->x, seg[1].z - seg->z);
 }
 
-extern char gTrapNoFmt[]; /**< "TRAP NO  (%2d / %2d)" */
 void DrawAxes(void);
 
 /** @brief A trap viewer frame: fixed view, no fog, steps the selected

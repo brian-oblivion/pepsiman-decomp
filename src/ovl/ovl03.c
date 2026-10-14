@@ -768,7 +768,14 @@ void StepTrapAct24(StageTrap *t) {
 
 void StepTrapAct25(StageTrap *t, s32 arg) {}
 
-INCLUDE_ASM("asm/ovl/ovl03/nonmatchings/ovl03", StepTrapAct28);
+void StepTrapAct28(StageTrap *t) {
+    if (gSection - UpdatePathSegment(t) < 2) {
+        UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
+    }
+    if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
+        PlaySe(0x3F);
+    }
+}
 
 #include "engine_code.inc" /* ArmTrapByRange */
 

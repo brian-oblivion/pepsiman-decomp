@@ -209,6 +209,8 @@ void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {
 
 #include "engine/swap_trap_model_on_approach.inc"
 
+/* Near: the miss phase's value is reused as the case-1 constant and its
+ * address kept for the `= 2` store, where the original reloads both. */
 #ifdef NON_MATCHING
 void StepMissSequence(void) {
     s32 unused[18];
@@ -1055,19 +1057,22 @@ s32 func_800F8D34(void) {
     return ret;
 }
 
-#ifdef NON_MATCHING
-/* Near: only the gPlayLive store lands a few slots off. Reaching sCamOffset
- * as a struct keeps the yaw read above its stores, as in the original. */
+/* Resets the player, the camera and the course to the stage's start. */
 void func_800F90F4(void) {
     s16 yaw;
+    u8 one;
+    StartRec *st;
 
     gCameraYaw = 0;
     sCamHeight = 0;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;
     gFellOff = 0;
-    gPlayLive = 1;
-    yaw = -gStageStart->yaw;
+    st = gStageStart;
+    /* MATCHING: the pointer and the 1 in locals order the first stores. */
+    one = 1;
+    gPlayLive = one;
+    yaw = -st->yaw;
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
@@ -1078,11 +1083,11 @@ void func_800F90F4(void) {
     gCourse.rot.vz = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
     gFloorIndex = 0;
-    gCourse.x = gPlayer.x = -gStageStart->x;
+    gCourse.x = gPlayer.x = -st->x;
     gSteerYaw = yaw;
-    gCourse.y = gPlayer.y = -gStageStart->y;
+    gCourse.y = gPlayer.y = -st->y;
     gSteerYawHalf = yaw;
-    gCourse.z = gPlayer.z = -gStageStart->z;
+    gCourse.z = gPlayer.z = -st->z;
     gPlayer.drawX = 0;
     gPlayer.drawY = 0;
     gPlayer.drawZ = 0;
@@ -1092,9 +1097,6 @@ void func_800F90F4(void) {
     gView[1] = (s16)(gCourse.y - 500);
     RevealStartCans();
 }
-#else
-INCLUDE_ASM("asm/ovl/ovl16/nonmatchings/ovl16", func_800F90F4);
-#endif
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */

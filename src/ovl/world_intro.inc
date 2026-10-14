@@ -39,14 +39,14 @@ extern CdlLOC sIntroPackLoc[];
 extern s32 sIntroPackSectors[];
 extern GsCOORDINATE2 sPropCoord;
 extern PlayerState sPartner;
-extern u8 sPartnerSlots[];
+extern u8 sPartnerObjs[];
 extern s32 sPartnerTmd;
-extern s32 sPartnerObjs[];
+extern s32 sPartnerObjTable[];
 extern GsCOORDINATE2 sPartnerCoords[];
 extern GsDOBJ2 sProp;
 extern VECTOR sPropPos;
 extern SVECTOR sPropRot;
-extern u8 sPartnerData[];
+extern u8 sPartnerCoordParams[];
 
 /* The camera script's step. */
 /* MATCHING: kept in the fog fade's word, reached as its own symbol. */
@@ -88,7 +88,7 @@ void LoadIntroPack(s32 *pack) {
     dir = (s32 *)(pack[0] + (s32)pack);
     sPartnerTmd = dir[0] + (s32)dir + 4;
     GsMapModelingData((unsigned long *)sPartnerTmd);
-    InitTodObjTable(sPartnerObjs, sPartnerSlots, sPartnerCoords, sPartnerData, 20);
+    InitTodObjTable(sPartnerObjTable, sPartnerObjs, sPartnerCoords, sPartnerCoordParams, 20);
     GsInitCoordinate2(WORLD, sPartnerCoords);
     GsMapModelingData((unsigned long *)(dir[1] + (s32)dir + 4));
     GsLinkObject4((unsigned long)(dir[1] + (s32)dir + 12), &sProp, 0);
@@ -207,7 +207,7 @@ static inline void DrawIntroPlayer(void) {
 static inline void DrawIntroPartner(void) {
     s8 r;
 
-    sPartner.motionResult[0] = r = StepIntroMotion(&sPartner, 0, (s32)sPartnerObjs, sPartnerTmd);
+    sPartner.motionResult[0] = r = StepIntroMotion(&sPartner, 0, (s32)sPartnerObjTable, sPartnerTmd);
     switch (sPartner.action) {
         case ACT_MODEL_ONCE:
             break;
@@ -220,5 +220,5 @@ static inline void DrawIntroPartner(void) {
 #if INTRO_SORT_MODES
     SetTmdSortMode(4);
 #endif
-    DrawIntroModel(&sPartner, sPartnerObjs);
+    DrawIntroModel(&sPartner, sPartnerObjTable);
 }

@@ -79,7 +79,7 @@ s32 StepWorldIntro(void) {
             sPartner.curMotion[0] = MOT_OFF;
             sPartner.motion[1] = 0x38;
             sPartner.curMotion[1] = MOT_OFF;
-            StepIntroMotion(&sPartner, 0, (s32)sPartnerObjs, sPartnerTmd);
+            StepIntroMotion(&sPartner, 0, (s32)sPartnerObjTable, sPartnerTmd);
             sLights.l[0].r = 0xFF;
             sLights.l[0].g = 0xFF;
             sLights.l[0].b = 0xFF;

@@ -147,3 +147,4 @@ ScatterTrapDust = 0x800F70DC; // type:func
 RevealStartCans = 0x800F97FC; // type:func
 LoadTimRange = 0x800F9774; // type:func
 StepStageFrame = 0x800F7844; // type:func
+sStageSpriteShapes = 0x800F08FC;

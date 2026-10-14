@@ -142,3 +142,6 @@ StepTrapFFAct67 = 0x800F8238; // type:func
 StepTrapFFAct68 = 0x800F8240; // type:func
 ScatterTrapDust = 0x800F55A4; // type:func
 RevealStartCans = 0x800F8C4C; // type:func
+sGoalLightLit = 0x800F9A60;
+sShotView = 0x800FE590;
+sStageSpriteShapes = 0x800F08F0;

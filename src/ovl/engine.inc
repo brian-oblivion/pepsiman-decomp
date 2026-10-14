@@ -1,7 +1,7 @@
 /* The stage engine's declarations: the records, the routines and data the
  * engine's code refers to. Included once by each of the eight overlays built
  * from the engine (ovl03, 04, 06, 07, 12, 13, 15, 16) before the sections of
- * engine_code.inc. */
+ * engine_data.inc (the data the engine defines) and engine_code.inc. */
 
 
 #include "common.h"
@@ -9,6 +9,7 @@
 #include "libgte.h"
 #include "libgpu.h"
 #include "libgs.h"
+#include "libcd.h"
 #include "object.h"
 #include "collision.h"
 #include "player.h"
@@ -128,18 +129,7 @@ extern ModelSlot gModeObjectModels[];
 /* MATCHING: player's view, signed here: reached through a split lui/%lo pair. */
 extern s8 D_800D3358[];
 extern EngSprite gStageSprites[];
-extern s32 sWalkPose[];
-extern u8 sWalkState[];
-extern s16 sWalkTimer[];
-extern StageTrap sSpawnedTraps[];
 extern StageTrap D_800D39D8[];
-extern StageTrap sGoalTraps[];
-extern s8 sSpawnedTrapsReady;
-extern s16 sBurstSpins[][2];
-extern s32 sBurstHeights[];
-extern s8 sWalksReady;
-extern s8 sGoalLightsSet;
-extern u16 sType1FSpeeds[];
 
 /** @brief Six speeds, copied whole. */
 typedef struct {
@@ -336,7 +326,6 @@ typedef struct {
 void UpdatePlacedPos(PlacedPos *p);
 
 extern s16 sFloorHit[];
-extern s32 sBurstDirs[][2];
 /* MATCHING: object's view: the swing's radius is passed unextended. */
 void InterpSwing(s32 r, u16 t, u16 n, s32 *out);
 /* MATCHING: player's empty hook, called here with the trap. */
@@ -344,8 +333,6 @@ void UnusedHook1(StageTrap *t);
 
 /* MATCHING: object's, with r taken whole: retail passes it unnarrowed. */
 void InterpSwing(s32 r, u16 t, u16 n, s32 *out);
-extern s32 sBurstDirs[][2];
-
 /* MATCHING: model's, all s32 where it has s16: the result is stored
  * without re-extension. */
 s32 Lerp(s32 a, s32 b, s32 t, s32 n);
@@ -405,13 +392,9 @@ void UpdateEffects(s32 unused, s16 x, s16 y, s16 z);
 void UpdatePickups(GsOT *ot);
 void UpdateStageEvents(void);
 
-extern GsRVIEW2 D_800FF8DC;
 /* MATCHING: stage's, declared only where defined. */
 void StartScreenWipe(void);
 s32 IsScreenWipeActive(void);
-
-extern s32 D_800FB1A0[];
-extern s32 D_800FB1C0[];
 
 /* MATCHING: main's views of the loaders. */
 void SetBootReady(s32 arg);
@@ -452,7 +435,6 @@ typedef struct {
 } SpriteShapes;
 
 extern u8 sSpriteShapes[];
-extern const SpriteShapes D_800F08E8;
 
 /* An address inside a function that other code calls as if it were one:
  * the shared dispatchers jump to other stages' entry points, which in this
@@ -463,3 +445,18 @@ extern const SpriteShapes D_800F08E8;
 #else
 #define FUNC_ALIAS(name, base, off)
 #endif
+
+/* A disc position, minute, second and sector given as their BCD digits:
+ * CD_LOC(00, 27, 50) is 00:27:50. Every file is on track 1. */
+#define CD_LOC(min, sec, sector) {0x##min, 0x##sec, 0x##sector, 1}
+
+/** @brief One of a stage's on-screen prompts, in a table ended by a
+ *         section of -1: shown when the player reaches its section. */
+typedef struct {
+    s16 section; /**< the course section that starts it */
+    s16 limit;   /**< frames it shows before it is dismissed */
+    s16 kind;    /**< which prompt it draws */
+    s16 timer;   /**< frames shown so far */
+    s16 unk8;    /**< not yet known; cleared with timer */
+    s16 state;   /**< 0 waiting, 1 shown, 2 answered, 100 done */
+} StageHint;

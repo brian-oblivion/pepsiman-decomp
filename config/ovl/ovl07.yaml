@@ -7,8 +7,8 @@
 # and anything it calls lands in this overlay's undefined_*_auto files.
 #
 # SEGMENTATION, measured: rodata, then code from the first function to the
-# last `jr $ra`, then data to the end of the file. Not yet worked: the rodata
-# and data are one block each.
+# last `jr $ra`, then data to the end of the file. All three are the C unit
+# src/ovl/ovl07.c's, the data defined in address order (engine_data.inc).
 name: ovl07
 sha1: e5ddd5e175b4e0360c45699d48fbf412d6501585
 options:
@@ -57,5 +57,5 @@ segments:
     subsegments:
       - [0x0, .rodata, ovl07]
       - [0x94C, c, ovl07]
-      - [0xA96C, data]
+      - [0xA96C, .data, ovl07]
   - [0xF8FC]

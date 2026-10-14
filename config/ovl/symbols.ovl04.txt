@@ -145,3 +145,5 @@ StepTrapForwardLevel = 0x800F2CE8; // type:func
 StepStageFrame = 0x800F7A9C; // type:func
 RevealStartCans = 0x800FA71C; // type:func
 LoadTimRange = 0x800FA694; // type:func
+sSavedView = 0x800FC060;
+sStageSpriteShapes = 0x800F0910;

@@ -3,6 +3,31 @@
 
 #include "engine.inc"
 
+/* This overlay's data, in address order: the engine's (engine_data.inc)
+ * around its own. */
+#define ENGINE_SPEEDS_PAD 0
+#define ENGINE_HINT_FILE
+
+#include "engine_data.inc" /* sFiles1BootLoc to sFiles1LastSectors */
+
+#include "engine_data.inc" /* sBurstDirs to sType1FSpeeds */
+
+#include "engine_data.inc" /* sFiles2BootLoc on, sHintBurstSpins on */
+
+/* The stage-hint file's data: the hint being watched, the hints and their
+ * count. Nothing in this overlay reads them. */
+s32 sHintIndex = 0;
+StageHint sHints[2] = {
+    {189, 30, 1},
+    {-1},
+};
+s32 sHintCount = 2;
+
+#include "engine_data.inc" /* sWalkPose to sGoalTraps */
+
+/* 400 zeroed bytes nothing in this overlay reads. */
+s32 sUnusedWords[100] = {0};
+
 #include "engine_code.inc" /* UpdateStageSprites to StepStageTrap */
 
 void ResetSpawnedTraps(void) {
@@ -845,9 +870,6 @@ void CycleGoalLights(s8 arg) {}
 
 #include "engine/emit_trap_particles.inc"
 
-extern s32 D_800FA72C[];
-extern s32 D_800FA74C[];
-
 s32 func_800F9618(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
@@ -856,11 +878,11 @@ s32 func_800F9618(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&D_800FA72C[0];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl12Loc[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FA74C[1];
+            gCdLoadSectors[0] = sFiles2Ovl12Sectors[1];
             gSubStep++;
             break;
         case 1:
@@ -876,11 +898,11 @@ s32 func_800F9618(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&D_800FA72C[1];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl12Loc[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FA74C[2];
+            gCdLoadSectors[0] = sFiles2Ovl12Sectors[2];
             gSubStep++;
             break;
         case 4:
@@ -890,14 +912,14 @@ s32 func_800F9618(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&D_800FA72C[2];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl12Loc[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&D_800FA72C[3];
+            gCdLoadLoc[1] = (s32)&sFiles2Ovl12Loc[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FA74C[3];
-            gCdLoadSectors[1] = D_800FA74C[4];
+            gCdLoadSectors[0] = sFiles2Ovl12Sectors[3];
+            gCdLoadSectors[1] = sFiles2Ovl12Sectors[4];
             gSubStep++;
             break;
         case 6:
@@ -907,11 +929,11 @@ s32 func_800F9618(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&D_800FA72C[4];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl12Loc[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FA74C[5];
+            gCdLoadSectors[0] = sFiles2Ovl12Sectors[5];
             gSubStep++;
             break;
         case 8:
@@ -925,11 +947,11 @@ s32 func_800F9618(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&D_800FA72C[5];
+            gCdLoadLoc[0] = (s32)&sFiles2Ovl12Loc[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = D_800FA74C[6];
+            gCdLoadSectors[0] = sFiles2Ovl12Sectors[6];
             gSubStep++;
             break;
         case 11:
@@ -1022,13 +1044,27 @@ typedef struct {
     u8 shape[41]; /**< a shape per sprite id from SPR_STAGE on */
 } SpriteShapes41;
 
-extern const SpriteShapes41 D_800F0924;
+/** @brief The shapes as this overlay's rodata holds them: the link
+ *         padded the block to a word. */
+typedef struct {
+    SpriteShapes41 shapes; /**< the shapes */
+    u8 pad[3];             /**< MATCHING: the link's padding, whatever its buffer held */
+} SpriteShapes41Rodata;
+
+extern const SpriteShapes41Rodata sStageSpriteShapes;
 
 void func_800F9BFC(void) {
     SpriteShapes41 shapes;
 
-    shapes = D_800F0924;
+    shapes = sStageSpriteShapes.shapes;
     *(SpriteShapes41 *)sSpriteShapes = shapes;
 }
 
-INCLUDE_RODATA("asm/ovl/ovl12/nonmatchings/ovl12", D_800F0924);
+/* This stage's sprite shapes. */
+const SpriteShapes41Rodata sStageSpriteShapes = {
+    {{
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    }},
+    {53, 37, 37},
+};

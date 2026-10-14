@@ -13,6 +13,9 @@
         DefineSprite(SPR_STAGE + i, 0, 0xFF, 0x10, 5, 0, (u8)(i * 16), 0, 0x1FD); \
     }
 
+#define INTRO_WORLD 3
+#define INTRO_XA 0
+
 #include "world_intro.inc"
 
 /* MATCHING: all s32 where model has s16: the view's words are passed
@@ -53,12 +56,12 @@ s32 StepWorldIntro(void) {
 
     switch (gWorldIntroStep) {
         case 0:
-            gCdLoadLoc[0] = (s32)sIntroPackLoc;
+            gCdLoadLoc[0] = (s32)&sFiles1OvlLoc[INTRO_PACK];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
             gWorldIntroStep = 1;
-            gCdLoadSectors[0] = sIntroPackSectors[0];
+            gCdLoadSectors[0] = sFiles1OvlSectors[INTRO_PACK];
             break;
         case 1:
             if (gCdLoadState == CD_LOAD_DONE) {
@@ -79,7 +82,7 @@ s32 StepWorldIntro(void) {
             sPartner.curMotion[0] = MOT_OFF;
             sPartner.motion[1] = 0x38;
             sPartner.curMotion[1] = MOT_OFF;
-            StepIntroMotion(&sPartner, 0, (s32)sPartnerObjs, sPartnerTmd);
+            StepIntroMotion(&sPartner, 0, (s32)sPartnerObjTable, sPartnerTmd);
             sLights.l[0].r = 0xFF;
             sLights.l[0].g = 0xFF;
             sLights.l[0].b = 0xFF;

@@ -209,16 +209,9 @@ void func_800F1248(s32 x, s32 y, s32 z, s32 n) {
 }
 
 /* The frame step's state. */
-extern s32 D_800F580C;
-extern s32 D_800F5810;
-extern s32 D_800F5814;
-extern POLY_F4 *D_800F5818;
-extern DR_MODE *D_800F581C;
-extern s32 D_800F5820; /* nonzero while the opening scene shows the walker */
-extern MATRIX D_800F57EC;
-extern s32 D_800F5258;
-extern s32 (*D_800F5264[])(Act3Obj *o);
-extern u8 D_800F526C[];
+extern s32 sWalkerShown; /* nonzero while the opening scene shows the walker */
+
+/* The stage's own models. */
 extern GsCOORDINATE2 sAct3Coords[];
 extern GsDOBJ2 sAct3Objs[];
 /* MATCHING: model's view of the sky colours, as bytes. */
@@ -320,10 +313,10 @@ static inline void StepChaseRun(void) {
         sCanRot[0].vz = -(gFrameCount * 61440 / 360);                                     \
         if (gPlayer.x + 500 > sCan.x + 120) {                                             \
             SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-            GsGetLs(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-            GsSetLsMatrix(&D_800F57EC);                                                   \
-            GsGetLw(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-            GsSetLightMatrix(&D_800F57EC);                                                \
+            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
+            GsSetLsMatrix(&sChaseMatrix);                                                 \
+            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
+            GsSetLightMatrix(&sChaseMatrix);                                              \
             SetTmdSortMode(4);                                                            \
             GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
         }                                                                                 \
@@ -336,10 +329,10 @@ static inline void StepChaseRun(void) {
         sCanRot[0].vz = -(gFrameCount * 40960 / 360);                                     \
         if (gPlayer.x + 500 > sCan.x + 120) {                                             \
             SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-            GsGetLs(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-            GsSetLsMatrix(&D_800F57EC);                                                   \
-            GsGetLw(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-            GsSetLightMatrix(&D_800F57EC);                                                \
+            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
+            GsSetLsMatrix(&sChaseMatrix);                                                 \
+            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
+            GsSetLightMatrix(&sChaseMatrix);                                              \
             SetTmdSortMode(4);                                                            \
             GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
         }                                                                                 \
@@ -352,10 +345,10 @@ static inline void StepChaseRun(void) {
         sCanRot[0].vz = -(gFrameCount * 20480 / 360);                                     \
         if (gPlayer.x + 500 > sCan.x + 120) {                                             \
             SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);                               \
-            GsGetLs(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-            GsSetLsMatrix(&D_800F57EC);                                                   \
-            GsGetLw(sAct3Objs[0].coord2, &D_800F57EC);                                    \
-            GsSetLightMatrix(&D_800F57EC);                                                \
+            GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
+            GsSetLsMatrix(&sChaseMatrix);                                                 \
+            GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);                                  \
+            GsSetLightMatrix(&sChaseMatrix);                                              \
             SetTmdSortMode(4);                                                            \
             GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000); \
         }                                                                                 \
@@ -367,10 +360,10 @@ static inline void DrawStillCan(SVECTOR *rot, GsCOORDINATE2 *coord, s32 dx, s32 
     coord->coord.t[1] = sCan.y + dy;
     coord->coord.t[2] = sCan.z;
     SetCoordRotation(rot, coord);
-    GsGetLs(sAct3Objs[0].coord2, &D_800F57EC);
-    GsSetLsMatrix(&D_800F57EC);
-    GsGetLw(sAct3Objs[0].coord2, &D_800F57EC);
-    GsSetLightMatrix(&D_800F57EC);
+    GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);
+    GsSetLsMatrix(&sChaseMatrix);
+    GsGetLw(sAct3Objs[0].coord2, &sChaseMatrix);
+    GsSetLightMatrix(&sChaseMatrix);
     SetTmdSortMode(4);
     GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, (u_long *)0x1F800000);
 }
@@ -388,7 +381,7 @@ s32 func_800F1654(void) {
 
     switch (gWorldIntroStep) {
         case 0:
-            gSkyColors = D_800F526C;
+            gSkyColors = (u8 *)sChaseSky;
             for (gLoopI = 10; gLoopI < 50; gLoopI++) {
                 sPieceCoords[gLoopI].super = NULL;
             }
@@ -418,10 +411,10 @@ s32 func_800F1654(void) {
             sCanRot[0].vz = 0;
             sWalker.walkX = -8000;
             ClipF = 1;
-            D_800F5814 = 0;
+            sSceneTimer = 0;
             sSubStep = 0;
             sHurtTimer = 0;
-            D_800F5820 = 1;
+            sWalkerShown = 1;
             gMissState = 1;
             sWalker.walkY = 0;
             sWalker.walkZ = 0;
@@ -431,8 +424,8 @@ s32 func_800F1654(void) {
             DrawFrozenFrame();
             switch (sSubStep) {
                 case 0:
-                    if (++D_800F5814 >= 30) {
-                        D_800F5814 = 0;
+                    if (++sSceneTimer >= 30) {
+                        sSceneTimer = 0;
                         sView = *(GsRVIEW2 *)gView;
                         sSubStep = 5;
                     }
@@ -452,11 +445,11 @@ s32 func_800F1654(void) {
                     gView[3] -= 5000;
                     gView[1] -= 200;
                     gView[4] -= 140;
-                    if (++D_800F5814 >= 30) {
+                    if (++sSceneTimer >= 30) {
                         sWalker.walkX = -8000;
                         sWalker.walkY = 0;
                         sWalker.walkZ = 0;
-                        D_800F5814 = 0;
+                        sSceneTimer = 0;
                         sSubStep = 10;
                     }
                     break;
@@ -476,11 +469,11 @@ s32 func_800F1654(void) {
                     gView[2] = gView[5] = rand() % 20 - 10;
                     gView[1] -= 200;
                     gView[4] -= 100;
-                    if (++D_800F5814 >= 60) {
+                    if (++sSceneTimer >= 60) {
                         sWalker.walkX = -0x1964;
                         sWalker.walkY = 0;
                         sWalker.walkZ = -1500;
-                        D_800F5814 = 0;
+                        sSceneTimer = 0;
                         sSubStep = 15;
                     }
                     break;
@@ -524,25 +517,25 @@ s32 func_800F1654(void) {
                     gView[5] = -1500;
                     gView[0] -= 5000;
                     gView[3] -= 5000;
-                    D_800F5814++;
+                    sSceneTimer++;
                     sWalker.walkX += 30;
                     gPlayer.x += 50;
                     gView[1] -= 300;
                     gView[4] -= 140;
-                    gPlayer.y = -(rsin(D_800F5814 * 20480 / 360) * 400 / 4096);
-                    if (D_800F5814 >= 20) {
+                    gPlayer.y = -(rsin(sSceneTimer * 20480 / 360) * 400 / 4096);
+                    if (sSceneTimer >= 20) {
                         gPlayer.yaw = -0x400;
                         gPlayer.motion[0] = 0x3C;
                         gPlayer.action = ACT_MODEL_ONCE;
                         gPlayer.x = -0xF8C;
-                        D_800F5820 = 0;
-                        D_800F5814 = 20;
+                        sWalkerShown = 0;
+                        sSceneTimer = 20;
                         gPlayer.z = 0;
                         sSubStep = 25;
                     }
                     break;
                 case 25:
-                    gPlayer.y = -(rsin(++D_800F5814 * 20480 / 360) * 400 / 4096) - 150;
+                    gPlayer.y = -(rsin(++sSceneTimer * 20480 / 360) * 400 / 4096) - 150;
                     gView[0] = -0xAF0;
                     gView[1] = -200;
                     gView[2] = 0;
@@ -550,7 +543,7 @@ s32 func_800F1654(void) {
                     gPlayer.x += 30;
                     gView[3] = gPlayer.x;
                     gView[5] = gPlayer.z;
-                    if (D_800F5814 >= 36) {
+                    if (sSceneTimer >= 36) {
                         if (gRumbleEnabled) {
                             gRumbleTime = 15;
                             gRumbleSmall[0] = 200;
@@ -564,18 +557,18 @@ s32 func_800F1654(void) {
                             SpawnEffect(4, gPlayer.x + rand() % 200, -150 - rand() % 100,
                                         gPlayer.z - (100 - rand() % 200), rand() % 4);
                         }
-                        D_800F5814 = 0;
+                        sSceneTimer = 0;
                         sSubStep = 30;
                     }
                     break;
                 case 30: {
                     s32 t;
 
-                    t = rsin(++D_800F5814 * 20480 / 360) * 400;
+                    t = rsin(++sSceneTimer * 20480 / 360) * 400;
                     gPlayer.y = -ABS_GE(t / 4096) - 150;
                 }
                     gPlayer.x += 50;
-                    if (D_800F5814 < 7) {
+                    if (sSceneTimer < 7) {
                         gView[3] = gRefView[3] + rand() % 100 - 50;
                         gView[4] = gRefView[4] + rand() % 100 - 50;
                         gView[5] = gRefView[5] + rand() % 100 - 50;
@@ -583,14 +576,14 @@ s32 func_800F1654(void) {
                     } else {
                         *(GsRVIEW2 *)gView = sView;
                     }
-                    if (D_800F5814 >= 23) {
+                    if (sSceneTimer >= 23) {
                         gPlayer.motion[0] = 0x3D;
                         gPlayer.action = ACT_MODEL_ONCE;
                         sSubStep = 35;
                     }
                     break;
                 case 35:
-                    v = rsin(++D_800F5814 * 20480 / 360) * 400;
+                    v = rsin(++sSceneTimer * 20480 / 360) * 400;
                     gPlayer.y = -ABS_GE(v / 4096);
                     gView[0] = -0x4B0;
                     gView[1] = -300;
@@ -599,7 +592,7 @@ s32 func_800F1654(void) {
                     gPlayer.x += 50;
                     gView[3] = gPlayer.x;
                     gView[5] = gPlayer.z;
-                    if (D_800F5814 >= 36) {
+                    if (sSceneTimer >= 36) {
                         if (gRumbleEnabled) {
                             gRumbleTime = 15;
                             gRumbleSmall[0] = 100;
@@ -612,48 +605,48 @@ s32 func_800F1654(void) {
                             SpawnEffect(4, gPlayer.x + rand() % 200 - 100, -(rand() % 50),
                                         gPlayer.z - (100 - rand() % 200), rand() % 4);
                         }
-                        D_800F5814 = 0;
+                        sSceneTimer = 0;
                         sSubStep = 40;
                     }
                     break;
                 case 40:
-                    if (++D_800F5814 >= 30) {
+                    if (++sSceneTimer >= 30) {
                         gPlayer.motion[0] = 0x3E;
                         gPlayer.action = ACT_MODEL_ONCE;
-                        D_800F5814 = 0;
+                        sSceneTimer = 0;
                         sSubStep = 45;
                     }
                     break;
                 case 45:
-                    if (++D_800F5814 >= 72) {
+                    if (++sSceneTimer >= 72) {
                         gPlayer.motion[0] = 0x3B;
                         gPlayer.action = ACT_MODEL_ONCE;
-                        D_800F5814 = 0;
+                        sSceneTimer = 0;
                         sSubStep = 50;
                     }
                     break;
                 case 50:
-                    if (++D_800F5814 >= 30) {
-                        gView[0] = -0x4B0 - (D_800F5814 - 30) * 12;
-                        gView[1] = (D_800F5814 - 30) * 5 - 300;
+                    if (++sSceneTimer >= 30) {
+                        gView[0] = -0x4B0 - (sSceneTimer - 30) * 12;
+                        gView[1] = (sSceneTimer - 30) * 5 - 300;
                         gView[2] = 0;
                         gView[3] = gPlayer.x;
-                        gView[4] = gPlayer.y - (D_800F5814 - 30) * 5;
+                        gView[4] = gPlayer.y - (sSceneTimer - 30) * 5;
                         gView[5] = gPlayer.z;
                     }
-                    if (D_800F5814 >= 60) {
-                        D_800F5814 = 0;
+                    if (sSceneTimer >= 60) {
+                        sSceneTimer = 0;
                         sSubStep = 55;
                     }
                     break;
                 case 55:
                     if (gFrameCount & 3) {
-                        D_800F5814++;
+                        sSceneTimer++;
                     }
                     *(GsRVIEW2 *)gView = sView;
-                    sCan.x += D_800F5814;
-                    sCanRot[0].vz -= (D_800F5814 / 3 << 12) / 360;
-                    if (D_800F5814 >= 30) {
+                    sCan.x += sSceneTimer;
+                    sCanRot[0].vz -= (sSceneTimer / 3 << 12) / 360;
+                    if (sSceneTimer >= 30) {
                         gWorldIntroStep = 10;
                     }
                     break;
@@ -666,7 +659,7 @@ s32 func_800F1654(void) {
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayer();
             DrawChaseShadow();
-            if (D_800F5820 != 0) {
+            if (sWalkerShown != 0) {
                 func_800F1248(sWalker.walkX - 100, sWalker.walkY, sWalker.walkZ, 0);
                 func_800F1248(sWalker.walkX - 200, sWalker.walkY, sWalker.walkZ - 150, 1);
                 func_800F1248(sWalker.walkX - 300, sWalker.walkY, sWalker.walkZ + 150, 2);
@@ -714,8 +707,8 @@ s32 func_800F1654(void) {
             sCanRot[0].vy = 0;
             sCanRot[0].vz = 0;
             ClipF = 0;
-            D_800F580C = 0;
-            D_800F5810 = 0;
+            sCaughtTimer = 0;
+            sEscapeTimer = 0;
             sHurtTimer = 0;
             gMissState = 0;
             gWorldIntroStep = 20;
@@ -724,7 +717,7 @@ s32 func_800F1654(void) {
             if (ClipF == 0) {
                 DrawChaseHud();
             }
-            if (D_800F5810 == 0) {
+            if (sEscapeTimer == 0) {
                 gView[0] = 700;
                 gView[1] = -200;
                 gView[2] = 0;
@@ -734,12 +727,12 @@ s32 func_800F1654(void) {
                 /* MATCHING: one call per arm; cc1 cross-jumps them. */
                 GsSetRefView2((GsRVIEW2 *)gView);
             } else {
-                gView[0] = rcos((D_800F5810 << 12) / 360) * (700 - D_800F5810 * 3) / 4096;
+                gView[0] = rcos((sEscapeTimer << 12) / 360) * (700 - sEscapeTimer * 3) / 4096;
                 gView[1] = -200;
-                gView[2] = rsin((D_800F5810 << 12) / 360) * (700 - D_800F5810 * 3) / 4096;
-                gView[3] = -(rcos((D_800F5810 << 12) / 360) * 500 / 4096);
+                gView[2] = rsin((sEscapeTimer << 12) / 360) * (700 - sEscapeTimer * 3) / 4096;
+                gView[3] = -(rcos((sEscapeTimer << 12) / 360) * 500 / 4096);
                 gView[4] = 0;
-                gView[5] = -(rsin((D_800F5810 << 12) / 360) * 500 / 4096);
+                gView[5] = -(rsin((sEscapeTimer << 12) / 360) * 500 / 4096);
                 GsSetRefView2((GsRVIEW2 *)gView);
             }
             StepChaseRun();
@@ -755,9 +748,9 @@ s32 func_800F1654(void) {
             DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 40000);
             /* MATCHING: i cleared before the call, the base taken before the loop. */
             o = sObjs;
-            for (; i < D_800F5258; i++) {
+            for (; i < sObjCount; i++) {
                 if (o[i].state != -1) {
-                    D_800F5264[(s16)o[i].kind](&o[i]);
+                    sPieceSteps[(s16)o[i].kind](&o[i]);
                 }
             }
             DrawSky(0);
@@ -772,10 +765,10 @@ s32 func_800F1654(void) {
                 gPlayer.curMotion[0] = MOT_OFF;
                 gPlayer.slideState = 3;
                 gPlayer.unk38C = 0;
-                D_800F580C = 1;
+                sCaughtTimer = 1;
             }
-            if (D_800F580C != 0) {
-                if (++D_800F580C == 90) {
+            if (sCaughtTimer != 0) {
+                if (++sCaughtTimer == 90) {
                     if (gRetries == 0) {
                         gGameMode = 6;
                         gModeStep = 0xFFFF;
@@ -786,13 +779,13 @@ s32 func_800F1654(void) {
                     }
                 }
             }
-            if (gPlayer.x > 40000 && D_800F5810 == 0) {
+            if (gPlayer.x > 40000 && sEscapeTimer == 0) {
                 gMissState = 1;
                 ClipF = 1;
-                D_800F5810 = 1;
+                sEscapeTimer = 1;
             }
-            if (D_800F5810 != 0) {
-                D_800F5810++;
+            if (sEscapeTimer != 0) {
+                sEscapeTimer++;
                 if (gPlayer.z > 15) {
                     gPlayer.z -= 15;
                 } else if (gPlayer.z < -15) {
@@ -800,47 +793,47 @@ s32 func_800F1654(void) {
                 } else {
                     gPlayer.z = 0;
                 }
-                if (D_800F5810 > 60) {
-                    D_800F5814 = 0;
+                if (sEscapeTimer > 60) {
+                    sSceneTimer = 0;
                     gWorldIntroStep = 50;
                 }
             }
             ResetSpadStack();
             break;
         case 50:
-            if (D_800F5814 > 160) {
-                D_800F5818 = (POLY_F4 *)GsOUT_PACKET_P;
-                setPolyF4(D_800F5818);
-                setSemiTrans(D_800F5818, 1);
-                D_800F5818->x0 = D_800F5818->x2 = -160;
-                D_800F5818->y0 = D_800F5818->y1 = -120;
-                D_800F5818->x1 = D_800F5818->x3 = 160;
-                D_800F5818->y2 = D_800F5818->y3 = 120;
-                D_800F5818->r0 = D_800F5818->g0 = D_800F5818->b0 = (D_800F5814 - 160) * 4;
-                addPrim(gSubOt[gActiveBuff].org, D_800F5818);
-                D_800F5818++;
-                GsOUT_PACKET_P = (PACKET *)D_800F5818;
-                D_800F581C = (DR_MODE *)D_800F5818;
-                setlen(D_800F581C, 1);
-                D_800F581C->code[0] = 0xE1000640;
-                addPrim(gSubOt[gActiveBuff].org, D_800F581C);
-                D_800F581C = (DR_MODE *)((u8 *)D_800F581C + 8);
-                GsOUT_PACKET_P = (PACKET *)D_800F581C;
+            if (sSceneTimer > 160) {
+                sFadePoly = (POLY_F4 *)GsOUT_PACKET_P;
+                setPolyF4(sFadePoly);
+                setSemiTrans(sFadePoly, 1);
+                sFadePoly->x0 = sFadePoly->x2 = -160;
+                sFadePoly->y0 = sFadePoly->y1 = -120;
+                sFadePoly->x1 = sFadePoly->x3 = 160;
+                sFadePoly->y2 = sFadePoly->y3 = 120;
+                sFadePoly->r0 = sFadePoly->g0 = sFadePoly->b0 = (sSceneTimer - 160) * 4;
+                addPrim(gSubOt[gActiveBuff].org, sFadePoly);
+                sFadePoly++;
+                GsOUT_PACKET_P = (PACKET *)sFadePoly;
+                sFadeMode = (DR_MODE *)sFadePoly;
+                setlen(sFadeMode, 1);
+                sFadeMode->code[0] = 0xE1000640;
+                addPrim(gSubOt[gActiveBuff].org, sFadeMode);
+                sFadeMode = (DR_MODE *)((u8 *)sFadeMode + 8);
+                GsOUT_PACKET_P = (PACKET *)sFadeMode;
             }
-            if (D_800F5814 < 120) {
+            if (sSceneTimer < 120) {
                 gPlayer.x -= rsin(gPlayer.yaw) * 30 / 4096;
                 gPlayer.z -= rcos(gPlayer.yaw) * 30 / 4096;
             }
             gWorldShift[1] = 0;
             gWorldShift[0] = -gPlayer.x;
             gWorldShift[2] = -gPlayer.z;
-            if (D_800F5814 == 120) {
+            if (sSceneTimer == 120) {
                 for (gLoopI = 0; gLoopI < 20; gLoopI++) {
                     SpawnEffectWithParams(EFFECT_FLYING_PIECE, 0xADD4, 0, 0, gLoopI * 2, 0,
                                           -(rand() % 30) - 10, rand() % 300 + 100, rand() % 20 - 10);
                 }
             }
-            if (D_800F5814 == 90) {
+            if (sSceneTimer == 90) {
                 gRefView[0] = gView[0] + gPlayer.x;
                 gRefView[1] = gView[1] + gPlayer.y;
                 gRefView[2] = gView[2] + gPlayer.z;
@@ -849,9 +842,9 @@ s32 func_800F1654(void) {
                 gRefView[5] = gView[5] - gView[2];
             }
             /* MATCHING: nested, so cc1 does not merge the two bounds. */
-            if (D_800F5814 < 150) {
-                if (D_800F5814 >= 120) {
-                    if (D_800F5814 == 120) {
+            if (sSceneTimer < 150) {
+                if (sSceneTimer >= 120) {
+                    if (sSceneTimer == 120) {
                         PlaySe(0x3E);
                         if (gRumbleEnabled) {
                             gRumbleTime = 30;
@@ -865,7 +858,7 @@ s32 func_800F1654(void) {
                     gView[3] = gRefView[3] + gView[0] + rand() % 20 - 10;
                     gView[4] = gRefView[4] + gView[1] + rand() % 20 - 10;
                     gView[5] = gRefView[5] + gView[2] + rand() % 20 - 10;
-                } else if (D_800F5814 >= 90) {
+                } else if (sSceneTimer >= 90) {
                     gView[0] = gRefView[0] - gPlayer.x;
                     gView[1] = gRefView[1] - gPlayer.y;
                     gView[2] = gRefView[2] - gPlayer.z;
@@ -882,17 +875,17 @@ s32 func_800F1654(void) {
                 gView[5] = gRefView[5] + gView[2];
             }
             GsSetRefView2((GsRVIEW2 *)gView);
-            if (D_800F5814 < 52) {
+            if (sSceneTimer < 52) {
                 gPlayer.yaw -= 11;
             }
-            D_800F5814++;
+            sSceneTimer++;
             SetChaseLights();
             StepChaseMotion(&gPlayer);
             UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
             SetTmdSortMode(gTmdSortMode);
             DrawChasePlayerScaled(0x1000);
             DrawChaseShadowCentre();
-            if (D_800F5814 < 150) {
+            if (sSceneTimer < 150) {
                 sCan.x += 30;
                 SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
             }
@@ -901,7 +894,7 @@ s32 func_800F1654(void) {
             DRAW_CANS();
             DrawRepeatingStage(-gPlayer.x, 0, -gPlayer.z, 40000);
             DrawSky(0);
-            if (D_800F5814 >= 223) {
+            if (sSceneTimer >= 223) {
                 ClipF = 0;
                 StopCdTrack();
                 switch (gStageTableSet) {
@@ -937,3 +930,69 @@ s32 func_800F1654(void) {
             break;
     }
 }
+
+/** @brief The stage's objects, in run order: what PlaceChaseObjects puts
+ * in the object slots. */
+Act3Place sPlacements[] = {
+    /*   0 */ {0, {0, 0}, 0, 0, 122},
+    /*   1 */ {0, {0, 0}, 1500, 0, -122},
+    /*   2 */ {0, {0, 0}, 3000, 0, 122},
+    /*   3 */ {0, {0, 0}, 4500, 0, -122},
+    /*   4 */ {0, {0, 0}, 6000, 0, 0},
+    /*   5 */ {0, {0, 0}, 7500, 0, 122},
+    /*   6 */ {0, {0, 0}, 9000, 0, -122},
+    /*   7 */ {0, {0, 0}, 11000, 0, 122},
+    /*   8 */ {1, {0, 0}, 11000, 0, -122},
+    /*   9 */ {0, {0, 0}, 12000, 0, -122},
+    /*  10 */ {1, {0, 0}, 12000, 0, 122},
+    /*  11 */ {0, {0, 0}, 13000, 0, 0},
+    /*  12 */ {1, {0, 0}, 13000, 0, 0},
+    /*  13 */ {0, {0, 0}, 14500, 0, 122},
+    /*  14 */ {1, {0, 0}, 14500, 0, -122},
+    /*  15 */ {0, {0, 0}, 16000, 0, -122},
+    /*  16 */ {1, {0, 0}, 16000, 0, 122},
+    /*  17 */ {0, {0, 0}, 17500, 0, 122},
+    /*  18 */ {0, {0, 0}, 17500, 0, -122},
+    /*  19 */ {0, {0, 0}, 19000, 0, 122},
+    /*  20 */ {0, {0, 0}, 19000, 0, -122},
+    /*  21 */ {0, {0, 0}, 20000, 0, 122},
+    /*  22 */ {0, {0, 0}, 20000, 0, -122},
+    /*  23 */ {1, {0, 0}, 21000, 0, 122},
+    /*  24 */ {1, {0, 0}, 21000, 0, -122},
+    /*  25 */ {1, {0, 0}, 22000, 0, -122},
+    /*  26 */ {1, {0, 0}, 22500, 0, 122},
+    /*  27 */ {0, {0, 0}, 23500, 0, -122},
+    /*  28 */ {0, {0, 0}, 23500, 0, 122},
+    /*  29 */ {1, {0, 0}, 23700, 0, 122},
+    /*  30 */ {0, {0, 0}, 25000, 0, 122},
+    /*  31 */ {1, {0, 0}, 25200, 0, 122},
+    /*  32 */ {0, {0, 0}, 26500, 0, -122},
+    /*  33 */ {1, {0, 0}, 26600, 0, -122},
+    /*  34 */ {0, {0, 0}, 28000, 0, 122},
+    /*  35 */ {1, {0, 0}, 28100, 0, -122},
+    /*  36 */ {0, {0, 0}, 29000, 0, 0},
+    /*  37 */ {0, {0, 0}, 30000, 0, 122},
+    /*  38 */ {0, {0, 0}, 30000, 0, -122},
+    /*  39 */ {0, {0, 0}, 31500, 0, 122},
+    /*  40 */ {1, {0, 0}, 31700, 0, -122},
+    /*  41 */ {1, {0, 0}, 31700, 0, 122},
+    /*  42 */ {0, {0, 0}, 33000, 0, -122},
+    /*  43 */ {1, {0, 0}, 33200, 0, 0},
+    /*  44 */ {0, {0, 0}, 34000, 0, 122},
+    /*  45 */ {1, {0, 0}, 34100, 0, 0},
+    /*  46 */ {0, {0, 0}, 36000, 0, -122},
+    /*  47 */ {0, {0, 0}, 36000, 0, 122},
+    /*  48 */ {1, {0, 0}, 36000, 0, 122},
+    /*  49 */ {0, {0, 0}, 37000, 0, -122},
+    /*  50 */ {0, {0, 0}, 37000, 0, 122},
+    /*  51 */ {0, {0, 0}, 37000, 0, -122},
+    /*  52 */ {1, {0, 0}, 37000, 0, -122},
+};
+
+#define CHASE_PIECE_STEPS func_800F0BE0, func_800F0EA8
+#define CHASE_SKY \
+    {0x6B, 0xBC, 0xEB, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}
+
+#include "chase_data.inc"
+
+s32 sWalkerShown;

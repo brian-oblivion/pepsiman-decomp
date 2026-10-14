@@ -7,6 +7,7 @@
 #include "libgpu.h"
 #include "libgs.h"
 #include "libetc.h"
+#include "libcd.h"
 #include "object.h"
 #include "model.h"
 
@@ -38,10 +39,16 @@ extern s32 gGridLastY;
 extern s32 D_80095814;
 extern s32 D_80095818;
 
-/* The sound test's choices: the VAB bank, the sound effect, the BGM. */
-extern u16 D_800F1CF8;
-extern u16 D_800F1CFA;
-extern u16 D_800F1CFC;
+/* The overlay's data, in address order: two copies of the disc's file
+ * table, which the menu never reads, and the sound test's choices. */
+#define DISC_FILE(x) sFiles1##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles2##x
+#include "disc_files.inc"
+
+u16 sSoundTestVab = 0; /* the VAB bank */
+u16 sSoundTestSe = 0;  /* the sound effect */
+u16 sSoundTestBgm = 0; /* the BGM */
 
 /* The highlighted line's colour, and the others'. */
 #define PRINT_LINE(n)       \
@@ -199,16 +206,16 @@ void func_800F09C0(void) {
             SetSoundFade(1);
             gEditMax = 15;
             gMenuLineCount = 5;
-            D_800F1CFC = 0;
-            D_800F1CF8 = 0;
-            D_800F1CFA = 70;
+            sSoundTestBgm = 0;
+            sSoundTestVab = 0;
+            sSoundTestSe = 70;
             gEditValue = 0;
             gMenuLine = 0;
             gVabLoadStep = 0;
             gWorldIntroStep++;
             break;
         case 1:
-            if (LoadVabBank(D_800F1CF8) == 1) {
+            if (LoadVabBank(sSoundTestVab) == 1) {
                 gWorldIntroStep++;
             }
             break;
@@ -216,24 +223,24 @@ void func_800F09C0(void) {
             prev = gMenuLine;
             switch (gMenuLine) {
                 case 0:
-                    D_800F1CF8 = gEditValue;
+                    sSoundTestVab = gEditValue;
                     break;
                 case 1:
-                    D_800F1CFC = gEditValue;
+                    sSoundTestBgm = gEditValue;
                     break;
                 case 2:
-                    D_800F1CFA = gEditValue;
+                    sSoundTestSe = gEditValue;
                     break;
             }
             FntPrint("\n\nVABID NO 0:%d 1:%d", gBgmVab, (&gBgmVab)[1]);
             FntPrint("\nVAB1  NO %d", gVabBank);
             if (func_800F1060() == 0) {
                 PRINT_LINE(0)
-                FntPrint("\n\nVAB NO %d", D_800F1CF8);
+                FntPrint("\n\nVAB NO %d", sSoundTestVab);
                 PRINT_LINE(1)
-                FntPrint("\nBGM %d", D_800F1CFC);
+                FntPrint("\nBGM %d", sSoundTestBgm);
                 PRINT_LINE(2)
-                FntPrint("\nSE %d", D_800F1CFA + 1);
+                FntPrint("\nSE %d", sSoundTestSe + 1);
                 PRINT_LINE(3)
                 FntPrint("\nFADEOUT");
                 PRINT_LINE(4)
@@ -245,10 +252,10 @@ void func_800F09C0(void) {
                         gVabLoadStep = 0;
                         break;
                     case 1:
-                        PlayBgm(D_800F1CFC, 0);
+                        PlayBgm(sSoundTestBgm, 0);
                         break;
                     case 2:
-                        PlaySe(D_800F1CFA + 11);
+                        PlaySe(sSoundTestSe + 11);
                         break;
                     case 3:
                         SetSoundFade(3);
@@ -264,15 +271,15 @@ void func_800F09C0(void) {
                 switch (gMenuLine) {
                     case 0:
                         gEditMax = 15;
-                        gEditValue = D_800F1CF8;
+                        gEditValue = sSoundTestVab;
                         break;
                     case 1:
                         gEditMax = 11;
-                        gEditValue = D_800F1CFC;
+                        gEditValue = sSoundTestBgm;
                         break;
                     case 2:
                         gEditMax = 0x87;
-                        gEditValue = D_800F1CFA;
+                        gEditValue = sSoundTestSe;
                         break;
                 }
             }

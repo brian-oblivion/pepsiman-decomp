@@ -58,5 +58,5 @@ segments:
     subsegments:
       - [0x0, .rodata, ovl18]
       - [0xC0, c, ovl18]                  # 5 functions
-      - [0x13C8, data]
+      - [0x13C8, .data, ovl18]
   - [0x2D98]

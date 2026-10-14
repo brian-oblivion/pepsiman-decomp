@@ -1,8 +1,9 @@
-/* The code of world 3's free-running stages, 3-1 (ovl09) and 3-2 (ovl10):
- * the stages' own traps and hooks, run by stage_overlay and stage_flow. The
- * two overlays differ only in their data. The including unit defines
- * STAGE3_RODATA_SHAPES as its own INCLUDE_RODATA line for what is still
- * asm. */
+/* The code and data of world 3's free-running stages, 3-1 (ovl09) and 3-2
+ * (ovl10): the stages' own traps and hooks, run by stage_overlay and
+ * stage_flow. The two overlays differ only in which of the disc's files
+ * their loader reads, STAGE3_FILE_LOC and STAGE3_FILE_SECTORS, and in the
+ * three bytes after the sprite shapes, STAGE3_SHAPES_PAD0 to 2, which the
+ * including unit defines. */
 
 #include "common.h"
 #include "libgte.h"
@@ -15,6 +16,16 @@
 #include "player.h"
 #include "spad.h"
 #include "collision.h"
+
+/* The overlay's three copies of the disc's file table, the start of its
+ * data: sFiles1BootLoc on, sFiles2BootLoc on (the one the loader reads)
+ * and sFiles3BootLoc on. */
+#define DISC_FILE(x) sFiles1##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles2##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles3##x
+#include "disc_files.inc"
 
 /** @brief A trap as this stage's steps move it: its position, its placed
  *         copy and angles, a clock and a state. */
@@ -56,7 +67,7 @@ typedef struct {
 } SpriteShapes;
 
 extern u8 sSpriteShapes[];
-extern const SpriteShapes D_800F0074;
+extern const SpriteShapes sStageShapes;
 
 /* MATCHING: object's view, with this unit's trap record. */
 void ResetObj34(StageTrap *t);
@@ -92,8 +103,6 @@ typedef struct {
 } StageObjects;
 
 extern s32 gStageSprites[];
-extern CdlLOC sStageFileLoc[];
-extern s32 sStageFileSectors[];
 
 /* MATCHING: main's views of the loaders. */
 void SetBootReady(s32 arg);
@@ -138,9 +147,9 @@ typedef struct {
     s16 state;   /**< 0 waiting, 1 shown, 2 pressed, 100 missed */
 } Prompt;
 
-extern s32 D_800F2DD8;
-extern Prompt D_800F2DDC[];
-extern s32 D_800F2E6C;
+extern s32 sPromptIndex;
+extern Prompt sPrompts[];
+extern s32 sPromptCount;
 
 void func_800F0F44(void);
 void func_800F0F24(void);
@@ -360,21 +369,21 @@ s32 func_800F0988(void) {
     SVECTOR pos;
     s32 t;
 
-    switch (D_800F2DDC[D_800F2DD8].state) {
+    switch (sPrompts[sPromptIndex].state) {
         case 0:
-            if (D_800F2DDC[D_800F2DD8].section == gSection) {
-                D_800F2DDC[D_800F2DD8].state = 1;
+            if (sPrompts[sPromptIndex].section == gSection) {
+                sPrompts[sPromptIndex].state = 1;
             }
             break;
         case 1:
-            switch (D_800F2DDC[D_800F2DD8].button) {
+            switch (sPrompts[sPromptIndex].button) {
                 case 0:
                     if (gPadTrig & PADLleft) {
-                        D_800F2DDC[D_800F2DD8].state = 2;
+                        sPrompts[sPromptIndex].state = 2;
                     }
                     t = 8;
-                    if (D_800F2DDC[D_800F2DD8].time < 9) {
-                        t = D_800F2DDC[D_800F2DD8].time;
+                    if (sPrompts[sPromptIndex].time < 9) {
+                        t = sPrompts[sPromptIndex].time;
                     }
                     pos.vx = 0xC4 - t * 30;
                     pos.vy = -20;
@@ -382,11 +391,11 @@ s32 func_800F0988(void) {
                     break;
                 case 1:
                     if (gPadTrig & PADLright) {
-                        D_800F2DDC[D_800F2DD8].state = 2;
+                        sPrompts[sPromptIndex].state = 2;
                     }
                     t = 8;
-                    if (D_800F2DDC[D_800F2DD8].time < 9) {
-                        t = D_800F2DDC[D_800F2DD8].time;
+                    if (sPrompts[sPromptIndex].time < 9) {
+                        t = sPrompts[sPromptIndex].time;
                     }
                     pos.vx = t * 30 - 0x11C;
                     pos.vy = -20;
@@ -394,11 +403,11 @@ s32 func_800F0988(void) {
                     break;
                 case 2:
                     if (gPadTrig & PADRdown) {
-                        D_800F2DDC[D_800F2DD8].state = 2;
+                        sPrompts[sPromptIndex].state = 2;
                     }
                     t = 8;
-                    if (D_800F2DDC[D_800F2DD8].time < 9) {
-                        t = D_800F2DDC[D_800F2DD8].time;
+                    if (sPrompts[sPromptIndex].time < 9) {
+                        t = sPrompts[sPromptIndex].time;
                     }
                     pos.vx = -0x2C;
                     pos.vy = 0xDC - t * 30;
@@ -406,26 +415,26 @@ s32 func_800F0988(void) {
                     break;
                 case 3:
                     if (gPadTrig & PADRright) {
-                        D_800F2DDC[D_800F2DD8].state = 2;
+                        sPrompts[sPromptIndex].state = 2;
                     }
                     t = 8;
-                    if (D_800F2DDC[D_800F2DD8].time < 9) {
-                        t = D_800F2DDC[D_800F2DD8].time;
+                    if (sPrompts[sPromptIndex].time < 9) {
+                        t = sPrompts[sPromptIndex].time;
                     }
                     pos.vx = -0x2C;
                     pos.vy = t * 30 - 0x104;
                     DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
             }
-            if (++D_800F2DDC[D_800F2DD8].time > D_800F2DDC[D_800F2DD8].limit) {
-                D_800F2DDC[D_800F2DD8].state = 100;
+            if (++sPrompts[sPromptIndex].time > sPrompts[sPromptIndex].limit) {
+                sPrompts[sPromptIndex].state = 100;
             }
             break;
         case 2:
-            D_800F2DD8++;
+            sPromptIndex++;
             break;
         case 100:
-            D_800F2DD8++;
+            sPromptIndex++;
             break;
     }
 }
@@ -514,12 +523,12 @@ void func_800F0FEC(StageTrap *t) {
 void func_800F1038(void) {
     s32 i;
 
-    for (i = 0; i < D_800F2E6C; i++) {
-        D_800F2DDC[i].time = 0;
-        D_800F2DDC[i].unk8 = 0;
-        D_800F2DDC[i].state = 0;
+    for (i = 0; i < sPromptCount; i++) {
+        sPrompts[i].time = 0;
+        sPrompts[i].unk8 = 0;
+        sPrompts[i].state = 0;
     }
-    D_800F2DD8 = 0;
+    sPromptIndex = 0;
 }
 
 s32 func_800F1080(void) {
@@ -532,11 +541,11 @@ s32 func_800F1080(void) {
     switch (gSubStep) {
         case 0:
             SetBootReady(0);
-            gCdLoadLoc[0] = (s32)&sStageFileLoc[0];
+            gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[1];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sStageFileSectors[1];
+            gCdLoadSectors[0] = STAGE3_FILE_SECTORS[1];
             gSubStep++;
             break;
         case 1:
@@ -552,11 +561,11 @@ s32 func_800F1080(void) {
             }
             break;
         case 3:
-            gCdLoadLoc[0] = (s32)&sStageFileLoc[1];
+            gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[2];
             gCdLoadDest[0] = 0x8019D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sStageFileSectors[2];
+            gCdLoadSectors[0] = STAGE3_FILE_SECTORS[2];
             gSubStep++;
             break;
         case 4:
@@ -566,14 +575,14 @@ s32 func_800F1080(void) {
             }
             break;
         case 5:
-            gCdLoadLoc[0] = (s32)&sStageFileLoc[2];
+            gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[3];
             gCdLoadDest[0] = 0x8019D000;
-            gCdLoadLoc[1] = (s32)&sStageFileLoc[3];
+            gCdLoadLoc[1] = (s32)&STAGE3_FILE_LOC[4];
             gCdLoadDest[1] = 0x80155000;
             gCdLoadCount = 2;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sStageFileSectors[3];
-            gCdLoadSectors[1] = sStageFileSectors[4];
+            gCdLoadSectors[0] = STAGE3_FILE_SECTORS[3];
+            gCdLoadSectors[1] = STAGE3_FILE_SECTORS[4];
             gSubStep++;
             break;
         case 6:
@@ -583,11 +592,11 @@ s32 func_800F1080(void) {
             }
             break;
         case 7:
-            gCdLoadLoc[0] = (s32)&sStageFileLoc[4];
+            gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[5];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sStageFileSectors[5];
+            gCdLoadSectors[0] = STAGE3_FILE_SECTORS[5];
             gSubStep++;
             break;
         case 8:
@@ -601,11 +610,11 @@ s32 func_800F1080(void) {
             gSubStep++;
             break;
         case 10:
-            gCdLoadLoc[0] = (s32)&sStageFileLoc[5];
+            gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[6];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sStageFileSectors[6];
+            gCdLoadSectors[0] = STAGE3_FILE_SECTORS[6];
             gSubStep++;
             break;
         case 11:
@@ -615,11 +624,11 @@ s32 func_800F1080(void) {
             }
             break;
         case 12:
-            gCdLoadLoc[0] = (s32)&sStageFileLoc[6];
+            gCdLoadLoc[0] = (s32)&STAGE3_FILE_LOC[7];
             gCdLoadDest[0] = 0x8016D000;
             gCdLoadCount = 1;
             gCdLoadState = CD_LOAD_SEEK;
-            gCdLoadSectors[0] = sStageFileSectors[7];
+            gCdLoadSectors[0] = STAGE3_FILE_SECTORS[7];
             gSubStep++;
             break;
         case 13:
@@ -754,8 +763,52 @@ u16 func_800F1A48(s16 id, StageTrap *src, StageTrap *dst) {
 void func_800F1BA4(void) {
     SpriteShapes shapes;
 
-    shapes = D_800F0074;
+    shapes = sStageShapes;
     *(SpriteShapes *)sSpriteShapes = shapes;
 }
 
-STAGE3_RODATA_SHAPES
+/** @brief The shape of each of the stage's own sprites, which the start
+ *         copies to sSpriteShapes. */
+const SpriteShapes sStageShapes = {{
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+}};
+
+/* MATCHING: the three bytes that end the shapes' last word are what
+ * retail's link left in its padding, whatever its buffer held; they differ
+ * between 3-1 and 3-2. Single bytes, so cc1 aligns them to nothing. */
+const u8 sStageShapesPad0 = STAGE3_SHAPES_PAD0;
+const u8 sStageShapesPad1 = STAGE3_SHAPES_PAD1;
+const u8 sStageShapesPad2 = STAGE3_SHAPES_PAD2;
+
+/* The stage-hint file's data, after the third copy of the file table. Its
+ * own copies of the engine's burst tables come first, in its order;
+ * nothing here reads them. */
+s16 sHintBurstSpins[8][2] = {
+    {2, -3}, {5, 2}, {-3, 6}, {-3, -1}, {7, -3}, {1, 2}, {-2, -6}, {3, 3},
+};
+
+s32 sHintBurstDirs[8][2] = {
+    {0, 0}, {-5, 6}, {4, -3}, {2, 5}, {-3, -1}, {6, -5}, {-1, 7}, {-5, 2},
+};
+
+s32 sHintBurstHeights[8] = {400, 200, 300, 600, 100, 500, 240, 20};
+
+/** @brief The prompt the stage waits on, an index into sPrompts. */
+s32 sPromptIndex = 0;
+
+/** @brief The stage's button prompts, in section order: section, frames
+ *         shown, button (1 or 2), then the time, unk8 and state the step
+ *         keeps. A section of -1 ends the list. */
+Prompt sPrompts[] = {
+    {16, 30, 2, 0, 0, 0},  {27, 30, 2, 0, 0, 0},  {30, 30, 2, 0, 0, 0},  {45, 30, 2, 0, 0, 0},
+    {58, 30, 2, 0, 0, 0},  {129, 30, 1, 0, 0, 0}, {208, 30, 2, 0, 0, 0}, {260, 30, 2, 0, 0, 0},
+    {267, 30, 2, 0, 0, 0}, {271, 30, 2, 0, 0, 0}, {276, 30, 2, 0, 0, 0}, {-1, 0, 0, 0, 0, 0},
+};
+
+/** @brief How many prompts the reset clears: the whole list. */
+s32 sPromptCount = sizeof(sPrompts) / sizeof(sPrompts[0]);
+
+/* 400 zero bytes end the file: a tentative definition, the unit's .bss.
+ * Nothing reads or writes them. */
+s32 sStageUnused[100];

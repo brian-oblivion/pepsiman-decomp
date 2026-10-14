@@ -1,2 +1,4 @@
 // Overlay 00 (the mode main loads first (GM_OVERLAY0)): names for addresses inside the overlay.
-D_800F1CFA = 0x800F1CFA;
+sSoundTestSe = 0x800F1CFA;
+sSoundTestVab = 0x800F1CF8;
+sSoundTestBgm = 0x800F1CFC;

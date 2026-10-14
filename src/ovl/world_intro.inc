@@ -7,6 +7,8 @@
  *   INTRO_SORT_MODES       1 if its model draws set the TMD sort mode,
  *   DEFINE_INTRO_SPRITES   a statement defining its caption or text sprites,
  *                          given the loader's counter,
+ *   INTRO_WORLD            its world, 1 to 5, which picks its intro pack,
+ *   INTRO_XA               1 if it plays an XA track and counts its frames,
  * and then writes its own scene script, the step main calls each frame. */
 
 #include "common.h"
@@ -22,9 +24,9 @@
 #include "spad.h"
 #include "world_intro.h"
 
-/* MATCHING: model types these as its own records; here they are the
- * overlay's tables, as in main. */
-void InitTodObjTable(s32 *list, u8 *slots, GsCOORDINATE2 *objs, u8 *data, s32 n);
+/* MATCHING: model types the table as its own record; here it is the
+ * overlay's words, as in main. */
+void InitTodObjTable(s32 *list, GsDOBJ2 *objs, GsCOORDINATE2 *coords, GsCOORD2PARAM *params, s32 n);
 /* MATCHING: main's s32 view, which keeps sound.h from declaring it. */
 s32 LoadVabBank(s32 bank);
 
@@ -35,18 +37,40 @@ typedef struct {
 } CaptionTimes;
 #endif
 
-extern CdlLOC sIntroPackLoc[];
-extern s32 sIntroPackSectors[];
-extern GsCOORDINATE2 sPropCoord;
-extern PlayerState sPartner;
-extern u8 sPartnerSlots[];
-extern s32 sPartnerTmd;
-extern s32 sPartnerObjs[];
-extern GsCOORDINATE2 sPartnerCoords[];
-extern GsDOBJ2 sProp;
-extern VECTOR sPropPos;
-extern SVECTOR sPropRot;
-extern u8 sPartnerData[];
+/* The overlay's data, in address order. All of it is initialised, so all
+ * of it is .data. */
+
+/* Two copies of the disc's file table; the intro loads from the first. */
+#define DISC_FILE(x) sFiles1##x
+#include "disc_files.inc"
+#define DISC_FILE(x) sFiles2##x
+#include "disc_files.inc"
+
+/* The intro's pack of models, animations and sprites: in LoadOverlay's
+ * list, the entry after the intro's own overlay. */
+#define INTRO_PACK (INTRO_WORLD * 2 + 9)
+
+/* The intro's own variables. */
+#if INTRO_XA
+s32 sIntroFrame = 0;   /* frames since the XA track started */
+s32 sScriptPaused = 0; /* never set here: nonzero would freeze the script */
+#else
+/* MATCHING: never read; retail's value. */
+s32 sIntroSpare = 0x02E043FF;
+#endif
+GsCOORDINATE2 sPropCoord = {0};
+PlayerState sPartner = {0};
+GsDOBJ2 sPartnerObjs[20] = {{0}};
+s32 sPartnerTmd = 0;
+s32 sPartnerSpare = 0; /* never read */
+/* The partner's TodObjTable (model.c): its objects, how many are in use,
+ * how many there are, and a word main's table also has. */
+s32 sPartnerObjTable[4] = {0};
+GsCOORDINATE2 sPartnerCoords[20] = {{0}};
+GsDOBJ2 sProp = {0};
+VECTOR sPropPos = {0};
+SVECTOR sPropRot = {0};
+GsCOORD2PARAM sPartnerCoordParams[20] = {{{0}}};
 
 /* The camera script's step. */
 /* MATCHING: kept in the fog fade's word, reached as its own symbol. */
@@ -88,7 +112,7 @@ void LoadIntroPack(s32 *pack) {
     dir = (s32 *)(pack[0] + (s32)pack);
     sPartnerTmd = dir[0] + (s32)dir + 4;
     GsMapModelingData((unsigned long *)sPartnerTmd);
-    InitTodObjTable(sPartnerObjs, sPartnerSlots, sPartnerCoords, sPartnerData, 20);
+    InitTodObjTable(sPartnerObjTable, sPartnerObjs, sPartnerCoords, sPartnerCoordParams, 20);
     GsInitCoordinate2(WORLD, sPartnerCoords);
     GsMapModelingData((unsigned long *)(dir[1] + (s32)dir + 4));
     GsLinkObject4((unsigned long)(dir[1] + (s32)dir + 12), &sProp, 0);
@@ -207,7 +231,7 @@ static inline void DrawIntroPlayer(void) {
 static inline void DrawIntroPartner(void) {
     s8 r;
 
-    sPartner.motionResult[0] = r = StepIntroMotion(&sPartner, 0, (s32)sPartnerObjs, sPartnerTmd);
+    sPartner.motionResult[0] = r = StepIntroMotion(&sPartner, 0, (s32)sPartnerObjTable, sPartnerTmd);
     switch (sPartner.action) {
         case ACT_MODEL_ONCE:
             break;
@@ -220,5 +244,5 @@ static inline void DrawIntroPartner(void) {
 #if INTRO_SORT_MODES
     SetTmdSortMode(4);
 #endif
-    DrawIntroModel(&sPartner, sPartnerObjs);
+    DrawIntroModel(&sPartner, sPartnerObjTable);
 }

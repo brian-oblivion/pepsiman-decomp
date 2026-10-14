@@ -18,7 +18,7 @@
 /* The first of the overlay's three copies of the disc's file table:
  * sFiles1BootLoc to sFiles1LastSectors. */
 #define DISC_FILE(x) sFiles1##x
-#include "engine_files.inc"
+#include "disc_files.inc"
 
 #undef ENGINE_DATA_PART
 #define ENGINE_DATA_PART 2
@@ -54,11 +54,11 @@ u16 sType1FSpeeds[6] = {10, 15, 20, 25, 30, ENGINE_SPEEDS_PAD};
 
 /* The second copy, sFiles2BootLoc on: the one the stage's loader reads. */
 #define DISC_FILE(x) sFiles2##x
-#include "engine_files.inc"
+#include "disc_files.inc"
 
 /* The third copy, sFiles3BootLoc on. */
 #define DISC_FILE(x) sFiles3##x
-#include "engine_files.inc"
+#include "disc_files.inc"
 
 #ifdef ENGINE_HINT_FILE
 /* The stage-hint file's own copies of the burst tables, in its order;

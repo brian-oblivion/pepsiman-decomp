@@ -446,9 +446,6 @@ extern u8 sSpriteShapes[];
 #define FUNC_ALIAS(name, base, off)
 #endif
 
-/* A disc position, minute, second and sector given as their BCD digits:
- * CD_LOC(00, 27, 50) is 00:27:50. Every file is on track 1. */
-#define CD_LOC(min, sec, sector) {0x##min, 0x##sec, 0x##sector, 1}
 
 /** @brief One of a stage's on-screen prompts, in a table ended by a
  *         section of -1: shown when the player reaches its section. */

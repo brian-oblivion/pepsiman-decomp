@@ -1,9 +1,15 @@
 /* One copy of the disc's file table: where each file is (minute, second and
  * sector, in BCD) and its size in sectors, in pairs of arrays. Every source
  * file that loads from the disc held its own copy (the executable's main
- * one, at sBootFileLoc on; each engine overlay three), so the includer names
+ * one, at sBootFileLoc on; each overlay one or more), so the includer names
  * this one: DISC_FILE(x) is the name of its array x, and is undefined again
  * at the end. */
+
+#ifndef CD_LOC
+/* A disc position, minute, second and sector given as their BCD digits:
+ * CD_LOC(00, 27, 50) is 00:27:50. Every file is on track 1. */
+#define CD_LOC(min, sec, sector) {0x##min, 0x##sec, 0x##sector, 1}
+#endif
 
 /* The files the executable loads at boot; an unused slot is 00:00:00, 0. */
 CdlLOC DISC_FILE(BootLoc)[16] = {

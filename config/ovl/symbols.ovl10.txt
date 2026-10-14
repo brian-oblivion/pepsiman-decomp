@@ -1,3 +1,5 @@
 // Overlay 10 (stage 3-2): names for addresses inside the overlay.
-sStageFileLoc = 0x800F25B4;
-sStageFileSectors = 0x800F25D4;
+sPromptIndex = 0x800F2DD8;
+sPrompts = 0x800F2DDC;
+sPromptCount = 0x800F2E6C;
+sStageShapes = 0x800F0074;

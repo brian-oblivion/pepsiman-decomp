@@ -9,8 +9,10 @@
 # undefined_*_auto files.
 #
 # SEGMENTATION, measured: rodata (a format string, a jump table and two byte
-# tables), then code from the first prologue to the last `jr $ra`, then data
-# to the end of the file.
+# tables), then code from the first prologue to the last `jr $ra`, then data:
+# three copies of disc_files.inc's table, the stage-hint file's tables, and
+# 400 zero bytes, the .bss, to the end of the file. All of it is
+# stage3.inc's, one unit.
 name: ovl10
 sha1: af22fc6ca3e06547a3b0e1e694ba142ab17882f6
 options:
@@ -41,7 +43,7 @@ options:
   asm_jtbl_label_macro: jlabel
   asm_data_macro: dlabel
 
-  section_order: [".rodata", ".text", ".data"]
+  section_order: [".rodata", ".text", ".data", ".bss"]
 
   subalign: 4
 
@@ -59,5 +61,5 @@ segments:
     subsegments:
       - [0x0, .rodata, ovl10]
       - [0xA0, c, ovl10]
-      - [0x1D38, data]
+      - [0x1D38, .data, ovl10]
   - [0x3000]

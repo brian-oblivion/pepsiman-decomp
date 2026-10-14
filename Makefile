@@ -155,14 +155,7 @@ OVL_BINS  := $(foreach o,$(OVERLAYS),$(OVL_DIR)/$(o).bin)
 OVL_S_FILES := $(shell find asm/ovl -name '*.s' -not -path '*/nonmatchings/*' 2>/dev/null)
 OVL_OBJS   = $(BUILD_DIR)/src/ovl/$(1).c.o \
              $(foreach f,$(wildcard src/ovl/$(1)_*.c),$(BUILD_DIR)/$(f).o) \
-             $(foreach f,$(filter asm/ovl/$(1)/%,$(OVL_S_FILES)),$(BUILD_DIR)/$(f).o) \
-             $(foreach f,$(wildcard assets/$(1)/*.bin),$(BUILD_DIR)/$(f).o)
-
-# Bytes splat keeps as a `bin` subsegment (assets/<ovl>/, generated, never
-# committed): ovl00's file ends in a halfword its data words cannot hold.
-$(BUILD_DIR)/assets/%.bin.o: assets/%.bin
-	@mkdir -p $(dir $@)
-	printf '.section .data\n.incbin "%s"\n' $< | $(AS) $(AS_FLAGS) -o $@
+             $(foreach f,$(filter asm/ovl/$(1)/%,$(OVL_S_FILES)),$(BUILD_DIR)/$(f).o)
 
 overlays: $(OVL_BINS)
 

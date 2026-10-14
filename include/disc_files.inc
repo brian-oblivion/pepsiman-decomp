@@ -22,7 +22,7 @@ CdlLOC DISC_FILE(BootLoc)[16] = {
 s32 DISC_FILE(BootSectors)[16] = {13, 17, 77, 51, 37, 7, 193, 44, 40, 43, 34, 44, 46, 43, 43, 0};
 
 /* LoadOverlay's: overlays 00 and 02 first, then 18 to 22 at [10], [12],
- * [14], [16] and [18]. */
+ * [14], [16] and [18], each followed by its world intro's pack. */
 CdlLOC DISC_FILE(OvlLoc)[20] = {
     CD_LOC(00, 15, 52), CD_LOC(00, 15, 56), CD_LOC(00, 16, 02), CD_LOC(00, 18, 26),
     CD_LOC(00, 18, 60), CD_LOC(00, 19, 17), CD_LOC(00, 19, 49), CD_LOC(00, 20, 06),
@@ -169,7 +169,8 @@ CdlLOC DISC_FILE(Ovl17Loc)[9] = {
 
 s32 DISC_FILE(Ovl17Sectors)[9] = {10, 52, 63, 0, 0, 0, 0, 0, 0};
 
-/* A 9034-sector file at the end, which the engine never reads. */
+/* The XA audio, 9034 sectors at the end: the world intros and the title
+ * seek to it; the engine never reads it. */
 CdlLOC DISC_FILE(LastLoc)[1] = {
     CD_LOC(01, 47, 62),
 };

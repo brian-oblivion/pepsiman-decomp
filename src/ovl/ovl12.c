@@ -393,7 +393,7 @@ void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {
 #include "engine/scatter_trap_dust.inc"
 
 extern s8 D_800D36F0;
-s8 func_800F7D24(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 /* MATCHING: the two stage groups set the counts separately; one set is
  * folded to a constant. */
@@ -515,7 +515,7 @@ void UpdateGoalEventHook(void) {
                 }
                 break;
             case 6:
-                if (func_800F7D24(u) && gInEditor != 1) {
+                if (StepGoalCutscene(u) && gInEditor != 1) {
                     t->state++;
                 }
                 break;
@@ -544,11 +544,11 @@ void UpdateGoalEventHook(void) {
 
 #include "engine/step_stage_frame.inc"
 
-void func_800F7D30(StageTrap *t, s16 period);
+void SpawnTrapFFAct65OnTimer(StageTrap *t, s16 period);
 
 /* MATCHING: s32 with no return keeps the index shift in the jump table's
  * bound check delay slot. */
-s32 func_800F74FC(StageTrap *t) {
+s32 StepStage4_1Dropper(StageTrap *t) {
     s32 home;
     s16 speed;
 
@@ -576,13 +576,13 @@ s32 func_800F74FC(StageTrap *t) {
             } else {
                 speed = 41;
                 if (home < 10000 * 10000) {
-                    func_800F7D30(t, 60);
+                    SpawnTrapFFAct65OnTimer(t, 60);
                 } else if (home < 20000 * 20000) {
-                    func_800F7D30(t, 50);
+                    SpawnTrapFFAct65OnTimer(t, 50);
                 } else if (home < 30000 * 30000) {
-                    func_800F7D30(t, 40);
+                    SpawnTrapFFAct65OnTimer(t, 40);
                 } else if (home < 40000 * 40000) {
-                    func_800F7D30(t, 30);
+                    SpawnTrapFFAct65OnTimer(t, 30);
                 }
             }
             SnapToFloor(t);
@@ -613,7 +613,7 @@ s32 func_800F74FC(StageTrap *t) {
     }
 }
 
-s32 func_800F77FC(StageTrap *t, s8 kind) {
+s32 SpawnTrapFFAct65(StageTrap *t, s8 kind) {
     PlacedPos p;
     StageTrap *s;
     s16 n;
@@ -653,9 +653,9 @@ s32 func_800F77FC(StageTrap *t, s8 kind) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F7968, func_800F77FC, 0x16C);
+FUNC_ALIAS(StepStage5_1Dropper, SpawnTrapFFAct65, 0x16C);
 
-void func_800F79A0(StageTrap *t, s32 arg) {
+void StepTrapFFAct65(StageTrap *t, s32 arg) {
     /* MATCHING: one local per case keeps each abs in its own register. */
     s32 d;
     s32 e;
@@ -701,13 +701,13 @@ void func_800F79A0(StageTrap *t, s32 arg) {
 }
 
 /* Whether the trap is back in its first state. */
-s8 func_800F7D24(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     return t->state == 0;
 }
 
-void func_800F7D30(StageTrap *t, s16 period) {
+void SpawnTrapFFAct65OnTimer(StageTrap *t, s16 period) {
     if (t->timer % period == 1) {
-        func_800F77FC(t, t->homeRotZ % 3);
+        SpawnTrapFFAct65(t, t->homeRotZ % 3);
         t->homeRotZ++;
     }
 }
@@ -719,20 +719,20 @@ void func_800F7D30(StageTrap *t, s16 period) {
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F82E0, RunTrapType09, 0x64);
+FUNC_ALIAS(StepStage1_1Dropper, RunTrapType09, 0x64);
 
 #include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunTrapType32 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F8454, RunTrapType32, 0x30);
-FUNC_ALIAS(func_800F84A8, RunTrapType32, 0x84);
+FUNC_ALIAS(StepStage1_2Dropper, RunTrapType32, 0x30);
+FUNC_ALIAS(StepStage2_1Dropper, RunTrapType32, 0x84);
 
 #include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F87E4, RunTrapType30, 0x28);
+FUNC_ALIAS(StepStage1_1CreepingDropper, RunTrapType30, 0x28);
 
 #include "engine_code.inc" /* StepSolidTrap */
 

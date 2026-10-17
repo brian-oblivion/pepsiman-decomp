@@ -313,7 +313,7 @@ void StepMissSequence(void) {
 }
 
 /* This stage's goal walk, defined below. */
-s8 func_800F60CC(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 void StepGoalSequence(void) {
     StageTrap *t;
@@ -338,7 +338,7 @@ void StepGoalSequence(void) {
                 u->homeZ = gPlayer.z;
                 t->state++;
             case 1:
-                if (func_800F60CC(u)) {
+                if (StepGoalCutscene(u)) {
                     t->state++;
                     StartActResults();
                 }
@@ -374,7 +374,7 @@ void StepGoalSequence(void) {
     }
 }
 
-void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count);
+void LoadTimRange(DirEnt16 *dir, u16 first, u16 count);
 
 void CycleGoalLights(s8 arg) {
     u16 periods[8] = {30, 30, 30, 30, 20, 20, 10, 10};
@@ -384,15 +384,15 @@ void CycleGoalLights(s8 arg) {
     if (gSectionEdges[-1] - gSection < 20) {
         for (i = 0; i < 8; i++) {
             if (gFrameCount % periods[i] == 0) {
-                func_800F8B4C((DirEnt16 *)RAM_WORK_C, i * 4 + sGoalLightLit[lights[i]] * 2, 1);
+                LoadTimRange((DirEnt16 *)RAM_WORK_C, i * 4 + sGoalLightLit[lights[i]] * 2, 1);
             } else if (gFrameCount % periods[i] == periods[i] >> 1) {
-                func_800F8B4C((DirEnt16 *)RAM_WORK_C, i * 4 + 1 + sGoalLightLit[lights[i]] * 2, 1);
+                LoadTimRange((DirEnt16 *)RAM_WORK_C, i * 4 + 1 + sGoalLightLit[lights[i]] * 2, 1);
             }
         }
     }
 }
 
-void func_800F8BD4(void);
+void CycleStageClut(void);
 
 /* MATCHING: an unused 32-byte local gives retail's frame. */
 void StepStageFrame(void) {
@@ -438,11 +438,11 @@ void StepStageFrame(void) {
         DrawSky(gStageParams);
     }
     UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
-    func_800F8BD4();
+    CycleStageClut();
 }
 
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
-s8 func_800F60CC(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     s8 ret = 0;
     s16 n = 20;
     s16 m = 40;
@@ -782,15 +782,15 @@ void SteerBoard(void) {
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F74FC, StartSpriteWalk, 0x3C);
+FUNC_ALIAS(StepStage4_1Dropper, StartSpriteWalk, 0x3C);
 
 #include "engine/run_trap_type04.inc"
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F7968, RunTrapType0A, 0x58);
-FUNC_ALIAS(func_800F79A0, RunTrapType0A, 0x90);
+FUNC_ALIAS(StepStage5_1Dropper, RunTrapType0A, 0x58);
+FUNC_ALIAS(StepTrapFFAct65, RunTrapType0A, 0x90);
 
 #include "engine/run_trap_type0b.inc"
 
@@ -833,7 +833,7 @@ void StepTrapAct25(StageTrap *t, s32 arg) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F82E0, StepTrapAct25, 0x78);
+FUNC_ALIAS(StepStage1_1Dropper, StepTrapAct25, 0x78);
 
 void StepTrapAct27(StageTrap *t) {}
 
@@ -872,8 +872,8 @@ void StepTrapType31(StageTrap *t, s32 arg) {}
 #include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F8454, RunTrapType13, 0x38);
-FUNC_ALIAS(func_800F84A8, RunTrapType13, 0x8C);
+FUNC_ALIAS(StepStage1_2Dropper, RunTrapType13, 0x38);
+FUNC_ALIAS(StepStage2_1Dropper, RunTrapType13, 0x8C);
 
 void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {}
 
@@ -884,7 +884,7 @@ void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
 #include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F87E4, RunTrapType2C, 0x24);
+FUNC_ALIAS(StepStage1_1CreepingDropper, RunTrapType2C, 0x24);
 
 #include "engine_code.inc" /* BurstTrapStacked */
 
@@ -947,7 +947,7 @@ void UpdateStageEventHook(void) {
 
 void UpdateGoalEventHook(void) {}
 
-void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count) {
+void LoadTimRange(DirEnt16 *dir, u16 first, u16 count) {
     DirEnt16 *e;
     u16 i;
 
@@ -960,7 +960,7 @@ void func_800F8B4C(DirEnt16 *dir, u16 first, u16 count) {
     }
 }
 
-void func_800F8BD4(void) {
+void CycleStageClut(void) {
     RECT r;
 
     r.x = gFrameCount / 2 % 12 * 16;

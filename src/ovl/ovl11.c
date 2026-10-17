@@ -24,7 +24,7 @@ void RecentreSteer(void);
 /* Steps the player: speed, gravity, jump and slide, the move along the
  * course, analog or digital steering held within the course heading, and
  * the model's placement. */
-void func_800F0234(void) {
+void StepChasePlayer(void) {
     PlayerState *g;
     s32 x;
     s32 v;
@@ -125,7 +125,7 @@ clamp:
 
 /* Draws the player's models at its position, sorted on the scratchpad
  * stack. */
-void func_800F0590(void) {
+void DrawChasePlayer(void) {
     MATRIX m;
     GsDOBJ2 *o;
     s32 i;
@@ -151,7 +151,7 @@ void func_800F0590(void) {
 
 /* Draws the player's shadow under it, smaller and fainter the higher it
  * is above the ground. */
-void func_800F06E0(void) {
+void DrawChaseShadow(void) {
     GsCOORDINATE2 c;
     MATRIX m;
     SVECTOR size;
@@ -179,7 +179,7 @@ void DrawSpriteTransformed(u16 id, s16 *quad, CVECTOR *color, u16 otz, GsOT *ot)
 
 /* Draws the stage's title: one sprite fading in, a second dropping into
  * place, then the second growing and fading out. */
-void func_800F07E4(void) {
+void DrawChaseTitle(void) {
     s16 quad[8];
     SColor color;
     s32 d;
@@ -248,7 +248,7 @@ typedef struct {
 
 /* Draws the stage's closing caption, two sprites sliding in, then wipes
  * the screen with 240 black lines, each growing at its own speed. */
-void func_800F09D8(void) {
+void DrawChaseClearWipe(void) {
     s16 quad[8];
     SColor color;
     s32 d;
@@ -1492,7 +1492,7 @@ s32 StepChaseFrame(void) {
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.groundY = gPlayer.y;
             gFloorY[0] = gPlayer.y;
-            func_800F0234();
+            StepChasePlayer();
             SetChaseLights();
             UpdateEffects((s32)&gSubOt[gActiveBuff], 0, 0, 0);
             DrawRepeatingStage(0, 0, 0, 30000);
@@ -1506,8 +1506,8 @@ s32 StepChaseFrame(void) {
                     }
                     break;
             }
-            func_800F0590();
-            func_800F06E0();
+            DrawChasePlayer();
+            DrawChaseShadow();
             sAct3Coords[0].coord.t[0] = sCan.x;
             sAct3Coords[0].coord.t[1] = sCan.y;
             sAct3Coords[0].coord.t[2] = sCan.z;
@@ -1565,9 +1565,9 @@ s32 StepChaseFrame(void) {
             gWorldIntroStep = 3;
             break;
         case 3:
-            func_800F07E4();
+            DrawChaseTitle();
             GsSetProjection(250);
-            func_800F0234();
+            StepChasePlayer();
             gPlayer.z = gPlayer.z < -200 ? -200 : gPlayer.z > 200 ? 200 : gPlayer.z;
             SetChaseLights();
             UpdatePlayerAction(&gPlayer);
@@ -1642,7 +1642,7 @@ s32 StepChaseFrame(void) {
             }
             break;
         case 4:
-            func_800F09D8();
+            DrawChaseClearWipe();
             switch (sSubStep) {
                 case 0:
                     gPlayer.z += 10;
@@ -1701,7 +1701,7 @@ s32 StepChaseFrame(void) {
             }
             gPlayer.control = 0;
             GsSetProjection(250);
-            func_800F0234();
+            StepChasePlayer();
             SetChaseLights();
             UpdatePlayerAction(&gPlayer);
             DrawTodObjects();

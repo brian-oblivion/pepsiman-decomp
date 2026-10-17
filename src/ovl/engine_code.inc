@@ -1192,10 +1192,10 @@ void RunTrapTypeFF(StageTrap *t) {
             StepBouncingRoller(t, 80);
             break;
         case 101:
-            func_800F79A0(t, 50);
+            StepTrapFFAct65(t, 50);
             break;
         case 102:
-            func_800F79A0(t, 180);
+            StepTrapFFAct65(t, 180);
             break;
         case 103:
             StepTrapFFAct67(t);
@@ -1950,25 +1950,25 @@ void RunTrapType22(StageTrap *t) {
         case 0:
             switch (gStage) {
                 case 0:
-                    func_800F82E0(t);
+                    StepStage1_1Dropper(t);
                     return;
                 case 1:
-                    func_800F8454(t);
+                    StepStage1_2Dropper(t);
                     break;
             }
         case 1:
             switch (gStage) {
                 case 0:
-                    func_800F87E4(t);
+                    StepStage1_1CreepingDropper(t);
                     break;
                 case 3:
-                    func_800F84A8(t);
+                    StepStage2_1Dropper(t);
                     break;
                 case 9:
-                    func_800F74FC(t);
+                    StepStage4_1Dropper(t);
                     break;
                 case 12:
-                    func_800F7968(t);
+                    StepStage5_1Dropper(t);
                     break;
             }
             break;

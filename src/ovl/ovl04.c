@@ -246,9 +246,9 @@ void StepMissSequence(void) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F74FC, StepMissSequence, 0x12C);
+FUNC_ALIAS(StepStage4_1Dropper, StepMissSequence, 0x12C);
 
-s8 func_800F7EFC(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 void StepGoalSequence(void) {
     StageTrap *t;
@@ -273,7 +273,7 @@ void StepGoalSequence(void) {
                 u->homeZ = gPlayer.z;
                 t->state++;
             case 1:
-                if (func_800F7EFC(u)) {
+                if (StepGoalCutscene(u)) {
                     t->state++;
                     StartActResults();
                 }
@@ -315,12 +315,12 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 
 /* MATCHING: the type dispatchers call these two addresses inside the
  * function above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(func_800F7968, CycleGoalLights, 0x4);
-FUNC_ALIAS(func_800F79A0, CycleGoalLights, 0x3C);
+FUNC_ALIAS(StepStage5_1Dropper, CycleGoalLights, 0x4);
+FUNC_ALIAS(StepTrapFFAct65, CycleGoalLights, 0x3C);
 
 #include "engine/step_stage_frame.inc"
 
-void func_800F7CE0(StageTrap *m) {
+void StepRideDismount(StageTrap *m) {
     if (gSwitches[190].state == SWITCH_ON) {
         switch (m->state) {
             case 0:
@@ -374,7 +374,7 @@ void func_800F7CE0(StageTrap *m) {
 }
 
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
-s8 func_800F7EFC(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     s8 ret = 0;
     s16 n = 35;
     s16 m = 100;
@@ -470,12 +470,12 @@ s8 func_800F7EFC(StageTrap *t) {
     return ret;
 }
 
-FUNC_ALIAS(func_800F82E0, func_800F7EFC, 0x3E4);
+FUNC_ALIAS(StepStage1_1Dropper, StepGoalCutscene, 0x3E4);
 
 
-void func_800F878C(StageTrap *t, s8 arg);
+void SpawnTrapFFAct68(StageTrap *t, s8 arg);
 
-void func_800F8454(StageTrap *t) {
+void StepStage1_2Dropper(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -500,7 +500,7 @@ void func_800F8454(StageTrap *t) {
             } else {
                 speed = 40;
                 if (t->timer % 20 == 1) {
-                    func_800F878C(t, (s16)t->homeRotZ % 3);
+                    SpawnTrapFFAct68(t, (s16)t->homeRotZ % 3);
                     t->homeRotZ++;
                 }
             }
@@ -537,9 +537,9 @@ void func_800F8454(StageTrap *t) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F84A8, func_800F8454, 0x54);
+FUNC_ALIAS(StepStage2_1Dropper, StepStage1_2Dropper, 0x54);
 
-void func_800F878C(StageTrap *t, s8 arg) {
+void SpawnTrapFFAct68(StageTrap *t, s8 arg) {
     PlacedPos p;
     s16 models[9] = {0x17, 0x18, 0x19, 0x45, 0x46, 0x47, 0x49, 0x4A, 0x4B};
     StageTrap *s;
@@ -591,7 +591,7 @@ void func_800F878C(StageTrap *t, s8 arg) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F87E4, func_800F878C, 0x58);
+FUNC_ALIAS(StepStage1_1CreepingDropper, SpawnTrapFFAct68, 0x58);
 
 void StepBoardSpeed(void) {
     s16 v;
@@ -820,7 +820,7 @@ void DrawTrapWhileLinked(StageTrap *t) {
 }
 
 void UpdateStageEventHook(void) {
-    func_800F7CE0(&D_800D39D8[1]);
+    StepRideDismount(&D_800D39D8[1]);
 }
 
 #include "engine_code.inc" /* UpdateGoalEvents */

@@ -211,7 +211,7 @@ void UpdateGoalEvents(void);
 void DrawTrapWhileLinked(StageTrap *t);
 void EmitTrapParticles(StageTrap *t);
 void StepBouncingRoller(StageTrap *t, s32 arg);
-void func_800F79A0(StageTrap *t, s32 arg);
+void StepTrapFFAct65(StageTrap *t, s32 arg);
 void StepTrapFFAct67(StageTrap *t);
 void StepTrapFFAct68(StageTrap *t);
 /* Steps a trap forward along its heading, snapped to the floor or at its
@@ -247,12 +247,12 @@ void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg);
 void SwingGateContinuously(StageTrap *t, s8 arg);
 void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind);
 void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed);
-void func_800F82E0(StageTrap *t);
-void func_800F8454(StageTrap *t);
-void func_800F87E4(StageTrap *t);
-s32 func_800F84A8(StageTrap *t);
-s32 func_800F74FC(StageTrap *t);
-s32 func_800F7968(StageTrap *t);
+void StepStage1_1Dropper(StageTrap *t);
+void StepStage1_2Dropper(StageTrap *t);
+void StepStage1_1CreepingDropper(StageTrap *t);
+s32 StepStage2_1Dropper(StageTrap *t);
+s32 StepStage4_1Dropper(StageTrap *t);
+s32 StepStage5_1Dropper(StageTrap *t);
 void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg);
 void StepHoppingTrap(StageTrap *t, u8 act);
 void BurstTrapSlow(StageTrap *t);
@@ -359,7 +359,7 @@ void StartActResults(void);
 s32 IsResultsActive(void);
 u16 GetNextStage(u16 i);
 void BeginAct3LoadScreen(void);
-s8 func_800F82CC(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 extern s32 *gSectionEdges;
 

@@ -176,7 +176,7 @@ void StepTrapFFAct67(StageTrap *t) {
 #include "engine/step_hopping_trap.inc"
 
 #include "engine/swap_trap_model_on_approach.inc"
-FUNC_ALIAS(func_800F74FC, SwapTrapModelOnApproach, 0x12C);
+FUNC_ALIAS(StepStage4_1Dropper, SwapTrapModelOnApproach, 0x12C);
 
 void StepMissSequence(void) {
     s32 unused[18];
@@ -299,11 +299,11 @@ void UpdateStageEventHook(void) {
     }
 }
 
-FUNC_ALIAS(func_800F7968, UpdateStageEventHook, 0x18);
-FUNC_ALIAS(func_800F79A0, UpdateStageEventHook, 0x50);
+FUNC_ALIAS(StepStage5_1Dropper, UpdateStageEventHook, 0x18);
+FUNC_ALIAS(StepTrapFFAct65, UpdateStageEventHook, 0x50);
 
 extern s8 D_800D36F0;
-s8 func_800F8DF0(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 /* MATCHING: stage's, declared only where defined. */
 void BeginLoadScreen(void);
 
@@ -453,7 +453,7 @@ void UpdateGoalEventHook(void) {
                 }
                 break;
             case 6:
-                if (func_800F8DF0(u) && gInEditor != 1) {
+                if (StepGoalCutscene(u) && gInEditor != 1) {
                     t->state++;
                 }
                 break;
@@ -527,9 +527,9 @@ void StepStageFrame(void) {
     UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
 }
 
-void func_800F85F0(StageTrap *t, s8 arg);
+void SpawnTrapFFAct67(StageTrap *t, s8 arg);
 
-void func_800F82E0(StageTrap *t) {
+void StepStage1_1Dropper(StageTrap *t) {
     switch (t->state) {
         case 0:
             t->homeRotZ = 0;
@@ -548,7 +548,7 @@ void func_800F82E0(StageTrap *t) {
             break;
         case 2:
             if (t->timer % 20 == 1) {
-                func_800F85F0(t, (s16)t->homeRotZ % 3);
+                SpawnTrapFFAct67(t, (s16)t->homeRotZ % 3);
                 t->homeRotZ++;
             }
             SnapToFloor(t);
@@ -582,10 +582,10 @@ void func_800F82E0(StageTrap *t) {
     }
 }
 
-FUNC_ALIAS(func_800F8454, func_800F82E0, 0x174);
-FUNC_ALIAS(func_800F84A8, func_800F82E0, 0x1C8);
+FUNC_ALIAS(StepStage1_2Dropper, StepStage1_1Dropper, 0x174);
+FUNC_ALIAS(StepStage2_1Dropper, StepStage1_1Dropper, 0x1C8);
 
-void func_800F85F0(StageTrap *t, s8 arg) {
+void SpawnTrapFFAct67(StageTrap *t, s8 arg) {
     PlacedPos p;
     StageTrap *s;
     s16 i;
@@ -626,9 +626,9 @@ void func_800F85F0(StageTrap *t, s8 arg) {
     }
 }
 
-void func_800F8B2C(StageTrap *t, s8 arg);
+void SpawnTrapFFAct68(StageTrap *t, s8 arg);
 
-void func_800F87E4(StageTrap *t) {
+void StepStage1_1CreepingDropper(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -653,7 +653,7 @@ void func_800F87E4(StageTrap *t) {
             } else {
                 speed = 40;
                 if (t->timer % 45 == 1) {
-                    func_800F8B2C(t, (s16)t->homeRotZ % 3);
+                    SpawnTrapFFAct68(t, (s16)t->homeRotZ % 3);
                     t->homeRotZ++;
                 }
             }
@@ -688,7 +688,7 @@ void func_800F87E4(StageTrap *t) {
     }
 }
 
-void func_800F8B2C(StageTrap *t, s8 arg) {
+void SpawnTrapFFAct68(StageTrap *t, s8 arg) {
     PlacedPos p;
     s16 models[9] = {0x17, 0x18, 0x19, 0x45, 0x46, 0x47, 0x49, 0x4A, 0x4B};
     StageTrap *s;
@@ -739,7 +739,7 @@ void func_800F8B2C(StageTrap *t, s8 arg) {
     }
 }
 
-s8 func_800F8DF0(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     return t->state == 0;
 }
 

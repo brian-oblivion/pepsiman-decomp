@@ -28,7 +28,7 @@ void StartChaseJump(void) {
 #include "chase_head.inc"
 
 /* A roller from behind the player, at 60 a frame. */
-s32 func_800F0BB8(Act3Obj *o) {
+s32 StepChasePiece0(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 x;
@@ -84,7 +84,7 @@ s32 func_800F0BB8(Act3Obj *o) {
 }
 
 /* The same, bouncing as it rolls. */
-s32 func_800F0E80(Act3Obj *o) {
+s32 StepChasePiece1(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 x;
@@ -141,7 +141,7 @@ s32 func_800F0E80(Act3Obj *o) {
 }
 
 /* A roller from behind the player, at 40 a frame. */
-s32 func_800F1220(Act3Obj *o) {
+s32 StepChasePiece2(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 x;
@@ -197,7 +197,7 @@ s32 func_800F1220(Act3Obj *o) {
 }
 
 /* A roller from behind the player, at 80 a frame. */
-s32 func_800F14E8(Act3Obj *o) {
+s32 StepChasePiece3(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 x;
@@ -924,7 +924,7 @@ Act3Place sPlacements[] = {
     /*  89 */ {3, {0, 0}, 47050, 0, 188},
 };
 
-#define CHASE_PIECE_STEPS func_800F0BB8, func_800F0E80, func_800F1220, func_800F14E8
+#define CHASE_PIECE_STEPS StepChasePiece0, StepChasePiece1, StepChasePiece2, StepChasePiece3
 #define CHASE_SKY \
     {0x6B, 0xBC, 0xEB, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}
 

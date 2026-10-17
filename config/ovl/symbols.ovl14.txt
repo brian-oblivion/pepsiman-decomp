@@ -25,3 +25,6 @@ sFadePoly = 0x800F5818;
 sFadeMode = 0x800F581C;
 sWalkerShown = 0x800F5820;
 StepChaseFrame = 0x800F1654; // type:func rom:0x1654
+StepChasePiece0 = 0x800F0BE0; // type:func
+StepChasePiece1 = 0x800F0EA8; // type:func
+DrawWalker = 0x800F1248; // type:func

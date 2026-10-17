@@ -158,7 +158,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
 
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F74FC, StepHoppingTrap, 0x284);
+FUNC_ALIAS(StepStage4_1Dropper, StepHoppingTrap, 0x284);
 
 #include "engine/swap_trap_model_on_approach.inc"
 
@@ -246,8 +246,8 @@ void StepMissSequence(void) {
 
 /* MATCHING: the type dispatchers call these two addresses inside the
  * function above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(func_800F7968, StepMissSequence, 0xD8);
-FUNC_ALIAS(func_800F79A0, StepMissSequence, 0x110);
+FUNC_ALIAS(StepStage5_1Dropper, StepMissSequence, 0xD8);
+FUNC_ALIAS(StepTrapFFAct65, StepMissSequence, 0x110);
 
 void StepGoalSequence(void) {
     StageTrap *t;
@@ -272,7 +272,7 @@ void StepGoalSequence(void) {
                 u->homeZ = gPlayer.z;
                 t->state++;
             case 1:
-                if (func_800F82CC(u)) {
+                if (StepGoalCutscene(u)) {
                     t->state++;
                     StartActResults();
                 }
@@ -314,7 +314,7 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 
 #include "engine/step_stage_frame.inc"
 
-void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
+void LoadSpritePackRange(u8 *dir, u16 id, u16 first, u16 count) {
     u16 i;
     s32 tp;
     DirEnt16 *e;
@@ -337,7 +337,7 @@ void func_800F8184(u8 *dir, u16 id, u16 first, u16 count) {
     }
 }
 
-s8 func_800F82CC(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     s8 ret = 0;
 
     gPlayer.showShadow = 0;
@@ -449,10 +449,10 @@ s8 func_800F82CC(StageTrap *t) {
 
 /* MATCHING: the type-34 dispatcher calls these addresses inside the
  * function above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(func_800F82E0, func_800F82CC, 0x14);
-FUNC_ALIAS(func_800F8454, func_800F82CC, 0x188);
-FUNC_ALIAS(func_800F84A8, func_800F82CC, 0x1DC);
-FUNC_ALIAS(func_800F87E4, func_800F82CC, 0x518);
+FUNC_ALIAS(StepStage1_1Dropper, StepGoalCutscene, 0x14);
+FUNC_ALIAS(StepStage1_2Dropper, StepGoalCutscene, 0x188);
+FUNC_ALIAS(StepStage2_1Dropper, StepGoalCutscene, 0x1DC);
+FUNC_ALIAS(StepStage1_1CreepingDropper, StepGoalCutscene, 0x518);
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 #include "engine/run_trap_type04.inc"
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */

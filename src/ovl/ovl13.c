@@ -459,9 +459,9 @@ void StepMissSequence(void) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F74FC, StepMissSequence, 0x2FC);
+FUNC_ALIAS(StepStage4_1Dropper, StepMissSequence, 0x2FC);
 
-s8 func_800F7A88(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 void StepGoalSequence(void) {
     StageTrap *t;
@@ -486,7 +486,7 @@ void StepGoalSequence(void) {
                 u->homeZ = gPlayer.z;
                 t->state++;
             case 1:
-                if (func_800F7A88(u)) {
+                if (StepGoalCutscene(u)) {
                     t->state++;
                     StartActResults();
                 }
@@ -529,11 +529,11 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 #include "engine/step_stage_frame.inc"
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the function above. */
-FUNC_ALIAS(func_800F7968, StepStageFrame, 0x124);
-FUNC_ALIAS(func_800F79A0, StepStageFrame, 0x15C);
+FUNC_ALIAS(StepStage5_1Dropper, StepStageFrame, 0x124);
+FUNC_ALIAS(StepTrapFFAct65, StepStageFrame, 0x15C);
 
 /* MATCHING: frame counts as s16 locals set at the top keep saved registers. */
-s8 func_800F7A88(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     s8 ret = 0;
     s16 n = 35;
     s16 m = 100;
@@ -625,8 +625,8 @@ s8 func_800F7A88(StageTrap *t) {
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F82E0, RunTrapTypeFF, 0xF4);
-FUNC_ALIAS(func_800F8454, RunTrapType02, 0x7C);
+FUNC_ALIAS(StepStage1_1Dropper, RunTrapTypeFF, 0xF4);
+FUNC_ALIAS(StepStage1_2Dropper, RunTrapType02, 0x7C);
 
 void RunTrapType04(StageTrap *t) {
     Speeds sp = sChargeRanges;
@@ -635,7 +635,7 @@ void RunTrapType04(StageTrap *t) {
     StepChargingTrap(t, t->act * 10 + 40, range);
 }
 
-FUNC_ALIAS(func_800F84A8, RunTrapType04, 0x3C);
+FUNC_ALIAS(StepStage2_1Dropper, RunTrapType04, 0x3C);
 
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 
@@ -646,7 +646,7 @@ FUNC_ALIAS(func_800F84A8, RunTrapType04, 0x3C);
 #include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F87E4, RunTrapType10, 0x48);
+FUNC_ALIAS(StepStage1_1CreepingDropper, RunTrapType10, 0x48);
 
 #include "engine_code.inc" /* StepSolidTrap */
 

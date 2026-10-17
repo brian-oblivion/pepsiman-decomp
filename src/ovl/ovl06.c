@@ -198,7 +198,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
 
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F74FC, StepHoppingTrap, 0x260);
+FUNC_ALIAS(StepStage4_1Dropper, StepHoppingTrap, 0x260);
 
 #include "engine/swap_trap_model_on_approach.inc"
 
@@ -288,13 +288,13 @@ void StepMissSequence(void) {
 
 /* MATCHING: the engine dispatchers call these addresses inside the function
  * above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(func_800F7968, StepMissSequence, 0xB4);
-FUNC_ALIAS(func_800F79A0, StepMissSequence, 0xEC);
+FUNC_ALIAS(StepStage5_1Dropper, StepMissSequence, 0xB4);
+FUNC_ALIAS(StepTrapFFAct65, StepMissSequence, 0xEC);
 
 extern s8 D_800D36F0;
 /* MATCHING: main's view of the loader. */
 void BeginLoadScreen(void);
-s8 func_800F8960(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 void UpdateGoalEventHook(void) {
     StageTrap *t;
@@ -414,7 +414,7 @@ void UpdateGoalEventHook(void) {
                 }
                 break;
             case 6:
-                if (func_800F8960(u) && gInEditor != 1) {
+                if (StepGoalCutscene(u) && gInEditor != 1) {
                     t->state++;
                 }
                 break;
@@ -489,13 +489,13 @@ void StepStageFrame(void) {
 
 /* MATCHING: the engine dispatchers call these addresses inside the function
  * above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(func_800F82E0, StepStageFrame, 0x7C);
-FUNC_ALIAS(func_800F8454, StepStageFrame, 0x1F0);
+FUNC_ALIAS(StepStage1_1Dropper, StepStageFrame, 0x7C);
+FUNC_ALIAS(StepStage1_2Dropper, StepStageFrame, 0x1F0);
 
-void func_800F87E0(StageTrap *t, s8 dir);
+void SpawnBouncingRoller(StageTrap *t, s8 dir);
 
 /* MATCHING: s32 with no return statement, which keeps retail's tail. */
-s32 func_800F84A8(StageTrap *t) {
+s32 StepStage2_1Dropper(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -518,7 +518,7 @@ s32 func_800F84A8(StageTrap *t) {
             if (DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t) <= 2250000) {
                 speed = 40;
                 if (t->timer % 20 == 1) {
-                    func_800F87E0(t, t->homeRotZ % 3);
+                    SpawnBouncingRoller(t, t->homeRotZ % 3);
                     t->homeRotZ++;
                 }
             } else {
@@ -559,7 +559,7 @@ s32 func_800F84A8(StageTrap *t) {
     }
 }
 
-void func_800F87E0(StageTrap *t, s8 dir) {
+void SpawnBouncingRoller(StageTrap *t, s8 dir) {
     PlacedPos p;
     StageTrap *s;
     s16 n;
@@ -596,9 +596,9 @@ void func_800F87E0(StageTrap *t, s8 dir) {
 
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(func_800F87E4, func_800F87E0, 0x4);
+FUNC_ALIAS(StepStage1_1CreepingDropper, SpawnBouncingRoller, 0x4);
 
-s8 func_800F8960(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     StageTrap *g;
     StageTrap *h;
     s8 ret = 0;
@@ -766,7 +766,7 @@ void CycleGoalLights(s8 arg) {}
 
 #include "engine/reveal_start_cans.inc"
 
-void func_800FA334(void) {}
+void OnCanGroupCollected(void) {}
 
 #include "engine/emit_trap_particles.inc"
 

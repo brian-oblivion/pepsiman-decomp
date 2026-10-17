@@ -366,7 +366,7 @@ void UpdateStageEventHook(void) {
 extern s8 D_800D36F0;
 /* MATCHING: main's view of the loader. */
 void BeginLoadScreen(void);
-s8 func_800F7E34(StageTrap *t);
+s8 StepGoalCutscene(StageTrap *t);
 
 void UpdateGoalEventHook(void) {
     StageTrap *t;
@@ -486,7 +486,7 @@ void UpdateGoalEventHook(void) {
                 }
                 break;
             case 6:
-                if (func_800F7E34(u) && gInEditor != 1) {
+                if (StepGoalCutscene(u) && gInEditor != 1) {
                     t->state++;
                 }
                 break;
@@ -515,13 +515,13 @@ void UpdateGoalEventHook(void) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F74FC, UpdateGoalEventHook, 0x3B8);
+FUNC_ALIAS(StepStage4_1Dropper, UpdateGoalEventHook, 0x3B8);
 
 #include "engine/step_stage_frame.inc"
 
-void func_800F7C9C(StageTrap *t, s8 kind);
+void SpawnBouncingRoller(StageTrap *t, s8 kind);
 
-s32 func_800F7968(StageTrap *t) {
+s32 StepStage5_1Dropper(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -546,7 +546,7 @@ s32 func_800F7968(StageTrap *t) {
             } else {
                 speed = 40;
                 if (t->timer % 30 == 1) {
-                    func_800F7C9C(t, rand() % 3);
+                    SpawnBouncingRoller(t, rand() % 3);
                     t->homeRotZ++;
                 }
             }
@@ -587,9 +587,9 @@ s32 func_800F7968(StageTrap *t) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(func_800F79A0, func_800F7968, 0x38);
+FUNC_ALIAS(StepTrapFFAct65, StepStage5_1Dropper, 0x38);
 
-void func_800F7C9C(StageTrap *t, s8 kind) {
+void SpawnBouncingRoller(StageTrap *t, s8 kind) {
     PlacedPos p;
     StageTrap *s;
     s16 i;
@@ -627,7 +627,7 @@ void func_800F7C9C(StageTrap *t, s8 kind) {
     }
 }
 
-s8 func_800F7E34(StageTrap *t) {
+s8 StepGoalCutscene(StageTrap *t) {
     s8 ret = 0;
 
     switch (t->state) {
@@ -672,7 +672,7 @@ s8 func_800F7E34(StageTrap *t) {
     return ret;
 }
 
-s32 func_800F80F4(void) {
+s32 StepButtonPrompt(void) {
     SVECTOR pos;
     s32 n;
 
@@ -752,14 +752,14 @@ s32 func_800F80F4(void) {
 
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the function above. */
-FUNC_ALIAS(func_800F82E0, func_800F80F4, 0x1EC);
-FUNC_ALIAS(func_800F8454, func_800F80F4, 0x360);
+FUNC_ALIAS(StepStage1_1Dropper, StepButtonPrompt, 0x1EC);
+FUNC_ALIAS(StepStage1_2Dropper, StepButtonPrompt, 0x360);
 
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(func_800F84A8, PlaySpriteHitSe, 0xC);
-FUNC_ALIAS(func_800F87E4, RunTrapType01, 0xB4);
+FUNC_ALIAS(StepStage2_1Dropper, PlaySpriteHitSe, 0xC);
+FUNC_ALIAS(StepStage1_1CreepingDropper, RunTrapType01, 0xB4);
 
 #include "engine/run_trap_type04.inc"
 
@@ -869,7 +869,7 @@ void CycleGoalLights(s8 arg) {}
 
 #include "engine/reveal_start_cans.inc"
 
-void func_800F9AC8(void) {
+void ResetButtonPrompts(void) {
     s32 i;
 
     for (i = 0; i < sHintCount; i++) {

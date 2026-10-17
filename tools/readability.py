@@ -272,7 +272,9 @@ def upper_globals():
             continue
         if "ignore:true" in m.group(3):   # an address banned as a symbol, not a global
             continue
-        if UPPER_GLOBAL.match(m.group(1)) and not rename.sony_data_owner(int(m.group(2), 16)):
+        addr = int(m.group(2), 16)
+        if UPPER_GLOBAL.match(m.group(1)) and not (rename.in_linked_sony_section(addr)
+                                                   or rename.sony_data_owner(addr)):
             out.append(m.group(1))
     return out
 

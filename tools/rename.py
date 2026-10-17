@@ -388,6 +388,20 @@ def sony_only_accessors(name):
     return []
 
 
+def in_linked_sony_section(addr):
+    """True when `addr` lies in a segment the yaml links straight from a Sony
+    object (`- [0xOFF, o, lib/module, ...]`, up to the next segment). Reads the
+    yaml alone, so it holds without lib/: CI has no SDK, and there
+    linked_sony_data saw SQRT and the libpress tables as game globals."""
+    yaml = ROOT / "config/splat.slps01762.pepsiman.yaml"
+    best = None
+    for m in re.finditer(r"^\s+- \[\s*(0x[0-9A-Fa-f]+)\s*,\s*(\w+)", yaml.read_text(), re.M):
+        start = int(m.group(1), 16) - 0x800 + 0x80010000
+        if start <= addr and (best is None or start >= best[0]):
+            best = (start, m.group(2))
+    return best is not None and best[1] == "o"
+
+
 def linked_sony_data(addr):
     """(name, name_addr, size) when `addr` lies in a data section the image
     links straight from a Sony object (a yaml `- [0xOFF, o, lib/module, .data]`

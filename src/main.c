@@ -51,12 +51,15 @@ void UpdateLoadScreenModel(void);
 void UpdateLoadScreen(void);
 void UpdateAct3LoadScreen(void);
 void UpdateTrapLayoutViewer(void);
-void func_800F026C(void);
-void func_800F6670(void);
-void func_800F03B4(void);
-void func_800F03BC(void);
-void func_800F0414(void);
-void func_800F0480(void);
+/* The overlays' entry points: ovl00's StepDevMenu, ovl02's StepMenus, and
+ * each world intro overlay's StepWorldIntro, WORLD_1's and WORLD_4's at one
+ * address. */
+void StepDevMenuMode(void);
+void StepMenuMode(void);
+void StepWorldIntro2(void);
+void StepWorldIntro1And4(void);
+void StepWorldIntro5(void);
+void StepWorldIntro3(void);
 
 /**
  * @brief The game's entry, called from crt0: initialises the system and the
@@ -145,7 +148,7 @@ int main(void) {
                 }
                 break;
             case GM_OVERLAY0:
-                func_800F026C();
+                StepDevMenuMode();
                 break;
             case GM_MENU_LOAD:
                 gLoading = 1;
@@ -165,7 +168,7 @@ int main(void) {
                 }
                 break;
             case GM_MENU:
-                func_800F6670();
+                StepMenuMode();
                 UpdateRumble();
                 break;
             case GM_WORLD_INTRO_LOAD:
@@ -187,21 +190,21 @@ int main(void) {
             case GM_WORLD_INTRO:
                 switch ((u8)(gStage / 3)) {
                     case WORLD_1:
-                        func_800F03BC();
+                        StepWorldIntro1And4();
                         break;
                     case WORLD_2:
-                        func_800F03B4();
+                        StepWorldIntro2();
                         break;
                     case WORLD_3:
-                        func_800F0480();
+                        StepWorldIntro3();
                         break;
                     case WORLD_4:
                         /* MATCHING: keeps cross-jumping off case 0's call. */
-                        func_800F03BC();
+                        StepWorldIntro1And4();
                         __asm__("");
                         break;
                     case WORLD_5:
-                        func_800F0414();
+                        StepWorldIntro5();
                         break;
                 }
                 break;
@@ -1333,11 +1336,12 @@ void BeginAct3LoadScreen(void) {
 s32 LoadVabBank(s32 bank);
 void LoadAct3Data(unsigned long *p);
 void ResetStage(void);
-void func_800F6C60(void);
-void func_800F6A44(void);
-void func_800F642C(void);
-void func_800F46D8(void);
-void func_800F377C(void);
+/* Each act-3 overlay's PlaceChaseObjects, named for its stage. */
+void PlaceChaseObjects1_3(void);
+void PlaceChaseObjects2_3(void);
+void PlaceChaseObjects3_3(void);
+void PlaceChaseObjects4_3(void);
+void PlaceChaseObjects5_3(void);
 
 void LoadAct3Stage(void) {
     s32 bank;
@@ -1446,19 +1450,19 @@ void LoadAct3Stage(void) {
                 LoadAct3Data((unsigned long *)RAM_STAGE_LOAD);
                 switch (gStage) {
                     case STAGE_1_3:
-                        func_800F6C60();
+                        PlaceChaseObjects1_3();
                         break;
                     case STAGE_2_3:
-                        func_800F6A44();
+                        PlaceChaseObjects2_3();
                         break;
                     case STAGE_3_3:
-                        func_800F642C();
+                        PlaceChaseObjects3_3();
                         break;
                     case STAGE_4_3:
-                        func_800F46D8();
+                        PlaceChaseObjects4_3();
                         break;
                     case STAGE_5_3:
-                        func_800F377C();
+                        PlaceChaseObjects5_3();
                         break;
                 }
                 ResetStage();

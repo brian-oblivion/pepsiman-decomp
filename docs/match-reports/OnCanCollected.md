@@ -8,7 +8,7 @@ body below, reading `gStage` instead of `gStage[0]`, is live and matches 18/18.
 The text below is the stall analysis as filed.
 
 Unit `src/sound.c`. When the mode byte `gStage` is 0, calls
-`func_800FA610` with the halfword argument; modes 1 and above do nothing.
+`OnCanGroupCollected1_1` with the halfword argument; modes 1 and above do nothing.
 Called from `UpdatePickups` (unit `object`).
 
 Parked under `#ifdef NON_MATCHING`. The C is right; the declaration in
@@ -18,7 +18,7 @@ are additive only). Posted to the broadcast for the head.
 ```c
 #if 0
 extern u8 gStage[]; /* include/common.h */
-void func_800FA610(s16 arg0);
+void OnCanGroupCollected1_1(s16 arg0);
 
 void OnCanCollected(s16 arg0) {
     s32 mode = gStage[0];
@@ -26,7 +26,7 @@ void OnCanCollected(s16 arg0) {
     if (mode != 1) {
         if (mode < 2) {
             if (mode == 0) {
-                func_800FA610(arg0);
+                OnCanGroupCollected1_1(arg0);
             }
         }
     }

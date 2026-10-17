@@ -4,7 +4,7 @@
 
 Unit `src/stage_overlay.c`. Dispatches on the current stage `gStage`
 (0..13) to a per-stage overlay function; stages 2, 5, 8 and 11 have none.
-Stages 6 and 7 call the same function, func_800F1BA4. Called from main.c
+Stages 6 and 7 call the same function, CopySpriteShapes3. Called from main.c
 and stage_flow.
 
 The function is 56 words (0xE0); the brief's 70 counted the jump table.
@@ -13,36 +13,36 @@ The function is 56 words (0xE0); the brief's 70 counted the jump table.
 void StartStageOverlay(void) {
     switch (gStage) {
         case 0:
-            func_800FAB9C();
+            CopySpriteShapes1_1();
             break;
         case 1:
-            func_800FAE44();
+            CopySpriteShapes1_2();
             break;
         case 3:
-            func_800FA9D4();
+            CopySpriteShapes2_1();
             break;
         case 4:
-            func_800FA800();
+            CopySpriteShapes2_2();
             break;
         case 6:
-            func_800F1BA4();
+            CopySpriteShapes3();
             break;
         case 7:
             /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
-            func_800F1BA4();
+            CopySpriteShapes3();
             __asm__("");
             break;
         case 9:
-            func_800F9BFC();
+            CopySpriteShapes4_1();
             break;
         case 10:
-            func_800FA058();
+            CopySpriteShapes4_2();
             break;
         case 12:
-            func_800FA1A0();
+            CopySpriteShapes5_1();
             break;
         case 13:
-            func_800F936C();
+            CopySpriteShapes5_2();
             break;
     }
 }

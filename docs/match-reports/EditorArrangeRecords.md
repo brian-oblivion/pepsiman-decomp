@@ -6,7 +6,7 @@ Unit `src/editor.c`. A two-state placement step on `gSubStep`.
 State 0 clears two halfwords of the first waiting record `gPlaceQueue[0]`,
 sets its position (the game position) and heading
 (`sTotals.unk20 * 4096 / 360`), fetches the waiting records through
-`CallStageHook` into `gPlaceCount`, and falls into state 1. State 1 sets
+`PlaceStageTrap` into `gPlaceCount`, and falls into state 1. State 1 sets
 the first record's position and heading again, defaults the light vector
 `gFloorY[1..3]` when no entry is current, stores two `ratan2` angles,
 updates its ObjectModel via `UpdateObjectEntry`, then places every later record:
@@ -27,14 +27,14 @@ Sixth build matched.
   StepFloorIndex). `&w[i]`, `i + w` and `r = w; r += i;` all put the base
   first (176/177); `&gPlaceQueue[i]` takes a seventh saved register.
 - `bnez` with a `nop` slot at the loop bottom: non-void with no return.
-- The `CallStageHook` id is passed unextended (`lhu`): `s32` in this
+- The `PlaceStageTrap` id is passed unextended (`lhu`): `s32` in this
   unit's view of the prototype; the two record pointers pass through.
 
 ## Declarations
 
 - `EditorTrap` (unit-local) gains `unk18`, `unk1A`, `unk1C`, `unk20`,
   `unk2C`, `unk30`.
-- New in the `.c`: prototypes of `CallStageHook` (per-unit view, MATCHING
+- New in the `.c`: prototypes of `PlaceStageTrap` (per-unit view, MATCHING
   note) and `TransformByCoord` (as player defines it).
 - `gLocalPos` (`SVECTOR`) and `gWorldPos` (`VECTOR`) moved from
   object.c into include/object.h, types unchanged (declcheck LOCAL
@@ -57,7 +57,7 @@ s32 EditorArrangeRecords(void) {
             gPlaceQueue[0].unk0[1] = sGameSave.unk348[1];
             gPlaceQueue[0].unk0[2] = sGameSave.unk348[2];
             gPlaceQueue[0].unk1A = (sTotals.unk20 << 12) / 360;
-            gPlaceCount = CallStageHook(sTotals.unk1C, gPlaceQueue, gPlaceQueue);
+            gPlaceCount = PlaceStageTrap(sTotals.unk1C, gPlaceQueue, gPlaceQueue);
             gSubStep++;
             /* fall through */
         case 1:

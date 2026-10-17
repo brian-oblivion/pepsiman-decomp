@@ -329,7 +329,7 @@ void DrawSky(u32 arg);
 /* The stage's frame step: the opening scene, the chase, the escape at the
  * run's end, and the results. */
 /* MATCHING: non-void with no return keeps the tail's delay slots nops. */
-s32 func_800F17B0(void) {
+s32 StepChaseFrame(void) {
     Act3Obj *o;
     s32 i;
 

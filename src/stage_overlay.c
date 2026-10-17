@@ -1,29 +1,31 @@
 #include "common.h"
 
-/* Overlay functions, loaded above the executable's code. */
-void func_800F1908(void);
-void func_800F1BA4(void);
-void func_800F3A28(void);
-void func_800F4984(void);
-void func_800F66BC(void);
-void func_800F6CF0(void);
-void func_800F6F0C(void);
-void func_800F90F4(void);
-void func_800F936C(void);
-void func_800F9980(void);
-void func_800F9BFC(void);
-void func_800F9F18(void);
-void func_800F9F28(void);
-void func_800FA058(void);
-void func_800FA1A0(void);
-void func_800FA6C0(void);
-void func_800FA754(void);
-void func_800FA800(void);
-void func_800FA9D4(void);
-void func_800FAA30(void);
-void func_800FAB9C(void);
-void func_800FABC4(void);
-void func_800FAE44(void);
+/* Overlay functions, loaded above the executable's code: each overlay's name
+ * plus the stage it is for (CopySpriteShapes4_1 is ovl12's CopySpriteShapes;
+ * world 3's first two stages share theirs). */
+void ResetToStageStart3(void);
+void CopySpriteShapes3(void);
+void ResetChaseStage5_3(void);
+void ResetChaseStage4_3(void);
+void ResetChaseStage3_3(void);
+void ResetChaseStage2_3(void);
+void ResetChaseStage1_3(void);
+void ResetToStageStart5_2(void);
+void CopySpriteShapes5_2(void);
+void ResetToStageStart4_1(void);
+void CopySpriteShapes4_1(void);
+void ResetToStageStart4_2(void);
+void ResetToStageStart5_1(void);
+void CopySpriteShapes4_2(void);
+void CopySpriteShapes5_1(void);
+void ResetToStageStart2_2(void);
+void ResetToStageStart2_1(void);
+void CopySpriteShapes2_2(void);
+void CopySpriteShapes2_1(void);
+void ResetToStageStart1_1(void);
+void CopySpriteShapes1_1(void);
+void ResetToStageStart1_2(void);
+void CopySpriteShapes1_2(void);
 
 /** Each stage's successor: the next stage, and 0 after the last. */
 u16 sNextStage[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0};
@@ -104,36 +106,36 @@ void LoadStageOverlay(u16 stage) {
 void StartStageOverlay(void) {
     switch (gStage) {
         case STAGE_1_1:
-            func_800FAB9C();
+            CopySpriteShapes1_1();
             break;
         case STAGE_1_2:
-            func_800FAE44();
+            CopySpriteShapes1_2();
             break;
         case STAGE_2_1:
-            func_800FA9D4();
+            CopySpriteShapes2_1();
             break;
         case STAGE_2_2:
-            func_800FA800();
+            CopySpriteShapes2_2();
             break;
         case STAGE_3_1:
-            func_800F1BA4();
+            CopySpriteShapes3();
             break;
         case STAGE_3_2:
             /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
-            func_800F1BA4();
+            CopySpriteShapes3();
             __asm__("");
             break;
         case STAGE_4_1:
-            func_800F9BFC();
+            CopySpriteShapes4_1();
             break;
         case STAGE_4_2:
-            func_800FA058();
+            CopySpriteShapes4_2();
             break;
         case STAGE_5_1:
-            func_800FA1A0();
+            CopySpriteShapes5_1();
             break;
         case STAGE_5_2:
-            func_800F936C();
+            CopySpriteShapes5_2();
             break;
     }
 }
@@ -141,51 +143,51 @@ void StartStageOverlay(void) {
 void ResetStageOverlay(void) {
     switch (gStage) {
         case STAGE_1_1:
-            func_800FAA30();
+            ResetToStageStart1_1();
             break;
         case STAGE_1_2:
-            func_800FABC4();
+            ResetToStageStart1_2();
             break;
         case STAGE_1_3:
-            func_800F6F0C();
+            ResetChaseStage1_3();
             break;
         case STAGE_2_1:
-            func_800FA754();
+            ResetToStageStart2_1();
             break;
         case STAGE_2_2:
-            func_800FA6C0();
+            ResetToStageStart2_2();
             break;
         case STAGE_2_3:
-            func_800F6CF0();
+            ResetChaseStage2_3();
             break;
         case STAGE_3_1:
-            func_800F1908();
+            ResetToStageStart3();
             break;
         case STAGE_3_2:
             /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
-            func_800F1908();
+            ResetToStageStart3();
             __asm__("");
             break;
         case STAGE_3_3:
-            func_800F66BC();
+            ResetChaseStage3_3();
             break;
         case STAGE_4_1:
-            func_800F9980();
+            ResetToStageStart4_1();
             break;
         case STAGE_4_2:
-            func_800F9F18();
+            ResetToStageStart4_2();
             break;
         case STAGE_4_3:
-            func_800F4984();
+            ResetChaseStage4_3();
             break;
         case STAGE_5_1:
-            func_800F9F28();
+            ResetToStageStart5_1();
             break;
         case STAGE_5_2:
-            func_800F90F4();
+            ResetToStageStart5_2();
             break;
         case STAGE_5_3:
-            func_800F3A28();
+            ResetChaseStage5_3();
             break;
     }
 }

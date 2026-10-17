@@ -5,7 +5,7 @@
 Unit `src/object.c`. The trap viewer's step, UpdateTrapViewer's
 sibling with a state `gModeStep`: state 0 sets the fixed view, clears
 the fog and moves to 1; state 1 zeroes the start record `gPlaceQueue`,
-turns it with the frame counter and has CallStageHook fill the Trap
+turns it with the frame counter and has PlaceStageTrap fill the Trap
 table from it (`gPlaceCount` records), then moves to 2; state 2 steps the
 selected entry `gSelectedSection` with the pad (back to state 1 when it
 changes), places record 0 on its ObjectModel entry and every further record

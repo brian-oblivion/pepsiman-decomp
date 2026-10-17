@@ -1275,7 +1275,7 @@ static inline void DrawStepPlayer(void) {
  * debug view that places the can by pad. */
 /* MATCHING: non-void with no return keeps the jump table's bound check
  * delay slot; the unused 32-byte local gives retail's frame. */
-s32 func_800F42E8(void) {
+s32 StepChaseFrame(void) {
     s32 unused[8];
     MATRIX m;
     u8 sky[16] = {0x6B, 0xBC, 0xEB, 0, 0xFF, 0xFF, 0xFF, 0,

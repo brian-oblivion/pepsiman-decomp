@@ -43,7 +43,17 @@ checks the address against the overlay's own range, refuses a NEW the
 executable's symbols file already names (the overlay links against every
 executable symbol), and skips the Sony checks and match reports, which are
 the executable's. A name shared by several overlays is renamed once per
-overlay; a shared include that already uses NEW is not a collision.
+overlay; a shared include that already uses NEW is not a collision, and
+once a sibling's rename has rewritten the include, the next overlay's run
+only registers NEW in its own symbols file.
+
+AN OVERLAY ENTRY POINT has two names. The executable calls a fixed
+address in whichever overlay is loaded (stage_flow.c's per-stage switches),
+so its name for the address is its own, the overlay's name plus the stage
+(StepStageFrame1_2 for ovl04's StepStageFrame). A rename without --ovl of
+an overlay address leaves alone the overlay sources that define something
+there, and tags each overlay symbol at that address with its rom offset,
+which splat needs to accept a second name at one vram.
 
 WHAT IT DOES NOT DO. It does not judge the name. The naming rules (what the
 code does, not what you guess it is for; tiers; conventions) are in
@@ -175,6 +185,58 @@ def text_files():
     # name. main() lists their mentions of OLD for the head to judge.
     out = [p for p in out if p.relative_to(ROOT).as_posix() not in RULE_DOCS]
     return sorted(set(out))
+
+
+def exe_names_address(addr):
+    """Whether the executable's symbols file names `addr`."""
+    for line in EXE_SYMBOLS.read_text().splitlines():
+        sm = SYMLINE.match(line.strip())
+        if sm and int(sm.group(2), 16) == addr:
+            return True
+    return False
+
+
+def tag_overlay_roms(addr):
+    """Give every overlay symbol at `addr` its rom offset. splat reads the
+    executable's symbols file before each overlay's, and two names at one
+    vram with no rom between them are a duplicate it refuses; the rom ties
+    the overlay's name to that overlay's bytes (a bare image at
+    0x800F0000, so rom = vram - 0x800F0000)."""
+    for sym in sorted((ROOT / "config/ovl").glob("symbols.*.txt")):
+        lines = sym.read_text().split("\n")
+        changed = False
+        for i, line in enumerate(lines):
+            sm = SYMLINE.match(line.strip())
+            if not sm or int(sm.group(2), 16) != addr or "rom:" in line:
+                continue
+            rest = sm.group(3).strip()
+            rom = f"rom:0x{addr - OVL_BASE:X}"
+            lines[i] = f"{sm.group(1)} = {sm.group(2)}; " + (f"{rest} {rom}" if rest.startswith("//") else f"// {rom}")
+            changed = True
+        if changed:
+            sym.write_text("\n".join(lines))
+            print(f"  {sym.relative_to(ROOT)}: rom tag at {addr:#x}")
+
+
+def overlay_files_defining(addr):
+    """The overlay sources (each unit and the includes it pulls in) of every
+    overlay whose last link put a symbol of its own at `addr`. An executable
+    placeholder for an overlay address (a stage's entry point, called from
+    stage_flow.c) names the code of whichever overlay is loaded; in an
+    overlay that defines something there, the same spelling is that
+    overlay's own object and is renamed with --ovl, not here."""
+    global OVL
+    out = set()
+    for mp in sorted((ROOT / "build/ovl").glob("*.map")):
+        defs = re.findall(r"^\s+0x([0-9a-f]{8})\s+(\w+)\s*$", mp.read_text(errors="replace"), re.M)
+        if not any(int(a, 16) == addr for a, _ in defs):
+            continue
+        OVL, saved = mp.stem, OVL
+        try:
+            out.update(text_files())
+        finally:
+            OVL = saved
+    return out
 
 
 RULE_DOCS = {"CLAUDE.md", "docs/FINISHING-PLAN.md", "docs/PARALLEL-RUNS.md",
@@ -494,6 +556,7 @@ def main():
     # includes it must supply under that name. Giving this overlay's OLD the
     # name is the point, unless the include defines NEW itself or this
     # overlay's symbols file already has it.
+    sibling = False
     if OVL and hard:
         shared = {f.relative_to(ROOT).as_posix() for f in text_files()[1:]}
         defines = re.compile(rf"\b{re.escape(new)}\s*\([^;{{]*\)\s*\{{")
@@ -503,6 +566,14 @@ def main():
             print(f"note: {new!r} is declared in this overlay's shared include(s) "
                   f"({', '.join(hard)}); naming {old} for it.")
             hard = []
+        # A sibling's rename already rewrote the shared include that defines
+        # OLD (stage3.inc, built by ovl09 and ovl10): the C is done and only
+        # this overlay's symbols file still says OLD.
+        elif not known and all(rel in shared and not oldpat.search((ROOT / rel).read_text())
+                               for rel in hard):
+            print(f"note: {new!r} is defined in this overlay's shared include(s) "
+                  f"({', '.join(hard)}), renamed for a sibling; registering it for {old}.")
+            hard, sibling = [], True
     # REGISTERING, not renaming: the C already defines NEW, the link puts it at
     # OLD's address, and only the symbols file lacks it, so retail's
     # disassembly still says OLD and objdiff pairs nothing (a C-defined table
@@ -523,6 +594,14 @@ def main():
 
     pat = re.compile(rf"\b{re.escape(old)}\b")
     touched = [p for p in text_files() if pat.search(p.read_text(errors="replace"))]
+    if not OVL and addr >= OVL_BASE:
+        owned = overlay_files_defining(addr)
+        kept = [p for p in touched if p in owned]
+        touched = [p for p in touched if p not in owned]
+        if kept:
+            print(f"note: {old} is the overlays' own symbol in "
+                  f"{', '.join(p.relative_to(ROOT).as_posix() for p in kept)}; "
+                  f"left for --ovl.")
     report_old = REPORTS / f"{old}.md"
     report_new = REPORTS / f"{new}.md"
     if OVL:
@@ -533,6 +612,10 @@ def main():
 
     is_text = is_text_symbol(old, addr)
     kind = "func" if is_text else ("data" if is_text is False else "unknown")
+    if sibling and kind == "unknown":
+        # nothing of this overlay's says OLD any more; the shared include's
+        # definition of NEW does
+        kind = "func"
     if kind != "func" and GAME_STYLE.match(new) and not OVL:
         lib = sony_only_accessors(old)
         if lib:
@@ -555,7 +638,7 @@ def main():
     in_ovl_asm = bool(OVL) and any(
         pat.search(p.read_text(errors="replace")) for p in (ROOT / "asm/ovl" / OVL).rglob("*.s"))
     if not touched and symline is None and not report_old.exists() and not registering \
-            and not in_ovl_asm:
+            and not in_ovl_asm and not sibling:
         sys.exit("FATAL: nothing references the old name; is it spelled right?")
     for rel in ([] if OVL else sorted(RULE_DOCS)):
         rp = ROOT / rel
@@ -578,8 +661,12 @@ def main():
         tag = " // type:func" if kind == "func" else ""
         if lines and not lines[-1].endswith("\n"):
             lines[-1] += "\n"
+        if OVL and exe_names_address(addr):
+            tag = (tag or " //") + f" rom:0x{addr - OVL_BASE:X}"
         lines.append(f"{new} = 0x{addr:08X};{tag}\n")
     SYMBOLS.write_text("".join(lines))
+    if not OVL and addr >= OVL_BASE:
+        tag_overlay_roms(addr)
 
     # 3. every other file
     vacuous = re.compile(rf"\b{re.escape(new)}\b\s*(->|→|=>)\s*\b{re.escape(new)}\b")

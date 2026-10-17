@@ -482,7 +482,7 @@ void UpdateGoalEventHook(void) {
 
 /* MATCHING: engine/step_stage_frame.inc with a 120-byte unused local, which
  * gives this stage's frame. */
-void func_800F809C(void) {
+void StepStageFrame(void) {
     s32 unused[30];
     s32 v;
 
@@ -843,7 +843,7 @@ void StepGoalSequence(void) {}
 
 void CycleGoalLights(s8 arg) {}
 
-void func_800FA5D0(void) {
+void ShowStartCanGroups(void) {
     ClearCanGroups();
     gCanGroupOn[1] = 1;
     gCanGroupOn[2] = 1;
@@ -852,11 +852,11 @@ void func_800FA5D0(void) {
     ShowRevealedCans();
 }
 
-void func_800FA610(void) {}
+void OnCanGroupCollected(void) {}
 
 #include "engine/emit_trap_particles.inc"
 
-s32 func_800FA6C8(void) {
+s32 LoadStageFiles(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
     s32 unused[2];
@@ -962,7 +962,7 @@ s32 func_800FA6C8(void) {
 /* MATCHING: model's, with this unit's view of the position. */
 s32 FindFloor(s32 *pos);
 
-void func_800FAA30(void) {
+void ResetToStageStart(void) {
     s16 yaw;
     u8 one;
     StartRec *st;
@@ -1001,12 +1001,12 @@ void func_800FAA30(void) {
     gBodyRot[2] = 0;
     gSection = 0;
     gView[1] = (s16)(gCourse.y - 150);
-    func_800FA5D0();
+    ShowStartCanGroups();
 }
 
 extern const SpriteShapes sStageSpriteShapes;
 
-void func_800FAB9C(void) {
+void CopySpriteShapes(void) {
     SpriteShapes shapes;
 
     shapes = sStageSpriteShapes;
@@ -1021,8 +1021,8 @@ typedef struct {
 extern const Models80 sTrapModels;
 
 /* MATCHING: ret set before the table copy and again after the call, so it
- * stays a register (as ovl07's func_800FA580). */
-u16 func_800FAD08(s16 id, StageTrap *src, StageTrap *dst) {
+ * stays a register (as ovl07's PlaceTrap). */
+u16 PlaceTrap(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
     Models80 models = sTrapModels;
 

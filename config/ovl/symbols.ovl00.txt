@@ -2,3 +2,4 @@
 sSoundTestSe = 0x800F1CFA;
 sSoundTestVab = 0x800F1CF8;
 sSoundTestBgm = 0x800F1CFC;
+StepDevMenu = 0x800F026C; // type:func rom:0x26C

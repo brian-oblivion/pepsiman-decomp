@@ -27,3 +27,4 @@ sTitleExitTime = 0x800FA284;
 sFadeTime = 0x800FA288;
 sFadeMode = 0x800FA28C;
 sSave = 0x800FA24C;
+StepMenus = 0x800F6670; // type:func rom:0x6670

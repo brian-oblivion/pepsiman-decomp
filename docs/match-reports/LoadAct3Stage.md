@@ -7,7 +7,7 @@ Unit `src/main.c`. A stage loader stepped once per frame on
 2..6 for stages 2, 5, 8, 11, 14), reads the stage's two files from disc
 through the `gCdLoadLoc` / `gCdLoadSectors` / `gCdLoadDest` request slots
 into 0x8019D000, hands them to LoadTimList and LoadAct3Data, calls the
-stage's overlay entry (func_800F6C60 .. func_800F377C) and finishes with
+stage's overlay entry (PlaceChaseObjects1_3 .. PlaceChaseObjects5_3) and finishes with
 `gSubStep = 100`. Called from UpdateAct3LoadScreen.
 
 The body is in `src/main.c`. The new declarations it needs:

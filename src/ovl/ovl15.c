@@ -882,7 +882,7 @@ void func_800F9AC8(void) {
 
 #include "engine/emit_trap_particles.inc"
 
-s32 func_800F9BC0(void) {
+s32 LoadStageFiles(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
     s32 unused[2];
@@ -986,7 +986,7 @@ s32 func_800F9BC0(void) {
 }
 
 /* Resets the player, the camera and the course to the stage's start. */
-void func_800F9F28(void) {
+void ResetToStageStart(void) {
     s16 yaw;
     u8 one;
     StartRec *st;
@@ -1028,7 +1028,7 @@ void func_800F9F28(void) {
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */
-u16 func_800FA060(s16 id, StageTrap *src, StageTrap *dst) {
+u16 PlaceTrap(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
     u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
                      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -1067,7 +1067,7 @@ typedef struct {
 
 extern const SpriteShapes41Rodata sStageSpriteShapes;
 
-void func_800FA1A0(void) {
+void CopySpriteShapes(void) {
     SpriteShapes41 shapes;
 
     shapes = sStageSpriteShapes.shapes;

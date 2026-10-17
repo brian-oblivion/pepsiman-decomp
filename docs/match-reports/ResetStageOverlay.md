@@ -4,7 +4,7 @@
 
 Unit `src/stage_overlay.c`. The second per-stage dispatcher, the twin of
 StartStageOverlay: switches on `gStage` (0..14) and calls each stage's
-overlay function; stages 6 and 7 share func_800F1908. Called from
+overlay function; stages 6 and 7 share ResetToStageStart3. Called from
 stage_flow and editor.
 
 The function is 76 words (0x130); the brief's 91 counted the jump table.
@@ -17,20 +17,20 @@ cross-jumping keeps the two identical arms apart.
 void ResetStageOverlay(void) {
     switch (gStage) {
         case 0:
-            func_800FAA30();
+            ResetToStageStart1_1();
             break;
         /* ... one call per case, in stage order ... */
         case 6:
-            func_800F1908();
+            ResetToStageStart3();
             break;
         case 7:
             /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
-            func_800F1908();
+            ResetToStageStart3();
             __asm__("");
             break;
         /* ... */
         case 14:
-            func_800F3A28();
+            ResetChaseStage5_3();
             break;
     }
 }

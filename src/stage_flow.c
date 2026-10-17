@@ -11,32 +11,37 @@
 #include "player.h"
 #include "object.h"
 
-u16 func_800FAD08(s16 id, s32 a, s32 b);
-u16 func_800FAD04(s16 id, s32 a, s32 b);
-u16 func_800FA894(s16 id, s32 a, s32 b);
-u16 func_800FA580(s16 id, s32 a, s32 b);
-u16 func_800F1A48(s16 id, s32 a, s32 b);
-u16 func_800F9ABC(s16 id, s32 a, s32 b);
-u16 func_800F9CA4(s16 id, s32 a, s32 b);
-u16 func_800FA060(s16 id, s32 a, s32 b);
-u16 func_800F922C(s16 id, s32 a, s32 b);
+/* The stage overlays' entry points. Each stage's overlay has its code at its
+ * own addresses, and the name here is the overlay's name for the function
+ * plus the stage: PlaceTrap1_2 is ovl04's PlaceTrap. STAGE_3_1 and
+ * STAGE_3_2 load the same code (stage3.inc), so theirs carry the world
+ * alone. */
+u16 PlaceTrap1_1(s16 id, s32 a, s32 b);
+u16 PlaceTrap1_2(s16 id, s32 a, s32 b);
+u16 PlaceTrap2_1(s16 id, s32 a, s32 b);
+u16 PlaceTrap2_2(s16 id, s32 a, s32 b);
+u16 PlaceTrap3(s16 id, s32 a, s32 b);
+u16 PlaceTrap4_1(s16 id, s32 a, s32 b);
+u16 PlaceTrap4_2(s16 id, s32 a, s32 b);
+u16 PlaceTrap5_1(s16 id, s32 a, s32 b);
+u16 PlaceTrap5_2(s16 id, s32 a, s32 b);
 
-s32 func_800FA6C8(void);
-s32 func_800FA804(void);
-s32 func_800F6CE4(void);
-s32 func_800FA3EC(void);
-s32 func_800FA1C0(void);
-s32 func_800F6AC8(void);
-s32 func_800F1080(void);
-s32 func_800F64B0(void);
-s32 func_800F9618(void);
-s32 func_800F98E4(void);
-s32 func_800F475C(void);
-s32 func_800F9BC0(void);
-s32 func_800F8D34(void);
-s32 func_800F3800(void);
+s32 LoadStageFiles1_1(void);
+s32 LoadStageFiles1_2(void);
+s32 LoadChaseStage1_3(void);
+s32 LoadStageFiles2_1(void);
+s32 LoadStageFiles2_2(void);
+s32 LoadChaseStage2_3(void);
+s32 LoadStageFiles3(void);
+s32 LoadChaseStage3_3(void);
+s32 LoadStageFiles4_1(void);
+s32 LoadStageFiles4_2(void);
+s32 LoadChaseStage4_3(void);
+s32 LoadStageFiles5_1(void);
+s32 LoadStageFiles5_2(void);
+s32 LoadChaseStage5_3(void);
 
-void func_800FA5D0(void);
+void ShowStartCanGroups1_1(void);
 
 /** @brief A position as three words. */
 typedef struct {
@@ -199,20 +204,21 @@ typedef struct {
 
 extern u16 sPauseFrames; /**< frames shown paused */
 
-void func_800F00A0(void);
-void func_800F1654(void);
-void func_800F17B0(void);
-void func_800F42E8(void);
-void func_800F4758(void);
-void func_800F4794(void);
-void func_800F5E80(void);
-void func_800F72B8(void);
-void func_800F7724(void);
-void func_800F7844(void);
-void func_800F7A9C(void);
-void func_800F7F40(void);
-void func_800F809C(void);
-void func_800F8264(void);
+/* The overlays' frame steps, named as the entry points above. */
+void StepStageFrame3(void);
+void StepChaseFrame4_3(void);
+void StepChaseFrame5_3(void);
+void StepChaseFrame3_3(void);
+void StepChaseFrame2_3(void);
+void StepChaseFrame1_3(void);
+void StepStageFrame5_2(void);
+void StepStageFrame4_1(void);
+void StepStageFrame5_1(void);
+void StepStageFrame4_2(void);
+void StepStageFrame1_2(void);
+void StepStageFrame2_2(void);
+void StepStageFrame1_1(void);
+void StepStageFrame2_1(void);
 void DrawPausedFrame(void);
 
 /* MATCHING: main.c defines it on a RumbleStep; the table is a u16 array
@@ -292,51 +298,51 @@ void UpdateStagePlay(u8 stage) {
                 UpdateRumble();
                 switch (stage) {
                     case STAGE_1_1:
-                        func_800F809C();
+                        StepStageFrame1_1();
                         break;
                     case STAGE_1_2:
-                        func_800F7A9C();
+                        StepStageFrame1_2();
                         break;
                     case STAGE_1_3:
-                        func_800F4794();
+                        StepChaseFrame1_3();
                         break;
                     case STAGE_2_1:
-                        func_800F8264();
+                        StepStageFrame2_1();
                         break;
                     case STAGE_2_2:
-                        func_800F7F40();
+                        StepStageFrame2_2();
                         break;
                     case STAGE_2_3:
-                        func_800F4758();
+                        StepChaseFrame2_3();
                         break;
                     case STAGE_3_1:
-                        func_800F00A0();
+                        StepStageFrame3();
                         break;
                     case STAGE_3_2:
                         /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
-                        func_800F00A0();
+                        StepStageFrame3();
                         __asm__("");
                         break;
                     case STAGE_3_3:
-                        func_800F42E8();
+                        StepChaseFrame3_3();
                         break;
                     case STAGE_4_1:
-                        func_800F72B8();
+                        StepStageFrame4_1();
                         break;
                     case STAGE_4_2:
-                        func_800F7844();
+                        StepStageFrame4_2();
                         break;
                     case STAGE_4_3:
-                        func_800F1654();
+                        StepChaseFrame4_3();
                         break;
                     case STAGE_5_1:
-                        func_800F7724();
+                        StepStageFrame5_1();
                         break;
                     case STAGE_5_2:
-                        func_800F5E80();
+                        StepStageFrame5_2();
                         break;
                     case STAGE_5_3:
-                        func_800F17B0();
+                        StepChaseFrame5_3();
                         break;
                 }
             } else {
@@ -547,49 +553,49 @@ s16 InitStageOverlay(u8 stage) {
 
     switch (stage) {
         case STAGE_1_1:
-            ret = func_800FA6C8();
+            ret = LoadStageFiles1_1();
             break;
         case STAGE_1_2:
-            ret = func_800FA804();
+            ret = LoadStageFiles1_2();
             break;
         case STAGE_1_3:
-            ret = func_800F6CE4();
+            ret = LoadChaseStage1_3();
             break;
         case STAGE_2_1:
-            ret = func_800FA3EC();
+            ret = LoadStageFiles2_1();
             break;
         case STAGE_2_2:
-            ret = func_800FA1C0();
+            ret = LoadStageFiles2_2();
             break;
         case STAGE_2_3:
-            ret = func_800F6AC8();
+            ret = LoadChaseStage2_3();
             break;
         case STAGE_3_1:
-            ret = func_800F1080();
+            ret = LoadStageFiles3();
             break;
         case STAGE_3_2:
-            ret = func_800F1080();
+            ret = LoadStageFiles3();
             break;
         case STAGE_3_3:
-            ret = func_800F64B0();
+            ret = LoadChaseStage3_3();
             break;
         case STAGE_4_1:
-            ret = func_800F9618();
+            ret = LoadStageFiles4_1();
             break;
         case STAGE_4_2:
-            ret = func_800F98E4();
+            ret = LoadStageFiles4_2();
             break;
         case STAGE_4_3:
-            ret = func_800F475C();
+            ret = LoadChaseStage4_3();
             break;
         case STAGE_5_1:
-            ret = func_800F9BC0();
+            ret = LoadStageFiles5_1();
             break;
         case STAGE_5_2:
-            ret = func_800F8D34();
+            ret = LoadStageFiles5_2();
             break;
         case STAGE_5_3:
-            ret = func_800F3800();
+            ret = LoadChaseStage5_3();
             break;
     }
     return ret;
@@ -597,39 +603,39 @@ s16 InitStageOverlay(u8 stage) {
 
 /* MATCHING: a and b go through to every callee untouched; they keep
  * $a1 and $a2 live, which puts ret in $a3. */
-u16 CallStageHook(s16 id, s32 a, s32 b) {
+u16 PlaceStageTrap(s16 id, s32 a, s32 b) {
     u16 ret = 1;
 
     switch (gStage) {
         case STAGE_1_1:
-            ret = func_800FAD08(id, a, b);
+            ret = PlaceTrap1_1(id, a, b);
             break;
         case STAGE_1_2:
-            ret = func_800FAD04(id, a, b);
+            ret = PlaceTrap1_2(id, a, b);
             break;
         case STAGE_2_1:
-            ret = func_800FA894(id, a, b);
+            ret = PlaceTrap2_1(id, a, b);
             break;
         case STAGE_2_2:
-            ret = func_800FA580(id, a, b);
+            ret = PlaceTrap2_2(id, a, b);
             break;
         case STAGE_3_1:
-            ret = func_800F1A48(id, a, b);
+            ret = PlaceTrap3(id, a, b);
             break;
         case STAGE_3_2:
-            ret = func_800F1A48(id, a, b);
+            ret = PlaceTrap3(id, a, b);
             break;
         case STAGE_4_1:
-            ret = func_800F9ABC(id, a, b);
+            ret = PlaceTrap4_1(id, a, b);
             break;
         case STAGE_4_2:
-            ret = func_800F9CA4(id, a, b);
+            ret = PlaceTrap4_2(id, a, b);
             break;
         case STAGE_5_1:
-            ret = func_800FA060(id, a, b);
+            ret = PlaceTrap5_1(id, a, b);
             break;
         case STAGE_5_2:
-            ret = func_800F922C(id, a, b);
+            ret = PlaceTrap5_2(id, a, b);
             break;
     }
     return ret;
@@ -668,7 +674,7 @@ void OnStageRestart(u8 stage) {
     if (mode != 1) {
         if (mode < 2) {
             if (mode == 0) {
-                func_800FA5D0();
+                ShowStartCanGroups1_1();
             }
         }
     }

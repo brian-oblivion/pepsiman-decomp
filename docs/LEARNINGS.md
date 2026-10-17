@@ -52,7 +52,7 @@ function's match report, not here.
   (`{ s32 w; u16 lo; }`). (CompareBytes's table, card)
 - **A result kept in `$a3` that skips `$a1`/`$a2`, which the function never
   touches: extra arguments passed straight through to callees.**
-  (CallStageHook)
+  (PlaceStageTrap)
 - **`lbu` of a stack parameter with no `andi 0xFF`: an `s32` parameter read
   as `(u8)p`.** A `u8` parameter adds the `andi`. (DefineSprite)
 - **`li -1` into a `u_char` member: `*(s8 *)&c.r = -1;`.** A plain

@@ -442,7 +442,7 @@ void UpdateGoalEventHook(void) {
 }
 
 /* MATCHING: an unused 32-byte local gives retail's frame. */
-void func_800F8264(void) {
+void StepStageFrame(void) {
     s32 unused[8];
     s32 v;
 
@@ -489,8 +489,8 @@ void func_800F8264(void) {
 
 /* MATCHING: the engine dispatchers call these addresses inside the function
  * above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(func_800F82E0, func_800F8264, 0x7C);
-FUNC_ALIAS(func_800F8454, func_800F8264, 0x1F0);
+FUNC_ALIAS(func_800F82E0, StepStageFrame, 0x7C);
+FUNC_ALIAS(func_800F8454, StepStageFrame, 0x1F0);
 
 void func_800F87E0(StageTrap *t, s8 dir);
 
@@ -770,7 +770,7 @@ void func_800FA334(void) {}
 
 #include "engine/emit_trap_particles.inc"
 
-s32 func_800FA3EC(void) {
+s32 LoadStageFiles(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
     s32 unused[2];
@@ -873,7 +873,7 @@ s32 func_800FA3EC(void) {
     return ret;
 }
 
-void func_800FA754(void) {
+void ResetToStageStart(void) {
     s16 yaw;
     u8 one;
     StartRec *st;
@@ -916,7 +916,7 @@ void func_800FA754(void) {
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */
-u16 func_800FA894(s16 id, StageTrap *src, StageTrap *dst) {
+u16 PlaceTrap(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
     u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
                      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -954,7 +954,7 @@ typedef struct {
 
 extern const StageShapesRodata sStageSpriteShapes;
 
-void func_800FA9D4(void) {
+void CopySpriteShapes(void) {
     StageShapes shapes;
 
     shapes = sStageSpriteShapes.shapes;

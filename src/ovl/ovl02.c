@@ -2252,7 +2252,7 @@ void func_800F1570(void);
 void func_800F69B0(void);
 s32 func_800F7A4C(void);
 
-void func_800F6670(void) {
+void StepMenus(void) {
     switch (gModeStep) {
         case 0:
             gSubStep = 0;

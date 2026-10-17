@@ -20,20 +20,20 @@ Third build byte-exact.
 extern u16 sPauseFrames;
 extern s32 gTmdSortMode;
 
-void func_800F00A0(void);
-void func_800F1654(void);
-void func_800F17B0(void);
-void func_800F42E8(void);
-void func_800F4758(void);
-void func_800F4794(void);
-void func_800F5E80(void);
-void func_800F72B8(void);
-void func_800F7724(void);
-void func_800F7844(void);
-void func_800F7A9C(void);
-void func_800F7F40(void);
-void func_800F809C(void);
-void func_800F8264(void);
+void StepStageFrame3(void);
+void StepChaseFrame4_3(void);
+void StepChaseFrame5_3(void);
+void StepChaseFrame3_3(void);
+void StepChaseFrame2_3(void);
+void StepChaseFrame1_3(void);
+void StepStageFrame5_2(void);
+void StepStageFrame4_1(void);
+void StepStageFrame5_1(void);
+void StepStageFrame4_2(void);
+void StepStageFrame1_2(void);
+void StepStageFrame2_2(void);
+void StepStageFrame1_1(void);
+void StepStageFrame2_1(void);
 void UpdateActResults(void);
 void DrawScreenWipe(void);
 s32 UpdatePlayState(void);
@@ -78,51 +78,51 @@ void UpdateStagePlay(u8 stage) {
                 UpdateRumble();
                 switch (stage) {
                     case 0:
-                        func_800F809C();
+                        StepStageFrame1_1();
                         break;
                     case 1:
-                        func_800F7A9C();
+                        StepStageFrame1_2();
                         break;
                     case 2:
-                        func_800F4794();
+                        StepChaseFrame1_3();
                         break;
                     case 3:
-                        func_800F8264();
+                        StepStageFrame2_1();
                         break;
                     case 4:
-                        func_800F7F40();
+                        StepStageFrame2_2();
                         break;
                     case 5:
-                        func_800F4758();
+                        StepChaseFrame2_3();
                         break;
                     case 6:
-                        func_800F00A0();
+                        StepStageFrame3();
                         break;
                     case 7:
                         /* MATCHING: keeps cross-jumping from merging this arm with case 6. */
-                        func_800F00A0();
+                        StepStageFrame3();
                         __asm__("");
                         break;
                     case 8:
-                        func_800F42E8();
+                        StepChaseFrame3_3();
                         break;
                     case 9:
-                        func_800F72B8();
+                        StepStageFrame4_1();
                         break;
                     case 10:
-                        func_800F7844();
+                        StepStageFrame4_2();
                         break;
                     case 11:
-                        func_800F1654();
+                        StepChaseFrame4_3();
                         break;
                     case 12:
-                        func_800F7724();
+                        StepStageFrame5_1();
                         break;
                     case 13:
-                        func_800F5E80();
+                        StepStageFrame5_2();
                         break;
                     case 14:
-                        func_800F17B0();
+                        StepChaseFrame5_3();
                         break;
                 }
             } else {
@@ -173,7 +173,7 @@ with `sb zero, 0x3D0` off the `gPlayer` base.
 ## Notes
 
 - Build 1 was 4 words short: cases 6 and 7 of the overlay switch call the
-  same function (func_800F00A0) and cross-jumping merged them. A bare
+  same function (StepStageFrame3) and cross-jumping merged them. A bare
   `__asm__("")` after the call in case 7 keeps them apart, as in
   StartStageOverlay and ResetStageOverlay.
 - Build 2 was 268/270, then 270/270 after two reorders in states 2 and 3:

@@ -831,7 +831,7 @@ typedef struct {
 /* MATCHING: per-unit views of editor's placement record, count and filler. */
 extern Obj34 gPlaceQueue; /**< the record the placement starts from */
 extern u16 gPlaceCount;   /**< how many records the placement filled */
-u16 CallStageHook(s16 arg0, s32 arg1, s32 arg2);
+u16 PlaceStageTrap(s16 arg0, s32 arg1, s32 arg2);
 
 /** @brief The trap viewer's step: state 0 sets the fixed view, state 1
  *         fills the Trap table from a turning start record, state 2 steps
@@ -868,7 +868,7 @@ void UpdateTrapLayoutViewer(void) {
             gPlaceQueue.rotX = 0;
             gPlaceQueue.rotY = gFrameCount % 360 * 4096 / 360;
             gPlaceQueue.rotZ = 0;
-            gPlaceCount = CallStageHook(gSelectedSection, (s32)&gPlaceQueue, (s32)gTraps);
+            gPlaceCount = PlaceStageTrap(gSelectedSection, (s32)&gPlaceQueue, (s32)gTraps);
             gModeStep++;
             break;
         case 2:

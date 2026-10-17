@@ -593,7 +593,7 @@ void func_800F878C(StageTrap *t, s8 arg) {
  * overlay lands inside the function above. */
 FUNC_ALIAS(func_800F87E4, func_800F878C, 0x58);
 
-void func_800F8A58(void) {
+void StepBoardSpeed(void) {
     s16 v;
 
     if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - MOT_RIDE) < 5) {
@@ -623,7 +623,7 @@ void func_800F8A58(void) {
 void OnJumpStart(PlayerState *g);
 void StartRumble(u16 *table, s32 index);
 
-void func_800F8B60(void) {
+void StepBoardJump(void) {
     s16 n;
 
     if (gPlayer.control != 0) {
@@ -686,7 +686,7 @@ void ApplySteer(u8 mode, u16 a, s16 b);
 void RecentreSteer(void);
 void PushPlayer(s32 deg, s32 dist);
 
-void func_800F8D64(void) {
+void SteerBoard(void) {
     if (gPad & 0x8000) { /* PADLleft */
         ApplySteer(3, 16, 5);
         sSteerDrift -= 10;
@@ -833,7 +833,7 @@ void UpdateGoalEventHook(void) {}
 
 #include "engine/emit_trap_particles.inc"
 
-s32 func_800FA804(void) {
+s32 LoadStageFiles(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
     s32 unused[2];
@@ -946,7 +946,7 @@ s32 func_800FA804(void) {
     return ret;
 }
 
-void func_800FABC4(void) {
+void ResetToStageStart(void) {
     s16 yaw;
     u8 one;
     StartRec *st;
@@ -989,7 +989,7 @@ void func_800FABC4(void) {
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */
-u16 func_800FAD04(s16 id, StageTrap *src, StageTrap *dst) {
+u16 PlaceTrap(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
     u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
                      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -1015,7 +1015,7 @@ u16 func_800FAD04(s16 id, StageTrap *src, StageTrap *dst) {
 
 extern const SpriteShapes sStageSpriteShapes;
 
-void func_800FAE44(void) {
+void CopySpriteShapes(void) {
     SpriteShapes shapes;
 
     shapes = sStageSpriteShapes;

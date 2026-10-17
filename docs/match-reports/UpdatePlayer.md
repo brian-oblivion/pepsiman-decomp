@@ -13,8 +13,8 @@ the camera yaw and hands the result to the camera (`gBodyRot`,
 
 ```c
 extern s8 gToolExited;
-void func_800F8A58(void); /* and func_800F8B60, func_800F6FA0, func_800F70A8,
-                             func_800F8D64, func_800F729C: overlay entries */
+void StepBoardSpeed1_2(void); /* and StepBoardJump1_2, StepBoardSpeed5_2, StepBoardJump5_2,
+                             SteerBoard1_2, SteerBoard5_2: overlay entries */
 
 /* MATCHING: g keeps the sGame base in a register for the clamp's store at the join;
  * cases 1 and 2 of the second switch are separate arms, merged by cross-jumping. */
@@ -43,12 +43,12 @@ void UpdatePlayer(void) {
             TrySlide();
             break;
         case 1:
-            func_800F8A58();
-            func_800F8B60();
+            StepBoardSpeed1_2();
+            StepBoardJump1_2();
             break;
         case 4:
-            func_800F6FA0();
-            func_800F70A8();
+            StepBoardSpeed5_2();
+            StepBoardJump5_2();
             break;
         case 2:
             UpdateRollerSpeed();
@@ -120,10 +120,10 @@ void UpdatePlayer(void) {
             SteerPlayer();
             break;
         case 1:
-            func_800F8D64();
+            SteerBoard1_2();
             break;
         case 4:
-            func_800F729C();
+            SteerBoard5_2();
             break;
         case 2:
             SteerRoller();

@@ -187,7 +187,7 @@ void UpdateEffects(s32 unused, s16 x, s16 y, s16 z);
 void UpdatePickups(GsOT *ot);
 
 /* MATCHING: an unused 32-byte local gives retail's frame. */
-void func_800F00A0(void) {
+void StepStageFrame(void) {
     s32 unused[8];
     s32 v;
 
@@ -532,7 +532,7 @@ void func_800F1038(void) {
     sPromptIndex = 0;
 }
 
-s32 func_800F1080(void) {
+s32 LoadStageFiles(void) {
     StageObjects *f;
     /* MATCHING: an s16 result keeps gSubStep's increment off its register;
      * an unused 8-byte local gives retail's frame. */
@@ -697,7 +697,7 @@ void func_800F15E4(void) {
     InitModel(&gObjectModels[37], (unsigned long *)RAM_OBJECT_MODELS, 37);
 }
 
-void func_800F1908(void) {
+void ResetToStageStart(void) {
     s16 yaw;
     u8 one;
     StartRec *st;
@@ -740,7 +740,7 @@ void func_800F1908(void) {
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */
-u16 func_800F1A48(s16 id, StageTrap *src, StageTrap *dst) {
+u16 PlaceTrap(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
     u8 models[38] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18,
                      19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37};
@@ -761,7 +761,7 @@ u16 func_800F1A48(s16 id, StageTrap *src, StageTrap *dst) {
     return ret;
 }
 
-void func_800F1BA4(void) {
+void CopySpriteShapes(void) {
     SpriteShapes shapes;
 
     shapes = sStageShapes;

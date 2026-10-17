@@ -280,7 +280,7 @@ void SetBoxCentred(EditorSwitch *b, s16 w, s16 d);
 
 /* MATCHING: stage_flow defines it with an s16 first parameter; this unit
  * passes it unextended and hands it two record pointers. */
-u16 CallStageHook(s32 id, EditorTrap *a, EditorTrap *b);
+u16 PlaceStageTrap(s32 id, EditorTrap *a, EditorTrap *b);
 
 /* MATCHING: defined in player and hit_tool, which have no header. */
 void TransformByCoord(GsCOORDINATE2 *coord, SVECTOR *pos, VECTOR *out);
@@ -656,7 +656,7 @@ s32 UpdateEditor(void) {
                                     sTotals.trapAngle =
                                         ((EditorTrap *)gTraps)[sTotals.trapNo].rotY * 360 / 4096;
                                     gPlaceCount =
-                                        CallStageHook(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
+                                        PlaceStageTrap(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
                                     for (i = 1; i < gPlaceCount; i++) {
                                         /* MATCHING: base taken in the body */
                                         r = (EditorTrap *)gTraps;
@@ -2122,7 +2122,7 @@ s32 EditorArrangeRecords(void) {
             gPlaceQueue[0].pos[1] = gPlayer.y;
             gPlaceQueue[0].pos[2] = gPlayer.z;
             gPlaceQueue[0].rotY = (sTotals.trapAngle << 12) / 360;
-            gPlaceCount = CallStageHook(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
+            gPlaceCount = PlaceStageTrap(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
             gSubStep++;
             /* fall through */
         case 1:

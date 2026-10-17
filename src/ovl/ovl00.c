@@ -61,7 +61,7 @@ u16 sSoundTestBgm = 0; /* the BGM */
 s32 func_800F1060(void);
 void func_800F09C0(void);
 
-void func_800F026C(void) {
+void StepDevMenu(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 unused[2];
 

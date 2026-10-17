@@ -24,7 +24,7 @@ About twelve builds: link fail -> 111 -> 613 -> 621 -> 627.
 - **Case bodies in source order (LEARNINGS):** cases 38, 39 and 40 sit
   between case 8 and case 12 in retail, so the source lists them there.
 - **Two identical arms kept apart.** Cases 0 and 3 of the world switch
-  both call func_800F03BC (two overlays with an entry at one address);
+  both call StepWorldIntro1And4 (two overlays with an entry at one address);
   cross-jumping folds them. A bare `__asm__("")` AFTER the call in case 3
   keeps them apart; before the call the tails still merge.
 - **The table copy is two `s32` locals through a destination pointer

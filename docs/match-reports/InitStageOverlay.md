@@ -3,18 +3,18 @@
 > Renamed from `func_80040CD0` on 2026-10-10 (tools/rename.py). Address 0x80040cd0.
 
 Unit `src/stage_flow.c`. Dispatches on a byte 0..14 to one of fourteen
-overlay routines (6 and 7 both call `func_800F1080`) and returns the result
+overlay routines (6 and 7 both call `LoadStageFiles3`) and returns the result
 as `s16`. Out of range, the result is uninitialised.
 
 ```c
-s32 func_800FA6C8(void); /* ... and thirteen more, all s32 (void) */
+s32 LoadStageFiles1_1(void); /* ... and thirteen more, all s32 (void) */
 
 s16 InitStageOverlay(u8 arg0) {
     s32 ret;
 
     switch (arg0) {
     case 0:
-        ret = func_800FA6C8();
+        ret = LoadStageFiles1_1();
         break;
     /* cases 1..14 likewise, in jump-table order */
     }

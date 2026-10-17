@@ -14,6 +14,6 @@ sPropRot = 0x800F2A78;
 sPartnerCoordParams = 0x800F2A80;
 StepIntroMotion = 0x800F00C0; // type:func
 LoadIntroPack = 0x800F01B8; // type:func
-StepWorldIntro = 0x800F03BC; // type:func
+StepWorldIntro = 0x800F03BC; // type:func rom:0x3BC
 DrawCaptions = 0x800F11DC; // type:func
 DrawIntroProp = 0x800F1320; // type:func

@@ -183,23 +183,25 @@ HitReaction gHitReactions[] = {
     /* 22 */ {{ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, ACT_KNOCKDOWN_START, 1, 0, 1}},
 };
 
-/* Overlay entry points: the stage modes' own code. */
+/* Overlay entry points: the stage modes' own code, each named for the
+ * overlay's function plus its stage (ovl04's StepBoardSpeed is
+ * StepBoardSpeed1_2 here). */
 /** @brief The board's speed step (STAGE_1_2's overlay): rises toward 80
  *         on its own, faster with up held; down held brakes it to 40. */
-void func_800F8A58(void);
+void StepBoardSpeed1_2(void);
 /** @brief The board's jump (STAGE_1_2's overlay): the on-foot jump with
  *         stronger power and the ride's jump motions. */
-void func_800F8B60(void);
+void StepBoardJump1_2(void);
 /** @brief The second board's speed step (STAGE_5_2's overlay): builds up
  *         to 100 and holds it there. */
-void func_800F6FA0(void);
+void StepBoardSpeed5_2(void);
 /** @brief The second board's jump (STAGE_5_2's overlay). */
-void func_800F70A8(void);
+void StepBoardJump5_2(void);
 /** @brief The board's steering (STAGE_1_2's overlay): steers, leans and
  *         drifts the player sideways. */
-void func_800F8D64(void);
+void SteerBoard1_2(void);
 /** @brief The second board's steering (STAGE_5_2's overlay). */
-void func_800F729C(void);
+void SteerBoard5_2(void);
 void RecentreSteer(void);
 void SetStageFog(void);
 void UpdateBrake(void);
@@ -540,12 +542,12 @@ void UpdatePlayer(void) {
             TrySlide();
             break;
         case RIDE_BOARD:
-            func_800F8A58();
-            func_800F8B60();
+            StepBoardSpeed1_2();
+            StepBoardJump1_2();
             break;
         case RIDE_BOARD_2:
-            func_800F6FA0();
-            func_800F70A8();
+            StepBoardSpeed5_2();
+            StepBoardJump5_2();
             break;
         case RIDE_ROLLER:
             UpdateRollerSpeed();
@@ -617,10 +619,10 @@ void UpdatePlayer(void) {
             SteerPlayer();
             break;
         case RIDE_BOARD:
-            func_800F8D64();
+            SteerBoard1_2();
             break;
         case RIDE_BOARD_2:
-            func_800F729C();
+            SteerBoard5_2();
             break;
         case RIDE_ROLLER:
             SteerRoller();

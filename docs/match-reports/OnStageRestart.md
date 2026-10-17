@@ -2,11 +2,11 @@
 
 > Renamed from `func_80041118` on 2026-10-11 (tools/rename.py). Address 0x80041118.
 
-Unit `src/stage_flow.c`. Calls the overlay routine `func_800FA5D0` when the
+Unit `src/stage_flow.c`. Calls the overlay routine `ShowStartCanGroups1_1` when the
 byte argument is 0; 1 and above do nothing. Same shape as OnCanCollected.
 
 ```c
-void func_800FA5D0(void);
+void ShowStartCanGroups1_1(void);
 
 void OnStageRestart(u8 arg0) {
     s32 mode = arg0;
@@ -14,7 +14,7 @@ void OnStageRestart(u8 arg0) {
     if (mode != 1) {
         if (mode < 2) {
             if (mode == 0) {
-                func_800FA5D0();
+                ShowStartCanGroups1_1();
             }
         }
     }

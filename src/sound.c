@@ -69,10 +69,10 @@ extern s16 gMovieDisplayHeight; /**< the movie picture's height in lines, centre
 #define DISC_FILE(x) sFiles27##x /**< names the 27th copy's array x */
 #include "disc_files.inc"
 
-/** @brief Stage 0's overlay hook for a collected can group; the overlay
- *         defines it empty.
+/** @brief STAGE_1_1's overlay hook for a collected can group, ovl03's
+ *         OnCanGroupCollected, which is empty.
  *  @param index the can group */
-void func_800FA610(s16 index);
+void OnCanGroupCollected1_1(s16 index);
 void StartMovieRead(CdlLOC *loc);
 
 /** @brief Runs the stage overlay's hook for a collected can of group
@@ -83,7 +83,7 @@ void OnCanCollected(s16 index) {
     if (mode != 1) {
         if (mode < 2) {
             if (mode == 0) {
-                func_800FA610(index);
+                OnCanGroupCollected1_1(index);
             }
         }
     }

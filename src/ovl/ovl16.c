@@ -395,7 +395,7 @@ void CycleGoalLights(s8 arg) {
 void func_800F8BD4(void);
 
 /* MATCHING: an unused 32-byte local gives retail's frame. */
-void func_800F5E80(void) {
+void StepStageFrame(void) {
     s32 unused[8];
     s32 v;
 
@@ -663,7 +663,7 @@ s8 func_800F60CC(StageTrap *t) {
     return ret;
 }
 
-void func_800F6FA0(void) {
+void StepBoardSpeed(void) {
     s16 v;
 
     if (gPlayer.control != 0 && (u32)(gPlayer.motion[0] - MOT_RIDE) < 5) {
@@ -692,7 +692,7 @@ void func_800F6FA0(void) {
 /* MATCHING: player's, declared only where defined. */
 void OnJumpStart(PlayerState *g);
 
-void func_800F70A8(void) {
+void StepBoardJump(void) {
     s16 n;
 
     if (gPlayer.control != 0) {
@@ -753,7 +753,7 @@ extern s16 sSteerDrift;
 void ApplySteer(u8 mode, u16 a, s16 b);
 void RecentreSteer(void);
 
-void func_800F729C(void) {
+void SteerBoard(void) {
     if (gPad & 0x8000) { /* PADLleft */
         ApplySteer(3, 16, 15);
         sSteerDrift -= 3;
@@ -974,7 +974,7 @@ void func_800F8BD4(void) {
 
 #include "engine/emit_trap_particles.inc"
 
-s32 func_800F8D34(void) {
+s32 LoadStageFiles(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
     s32 ret = 0;
     s32 unused[2];
@@ -1088,7 +1088,7 @@ s32 func_800F8D34(void) {
 }
 
 /* Resets the player, the camera and the course to the stage's start. */
-void func_800F90F4(void) {
+void ResetToStageStart(void) {
     s16 yaw;
     u8 one;
     StartRec *st;
@@ -1130,7 +1130,7 @@ void func_800F90F4(void) {
 
 /* MATCHING: ret set before the table copy and again after the call, so it
  * stays a register; set once it folds to a constant. */
-u16 func_800F922C(s16 id, StageTrap *src, StageTrap *dst) {
+u16 PlaceTrap(s16 id, StageTrap *src, StageTrap *dst) {
     u16 ret = 1;
     u8 models[80] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
                      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -1168,7 +1168,7 @@ typedef struct {
 
 extern const StageShapesRodata sStageSpriteShapes;
 
-void func_800F936C(void) {
+void CopySpriteShapes(void) {
     StageShapes shapes;
 
     shapes = sStageSpriteShapes.shapes;

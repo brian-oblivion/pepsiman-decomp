@@ -1,7 +1,8 @@
 # Pepsiman (PSX) — matching decompilation
 
 C source meant to compile byte-for-byte to the retail `SLPS_017.62`
-(SLPS-01762). README.md covers the layout and the build; read it first.
+(SLPS-01762). README.md covers the build, docs/CONTRIBUTING.md the image
+layout and the workflow; read them first.
 The tooling and the working method come from lsddecomp, a finished matching
 decomp of another PS1 game; `docs/lsd-reference/` holds its matching guide,
 its parallel-runs protocol and its toolchain research.

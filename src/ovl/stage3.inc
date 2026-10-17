@@ -252,7 +252,7 @@ void TipTrapAndShovePlayer(StageTrap *t) {
             DrawObjectModel(&gObjectModels[t->model], (Trap *)t);
             break;
         case 2:
-            gPlayer.motion[0] = 4;
+            gPlayer.motion[0] = MOT_RUN_FAST;
             PolarOffset(t->homeRotY, 50, gOffsetVec);
             gPlayer.x += gOffsetVec[0];
             gPlayer.z += gOffsetVec[2];

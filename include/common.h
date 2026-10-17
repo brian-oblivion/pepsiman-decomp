@@ -629,13 +629,14 @@ s32 PlaySe(s32 id);
  *         where each is played. Ids below 70 are in the common VAB bank;
  *         from 70 on, sSeVabBanks picks a stage's own. */
 enum SoundEffect {
-    SE_STEP = 0x13,  /**< every 8 frames of MOT_RUN_SLOW */
-    SE_SLIDE = 0x16, /**< a slide or a brake starts */
-    SE_JUMP = 0x17,  /**< leaving the ground */
-    SE_WIPE = 0x19,  /**< StartScreenWipe */
-    SE_SPIN = 0x1A,  /**< the spin's first frame */
-    SE_FALL = 0x1B,  /**< falling off the course (MISS_FELL) */
-    SE_LAND = 0x1E,  /**< LandPlayer: down on the ground or a ride quad */
+    SE_CURSOR = 0x0B, /**< a menu cursor moves */
+    SE_STEP = 0x13,   /**< every 8 frames of MOT_RUN_SLOW */
+    SE_SLIDE = 0x16,  /**< a slide or a brake starts */
+    SE_JUMP = 0x17,   /**< leaving the ground */
+    SE_WIPE = 0x19,   /**< StartScreenWipe */
+    SE_SPIN = 0x1A,   /**< the spin's first frame */
+    SE_FALL = 0x1B,   /**< falling off the course (MISS_FELL) */
+    SE_LAND = 0x1E,   /**< LandPlayer: down on the ground or a ride quad */
     SE_POWER_UP = 0x22, /**< a retry won on the results screen, or every tenth can raising the bonus level */
     SE_NEW_RECORD = 0x25, /**< the results screen beats a best can count or time */
     SE_HURRY = 0x28,      /**< 11 seconds left */
@@ -646,6 +647,7 @@ enum SoundEffect {
     SE_ITEM_2 = 0x31,     /**< ACT_STOP_ITEM, frame 20 */
     SE_MISS = 0x34,       /**< lying down with no bonus level left: the miss */
     SE_CAN = 0x35,        /**< a can collected */
+    SE_TRAP_HIT = 0x37,   /**< a trap touches the player while hittable */
     SE_LAUNCH = 0x3C,     /**< ACT_LAUNCH starts */
     SE_GET_UP = 0x50,     /**< getting up after a fall */
     SE_DASH = 0x71,       /**< the dash starts */

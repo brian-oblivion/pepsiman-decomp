@@ -47,7 +47,7 @@ void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {
                 t->state++;
                 ScatterTrapDust(t, side);
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
             if (gSection - UpdatePathSegment(t) < 2) {
@@ -73,7 +73,7 @@ void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {
                 t->state++;
                 ScatterTrapDust(t, side);
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
         case 4:
@@ -81,7 +81,7 @@ void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
     }

@@ -21,7 +21,7 @@ void StartChaseJump(void) {
         gPlayer.slideState = state;
         gPlayer.slideStateTime = 0;
         gPlayer.curMotion[0] = MOT_OFF;
-        PlaySe(0x17);
+        PlaySe(SE_JUMP);
     }
 }
 
@@ -73,7 +73,7 @@ static inline void StepChaseMotion(PlayerState *q) {
     __asm__("");
     m = p->motion[0];
     if (!(gFrameCount & 7) && m == 0x33) {
-        PlaySe(0x13);
+        PlaySe(SE_STEP);
     }
     switch (p->action) {
         case ACT_MODEL_ONCE:
@@ -129,7 +129,7 @@ s32 StepChaseFrame(void) {
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.yaw = -0x800;
-            gPlayer.motion[0] = 0x13;
+            gPlayer.motion[0] = MOT_STAND;
             gPlayer.x = -0x157C;
             gPlayer.y = 0;
             gPlayer.z = 0;
@@ -213,7 +213,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[1] = 200;
                         }
                         PlaySe(0x38);
-                        PlaySe(0x34);
+                        PlaySe(SE_MISS);
                         /* MATCHING: z less (100 less the roll) takes z - 100 first. */
                         for (gLoopI = 0; gLoopI < 8; gLoopI++) {
                             SpawnEffect(4, gPlayer.x + rand() % 200 - 100, -150 - rand() % 50,
@@ -400,7 +400,7 @@ s32 StepChaseFrame(void) {
             gPlayer.x = -1800;
             gPlayer.yaw = -0x400;
             gPlayer.speed = 30;
-            gPlayer.motion[0] = 0x33;
+            gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;
             gPlayer.y = 0;
             gPlayer.z = 0;

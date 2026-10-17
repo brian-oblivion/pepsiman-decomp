@@ -2,6 +2,7 @@
  * stage's own routines, and the engine functions still in asm. */
 
 #include "engine.inc"
+#include "libetc.h"
 
 /* This overlay's data, in address order: the engine's (engine_data.inc)
  * around its own. */
@@ -203,7 +204,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 UpdateObjectEntry(&gObjectModels[copy.model], (Trap *)&copy);
                 if ((t->touched != 0 || copy.touched != 0) && gPlayer.invulnTimer == 0 &&
                     gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
             break;
@@ -252,8 +253,8 @@ void StepMissSequence(void) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
@@ -282,7 +283,7 @@ void StepMissSequence(void) {
                 }
                 break;
             case 2:
-                gPlayer.motion[0] = 0;
+                gPlayer.motion[0] = MOT_DEFAULT;
                 if (++m->timer != 0) {
                     D_800AC6B8 = 90;
                     m->timer = 0;
@@ -351,13 +352,13 @@ void UpdateStageEventHook(void) {
                 break;
             case 2:
                 gMissState = 0;
-                gPlayer.action = 7;
+                gPlayer.action = ACT_TRIP_START;
                 gSwitches[192].state = SWITCH_OFF;
                 gPlayer.dropRide = 1;
                 m->timer = 0;
                 m->state++;
                 gPlayer.rideMode &= 0xF0;
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
                 break;
         }
     }
@@ -406,8 +407,8 @@ void UpdateGoalEventHook(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -423,7 +424,7 @@ void UpdateGoalEventHook(void) {
                 t->timer++;
                 if (t->timer > n) {
                     t->timer = 0;
-                    gPlayer.action = 0x17;
+                    gPlayer.action = ACT_STOP_START;
                     t->homeX = gPlayer.x;
                     t->homeY = gPlayer.y;
                     t->homeZ = gPlayer.z;
@@ -438,8 +439,8 @@ void UpdateGoalEventHook(void) {
                     ScatterDust((VECTOR *)&gPlayer.x);
                 }
                 if (t->timer > m) {
-                    gPlayer.action = 0;
-                    gPlayer.motion[0] = 0x13;
+                    gPlayer.action = ACT_RUN;
+                    gPlayer.motion[0] = MOT_STAND;
                     gFellOff = 1;
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
@@ -469,7 +470,7 @@ void UpdateGoalEventHook(void) {
                 }
                 if (t->homeRotZ > 40) {
                     t->timer = 0;
-                    gPlayer.action = 0x1B;
+                    gPlayer.action = ACT_STOP_ITEM_START;
                     t->state++;
                 }
                 break;
@@ -655,8 +656,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             }
             break;
         case 2:
-            gPlayer.action = 0;
-            gPlayer.motion[0] = 2;
+            gPlayer.action = ACT_RUN;
+            gPlayer.motion[0] = MOT_RUN_SLOW;
             gPlayer.drawX += rsin(gCourse.rot.vy + 0xC00) * 20 >> 12;
             gPlayer.drawZ += rcos(gCourse.rot.vy + 0xC00) * 20 >> 12;
             gBodyRot[1] = gPlayer.yaw + gPlayer.bodyYaw;
@@ -685,7 +686,7 @@ s32 StepButtonPrompt(void) {
         case 1:
             switch (sHints[sHintIndex].kind) {
                 case 0:
-                    if (gPadTrig & 0x8000) {
+                    if (gPadTrig & PADLleft) {
                         sHints[sHintIndex].state = 2;
                     }
                     if (sHints[sHintIndex].timer < 9) {
@@ -698,7 +699,7 @@ s32 StepButtonPrompt(void) {
                     DrawSprite(0x161, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
                 case 1:
-                    if (gPadTrig & 0x2000) {
+                    if (gPadTrig & PADLright) {
                         sHints[sHintIndex].state = 2;
                     }
                     if (sHints[sHintIndex].timer < 9) {
@@ -711,7 +712,7 @@ s32 StepButtonPrompt(void) {
                     DrawSprite(0x162, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
                 case 2:
-                    if (gPadTrig & 0x40) {
+                    if (gPadTrig & PADRdown) {
                         sHints[sHintIndex].state = 2;
                     }
                     if (sHints[sHintIndex].timer < 9) {
@@ -724,7 +725,7 @@ s32 StepButtonPrompt(void) {
                     DrawSprite(0x163, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
                 case 3:
-                    if (gPadTrig & 0x20) {
+                    if (gPadTrig & PADRright) {
                         sHints[sHintIndex].state = 2;
                     }
                     if (sHints[sHintIndex].timer < 9) {
@@ -1004,7 +1005,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

@@ -43,6 +43,6 @@ void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }
     if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(55);
+        PlaySe(SE_TRAP_HIT);
     }
 }

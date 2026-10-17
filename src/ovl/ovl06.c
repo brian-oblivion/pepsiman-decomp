@@ -212,8 +212,8 @@ void StepMissSequence(void) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
@@ -242,7 +242,7 @@ void StepMissSequence(void) {
                 }
                 break;
             case 2:
-                gPlayer.motion[0] = 0;
+                gPlayer.motion[0] = MOT_DEFAULT;
                 if (++m->timer != 0) {
                     D_800AC6B8 = 90;
                     m->timer = 0;
@@ -334,8 +334,8 @@ void UpdateGoalEventHook(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -351,7 +351,7 @@ void UpdateGoalEventHook(void) {
                 t->timer++;
                 if (t->timer > n) {
                     t->timer = 0;
-                    gPlayer.action = 0x17;
+                    gPlayer.action = ACT_STOP_START;
                     t->homeX = gPlayer.x;
                     t->homeY = gPlayer.y;
                     t->homeZ = gPlayer.z;
@@ -366,8 +366,8 @@ void UpdateGoalEventHook(void) {
                     ScatterDust((VECTOR *)&gPlayer.x);
                 }
                 if (t->timer > m) {
-                    gPlayer.action = 0;
-                    gPlayer.motion[0] = 0x13;
+                    gPlayer.action = ACT_RUN;
+                    gPlayer.motion[0] = MOT_STAND;
                     gFellOff = 1;
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
@@ -397,7 +397,7 @@ void UpdateGoalEventHook(void) {
                 }
                 if (t->homeRotZ >= 41) {
                     t->timer = 0;
-                    gPlayer.action = 0x1B;
+                    gPlayer.action = ACT_STOP_ITEM_START;
                     t->state++;
                 }
                 break;
@@ -631,9 +631,9 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->homeRotZ = 0;
                 t->timer = 0;
                 t->state++;
-                gPlayer.motion[0] = 0x36;
+                gPlayer.motion[0] = MOT_RIDE_LEAN_B_IN;
                 PlaySe(0x1C);
-                PlaySe(0x1A);
+                PlaySe(SE_SPIN);
             }
             break;
         case 2:
@@ -892,7 +892,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

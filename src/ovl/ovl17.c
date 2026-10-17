@@ -21,7 +21,7 @@ void StartChaseJump(void) {
         gPlayer.slideState = state;
         gPlayer.slideStateTime = 0;
         gPlayer.curMotion[0] = MOT_OFF;
-        PlaySe(0x17);
+        PlaySe(SE_JUMP);
     }
 }
 
@@ -61,7 +61,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
                     PlaySe(0x39);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
                         sHurtTimer = 60;
@@ -118,7 +118,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
                     PlaySe(0x39);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
                         sHurtTimer = 60;
@@ -174,7 +174,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
                     PlaySe(0x39);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
                         sHurtTimer = 60;
@@ -230,7 +230,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
                     PlaySe(0x39);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
                         sHurtTimer = 60;
@@ -293,7 +293,7 @@ static inline void StepChaseMotion(PlayerState *q) {
     __asm__("");
     m = p->motion[0];
     if (!(gFrameCount & 7) && m == 0x33) {
-        PlaySe(0x13);
+        PlaySe(SE_STEP);
     }
     switch (p->action) {
         case ACT_MODEL_ONCE:
@@ -349,7 +349,7 @@ s32 StepChaseFrame(void) {
             /* MATCHING: x first; sched still stores z first, x's li ahead of z's. */
             gPlayer.x = -0x1658;
             gPlayer.z = 0x6A4;
-            gPlayer.motion[0] = 3;
+            gPlayer.motion[0] = MOT_RUN;
             gPlayer.y = 0;
             gPlayer.yaw = 0;
             gPlayer.speed = 0;
@@ -372,7 +372,7 @@ s32 StepChaseFrame(void) {
             switch (sSubStep) {
                 case 0:
                     if (!(gFrameCount & 7)) {
-                        PlaySe(0x13);
+                        PlaySe(SE_STEP);
                     }
                     gPlayer.z -= 20;
                     if (++sSceneTimer >= 30) {
@@ -388,12 +388,12 @@ s32 StepChaseFrame(void) {
                     break;
                 case 5:
                     if (!(gFrameCount & 7)) {
-                        PlaySe(0x13);
+                        PlaySe(SE_STEP);
                     }
                     gPlayer.z -= 30;
                     if (++sSceneTimer >= 20) {
                         PlaySe(0x21);
-                        gPlayer.motion[0] = 0x10;
+                        gPlayer.motion[0] = MOT_STOP;
                         gPlayer.action = ACT_MODEL_ONCE;
                         sSceneTimer = 30;
                         sSubStep = 10;
@@ -419,7 +419,7 @@ s32 StepChaseFrame(void) {
                         gView[3] = -0x1658;
                         gView[4] = -500;
                         gView[5] = 600;
-                        gPlayer.motion[0] = 0x13;
+                        gPlayer.motion[0] = MOT_STAND;
                         gPlayer.action = ACT_MODEL_LOOP;
                         sSceneTimer = 0;
                         sSubStep = 20;
@@ -456,7 +456,7 @@ s32 StepChaseFrame(void) {
                     gView[1] += 4;
                     if (++sSceneTimer == 30) {
                         gPlayer.yaw = -0x400;
-                        gPlayer.motion[0] = 2;
+                        gPlayer.motion[0] = MOT_RUN_SLOW;
                         gPlayer.action = ACT_MODEL_LOOP;
                         sSceneTimer = 0;
                         sSubStep = 35;
@@ -465,7 +465,7 @@ s32 StepChaseFrame(void) {
                 case 35:
                     gView[1] += 4;
                     if (!(gFrameCount & 7)) {
-                        PlaySe(0x13);
+                        PlaySe(SE_STEP);
                     }
                     gPlayer.x += 30;
                     if (++sSceneTimer == 20) {
@@ -549,7 +549,7 @@ s32 StepChaseFrame(void) {
             gPlayer.x = -1800;
             gPlayer.yaw = -0x400;
             gPlayer.speed = 30;
-            gPlayer.motion[0] = 0x33;
+            gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;
             gPlayer.y = 0;
             gPlayer.z = 0;

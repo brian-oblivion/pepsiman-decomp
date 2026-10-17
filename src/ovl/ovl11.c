@@ -40,7 +40,7 @@ void StepChasePlayer(void) {
     if (gPlayer.motion[0] >= 2 && gPlayer.motion[0] <= 4) {
         if (gPlayer.speed >= 30 || (gPlayer.speed += 5) >= 30) {
             gPlayer.speed = 30;
-            gPlayer.motion[0] = 4;
+            gPlayer.motion[0] = MOT_RUN_FAST;
         }
     }
     UpdateJump();
@@ -341,7 +341,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 80 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -407,7 +407,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 60 < gPlayer.z &&
                     gPlayer.z < o->z + 60 && o->y - 120 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -473,7 +473,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 70 < gPlayer.z &&
                     gPlayer.z < o->z + 70 && o->y - 200 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -539,7 +539,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 }
                 if (o->x - 50 < gPlayer.x && gPlayer.x < o->x + 50 && o->z - 60 < gPlayer.z &&
                     gPlayer.z < o->z + 60 && o->y - 80 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -605,7 +605,7 @@ s32 StepChasePiece4(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 95 < gPlayer.z &&
                     gPlayer.z < o->z + 95 && o->y - 100 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -672,7 +672,7 @@ s32 StepChasePiece5(Act3Obj *o) {
                 }
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 45 < gPlayer.z &&
                     gPlayer.z < o->z + 45 && o->y - 80 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -739,7 +739,7 @@ s32 StepChasePiece6(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 105 < gPlayer.z &&
                     gPlayer.z < o->z + 105 && o->y - 90 < gPlayer.y) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -873,7 +873,7 @@ s32 StepChasePiece8(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 20 < gPlayer.z &&
                     gPlayer.z < o->z + 220 && o->y - 30 < gPlayer.y && gPlayer.y < o->y + h + 30) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -943,7 +943,7 @@ s32 StepChasePiece9(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 220 < gPlayer.z &&
                     gPlayer.z < o->z + 20 && o->y - 30 < gPlayer.y && gPlayer.y < o->y + h + 30) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -1013,7 +1013,7 @@ s32 StepChasePiece10(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 20 < gPlayer.z &&
                     gPlayer.z < o->z + 520 && o->y - 75 < gPlayer.y && gPlayer.y < o->y + h + 75) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -1083,7 +1083,7 @@ s32 StepChasePiece11(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 520 < gPlayer.z &&
                     gPlayer.z < o->z + 20 && o->y - 75 < gPlayer.y && gPlayer.y < o->y + h + 75) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -1160,7 +1160,7 @@ s32 StepChasePiece12(Act3Obj *o) {
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 70 < gPlayer.z &&
                     gPlayer.z < o->z + 70 && o->y - 40 < gPlayer.y && gPlayer.y < o->y + h + 40) {
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     o->state = 1;
                     o->timer = 0;
@@ -1301,8 +1301,8 @@ s32 StepChaseFrame(void) {
             sCanRot[1].vx = 0;
             sCanRot[1].vz = 0;
             gMissState = 0;
-            gPlayer.motion[0] = 0x13;
-            gPlayer.action = 0x17;
+            gPlayer.motion[0] = MOT_STAND;
+            gPlayer.action = ACT_STOP_START;
             gPlayer.speed = 0;
             gPlayer.x = -0x15E0;
             gPlayer.y = 0;
@@ -1310,7 +1310,7 @@ s32 StepChaseFrame(void) {
             gPlayer.control = 0;
             gCourse.rot.vy = 0x800;
             sRec.canInSub = 0;
-            gPlayer.curMotion[1] = 0;
+            gPlayer.curMotion[1] = MOT_DEFAULT;
             sSubStep = 0;
             gWorldIntroStep++;
             break;
@@ -1338,7 +1338,7 @@ s32 StepChaseFrame(void) {
                                         gPlayer.z + (rand() % 50 - 25), rand() % 4);
                         }
                         gPlayer.action = ACT_MODEL_ONCE;
-                        gPlayer.motion[0] = 0x34;
+                        gPlayer.motion[0] = MOT_RIDE_LEAN_A_IN;
                         sSubStep = 2;
                         sRec.timer = 0;
                     }
@@ -1431,7 +1431,7 @@ s32 StepChaseFrame(void) {
                         gPlayer.x = -1000;
                         gPlayer.y = 0;
                         gPlayer.z = 0;
-                        gPlayer.motion[0] = 0x35;
+                        gPlayer.motion[0] = MOT_RIDE_LEAN_A_OUT;
                         sCan.x = -4000;
                         /* MATCHING: the height worked in sCan.y itself. */
                         sCan.y = rsin(gFrameCount * 40960 / 360) * 100 / 4096;
@@ -1452,7 +1452,7 @@ s32 StepChaseFrame(void) {
                     SpawnEffect(4, gPlayer.x + (rand() % 100 - 50), gPlayer.y,
                                 gPlayer.z + (rand() % 100 - 50), 0);
                     if (++sRec.timer == 5) {
-                        gPlayer.motion[0] = 0x36;
+                        gPlayer.motion[0] = MOT_RIDE_LEAN_B_IN;
                         sRec.timer = 0;
                         sSubStep = 25;
                     }
@@ -1466,7 +1466,7 @@ s32 StepChaseFrame(void) {
                     break;
                 case 26:
                     if (++sRec.timer == 50) {
-                        gPlayer.motion[0] = 2;
+                        gPlayer.motion[0] = MOT_RUN_SLOW;
                         sRec.timer = 0;
                         sSubStep = 30;
                     }
@@ -1480,7 +1480,7 @@ s32 StepChaseFrame(void) {
                     sCanRot[0].vy = 0;
                     sCanRot[0].vz = -(gFrameCount * 49152 / 360);
                     if (++sRec.timer == 30) {
-                        gPlayer.motion[0] = 2;
+                        gPlayer.motion[0] = MOT_RUN_SLOW;
                         sRec.timer = 0;
                         sSubStep = 100;
                     }
@@ -1552,10 +1552,10 @@ s32 StepChaseFrame(void) {
             sCanRot[0].vz = 0;
             gPlayer.x = -1800;
             gPlayer.speed = 30;
-            gPlayer.motion[0] = 4;
+            gPlayer.motion[0] = MOT_RUN_FAST;
             gPlayer.y = 0;
             gPlayer.z = 0;
-            gPlayer.action = 0;
+            gPlayer.action = ACT_RUN;
             gPlayer.control = 1;
             gPlayer.groundY = 0;
             gFloorY[0] = 0;
@@ -1614,7 +1614,7 @@ s32 StepChaseFrame(void) {
             DrawSky(0);
             if (gPlayer.x < sCan.x + 120 && sRec.timer == 0) {
                 sRec.timer = 1;
-                gPlayer.motion[0] = 0x23;
+                gPlayer.motion[0] = MOT_THROWN_BACK;
             }
             if (gPlayer.x > 30000) {
                 gWorldIntroStep = 4;
@@ -1686,8 +1686,8 @@ s32 StepChaseFrame(void) {
                     GsSetRefView2((GsRVIEW2 *)gView);
                     if (++sRec.timer > 30) {
                         sRec.timer = 0;
-                        gPlayer.motion[0] = 0x13;
-                        gPlayer.action = 0x17;
+                        gPlayer.motion[0] = MOT_STAND;
+                        gPlayer.action = ACT_STOP_START;
                         gPlayer.speed = 0;
                         sSubStep = 15;
                     }

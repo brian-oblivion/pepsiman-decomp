@@ -409,7 +409,7 @@ s32 WrapDevMenuValues(void) {
 /* The cursor's click, outside the sound test. */
 void PlayDevCursorSe(void) {
     if (gModeStep != 100) {
-        PlaySe(0xB);
+        PlaySe(SE_CURSOR);
     }
 }
 

@@ -112,7 +112,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
                 if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 &&
                     gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
             break;
@@ -188,8 +188,8 @@ void StepMissSequence(void) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
@@ -218,7 +218,7 @@ void StepMissSequence(void) {
                 }
                 break;
             case 2:
-                gPlayer.motion[0] = 0;
+                gPlayer.motion[0] = MOT_DEFAULT;
                 if (++m->timer != 0) {
                     D_800AC6B8 = 90;
                     m->timer = 0;
@@ -238,7 +238,7 @@ void StepMissSequence(void) {
                         gOffsetVec[1] = gPlayer.y - i * 10;
                         ScatterDust((VECTOR *)gOffsetVec);
                     }
-                    gPlayer.action = 0x5E;
+                    gPlayer.action = ACT_RIDE_STRAIGHT;
                     gPlayer.rideMode = (gPlayer.rideMode & 0xF0) | 3;
                     SpawnMissDebris();
                     gMissState = 0;
@@ -287,13 +287,13 @@ void UpdateStageEventHook(void) {
                 break;
             case 2:
                 gMissState = 0;
-                gPlayer.action = 7;
+                gPlayer.action = ACT_TRIP_START;
                 gSwitches[192].state = 2;
                 gPlayer.dropRide = 1;
                 m->timer = 0;
                 m->state++;
                 gPlayer.rideMode &= 0xF0;
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
                 break;
         }
     }
@@ -373,8 +373,8 @@ void UpdateGoalEventHook(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -390,7 +390,7 @@ void UpdateGoalEventHook(void) {
                 t->timer++;
                 if (t->timer > walk) {
                     t->timer = 0;
-                    gPlayer.action = 0x17;
+                    gPlayer.action = ACT_STOP_START;
                     t->homeX = gPlayer.x;
                     t->homeY = gPlayer.y;
                     t->homeZ = gPlayer.z;
@@ -405,8 +405,8 @@ void UpdateGoalEventHook(void) {
                     ScatterDust((VECTOR *)&gPlayer.x);
                 }
                 if (t->timer > run) {
-                    gPlayer.action = 0;
-                    gPlayer.motion[0] = 0x13;
+                    gPlayer.action = ACT_RUN;
+                    gPlayer.motion[0] = MOT_STAND;
                     gFellOff = 1;
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
@@ -436,7 +436,7 @@ void UpdateGoalEventHook(void) {
                 }
                 if (t->homeRotZ > 40) {
                     t->timer = 0;
-                    gPlayer.action = 0x1B;
+                    gPlayer.action = ACT_STOP_ITEM_START;
                     t->state++;
                 }
                 break;
@@ -622,7 +622,7 @@ void SpawnTrapFFAct67(StageTrap *t, s8 arg) {
         s->timer = 20;
         s->model = r % 3 + 17;
         s->homeRotY += (rand() % 3 - 1) * 227;
-        PlaySe(0x2A);
+        PlaySe(SE_TALLY);
     }
 }
 
@@ -980,7 +980,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

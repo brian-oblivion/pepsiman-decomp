@@ -115,7 +115,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
                 if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 &&
                     gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
             break;
@@ -170,8 +170,8 @@ void StepMissSequence(void) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
@@ -200,7 +200,7 @@ void StepMissSequence(void) {
                 }
                 break;
             case 2:
-                gPlayer.motion[0] = 0;
+                gPlayer.motion[0] = MOT_DEFAULT;
                 if (++m->timer != 0) {
                     D_800AC6B8 = 90;
                     m->timer = 0;
@@ -262,8 +262,8 @@ void StepGoalSequence(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -355,8 +355,8 @@ void StepRideDismount(StageTrap *m) {
                 }
                 break;
             case 2:
-                gPlayer.motion[0] = 11;
-                gPlayer.action = 0;
+                gPlayer.motion[0] = MOT_JUMP_LOW;
+                gPlayer.action = ACT_RUN;
                 gPlayer.control = 1;
                 gPlayer.speed = 0x50;
                 gSpeedFixed = 0x500;
@@ -389,7 +389,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->homeZ = gPlayer.z;
                 t->timer = 0;
                 t->state++;
-                gPlayer.action = 0x17;
+                gPlayer.action = ACT_STOP_START;
                 SetSoundFade(4);
             }
             break;
@@ -400,8 +400,8 @@ s8 StepGoalCutscene(StageTrap *t) {
                 ScatterDust((VECTOR *)&gPlayer.x);
             }
             if (t->timer > m) {
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 0x13;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_STAND;
                 t->timer = 0;
                 t->state++;
                 sSavedView[0] = gView[0];
@@ -414,7 +414,7 @@ s8 StepGoalCutscene(StageTrap *t) {
             break;
         case 2:
             if (++t->timer > 30) {
-                gPlayer.action = 0x19;
+                gPlayer.action = ACT_STOP_WAIT_START;
                 gFellOff = 1;
                 gRefView[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
@@ -439,7 +439,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->timer++;
             }
             if (t->timer == 15) {
-                PlaySe(0x22);
+                PlaySe(SE_POWER_UP);
             }
             if (++t->homeRotZ > 40) {
                 t->timer = 0;
@@ -641,7 +641,7 @@ void StepBoardJump(void) {
             gPlayer.jumpStartY = gPlayer.y;
             ScatterDust((VECTOR *)&gPlayer.x);
             StartRumble(gRumblePatterns, RUMBLE_NONE);
-            PlaySe(0x17);
+            PlaySe(SE_JUMP);
         }
         if (gPlayer.jumpState == JUMP_RISING) {
             n = ++gPlayer.jumpTime;
@@ -690,14 +690,14 @@ void SteerBoard(void) {
     if (gPad & 0x8000) { /* PADLleft */
         ApplySteer(3, 16, 5);
         sSteerDrift -= 10;
-        gPlayer.action = 0x35;
+        gPlayer.action = ACT_RIDE_LEAN_A_START;
     } else if (gPad & 0x2000) { /* PADLright */
         ApplySteer(2, 16, 5);
         sSteerDrift += 10;
-        gPlayer.action = 0x37;
+        gPlayer.action = ACT_RIDE_LEAN_B_START;
     } else {
         RecentreSteer();
-        gPlayer.action = 0x33;
+        gPlayer.action = ACT_RIDE_CENTRE_START;
         if (sSteerDrift != 0) {
             if (sSteerDrift < 0) {
                 sSteerDrift += 2;
@@ -965,7 +965,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

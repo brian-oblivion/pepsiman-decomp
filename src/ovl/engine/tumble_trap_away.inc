@@ -8,7 +8,7 @@ void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
             t->y -= height;
             if (t->touched != 0) {
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
                 t->homeX = 0;
                 t->homeY = t->y;

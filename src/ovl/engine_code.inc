@@ -1061,7 +1061,7 @@ void TipTrapAway(StageTrap *t) {
                 t->state++;
                 t->timer = 0;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
             break;

@@ -24,7 +24,7 @@ void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {
                 t->state++;
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
         case 2:
@@ -37,7 +37,7 @@ void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {
                 t->state++;
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
         case 3:
@@ -45,7 +45,7 @@ void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
     }

@@ -36,7 +36,7 @@ s32 StepChasePlayer(void) {
     switch ((s8)gPlayer.slideState) {
         case 0:
             gPlayer.speed = 30;
-            gPlayer.motion[0] = 0x33;
+            gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;
             StartChaseJump();
             if (ClipF == 0) {
@@ -55,7 +55,7 @@ s32 StepChasePlayer(void) {
             break;
         case 1:
             gPlayer.speed = 30;
-            gPlayer.motion[0] = 0x34;
+            gPlayer.motion[0] = MOT_RIDE_LEAN_A_IN;
             gPlayer.action = ACT_MODEL_ONCE;
             if (gPlayer.airborne == 0) {
                 gPlayer.slideState = 0;
@@ -78,7 +78,7 @@ s32 StepChasePlayer(void) {
             break;
         case 2:
             gPlayer.speed = 24;
-            gPlayer.motion[0] = 0x35;
+            gPlayer.motion[0] = MOT_RIDE_LEAN_A_OUT;
             gPlayer.action = ACT_MODEL_ONCE;
             if (++gPlayer.slideStateTime > 32) {
                 gPlayer.slideState = 0;
@@ -87,7 +87,7 @@ s32 StepChasePlayer(void) {
             }
             break;
         case 3:
-            gPlayer.motion[0] = 0x36;
+            gPlayer.motion[0] = MOT_RIDE_LEAN_B_IN;
             gPlayer.speed = 0;
             gPlayer.action = ACT_MODEL_ONCE;
             if (++gPlayer.slideStateTime > 16) {

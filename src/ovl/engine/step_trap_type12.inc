@@ -43,6 +43,6 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }
     if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x37);
+        PlaySe(SE_TRAP_HIT);
     }
 }

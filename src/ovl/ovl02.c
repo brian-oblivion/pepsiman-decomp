@@ -232,8 +232,8 @@ void StepOpening(void) {
             sLights.l[2].vy = 100;
             sLights.l[2].vz = -50;
             GsSetFlatLight(2, &sLights.l[2]);
-            gPlayer.action = 0x61;
-            gPlayer.motion[0] = 3;
+            gPlayer.action = ACT_MODEL_LOOP;
+            gPlayer.motion[0] = MOT_RUN;
             gPlayer.z = -600;
             gPlayer.speed = 0;
             gPlayer.x = 0;
@@ -584,8 +584,8 @@ void StepMainMenu(void) {
             sLights.l[2].vy = 100;
             sLights.l[2].vz = -50;
             GsSetFlatLight(2, &sLights.l[2]);
-            gPlayer.action = 0x61;
-            gPlayer.motion[0] = 3;
+            gPlayer.action = ACT_MODEL_LOOP;
+            gPlayer.motion[0] = MOT_RUN;
             gPlayer.x = 0;
             gPlayer.y = 0;
             gPlayer.z = 0;
@@ -675,14 +675,14 @@ void StepMainMenu(void) {
             p2.vy = sMenuCursor * 24 - sMenuItemCount * 12 - 0x15;
             DrawMenuCursor(&p2, 1);
             if (gPadTrig & PADLup) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 if (sMenuCursor == 0) {
                     sMenuCursor = sMenuItemCount - 1;
                 } else {
                     sMenuCursor--;
                 }
             } else if (gPadTrig & PADLdown) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 if (sMenuCursor == sMenuItemCount - 1) {
                     sMenuCursor = 0;
                 } else {
@@ -946,7 +946,7 @@ void StepMainMenu(void) {
                 DrawMenuCursor(&p2, 2);
             }
             if (gPadTrig & PADLleft) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 sMenuTime = 0;
                 if (gSelectedWorld == 0) {
                     gSelectedWorld = 3;
@@ -954,7 +954,7 @@ void StepMainMenu(void) {
                     gSelectedWorld--;
                 }
             } else if (gPadTrig & PADLright) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 sMenuTime = 0;
                 if (gSelectedWorld == 3) {
                     gSelectedWorld = 0;
@@ -963,7 +963,7 @@ void StepMainMenu(void) {
                 }
             } else if (gPadTrig & PADLup) {
                 if (sMenuTime >= 16) {
-                    PlaySe(0xB);
+                    PlaySe(SE_CURSOR);
                     if (gSelectedAct == 0) {
                         gSelectedAct = 3;
                     } else {
@@ -972,7 +972,7 @@ void StepMainMenu(void) {
                 }
             } else if (gPadTrig & PADLdown) {
                 if (sMenuTime >= 16) {
-                    PlaySe(0xB);
+                    PlaySe(SE_CURSOR);
                     if (gSelectedAct == 3) {
                         gSelectedAct = 0;
                     } else {
@@ -1322,7 +1322,7 @@ void StepMainMenu(void) {
             __asm__("");
             DrawMenuCursor(&p2, 2);
             if (gPadTrig & PADLup) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 do {
                     i = 0;
                     if (sOptionsCursor == 0) {
@@ -1338,7 +1338,7 @@ void StepMainMenu(void) {
                     }
                 } while (i != 0);
             } else if (gPadTrig & PADLdown) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 do {
                     i = 0;
                     if (sOptionsCursor == 4) {
@@ -1354,7 +1354,7 @@ void StepMainMenu(void) {
                     }
                 } while (i != 0);
             } else if (gPadTrig & PADLleft) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 switch (sOptionsCursor) {
                     case 0:
                         gStereo ^= 1;
@@ -1395,7 +1395,7 @@ void StepMainMenu(void) {
                         break;
                 }
             } else if (gPadTrig & PADLright) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 switch (sOptionsCursor) {
                     case 0:
                         gStereo ^= 1;
@@ -1616,14 +1616,14 @@ void StepMainMenu(void) {
             pos.vx += 0xB0;
             DrawSprite(sButtonIcons[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             if (gPadTrig & PADLleft) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 if (gButtonConfig == 0) {
                     gButtonConfig = 3;
                 } else {
                     gButtonConfig--;
                 }
             } else if (gPadTrig & PADLright) {
-                PlaySe(0xB);
+                PlaySe(SE_CURSOR);
                 if (gButtonConfig == 3) {
                     gButtonConfig = 0;
                 } else {
@@ -2447,10 +2447,10 @@ void StepTitle(void) {
             sView.vrz = 0;
             gPlayer.x = -10000;
             gPlayer.yaw = -0x400;
-            gPlayer.action = 0x61;
+            gPlayer.action = ACT_MODEL_LOOP;
             gPlayer.y = 0;
             gPlayer.z = 0;
-            gPlayer.motion[0] = 3;
+            gPlayer.motion[0] = MOT_RUN;
             PlayCdTrack(7, 0);
             gSubStep = 100;
             break;
@@ -2530,8 +2530,8 @@ void StepTitle(void) {
             if (gPlayer.x == 11000) {
                 sTitleCamTime = 0;
                 PlaySe(0x23);
-                gPlayer.action = 0x60;
-                gPlayer.motion[0] = 0x33;
+                gPlayer.action = ACT_MODEL_ONCE;
+                gPlayer.motion[0] = MOT_RIDE;
                 gSubStep = 140;
             }
             break;
@@ -2559,10 +2559,10 @@ void StepTitle(void) {
         case 1000:
             gPlayer.x = 11000;
             gPlayer.yaw = -0x400;
-            gPlayer.action = 0x61;
+            gPlayer.action = ACT_MODEL_LOOP;
             gPlayer.y = 0;
             gPlayer.z = 0;
-            gPlayer.motion[0] = 0x34;
+            gPlayer.motion[0] = MOT_RIDE_LEAN_A_IN;
             sView.vpx = 0x2904;
             sView.vrx = 11000;
             sView.vpy = sView.vry = -150;
@@ -2577,10 +2577,10 @@ void StepTitle(void) {
             if (gPadTrig & PADstart) {
                 if (sTitleStarted == 0) {
                     MemCardAccept(0);
-                    PlaySe(0x22);
+                    PlaySe(SE_POWER_UP);
                     gPlayer.yaw = 0x400;
-                    gPlayer.action = 0x60;
-                    gPlayer.motion[0] = 0xF;
+                    gPlayer.action = ACT_MODEL_ONCE;
+                    gPlayer.motion[0] = MOT_STOP_WAIT;
                     sTitleExitTime = 1;
                     sTitleStarted = 1;
                 }
@@ -2602,8 +2602,8 @@ void StepTitle(void) {
             break;
     }
     GsSetRefView2(&sView);
-    if (gPlayer.motion[0] == 3 && !(gFrameCount & 7)) {
-        PlaySe(0x13);
+    if (gPlayer.motion[0] == MOT_RUN && !(gFrameCount & 7)) {
+        PlaySe(SE_STEP);
     }
     if (gSubStep >= 1000) {
         if (sTitleStarted == 0 || (gFrameCount & 1)) {

@@ -31,7 +31,7 @@ void SwingGateContinuously(StageTrap *t, s8 arg) {
                 }
             }
             if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
         case 2:
@@ -49,7 +49,7 @@ void SwingGateContinuously(StageTrap *t, s8 arg) {
                 UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
             }
             if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             if (t->timer == 20) {
                 t->timer = 0;

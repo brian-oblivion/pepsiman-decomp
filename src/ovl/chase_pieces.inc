@@ -33,7 +33,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 80 < gPlayer.y) {
                     PlaySe(0x38);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -114,7 +114,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 60 < gPlayer.z &&
                     gPlayer.z < o->z + 60 && o->y - 120 < gPlayer.y) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -195,7 +195,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 70 < gPlayer.z &&
                     gPlayer.z < o->z + 70 && o->y - 200 < gPlayer.y) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -276,7 +276,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 if (o->x - 50 < gPlayer.x && gPlayer.x < o->x + 50 && o->z - 60 < gPlayer.z &&
                     gPlayer.z < o->z + 60 && o->y - 80 < gPlayer.y) {
                     PlaySe(0x38);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -357,7 +357,7 @@ s32 StepChasePiece4(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 95 < gPlayer.z &&
                     gPlayer.z < o->z + 95 && o->y - 100 < gPlayer.y) {
                     PlaySe(0x3A);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -439,7 +439,7 @@ s32 StepChasePiece5(Act3Obj *o) {
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 45 < gPlayer.z &&
                     gPlayer.z < o->z + 45 && o->y - 80 < gPlayer.y) {
                     PlaySe(0x39);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -521,7 +521,7 @@ s32 StepChasePiece6(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 105 < gPlayer.z &&
                     gPlayer.z < o->z + 105 && o->y - 90 < gPlayer.y) {
                     PlaySe(0x3A);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -673,7 +673,7 @@ s32 StepChasePiece8(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 20 < gPlayer.z &&
                     gPlayer.z < o->z + 220 && o->y - 30 < gPlayer.y && gPlayer.y < o->y + h + 30) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -760,7 +760,7 @@ s32 StepChasePiece9(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 220 < gPlayer.z &&
                     gPlayer.z < o->z + 20 && o->y - 30 < gPlayer.y && gPlayer.y < o->y + h + 30) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -847,7 +847,7 @@ s32 StepChasePiece10(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 20 < gPlayer.z &&
                     gPlayer.z < o->z + 520 && o->y - 75 < gPlayer.y && gPlayer.y < o->y + h + 75) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -934,7 +934,7 @@ s32 StepChasePiece11(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 520 < gPlayer.z &&
                     gPlayer.z < o->z + 20 && o->y - 75 < gPlayer.y && gPlayer.y < o->y + h + 75) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {
@@ -1027,7 +1027,7 @@ s32 StepChasePiece12(Act3Obj *o) {
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 70 < gPlayer.z &&
                     gPlayer.z < o->z + 70 && o->y - 40 < gPlayer.y && gPlayer.y < o->y + h + 40) {
                     PlaySe(0x3B);
-                    gPlayer.action = 9;
+                    gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
                         if (sHurtTimer == 0) {

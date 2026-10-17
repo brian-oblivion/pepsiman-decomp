@@ -53,9 +53,9 @@ void StepWorldIntro(void) {
             break;
         case 4:
             sPartner = gPlayer;
-            sPartner.motion[0] = 0x38;
+            sPartner.motion[0] = MOT_RIDE_JUMP;
             sPartner.curMotion[0] = MOT_OFF;
-            sPartner.motion[1] = 0x38;
+            sPartner.motion[1] = MOT_RIDE_JUMP;
             sPartner.curMotion[1] = MOT_OFF;
             StepIntroMotion(&sPartner, 0, (s32)sPartnerObjTable, sPartnerTmd);
             sLights.l[0].r = 0x80;
@@ -81,14 +81,14 @@ void StepWorldIntro(void) {
             GsSetFlatLight(2, &sLights.l[2]);
             gPlayer.z = -0x1644;
             gPlayer.yaw = 0x800;
-            gPlayer.motion[0] = 0x33;
+            gPlayer.motion[0] = MOT_RIDE;
             gPlayer.x = 0;
             gPlayer.y = 0;
             gPlayer.curMotion[0] = MOT_OFF;
             gPlayer.action = ACT_MODEL_LOOP;
             sPartner.x = -100;
             sPartner.yaw = -0x200;
-            sPartner.motion[0] = 0x39;
+            sPartner.motion[0] = MOT_RIDE_JUMP_2;
             sPartner.y = 0;
             sPartner.z = 100;
             sPartner.action = ACT_MODEL_LOOP;
@@ -138,7 +138,7 @@ void StepWorldIntro(void) {
                         sView.vrz = gPlayer.z;
                         gEventTraps.timer++;
                         if (gPlayer.z >= -0xE1) {
-                            gPlayer.motion[0] = 0x34;
+                            gPlayer.motion[0] = MOT_RIDE_LEAN_A_IN;
                             gPlayer.action = ACT_MODEL_ONCE;
                             sPartner.motion[0] = 0x3A;
                             sPartner.action = ACT_MODEL_ONCE;
@@ -157,7 +157,7 @@ void StepWorldIntro(void) {
                         sView.vrz = gPlayer.z;
                         if ((gEventTraps.timer -= 2) == 0) {
                             gPlayer.yaw = 0x600;
-                            gPlayer.motion[0] = 0x35;
+                            gPlayer.motion[0] = MOT_RIDE_LEAN_A_OUT;
                             gPlayer.action = ACT_MODEL_ONCE;
                             gEventTraps.timer = 0;
                             sSubStep = 10;
@@ -167,7 +167,7 @@ void StepWorldIntro(void) {
                         if (sPartner.motionResult[0] == 0) {
                             sPartner.motion[0] = rand() % 2 + 0x3A;
                             sPartner.curMotion[0] = MOT_OFF;
-                            sPartner.action = 0;
+                            sPartner.action = ACT_RUN;
                         }
                         if (sIntroFrame == 324) {
                             sView.vpx = 110;
@@ -184,20 +184,20 @@ void StepWorldIntro(void) {
                         break;
                     case 15:
                         if (gPlayer.motionResult[0] == 0) {
-                            gPlayer.motion[0] = 0x36;
+                            gPlayer.motion[0] = MOT_RIDE_LEAN_B_IN;
                             gPlayer.curMotion[0] = MOT_OFF;
-                            gPlayer.action = 0;
+                            gPlayer.action = ACT_RUN;
                             sSubStep = 20;
                         }
                         break;
                     case 20:
                         if (gPlayer.motionResult[0] == 0) {
-                            gPlayer.motion[0] = 0x37;
+                            gPlayer.motion[0] = MOT_RIDE_LEAN_B_OUT;
                             gPlayer.curMotion[0] = MOT_OFF;
-                            gPlayer.action = 0;
+                            gPlayer.action = ACT_RUN;
                             sPartner.motion[0] = 0x3C;
                             sPartner.curMotion[0] = MOT_OFF;
-                            sPartner.action = 0;
+                            sPartner.action = ACT_RUN;
                             gEventTraps.timer = 0;
                             sSubStep = 25;
                         }
@@ -205,7 +205,7 @@ void StepWorldIntro(void) {
                     case 25:
                         if (gPlayer.motionResult[0] == 0) {
                             gPlayer.yaw = 0x800;
-                            gPlayer.motion[0] = 0x33;
+                            gPlayer.motion[0] = MOT_RIDE;
                             gPlayer.curMotion[0] = MOT_OFF;
                             gPlayer.action = 1;
                         }

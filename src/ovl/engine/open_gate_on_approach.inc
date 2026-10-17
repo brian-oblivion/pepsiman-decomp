@@ -16,7 +16,7 @@ void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {
                 UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
             }
             if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
         case 1:
@@ -39,7 +39,7 @@ void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {
                 t->state++;
             }
             if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
         case 2:
@@ -49,7 +49,7 @@ void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {
                 UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
             }
             if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             break;
     }

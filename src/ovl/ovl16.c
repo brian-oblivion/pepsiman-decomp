@@ -255,8 +255,8 @@ void StepMissSequence(void) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
@@ -281,8 +281,8 @@ void StepMissSequence(void) {
                 gRefView[5] = gView[5];
                 GsSetRefView2((GsRVIEW2 *)gRefView);
                 if (++m->timer == 10) {
-                    gPlayer.motion[0] = 11;
-                    gPlayer.action = 0;
+                    gPlayer.motion[0] = MOT_JUMP_LOW;
+                    gPlayer.action = ACT_RUN;
                     gPlayer.jumpPower = 40;
                 }
                 if (m->timer >= 21) {
@@ -327,8 +327,8 @@ void StepGoalSequence(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -457,7 +457,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->homeZ = gPlayer.z;
                 t->timer = 0;
                 t->state++;
-                gPlayer.action = 0x17;
+                gPlayer.action = ACT_STOP_START;
                 SetSoundFade(4);
             }
             break;
@@ -468,15 +468,15 @@ s8 StepGoalCutscene(StageTrap *t) {
                 ScatterDust((VECTOR *)&gPlayer.x);
             }
             if (t->timer > m) {
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 0x13;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_STAND;
                 t->timer = 0;
                 t->state++;
             }
             break;
         case 2:
             if (++t->timer >= 16) {
-                gPlayer.action = 0x19;
+                gPlayer.action = ACT_STOP_WAIT_START;
                 gFellOff = 1;
                 sShotView[0] = rsin(gCourse.rot.vy + 0x8E3) * 200 >> 12;
                 sShotView[2] = rcos(gCourse.rot.vy + 0x8E3) * 200 >> 12;
@@ -507,7 +507,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->timer++;
             }
             if (t->timer == 15) {
-                PlaySe(0x22);
+                PlaySe(SE_POWER_UP);
             }
             if (++t->homeRotZ > 20) {
                 t->timer = 0;
@@ -516,8 +516,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             break;
         case 4:
             if (++t->timer > 20) {
-                gPlayer.curMotion[0] = 0xFF;
-                gPlayer.action = 0x19;
+                gPlayer.curMotion[0] = MOT_OFF;
+                gPlayer.action = ACT_STOP_WAIT_START;
                 gFellOff = 1;
                 sShotView[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
                 sShotView[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
@@ -548,7 +548,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->timer++;
             }
             if (t->timer == 15) {
-                PlaySe(0x22);
+                PlaySe(SE_POWER_UP);
             }
             if (++t->homeRotZ > 20) {
                 t->timer = 0;
@@ -557,8 +557,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             break;
         case 6:
             if (++t->timer > 20) {
-                gPlayer.curMotion[0] = 0xFF;
-                gPlayer.action = 0x19;
+                gPlayer.curMotion[0] = MOT_OFF;
+                gPlayer.action = ACT_STOP_WAIT_START;
                 gFellOff = 1;
                 sShotView[0] = rsin(gCourse.rot.vy + 0x800) * 200 >> 12;
                 sShotView[2] = rcos(gCourse.rot.vy + 0x800) * 200 >> 12;
@@ -589,7 +589,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->timer++;
             }
             if (t->timer == 15) {
-                PlaySe(0x22);
+                PlaySe(SE_POWER_UP);
             }
             if (++t->homeRotZ > 60) {
                 t->timer = 0;
@@ -709,7 +709,7 @@ void StepBoardJump(void) {
             gPlayer.jumpPower = 0x23;
             gPlayer.jumpStartY = gPlayer.y;
             ScatterDust((VECTOR *)&gPlayer.x);
-            PlaySe(0x17);
+            PlaySe(SE_JUMP);
         }
         if (gPlayer.jumpState == JUMP_RISING) {
             n = ++gPlayer.jumpTime;
@@ -757,14 +757,14 @@ void SteerBoard(void) {
     if (gPad & 0x8000) { /* PADLleft */
         ApplySteer(3, 16, 15);
         sSteerDrift -= 3;
-        gPlayer.action = 0x35;
+        gPlayer.action = ACT_RIDE_LEAN_A_START;
     } else if (gPad & 0x2000) { /* PADLright */
         ApplySteer(2, 16, 15);
         sSteerDrift += 3;
-        gPlayer.action = 0x37;
+        gPlayer.action = ACT_RIDE_LEAN_B_START;
     } else {
         RecentreSteer();
-        gPlayer.action = 0x33;
+        gPlayer.action = ACT_RIDE_CENTRE_START;
         if (sSteerDrift != 0) {
             if (sSteerDrift < 0) {
                 sSteerDrift++;
@@ -826,7 +826,7 @@ void StepTrapAct25(StageTrap *t, s32 arg) {
     if (gSection - UpdatePathSegment(t) < 2) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
         if (t->touched && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-            PlaySe(0x37);
+            PlaySe(SE_TRAP_HIT);
         }
     }
 }
@@ -928,9 +928,9 @@ void UpdateStageEventHook(void) {
     m = &gEventTraps[1];
     if (gSwitches[192].state == SWITCH_ON) {
         m->state = 0;
-        gPlayer.motion[0] = 11;
+        gPlayer.motion[0] = MOT_JUMP_LOW;
         gPlayer.jumpPower = 60;
-        gPlayer.action = 0;
+        gPlayer.action = ACT_RUN;
         gSwitches[192].state = SWITCH_OFF;
         gPlayer.dropRide = 1;
         m->timer = 0;
@@ -1106,7 +1106,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

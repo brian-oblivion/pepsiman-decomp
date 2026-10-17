@@ -191,7 +191,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 UpdateObjectEntry(&gObjectModels[copy.model], (Trap *)&copy);
                 if ((t->touched != 0 || copy.touched != 0) && gPlayer.invulnTimer == 0 &&
                     gPlayer.hittable == 1) {
-                    PlaySe(0x37);
+                    PlaySe(SE_TRAP_HIT);
                 }
             }
             break;
@@ -251,7 +251,7 @@ void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             t->z += gOffsetVec[2] >> 12;
             UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             if (!(t->timer & 1)) {
                 v.vx = t->x - (50 - rand() % 100);
@@ -305,7 +305,7 @@ void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x37);
+                PlaySe(SE_TRAP_HIT);
             }
             m2 = (ModelSlot *)gObjectModels;
             m2[t->model].scale.vx = m2[t->model].scale.vy = m2[t->model].scale.vz = 0x1000;
@@ -361,7 +361,7 @@ void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {
     if (near < 2) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
         if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-            PlaySe(0x37);
+            PlaySe(SE_TRAP_HIT);
         }
     }
 }
@@ -435,8 +435,8 @@ void UpdateGoalEventHook(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -452,7 +452,7 @@ void UpdateGoalEventHook(void) {
                 t->timer++;
                 if (t->timer > walk) {
                     t->timer = 0;
-                    gPlayer.action = 0x17;
+                    gPlayer.action = ACT_STOP_START;
                     t->homeX = gPlayer.x;
                     t->homeY = gPlayer.y;
                     t->homeZ = gPlayer.z;
@@ -467,8 +467,8 @@ void UpdateGoalEventHook(void) {
                     ScatterDust((VECTOR *)&gPlayer.x);
                 }
                 if (t->timer > slide) {
-                    gPlayer.action = 0;
-                    gPlayer.motion[0] = 0x13;
+                    gPlayer.action = ACT_RUN;
+                    gPlayer.motion[0] = MOT_STAND;
                     gFellOff = 1;
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
@@ -498,7 +498,7 @@ void UpdateGoalEventHook(void) {
                 }
                 if (t->homeRotZ > 40) {
                     t->timer = 0;
-                    gPlayer.action = 0x1B;
+                    gPlayer.action = ACT_STOP_ITEM_START;
                     t->state++;
                 }
                 break;
@@ -989,7 +989,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

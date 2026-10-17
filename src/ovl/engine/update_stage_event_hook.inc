@@ -6,9 +6,9 @@ void UpdateStageEventHook(void) {
     s = gSwitches;
     if (s[192].state == SWITCH_ON) {
         m->state = 0;
-        gPlayer.motion[0] = 11;
+        gPlayer.motion[0] = MOT_JUMP_LOW;
         gPlayer.jumpPower = 40;
-        gPlayer.action = 0;
+        gPlayer.action = ACT_RUN;
         s[192].state = SWITCH_OFF;
         gPlayer.dropRide = 1;
         m->timer = 0;

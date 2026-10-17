@@ -172,8 +172,8 @@ void StepMissSequence(void) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
@@ -202,7 +202,7 @@ void StepMissSequence(void) {
                 }
                 break;
             case 2:
-                gPlayer.motion[0] = 0;
+                gPlayer.motion[0] = MOT_DEFAULT;
                 if (++m->timer != 0) {
                     D_800AC6B8 = 90;
                     m->timer = 0;
@@ -261,8 +261,8 @@ void StepGoalSequence(void) {
         switch (t->state) {
             case 0:
                 gPlayer.control = 0;
-                gPlayer.action = 0;
-                gPlayer.motion[0] = 4;
+                gPlayer.action = ACT_RUN;
+                gPlayer.motion[0] = MOT_RUN_FAST;
                 StopSpeed();
                 gMissState = -2;
                 ClipF = 1;
@@ -345,8 +345,8 @@ s8 StepGoalCutscene(StageTrap *t) {
     switch (t->state) {
         case 0:
             StopCdTrack();
-            gPlayer.action = 0;
-            gPlayer.motion[0] = 0x36;
+            gPlayer.action = ACT_RUN;
+            gPlayer.motion[0] = MOT_RIDE_LEAN_B_IN;
             gFellOff = 1;
             gRefView[0] = rsin(gCourse.rot.vy + 0x5C7) * 300 >> 12;
             gRefView[2] = rcos(gCourse.rot.vy + 0x5C7) * 300 >> 12;
@@ -361,7 +361,7 @@ s8 StepGoalCutscene(StageTrap *t) {
             SetSoundFade(4);
         case 1:
             if (t->homeRotZ == 30) {
-                PlaySe(0x22);
+                PlaySe(SE_POWER_UP);
             }
             gPlayer.fallSpeed = 0;
             gPlayer.drawX += rsin(gCourse.rot.vy + 0x800) * 3 >> 12;
@@ -395,7 +395,7 @@ s8 StepGoalCutscene(StageTrap *t) {
         case 2:
             gPlayer.fallSpeed = 0;
             if (t->homeRotZ == 10) {
-                PlaySe(0x1A);
+                PlaySe(SE_SPIN);
             }
             t->homeRotZ++;
             t->homeRotX++;
@@ -709,7 +709,7 @@ void ResetToStageStart(void) {
     ((SVECTOR *)sCamOffset)->vx = 0;
     gView[1] = 0;
     ((SVECTOR *)sCamOffset)->vy = 0;
-    gPlayer.motion[0] = 2;
+    gPlayer.motion[0] = MOT_RUN_SLOW;
     gPlayer.control = 1;
     gPlayer.hittable = 1;
     gCourse.rot.vy = yaw;

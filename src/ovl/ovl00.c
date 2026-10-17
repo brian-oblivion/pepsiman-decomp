@@ -58,8 +58,8 @@ u16 sSoundTestBgm = 0; /* the BGM */
         FntPrint("~c008");  \
     }
 
-s32 func_800F1060(void);
-void func_800F09C0(void);
+s32 StepDevMenuCursor(void);
+void StepSoundTest(void);
 
 void StepDevMenu(void) {
     /* MATCHING: an unused 8-byte local gives retail's frame. */
@@ -109,7 +109,7 @@ void StepDevMenu(void) {
             } else {
                 gStage = gEditValue;
             }
-            if (func_800F1060() == 0) {
+            if (StepDevMenuCursor() == 0) {
                 PRINT_LINE(0)
                 FntPrint("\n0.GAME MODE");
                 FntPrint("~c888\t\t  << STAGE %d-", (u8)(gStage / 3) + 1);
@@ -193,12 +193,12 @@ void StepDevMenu(void) {
             gGameMode = GM_STAGE_LOAD;
             break;
         case 100:
-            func_800F09C0();
+            StepSoundTest();
             break;
     }
 }
 
-void func_800F09C0(void) {
+void StepSoundTest(void) {
     u16 prev;
 
     switch (gWorldIntroStep) {
@@ -234,7 +234,7 @@ void func_800F09C0(void) {
             }
             FntPrint("\n\nVABID NO 0:%d 1:%d", gBgmVab, (&gBgmVab)[1]);
             FntPrint("\nVAB1  NO %d", gVabBank);
-            if (func_800F1060() == 0) {
+            if (StepDevMenuCursor() == 0) {
                 PRINT_LINE(0)
                 FntPrint("\n\nVAB NO %d", sSoundTestVab);
                 PRINT_LINE(1)
@@ -297,7 +297,7 @@ void func_800F09C0(void) {
 /* Turns the player model with the pad and moves it and the view: the
  * motion test's controls. */
 /* MATCHING: an unused 40-byte local gives retail's frame. */
-s32 func_800F0E68(void) {
+s32 MoveMotionTestModel(void) {
     s32 unused[10];
 
     if (gPad & PADRup) {
@@ -340,16 +340,16 @@ s32 func_800F0E68(void) {
     return 1;
 }
 
-void func_800F1218(void);
-void func_800F11E8(void);
-s32 func_800F1158(void);
+void PlayDevChoiceSe(void);
+void PlayDevCursorSe(void);
+s32 WrapDevMenuValues(void);
 
 /* Steps the edited value or the highlighted line from the pad and wraps
  * them; returns 1 when a choice is made. */
-s32 func_800F1060(void) {
+s32 StepDevMenuCursor(void) {
     if (gPadTrig & (PADRleft | PADRright)) {
         if (gModeStep != 100) {
-            func_800F1218();
+            PlayDevChoiceSe();
             SetSoundFade(1);
         }
         return 1;
@@ -359,26 +359,26 @@ s32 func_800F1060(void) {
          * the tails into retail's shared ones. */
         if (gPadTrig & PADLright) {
             gEditValue++;
-            func_800F11E8();
-            func_800F1158();
+            PlayDevCursorSe();
+            WrapDevMenuValues();
             return 0;
         }
         if (gPadTrig & PADLleft) {
             gEditValue--;
-            func_800F11E8();
-            func_800F1158();
+            PlayDevCursorSe();
+            WrapDevMenuValues();
             return 0;
         }
         if (gPadTrig & PADLdown) {
             gMenuLine++;
-            func_800F11E8();
-            func_800F1158();
+            PlayDevCursorSe();
+            WrapDevMenuValues();
             return 0;
         }
         if (gPadTrig & PADLup) {
             gMenuLine--;
-            func_800F11E8();
-            func_800F1158();
+            PlayDevCursorSe();
+            WrapDevMenuValues();
             return 0;
         }
     }
@@ -386,7 +386,7 @@ s32 func_800F1060(void) {
 }
 
 /* This image's copy of editor's WrapMenuValues. */
-s32 func_800F1158(void) {
+s32 WrapDevMenuValues(void) {
     /* MATCHING: retail reads the edited value signed (lh); common.h's
      * declaration is u16. */
     if ((s16)gEditValue < 0) {
@@ -405,13 +405,13 @@ s32 func_800F1158(void) {
 }
 
 /* The cursor's click, outside the sound test. */
-void func_800F11E8(void) {
+void PlayDevCursorSe(void) {
     if (gModeStep != 100) {
         PlaySe(0xB);
     }
 }
 
 /* The choice's sound. */
-void func_800F1218(void) {
+void PlayDevChoiceSe(void) {
     PlaySe(SE_POWER_UP);
 }

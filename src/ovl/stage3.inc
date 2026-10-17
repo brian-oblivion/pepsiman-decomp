@@ -114,7 +114,7 @@ void SetHitBanks(void *a, void *b);
 void LoadSpritePack(void *dir, u16 id);
 void ResetStageObjects(void);
 void StartStageOverlay(void);
-void func_800F15E4(void);
+void InitStageModels(void);
 /* MATCHING: object's view, onto the model slots. */
 void InitModel(ObjectModel *m, unsigned long *tmd, u8 n);
 
@@ -152,8 +152,8 @@ extern s32 sPromptIndex;
 extern Prompt sPrompts[];
 extern s32 sPromptCount;
 
-void func_800F0F44(void);
-void func_800F0F24(void);
+void UpdateStageEventHook(void);
+void UpdateStageEvents(void);
 
 /* MATCHING: player's views, with the offset as words. */
 void PolarOffset(s32 deg, s32 radius, s32 *out);
@@ -213,7 +213,7 @@ void StepStageFrame(void) {
     if (gInEditor) {
         UpdateActiveEntries();
     } else {
-        func_800F0F24();
+        UpdateStageEvents();
     }
     UpdateActiveSprites();
     ReactToHits(&gPlayer);
@@ -232,7 +232,7 @@ void StepStageFrame(void) {
     UpdateEffects((s32)&gSubOt[gActiveBuff], -gPlayer.x, 0, -gPlayer.z);
 }
 
-void func_800F02E8(StageTrap *t) {
+void TipTrapAndShovePlayer(StageTrap *t) {
     switch (t->state) {
         case 0:
             if (t->touched) {
@@ -267,7 +267,7 @@ void func_800F02E8(StageTrap *t) {
     }
 }
 
-void func_800F04C4(StageTrap *t) {
+void BounceTrapAway(StageTrap *t) {
     s32 v;
 
     switch (t->state) {
@@ -301,7 +301,7 @@ void func_800F04C4(StageTrap *t) {
     }
 }
 
-void func_800F06F4(StageTrap *t, s8 dir) {
+void TurnTrapQuarterOnApproach(StageTrap *t, s8 dir) {
     s32 a;
 
     switch (t->state) {
@@ -366,7 +366,7 @@ void func_800F06F4(StageTrap *t, s8 dir) {
 }
 
 /* MATCHING: non-void with no return keeps the last delay slot a nop. */
-s32 func_800F0988(void) {
+s32 StepButtonPrompt(void) {
     SVECTOR pos;
     s32 t;
 
@@ -440,7 +440,7 @@ s32 func_800F0988(void) {
     }
 }
 
-void func_800F0CF4(StageTrap *t, u16 speed) {
+void MoveTrapAheadDrawn(StageTrap *t, u16 speed) {
     if (t->state == 0) {
         SnapToFloor(t);
         PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
@@ -454,7 +454,7 @@ void func_800F0CF4(StageTrap *t, u16 speed) {
     }
 }
 
-void func_800F0DF0(StageTrap *t, u16 speed) {
+void MoveTrapAheadSolid(StageTrap *t, u16 speed) {
     if (t->state == 0) {
         SnapToFloor(t);
         PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
@@ -468,60 +468,60 @@ void func_800F0DF0(StageTrap *t, u16 speed) {
     }
 }
 
-void func_800F0EEC(void) {
+void ShowStartCanGroups(void) {
     ClearCanGroups();
     gCanGroupOn[1] = 1;
     gCanGroupOn[2] = 1;
     ShowRevealedCans();
 }
 
-void func_800F0F24(void) {
-    func_800F0F44();
+void UpdateStageEvents(void) {
+    UpdateStageEventHook();
 }
 
-void func_800F0F44(void) {
+void UpdateStageEventHook(void) {
     s32 unused[4];
 }
 
-void func_800F0F54(void) {
+void UnusedStageHook1(void) {
     s32 unused[4];
 }
 
-void func_800F0F64(void) {
+void UnusedStageHook2(void) {
     s32 unused[4];
 }
 
-void func_800F0F74(void) {
+void UnusedStageHook3(void) {
     s32 unused[4];
 }
 
-void func_800F0F84(void) {
+void MoveTrap11OnSwitch8(void) {
     s32 unused[4];
 
     if (gSwitches[8].state == SWITCH_ON) {
-        func_800F0DF0(&sTraps[11], 30);
+        MoveTrapAheadSolid(&sTraps[11], 30);
     }
 }
 
-void func_800F0FBC(void) {
+void UnusedStageHook4(void) {
     s32 unused[4];
 }
 
-void func_800F0FCC(void) {
+void UnusedStageHook5(void) {
     s32 unused[4];
 }
 
-void func_800F0FDC(void) {
+void UnusedStageHook6(void) {
     s32 unused[4];
 }
 
-void func_800F0FEC(StageTrap *t) {
+void StepIdleTrap(StageTrap *t) {
     if (t->state == 0) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }
 }
 
-void func_800F1038(void) {
+void ResetButtonPrompts(void) {
     s32 i;
 
     for (i = 0; i < sPromptCount; i++) {
@@ -607,7 +607,7 @@ s32 LoadStageFiles(void) {
             }
             break;
         case 9:
-            func_800F15E4();
+            InitStageModels();
             gSubStep++;
             break;
         case 10:
@@ -655,7 +655,7 @@ s32 LoadStageFiles(void) {
     return ret;
 }
 
-void func_800F15E4(void) {
+void InitStageModels(void) {
     gSectionCount = 0;
     InitModel(&gObjectModels[0], (unsigned long *)RAM_OBJECT_MODELS, 0);
     InitModel(&gObjectModels[1], (unsigned long *)RAM_OBJECT_MODELS, 1);
@@ -735,7 +735,7 @@ void ResetToStageStart(void) {
     gBodyRot[1] = 0;
     gBodyRot[2] = 0;
     gView[1] = (s16)(gCourse.y - 150);
-    func_800F0EEC();
+    ShowStartCanGroups();
 }
 
 /* MATCHING: ret set before the table copy and again after the call, so it

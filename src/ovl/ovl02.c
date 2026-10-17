@@ -16,15 +16,15 @@
 #include "world_intro.h"
 
 /* MATCHING: non-static inline, emitted at the file's end in this order. */
-inline void func_800F80F8(void);
-inline void func_800F81B4(void);
-inline void func_800F8264(void);
-inline void func_800F83E0(void);
-inline void func_800F8708(SVECTOR *pos, s32 kind);
-inline void func_800F8840(PlayerState *obj);
-inline void func_800F8898(void);
-inline void func_800F88B0(void);
-inline void func_800F88C8(SVECTOR *rot);
+inline void DrawTitlePlayerShadow(void);
+inline void DrawTitleGroundShadow(void);
+inline void DrawMenuPlayer(void);
+inline void DrawScreenFade(void);
+inline void DrawMenuCursor(SVECTOR *pos, s32 kind);
+inline void StepMenuMotion(PlayerState *obj);
+inline void StartFadeIn(void);
+inline void StartFadeOut(void);
+inline void OrbitMenuCamera(SVECTOR *rot);
 
 /** @brief The three flat lights of the scene. */
 typedef struct {
@@ -202,7 +202,7 @@ s32 sTitleExitTime = 0;         /* frames since START on the title */
 s32 sFadeTime = 0;              /* the screen fade's frame */
 s32 sFadeMode = 0;              /* the fade: 2 fading in, then 1; 3 fading out, then 0 */
 
-void func_800F01EC(void) {
+void StepOpening(void) {
     SVECTOR pos;
     SColor color;
 
@@ -247,10 +247,10 @@ void func_800F01EC(void) {
             sView.vrz = 0;
             sOpeningTime = 0;
             gSubStep = 100;
-            func_800F8898();
+            StartFadeIn();
             break;
         case 100:
-            func_800F83E0();
+            DrawScreenFade();
             color.r = -1;
             color.g = color.b = color.cd = 0x80;
             pos.vx = -160;
@@ -264,7 +264,7 @@ void func_800F01EC(void) {
                 sOpeningTime++;
                 gPlayer.z += 20;
                 if (sOpeningTime >= 60) {
-                    func_800F88B0();
+                    StartFadeOut();
                 }
             }
             if (sFadeMode == 0) {
@@ -277,7 +277,7 @@ void func_800F01EC(void) {
     }
 }
 
-void func_800F04EC(SVECTOR *pos, s32 count, s32 frames) {
+void DrawCansAndTime(SVECTOR *pos, s32 count, s32 frames) {
     SColor color;
     s32 x;
     s32 n;
@@ -355,7 +355,7 @@ extern u8 gRumbleEnabled;
 extern s8 D_800957A0;
 extern u8 gGameCleared;
 
-void func_800F0AD4(void) {
+void StepCardLoad(void) {
     s32 bad;
     u32 i;
 
@@ -448,7 +448,7 @@ void func_800F0AD4(void) {
     }
 }
 
-void func_800F0E58(void) {
+void DefineMenuSprites(void) {
     s32 i;
 
     for (i = 0; i < 7; i++) {
@@ -499,7 +499,7 @@ extern GsDOBJ2 sAct3Objs[];
 extern VECTOR D_8009EA78[];
 extern SVECTOR D_8009EB58[];
 
-void func_800F1494(s32 i) {
+void DrawMenuObject(s32 i) {
     MATRIX m;
 
     sAct3Coords[i].coord.t[0] = D_8009EA78[i].vx;
@@ -527,7 +527,7 @@ extern u16 gRumbleTime;
  * scalars. */
 extern u16 gRumbleSmall[];
 
-void func_800F1570(void) {
+void StepMainMenu(void) {
     SVECTOR pos;
     SVECTOR p2;
     SVECTOR unused;
@@ -541,7 +541,7 @@ void func_800F1570(void) {
     switch (gSubStep) {
         case 50:
             sMenuScene = 0;
-            func_800F0E58();
+            DefineMenuSprites();
             GsInitCoordinate2(&sAct3Coords[0], NULL);
             GsInitCoordinate2(&sAct3Coords[1], NULL);
             GsInitCoordinate2(&sAct3Coords[2], NULL);
@@ -673,7 +673,7 @@ void func_800F1570(void) {
             }
             p2.vx = -0x50;
             p2.vy = sMenuCursor * 24 - sMenuItemCount * 12 - 0x15;
-            func_800F8708(&p2, 1);
+            DrawMenuCursor(&p2, 1);
             if (gPadTrig & PADLup) {
                 PlaySe(0xB);
                 if (sMenuCursor == 0) {
@@ -826,7 +826,7 @@ void func_800F1570(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            func_800F04EC(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            DrawCansAndTime(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
             t = sMenuTime - 8;
             if (t > 8) {
                 t = 8;
@@ -838,7 +838,7 @@ void func_800F1570(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            func_800F04EC(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            DrawCansAndTime(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
             t = sMenuTime - 10;
             if (t > 8) {
                 t = 8;
@@ -908,7 +908,7 @@ void func_800F1570(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            func_800F04EC(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            DrawCansAndTime(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
             if (D_80095984 == 2) {
                 col = hi;
             } else {
@@ -927,7 +927,7 @@ void func_800F1570(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            func_800F04EC(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            DrawCansAndTime(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
             if (D_80095984 == 3) {
                 col = hi;
             } else {
@@ -943,7 +943,7 @@ void func_800F1570(void) {
             if (sMenuTime >= 16) {
                 p2.vx = -0x8E;
                 p2.vy = D_80095984 * 32 - 0x21;
-                func_800F8708(&p2, 2);
+                DrawMenuCursor(&p2, 2);
             }
             if (gPadTrig & PADLleft) {
                 PlaySe(0xB);
@@ -1040,7 +1040,7 @@ void func_800F1570(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            func_800F04EC(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            DrawCansAndTime(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
             t = sMenuTime - 8;
             if (t < 0) {
                 t = 0;
@@ -1052,7 +1052,7 @@ void func_800F1570(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            func_800F04EC(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            DrawCansAndTime(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
             t = sMenuTime - 10;
             if (t < 0) {
                 t = 0;
@@ -1320,7 +1320,7 @@ void func_800F1570(void) {
             p2.vy = d * 32 - 0x41;
             /* MATCHING: keeps the arguments below the stores. */
             __asm__("");
-            func_800F8708(&p2, 2);
+            DrawMenuCursor(&p2, 2);
             if (gPadTrig & PADLup) {
                 PlaySe(0xB);
                 do {
@@ -1689,7 +1689,7 @@ void func_800F1570(void) {
             }
             p2.vx = -0x88;
             p2.vy = 0x4F;
-            func_800F8708(&p2, 3);
+            DrawMenuCursor(&p2, 3);
             pos.vx = -0x80;
             pos.vy = 0x58;
             switch (sCardStep) {
@@ -1891,7 +1891,7 @@ void func_800F1570(void) {
             }
             p2.vx = -0x88;
             p2.vy = 0x4F;
-            func_800F8708(&p2, 3);
+            DrawMenuCursor(&p2, 3);
             pos.vx = -0x80;
             pos.vy = 0x58;
             switch (sCardStep) {
@@ -2229,17 +2229,17 @@ void func_800F1570(void) {
             break;
     }
     sMenuModelRot.vy += 11;
-    func_800F88C8(&sMenuModelRot);
+    OrbitMenuCamera(&sMenuModelRot);
     StepStepper(&gPlayer);
     switch (sMenuScene) {
         case 0:
-            func_800F1494(2);
+            DrawMenuObject(2);
             break;
         case 1:
-            func_800F1494(1);
+            DrawMenuObject(1);
             break;
         case 2:
-            func_800F1494(0);
+            DrawMenuObject(0);
             break;
         case 3:
             DrawStepper(&gPlayer);
@@ -2247,10 +2247,10 @@ void func_800F1570(void) {
     }
 }
 
-void func_800F0AD4(void);
-void func_800F1570(void);
-void func_800F69B0(void);
-s32 func_800F7A4C(void);
+void StepCardLoad(void);
+void StepMainMenu(void);
+void StepTitle(void);
+s32 StepGameOver(void);
 
 void StepMenus(void) {
     switch (gModeStep) {
@@ -2280,7 +2280,7 @@ void StepMenus(void) {
         case 2:
             DrawFrozenFrame();
             SetTmdSortMode(gTmdSortMode);
-            func_800F01EC();
+            StepOpening();
             break;
         case 5:
             PlayMovie("\\MOVIE0.STR;1", NULL, 0x31F, 0xF0, 1);
@@ -2305,17 +2305,17 @@ void StepMenus(void) {
         case 10:
             DrawFrozenFrame();
             SetTmdSortMode(gTmdSortMode);
-            func_800F69B0();
+            StepTitle();
             break;
         case 30:
             DrawFrozenFrame();
             DrawScreenWipe();
-            func_800F0AD4();
+            StepCardLoad();
             break;
         case 40:
             DrawFrozenFrame();
             SetTmdSortMode(gTmdSortMode);
-            func_800F1570();
+            StepMainMenu();
             break;
         case 50:
             gSubStep = 0;
@@ -2339,12 +2339,12 @@ void StepMenus(void) {
             }
             break;
         case 60:
-            func_800F7A4C();
+            StepGameOver();
             break;
     }
 }
 
-inline void func_800F80F8(void) {
+inline void DrawTitlePlayerShadow(void) {
     GsCOORDINATE2 c;
     MATRIX m;
     SVECTOR size;
@@ -2364,7 +2364,7 @@ inline void func_800F80F8(void) {
     DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
-inline void func_800F81B4(void) {
+inline void DrawTitleGroundShadow(void) {
     GsCOORDINATE2 c;
     MATRIX m;
     SVECTOR size;
@@ -2384,7 +2384,7 @@ inline void func_800F81B4(void) {
     DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
-void func_800F69B0(void) {
+void StepTitle(void) {
     SVECTOR pos;
     SColor color;
     MATRIX m;
@@ -2631,7 +2631,7 @@ void func_800F69B0(void) {
     }
     StepStepper(&gPlayer);
     DrawStepper(&gPlayer);
-    func_800F80F8();
+    DrawTitlePlayerShadow();
     sAct3Coords[0].coord.t[0] = 11000;
     sAct3Coords[0].coord.t[1] = -234;
     sAct3Coords[0].coord.t[2] = 0;
@@ -2666,13 +2666,13 @@ void func_800F69B0(void) {
     if (gPlayer.x != -10000) {
         GsSortObject4J(&sAct3Objs[0], &gOt[gActiveBuff], 2, getScratchAddr(0));
     }
-    func_800F81B4();
+    DrawTitleGroundShadow();
     if ((gPadTrig & PADstart) && gSubStep < 1000) {
         gSubStep = 1000;
     }
 }
 
-s32 func_800F7A4C(void) {
+s32 StepGameOver(void) {
     SVECTOR pos;
     SColor color;
     MATRIX m;
@@ -2805,7 +2805,7 @@ s32 func_800F7A4C(void) {
     }
 }
 
-inline void func_800F8264(void) {
+inline void DrawMenuPlayer(void) {
     MATRIX m;
     SVECTOR rot;
     GsDOBJ2 *o;
@@ -2839,7 +2839,7 @@ inline void func_800F8264(void) {
     }
 }
 
-inline void func_800F83E0(void) {
+inline void DrawScreenFade(void) {
     GsOT *ot;
     POLY_F4 *p;
     DR_TPAGE *t;
@@ -2907,7 +2907,7 @@ inline void func_800F83E0(void) {
     }
 }
 
-inline void func_800F8708(SVECTOR *pos, s32 kind) {
+inline void DrawMenuCursor(SVECTOR *pos, s32 kind) {
     switch (kind) {
         case 1:
             DrawSprite(0x53, pos, NULL, 0, &gSubOt[gActiveBuff]);
@@ -2923,7 +2923,7 @@ inline void func_800F8708(SVECTOR *pos, s32 kind) {
     }
 }
 
-inline void func_800F8840(PlayerState *obj) {
+inline void StepMenuMotion(PlayerState *obj) {
     obj->motionResult[0] = StepAnimation(obj, 0, obj->animFilter);
     switch (obj->action) {
         case 0x60:
@@ -2936,17 +2936,17 @@ inline void func_800F8840(PlayerState *obj) {
     }
 }
 
-inline void func_800F8898(void) {
+inline void StartFadeIn(void) {
     sFadeTime = 0;
     sFadeMode = 2;
 }
 
-inline void func_800F88B0(void) {
+inline void StartFadeOut(void) {
     sFadeTime = 0;
     sFadeMode = 3;
 }
 
-inline void func_800F88C8(SVECTOR *rot) {
+inline void OrbitMenuCamera(SVECTOR *rot) {
     MATRIX m;
     SVECTOR v;
     VECTOR out;

@@ -19,7 +19,7 @@ void StartChaseJump(void) {
         /* MATCHING: the 1 held in a local is loaded ahead of gPlayer's address. */
         state = 1;
         gPlayer.slideState = state;
-        gPlayer.unk38C = 0;
+        gPlayer.slideStateTime = 0;
         gPlayer.curMotion[0] = MOT_OFF;
         PlaySe(0x17);
     }
@@ -72,7 +72,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                             gRumbleSmall[1] = 200;
                         }
                         gPlayer.slideState = 2;
-                        gPlayer.unk38C = 0;
+                        gPlayer.slideStateTime = 0;
                         gPlayer.curMotion[0] = MOT_OFF;
                     }
                 }
@@ -129,7 +129,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                             gRumbleSmall[1] = 200;
                         }
                         gPlayer.slideState = 2;
-                        gPlayer.unk38C = 0;
+                        gPlayer.slideStateTime = 0;
                         gPlayer.curMotion[0] = MOT_OFF;
                     }
                 }
@@ -697,7 +697,7 @@ s32 StepChaseFrame(void) {
             gPlayer.z = 0;
             gPlayer.control = 1;
             gPlayer.slideState = 0;
-            gPlayer.unk38C = 0;
+            gPlayer.slideStateTime = 0;
             gPlayer.curMotion[0] = MOT_OFF;
             sChaseLive = 0x1000;
             sCan.x = -0x974;
@@ -764,7 +764,7 @@ s32 StepChaseFrame(void) {
                 }
                 gPlayer.curMotion[0] = MOT_OFF;
                 gPlayer.slideState = 3;
-                gPlayer.unk38C = 0;
+                gPlayer.slideStateTime = 0;
                 sCaughtTimer = 1;
             }
             if (sCaughtTimer != 0) {

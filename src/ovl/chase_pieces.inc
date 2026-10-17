@@ -44,7 +44,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -125,7 +125,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -206,7 +206,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -287,7 +287,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -368,7 +368,7 @@ s32 StepChasePiece4(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -450,7 +450,7 @@ s32 StepChasePiece5(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -532,7 +532,7 @@ s32 StepChasePiece6(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -684,7 +684,7 @@ s32 StepChasePiece8(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -771,7 +771,7 @@ s32 StepChasePiece9(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -858,7 +858,7 @@ s32 StepChasePiece10(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -945,7 +945,7 @@ s32 StepChasePiece11(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }
@@ -1038,7 +1038,7 @@ s32 StepChasePiece12(Act3Obj *o) {
                                 gRumbleSmall[1] = 200;
                             }
                             gPlayer.slideState = 2;
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                             gPlayer.curMotion[0] = MOT_OFF;
                         }
                     }

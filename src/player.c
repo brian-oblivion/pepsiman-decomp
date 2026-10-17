@@ -81,8 +81,8 @@ typedef struct {
     s16 rotY; /**< 0xAA when a stage object is placed */
     s16 rotZ; /**< -0x88 for one stage object */
     u8 pad1E[0x24 - 0x1E];
-    s16 unk24; /**< cleared on a spawn */
-    s16 unk26; /**< cleared on a spawn */
+    s16 timer; /**< cleared on a spawn */
+    s16 state; /**< cleared on a spawn */
     u8 pad28[0x34 - 0x28];
     s16 switchNo; /**< 0xBA on a spawn */
     s16 model;    /**< its model slot; -1 when free */
@@ -2277,13 +2277,13 @@ s32 UpdateSlideDash(void) {
         switch ((s8)gPlayer.slideState) {
             case SLIDE_NONE:
                 gPlayer.slideState = SLIDE_NONE;
-                gPlayer.unk38C = 0;
+                gPlayer.slideStateTime = 0;
                 if ((u32)(gPlayer.motion[0] - MOT_RUN_SLOW) < 3 && gPlayer.y >= gPlayer.groundY &&
                     (gGamePadTrig & PADRdown)) {
                     btn = gPad;
                     if (btn & PADLdown) {
                         gPlayer.slideState = SLIDE_BRAKING;
-                        gPlayer.unk38C = 0;
+                        gPlayer.slideStateTime = 0;
                         gPlayer.action = ACT_BRAKE_START;
                     }
                     if (btn & PADLup) {
@@ -2291,7 +2291,7 @@ s32 UpdateSlideDash(void) {
                             gPlayer.slideState = SLIDE_DASHING;
                             gPlayer.action = ACT_DASH_START;
                             PlaySe(SE_DASH);
-                            gPlayer.unk38C = 0;
+                            gPlayer.slideStateTime = 0;
                         }
                     }
                 }
@@ -2302,7 +2302,7 @@ s32 UpdateSlideDash(void) {
             case SLIDE_DASHING:
                 if (gPlayer.action == ACT_RUN) {
                     gPlayer.slideState = SLIDE_NONE;
-                    gPlayer.unk38C = 0;
+                    gPlayer.slideStateTime = 0;
                 }
                 break;
         }
@@ -2495,7 +2495,7 @@ top:
             gPlayer.hittable = 0;
             gPlayer.invulnTimer = 500;
             gPlayer.slideState = SLIDE_NONE;
-            gPlayer.unk38C = 0;
+            gPlayer.slideStateTime = 0;
             if (gPlayer.rideMode & RIDE_MASK) {
                 gPlayer.action = ACT_RUN;
                 gPlayer.rideMode &= RIDE_ITEM_MASK;
@@ -2774,8 +2774,8 @@ void SpawnModeObject(void) {
             slot->switchNo = 0xBA;
             slot->type = 0xFF;
             slot->act = 0x69;
-            slot->unk26 = 0;
-            slot->unk24 = 0;
+            slot->state = 0;
+            slot->timer = 0;
             D_800D3358[0] = 1;
         }
         gPlayer.dropRide = 0;

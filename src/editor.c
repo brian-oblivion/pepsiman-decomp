@@ -213,8 +213,8 @@ typedef struct {
     u8 unk1E[2];     /**< not yet known */
     u16 homeRotY;    /**< the placed heading, as an offset from the first record's */
     u8 unk22[2];     /**< not yet known */
-    s16 unk24;       /**< cleared when placed */
-    s16 unk26;       /**< cleared when placed */
+    s16 timer;       /**< cleared when placed */
+    s16 state;       /**< cleared when placed */
     s32 block;       /**< the current block when placed */
     s32 lightAngle;  /**< an angle from the light direction */
     s32 lightAngle2; /**< a second angle from the light direction */
@@ -2008,8 +2008,8 @@ void EditorPlaceRecords(void) {
             w->home[1] = w->pos[1];
             w->home[2] = w->pos[2];
             w->touched = 0;
-            w->unk24 = 0;
-            w->unk26 = 0;
+            w->timer = 0;
+            w->state = 0;
             w->block = gCurBlock;
             w->section = gSection;
             w->type = sTotals.trapType;

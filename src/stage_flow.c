@@ -53,7 +53,7 @@ typedef struct {
 /** @brief object's Trap with the halfword this unit clears. */
 typedef struct {
     u8 unk0[0x26];  /**< not yet known */
-    s16 unk26;      /**< cleared when a stage starts */
+    s16 state;      /**< cleared when a stage starts */
     u8 unk28[0x20]; /**< not yet known */
 } TrapClear;
 
@@ -170,8 +170,8 @@ s32 gTimeLimitsAlt[][3] = {
 
 /** @brief The record the start heading is read from. */
 typedef struct {
-    u8 unk0[6]; /**< not yet known */
-    s16 unk6;   /**< the start heading, negated */
+    s16 x, y, z; /**< the start position, negated */
+    s16 yaw;     /**< the start heading, negated */
 } StartRec;
 
 /* MATCHING: a per-unit view; stage stores it as an s32. */
@@ -432,7 +432,7 @@ void RestartStage(u8 stage) {
         gFloorIndex = 0;
     }
     gSection = 0;
-    yaw = -gStageStart->unk6;
+    yaw = -gStageStart->yaw;
     gView[1] = (s16)(gCourse.y - 500);
     gCourse.rot.vy = yaw;
     gPlayer.startYaw = gPlayer.yaw = yaw;
@@ -450,7 +450,7 @@ void RestartStage(u8 stage) {
     gFellOff = 0;
     gPlayLive = 1;
     for (i = 0; i < 200; i++) {
-        sTraps[i].unk26 = 0;
+        sTraps[i].state = 0;
     }
     ResetStage();
     StartStageOverlay();
@@ -494,7 +494,7 @@ void ResetStage(void) {
     StepAnimation(&gPlayer, 0, 0);
     gPlayer.speed = 50;
     gPlayer.slideState = SLIDE_NONE;
-    gPlayer.unk38C = 0;
+    gPlayer.slideStateTime = 0;
     gPlayer.flattened = 0;
     gPlayer.drawX = gPlayer.drawY = gPlayer.drawZ = 0;
     gPlayer.bodyRotX = gPlayer.bodyYaw = gPlayer.unk364 = 0;

@@ -44,7 +44,7 @@ typedef struct {
 typedef struct {
     Pt6 pts[4];     /**< copied from the dispatch's object */
     u8 unk18[0x30]; /**< not yet known */
-    void *unk48;    /**< the owning ObjectModel's unk10 */
+    void *coord;    /**< the owning ObjectModel's coord */
 } HitQuad;
 
 /** @brief The point bank: one entry per section, then the points. */
@@ -97,11 +97,11 @@ typedef struct {
 /** @brief An object reset when the two-state dispatch enters state 1. */
 typedef struct {
     Pt6 pts[4];     /**< copied into a new second-bank record */
-    Vec3W unk18[4]; /**< corner offsets drawn around the owner */
-    void *unk48;    /**< points into the current entry's record */
+    Vec3W world[4]; /**< corner offsets drawn around the owner */
+    void *coord;    /**< the owning ObjectModel's coord */
 } EditorTrap;
 
-/** @brief What an EditorTrap's unk48 points at, as the drawing reads it. */
+/** @brief What an EditorTrap's coord points at, as the drawing reads it. */
 typedef struct {
     u8 pad0[0x18]; /**< not reached here */
     VECTOR pos;    /**< the owner's position */
@@ -580,7 +580,7 @@ void InsertHitQuad(void) {
         rec->pts[k].y = gToolNewQuad.pts[k].y;
         rec->pts[k].z = gToolNewQuad.pts[k].z;
     }
-    gToolQuad->unk48 = gToolNewQuad.unk48;
+    gToolQuad->coord = gToolNewQuad.coord;
     e = (BankEntry *)gHitQuads;
     e += gToolSection;
     e->count++;
@@ -606,13 +606,13 @@ void DrawHitQuad(EditorTrap *obj) {
     s16 i;
 
     PlaceCollisionQuad(obj);
-    world.vx = ((ObjOwner *)obj->unk48)->pos.vx + gWorldShift[0];
-    world.vy = ((ObjOwner *)obj->unk48)->pos.vy;
-    world.vz = ((ObjOwner *)obj->unk48)->pos.vz + gWorldShift[2];
+    world.vx = ((ObjOwner *)obj->coord)->pos.vx + gWorldShift[0];
+    world.vy = ((ObjOwner *)obj->coord)->pos.vy;
+    world.vz = ((ObjOwner *)obj->coord)->pos.vz + gWorldShift[2];
     for (i = 0; i < 4; i++) {
-        pts[i].x = obj->unk18[i].x;
-        pts[i].y = obj->unk18[i].y;
-        pts[i].z = obj->unk18[i].z;
+        pts[i].x = obj->world[i].x;
+        pts[i].y = obj->world[i].y;
+        pts[i].z = obj->world[i].z;
     }
     tmp.vx = world.vx + pts[0].x;
     tmp.vy = pts[0].y;
@@ -1352,7 +1352,7 @@ void DrawToolPole(VECTOR *pos) {
 /** @brief A record of the live buffer the first bank is copied into. */
 typedef struct {
     u8 unk0[0x28]; /**< copied from the bank record */
-    void *unk28;   /**< the owning model slot's coord */
+    void *coord;   /**< the owning model slot's coord */
 } Live2C;
 
 void *__builtin_memcpy(void *dst, const void *src, u32 n);
@@ -1371,7 +1371,7 @@ void ApplyHitPoints(void) {
     for (i = 0; i < 400; i++) {
         rec = GetHitPoint(0, i);
         __builtin_memcpy(&((Live2C *)gLivePoints)[i], rec, 0x2A);
-        ((Live2C *)gLivePoints)[i].unk28 = gObjectModels[rec->section].coord;
+        ((Live2C *)gLivePoints)[i].coord = gObjectModels[rec->section].coord;
     }
 }
 
@@ -1388,7 +1388,7 @@ void ApplyHitQuads(void) {
     for (i = 0; i < 80; i++) {
         for (j = gObjectModels[i].quadFirst;
              j < gObjectModels[i].quadCount + gObjectModels[i].quadFirst; j++) {
-            GetHitQuad(0, j)->unk48 = gObjectModels[i].coord;
+            GetHitQuad(0, j)->coord = gObjectModels[i].coord;
         }
     }
     for (i = 0; i < 100; i++) {
@@ -1508,7 +1508,7 @@ void PlaceHitQuad(void) {
         case 0:
             gToolQuadW = 100;
             gToolQuadH = 100;
-            gToolNewQuad.unk48 = gObjectModels[gToolSection].coord;
+            gToolNewQuad.coord = gObjectModels[gToolSection].coord;
             SetBoxAround(&gToolNewQuad, (u8 *)&gPlayer.x, 100, 100);
             gToolQuadStage = 1;
             break;

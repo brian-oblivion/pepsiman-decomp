@@ -57,7 +57,7 @@ typedef struct {
  *         object with a model, a switch, a type and an act. */
 typedef struct {
     u8 unk0[0x24]; /**< not yet known */
-    s16 unk24;     /**< zeroed with touched */
+    s16 timer;     /**< zeroed with touched */
     u8 unk26[2];   /**< not yet known */
     s32 block;     /**< the block it was placed in; set from a per-record lookup */
     u8 unk2C[8];   /**< not yet known */

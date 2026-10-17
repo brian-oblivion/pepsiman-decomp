@@ -59,7 +59,7 @@ s32 StepChasePlayer(void) {
             gPlayer.action = ACT_MODEL_ONCE;
             if (gPlayer.airborne == 0) {
                 gPlayer.slideState = 0;
-                gPlayer.unk38C = 0;
+                gPlayer.slideStateTime = 0;
                 gPlayer.curMotion[0] = MOT_OFF;
             }
             if (ClipF == 0) {
@@ -80,9 +80,9 @@ s32 StepChasePlayer(void) {
             gPlayer.speed = 24;
             gPlayer.motion[0] = 0x35;
             gPlayer.action = ACT_MODEL_ONCE;
-            if (++gPlayer.unk38C > 32) {
+            if (++gPlayer.slideStateTime > 32) {
                 gPlayer.slideState = 0;
-                gPlayer.unk38C = 0;
+                gPlayer.slideStateTime = 0;
                 gPlayer.curMotion[0] = MOT_OFF;
             }
             break;
@@ -90,7 +90,7 @@ s32 StepChasePlayer(void) {
             gPlayer.motion[0] = 0x36;
             gPlayer.speed = 0;
             gPlayer.action = ACT_MODEL_ONCE;
-            if (++gPlayer.unk38C > 16) {
+            if (++gPlayer.slideStateTime > 16) {
                 sChaseLive = 0;
             }
             break;

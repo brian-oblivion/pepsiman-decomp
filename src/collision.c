@@ -134,14 +134,14 @@ typedef struct {
 
 /** @brief A debug line record, filled and never drawn. */
 typedef struct {
-    s32 unk0; /**< zeroed */
-    s16 x0;   /**< screen x of corner 2 */
-    s16 y0;   /**< screen y of corner 2 */
-    s16 x1;   /**< screen x of corner 1 */
-    s16 y1;   /**< screen y of corner 1 */
-    u8 unkC;  /**< 0xFF */
-    u8 unkD;  /**< zeroed */
-    u8 unkE;  /**< zeroed */
+    s32 attribute; /**< zeroed */
+    s16 x0;        /**< screen x of corner 2 */
+    s16 y0;        /**< screen y of corner 2 */
+    s16 x1;        /**< screen x of corner 1 */
+    s16 y1;        /**< screen y of corner 1 */
+    u8 r;          /**< 0xFF */
+    u8 g;          /**< zeroed */
+    u8 b;          /**< zeroed */
 } DebugLine;
 
 /* MATCHING: player defines ProjectToScreen void; these calls saw an s32 one. */
@@ -391,10 +391,10 @@ void GetQuadHeightUnderPlayer(void *rec, s8 *out) {
     org.y = ((CollisionQuad *)rec)->coord->coord.t[1];
     org.z = ((CollisionQuad *)rec)->coord->coord.t[2] + gWorldShift[2];
     if (gInEditor == 1) {
-        dbg.unk0 = 0;
-        dbg.unkC = 0xFF;
-        dbg.unkD = 0;
-        dbg.unkE = 0;
+        dbg.attribute = 0;
+        dbg.r = 0xFF;
+        dbg.g = 0;
+        dbg.b = 0;
         v.vx = q.p[1].x + org.x;
         v.vy = q.p[1].y + org.y;
         v.vz = q.p[1].z + org.z;

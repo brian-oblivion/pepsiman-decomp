@@ -37,7 +37,7 @@ typedef struct {
 /** @brief An object with a word at 0x28 that a lookup updates. */
 typedef struct {
     u8 unk0[0x28]; /**< not yet known */
-    s32 unk28;     /**< passed to the lookup and updated from it */
+    s32 block;     /**< passed to the lookup and updated from it */
 } Obj2C;
 
 /** @brief The 0x30-byte argument block of a position query: collision's
@@ -1222,13 +1222,13 @@ void RestoreStageObjects(void) {
     SetCurrentBlock((BlockHeader *)RAM_CUR_BLOCK);
 }
 
-/** @brief Updates `p->unk28` from a lookup unless the lookup fails (-1). */
+/** @brief Updates `p->block` from a lookup unless the lookup fails (-1). */
 void RefreshZone(Obj2C *p) {
     s32 v;
 
-    v = FindFloorNear(p, sFloorHit, p->unk28);
+    v = FindFloorNear(p, sFloorHit, p->block);
     if (v != -1) {
-        p->unk28 = v;
+        p->block = v;
     }
 }
 
@@ -1246,11 +1246,11 @@ void ResetStageObjects(void) {
     ClearObjectHits();
 }
 
-/** @brief Refreshes unk28 of every live trap. */
+/** @brief Refreshes the block of every live trap. */
 void RefreshAllZones(void) {
     u32 i;
 
-    /* MATCHING: indexed; a walking Trap pointer is biased to unk28. */
+    /* MATCHING: indexed; a walking Trap pointer is biased to block. */
     for (i = 0; i < 200; i++) {
         if (sTraps[i].model != -1) {
             sTraps[i].block = FindFloor(&sTraps[i]);
@@ -1305,7 +1305,7 @@ s32 PairMarks(void) {
     }
 }
 
-/** @brief Clears touched and unk24 of all 200 Trap records and all but bit 0
+/** @brief Clears touched and timer of all 200 Trap records and all but bit 0
  *         of marks.
  *  @return nothing; the value is undefined. */
 s32 ClearObjectHits(void) {
@@ -1316,7 +1316,7 @@ s32 ClearObjectHits(void) {
     for (i = 0; i < 200; i++) {
         r = &sTraps[(s16)i];
         r->touched = 0;
-        r->unk24 = 0;
+        r->timer = 0;
         r->marks &= 1;
     }
 }
@@ -1388,7 +1388,7 @@ void GetQuad16(u16 i, Quad16 *out) {
 /** @brief Runs record `r`'s step, then queries its surroundings; on a hit
  *  while flagged in state 2, moves it to state 3 and resets its motion. */
 /* MATCHING: the fixed object's y read as a VECTOR member; a plain word
- * read lets the scheduler hoist the r->unk18 store above it. */
+ * read lets the scheduler hoist the r->driftPhase store above it. */
 void StepSprite(s16 id, StageSprite *r) {
     queryRec(id, r);
 }

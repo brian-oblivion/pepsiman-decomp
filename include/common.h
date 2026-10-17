@@ -400,24 +400,24 @@ typedef struct {
     s16 bodyYaw;              /**< added to the body's yaw: the spins and twirls */
     s16 unk364;               /**< cleared on a reset */
     u8 pad366[0x368 - 0x366]; /**< not yet known */
-    s32 lookX;      /**< x of the point the models turn to face (gLookYaw*); cleared by player */
-    s32 lookY;      /**< y of that point */
-    s32 lookZ;      /**< z of that point; cleared by player */
-    s16 actTimer;   /**< the current action's first counter, mostly its frames */
-    s16 actTimer2;  /**< the current action's second counter */
-    s16 actTimer3;  /**< the current action's third counter */
-    s16 actTimer4;  /**< the current action's fourth counter */
-    s32 startYaw;   /**< the start heading, set with yaw */
-    s32 yaw;        /**< the body heading; follows the course heading in bounded steps */
-    s32 lean;       /**< the body roll while steering, -15..15; decays to 0 */
-    s32 lookYaw;    /**< object 2's eased turn toward the look point (gLookYawNarrow) */
-    s16 unk38C;     /**< cleared whenever slideState changes */
-    u8 slideState;  /**< a SlideState */
-    u8 airborne;    /**< 1 from a jump's start to its landing */
-    u16 jumpState;  /**< a JumpState */
-    s16 jumpTime;   /**< steps the button has been held while jumpState is 1 */
-    s32 jumpStartY; /**< y when the jump began */
-    s16 jumpPower;  /**< the jump's strength, set by how long the button is held */
+    s32 lookX;     /**< x of the point the models turn to face (gLookYaw*); cleared by player */
+    s32 lookY;     /**< y of that point */
+    s32 lookZ;     /**< z of that point; cleared by player */
+    s16 actTimer;  /**< the current action's first counter, mostly its frames */
+    s16 actTimer2; /**< the current action's second counter */
+    s16 actTimer3; /**< the current action's third counter */
+    s16 actTimer4; /**< the current action's fourth counter */
+    s32 startYaw;  /**< the start heading, set with yaw */
+    s32 yaw;       /**< the body heading; follows the course heading in bounded steps */
+    s32 lean;      /**< the body roll while steering, -15..15; decays to 0 */
+    s32 lookYaw;   /**< object 2's eased turn toward the look point (gLookYawNarrow) */
+    s16 slideStateTime;       /**< cleared whenever slideState changes */
+    u8 slideState;            /**< a SlideState */
+    u8 airborne;              /**< 1 from a jump's start to its landing */
+    u16 jumpState;            /**< a JumpState */
+    s16 jumpTime;             /**< steps the button has been held while jumpState is 1 */
+    s32 jumpStartY;           /**< y when the jump began */
+    s16 jumpPower;            /**< the jump's strength, set by how long the button is held */
     u8 pad39A[0x39C - 0x39A]; /**< not yet known */
     s32 peakY;                /**< the jump's highest point (lowest y); 0 on landing */
     s32 jumpHeight;           /**< the jump just released: 0 low, 1 mid, 2 high */

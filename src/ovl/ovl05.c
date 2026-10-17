@@ -550,7 +550,7 @@ s32 StepChaseFrame(void) {
                 setlen(sFadeMode, 1);
                 sFadeMode->code[0] = 0xE1000640;
                 addPrim(gSubOt[gActiveBuff].org, sFadeMode);
-                sFadeMode = (DR_MODE *)((u8 *)sFadeMode + 8);
+                sFadeMode = (DR_MODE *)&sFadeMode->code[1];
                 GsOUT_PACKET_P = (PACKET *)sFadeMode;
             }
             if (sSceneTimer < 120) {

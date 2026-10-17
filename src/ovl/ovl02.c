@@ -42,19 +42,19 @@ typedef struct {
 
 /** @brief The game's save as the title reads it from the memory card. */
 typedef struct {
-    Pair8 times[4];  /**< gBestTimes */
-    Pair8 cans[4];   /**< gBestCans */
-    u8 pad40[8];     /**< not read here */
-    Pair8 unk48;     /**< copied to the pair after gBestTimes and gBestCans */
-    u8 stereo;       /**< gStereo */
-    u8 rumble;       /**< gRumbleEnabled */
-    s8 sortMode;     /**< gTmdSortMode */
-    s8 buttonConfig; /**< gButtonConfig */
-    s8 unk54;        /**< a signed byte the boot code sets to -1 */
-    u8 gameCleared;  /**< gGameCleared */
-    u8 allTargets;   /**< gAllTargetsBeaten */
-    u8 unlocks;      /**< gUnlocks */
-    s32 checksum;    /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
+    Pair8 times[4];     /**< gBestTimes */
+    Pair8 cans[4];      /**< gBestCans */
+    u8 pad40[8];        /**< not read here */
+    Pair8 continueCans; /**< the continue point's act cans */
+    u8 stereo;          /**< gStereo */
+    u8 rumble;          /**< gRumbleEnabled */
+    s8 sortMode;        /**< gTmdSortMode */
+    s8 buttonConfig;    /**< gButtonConfig */
+    s8 continueStage;   /**< the stage to continue from; -1 for none */
+    u8 gameCleared;     /**< gGameCleared */
+    u8 allTargets;      /**< gAllTargetsBeaten */
+    u8 unlocks;         /**< gUnlocks */
+    s32 checksum;       /**< the complement of the byte sum of the 0x5C bytes, read as 0 */
 } SaveData;
 
 /** @brief A memory card file's header: the first 0x200 bytes of the file,
@@ -411,13 +411,13 @@ void StepCardLoad(void) {
                             gBestCans[1].b = sSave->cans[1].b;
                             gBestCans[2].b = sSave->cans[2].b;
                             gBestCans[3].b = sSave->cans[3].b;
-                            D_80095978.a = sSave->unk48.a;
-                            D_80095978.b = sSave->unk48.b;
+                            D_80095978.a = sSave->continueCans.a;
+                            D_80095978.b = sSave->continueCans.b;
                             gStereo = sSave->stereo;
                             gRumbleEnabled = sSave->rumble;
                             gTmdSortMode = sSave->sortMode;
                             gButtonConfig = sSave->buttonConfig;
-                            D_800957A0 = sSave->unk54;
+                            D_800957A0 = sSave->continueStage;
                             gGameCleared = sSave->gameCleared;
                             gAllTargetsBeaten = sSave->allTargets;
                             gUnlocks = sSave->unlocks;
@@ -1835,13 +1835,13 @@ void StepMainMenu(void) {
                     gBestCans[1].b = sSave->cans[1].b;
                     gBestCans[2].b = sSave->cans[2].b;
                     gBestCans[3].b = sSave->cans[3].b;
-                    D_80095978.a = sSave->unk48.a;
-                    D_80095978.b = sSave->unk48.b;
+                    D_80095978.a = sSave->continueCans.a;
+                    D_80095978.b = sSave->continueCans.b;
                     gStereo = sSave->stereo;
                     gRumbleEnabled = sSave->rumble;
                     gTmdSortMode = sSave->sortMode;
                     gButtonConfig = sSave->buttonConfig;
-                    D_800957A0 = sSave->unk54;
+                    D_800957A0 = sSave->continueStage;
                     gGameCleared = sSave->gameCleared;
                     gAllTargetsBeaten = sSave->allTargets;
                     gUnlocks = sSave->unlocks;
@@ -2051,13 +2051,13 @@ void StepMainMenu(void) {
                     sSave->cans[1].b = gBestCans[1].b;
                     sSave->cans[2].b = gBestCans[2].b;
                     sSave->cans[3].b = gBestCans[3].b;
-                    sSave->unk48.a = D_80095978.a;
-                    sSave->unk48.b = D_80095978.b;
+                    sSave->continueCans.a = D_80095978.a;
+                    sSave->continueCans.b = D_80095978.b;
                     sSave->stereo = gStereo;
                     sSave->rumble = gRumbleEnabled;
                     sSave->sortMode = gTmdSortMode;
                     sSave->buttonConfig = gButtonConfig;
-                    sSave->unk54 = D_800957A0;
+                    sSave->continueStage = D_800957A0;
                     sSave->gameCleared = gGameCleared;
                     sSave->allTargets = gAllTargetsBeaten;
                     sSave->unlocks = gUnlocks;
@@ -2101,13 +2101,13 @@ void StepMainMenu(void) {
                         sSave->cans[1].b = gBestCans[1].b;
                         sSave->cans[2].b = gBestCans[2].b;
                         sSave->cans[3].b = gBestCans[3].b;
-                        sSave->unk48.a = D_80095978.a;
-                        sSave->unk48.b = D_80095978.b;
+                        sSave->continueCans.a = D_80095978.a;
+                        sSave->continueCans.b = D_80095978.b;
                         sSave->stereo = gStereo;
                         sSave->rumble = gRumbleEnabled;
                         sSave->sortMode = gTmdSortMode;
                         sSave->buttonConfig = gButtonConfig;
-                        sSave->unk54 = D_800957A0;
+                        sSave->continueStage = D_800957A0;
                         sSave->gameCleared = gGameCleared;
                         sSave->allTargets = gAllTargetsBeaten;
                         sSave->unlocks = gUnlocks;

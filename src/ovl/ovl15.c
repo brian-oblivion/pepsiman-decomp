@@ -105,10 +105,10 @@ void DrawTrapWarning(StageTrap *t) {
     SVECTOR sv;
     s32 d;
 
-    if (!(t->unk41 & 0x40)) {
+    if (!(t->marks & 0x40)) {
         d = SquareRoot0(DistanceSquared((VECTOR *)t, (VECTOR *)&gPlayer.x));
         if (gSection - UpdatePathSegment(t) < 2) {
-            t->unk41 |= 0x40;
+            t->marks |= 0x40;
         }
         if (d < 1200) {
             if (!(gFrameCount & 1)) {
@@ -805,13 +805,13 @@ void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
+void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {}
 
 void StepTrapType1E(StageTrap *t, u16 speed) {}
 
 void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {}
+void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {}
 
 void StepTrapType31(StageTrap *t, s32 arg) {}
 

@@ -76,7 +76,7 @@ typedef struct {
     u8 unk3A[2];     /**< not yet known */
     s32 section;     /**< the section it was placed in */
     u8 touched;      /**< 1 when the player touched one of its hit points this frame */
-    u8 unk41;        /**< not yet known */
+    u8 marks;        /**< 0x40: the warning has been shown */
     u8 type;         /**< what it does, the step it runs */
     u8 act;          /**< its act */
     s32 aux;         /**< a word some traps keep: their copy's slot in sSpawnedTraps, or a mode */
@@ -234,11 +234,11 @@ void StepTrapType1D(StageTrap *t, u16 speed);
 void StepTrapType30(StageTrap *t, u16 speed, s32 arg);
 void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir);
 void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir);
-void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2);
+void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused);
 void StepTrapType1E(StageTrap *t, u16 speed);
 void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir);
 void StepTrapType2A(StageTrap *t, u16 speed, s32 arg);
-void StepTrapType29(StageTrap *t, s32 arg, s8 arg2);
+void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode);
 void StepTrapType27(StageTrap *t, s32 arg);
 void StepTrapType31(StageTrap *t, s32 arg);
 void RunTrapAheadAtHeight(StageTrap *t, u16 speed);

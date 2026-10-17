@@ -1,4 +1,4 @@
-void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {
+void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {
     switch (t->state) {
         case 0:
             if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {
@@ -10,7 +10,7 @@ void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {
             break;
         case 1:
             t->timer++;
-            switch ((s8)arg) {
+            switch ((s8)tiltSide) {
                 case 2:
                     t->rotZ = -Lerp(0, 0x400, t->timer, 10);
                     break;

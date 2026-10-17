@@ -155,14 +155,14 @@ void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
     }
 }
 
-void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {
+void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {
     switch (t->state) {
         case 0:
             t->homeRotZ = 0;
             t->state++;
         case 1:
-            if ((s8)arg != 1) {
-                if ((s8)arg == 2) {
+            if ((s8)startSide != 1) {
+                if ((s8)startSide == 2) {
                     if (t->homeRotZ != 0) {
                         PolarToXZ(-10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
                     } else {
@@ -184,7 +184,7 @@ void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {
             break;
         case 2:
             t->timer++;
-            switch (arg2) {
+            switch (pauseMode) {
                 case 0:
                     t->homeRotZ ^= 1;
                     t->timer = 0;
@@ -861,7 +861,7 @@ void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
+void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {}
 
 void StepTrapType1E(StageTrap *t, u16 speed) {}
 

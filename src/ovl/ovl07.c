@@ -501,7 +501,7 @@ void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-void StepTrapType1C(StageTrap *t, s32 speed, s32 arg, s32 arg2) {}
+void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {}
 
 void StepTrapType1E(StageTrap *t, u16 speed) {}
 
@@ -509,7 +509,7 @@ void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType29(StageTrap *t, s32 arg, s8 arg2) {}
+void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {}
 
 void StepTrapType27(StageTrap *t, s32 arg) {}
 

@@ -73,16 +73,24 @@ lint_format() {
 # done track holds them at 0) and disc-free (the same value without
 # build/pepsiman.elf). D_, m2c, magic and rawoff change without the ELF, which
 # decides which bodies are game code (without it, library bodies count too),
-# so they are not gated here; func_, unk, slot, magic and rawoff are a done
-# track's accepted residue, not a failure. placeholder_units/_headers (code_/
+# so they are not gated here; unk, slot, magic and rawoff are a done track's
+# accepted residue, not a failure. func_ is gated, the executable's and the
+# overlays': no C defines a Sony body, so it reads the same without the ELF,
+# and every function is named. placeholder_units/_headers (code_/
 # class_<hex> files) are not gated YET: Pepsiman's units are working cuts
 # (code_<fileoff>) until content shows the original files, as lsddecomp's
 # were until its track 8; gate them again once every unit is named.
 lint_readability() {
     "$PY" tools/readability.py --json | "$PY" -c '
 import json, sys
-t = json.load(sys.stdin)["totals"]
+d = json.load(sys.stdin)
+t = dict(d["totals"])
+for k, v in d["overlays"]["totals"].items():
+    t["overlay_" + k] = v
 gated = {
+    "func_": "definitions still named func_ (readability.py --unit <unit> -v)",
+    "overlay_func_": "overlay definitions still named func_ (readability.py --units)",
+    "overlay_history": "project history in overlay comments (track 9)",
     "history": "project history in .c comments (track 9)",
     "header_history": "project history in header comments (track 9)",
     "placeholder_types": "placeholder type names (track 6)",

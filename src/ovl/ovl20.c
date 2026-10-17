@@ -128,7 +128,7 @@ s32 StepWorldIntro(void) {
             sView.vrx = 0;
             sView.vry = 0;
             sView.vrz = -0x1450;
-            D_800D39D8.timer = 0;
+            gEventTraps.timer = 0;
             sSubStep = 0;
             gWorldIntroStep = 10;
             break;
@@ -141,21 +141,21 @@ s32 StepWorldIntro(void) {
                     sView.vry = -100;
                     sView.vrx = 0;
                     gPlayer.z += 30;
-                    sView.vpz = gPlayer.z + 200 + D_800D39D8.timer * 2;
+                    sView.vpz = gPlayer.z + 200 + gEventTraps.timer * 2;
                     sView.vrz = gPlayer.z;
                     GsSetRefView2(&sView);
-                    if (++D_800D39D8.timer >= 50) {
-                        D_800D39D8.timer = 0;
+                    if (++gEventTraps.timer >= 50) {
+                        gEventTraps.timer = 0;
                         sSubStep = 3;
                     }
                     break;
                 case 3:
                     gPlayer.z += 30;
-                    if (D_800D39D8.timer < 90) {
-                        sView.vpx = rsin((-(D_800D39D8.timer * 2) + 180) * 4096 / 360) * 300 / 4096;
+                    if (gEventTraps.timer < 90) {
+                        sView.vpx = rsin((-(gEventTraps.timer * 2) + 180) * 4096 / 360) * 300 / 4096;
                         sView.vpy = -100;
                         sView.vpz = gPlayer.z -
-                                    rcos((-(D_800D39D8.timer * 2) + 180) * 4096 / 360) * 300 / 4096;
+                                    rcos((-(gEventTraps.timer * 2) + 180) * 4096 / 360) * 300 / 4096;
                         sView.vrx = 0;
                         sView.vry = -100;
                         sView.vrz = gPlayer.z;
@@ -167,7 +167,7 @@ s32 StepWorldIntro(void) {
                         sView.vry = -100;
                         sView.vrz = gPlayer.z;
                     }
-                    D_800D39D8.timer++;
+                    gEventTraps.timer++;
                     if (gPlayer.z >= 0) {
                         gView[0] = -250;
                         gView[1] = -200;
@@ -180,21 +180,21 @@ s32 StepWorldIntro(void) {
                         gPlayer.yaw = 0x600;
                         sPartner.motion[0] = 0x3A;
                         sPartner.action = ACT_MODEL_ONCE;
-                        D_800D39D8.timer = 0;
+                        gEventTraps.timer = 0;
                         sSubStep = 5;
                     }
                     break;
                 case 5:
-                    sView.vpx = Lerp(sView.vpx, gView[0], D_800D39D8.timer, 15);
-                    sView.vpy = Lerp(sView.vpy, gView[1], D_800D39D8.timer, 15);
-                    sView.vpz = Lerp(sView.vpz, gView[2], D_800D39D8.timer, 15);
-                    sView.vrx = Lerp(sView.vrx, gView[3], D_800D39D8.timer, 15);
-                    sView.vry = Lerp(sView.vry, gView[4], D_800D39D8.timer, 15);
-                    sView.vrz = Lerp(sView.vrz, gView[5], D_800D39D8.timer, 15);
-                    if (++D_800D39D8.timer == 15) {
+                    sView.vpx = Lerp(sView.vpx, gView[0], gEventTraps.timer, 15);
+                    sView.vpy = Lerp(sView.vpy, gView[1], gEventTraps.timer, 15);
+                    sView.vpz = Lerp(sView.vpz, gView[2], gEventTraps.timer, 15);
+                    sView.vrx = Lerp(sView.vrx, gView[3], gEventTraps.timer, 15);
+                    sView.vry = Lerp(sView.vry, gView[4], gEventTraps.timer, 15);
+                    sView.vrz = Lerp(sView.vrz, gView[5], gEventTraps.timer, 15);
+                    if (++gEventTraps.timer == 15) {
                         gPlayer.motion[0] = 0x35;
                         gPlayer.action = ACT_MODEL_ONCE;
-                        D_800D39D8.timer = 0;
+                        gEventTraps.timer = 0;
                         sSubStep = 10;
                     }
                     break;
@@ -204,9 +204,9 @@ s32 StepWorldIntro(void) {
                         sPartner.curMotion[0] = MOT_OFF;
                         sPartner.action = 0;
                     }
-                    DrawRisingText(D_800D39D8.timer);
-                    if (++D_800D39D8.timer == 0x260) {
-                        D_800D39D8.timer = 0;
+                    DrawRisingText(gEventTraps.timer);
+                    if (++gEventTraps.timer == 0x260) {
+                        gEventTraps.timer = 0;
                         sSubStep = 15;
                     }
                     break;
@@ -226,7 +226,7 @@ s32 StepWorldIntro(void) {
                         sPartner.motion[0] = 0x3C;
                         sPartner.curMotion[0] = MOT_OFF;
                         sPartner.action = 0;
-                        D_800D39D8.timer = 0;
+                        gEventTraps.timer = 0;
                         sSubStep = 25;
                     }
                     break;
@@ -244,7 +244,7 @@ s32 StepWorldIntro(void) {
                     }
                     if (gPlayer.action == 1) {
                         gPlayer.z += 30;
-                        if (++D_800D39D8.timer == 90) {
+                        if (++gEventTraps.timer == 90) {
                             gWorldIntroStep = 100;
                         }
                     }

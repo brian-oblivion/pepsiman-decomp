@@ -13,7 +13,7 @@ void KnockTrapAway(StageTrap *t) {
                 }
                 t->homeX = 0;
                 t->homeY = t->y;
-                t->homeRotY = D_8009EEF8[0];
+                t->homeRotY = gPlayerYaw[0];
                 t->state++;
                 t->timer = 0;
             }

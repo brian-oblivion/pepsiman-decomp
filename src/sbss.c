@@ -82,7 +82,8 @@ u8 *gLightColors SBSS = NULL;
 u32 gStageObjCount SBSS = 0;
 u32 gPropObjCount SBSS = 0;
 s32 gVabError SBSS = 0;
-s8 D_800957A0 SBSS = 0; /**< the saved stage to continue from, 100 added for the second table; -1 for none */
+s8 gContinueStage SBSS =
+    0; /**< the saved stage to continue from, 100 added for the second table; -1 for none */
 s32 D_800957A4 SBSS = 0;
 s32 gVSyncMode SBSS = 0;
 s32 D_800957AC SBSS = 0; /**< read by no code */

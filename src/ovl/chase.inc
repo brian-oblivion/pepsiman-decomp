@@ -75,10 +75,10 @@ typedef struct {
     s32 lidZ; /**< the lid's z */
 } ChaseCan;
 
-extern ChaseCan D_8009EA78;
-extern SVECTOR D_8009EB58[2]; /* the body's and the lid's rotations */
-#define sCan D_8009EA78
-#define sCanRot D_8009EB58
+extern ChaseCan gAct3Positions;
+extern SVECTOR gAct3Rotations[2]; /* the body's and the lid's rotations */
+#define sCan gAct3Positions
+#define sCanRot gAct3Rotations
 extern u8 gRumbleEnabled;
 extern s16 gRumbleTime;
 /* MATCHING: the small and large strengths read as one array; sbss.c has two

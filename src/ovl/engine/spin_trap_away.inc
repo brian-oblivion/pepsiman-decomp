@@ -9,7 +9,7 @@ void SpinTrapAway(StageTrap *t) {
                 t->homeY = t->y;
                 /* MATCHING: read as a member at a fixed address, which keeps
                  * the load below the stores into t. */
-                t->homeRotY = ((SVECTOR *)D_8009EEF8)->vx;
+                t->homeRotY = ((SVECTOR *)gPlayerYaw)->vx;
                 t->state++;
                 t->timer = 0;
             }

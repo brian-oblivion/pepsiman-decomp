@@ -31,13 +31,13 @@ extern u16 gVabBank;
 extern u8 gRumbleEnabled;
 
 /* The vibration test's pattern, an index into gRumblePatterns. */
-extern s16 D_800958B8[];
+extern s16 gRumbleTestNo[];
 
 extern s32 gGridLastValue;
 extern s32 gGridLastX;
 extern s32 gGridLastY;
-extern s32 D_80095814;
-extern s32 D_80095818;
+extern s32 gDebugD4;
+extern s32 gDebugD5;
 
 /* The overlay's data, in address order: two copies of the disc's file
  * table, which the menu never reads, and the sound test's choices. */
@@ -84,7 +84,7 @@ void StepDevMenu(void) {
             gClearR = 0;
             gRumbleSmall[1] = 0;
             gRumbleSmall[0] = 0;
-            D_800958B8[0] = 0;
+            gRumbleTestNo[0] = 0;
             gPlayer.hittable = 1;
             gVabLoadStep = 0;
             gModeStep++;
@@ -97,14 +97,16 @@ void StepDevMenu(void) {
         case 2:
             if (gMenuLine == 4) {
                 if (gPadTrig & PADLright) {
-                    D_800958B8[0]++;
+                    gRumbleTestNo[0]++;
                 }
                 if (gPadTrig & PADLleft) {
-                    D_800958B8[0]--;
+                    gRumbleTestNo[0]--;
                 }
-                D_800958B8[0] = D_800958B8[0] < 0 ? 0 : D_800958B8[0] >= 32 ? 31 : D_800958B8[0];
+                gRumbleTestNo[0] = gRumbleTestNo[0] < 0     ? 0
+                                   : gRumbleTestNo[0] >= 32 ? 31
+                                                            : gRumbleTestNo[0];
                 if (gPadTrig & PADRup) {
-                    StartRumble(gRumblePatterns, D_800958B8[0]);
+                    StartRumble(gRumblePatterns, gRumbleTestNo[0]);
                 }
             } else {
                 gStage = gEditValue;
@@ -176,7 +178,7 @@ void StepDevMenu(void) {
             if (gMenuLine == 4) {
                 FntPrint("\n\n~c888");
                 FntPrint("\nDEVICE ID->%x", gPadType);
-                FntPrint("\nSHOCKTABLE NO->%d", D_800958B8[0]);
+                FntPrint("\nSHOCKTABLE NO->%d", gRumbleTestNo[0]);
                 FntPrint("\nSHOCK0->%3d SHOCK1->%3d", gRumbleSmall[0], gRumbleSmall[1]);
                 FntPrint("\nFRAME->%3d REP->%3d WAIT->%3d", gRumbleTime, gRumbleRepeat, gRumbleWait);
                 FntPrint("\nNEXT TABLE NO->%d", gRumbleNext);
@@ -288,8 +290,8 @@ void StepSoundTest(void) {
             FntPrint("\nD1->%d %x", gGridLastValue, gGridLastValue);
             FntPrint("\nD2->%d %x", gGridLastX, gGridLastX);
             FntPrint("\nD3->%d %x", gGridLastY, gGridLastY);
-            FntPrint("\nD4->%d %x", D_80095814, D_80095814);
-            FntPrint("\nD5->%d %x", D_80095818, D_80095818);
+            FntPrint("\nD4->%d %x", gDebugD4, gDebugD4);
+            FntPrint("\nD5->%d %x", gDebugD5, gDebugD5);
             break;
     }
 }

@@ -170,7 +170,7 @@ def text_files():
                     todo.append(q)
         return out
     out = []
-    for pat in ("src/**/*.c", "src/**/*_tables.inc", "src/ovl/*.inc", "include/*.h", "include/*.inc",
+    for pat in ("src/**/*.c", "src/**/*_tables.inc", "src/ovl/**/*.inc", "include/*.h", "include/*.inc",
                 "docs/*.md", "docs/match-reports/*.md", "docs/research/*.md",
                 "CLAUDE.md", "config/gp-symbols.txt", "config/typeviews-warnings.txt"):
         out.extend(ROOT.glob(pat))

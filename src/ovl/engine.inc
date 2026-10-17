@@ -121,9 +121,9 @@ typedef struct {
 extern SwitchBox gSwitches[];
 extern ModelSlot gModeObjectModels[];
 /* MATCHING: player's view, signed here: reached through a split lui/%lo pair. */
-extern s8 D_800D3358[];
+extern s8 gRideSwitchState[];
 extern EngSprite gStageSprites[];
-extern StageTrap D_800D39D8[];
+extern StageTrap gEventTraps[];
 
 /** @brief Six speeds, copied whole. */
 typedef struct {
@@ -331,7 +331,7 @@ void InterpSwing(s32 r, u16 t, u16 n, s32 *out);
  * without re-extension. */
 s32 Lerp(s32 a, s32 b, s32 t, s32 n);
 
-extern s16 D_8009EEF8[];
+extern s16 gPlayerYaw[];
 
 /* MATCHING: object's views, with this unit's records. */
 s32 SnapToFloor(StageTrap *t);
@@ -344,14 +344,14 @@ void ScatterTrapDust(StageTrap *t, u8 side);
 /* MATCHING: player's, which no header declares. */
 void ScatterDust(VECTOR *pos);
 
-extern s8 D_800D3638;
-extern StageTrap D_800AC6E0;
+extern s8 gMissSwitchState;
+extern StageTrap gMissTrap;
 extern s16 D_800AC6B8;
 /* MATCHING: player's, declared only where defined. */
 void StopSpeed(void);
 void SpawnMissDebris(void);
 
-extern s8 D_800D37A8;
+extern s8 gAct2GoalSwitchState;
 /* MATCHING: main's, stage's and stage_overlay's, declared only where
  * defined. */
 void ResetRumble(void);

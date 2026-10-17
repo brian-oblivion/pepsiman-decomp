@@ -586,9 +586,9 @@ extern s32 gTimeLimitsAlt[][3]; /**< the second set; 2 units */
 
 /* Three positions per stage that stage_flow defines and only the stage
  * overlays read: where their scripted sequences move the player. */
-extern Vec3 D_8007AD68[]; /**< the fall with gMissState -1 */
-extern Vec3 D_8007AE1C[]; /**< the fall with gMissState -2: walked to first */
-extern Vec3 D_8007AED0[]; /**< the fall with gMissState -2: then slid to */
+extern Vec3 gMissTargets[];      /**< the fall with gMissState -1 */
+extern Vec3 gGoalWalkTargets[];  /**< the fall with gMissState -2: walked to first */
+extern Vec3 gGoalSlideTargets[]; /**< the fall with gMissState -2: then slid to */
 
 /* Arrays of unknown size, each reached only at its first element: most are
  * probably members of larger structures, still to be found. */

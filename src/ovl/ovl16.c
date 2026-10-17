@@ -57,9 +57,9 @@ void ResetSpawnedTraps(void) {
             sSpawnedTraps[i].timer = 0;
         }
         for (i = 0; i < 10; i++) {
-            D_800D39D8[i].model = -1;
-            D_800D39D8[i].state = 0;
-            D_800D39D8[i].timer = 0;
+            gEventTraps[i].model = -1;
+            gEventTraps[i].state = 0;
+            gEventTraps[i].timer = 0;
         }
         for (i = 0; i < 2; i++) {
             sGoalTraps[i].model = -1;
@@ -249,8 +249,8 @@ void StepMissSequence(void) {
     s32 unused[18];
     StageTrap *m;
 
-    m = &D_800AC6E0;
-    if (D_800D3638 == 1) {
+    m = &gMissTrap;
+    if (gMissSwitchState == 1) {
     top:
         switch (m->state) {
             case 0:
@@ -260,19 +260,19 @@ void StepMissSequence(void) {
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
-                D_800D39D8[0].homeRotZ = 0;
+                gEventTraps[0].homeRotZ = 0;
                 gFellOff = 1;
                 m->timer = 0;
-                D_800D39D8[0].homeX = gPlayer.x;
-                D_800D39D8[0].homeY = gPlayer.y;
-                D_800D39D8[0].homeZ = gPlayer.z;
+                gEventTraps[0].homeX = gPlayer.x;
+                gEventTraps[0].homeY = gPlayer.y;
+                gEventTraps[0].homeZ = gPlayer.z;
                 gRefView[0] = gView[0];
                 gRefView[1] = gView[1];
                 gRefView[2] = gView[2];
                 m->state++;
             case 1:
-                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 20);
-                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 20);
+                gPlayer.x = Lerp(gEventTraps[0].homeX, gMissTargets[gStage].x, m->timer, 20);
+                gPlayer.z = Lerp(gEventTraps[0].homeZ, gMissTargets[gStage].z, m->timer, 20);
                 gRefView[0] -= gPlayer.x + gWorldShift[0];
                 gRefView[1] = gView[1];
                 gRefView[2] -= gPlayer.z + gWorldShift[2];
@@ -295,7 +295,7 @@ void StepMissSequence(void) {
                     gPlayer.rideMode = (gPlayer.rideMode & 0xF0) | 4;
                     SpawnMissDebris();
                     gSpeedFixed = 800;
-                    D_800D3638 = 2;
+                    gMissSwitchState = 2;
                     gMissState = 0;
                     gFellOff = 0;
                     gPlayer.control = 1;
@@ -321,7 +321,7 @@ void StepGoalSequence(void) {
 
     t = sGoalTraps;
     u = &sGoalTraps[1];
-    if (D_800D37A8 == 1) {
+    if (gAct2GoalSwitchState == 1) {
         ResetRumble();
         DrawFrozenFrame();
         switch (t->state) {
@@ -449,8 +449,8 @@ s8 StepGoalCutscene(StageTrap *t) {
 
     switch (t->state) {
         case 0:
-            gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, n);
-            gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, n);
+            gPlayer.x = Lerp(t->homeX, gGoalWalkTargets[gStage].x, t->timer, n);
+            gPlayer.z = Lerp(t->homeZ, gGoalWalkTargets[gStage].z, t->timer, n);
             if (++t->timer > n) {
                 t->homeX = gPlayer.x;
                 t->homeY = gPlayer.y;
@@ -462,8 +462,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             }
             break;
         case 1:
-            gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, m);
-            gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, m);
+            gPlayer.x = Lerp(gPlayer.x, gGoalSlideTargets[gStage].x, t->timer, m);
+            gPlayer.z = Lerp(gPlayer.z, gGoalSlideTargets[gStage].z, t->timer, m);
             if (++t->timer < (s16)(m / 3)) {
                 ScatterDust((VECTOR *)&gPlayer.x);
             }
@@ -925,7 +925,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {}
 void UpdateStageEventHook(void) {
     StageTrap *m;
 
-    m = &D_800D39D8[1];
+    m = &gEventTraps[1];
     if (gSwitches[192].state == SWITCH_ON) {
         m->state = 0;
         gPlayer.motion[0] = 11;

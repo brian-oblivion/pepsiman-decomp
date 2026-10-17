@@ -104,7 +104,7 @@ void StepWorldIntro(void) {
             sView.vrx = 0;
             sView.vry = 0;
             sView.vrz = -0x1450;
-            D_800D39D8.timer = 0;
+            gEventTraps.timer = 0;
             sSubStep = 0;
             gWorldIntroStep = 10;
             break;
@@ -115,16 +115,16 @@ void StepWorldIntro(void) {
                 switch (sSubStep) {
                     case 0:
                         gPlayer.z += 30;
-                        sView.vpx = rsin(0x800) * (D_800D39D8.timer * 2 + 200) / 4096 + gPlayer.x;
-                        sView.vpy = -100 - (D_800D39D8.timer >> 1);
-                        sView.vpz = rcos(0x800) * (D_800D39D8.timer * 2 + 200) / 4096 + gPlayer.z;
+                        sView.vpx = rsin(0x800) * (gEventTraps.timer * 2 + 200) / 4096 + gPlayer.x;
+                        sView.vpy = -100 - (gEventTraps.timer >> 1);
+                        sView.vpz = rcos(0x800) * (gEventTraps.timer * 2 + 200) / 4096 + gPlayer.z;
                         sView.vrx = gPlayer.x;
                         /* MATCHING: `/ 2` where vpy has `>> 1`; the timer is then reloaded
                          * for the increment. */
-                        sView.vry = -100 - (D_800D39D8.timer / 2);
+                        sView.vry = -100 - (gEventTraps.timer / 2);
                         sView.vrz = gPlayer.z;
-                        if (++D_800D39D8.timer >= 100) {
-                            D_800D39D8.timer = 0;
+                        if (++gEventTraps.timer >= 100) {
+                            gEventTraps.timer = 0;
                             sSubStep = 3;
                         }
                         break;
@@ -136,18 +136,18 @@ void StepWorldIntro(void) {
                         sView.vrx = gPlayer.x;
                         sView.vry = -150;
                         sView.vrz = gPlayer.z;
-                        D_800D39D8.timer++;
+                        gEventTraps.timer++;
                         if (gPlayer.z >= -0xE1) {
                             gPlayer.motion[0] = 0x34;
                             gPlayer.action = ACT_MODEL_ONCE;
                             sPartner.motion[0] = 0x3A;
                             sPartner.action = ACT_MODEL_ONCE;
-                            D_800D39D8.timer = 30;
+                            gEventTraps.timer = 30;
                             sSubStep = 5;
                         }
                         break;
                     case 5:
-                        gPlayer.z += D_800D39D8.timer;
+                        gPlayer.z += gEventTraps.timer;
                         gPlayer.yaw -= 0x22;
                         sView.vpx = rsin(0x800) * 400 / 4096 + gPlayer.x;
                         sView.vpy = -150;
@@ -155,11 +155,11 @@ void StepWorldIntro(void) {
                         sView.vrx = gPlayer.x;
                         sView.vry = -150;
                         sView.vrz = gPlayer.z;
-                        if ((D_800D39D8.timer -= 2) == 0) {
+                        if ((gEventTraps.timer -= 2) == 0) {
                             gPlayer.yaw = 0x600;
                             gPlayer.motion[0] = 0x35;
                             gPlayer.action = ACT_MODEL_ONCE;
-                            D_800D39D8.timer = 0;
+                            gEventTraps.timer = 0;
                             sSubStep = 10;
                         }
                         break;
@@ -178,7 +178,7 @@ void StepWorldIntro(void) {
                             sView.vrz = 40;
                         }
                         if (sIntroFrame == 0x4A4) {
-                            D_800D39D8.timer = 0;
+                            gEventTraps.timer = 0;
                             sSubStep = 15;
                         }
                         break;
@@ -198,7 +198,7 @@ void StepWorldIntro(void) {
                             sPartner.motion[0] = 0x3C;
                             sPartner.curMotion[0] = MOT_OFF;
                             sPartner.action = 0;
-                            D_800D39D8.timer = 0;
+                            gEventTraps.timer = 0;
                             sSubStep = 25;
                         }
                         break;
@@ -216,7 +216,7 @@ void StepWorldIntro(void) {
                         }
                         if (gPlayer.action == 1) {
                             gPlayer.z += 30;
-                            if (++D_800D39D8.timer == 90) {
+                            if (++gEventTraps.timer == 90) {
                                 StopXa();
                                 gStage = STAGE_1_1;
                                 BeginLoadScreenModel();

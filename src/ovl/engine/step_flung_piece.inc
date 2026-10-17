@@ -28,7 +28,7 @@ void StepFlungPiece(StageTrap *t) {
             if (t->homeRotX > 60) {
                 t->model = -1;
                 t->state++;
-                D_800D3358[0] = -1;
+                gRideSwitchState[0] = -1;
             }
             break;
     }

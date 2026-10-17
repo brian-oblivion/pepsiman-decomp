@@ -25,7 +25,7 @@ typedef struct {
 } IntroTimer;
 
 /** @brief The record whose word at +0x24 is the intro's camera clock. */
-extern IntroTimer D_800D39D8;
+extern IntroTimer gEventTraps;
 
 /** @brief The game's reference view, as the GsRVIEW2 it is. */
 #define sView (*(GsRVIEW2 *)gRefView)

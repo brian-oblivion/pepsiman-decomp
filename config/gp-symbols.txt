@@ -29,7 +29,6 @@ D_80095775
 D_80095776
 D_80095778
 D_8009577C
-D_800957A0
 D_800957A4
 D_800957AC
 D_800957B8
@@ -92,6 +91,7 @@ gCdVolume
 gClearB
 gClearG
 gClearR
+gContinueStage
 gEditValue
 gEditorInfo
 gEffectActive

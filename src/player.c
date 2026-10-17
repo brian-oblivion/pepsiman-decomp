@@ -53,10 +53,10 @@ typedef struct {
 extern s32 sGridAngle;          /**< UpdateGridTest's angle, moved by L1 and R1 */
 extern GridPoint sGridPoints[]; /**< UpdateGridTest's 21 x 16 grid */
 extern DVECTOR sGridScreen[];   /**< each grid point projected to the screen */
-extern s32 D_800DED50[]; /**< the depth word of grid point 158 (row 7, column 11, by the screen centre), inside sGridPoints */
-extern s32 gGridLastValue; /**< the grid test's last table value */
-extern s32 gGridLastX;     /**< the grid test's first point on screen, x */
-extern s32 gGridLastY;     /**< the grid test's first point on screen, y */
+extern s32 sGridCentreDepth[]; /**< the depth word of grid point 158 (row 7, column 11, by the screen centre), inside sGridPoints */
+extern s32 gGridLastValue;     /**< the grid test's last table value */
+extern s32 gGridLastX;         /**< the grid test's first point on screen, x */
+extern s32 gGridLastY;         /**< the grid test's first point on screen, y */
 
 /* MATCHING: a per-unit view; stage stores it as an s32. */
 extern u8 *gLightColors; /**< the stage's light colours, four bytes each */
@@ -113,7 +113,7 @@ extern ObjRec gModeObjectModels[]; /**< the mode objects' model slots: the rides
 void DrawObjectModel(ObjectModel *rec, Trap *r);
 
 /* MATCHING: retail reaches these through a split lui/%lo pair. */
-extern u8 D_800D3358[]; /**< [0] is 1 once a lost ride is placed as a stage object; its flung piece sets -1 when gone */
+extern u8 gRideSwitchState[]; /**< [0] is 1 once a lost ride is placed as a stage object; its flung piece sets -1 when gone */
 
 void ApplySteer(u8 mode, u16 a, s16 b);
 void SteerPlayer(void);
@@ -412,7 +412,7 @@ void UpdateGridTest(void) {
         }
     }
     gGridLastAngle = sGridAngle;
-    gGridLastValue = D_800DED50[0];
+    gGridLastValue = sGridCentreDepth[0];
     gGridLastX = sGridScreen[0].vx;
     gGridLastY = sGridScreen[0].vy;
 }
@@ -2776,7 +2776,7 @@ void SpawnModeObject(void) {
             slot->act = 0x69;
             slot->state = 0;
             slot->timer = 0;
-            D_800D3358[0] = 1;
+            gRideSwitchState[0] = 1;
         }
         gPlayer.dropRide = 0;
     }

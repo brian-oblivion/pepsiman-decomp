@@ -6,7 +6,7 @@ Unit `src/player.c`. When request byte `D_8009EF49[0]` is 1, takes
 the first free 72-byte record of the slot table (`gSlotTable`, size in
 bytes `gSlotTableSize`), clears a per-stage counter and sets the record's
 kind from the stage number `gStage` (jump table `jtbl_80010918`),
-initialises the record, sets `D_800D3358[0]` and clears the request.
+initialises the record, sets `gRideSwitchState[0]` and clears the request.
 
 ```c
 static __inline__ s16 findFreeSlot(SlotRec *slot) {
@@ -61,7 +61,7 @@ void SpawnModeObject(void) {
             slot->unk43 = 0x69;
             slot->unk26 = 0;
             slot->unk24 = 0;
-            D_800D3358[0] = 1;
+            gRideSwitchState[0] = 1;
         }
         D_8009EF49[0] = 0;
     }

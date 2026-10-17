@@ -13,7 +13,7 @@ display.
 
 ```c
 extern DVECTOR sGridScreen[];
-extern s32 D_800DED50[];
+extern s32 sGridCentreDepth[];
 extern s32 gGridLastAngle;
 extern s32 gGridLastValue;
 extern s32 gGridLastX;
@@ -113,7 +113,7 @@ void UpdateGridTest(void) {
         }
     }
     gGridLastAngle = sGridAngle;
-    gGridLastValue = D_800DED50[0];
+    gGridLastValue = sGridCentreDepth[0];
     gGridLastX = sGridScreen[0].vx;
     gGridLastY = sGridScreen[0].vy;
 }

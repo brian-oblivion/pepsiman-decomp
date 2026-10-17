@@ -31,10 +31,10 @@ extern Pair8 gBestCans[];
 extern Pair8 gBestTimes[];
 extern const Pair8 gTargetTimes[];
 extern u8 gRumbleEnabled;
-extern s8 D_800957A0;
+extern s8 gContinueStage;
 extern u8 gGameCleared; /**< 1 once the last movie has played with the first stage table */
-extern s32 D_80095984;
-extern s32 D_80095998;
+extern s32 gSelectedAct;
+extern s32 gSelectedWorld;
 extern u16 gRumbleSmall;
 extern u16 gRumbleLarge;
 extern char sNewline[]; /**< "\n" */
@@ -82,15 +82,15 @@ int main(void) {
     gRumbleEnabled = 1;
     gStereo = 1;
     gUnlocks = 1;
-    D_800957A0 = -1;
+    gContinueStage = -1;
     ClipF = 0;
     gTmdSortMode = 0;
     gButtonConfig = 0;
     gAllTargetsBeaten = 0;
     gGameCleared = 0;
     gStageTableSet = -1;
-    D_80095984 = 0;
-    D_80095998 = 0;
+    gSelectedAct = 0;
+    gSelectedWorld = 0;
     for (gLoopI = 0; gLoopI < 4; gLoopI++) {
         gBestCans[gLoopI].a = 0;
         gBestCans[gLoopI].b = 0;
@@ -404,7 +404,7 @@ int main(void) {
                         } else if (gStageTableSet == 1) {
                             gUnlocks |= 8;
                         }
-                        D_800957A0 = -1;
+                        gContinueStage = -1;
                         gGameMode = GM_MENU_LOAD;
                         gModeStep = 0;
                         break;

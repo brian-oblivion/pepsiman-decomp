@@ -46,9 +46,9 @@ void ResetSpawnedTraps(void) {
             sSpawnedTraps[i].timer = 0;
         }
         for (i = 0; i < 10; i++) {
-            D_800D39D8[i].model = -1;
-            D_800D39D8[i].state = 0;
-            D_800D39D8[i].timer = 0;
+            gEventTraps[i].model = -1;
+            gEventTraps[i].state = 0;
+            gEventTraps[i].timer = 0;
         }
         for (i = 0; i < 2; i++) {
             sGoalTraps[i].model = -1;
@@ -392,7 +392,7 @@ void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {
 
 #include "engine/scatter_trap_dust.inc"
 
-extern s8 D_800D36F0;
+extern s8 gAct1GoalSwitchState;
 s8 StepGoalCutscene(StageTrap *t);
 
 /* MATCHING: the two stage groups set the counts separately; one set is
@@ -405,7 +405,7 @@ void UpdateGoalEventHook(void) {
 
     t = sGoalTraps;
     u = &sGoalTraps[1];
-    if (D_800D36F0 == 1) {
+    if (gAct1GoalSwitchState == 1) {
         ResetRumble();
         switch (gStage) {
             case 0:
@@ -447,8 +447,8 @@ void UpdateGoalEventHook(void) {
                 t->timer = 0;
                 t->state++;
             case 1:
-                gPlayer.x = Lerp(t->homeX, D_8007AE1C[gStage].x, t->timer, walk);
-                gPlayer.z = Lerp(t->homeZ, D_8007AE1C[gStage].z, t->timer, walk);
+                gPlayer.x = Lerp(t->homeX, gGoalWalkTargets[gStage].x, t->timer, walk);
+                gPlayer.z = Lerp(t->homeZ, gGoalWalkTargets[gStage].z, t->timer, walk);
                 t->timer++;
                 if (t->timer > walk) {
                     t->timer = 0;
@@ -460,8 +460,8 @@ void UpdateGoalEventHook(void) {
                 }
                 break;
             case 2:
-                gPlayer.x = Lerp(gPlayer.x, D_8007AED0[gStage].x, t->timer, slide);
-                gPlayer.z = Lerp(gPlayer.z, D_8007AED0[gStage].z, t->timer, slide);
+                gPlayer.x = Lerp(gPlayer.x, gGoalSlideTargets[gStage].x, t->timer, slide);
+                gPlayer.z = Lerp(gPlayer.z, gGoalSlideTargets[gStage].z, t->timer, slide);
                 t->timer++;
                 if (t->timer < (s16)(slide / 3)) {
                     ScatterDust((VECTOR *)&gPlayer.x);

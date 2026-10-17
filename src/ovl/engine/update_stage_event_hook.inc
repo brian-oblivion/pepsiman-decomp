@@ -2,7 +2,7 @@ void UpdateStageEventHook(void) {
     StageTrap *m;
     SwitchBox *s;
 
-    m = &D_800D39D8[1];
+    m = &gEventTraps[1];
     s = gSwitches;
     if (s[192].state == SWITCH_ON) {
         m->state = 0;

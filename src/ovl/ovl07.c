@@ -167,8 +167,8 @@ void StepMissSequence(void) {
     StageTrap *m;
     u16 i;
 
-    m = &D_800AC6E0;
-    if (D_800D3638 == 1) {
+    m = &gMissTrap;
+    if (gMissSwitchState == 1) {
         switch (m->state) {
             case 0:
                 gPlayer.control = 0;
@@ -177,12 +177,12 @@ void StepMissSequence(void) {
                 StopSpeed();
                 EndJump();
                 gMissState = -1;
-                D_800D39D8[0].homeRotZ = 0;
+                gEventTraps[0].homeRotZ = 0;
                 gFellOff = 1;
                 m->timer = 0;
-                D_800D39D8[0].homeX = gPlayer.x;
-                D_800D39D8[0].homeY = gPlayer.y;
-                D_800D39D8[0].homeZ = gPlayer.z;
+                gEventTraps[0].homeX = gPlayer.x;
+                gEventTraps[0].homeY = gPlayer.y;
+                gEventTraps[0].homeZ = gPlayer.z;
                 gRefView[0] = gView[0];
                 gRefView[1] = gView[1];
                 gRefView[2] = gView[2];
@@ -191,8 +191,8 @@ void StepMissSequence(void) {
                 gRefView[5] = gView[5];
                 m->state++;
             case 1:
-                gPlayer.x = Lerp(D_800D39D8[0].homeX, D_8007AD68[gStage].x, m->timer, 25);
-                gPlayer.z = Lerp(D_800D39D8[0].homeZ, D_8007AD68[gStage].z, m->timer, 25);
+                gPlayer.x = Lerp(gEventTraps[0].homeX, gMissTargets[gStage].x, m->timer, 25);
+                gPlayer.z = Lerp(gEventTraps[0].homeZ, gMissTargets[gStage].z, m->timer, 25);
                 gView[1] = gRefView[1] + Lerp(0, 65, m->timer, 25);
                 gView[4] = gRefView[4] + Lerp(0, 50, m->timer, 25);
                 GsSetRefView2((GsRVIEW2 *)gView);
@@ -225,8 +225,8 @@ void StepMissSequence(void) {
                     SpawnMissDebris();
                     gMissState = 0;
                     gFellOff = 0;
-                    D_800D39D8[1].state = 0;
-                    D_800D39D8[1].timer = 0;
+                    gEventTraps[1].state = 0;
+                    gEventTraps[1].timer = 0;
                     gPlayer.control = 1;
                 }
                 gView[1] = gRefView[1] + 100;
@@ -255,7 +255,7 @@ void StepGoalSequence(void) {
 
     t = sGoalTraps;
     u = &sGoalTraps[1];
-    if (D_800D37A8 == 1) {
+    if (gAct2GoalSwitchState == 1) {
         ResetRumble();
         DrawFrozenFrame();
         switch (t->state) {

@@ -14,9 +14,9 @@ void ResetSpawnedTraps(void) {
             sSpawnedTraps[i].timer = 0;
         }
         for (i = 0; i < 10; i++) {
-            D_800D39D8[i].model = -1;
-            D_800D39D8[i].state = 0;
-            D_800D39D8[i].timer = 0;
+            gEventTraps[i].model = -1;
+            gEventTraps[i].state = 0;
+            gEventTraps[i].timer = 0;
         }
         for (i = 0; i < 2; i++) {
             sGoalTraps[i].model = -1;

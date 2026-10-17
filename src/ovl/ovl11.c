@@ -185,30 +185,30 @@ void DrawChaseTitle(void) {
     s32 d;
     s32 t;
 
-    if (D_800D39D8.title < 68) {
-        if (D_800D39D8.title < 30) {
+    if (gEventTraps.title < 68) {
+        if (gEventTraps.title < 30) {
             quad[0] = -128;
             quad[1] = -32;
             color.r = 1;
             /* MATCHING: a store in each arm keeps the stores above the call's
              * arguments. */
-            if (D_800D39D8.title < 16) {
-                color.g = color.b = color.cd = D_800D39D8.title * 8;
+            if (gEventTraps.title < 16) {
+                color.g = color.b = color.cd = gEventTraps.title * 8;
             } else {
                 color.g = color.b = color.cd = 0x80;
             }
             DrawSprite(30, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
-        if (D_800D39D8.title >= 30 && D_800D39D8.title < 60) {
+        if (gEventTraps.title >= 30 && gEventTraps.title < 60) {
             quad[0] = -128;
-            d = D_800D39D8.title - 30;
+            d = gEventTraps.title - 30;
             quad[1] = d < 9 ? d * 22 - 208 : -32;
             color.r = 1;
             color.g = color.b = color.cd = 0x80;
             DrawSprite(31, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
-        if (D_800D39D8.title >= 60) {
-            t = D_800D39D8.title - 60;
+        if (gEventTraps.title >= 60) {
+            t = gEventTraps.title - 60;
             quad[4] = quad[5] = (t << 9) + 0x1000;
             quad[7] = 1;
             color.r = 1;
@@ -220,7 +220,7 @@ void DrawChaseTitle(void) {
             color.g = color.b = color.cd = -128 - t * 16;
             DrawSpriteTransformed(31, quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
-        D_800D39D8.title++;
+        gEventTraps.title++;
     }
 }
 
@@ -257,16 +257,16 @@ void DrawChaseClearWipe(void) {
     WipeRow *w;
     LineF2 *line;
 
-    if ((u16)D_800D39D8.title - 60 < 8U) {
+    if ((u16)gEventTraps.title - 60 < 8U) {
         /* MATCHING: its own temporary, not the one the second caption uses. */
-        d = D_800D39D8.title - 60;
+        d = gEventTraps.title - 60;
         quad[0] = (d << 5) - 0x180;
         quad[1] = -64;
         color.r = 1;
         color.g = color.b = color.cd = d * 16;
         DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
-    if ((u16)D_800D39D8.title - 68 < 8U) {
+    if ((u16)gEventTraps.title - 68 < 8U) {
         quad[0] = -128;
         quad[1] = -64;
         color.r = 1;
@@ -274,12 +274,12 @@ void DrawChaseClearWipe(void) {
         DrawSprite(32, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         quad[1] = 0;
         color.r = 1;
-        t = D_800D39D8.title - 68;
+        t = gEventTraps.title - 68;
         quad[0] = (t << 5) - 0x180;
         color.g = color.b = color.cd = t * 16;
         DrawSprite(33, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
-    if (D_800D39D8.title >= 76) {
+    if (gEventTraps.title >= 76) {
         quad[0] = -128;
         quad[1] = -64;
         color.r = 1;
@@ -291,7 +291,7 @@ void DrawChaseClearWipe(void) {
         color.g = color.b = color.cd = 0x80;
         DrawSprite(33, (SVECTOR *)quad, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
-    if (D_800D39D8.title >= 150) {
+    if (gEventTraps.title >= 150) {
         /* MATCHING: the row indexed, not stepped, so the loop's invariants
          * come first. */
         for (i = 0; i < 240; i++) {
@@ -312,7 +312,7 @@ void DrawChaseClearWipe(void) {
             GsOUT_PACKET_P = (PACKET *)line;
         }
     }
-    D_800D39D8.title++;
+    gEventTraps.title++;
 }
 
 s32 StepChasePiece0(Act3Obj *o) {
@@ -1212,7 +1212,7 @@ typedef struct {
 } ChaseStepRec;
 
 /* The step's record. */
-#define sRec (*(ChaseStepRec *)&D_800D39D8)
+#define sRec (*(ChaseStepRec *)&gEventTraps)
 /* MATCHING: the step's sub-step, kept in the fog fade's word. */
 #define sSubStep gFogFade
 

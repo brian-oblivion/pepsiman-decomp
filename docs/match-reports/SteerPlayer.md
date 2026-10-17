@@ -7,11 +7,11 @@ set, picks a per-frame update by the byte `gPadType`: for 0x73 and 0x41,
 pad bit 0x8000 of `gPad` calls `ApplySteer(3, 16, 15)`, bit 0x2000
 calls `ApplySteer(2, 16, 15)`, otherwise `RecentreSteer()`; any other
 value calls `RecentreSteer()`. If the flag is (or became) clear, copies the
-camera angle `gCourse[0].vy` into `D_8009EEF8`.
+camera angle `gCourse[0].vy` into `gPlayerYaw`.
 
 ```c
 extern u8 gPadType;
-extern s32 D_8009EEF8[];
+extern s32 gPlayerYaw[];
 extern SVECTOR gCourse[];   /* unit */
 extern s32 gPad;         /* unit */
 
@@ -42,7 +42,7 @@ void SteerPlayer(void) {
             return;
         }
     }
-    D_8009EEF8[0] = gCourse[0].vy;
+    gPlayerYaw[0] = gCourse[0].vy;
 }
 ```
 

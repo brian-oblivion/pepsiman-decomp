@@ -75,7 +75,7 @@ s8 sStageFindsFloor[16] = {1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0};
  * falls move the player to (all 0 for a stage with none): the first when
  * gMissState is -1 (StepMissSequence), the other two in turn when it is
  * -2. Only the overlays read them. */
-Vec3 D_8007AD68[] = {
+Vec3 gMissTargets[] = {
     {-5700, -9080, 18500},  /* 0 */
     {17332, -9080, 27535},  /* 1 */
     {0, 0, 0},              /* 2 */
@@ -93,7 +93,7 @@ Vec3 D_8007AD68[] = {
     {0, 0, 0},              /* 14 */
 };
 
-Vec3 D_8007AE1C[] = {
+Vec3 gGoalWalkTargets[] = {
     {26696, -9080, -5923},  /* 0 */
     {6385, 0, -23383},      /* 1 */
     {0, 0, 0},              /* 2 */
@@ -111,7 +111,7 @@ Vec3 D_8007AE1C[] = {
     {0, 0, 0},              /* 14 */
 };
 
-Vec3 D_8007AED0[] = {
+Vec3 gGoalSlideTargets[] = {
     {26695, -9080, -6120},  /* 0 */
     {6123, 0, -23383},      /* 1 */
     {0, 0, 0},              /* 2 */

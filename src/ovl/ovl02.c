@@ -350,9 +350,9 @@ void DrawCansAndTime(SVECTOR *pos, s32 count, s32 frames) {
 /* MATCHING: per-unit views, as in main.c. */
 extern Pair8 gBestCans[];
 extern Pair8 gBestTimes[];
-extern Pair8 D_80095978;
+extern Pair8 gContinueCans;
 extern u8 gRumbleEnabled;
-extern s8 D_800957A0;
+extern s8 gContinueStage;
 extern u8 gGameCleared;
 
 void StepCardLoad(void) {
@@ -411,13 +411,13 @@ void StepCardLoad(void) {
                             gBestCans[1].b = sSave->cans[1].b;
                             gBestCans[2].b = sSave->cans[2].b;
                             gBestCans[3].b = sSave->cans[3].b;
-                            D_80095978.a = sSave->continueCans.a;
-                            D_80095978.b = sSave->continueCans.b;
+                            gContinueCans.a = sSave->continueCans.a;
+                            gContinueCans.b = sSave->continueCans.b;
                             gStereo = sSave->stereo;
                             gRumbleEnabled = sSave->rumble;
                             gTmdSortMode = sSave->sortMode;
                             gButtonConfig = sSave->buttonConfig;
-                            D_800957A0 = sSave->continueStage;
+                            gContinueStage = sSave->continueStage;
                             gGameCleared = sSave->gameCleared;
                             gAllTargetsBeaten = sSave->allTargets;
                             gUnlocks = sSave->unlocks;
@@ -496,16 +496,16 @@ void DefineMenuSprites(void) {
 
 extern GsCOORDINATE2 sAct3Coords[];
 extern GsDOBJ2 sAct3Objs[];
-extern VECTOR D_8009EA78[];
-extern SVECTOR D_8009EB58[];
+extern VECTOR gAct3Positions[];
+extern SVECTOR gAct3Rotations[];
 
 void DrawMenuObject(s32 i) {
     MATRIX m;
 
-    sAct3Coords[i].coord.t[0] = D_8009EA78[i].vx;
-    sAct3Coords[i].coord.t[1] = D_8009EA78[i].vy;
-    sAct3Coords[i].coord.t[2] = D_8009EA78[i].vz;
-    SetCoordRotation(&D_8009EB58[i], &sAct3Coords[i]);
+    sAct3Coords[i].coord.t[0] = gAct3Positions[i].vx;
+    sAct3Coords[i].coord.t[1] = gAct3Positions[i].vy;
+    sAct3Coords[i].coord.t[2] = gAct3Positions[i].vz;
+    SetCoordRotation(&gAct3Rotations[i], &sAct3Coords[i]);
     GsGetLs(sAct3Objs[i].coord2, &m);
     GsSetLsMatrix(&m);
     GsGetLw(sAct3Objs[i].coord2, &m);
@@ -517,11 +517,11 @@ void DrawMenuObject(s32 i) {
 /* The save file's name on the memory card. */
 const char sSaveFileName[] = "BISLPS-01762";
 
-extern s32 D_80095984;
-extern s32 D_80095998;
+extern s32 gSelectedAct;
+extern s32 gSelectedWorld;
 extern Pair8 gActTimes;
 extern Pair8 gActCans;
-extern Pair8 D_800958C0;
+extern Pair8 gContinueTimes;
 extern u16 gRumbleTime;
 /* MATCHING: the small and large strengths read as one array; sbss.c has two
  * scalars. */
@@ -557,12 +557,12 @@ void StepMainMenu(void) {
             sAct3Objs[1].attribute = 0;
             sAct3Objs[2].coord2 = &sAct3Coords[2];
             sAct3Objs[2].attribute = 0;
-            D_8009EA78[0].vx = D_8009EA78[1].vx = D_8009EA78[2].vx = 0;
-            D_8009EA78[0].vy = D_8009EA78[1].vy = D_8009EA78[2].vy = 0;
-            D_8009EA78[0].vz = D_8009EA78[1].vz = D_8009EA78[2].vz = 0;
-            D_8009EB58[0].vx = D_8009EB58[1].vx = D_8009EB58[2].vx = 0;
-            D_8009EB58[0].vy = D_8009EB58[1].vy = D_8009EB58[2].vy = 0;
-            D_8009EB58[0].vz = D_8009EB58[1].vz = D_8009EB58[2].vz = 0;
+            gAct3Positions[0].vx = gAct3Positions[1].vx = gAct3Positions[2].vx = 0;
+            gAct3Positions[0].vy = gAct3Positions[1].vy = gAct3Positions[2].vy = 0;
+            gAct3Positions[0].vz = gAct3Positions[1].vz = gAct3Positions[2].vz = 0;
+            gAct3Rotations[0].vx = gAct3Rotations[1].vx = gAct3Rotations[2].vx = 0;
+            gAct3Rotations[0].vy = gAct3Rotations[1].vy = gAct3Rotations[2].vy = 0;
+            gAct3Rotations[0].vz = gAct3Rotations[1].vz = gAct3Rotations[2].vz = 0;
             sLights.l[0].r = 0x80;
             sLights.l[0].g = 0x80;
             sLights.l[0].b = 0x80;
@@ -611,7 +611,7 @@ void StepMainMenu(void) {
             sMenuItemCount = 0;
             sMenuItems[sMenuItemCount] = 0;
             sMenuItemCount++;
-            if (D_800957A0 != -1) {
+            if (gContinueStage != -1) {
                 sMenuItems[sMenuItemCount] = 1;
                 sMenuItemCount++;
             }
@@ -733,17 +733,17 @@ void StepMainMenu(void) {
                         break;
                     case 1:
                         gRetries = 3;
-                        if (D_800957A0 >= 100) {
+                        if (gContinueStage >= 100) {
                             gStageTableSet = 1;
-                            gStage = D_800957A0 - 100;
+                            gStage = gContinueStage - 100;
                         } else {
                             gStageTableSet = 0;
-                            gStage = D_800957A0;
+                            gStage = gContinueStage;
                         }
-                        gActTimes.a = D_800958C0.a;
-                        gActTimes.b = D_800958C0.b;
-                        gActCans.a = D_80095978.a;
-                        gActCans.b = D_80095978.b;
+                        gActTimes.a = gContinueTimes.a;
+                        gActTimes.b = gContinueTimes.b;
+                        gActCans.a = gContinueCans.a;
+                        gActCans.b = gContinueCans.b;
                         switch ((u8)(gStage % 3)) {
                             case 0:
                                 BeginLoadScreenModel();
@@ -794,7 +794,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x130;
             pos.vy = -0x38;
-            DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             /* MATCHING: the bob in a block-local with an (s16) cast; a shared
              * local takes the division's register, no cast folds the + 8. */
@@ -826,7 +826,7 @@ void StepMainMenu(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            DrawCansAndTime(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            DrawCansAndTime(&p2, gBestCans[gSelectedWorld].a, gBestTimes[gSelectedWorld].a);
             t = sMenuTime - 8;
             if (t > 8) {
                 t = 8;
@@ -838,7 +838,7 @@ void StepMainMenu(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            DrawCansAndTime(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            DrawCansAndTime(&p2, gBestCans[gSelectedWorld].b, gBestTimes[gSelectedWorld].b);
             t = sMenuTime - 10;
             if (t > 8) {
                 t = 8;
@@ -863,7 +863,7 @@ void StepMainMenu(void) {
             DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx = -0x30;
             pos.vy = -0x38;
-            DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
                 s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
@@ -878,7 +878,7 @@ void StepMainMenu(void) {
             if (sMenuTime < 16) {
                 sMenuTime++;
             }
-            if (D_80095984 == 0) {
+            if (gSelectedAct == 0) {
                 col = hi;
             } else {
                 col = norm;
@@ -890,7 +890,7 @@ void StepMainMenu(void) {
             pos.vx = t * 32 - 0x180;
             pos.vy = -0x18;
             DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            if (D_80095984 == 1) {
+            if (gSelectedAct == 1) {
                 col = hi;
             } else {
                 col = norm;
@@ -908,8 +908,8 @@ void StepMainMenu(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            DrawCansAndTime(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
-            if (D_80095984 == 2) {
+            DrawCansAndTime(&p2, gBestCans[gSelectedWorld].a, gBestTimes[gSelectedWorld].a);
+            if (gSelectedAct == 2) {
                 col = hi;
             } else {
                 col = norm;
@@ -927,8 +927,8 @@ void StepMainMenu(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            DrawCansAndTime(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
-            if (D_80095984 == 3) {
+            DrawCansAndTime(&p2, gBestCans[gSelectedWorld].b, gBestTimes[gSelectedWorld].b);
+            if (gSelectedAct == 3) {
                 col = hi;
             } else {
                 col = norm;
@@ -942,41 +942,41 @@ void StepMainMenu(void) {
             DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime >= 16) {
                 p2.vx = -0x8E;
-                p2.vy = D_80095984 * 32 - 0x21;
+                p2.vy = gSelectedAct * 32 - 0x21;
                 DrawMenuCursor(&p2, 2);
             }
             if (gPadTrig & PADLleft) {
                 PlaySe(0xB);
                 sMenuTime = 0;
-                if (D_80095998 == 0) {
-                    D_80095998 = 3;
+                if (gSelectedWorld == 0) {
+                    gSelectedWorld = 3;
                 } else {
-                    D_80095998--;
+                    gSelectedWorld--;
                 }
             } else if (gPadTrig & PADLright) {
                 PlaySe(0xB);
                 sMenuTime = 0;
-                if (D_80095998 == 3) {
-                    D_80095998 = 0;
+                if (gSelectedWorld == 3) {
+                    gSelectedWorld = 0;
                 } else {
-                    D_80095998++;
+                    gSelectedWorld++;
                 }
             } else if (gPadTrig & PADLup) {
                 if (sMenuTime >= 16) {
                     PlaySe(0xB);
-                    if (D_80095984 == 0) {
-                        D_80095984 = 3;
+                    if (gSelectedAct == 0) {
+                        gSelectedAct = 3;
                     } else {
-                        D_80095984--;
+                        gSelectedAct--;
                     }
                 }
             } else if (gPadTrig & PADLdown) {
                 if (sMenuTime >= 16) {
                     PlaySe(0xB);
-                    if (D_80095984 == 3) {
-                        D_80095984 = 0;
+                    if (gSelectedAct == 3) {
+                        gSelectedAct = 0;
                     } else {
-                        D_80095984++;
+                        gSelectedAct++;
                     }
                 }
             } else if (gPadTrig & PADRdown) {
@@ -1010,7 +1010,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x30;
             pos.vy = -0x38;
-            DrawSprite(D_80095998 + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
                 s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
@@ -1040,7 +1040,7 @@ void StepMainMenu(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            DrawCansAndTime(&p2, gBestCans[D_80095998].a, gBestTimes[D_80095998].a);
+            DrawCansAndTime(&p2, gBestCans[gSelectedWorld].a, gBestTimes[gSelectedWorld].a);
             t = sMenuTime - 8;
             if (t < 0) {
                 t = 0;
@@ -1052,7 +1052,7 @@ void StepMainMenu(void) {
             p2.vy = pos.vy;
             pos.vx += 0x90;
             DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
-            DrawCansAndTime(&p2, gBestCans[D_80095998].b, gBestTimes[D_80095998].b);
+            DrawCansAndTime(&p2, gBestCans[gSelectedWorld].b, gBestTimes[gSelectedWorld].b);
             t = sMenuTime - 10;
             if (t < 0) {
                 t = 0;
@@ -1065,7 +1065,7 @@ void StepMainMenu(void) {
                     gSubStep = 100;
                 } else {
                     gRetries = 99;
-                    switch (D_80095998) {
+                    switch (gSelectedWorld) {
                         case 0:
                             gStage = 0;
                             break;
@@ -1079,7 +1079,7 @@ void StepMainMenu(void) {
                             gStage = 12;
                             break;
                     }
-                    switch (D_80095984) {
+                    switch (gSelectedAct) {
                         case 0:
                             gStageTableSet = 2;
                             gGameMode = 0x26;
@@ -1835,13 +1835,13 @@ void StepMainMenu(void) {
                     gBestCans[1].b = sSave->cans[1].b;
                     gBestCans[2].b = sSave->cans[2].b;
                     gBestCans[3].b = sSave->cans[3].b;
-                    D_80095978.a = sSave->continueCans.a;
-                    D_80095978.b = sSave->continueCans.b;
+                    gContinueCans.a = sSave->continueCans.a;
+                    gContinueCans.b = sSave->continueCans.b;
                     gStereo = sSave->stereo;
                     gRumbleEnabled = sSave->rumble;
                     gTmdSortMode = sSave->sortMode;
                     gButtonConfig = sSave->buttonConfig;
-                    D_800957A0 = sSave->continueStage;
+                    gContinueStage = sSave->continueStage;
                     gGameCleared = sSave->gameCleared;
                     gAllTargetsBeaten = sSave->allTargets;
                     gUnlocks = sSave->unlocks;
@@ -2051,13 +2051,13 @@ void StepMainMenu(void) {
                     sSave->cans[1].b = gBestCans[1].b;
                     sSave->cans[2].b = gBestCans[2].b;
                     sSave->cans[3].b = gBestCans[3].b;
-                    sSave->continueCans.a = D_80095978.a;
-                    sSave->continueCans.b = D_80095978.b;
+                    sSave->continueCans.a = gContinueCans.a;
+                    sSave->continueCans.b = gContinueCans.b;
                     sSave->stereo = gStereo;
                     sSave->rumble = gRumbleEnabled;
                     sSave->sortMode = gTmdSortMode;
                     sSave->buttonConfig = gButtonConfig;
-                    sSave->continueStage = D_800957A0;
+                    sSave->continueStage = gContinueStage;
                     sSave->gameCleared = gGameCleared;
                     sSave->allTargets = gAllTargetsBeaten;
                     sSave->unlocks = gUnlocks;
@@ -2101,13 +2101,13 @@ void StepMainMenu(void) {
                         sSave->cans[1].b = gBestCans[1].b;
                         sSave->cans[2].b = gBestCans[2].b;
                         sSave->cans[3].b = gBestCans[3].b;
-                        sSave->continueCans.a = D_80095978.a;
-                        sSave->continueCans.b = D_80095978.b;
+                        sSave->continueCans.a = gContinueCans.a;
+                        sSave->continueCans.b = gContinueCans.b;
                         sSave->stereo = gStereo;
                         sSave->rumble = gRumbleEnabled;
                         sSave->sortMode = gTmdSortMode;
                         sSave->buttonConfig = gButtonConfig;
-                        sSave->continueStage = D_800957A0;
+                        sSave->continueStage = gContinueStage;
                         sSave->gameCleared = gGameCleared;
                         sSave->allTargets = gAllTargetsBeaten;
                         sSave->unlocks = gUnlocks;
@@ -2415,9 +2415,9 @@ void StepTitle(void) {
             GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 0xC) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[0], 0);
             sAct3Objs[0].coord2 = &sAct3Coords[0];
             sAct3Objs[0].attribute = 0x200;
-            D_8009EB58[0].vx = 0;
-            D_8009EB58[0].vy = 0;
-            D_8009EB58[0].vz = 0;
+            gAct3Rotations[0].vx = 0;
+            gAct3Rotations[0].vy = 0;
+            gAct3Rotations[0].vz = 0;
             sLights.l[0].r = 0x80;
             sLights.l[0].g = 0x80;
             sLights.l[0].b = 0x80;
@@ -2639,7 +2639,7 @@ void StepTitle(void) {
     m.t[0] = sAct3Coords[0].coord.t[0];
     m.t[1] = sAct3Coords[0].coord.t[1];
     m.t[2] = sAct3Coords[0].coord.t[2];
-    RotMatrixYXZ(&D_8009EB58[0], &m);
+    RotMatrixYXZ(&gAct3Rotations[0], &m);
     sAct3Coords[0].coord = m;
     sAct3Coords[0].flg = 0;
     GsGetLs(sAct3Objs[0].coord2, &m);
@@ -2656,7 +2656,7 @@ void StepTitle(void) {
     m.t[0] = sAct3Coords[0].coord.t[0];
     m.t[1] = sAct3Coords[0].coord.t[1];
     m.t[2] = sAct3Coords[0].coord.t[2];
-    RotMatrixYXZ(&D_8009EB58[0], &m);
+    RotMatrixYXZ(&gAct3Rotations[0], &m);
     sAct3Coords[0].coord = m;
     sAct3Coords[0].flg = 0;
     GsGetLs(sAct3Objs[0].coord2, &m);
@@ -2685,13 +2685,13 @@ s32 StepGameOver(void) {
             GsMapModelingData((unsigned long *)(*(s32 *)(RAM_STAGE_LOAD + 4) + (RAM_STAGE_LOAD + 4)));
             GsLinkObject4(*(s32 *)(RAM_STAGE_LOAD + 4) + (RAM_STAGE_LOAD + 0xC), &sAct3Objs[0], 0);
             sAct3Objs[0].coord2 = &sAct3Coords[0];
-            D_8009EA78[0].vx = 0;
+            gAct3Positions[0].vx = 0;
             sAct3Objs[0].attribute = 0;
-            D_8009EA78[0].vy = -1000;
-            D_8009EA78[0].vz = 0;
-            D_8009EB58[0].vx = 0;
-            D_8009EB58[0].vy = -0x2CC;
-            D_8009EB58[0].vz = 0;
+            gAct3Positions[0].vy = -1000;
+            gAct3Positions[0].vz = 0;
+            gAct3Rotations[0].vx = 0;
+            gAct3Rotations[0].vy = -0x2CC;
+            gAct3Rotations[0].vz = 0;
             sView.vrx = 0;
             sView.vry = -240;
             sView.vrz = 0;
@@ -2727,12 +2727,12 @@ s32 StepGameOver(void) {
             break;
         case 1:
             if (++sWobbleTime < 10) {
-                D_8009EA78[0].vy += 100;
+                gAct3Positions[0].vy += 100;
             } else if (sWobbleTime < 35) {
-                D_8009EA78[0].vy = 0;
-                D_8009EB58[0].vx = sWobbleRots[sWobbleTime - 10].vx;
-                D_8009EB58[0].vy = sWobbleRots[sWobbleTime - 10].vy;
-                D_8009EB58[0].vz = sWobbleRots[sWobbleTime - 10].vz;
+                gAct3Positions[0].vy = 0;
+                gAct3Rotations[0].vx = sWobbleRots[sWobbleTime - 10].vx;
+                gAct3Rotations[0].vy = sWobbleRots[sWobbleTime - 10].vy;
+                gAct3Rotations[0].vz = sWobbleRots[sWobbleTime - 10].vz;
             }
             if ((u32)(sWobbleTime - 31) < 63) {
                 color.r = 1;
@@ -2758,14 +2758,14 @@ s32 StepGameOver(void) {
                 pos.vy = -16;
                 DrawSprite(0x1F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
             }
-            sAct3Coords[0].coord.t[0] = D_8009EA78[0].vx;
-            sAct3Coords[0].coord.t[1] = D_8009EA78[0].vy;
-            sAct3Coords[0].coord.t[2] = D_8009EA78[0].vz;
+            sAct3Coords[0].coord.t[0] = gAct3Positions[0].vx;
+            sAct3Coords[0].coord.t[1] = gAct3Positions[0].vy;
+            sAct3Coords[0].coord.t[2] = gAct3Positions[0].vz;
             m = GsIDMATRIX;
             m.t[0] = sAct3Coords[0].coord.t[0];
             m.t[1] = sAct3Coords[0].coord.t[1];
             m.t[2] = sAct3Coords[0].coord.t[2];
-            RotMatrixYXZ(&D_8009EB58[0], &m);
+            RotMatrixYXZ(&gAct3Rotations[0], &m);
             sAct3Coords[0].coord = m;
             sAct3Coords[0].flg = 0;
             GsGetLs(sAct3Objs[0].coord2, &m);
@@ -2785,17 +2785,17 @@ s32 StepGameOver(void) {
             GsSortObject4J(&sAct3Objs[0], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
             if (sWobbleTime == 150) {
                 if (gStageTableSet == 0) {
-                    D_800957A0 = gStage;
-                    D_800958C0.a = gActTimes.a;
-                    D_800958C0.b = gActTimes.b;
-                    D_80095978.a = gActCans.a;
-                    D_80095978.b = gActCans.b;
+                    gContinueStage = gStage;
+                    gContinueTimes.a = gActTimes.a;
+                    gContinueTimes.b = gActTimes.b;
+                    gContinueCans.a = gActCans.a;
+                    gContinueCans.b = gActCans.b;
                 } else if (gStageTableSet == 1) {
-                    D_800957A0 = gStage + 100;
-                    D_800958C0.a = gActTimes.a;
-                    D_800958C0.b = gActTimes.b;
-                    D_80095978.a = gActCans.a;
-                    D_80095978.b = gActCans.b;
+                    gContinueStage = gStage + 100;
+                    gContinueTimes.a = gActTimes.a;
+                    gContinueTimes.b = gActTimes.b;
+                    gContinueCans.a = gActCans.a;
+                    gContinueCans.b = gActCans.b;
                 }
                 StopXa();
                 gModeStep = 0;

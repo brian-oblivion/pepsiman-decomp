@@ -45,6 +45,12 @@ Per-unit debt (track 8), over game bodies:
   - ph_prefix: definitions whose class prefix is a placeholder type
     (`Class6B5CC__AddChild`, `New_Obj865C8`): track 6's, counted here so
     track 8 knows a unit's names are settled.
+
+OVERLAYS are counted apart (`overlays` in --json, the second table). An
+overlay's names live in its own symbols file and its bodies are all game
+code, so they need neither the ELF nor the totals the lint gates. Each
+source file is counted once: a shared include (engine/, chase*.inc,
+stage3.inc) is one row however many overlays build it.
 """
 import argparse
 import json
@@ -276,11 +282,45 @@ def ph_prefix(name):
     return bool(stem and placeholder_type_reason(stem))
 
 
+OVL_DIR = ROOT / "src/ovl"
+SHARED_PART = re.compile(r"_(?:code|data|head|tail|pieces)$")
+
+
+def overlay_group(p):
+    """An overlay row's name: the unit for a .c, the shared code for an
+    include (engine/*.inc and engine_code.inc are both `engine`)."""
+    rel = p.relative_to(OVL_DIR)
+    if p.suffix == ".c":
+        return p.stem
+    return (rel.parts[0] if len(rel.parts) > 1 else SHARED_PART.sub("", p.stem)) + " (shared)"
+
+
+def overlay_debt(detail_unit=None):
+    rows = {}
+    files = sorted(OVL_DIR.rglob("*.c")) + sorted(OVL_DIR.rglob("*.inc"))
+    for p in files:
+        g = overlay_group(p)
+        u = unit_debt(p, None, detail=(g == detail_unit))
+        u["placeholder_file"] = False
+        if g not in rows:
+            rows[g] = u
+            continue
+        r = rows[g]
+        for k in ("defs", "ph_prefix") + DEBT_KEYS:
+            r[k] += u[k]
+        for k, hits in u.get("_hits", {}).items():
+            r.setdefault("_hits", {}).setdefault(k, []).extend(hits)
+    totals = {k: sum(u[k] for u in rows.values()) for k in ("defs",) + DEBT_KEYS}
+    return {"units": rows, "totals": totals}
+
+
 def collect(info=None, detail_unit=None):
     if info is None:
         info = progress.text_symbols()
     units = {}
     for p in srcpath.src_files():
+        if OVL_DIR in p.parents:
+            continue
         units[p.stem] = unit_debt(p, info, detail=(p.stem == detail_unit))
     types = placeholder_types()
     headers = [p.name for p in game_headers() if PLACEHOLDER_FILE.match(p.stem)]
@@ -296,7 +336,8 @@ def collect(info=None, detail_unit=None):
     totals["upper_globals"] = len(uppers)
     return {"units": units, "types": types, "placeholder_headers": headers, "upper_globals": uppers,
             "header_history": header_history,
-            "totals": totals, "elf_present": bool(info)}
+            "totals": totals, "elf_present": bool(info),
+            "overlays": overlay_debt(detail_unit)}
 
 
 def main():
@@ -323,6 +364,8 @@ def main():
           f"under a placeholder class prefix; {t['header_history']} history mention(s) in headers")
     print(f"  names: {t['upper_globals']} game global(s) named UPPER_SNAKE (--globals lists them)")
     print("  code : " + ", ".join(f"{t[k]} {k}" for k in DEBT_KEYS))
+    o = d["overlays"]["totals"]
+    print(f"  overlays ({o['defs']} definitions): " + ", ".join(f"{o[k]} {k}" for k in DEBT_KEYS))
     if a.globals:
         print()
         for n in d["upper_globals"]:
@@ -332,7 +375,7 @@ def main():
         for n, (why, files) in sorted(d["types"].items(), key=lambda kv: (kv[1][1][0], kv[0])):
             print(f"  {n:<32} {why:<12} {', '.join(files)}")
     if a.unit:
-        u = d["units"].get(a.unit)
+        u = d["units"].get(a.unit) or d["overlays"]["units"].get(a.unit)
         if u is None:
             sys.exit(f"no unit {a.unit}")
         print()
@@ -344,14 +387,15 @@ def main():
                     for h in hits:
                         print(f"      {h}")
         return
-    rows = sorted(d["units"].items(), key=lambda kv: -sum(kv[1][k] for k in DEBT_KEYS))
-    if not a.units:
-        rows = rows[:15]
-    print()
-    print(f"  {'unit':<18} {'defs':>5} " + " ".join(f"{k:>6}" for k in DEBT_KEYS) + "  file")
-    for name, u in rows:
-        print(f"  {name:<18} {u['defs']:>5} " + " ".join(f"{u[k]:>6}" for k in DEBT_KEYS)
-              + ("  placeholder" if u["placeholder_file"] else ""))
+    for title, units in (("unit", d["units"]), ("overlay", d["overlays"]["units"])):
+        rows = sorted(units.items(), key=lambda kv: -sum(kv[1][k] for k in DEBT_KEYS))
+        if not a.units:
+            rows = rows[:15]
+        print()
+        print(f"  {title:<20} {'defs':>5} " + " ".join(f"{k:>6}" for k in DEBT_KEYS) + "  file")
+        for name, u in rows:
+            print(f"  {name:<20} {u['defs']:>5} " + " ".join(f"{u[k]:>6}" for k in DEBT_KEYS)
+                  + ("  placeholder" if u["placeholder_file"] else ""))
 
 
 if __name__ == "__main__":

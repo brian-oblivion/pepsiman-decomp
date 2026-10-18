@@ -226,7 +226,7 @@ void DrawChaseHud(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
-    DrawSprite(0x135, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RETRIES_ICON, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     n = gPlayer.x;
     if (n < 0) {
         n = 0;

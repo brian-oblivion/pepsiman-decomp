@@ -132,7 +132,7 @@ void DrawTrapWarning(StageTrap *t) {
         ProjectToScreen((VECTOR *)gOffsetVec, &sv);
         pos.vy = 50;
         pos.vx = sv.vx - 32;
-        DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(SPR_DANGER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     }
 }
 
@@ -736,7 +736,7 @@ s32 StepButtonPrompt(void) {
                     }
                     pos.vx = -44;
                     pos.vy = n * 30 - 260;
-                    DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_DANGER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
             }
             if (++sHints[sHintIndex].timer > sHints[sHintIndex].limit) {

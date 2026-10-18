@@ -1936,7 +1936,7 @@ void UpdateLoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    DrawSprite(gFrameCount % 10 + SPR_RUNNER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + SPR_PEPSI_GLOBE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
     DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
@@ -1960,7 +1960,7 @@ void UpdateAct3LoadScreen(void) {
 
     pos.vx = 0x70;
     pos.vy = 0x48;
-    DrawSprite(gFrameCount % 10 + SPR_RUNNER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(gFrameCount % 10 + SPR_PEPSI_GLOBE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = -0xA0;
     pos.vy = -0x78;
     DrawSprite(SPR_SCREEN_LEFT, &pos, NULL, 0, &gSubOt[gActiveBuff]);

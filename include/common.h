@@ -165,7 +165,7 @@ enum EffectKind {
     EFFECT_DARK_DUST = 6,     /**< StepDarkDust: a subtractive blob, spreading */
     EFFECT_CAN_COLLECT = 7,   /**< StepCanCollect: a can flies to the HUD, one can */
     EFFECT_FIVE_CANS = 8,     /**< StepFiveCans: five cans circle to the HUD, five cans */
-    EFFECT_FLOAT = 9,         /**< StepFloat: SPR_FLOAT moving straight up or down */
+    EFFECT_FLOAT = 9,         /**< StepFloat: SPR_STREAM moving straight up or down */
     EFFECT_HURRY = 10,        /**< StepHurry: SPR_HURRY slides across */
     EFFECT_FLYING_PIECE = 11, /**< StepFlyingPiece: a model piece thrown in an arc, trailing dust */
     EFFECT_SKID_DUST = 12     /**< StepSkidDust: a blob that slides and slows */
@@ -773,22 +773,22 @@ void DefineSprite(u16 id, u8 mode, s32 w, s32 h, s32 page, s32 u, s32 v, u16 clu
  *         draw. The game names none; these say where each is drawn. A
  *         run of frames or glyphs is named by its first id. */
 enum SpriteId {
-    SPR_STAGE = 0x1E,  /**< the first of a stage's own sprites (LoadSpritePack); act 3
+    SPR_STAGE = 0x1E, /**< the first of a stage's own sprites (LoadSpritePack); act 3
                                   *   puts four 255x64 strips here */
-    SPR_CAN = 0xFA,    /**< the can: the HUD icon, the billboard, the collected can */
-    SPR_RUNNER = 0xFB, /**< 10 frames of a running figure: the bonus level, the loading screen */
-    SPR_DIGIT = 0x105, /**< 10 16x16 digits: the cans and retries counts */
-    SPR_SMALL_DIGIT = 0x10F,     /**< 10 8x8 digits: the HUD time */
-    SPR_SMALL_COLON = 0x119,     /**< the HUD time's separator */
-    SPR_BURST = 0x11A,           /**< 8 frames of a burst; frame 5 is also a puff of its own */
-    SPR_HUD_TIME = 0x122,        /**< the HUD time's label */
-    SPR_BIG_DIGIT = 0x123,       /**< 10 32x32 digits: the seconds left */
-    SPR_BLOB = 0x12D,            /**< a soft round blob: the player's shadow, dust */
-    SPR_PROGRESS_BAR = 0x12E,    /**< the course progress bar */
-    SPR_PROGRESS_MARK = 0x12F,   /**< 4 frames of the marker on it */
-    SPR_UNDRAWN = 0x133,         /**< 88x40, defined but not drawn by this executable */
-    SPR_FLOAT = 0x134,           /**< StepFloat's billboard, drifting up or down */
-    SPR_LIVES = 0x135,           /**< the icon beside the retries count */
+    SPR_CAN = 0xFA,   /**< the can: the HUD icon, the billboard, the collected can */
+    SPR_PEPSI_GLOBE = 0xFB, /**< 10 frames of the Pepsi globe turning: the bonus level, the loading screen */
+    SPR_DIGIT = 0x105,         /**< 10 16x16 digits: the cans and retries counts */
+    SPR_SMALL_DIGIT = 0x10F,   /**< 10 8x8 digits: the HUD time */
+    SPR_SMALL_COLON = 0x119,   /**< the HUD time's separator */
+    SPR_BURST = 0x11A,         /**< 8 frames of a burst; frame 5 is also a puff of its own */
+    SPR_TOTAL_LABEL = 0x122,   /**< "TOTAL": the label of the HUD's elapsed time */
+    SPR_BIG_DIGIT = 0x123,     /**< 10 32x32 digits: the seconds left */
+    SPR_BLOB = 0x12D,          /**< a soft round blob: the player's shadow, dust */
+    SPR_PROGRESS_BAR = 0x12E,  /**< the course progress bar */
+    SPR_PROGRESS_MARK = 0x12F, /**< 4 frames of the marker on it */
+    SPR_DANGER = 0x133, /**< "DANGER" over a down arrow: the stage overlays draw it where a trap is coming */
+    SPR_STREAM = 0x134, /**< green streaks: StepFloat's billboard, the stream StepSprayTrap pours to the floor */
+    SPR_RETRIES_ICON = 0x135, /**< a hand on two legs, outlined in white: the icon beside the retries count */
     SPR_HURRY = 0x136,           /**< the banner that slides across with 11 seconds left */
     SPR_RESULT_DIGIT = 0x137,    /**< 10 results-screen digits */
     SPR_RESULT_COLON = 0x141,    /**< the results time's separator */
@@ -802,7 +802,7 @@ enum SpriteId {
     SPR_BEST_CANS_LABEL = 0x158, /**< results: the best cans row */
     SPR_TIME_LABEL = 0x159,      /**< results: the time row */
     SPR_BEST_TIME_LABEL = 0x15A, /**< results: the best time row */
-    SPR_ALL_CANS = 0x15B,        /**< slides in when all 100 cans are counted */
+    SPR_PERFECT = 0x15B,         /**< "PERFECT": slides in when all 100 cans are counted */
     SPR_NEW_RECORD = 0x15C,      /**< slides in for a new best */
     SPR_MARKER = 0x15D,          /**< the tools' point marker billboard */
     SPR_POINTER = 0x15E,         /**< the hit tool's bobbing pointer */

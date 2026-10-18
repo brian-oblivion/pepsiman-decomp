@@ -504,7 +504,7 @@ void DefineHudSprites(void) {
     /* MATCHING: the u ternary tests i >= 6 first; i < 6 swaps the two
      * strength-reduced registers. */
     for (i = 0; i < 10; i++) {
-        DefineSprite(i + SPR_RUNNER, 0, 0x20, 0x20, 0x1E,
+        DefineSprite(i + SPR_PEPSI_GLOBE, 0, 0x20, 0x20, 0x1E,
                      (u8)(i >= 6 ? i * 32 - 0x80 : i * 32 + 0x40), i < 6 ? 0 : 0x20, 0x10, 0x1F9);
     }
     for (i = 0; i < 10; i++) {
@@ -517,11 +517,11 @@ void DefineHudSprites(void) {
         DefineSprite(i + SPR_BURST, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x60, 0x40, 0x1F9);
     }
     DefineSprite(SPR_BLOB, 0, 0x20, 0x20, 0x1E, 0xA0, 0x40, 0x50, 0x1F9);
-    DefineSprite(SPR_UNDRAWN, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
-    DefineSprite(SPR_FLOAT, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
-    DefineSprite(SPR_LIVES, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
+    DefineSprite(SPR_DANGER, 0, 0x58, 0x28, 0x1E, 0, 0xC0, 0x60, 0x1F9);
+    DefineSprite(SPR_STREAM, 0, 0x20, 0x20, 0x1E, 0xC0, 0x20, 0x70, 0x1F9);
+    DefineSprite(SPR_RETRIES_ICON, 0, 0x20, 0x30, 0x1E, 0xE0, 0x20, 0x90, 0x1F9);
     DefineSprite(SPR_HURRY, 0, 0x90, 0x18, 0x1E, 0x58, 0xC0, 0xB0, 0x1F9);
-    DefineSprite(SPR_HUD_TIME, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
+    DefineSprite(SPR_TOTAL_LABEL, 0, 0x18, 8, 0x1E, 0x58, 0x58, 0x30, 0x1F9);
     for (i = 0; i < 8; i++) {
         DefineSprite(i + SPR_BIG_DIGIT, 0, 0x20, 0x20, 0x1E, (u8)(i * 32), 0x80, 0x80, 0x1F9);
     }
@@ -548,7 +548,7 @@ void DefineHudSprites(void) {
     for (i = 0; i < 4; i++) {
         DefineSprite(i + SPR_CANS_LABEL, 0, 0x80, 0x10, 0x1C, 0, (u8)(i * 16 - 0x40), 0x2D0, 0x1C9);
     }
-    DefineSprite(SPR_ALL_CANS, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
+    DefineSprite(SPR_PERFECT, 0, 0x68, 0x10, 0x1E, 0x80, 0xF0, 0xD0, 0x1F9);
     DefineSprite(SPR_NEW_RECORD, 0, 0x80, 0x10, 0x1E, 0, 0xF0, 0xC0, 0x1F9);
     DefineSprite(SPR_MARKER, 0, 0x10, 0x10, 0x0F, 0, 0xC0, 0x3C0, 0xFF);
     DefineSprite(SPR_POINTER, 0, 0x20, 0x20, 0x0F, 0, 0xD0, 0x3D0, 0xFF);
@@ -627,20 +627,20 @@ void DrawHud(void) {
         case 1:
             quad[4] = quad[5] = 0x800;
             if ((gFrameCount >> 1) & 1) {
-                DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_RUNNER, quad, NULL, 0,
+                DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_PEPSI_GLOBE, quad, NULL, 0,
                                       &gSubOt[gActiveBuff]);
             }
             break;
         case 2:
             quad[4] = quad[5] = 0xB50;
-            DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_RUNNER, quad, NULL, 0,
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_PEPSI_GLOBE, quad, NULL, 0,
                                   &gSubOt[gActiveBuff]);
             break;
         case 0:
             break;
         default:
             quad[4] = quad[5] = 0x1000;
-            DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_RUNNER, quad, NULL, 0,
+            DrawSpriteTransformed(sBonusDist / 100 % 10 + SPR_PEPSI_GLOBE, quad, NULL, 0,
                                   &gSubOt[gActiveBuff]);
             break;
     }
@@ -693,7 +693,7 @@ void DrawHud(void) {
     DrawSprite(SPR_PROGRESS_BAR, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x34;
     pos.vy = -0x54;
-    DrawSprite(SPR_HUD_TIME, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_TOTAL_LABEL, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     pos.vx = 0x90;
     pos.vy = -0x54;
     DrawHudTime(&pos, gElapsed);
@@ -711,7 +711,7 @@ void DrawHud(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = 0x38;
-    DrawSprite(SPR_LIVES, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RETRIES_ICON, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
 }
 
 /**
@@ -1417,13 +1417,13 @@ void UpdateActResults(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vx = 0x70;
     pos.vy = -0x58;
-    DrawSprite(SPR_LIVES, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_RETRIES_ICON, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     color.r = BLEND_OPAQUE;
     color.g = color.b = 0x80;
     color.cd = 0;
     pos.vy = -16;
     pos.vx = gResultsSlide[6] * 32 - 0x34;
-    DrawSprite(SPR_ALL_CANS, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_PERFECT, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos.vy = -16;
     pos.vx = gResultsSlide[7] * 32 - 0x40;
     DrawSprite(SPR_NEW_RECORD, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
@@ -2417,7 +2417,7 @@ s32 StepDarkDust(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
 }
 
 /**
- * @brief EFFECT_FLOAT: SPR_FLOAT, half-blended and 100 units across, moving
+ * @brief EFFECT_FLOAT: SPR_STREAM, half-blended and 100 units across, moving
  *        param0 a frame along y until it has moved param1, after its delay.
  * @param p  the effect
  * @param ot the ordering table UpdateEffects chose for it
@@ -2435,7 +2435,7 @@ s32 StepFloat(Effect *p, GsOT *ot, s16 x, s16 y, s16 z) {
         size.vy = size.vx = 100;
         color.r = BLEND_HALF;
         color.g = color.b = color.cd = 0x80;
-        DrawBillboard(SPR_FLOAT, &size, &color, 2, ot);
+        DrawBillboard(SPR_STREAM, &size, &color, 2, ot);
         return ++p->frame * p->param0 >= p->param1;
     }
     p->delay--;

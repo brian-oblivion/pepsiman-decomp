@@ -424,7 +424,7 @@ s32 StepButtonPrompt(void) {
                     }
                     pos.vx = -0x2C;
                     pos.vy = t * 30 - 0x104;
-                    DrawSprite(0x133, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_DANGER, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     break;
             }
             if (++sPrompts[sPromptIndex].time > sPrompts[sPromptIndex].limit) {

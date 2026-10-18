@@ -96,6 +96,11 @@ python3 tools/renametype.py OLD NEW      # a type
 python3 tools/unitfile.py rename OLD NEW # a source file
 ```
 
+Name a sprite by looking at it. `tools/sprites.py <disc image>` renders
+every sprite the game defines, from the textures on your disc, into
+`build/sprites/index.html`. The pictures are the game's: they stay in
+`build/` and are never committed.
+
 Never edit `asm/` (it is regenerated) or `check.sha1` (it is the retail
 hash). Run `tools/lint.sh` before sending a change.
 

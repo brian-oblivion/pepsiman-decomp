@@ -680,7 +680,7 @@ void StepBouncingRoller(StageTrap *t, s32 arg) {
     s32 d;
 
     if (t->state == 0) {
-        PolarToXZ(-10, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        PolarToXZ(-10, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
         t->x += gOffsetVec[0] >> 12;
         t->z += gOffsetVec[2] >> 12;
         t->timer += 10;
@@ -1000,7 +1000,7 @@ void StepFlipPanel(StageTrap *t) {
             break;
         case 2:
             t->timer++;
-            t->rotX = Lerp(0, 0x400, t->timer, 3);
+            t->rotX = Lerp(0, ANGLE_DEG(90), t->timer, 3);
             if (t->timer == 3) {
                 t->timer = 0;
                 t->state++;
@@ -1022,7 +1022,7 @@ void StepFlipPanel(StageTrap *t) {
             break;
         case 4:
             t->timer++;
-            t->rotX = Lerp(0x400, 0, t->timer, 8);
+            t->rotX = Lerp(ANGLE_DEG(90), 0, t->timer, 8);
             if (t->timer == 8) {
                 t->state = 1;
                 t->touched = 0;
@@ -1066,7 +1066,7 @@ void TipTrapAway(StageTrap *t) {
             }
             break;
         case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(40, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x -= gOffsetVec[0] >> 12;
             t->z -= gOffsetVec[2] >> 12;
             if (t->timer < 90) {

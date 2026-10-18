@@ -38,6 +38,10 @@
  * Exact for multiples of 45 degrees; a constant expression. */
 #define ANGLE_DEG(deg) ((deg) * 4096 / 360)
 
+/** The PlayStation angle `ang` in whole degrees, rounded toward zero: the
+ * form PolarToXZ and PolarOffset take. */
+#define ANGLE_TO_DEG(ang) ((ang) * 360 / 4096)
+
 #if !defined(M2CTX) && !defined(PERMUTER) && !defined(HOST_BUILD)
 /** Places a definition in small data, the `.sdata` section: the game's
  * small initialized globals, reached through one base register. Used as
@@ -61,10 +65,6 @@
 #else
 #define IMAGE_CONST const
 #endif
-
-/** 20.12 fixed point: libgte's ONE is 1 << FIX12_SHIFT, so `n << FIX12_SHIFT`
- * is the integer n as a fixed-point value. */
-#define FIX12_SHIFT 12
 
 /** GteLong's type: `int` against psyz's libgte, `long` against Sony's. */
 #ifdef HOST_BUILD

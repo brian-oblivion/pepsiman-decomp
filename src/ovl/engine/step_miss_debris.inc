@@ -2,7 +2,7 @@ void StepMissDebris(StageTrap *t) {
     s32 d;
 
     if (t->state == 0) {
-        PolarToXZ(t->homeRotZ, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        PolarToXZ(t->homeRotZ, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
         t->x += gOffsetVec[0] >> 12;
         t->z += gOffsetVec[2] >> 12;
         t->y = t->homeY;

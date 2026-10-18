@@ -1262,7 +1262,7 @@ void BeginLoadScreenModel(void) {
     pos.vy = -120;
     DrawSprite(SPR_SCREEN_RIGHT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
     gLoadScreenModel = gPlayer;
-    gLoadScreenModel.yaw = 0x800;
+    gLoadScreenModel.yaw = ANGLE_DEG(180);
     gLoadScreenModel.motion[0] = MOT_RUN;
     gLoadScreenModel.x = 0;
     gLoadScreenModel.y = 0;
@@ -1270,9 +1270,9 @@ void BeginLoadScreenModel(void) {
     gLoadScreenModel.action = ACT_MODEL_LOOP;
     gLoadScreenModel.speed = 0;
     gLoadScreenModel.control = 0;
-    gRefView[0] = rsin(0x800) * 400 / 4096;
+    gRefView[0] = rsin(ANGLE_DEG(180)) * 400 / 4096;
     gRefView[1] = -150;
-    gRefView[2] = rcos(0x800) * 400 / 4096;
+    gRefView[2] = rcos(ANGLE_DEG(180)) * 400 / 4096;
     gRefView[3] = 0;
     gRefView[4] = -150;
     gRefView[5] = 0;
@@ -1910,9 +1910,9 @@ void UpdateLoadScreenModel(void) {
     /* MATCHING: retail reserves 8 bytes below the inlined draw's locals. */
     s32 unused[2];
 
-    gRefView[0] = rsin(0x800) * 400 / 4096;
+    gRefView[0] = rsin(ANGLE_DEG(180)) * 400 / 4096;
     gRefView[1] = -150;
-    gRefView[2] = rcos(0x800) * 400 / 4096;
+    gRefView[2] = rcos(ANGLE_DEG(180)) * 400 / 4096;
     gRefView[3] = 0;
     gRefView[4] = -150;
     gRefView[5] = 0;

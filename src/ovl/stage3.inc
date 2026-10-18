@@ -192,7 +192,7 @@ void StepStageFrame(void) {
     s32 v;
 
     if (sFellOff == 0) {
-        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + 0x800;
+        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + ANGLE_DEG(180);
     }
     gPlayer.editorY = gPlayer.groundY;
     v = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
@@ -245,7 +245,7 @@ void TipTrapAndShovePlayer(StageTrap *t) {
             t->timer++;
             t->rotX = Lerp(0, -0x4E3, t->timer, 3);
             if (t->timer == 3) {
-                t->homeRotY = (t->rotY - 0x800) * 360 / 4096;
+                t->homeRotY = ANGLE_TO_DEG(t->rotY - ANGLE_DEG(180));
                 t->timer = 0;
                 t->state++;
             }
@@ -282,12 +282,12 @@ void BounceTrapAway(StageTrap *t) {
             UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             break;
         case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(40, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x -= gOffsetVec[0] >> 12;
             t->z -= gOffsetVec[2] >> 12;
             t->rotX -= 0x71;
             t->timer = (t->timer + 10) % 360;
-            v = rsin(t->timer * 4096 / 360) * 200 >> 12;
+            v = rsin(ANGLE_DEG(t->timer)) * 200 >> 12;
             /* MATCHING: abs as one insn keeps v block-local. */
             v = v >= 0 ? v : -v;
             t->y = t->homeY - v;
@@ -315,7 +315,7 @@ void TurnTrapQuarterOnApproach(StageTrap *t, s8 dir) {
             break;
         case 1:
             t->timer++;
-            a = Lerp(0, 0x200, t->timer, 10);
+            a = Lerp(0, ANGLE_DEG(45), t->timer, 10);
             if (dir != 0) {
                 if (dir == 1) {
                     t->rotY = t->homeRotY - a;
@@ -330,17 +330,17 @@ void TurnTrapQuarterOnApproach(StageTrap *t, s8 dir) {
                 t->model++;
                 switch (dir) {
                     case 1:
-                        t->homeRotY += 0x200;
+                        t->homeRotY += ANGLE_DEG(45);
                         break;
                     case 0:
-                        t->homeRotY -= 0x200;
+                        t->homeRotY -= ANGLE_DEG(45);
                         break;
                 }
             }
             break;
         case 2:
             t->timer++;
-            a = Lerp(0, 0x200, t->timer, 10);
+            a = Lerp(0, ANGLE_DEG(45), t->timer, 10);
             if (dir != 0) {
                 if (dir == 1) {
                     t->rotY = t->homeRotY - a;
@@ -356,7 +356,7 @@ void TurnTrapQuarterOnApproach(StageTrap *t, s8 dir) {
                         t->rotY = 0;
                     }
                 } else {
-                    t->rotY = 0x800;
+                    t->rotY = ANGLE_DEG(180);
                 }
             }
         case 3:
@@ -443,7 +443,7 @@ s32 StepButtonPrompt(void) {
 void MoveTrapAheadDrawn(StageTrap *t, u16 speed) {
     if (t->state == 0) {
         SnapToFloor(t);
-        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
         t->x += gOffsetVec[0] >> 12;
         t->z += gOffsetVec[2] >> 12;
         if (++t->timer == 200) {
@@ -457,7 +457,7 @@ void MoveTrapAheadDrawn(StageTrap *t, u16 speed) {
 void MoveTrapAheadSolid(StageTrap *t, u16 speed) {
     if (t->state == 0) {
         SnapToFloor(t);
-        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
         t->x += gOffsetVec[0] >> 12;
         t->z += gOffsetVec[2] >> 12;
         if (++t->timer == 200) {

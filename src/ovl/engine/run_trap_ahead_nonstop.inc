@@ -6,7 +6,7 @@ void RunTrapAheadNonstop(StageTrap *t, s16 speed) {
         t->y = t->homeY;
     }
     t->y -= 20;
-    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+    PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
     t->x += gOffsetVec[0] >> 12;
     t->z += gOffsetVec[2] >> 12;
     if (gSection - UpdatePathSegment(t) < 2) {

@@ -137,7 +137,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 t->y = t->homeY;
             }
             t->y -= 120;
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (speed != 0) {
@@ -150,7 +150,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 }
                 switch (dir) {
                     case 2:
-                        t->rotY = GetPathDirection(t) + 0x800;
+                        t->rotY = GetPathDirection(t) + ANGLE_DEG(180);
                         break;
                     case 3:
                         DrawTrapWarning(t);
@@ -158,7 +158,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                         t->rotY = GetPathDirection(t);
                         break;
                     case 4:
-                        PolarToXZ(-(speed * 2), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                        PolarToXZ(-(speed * 2), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                         t->x += gOffsetVec[0] >> 12;
                         t->z += gOffsetVec[2] >> 12;
                         if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
@@ -212,7 +212,7 @@ void StepTrapType18(StageTrap *t, s16 speed, s32 arg, s8 dir) {
             SnapToFloor(t);
             switch (dir) {
                 case 0:
-                    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                    PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                     t->x -= gOffsetVec[0] >> 12;
                     t->z -= gOffsetVec[2] >> 12;
                     if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
@@ -222,16 +222,16 @@ void StepTrapType18(StageTrap *t, s16 speed, s32 arg, s8 dir) {
                     }
                     break;
                 case 1:
-                    t->rotY = GetPathDirection(t) + 0x800;
-                    t->homeRotY = t->rotY + 0x800;
-                    PolarToXZ(speed, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                    t->rotY = GetPathDirection(t) + ANGLE_DEG(180);
+                    t->homeRotY = t->rotY + ANGLE_DEG(180);
+                    PolarToXZ(speed, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
                     t->x += gOffsetVec[0] >> 12;
                     t->z += gOffsetVec[2] >> 12;
                     break;
             }
             break;
         case 2:
-            PolarToXZ(Lerp(speed, 0, t->timer, 15), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(Lerp(speed, 0, t->timer, 15), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (++t->timer == 15) {
@@ -255,8 +255,8 @@ dust:
         (t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000 &&
         (t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) < 2000 &&
         (u16)(t->timer % 3) == 0) {
-        v.vx = t->x + (rsin((t->rotY + 0x800) * (10 * (rand() % 20))) >> 12);
-        v.vz = t->z + (rcos((t->rotY + 0x800) * (10 * (rand() % 20))) >> 12);
+        v.vx = t->x + (rsin((t->rotY + ANGLE_DEG(180)) * (10 * (rand() % 20))) >> 12);
+        v.vz = t->z + (rcos((t->rotY + ANGLE_DEG(180)) * (10 * (rand() % 20))) >> 12);
         v.vy = t->y;
         ScatterDust(&v);
     }
@@ -279,7 +279,7 @@ void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             SnapToFloor(t);
             t->y -= 50;
             if (dir == 0) {
-                PolarToXZ((s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                PolarToXZ((s16)speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                 t->x += gOffsetVec[0] >> 12;
                 t->z += gOffsetVec[2] >> 12;
             }
@@ -295,7 +295,7 @@ void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {
         case 2:
             d = rsin((Lerp(0, 180, t->timer, 15) << 12) / 360) * 100 >> 12;
             t->y = t->homeY - (d >= 0 ? d : -d) + 50;
-            PolarToXZ(Lerp((s16)speed, 0, t->timer, 15), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(Lerp((s16)speed, 0, t->timer, 15), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (++t->timer == 15) {
@@ -332,12 +332,12 @@ void StepTrapType1E(StageTrap *t, u16 speed) {
             if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000 &&
                 (t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) < 2000 &&
                 (u16)(t->timer % 3) == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * (10 * (rand() % 20))) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * (10 * (rand() % 20))) >> 12);
+                v.vx = t->x + (rsin((t->rotY + ANGLE_DEG(180)) * (10 * (rand() % 20))) >> 12);
+                v.vz = t->z + (rcos((t->rotY + ANGLE_DEG(180)) * (10 * (rand() % 20))) >> 12);
                 v.vy = t->y + 100;
                 ScatterDust(&v);
             }
-            PolarToXZ((s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ((s16)speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             t->rotX += ((s16)speed << 12) / 360;
@@ -572,8 +572,8 @@ s8 StepGoalCutscene(StageTrap *t) {
                 gRefView[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
                 gRefView[1] = gPlayer.y - 80;
-                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 gRefView[4] = gPlayer.y - 130;
                 t->homeRotZ = 0;
                 t->timer = 0;
@@ -607,11 +607,11 @@ s8 StepGoalCutscene(StageTrap *t) {
             }
             if (IsScreenWipeActive() == 0) {
                 t->state++;
-                gView[0] = rsin(gCourse.rot.vy + 0x800) * 500 >> 12;
-                gView[2] = rcos(gCourse.rot.vy + 0x800) * 500 >> 12;
+                gView[0] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 500 >> 12;
+                gView[2] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 500 >> 12;
                 gView[1] = t->homeY - 150;
-                gView[3] = rsin(gCourse.rot.vy + 0x800) * 700 >> 12;
-                gView[5] = rcos(gCourse.rot.vy + 0x800) * 700 >> 12;
+                gView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 700 >> 12;
+                gView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 700 >> 12;
                 GsSetRefView2((GsRVIEW2 *)gView);
             }
             break;
@@ -928,7 +928,7 @@ void ResetToStageStart(void) {
     StartRec *st;
 
     /* MATCHING: stored as the s16 it is read as. */
-    *(s16 *)&gCameraYaw = 0x400;
+    *(s16 *)&gCameraYaw = ANGLE_DEG(90);
     sCamHeight = -150;
     sViewSpeed = 100;
     gViewerAngle = 0xD8;

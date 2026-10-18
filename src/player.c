@@ -571,7 +571,7 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (gPlayer.y >= gPlayer.groundY) {
-                PolarOffset(gCourse.rot.vy * 360 / 4096 - 180, 30, (VECTOR *)gOffsetVec);
+                PolarOffset(ANGLE_TO_DEG(gCourse.rot.vy) - 180, 30, (VECTOR *)gOffsetVec);
                 gPlayer.x += gOffsetVec[0];
                 gPlayer.z += gOffsetVec[2];
             }
@@ -590,7 +590,7 @@ void UpdatePlayer(void) {
             break;
         case 3:
             if (gPlayer.y >= gPlayer.groundY) {
-                PolarOffset(gCourse.rot.vy * 360 / 4096, 30, (VECTOR *)gOffsetVec);
+                PolarOffset(ANGLE_TO_DEG(gCourse.rot.vy), 30, (VECTOR *)gOffsetVec);
                 gPlayer.x += gOffsetVec[0];
                 gPlayer.z += gOffsetVec[2];
             }
@@ -633,9 +633,9 @@ void UpdatePlayer(void) {
     }
     g = &gPlayer;
     x = g->yaw;
-    v = gCourse.rot.vy - 0x155;
+    v = gCourse.rot.vy - ANGLE_DEG(30);
     if (x >= v) {
-        hi = gCourse.rot.vy + 0x155;
+        hi = gCourse.rot.vy + ANGLE_DEG(30);
         if (x <= hi) {
             v = x;
         } else {
@@ -701,8 +701,8 @@ static __inline__ void pushPlayer(s32 deg, s32 dist) {
 
     rot = &gCourse.rot;
     angle = ANGLE_DEG(deg);
-    gPlayer.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+    gPlayer.x -= rsin(rot->vy + angle) * dist >> 12;
+    gPlayer.z -= rcos(rot->vy + angle) * dist >> 12;
 }
 
 /**
@@ -1989,7 +1989,7 @@ top:
         case MOT_REEL:
             switch (state->action) {
                 case ACT_SCREEN_HIT_TWIRL:
-                    gBodyRot[1] = gPlayer.bodyYaw = gCourse.rot.vy + 0x800;
+                    gBodyRot[1] = gPlayer.bodyYaw = gCourse.rot.vy + ANGLE_DEG(180);
                 case ACT_SCREEN_HIT_FLY:
                     gTodCoords[0].coord.t[0] = gPlayer.drawX;
                     gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
@@ -2111,8 +2111,8 @@ top:
             }
             break;
         case MOT_STAGGER:
-            gPlayer.drawX = rsin(gCourse.rot.vy + 0x400) * 20 >> 12;
-            gPlayer.drawZ = rcos(gCourse.rot.vy + 0x400) * 20 >> 12;
+            gPlayer.drawX = rsin(gCourse.rot.vy + ANGLE_DEG(90)) * 20 >> 12;
+            gPlayer.drawZ = rcos(gCourse.rot.vy + ANGLE_DEG(90)) * 20 >> 12;
             gTodCoords[0].coord.t[2] = gPlayer.drawZ;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
@@ -2392,8 +2392,8 @@ s32 SetPlayerView(void) {
     gRefView[4] = gPlayer.y;
     gRefView[0] = rsin(gCourse.rot.vy) * 400 / 4096;
     gRefView[2] = rcos(gCourse.rot.vy) * 400 / 4096;
-    gRefView[3] = rsin(gCourse.rot.vy - 0x800) * 900 / 4096;
-    gRefView[5] = rcos(gCourse.rot.vy - 0x800) * 900 / 4096;
+    gRefView[3] = rsin(gCourse.rot.vy - ANGLE_DEG(180)) * 900 / 4096;
+    gRefView[5] = rcos(gCourse.rot.vy - ANGLE_DEG(180)) * 900 / 4096;
     if (sViewSpeed < gPlayer.speed) {
         sViewSpeed++;
     }
@@ -3066,8 +3066,8 @@ void PushPlayer(s32 deg, s32 dist) {
 
     rot = &gCourse.rot;
     angle = ANGLE_DEG(deg);
-    gPlayer.x -= rsin(rot->vy + angle) * dist >> FIX12_SHIFT;
-    gPlayer.z -= rcos(rot->vy + angle) * dist >> FIX12_SHIFT;
+    gPlayer.x -= rsin(rot->vy + angle) * dist >> 12;
+    gPlayer.z -= rcos(rot->vy + angle) * dist >> 12;
 }
 
 /**
@@ -3169,8 +3169,8 @@ void PolarOffset(s32 deg, s32 radius, VECTOR *out) {
     s32 angle;
 
     angle = ANGLE_DEG(deg);
-    out->vx = rsin(angle) * radius >> FIX12_SHIFT;
-    out->vz = rcos(angle) * radius >> FIX12_SHIFT;
+    out->vx = rsin(angle) * radius >> 12;
+    out->vz = rcos(angle) * radius >> 12;
 }
 
 /** @brief Sets the fog: from 3000 to 8000 in depth, in the stage's far

@@ -307,7 +307,7 @@ static inline void StepChaseRun(void) {
         sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];                           \
         t = rsin(gFrameCount * 40960 / 360) * 100;                                     \
         sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);        \
-        sCanRot[0].vx = 0x800;                                                         \
+        sCanRot[0].vx = ANGLE_DEG(180);                                                \
         sCanRot[0].vy = 0;                                                             \
         sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                           \
         sCanRot[0].vz = -(gFrameCount * 61440 / 360);                                  \
@@ -323,7 +323,7 @@ static inline void StepChaseRun(void) {
         sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0] - 100;                     \
         t2 = rsin(((gFrameCount * 10 + 45) << 12) / 360) * 100;                        \
         sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t2 / 4096);       \
-        sCanRot[0].vx = 0x800;                                                         \
+        sCanRot[0].vx = ANGLE_DEG(180);                                                \
         sCanRot[0].vy = 0;                                                             \
         sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                           \
         sCanRot[0].vz = -(gFrameCount * 40960 / 360);                                  \
@@ -339,7 +339,7 @@ static inline void StepChaseRun(void) {
         sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0] - 200;                     \
         t3 = rsin(((gFrameCount * 10 + 90) << 12) / 360) * 100;                        \
         sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t3 / 4096);       \
-        sCanRot[0].vx = 0x800;                                                         \
+        sCanRot[0].vx = ANGLE_DEG(180);                                                \
         sCanRot[0].vy = 0;                                                             \
         sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];                           \
         sCanRot[0].vz = -(gFrameCount * 20480 / 360);                                  \
@@ -406,7 +406,7 @@ s32 StepChaseFrame(void) {
             sCan.x = -0xDAC;
             sCan.y = 0;
             sCan.z = 0;
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sCanRot[0].vz = 0;
             sWalker.walkX = -8000;
@@ -501,7 +501,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[0] = 200;
                             gRumbleSmall[1] = 200;
                         }
-                        gPlayer.yaw = -0x400;
+                        gPlayer.yaw = -ANGLE_DEG(90);
                         gPlayer.motion[0] = MOT_RIDE_LEAN_B_OUT;
                         gPlayer.action = ACT_MODEL_ONCE;
                         sSubStep = 20;
@@ -524,7 +524,7 @@ s32 StepChaseFrame(void) {
                     gView[4] -= 140;
                     gPlayer.y = -(rsin(sSceneTimer * 20480 / 360) * 400 / 4096);
                     if (sSceneTimer >= 20) {
-                        gPlayer.yaw = -0x400;
+                        gPlayer.yaw = -ANGLE_DEG(90);
                         gPlayer.motion[0] = 0x3C;
                         gPlayer.action = ACT_MODEL_ONCE;
                         gPlayer.x = -0xF8C;
@@ -689,7 +689,7 @@ s32 StepChaseFrame(void) {
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.x = -1800;
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.speed = 30;
             gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;

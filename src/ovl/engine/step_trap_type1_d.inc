@@ -12,16 +12,16 @@ void StepTrapType1D(StageTrap *t, u16 speed) {
         case 1:
             base->y = base->homeY;
             base->y -= (u16)(t->timer % 10) * 3;
-            PolarToXZ(speed, base->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(base->rotY), (Vec3 *)gOffsetVec);
             base->x += gOffsetVec[0] >> 12;
             base->z += gOffsetVec[2] >> 12;
             t->timer++;
             phase = t->timer % 20;
             t++;
             if (phase < 15) {
-                t->rotX = Lerp(0x2AA, -0x2AA, phase, 15);
+                t->rotX = Lerp(ANGLE_DEG(60), -ANGLE_DEG(60), phase, 15);
             } else {
-                t->rotX = Lerp(-0x2AA, 0x2AA, phase - 15, 5);
+                t->rotX = Lerp(-ANGLE_DEG(60), ANGLE_DEG(60), phase - 15, 5);
             }
             t->y = base->y - 100;
             t->rotY = base->rotY;
@@ -30,9 +30,9 @@ void StepTrapType1D(StageTrap *t, u16 speed) {
             t->model = base->model + 1;
             t++;
             if (phase < 15) {
-                t->rotX = Lerp(-0x2AA, 0x400, phase, 15);
+                t->rotX = Lerp(-ANGLE_DEG(60), ANGLE_DEG(90), phase, 15);
             } else {
-                t->rotX = Lerp(0x400, -0x2AA, phase - 15, 5);
+                t->rotX = Lerp(ANGLE_DEG(90), -ANGLE_DEG(60), phase - 15, 5);
             }
             t->y = base->y - 100;
             t->rotY = base->rotY;

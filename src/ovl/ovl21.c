@@ -80,14 +80,14 @@ void StepWorldIntro(void) {
             sLights.l[2].vz = -50;
             GsSetFlatLight(2, &sLights.l[2]);
             gPlayer.z = -0x1644;
-            gPlayer.yaw = 0x800;
+            gPlayer.yaw = ANGLE_DEG(180);
             gPlayer.motion[0] = MOT_RIDE;
             gPlayer.x = 0;
             gPlayer.y = 0;
             gPlayer.curMotion[0] = MOT_OFF;
             gPlayer.action = ACT_MODEL_LOOP;
             sPartner.x = -100;
-            sPartner.yaw = -0x200;
+            sPartner.yaw = -ANGLE_DEG(45);
             sPartner.motion[0] = MOT_RIDE_JUMP_2;
             sPartner.y = 0;
             sPartner.z = 100;
@@ -115,9 +115,11 @@ void StepWorldIntro(void) {
                 switch (sSubStep) {
                     case 0:
                         gPlayer.z += 30;
-                        sView.vpx = rsin(0x800) * (gEventTraps.timer * 2 + 200) / 4096 + gPlayer.x;
+                        sView.vpx =
+                            rsin(ANGLE_DEG(180)) * (gEventTraps.timer * 2 + 200) / 4096 + gPlayer.x;
                         sView.vpy = -100 - (gEventTraps.timer >> 1);
-                        sView.vpz = rcos(0x800) * (gEventTraps.timer * 2 + 200) / 4096 + gPlayer.z;
+                        sView.vpz =
+                            rcos(ANGLE_DEG(180)) * (gEventTraps.timer * 2 + 200) / 4096 + gPlayer.z;
                         sView.vrx = gPlayer.x;
                         /* MATCHING: `/ 2` where vpy has `>> 1`; the timer is then reloaded
                          * for the increment. */
@@ -130,9 +132,9 @@ void StepWorldIntro(void) {
                         break;
                     case 3:
                         gPlayer.z += 30;
-                        sView.vpx = rsin(0x800) * 400 / 4096 + gPlayer.x;
+                        sView.vpx = rsin(ANGLE_DEG(180)) * 400 / 4096 + gPlayer.x;
                         sView.vpy = -150;
-                        sView.vpz = rcos(0x800) * 400 / 4096 + gPlayer.z;
+                        sView.vpz = rcos(ANGLE_DEG(180)) * 400 / 4096 + gPlayer.z;
                         sView.vrx = gPlayer.x;
                         sView.vry = -150;
                         sView.vrz = gPlayer.z;
@@ -149,14 +151,14 @@ void StepWorldIntro(void) {
                     case 5:
                         gPlayer.z += gEventTraps.timer;
                         gPlayer.yaw -= 0x22;
-                        sView.vpx = rsin(0x800) * 400 / 4096 + gPlayer.x;
+                        sView.vpx = rsin(ANGLE_DEG(180)) * 400 / 4096 + gPlayer.x;
                         sView.vpy = -150;
-                        sView.vpz = rcos(0x800) * 400 / 4096 + gPlayer.z;
+                        sView.vpz = rcos(ANGLE_DEG(180)) * 400 / 4096 + gPlayer.z;
                         sView.vrx = gPlayer.x;
                         sView.vry = -150;
                         sView.vrz = gPlayer.z;
                         if ((gEventTraps.timer -= 2) == 0) {
-                            gPlayer.yaw = 0x600;
+                            gPlayer.yaw = ANGLE_DEG(135);
                             gPlayer.motion[0] = MOT_RIDE_LEAN_A_OUT;
                             gPlayer.action = ACT_MODEL_ONCE;
                             gEventTraps.timer = 0;
@@ -204,7 +206,7 @@ void StepWorldIntro(void) {
                         break;
                     case 25:
                         if (gPlayer.motionResult[0] == 0) {
-                            gPlayer.yaw = 0x800;
+                            gPlayer.yaw = ANGLE_DEG(180);
                             gPlayer.motion[0] = MOT_RIDE;
                             gPlayer.curMotion[0] = MOT_OFF;
                             gPlayer.action = 1;
@@ -222,9 +224,9 @@ void StepWorldIntro(void) {
                                 BeginLoadScreenModel();
                             }
                         }
-                        sView.vpx = rsin(0x800) * 400 / 4096 + gPlayer.x;
+                        sView.vpx = rsin(ANGLE_DEG(180)) * 400 / 4096 + gPlayer.x;
                         sView.vpy = -150;
-                        sView.vpz = rcos(0x800) * 400 / 4096 + gPlayer.z;
+                        sView.vpz = rcos(ANGLE_DEG(180)) * 400 / 4096 + gPlayer.z;
                         sView.vrx = gPlayer.x;
                         sView.vry = -150;
                         sView.vrz = gPlayer.z;

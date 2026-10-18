@@ -124,7 +124,7 @@ s32 StepChaseFrame(void) {
             gView[4] = -0x7D0;
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.motion[0] = 0x3C;
             gPlayer.x = -0x1388;
             gPlayer.y = -0x7D0;
@@ -312,7 +312,7 @@ s32 StepChaseFrame(void) {
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.x = -1800;
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.speed = 30;
             gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;
@@ -373,7 +373,7 @@ s32 StepChaseFrame(void) {
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[0].vx = 0;
             ResetSpadStack();
-            sCanRot[0].vy = rsin(gFrameCount * 32768 / 360) * 15 / 4096 * 4096 / 360;
+            sCanRot[0].vy = ANGLE_DEG(rsin(ANGLE_DEG(gFrameCount * 8)) * 15 / 4096);
             SetSpadStack();
             sCanRot[0].vz = 0;
             if (gPlayer.x + 500 > sCan.x + 550) {
@@ -392,7 +392,7 @@ s32 StepChaseFrame(void) {
              * base outranks the rotations' for the lower saved register. */
             __asm__("");
             ResetSpadStack();
-            sCanRot[1].vy = rsin((gFrameCount * 8 - 30) * 4096 / 360) * 10 / 4096 * 4096 / 360;
+            sCanRot[1].vy = ANGLE_DEG(rsin(ANGLE_DEG(gFrameCount * 8 - 30)) * 10 / 4096);
             SetSpadStack();
             sCanRot[1].vz = 0;
             if (gPlayer.x + 500 > sCan.x + 550) {
@@ -552,7 +552,7 @@ s32 StepChaseFrame(void) {
             sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1];
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[0].vx = 0;
-            sCanRot[0].vy = rsin(gFrameCount * 32768 / 360) * 15 / 4096 * 4096 / 360;
+            sCanRot[0].vy = ANGLE_DEG(rsin(ANGLE_DEG(gFrameCount * 8)) * 15 / 4096);
             sCanRot[0].vz = 0;
             SetCoordRotation(&sCanRot[0], &sAct3Coords[0]);
             GsGetLs(sAct3Objs[0].coord2, &sChaseMatrix);
@@ -564,7 +564,7 @@ s32 StepChaseFrame(void) {
             sAct3Coords[1].coord.t[1] = sCan.y + gWorldShift[1];
             sAct3Coords[1].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[1].vx = 0;
-            sCanRot[1].vy = rsin((gFrameCount * 8 - 30) * 4096 / 360) * 10 / 4096 * 4096 / 360;
+            sCanRot[1].vy = ANGLE_DEG(rsin(ANGLE_DEG(gFrameCount * 8 - 30)) * 10 / 4096);
             sCanRot[1].vz = 0;
             SetCoordRotation(&sCanRot[1], &sAct3Coords[1]);
             GsGetLs(sAct3Objs[1].coord2, &sChaseMatrix);

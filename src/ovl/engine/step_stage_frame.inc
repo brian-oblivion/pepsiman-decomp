@@ -4,7 +4,7 @@ void StepStageFrame(void) {
     s32 v;
 
     if (*(s8 *)&gFellOff == 0) {
-        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + 0x800;
+        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + ANGLE_DEG(180);
     }
     gPlayer.editorY = gPlayer.groundY;
     v = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);

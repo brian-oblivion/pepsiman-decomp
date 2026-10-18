@@ -7,8 +7,8 @@ void RunTrapAlongPath(StageTrap *t, u16 speed, s8 turn) {
     if (t->timer < 150 && speed != 0) {
         t->timer++;
         t->y -= 20;
-        t->rotY = GetPathDirection(t) + (s8)(turn % 2) * 0x800;
-        PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        t->rotY = GetPathDirection(t) + (s8)(turn % 2) * ANGLE_DEG(180);
+        PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
         t->x += gOffsetVec[0] >> 12;
         t->z += gOffsetVec[2] >> 12;
     }

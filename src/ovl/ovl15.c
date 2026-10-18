@@ -160,7 +160,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 t->y = t->homeY;
             }
             t->y -= 120;
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (speed != 0) {
@@ -173,7 +173,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 }
                 switch (dir) {
                     case 2:
-                        t->rotY = GetPathDirection(t) + 0x800;
+                        t->rotY = GetPathDirection(t) + ANGLE_DEG(180);
                         break;
                     case 3:
                         DrawTrapWarning(t);
@@ -181,7 +181,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                         t->rotY = GetPathDirection(t);
                         break;
                     case 4:
-                        PolarToXZ(-(speed * 2), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                        PolarToXZ(-(speed * 2), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                         t->x += gOffsetVec[0] >> 12;
                         t->z += gOffsetVec[2] >> 12;
                         if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
@@ -445,8 +445,8 @@ void UpdateGoalEventHook(void) {
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[1] = gPlayer.y - 270;
-                    gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                    gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                    gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                     t->homeRotZ = 0;
                     t->timer = 0;
                     gRefView[4] = gPlayer.y - 100;
@@ -555,7 +555,7 @@ s32 StepStage5_1Dropper(StageTrap *t) {
             t->timer++;
             t->y -= 20;
             t->rotY = GetPathDirection(t);
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (gSection - UpdatePathSegment(t) < 2) {
@@ -568,7 +568,7 @@ s32 StepStage5_1Dropper(StageTrap *t) {
             }
             break;
         case 3:
-            InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
+            InterpRange(t->homeRotY, t->homeRotY - ANGLE_DEG(90), t->timer, 30, gOffsetVec);
             t->rotY = gOffsetVec[1];
             StepTrapForwardLevel(t, 20);
             if (++t->timer > 30) {
@@ -644,7 +644,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             gView[0] = Lerp(sSavedView[0], gRefView[0], t->timer, 60);
             gView[2] = Lerp(sSavedView[2], gRefView[2], t->timer, 60);
             GsSetRefView2((GsRVIEW2 *)gView);
-            gPlayer.bodyYaw = Lerp(gCourse.rot.vy + 0x800, gCourse.rot.vy + 0xC00, t->timer, 60);
+            gPlayer.bodyYaw =
+                Lerp(gCourse.rot.vy + ANGLE_DEG(180), gCourse.rot.vy + ANGLE_DEG(270), t->timer, 60);
             gBodyRot[1] = gPlayer.yaw + gPlayer.bodyYaw;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;
@@ -658,8 +659,8 @@ s8 StepGoalCutscene(StageTrap *t) {
         case 2:
             gPlayer.action = ACT_RUN;
             gPlayer.motion[0] = MOT_RUN_SLOW;
-            gPlayer.drawX += rsin(gCourse.rot.vy + 0xC00) * 20 >> 12;
-            gPlayer.drawZ += rcos(gCourse.rot.vy + 0xC00) * 20 >> 12;
+            gPlayer.drawX += rsin(gCourse.rot.vy + ANGLE_DEG(270)) * 20 >> 12;
+            gPlayer.drawZ += rcos(gCourse.rot.vy + ANGLE_DEG(270)) * 20 >> 12;
             gBodyRot[1] = gPlayer.yaw + gPlayer.bodyYaw;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = gPlayer.y + gPlayer.drawY;

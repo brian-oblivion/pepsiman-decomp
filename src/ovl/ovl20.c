@@ -105,13 +105,13 @@ s32 StepWorldIntro(void) {
             sLights.l[2].vz = -50;
             GsSetFlatLight(2, &sLights.l[2]);
             gPlayer.z = -0x1644;
-            gPlayer.yaw = 0x800;
+            gPlayer.yaw = ANGLE_DEG(180);
             gPlayer.motion[0] = MOT_RIDE;
             gPlayer.x = 0;
             gPlayer.y = 0;
             gPlayer.action = ACT_MODEL_LOOP;
             sPartner.x = -100;
-            sPartner.yaw = -0x200;
+            sPartner.yaw = -ANGLE_DEG(45);
             sPartner.motion[0] = MOT_RIDE_JUMP_2;
             sPartner.y = 0;
             sPartner.z = 100;
@@ -152,10 +152,10 @@ s32 StepWorldIntro(void) {
                 case 3:
                     gPlayer.z += 30;
                     if (gEventTraps.timer < 90) {
-                        sView.vpx = rsin((-(gEventTraps.timer * 2) + 180) * 4096 / 360) * 300 / 4096;
+                        sView.vpx = rsin(ANGLE_DEG(-(gEventTraps.timer * 2) + 180)) * 300 / 4096;
                         sView.vpy = -100;
-                        sView.vpz = gPlayer.z -
-                                    rcos((-(gEventTraps.timer * 2) + 180) * 4096 / 360) * 300 / 4096;
+                        sView.vpz =
+                            gPlayer.z - rcos(ANGLE_DEG(-(gEventTraps.timer * 2) + 180)) * 300 / 4096;
                         sView.vrx = 0;
                         sView.vry = -100;
                         sView.vrz = gPlayer.z;
@@ -177,7 +177,7 @@ s32 StepWorldIntro(void) {
                         gView[5] = 50;
                         gPlayer.motion[0] = MOT_RIDE_LEAN_A_IN;
                         gPlayer.action = ACT_MODEL_ONCE;
-                        gPlayer.yaw = 0x600;
+                        gPlayer.yaw = ANGLE_DEG(135);
                         sPartner.motion[0] = 0x3A;
                         sPartner.action = ACT_MODEL_ONCE;
                         gEventTraps.timer = 0;
@@ -232,7 +232,7 @@ s32 StepWorldIntro(void) {
                     break;
                 case 25:
                     if (gPlayer.motionResult[0] == 0) {
-                        gPlayer.yaw = 0x800;
+                        gPlayer.yaw = ANGLE_DEG(180);
                         gPlayer.motion[0] = MOT_RIDE;
                         gPlayer.curMotion[0] = MOT_OFF;
                         gPlayer.action = 1;

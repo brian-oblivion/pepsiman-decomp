@@ -8,7 +8,7 @@ void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {
         case 1:
             SnapToFloor(t);
             t->y -= 20;
-            PolarToXZ(-speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(-speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {

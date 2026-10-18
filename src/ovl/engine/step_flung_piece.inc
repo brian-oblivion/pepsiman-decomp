@@ -6,12 +6,12 @@ void StepFlungPiece(StageTrap *t) {
             t->x = gPlayer.x;
             t->homeY = gPlayer.groundY - 50;
             t->z = gPlayer.z;
-            t->rotY = gCourse.rot.vy + 0x800;
+            t->rotY = gCourse.rot.vy + ANGLE_DEG(180);
             t->homeRotX = 0;
             t->timer = 0;
             t->state++;
         case 1:
-            PolarToXZ(40, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(40, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             t->y = t->homeY;

@@ -894,8 +894,8 @@ s16 UpdateCamera(s16 x, s16 y, s16 z, s16 floorY) {
     } else {
         gCameraYaw -= sCamTurnStep;
     }
-    sCamOffsetX = rsin((s16)gCameraYaw + 0x800) * 400 / 4096;
-    sCamOffsetZ = rcos((s16)gCameraYaw + 0x800) * 400 / 4096;
+    sCamOffsetX = rsin((s16)gCameraYaw + ANGLE_DEG(180)) * 400 / 4096;
+    sCamOffsetZ = rcos((s16)gCameraYaw + ANGLE_DEG(180)) * 400 / 4096;
     sView.vpz = sCamOffsetZ;
     sView.vpx = sCamOffsetX;
     sPrevViewY = sView.vpy;

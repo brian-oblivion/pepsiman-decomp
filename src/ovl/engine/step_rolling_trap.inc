@@ -1,6 +1,6 @@
 void StepRollingTrap(StageTrap *t, u16 speed) {
     SnapToFloor(t);
-    PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+    PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
     t->x += gOffsetVec[0] >> 12;
     t->z += gOffsetVec[2] >> 12;
     if (LatchProximity(t, 500) != 0) {

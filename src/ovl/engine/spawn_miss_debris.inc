@@ -20,7 +20,7 @@ void SpawnMissDebris(void) {
         t->model = models[gStage];
         t->homeZ = rand() % 10 + 5;
         t->homeX = sBurstHeights[i] / 2;
-        t->rotY = sBurstSpins[i][0] * 40960 / 360 + gCourse.rot.vy + 0x800;
+        t->rotY = ANGLE_DEG(sBurstSpins[i][0] * 10) + gCourse.rot.vy + ANGLE_DEG(180);
         t->homeRotZ = rand() % 20 + 10;
         t->homeRotX = 0;
         t->timer = 0;

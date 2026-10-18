@@ -654,7 +654,7 @@ s32 UpdateEditor(void) {
                                     sTotals.trapType = ((EditorTrap *)gTraps)[sTotals.trapNo].type;
                                     sTotals.trapAct = ((EditorTrap *)gTraps)[sTotals.trapNo].act;
                                     sTotals.trapAngle =
-                                        ((EditorTrap *)gTraps)[sTotals.trapNo].rotY * 360 / 4096;
+                                        ANGLE_TO_DEG(((EditorTrap *)gTraps)[sTotals.trapNo].rotY);
                                     gPlaceCount =
                                         PlaceStageTrap(sTotals.trapModel, gPlaceQueue, gPlaceQueue);
                                     for (i = 1; i < gPlaceCount; i++) {
@@ -1607,11 +1607,11 @@ void SetEditorCamera(void) {
 
     rot = &gCourse.rot;
     gRefView[0] = rsin(rot->vy) * 500 / 4096;
-    gRefView[1] = rsin(gViewerAngle * 4096 / 360) * 500 / 4096 + (gPlayer.y + sTotals.camHeight);
+    gRefView[1] = rsin(ANGLE_DEG(gViewerAngle)) * 500 / 4096 + (gPlayer.y + sTotals.camHeight);
     gRefView[2] = rcos(rot->vy) * 500 / 4096;
-    gRefView[3] = rsin(rot->vy - 0x800) * 900 / 4096;
+    gRefView[3] = rsin(rot->vy - ANGLE_DEG(180)) * 900 / 4096;
     gRefView[4] = gPlayer.y;
-    gRefView[5] = rcos(rot->vy - 0x800) * 900 / 4096;
+    gRefView[5] = rcos(rot->vy - ANGLE_DEG(180)) * 900 / 4096;
 }
 
 /** @brief Free movement in the tool: moves the game position by the pad
@@ -3051,7 +3051,7 @@ void DrawPole(VECTOR *pos) {
     GsLINE line;
     s16 g;
 
-    g = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    g = ((rsin(ANGLE_DEG(gFrameCount * 10 % 360)) * 50) >> 12) + 160;
     line.attribute = 0;
     line.r = 0xFF;
     line.g = g;
@@ -3082,7 +3082,7 @@ void DrawHeadingLine(VECTOR *pos, s16 deg) {
     s16 g;
     s32 ang;
 
-    g = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    g = ((rsin(ANGLE_DEG(gFrameCount * 10 % 360)) * 50) >> 12) + 160;
     line.attribute = 0;
     line.r = 0xFF;
     line.g = g;
@@ -3093,7 +3093,7 @@ void DrawHeadingLine(VECTOR *pos, s16 deg) {
     ProjectToScreen(&world, &screen);
     line.x0 = screen.vx;
     line.y0 = screen.vy;
-    ang = deg * 4096 / 360;
+    ang = ANGLE_DEG(deg);
     world.vx += rsin(ang) * 100 >> 12;
     world.vz += rcos(ang) * 100 >> 12;
     ProjectToScreen(&world, &screen);

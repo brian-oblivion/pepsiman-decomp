@@ -26,7 +26,7 @@ void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
             t->y = t->homeY;
             break;
         case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(40, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x -= gOffsetVec[0] >> 12;
             t->z -= gOffsetVec[2] >> 12;
             t->timer += 10;

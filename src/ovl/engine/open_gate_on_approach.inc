@@ -21,7 +21,7 @@ void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {
             break;
         case 1:
             t->timer++;
-            v = Lerp(0, 0x800, t->timer, 40);
+            v = Lerp(0, ANGLE_DEG(180), t->timer, 40);
             switch (arg) {
                 case 2:
                     c.rotY = t->homeRotY - v;
@@ -45,7 +45,7 @@ void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {
         case 2:
             if (gSection - UpdatePathSegment(t) < 2) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                c.rotY += 0x800;
+                c.rotY += ANGLE_DEG(180);
                 UpdateObjectEntry(&gObjectModels[c.model], (Trap *)&c);
             }
             if ((t->touched != 0 || c.touched != 0) && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {

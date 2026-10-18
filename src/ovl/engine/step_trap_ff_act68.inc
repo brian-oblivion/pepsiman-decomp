@@ -8,7 +8,7 @@ void StepTrapFFAct68(StageTrap *t) {
     model = 12;
     switch (t->state) {
         case 0:
-            PolarToXZ(t->homeRotZ, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(t->homeRotZ, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             t->timer += 10;

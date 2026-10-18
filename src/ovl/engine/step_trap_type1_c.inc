@@ -12,10 +12,10 @@ void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {
             t->timer++;
             switch ((s8)tiltSide) {
                 case 2:
-                    t->rotZ = -Lerp(0, 0x400, t->timer, 10);
+                    t->rotZ = -Lerp(0, ANGLE_DEG(90), t->timer, 10);
                     break;
                 case 1:
-                    t->rotZ = Lerp(0, 0x400, t->timer, 10);
+                    t->rotZ = Lerp(0, ANGLE_DEG(90), t->timer, 10);
                     break;
             }
             if (t->timer == 10) {

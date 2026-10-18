@@ -21,11 +21,11 @@ void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {
         case 2:
             switch (dir) {
                 case 2:
-                    InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
+                    InterpRange(t->homeRotY, t->homeRotY - ANGLE_DEG(90), t->timer, 30, gOffsetVec);
                     t->rotY = gOffsetVec[1];
                     break;
                 case 1:
-                    InterpRange(t->homeRotY, t->homeRotY + 0x400, t->timer, 30, gOffsetVec);
+                    InterpRange(t->homeRotY, t->homeRotY + ANGLE_DEG(90), t->timer, 30, gOffsetVec);
                     t->rotY = gOffsetVec[1];
                     break;
             }

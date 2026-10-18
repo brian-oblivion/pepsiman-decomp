@@ -128,7 +128,7 @@ s32 StepChaseFrame(void) {
             gView[4] = -140;
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
-            gPlayer.yaw = -0x800;
+            gPlayer.yaw = -ANGLE_DEG(180);
             gPlayer.motion[0] = MOT_STAND;
             gPlayer.x = -0x157C;
             gPlayer.y = 0;
@@ -144,7 +144,7 @@ s32 StepChaseFrame(void) {
             sCan.lidZ = -0x9C4;
             sCan.lidX = -0x157C;
             sCan.lidY = 0;
-            sCanRot[1].vy = 0x800;
+            sCanRot[1].vy = ANGLE_DEG(180);
             sCanRot[1].vx = 0;
             sCanRot[1].vz = 0;
             ClipF = 1;
@@ -302,7 +302,7 @@ s32 StepChaseFrame(void) {
                         sCan.x = -0x1068;
                         sCan.z = 0;
                         sCan.y = 0;
-                        sCanRot[0].vx = 0x800;
+                        sCanRot[0].vx = ANGLE_DEG(180);
                         sCanScaled = 0;
                         sSceneTimer = 18;
                         sCanRot[0].vy = 0;
@@ -398,7 +398,7 @@ s32 StepChaseFrame(void) {
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.x = -1800;
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.speed = 30;
             gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;
@@ -465,7 +465,7 @@ s32 StepChaseFrame(void) {
             if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
                 PlaySe(0x39);
             }
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);
             if (gPlayer.x + 500 > sCan.x + 120) {
@@ -632,7 +632,7 @@ s32 StepChaseFrame(void) {
                 t = rsin(gFrameCount * 40960 / 360) * 100;
                 sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
             }
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);

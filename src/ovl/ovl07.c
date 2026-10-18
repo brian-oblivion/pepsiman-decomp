@@ -138,8 +138,8 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
         if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000) {
             e = t->z + gWorldShift[2];
             if ((e >= 0 ? e : -e) < 2000 && t->timer % 3 == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
+                v.vx = t->x + (rsin((t->rotY + ANGLE_DEG(180)) * (rand() % 10 * 10)) >> 12);
+                v.vz = t->z + (rcos((t->rotY + ANGLE_DEG(180)) * (rand() % 10 * 10)) >> 12);
                 v.vy = t->y;
                 ScatterDust(&v);
             }
@@ -351,8 +351,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             gRefView[0] = rsin(gCourse.rot.vy + 0x5C7) * 300 >> 12;
             gRefView[2] = rcos(gCourse.rot.vy + 0x5C7) * 300 >> 12;
             gRefView[1] = gPlayer.y - 150;
-            gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 150 >> 12;
-            gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 150 >> 12;
+            gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 150 >> 12;
+            gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 150 >> 12;
             sSavedView = *(GsRVIEW2 *)gView;
             gRefView[4] = gPlayer.y - 100;
             t->homeRotZ = 0;
@@ -364,8 +364,8 @@ s8 StepGoalCutscene(StageTrap *t) {
                 PlaySe(SE_POWER_UP);
             }
             gPlayer.fallSpeed = 0;
-            gPlayer.drawX += rsin(gCourse.rot.vy + 0x800) * 3 >> 12;
-            gPlayer.drawZ += rcos(gCourse.rot.vy + 0x800) * 3 >> 12;
+            gPlayer.drawX += rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 3 >> 12;
+            gPlayer.drawZ += rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 3 >> 12;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gTodCoords[0].coord.t[1] = t->homeY + gPlayer.drawY;
             gTodCoords[0].coord.t[2] = gPlayer.drawZ;
@@ -384,8 +384,8 @@ s8 StepGoalCutscene(StageTrap *t) {
                 gRefView[0] = rsin(gCourse.rot.vy + 0x471) * 800 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x471) * 800 >> 12;
                 gRefView[1] = gPlayer.y - 450;
-                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 700 >> 12;
-                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 700 >> 12;
+                gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 700 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 700 >> 12;
                 t->homeRotZ = 0;
                 t->homeRotX = 0;
                 t->timer = 0;
@@ -400,8 +400,8 @@ s8 StepGoalCutscene(StageTrap *t) {
             t->homeRotZ++;
             t->homeRotX++;
             gPlayer.drawY += t->homeRotZ * 2;
-            gPlayer.drawX += rsin(gCourse.rot.vy + 0x800) * 25 >> 12;
-            gPlayer.drawZ += rcos(gCourse.rot.vy + 0x800) * 25 >> 12;
+            gPlayer.drawX += rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 25 >> 12;
+            gPlayer.drawZ += rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 25 >> 12;
             gTodCoords[0].coord.t[0] = gPlayer.drawX;
             gPlayer.groundY = gTodCoords[0].coord.t[1] = t->homeY + gPlayer.drawY;
             gTodCoords[0].coord.t[2] = gPlayer.drawZ;
@@ -431,11 +431,11 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->state++;
                 gPlayer.x = 0x1EC0;
                 gPlayer.z = 0x18AA;
-                gView[0] = rsin(gCourse.rot.vy + 0x800) * 500 >> 12;
-                gView[2] = rcos(gCourse.rot.vy + 0x800) * 500 >> 12;
+                gView[0] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 500 >> 12;
+                gView[2] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 500 >> 12;
                 gView[1] = -0x992;
-                gView[3] = rsin(gCourse.rot.vy + 0x800) * 700 >> 12;
-                gView[5] = rcos(gCourse.rot.vy + 0x800) * 700 >> 12;
+                gView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 700 >> 12;
+                gView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 700 >> 12;
                 gView[4] = -0x960;
                 GsSetRefView2((GsRVIEW2 *)gView);
             }

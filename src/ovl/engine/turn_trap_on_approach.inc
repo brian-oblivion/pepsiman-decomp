@@ -15,7 +15,7 @@ void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {
             break;
         case 1:
             t->timer++;
-            v = Lerp(0, 0x200, t->timer, 10);
+            v = Lerp(0, ANGLE_DEG(45), t->timer, 10);
             switch (arg) {
                 case 2:
                     t->rotY = t->homeRotY - v;
@@ -33,10 +33,10 @@ void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {
                 t->model++;
                 switch (arg) {
                     case 2:
-                        t->homeRotY -= 0x200;
+                        t->homeRotY -= ANGLE_DEG(45);
                         break;
                     case 1:
-                        t->homeRotY += 0x200;
+                        t->homeRotY += ANGLE_DEG(45);
                         break;
                 }
             }
@@ -46,7 +46,7 @@ void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {
             break;
         case 2:
             t->timer++;
-            w = Lerp(0, 0x200, t->timer, 10);
+            w = Lerp(0, ANGLE_DEG(45), t->timer, 10);
             switch (arg) {
                 case 2:
                     t->rotY = t->homeRotY - w;

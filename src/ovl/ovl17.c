@@ -358,7 +358,7 @@ s32 StepChaseFrame(void) {
             sCan.y = -700;
             sCan.z = 600;
             sCanRot[0].vx = -0xE3;
-            sCanRot[0].vy = -0x400;
+            sCanRot[0].vy = -ANGLE_DEG(90);
             sCanRot[0].vz = 0;
             ClipF = 1;
             sSceneTimer = 0;
@@ -455,7 +455,7 @@ s32 StepChaseFrame(void) {
                     gPlayer.yaw = 0;
                     gView[1] += 4;
                     if (++sSceneTimer == 30) {
-                        gPlayer.yaw = -0x400;
+                        gPlayer.yaw = -ANGLE_DEG(90);
                         gPlayer.motion[0] = MOT_RUN_SLOW;
                         gPlayer.action = ACT_MODEL_LOOP;
                         sSceneTimer = 0;
@@ -547,7 +547,7 @@ s32 StepChaseFrame(void) {
             gView[5] = 0;
             GsSetRefView2((GsRVIEW2 *)gView);
             gPlayer.x = -1800;
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.speed = 30;
             gPlayer.motion[0] = MOT_RIDE;
             gPlayer.action = ACT_MODEL_LOOP;
@@ -611,7 +611,7 @@ s32 StepChaseFrame(void) {
             if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
                 PlaySe(0x39);
             }
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);
             if (gPlayer.x + 500 > sCan.x + 120) {
@@ -779,7 +779,7 @@ s32 StepChaseFrame(void) {
                 t = rsin(gFrameCount * 40960 / 360) * 100;
                 sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
             }
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);

@@ -69,7 +69,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 t->y = t->homeY;
             }
             t->y -= 120;
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (speed != 0) {
@@ -82,14 +82,14 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 }
                 switch (dir) {
                     case 2:
-                        t->rotY = GetPathDirection(t) + 0x800;
+                        t->rotY = GetPathDirection(t) + ANGLE_DEG(180);
                         break;
                     case 1:
                     case 3:
                         t->rotY = GetPathDirection(t);
                         break;
                     case 4:
-                        PolarToXZ(-(speed * 2), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                        PolarToXZ(-(speed * 2), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                         t->x += gOffsetVec[0] >> 12;
                         t->z += gOffsetVec[2] >> 12;
                         if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
@@ -131,11 +131,11 @@ void StepTrapFFAct67(StageTrap *t) {
     s32 h;
 
     if (t->state == 0) {
-        PolarToXZ(-10, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+        PolarToXZ(-10, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
         t->x += gOffsetVec[0] >> 12;
         t->z += gOffsetVec[2] >> 12;
         t->timer += 10;
-        h = rsin(t->timer * 4096 / 360) * 200 >> 12;
+        h = rsin(ANGLE_DEG(t->timer)) * 200 >> 12;
         t->y = t->homeY - (h >= 0 ? h : -h);
         if (t->timer >= 180) {
             PlaySe(0x49);
@@ -411,8 +411,8 @@ void UpdateGoalEventHook(void) {
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[1] = gPlayer.y - 270;
-                    gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                    gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                    gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                     t->homeRotZ = 0;
                     t->timer = 0;
                     gRefView[4] = gPlayer.y - 100;
@@ -487,7 +487,7 @@ void StepStageFrame(void) {
     s32 v;
 
     if (*(s8 *)&gFellOff == 0) {
-        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + 0x800;
+        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + ANGLE_DEG(180);
     }
     gPlayer.editorY = gPlayer.groundY;
     v = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
@@ -555,7 +555,7 @@ void StepStage1_1Dropper(StageTrap *t) {
             t->timer++;
             t->y -= 20;
             t->rotY = GetPathDirection(t);
-            PolarToXZ(40, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(40, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (gSection - UpdatePathSegment(t) < 2) {
@@ -568,7 +568,7 @@ void StepStage1_1Dropper(StageTrap *t) {
             }
             break;
         case 3:
-            InterpRange(t->homeRotY, t->homeRotY - 0x400, t->timer, 30, gOffsetVec);
+            InterpRange(t->homeRotY, t->homeRotY - ANGLE_DEG(90), t->timer, 30, gOffsetVec);
             t->rotY = gOffsetVec[1];
             StepTrapForwardLevel(t, 20);
             if (++t->timer > 30) {
@@ -617,7 +617,7 @@ void SpawnTrapFFAct67(StageTrap *t, s8 arg) {
         r = rand();
         s->type = 0xFF;
         s->act = 0x67;
-        s->rotY += 0x800;
+        s->rotY += ANGLE_DEG(180);
         s->state = 0;
         s->timer = 20;
         s->model = r % 3 + 17;
@@ -661,7 +661,7 @@ void StepStage1_1CreepingDropper(StageTrap *t) {
             t->timer++;
             t->y -= 20;
             t->rotY = GetPathDirection(t);
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (gSection - UpdatePathSegment(t) < 2) {
@@ -674,7 +674,7 @@ void StepStage1_1CreepingDropper(StageTrap *t) {
             }
             break;
         case 3:
-            InterpRange(t->homeRotY, t->homeRotY + 0x400, t->timer, 30, gOffsetVec);
+            InterpRange(t->homeRotY, t->homeRotY + ANGLE_DEG(90), t->timer, 30, gOffsetVec);
             t->rotY = gOffsetVec[1];
             StepTrapForwardLevel(t, 20);
             if (++t->timer > 30) {
@@ -725,7 +725,7 @@ void SpawnTrapFFAct68(StageTrap *t, s8 arg) {
         s->act = 0x68;
         s->state = 0;
         s->timer = 40;
-        s->rotY += 0x800;
+        s->rotY += ANGLE_DEG(180);
         s->model = m;
         d = (rand() % 3 - 1) * 227;
         s->homeRotX = 100;

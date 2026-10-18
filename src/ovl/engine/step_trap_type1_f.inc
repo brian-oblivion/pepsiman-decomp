@@ -14,7 +14,7 @@ void StepTrapType1F(StageTrap *t, u16 arg) {
             if (t->homeY > 0) {
                 t->y = t->homeY;
             }
-            PolarToXZ(arg, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(arg, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->rotX += (arg << 12) / 360;
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;

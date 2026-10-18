@@ -177,7 +177,7 @@ void DrawPin(VECTOR *pos) {
     s32 bob;
 
     world.vx = pos->vx + gWorldShift[0];
-    bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
+    bob = ((rsin(ANGLE_DEG(gFrameCount * 10 % 360)) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
     world.vz = pos->vz + gWorldShift[2];
     ProjectToScreen(&world, &screen);
@@ -1314,7 +1314,7 @@ void DrawToolPin(VECTOR *pos) {
     s32 bob;
 
     world.vx = -pos->vx + gWorldShift[0];
-    bob = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 10) >> 12) - 200;
+    bob = ((rsin(ANGLE_DEG(gFrameCount * 10 % 360)) * 10) >> 12) - 200;
     world.vy = pos->vy + bob;
     world.vz = -pos->vz + gWorldShift[2];
     ProjectToScreen(&world, &screen);
@@ -1331,7 +1331,7 @@ void DrawToolPole(VECTOR *pos) {
     GsLINE line;
     s16 g;
 
-    g = ((rsin(gFrameCount * 10 % 360 * 4096 / 360) * 50) >> 12) + 160;
+    g = ((rsin(ANGLE_DEG(gFrameCount * 10 % 360)) * 50) >> 12) + 160;
     line.attribute = 0;
     line.r = 0xFF;
     line.g = g;

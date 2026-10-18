@@ -19,7 +19,7 @@ void StepTrapAct1D(StageTrap *t) {
             break;
         case 1:
             t->timer++;
-            t->rotX = Lerp(0, -0x400, t->timer, 5);
+            t->rotX = Lerp(0, -ANGLE_DEG(90), t->timer, 5);
             if (t->timer == 5) {
                 t->timer = 0;
                 t->state++;
@@ -31,8 +31,8 @@ void StepTrapAct1D(StageTrap *t) {
         case 2:
             t->timer++;
             if ((u16)(t->timer % 3) == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * (10 * (rand() % 10))) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * (10 * (rand() % 10))) >> 12);
+                v.vx = t->x + (rsin((t->rotY + ANGLE_DEG(180)) * (10 * (rand() % 10))) >> 12);
+                v.vz = t->z + (rcos((t->rotY + ANGLE_DEG(180)) * (10 * (rand() % 10))) >> 12);
                 v.vy = t->y;
                 ScatterDust(&v);
             }

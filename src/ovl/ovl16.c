@@ -102,9 +102,9 @@ void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
         if (t->timer < 150 && speed != 0) {
             t->timer++;
             if (mode == 0 || mode == 2) {
-                t->rotY = GetPathDirection(t) + dir * 2048;
+                t->rotY = GetPathDirection(t) + dir * ANGLE_DEG(180);
             }
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
         }
@@ -132,9 +132,9 @@ void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             t->state++;
         case 2:
             if (t->homeRotZ == 0) {
-                PolarToXZ((s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                PolarToXZ((s16)speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             } else {
-                PolarToXZ(-(s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                PolarToXZ(-(s16)speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             }
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
@@ -164,15 +164,15 @@ void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {
             if ((s8)startSide != 1) {
                 if ((s8)startSide == 2) {
                     if (t->homeRotZ != 0) {
-                        PolarToXZ(-10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+                        PolarToXZ(-10, ANGLE_TO_DEG(t->rotY + ANGLE_DEG(90)), (Vec3 *)gOffsetVec);
                     } else {
-                        PolarToXZ(10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+                        PolarToXZ(10, ANGLE_TO_DEG(t->rotY + ANGLE_DEG(90)), (Vec3 *)gOffsetVec);
                     }
                 }
             } else if (t->homeRotZ == 0) {
-                PolarToXZ(-10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+                PolarToXZ(-10, ANGLE_TO_DEG(t->rotY + ANGLE_DEG(90)), (Vec3 *)gOffsetVec);
             } else {
-                PolarToXZ(10, (t->rotY + 0x400) * 360 / 4096, (Vec3 *)gOffsetVec);
+                PolarToXZ(10, ANGLE_TO_DEG(t->rotY + ANGLE_DEG(90)), (Vec3 *)gOffsetVec);
             }
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
@@ -400,7 +400,7 @@ void StepStageFrame(void) {
     s32 v;
 
     if (*(s8 *)&gFellOff == 0) {
-        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + 0x800;
+        gCourse.rot.vy = UpdateCamera(gPlayer.x, gPlayer.y, gPlayer.z, gFloorY[0]) + ANGLE_DEG(180);
     }
     gPlayer.editorY = gPlayer.groundY;
     v = FindFloorNear(&gPlayer.x, gFloorY, gFloorIndex);
@@ -481,15 +481,15 @@ s8 StepGoalCutscene(StageTrap *t) {
                 sShotView[0] = rsin(gCourse.rot.vy + 0x8E3) * 200 >> 12;
                 sShotView[2] = rcos(gCourse.rot.vy + 0x8E3) * 200 >> 12;
                 sShotView[1] = gPlayer.y - 80;
-                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 sShotView[4] = gPlayer.y - 130;
                 t->homeRotZ = 0;
                 gRefView[0] = rsin(gCourse.rot.vy + 0x8E3) * 30 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x8E3) * 30 >> 12;
                 gRefView[1] = gPlayer.y - 100;
-                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 gRefView[4] = gPlayer.y - 130;
                 t->timer = 0;
                 t->state++;
@@ -522,14 +522,14 @@ s8 StepGoalCutscene(StageTrap *t) {
                 sShotView[0] = rsin(gCourse.rot.vy + 0x71D) * 200 >> 12;
                 sShotView[2] = rcos(gCourse.rot.vy + 0x71D) * 200 >> 12;
                 sShotView[1] = gPlayer.y - 200;
-                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 sShotView[4] = gPlayer.y - 130;
                 gRefView[0] = rsin(gCourse.rot.vy + 0x71D) * 30 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy + 0x71D) * 30 >> 12;
                 gRefView[1] = gPlayer.y - 150;
-                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 gRefView[4] = gPlayer.y - 130;
                 t->homeRotZ = 0;
                 t->timer = 0;
@@ -560,17 +560,17 @@ s8 StepGoalCutscene(StageTrap *t) {
                 gPlayer.curMotion[0] = MOT_OFF;
                 gPlayer.action = ACT_STOP_WAIT_START;
                 gFellOff = 1;
-                sShotView[0] = rsin(gCourse.rot.vy + 0x800) * 200 >> 12;
-                sShotView[2] = rcos(gCourse.rot.vy + 0x800) * 200 >> 12;
+                sShotView[0] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 200 >> 12;
+                sShotView[2] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 200 >> 12;
                 sShotView[1] = gPlayer.y - 150;
-                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                sShotView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 sShotView[4] = gPlayer.y - 150;
-                gRefView[0] = rsin(gCourse.rot.vy + 0x800) * 30 >> 12;
-                gRefView[2] = rcos(gCourse.rot.vy + 0x800) * 30 >> 12;
+                gRefView[0] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 30 >> 12;
+                gRefView[2] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 30 >> 12;
                 gRefView[1] = gPlayer.y - 150;
-                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                 gRefView[4] = gPlayer.y - 150;
                 t->homeRotZ = 0;
                 t->timer = 0;
@@ -596,17 +596,17 @@ s8 StepGoalCutscene(StageTrap *t) {
                 t->state++;
                 StartScreenWipe();
                 gFellOff = 1;
-                sShotView[0] = rsin(gCourse.rot.vy + 0x800) * 300 >> 12;
-                sShotView[2] = rcos(gCourse.rot.vy + 0x800) * 300 >> 12;
+                sShotView[0] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 300 >> 12;
+                sShotView[2] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 300 >> 12;
                 sShotView[1] = gPlayer.y - 250;
-                sShotView[3] = rsin(gCourse.rot.vy + 0x800) * 1500 >> 12;
-                sShotView[5] = rcos(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                sShotView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 1500 >> 12;
+                sShotView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 1500 >> 12;
                 sShotView[4] = gPlayer.y - 400;
                 gRefView[0] = rsin(gCourse.rot.vy) * 500 >> 12;
                 gRefView[2] = rcos(gCourse.rot.vy) * 500 >> 12;
                 gRefView[1] = gPlayer.y - 250;
-                gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 1500 >> 12;
-                gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 1500 >> 12;
+                gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 1500 >> 12;
+                gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 1500 >> 12;
                 gRefView[4] = gPlayer.y - 200;
                 t->homeRotZ = 0;
             }

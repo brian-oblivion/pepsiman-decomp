@@ -20,7 +20,7 @@ void StepTrapAct27(StageTrap *t) {
             break;
         case 1:
             t->timer++;
-            PolarToXZ(50, (gCourse.rot.vy + 0x800) * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(50, ANGLE_TO_DEG(gCourse.rot.vy + ANGLE_DEG(180)), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             for (i = 0; i < 8; i++) {

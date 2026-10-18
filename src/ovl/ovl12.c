@@ -147,7 +147,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 t->y = t->homeY;
             }
             t->y -= 120;
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (speed != 0) {
@@ -160,7 +160,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                 }
                 switch (dir) {
                     case 2:
-                        t->rotY = GetPathDirection(t) + 0x800;
+                        t->rotY = GetPathDirection(t) + ANGLE_DEG(180);
                         break;
                     case 3:
                         DrawTrapWarning(t);
@@ -168,7 +168,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
                         t->rotY = GetPathDirection(t);
                         break;
                     case 4:
-                        PolarToXZ(-(speed * 2), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                        PolarToXZ(-(speed * 2), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                         t->x += gOffsetVec[0] >> 12;
                         t->z += gOffsetVec[2] >> 12;
                         if (arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
@@ -246,7 +246,7 @@ void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {
                 PlaySe(0x58);
                 break;
             }
-            PolarToXZ(s >> 2, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(s >> 2, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
@@ -348,7 +348,7 @@ void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {
             SnapToFloor(t);
             t->y -= 100;
             t->rotX += ((s16)((s16)speed / 3) << 12) / 360;
-            PolarToXZ((s16)speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ((s16)speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (near < 2 && (u16)(t->timer % 20) == 0 && gPlayer.invulnTimer == 0 &&
@@ -473,8 +473,8 @@ void UpdateGoalEventHook(void) {
                     gRefView[0] = rsin(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[2] = rcos(gCourse.rot.vy + 0xCE3) * 300 >> 12;
                     gRefView[1] = gPlayer.y - 270;
-                    gRefView[3] = rsin(gCourse.rot.vy + 0x800) * 50 >> 12;
-                    gRefView[5] = rcos(gCourse.rot.vy + 0x800) * 50 >> 12;
+                    gRefView[3] = rsin(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
+                    gRefView[5] = rcos(gCourse.rot.vy + ANGLE_DEG(180)) * 50 >> 12;
                     t->homeRotZ = 0;
                     t->timer = 0;
                     gRefView[4] = gPlayer.y - 100;
@@ -588,7 +588,7 @@ s32 StepStage4_1Dropper(StageTrap *t) {
             SnapToFloor(t);
             t->timer++;
             t->y -= 20;
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (gSection - UpdatePathSegment(t) < 2) {
@@ -662,7 +662,7 @@ void StepTrapFFAct65(StageTrap *t, s32 arg) {
 
     switch (t->state) {
         case 0:
-            PolarToXZ(-10, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(-10, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             t->timer += 10;
@@ -678,7 +678,7 @@ void StepTrapFFAct65(StageTrap *t, s32 arg) {
             }
             break;
         case 1:
-            PolarToXZ(-10, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(-10, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             t->timer += 10;

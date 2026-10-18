@@ -8,7 +8,7 @@ void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {
             if (LatchProximity(t, 2000) != 0) {
                 PlaySe(110);
             }
-            PolarToXZ(speed, t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);

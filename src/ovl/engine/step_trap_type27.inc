@@ -39,7 +39,7 @@ void StepTrapType27(StageTrap *t, s32 arg) {
             }
             break;
         case 4:
-            t->rotX = -Lerp(0, 0x400, t->timer, 10);
+            t->rotX = -Lerp(0, ANGLE_DEG(90), t->timer, 10);
             if (++t->timer >= 11) {
                 t->timer = 0;
                 t->state++;

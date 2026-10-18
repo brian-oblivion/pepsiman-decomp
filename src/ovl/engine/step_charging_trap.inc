@@ -21,7 +21,7 @@ void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {
             SnapToFloor(t);
             if (++t->timer < 5) {
                 t->y -= 20;
-                PolarToXZ(-(s16)(speed / 3), t->rotY * 360 / 4096, (Vec3 *)gOffsetVec);
+                PolarToXZ(-(s16)(speed / 3), ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
                 t->x += gOffsetVec[0] >> 12;
                 t->z += gOffsetVec[2] >> 12;
             } else {

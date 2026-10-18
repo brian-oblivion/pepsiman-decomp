@@ -54,8 +54,8 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
         if ((t->x + gWorldShift[0] >= 0 ? t->x + gWorldShift[0] : -(t->x + gWorldShift[0])) < 2000) {
             if ((t->z + gWorldShift[2] >= 0 ? t->z + gWorldShift[2] : -(t->z + gWorldShift[2])) < 2000 &&
                 t->timer % 3 == 0) {
-                v.vx = t->x + (rsin((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
-                v.vz = t->z + (rcos((t->rotY + 0x800) * (rand() % 10 * 10)) >> 12);
+                v.vx = t->x + (rsin((t->rotY + ANGLE_DEG(180)) * (rand() % 10 * 10)) >> 12);
+                v.vz = t->z + (rcos((t->rotY + ANGLE_DEG(180)) * (rand() % 10 * 10)) >> 12);
                 v.vy = t->y;
                 ScatterDust(&v);
             }

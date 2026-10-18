@@ -102,9 +102,9 @@ void StepChasePlayer(void) {
 clamp:
     g = &gPlayer;
     x = g->yaw;
-    v = gCourse.rot.vy - 0x155;
+    v = gCourse.rot.vy - ANGLE_DEG(30);
     if (x >= v) {
-        hi = gCourse.rot.vy + 0x155;
+        hi = gCourse.rot.vy + ANGLE_DEG(30);
         if (x <= hi) {
             v = x;
         } else {
@@ -1297,7 +1297,7 @@ s32 StepChaseFrame(void) {
             sCan.lidX = -0x1130;
             sCan.lidY = 0;
             sCan.lidZ = -300;
-            sCanRot[1].vy = 0x400;
+            sCanRot[1].vy = ANGLE_DEG(90);
             sCanRot[1].vx = 0;
             sCanRot[1].vz = 0;
             gMissState = 0;
@@ -1308,7 +1308,7 @@ s32 StepChaseFrame(void) {
             gPlayer.y = 0;
             gPlayer.z = -300;
             gPlayer.control = 0;
-            gCourse.rot.vy = 0x800;
+            gCourse.rot.vy = ANGLE_DEG(180);
             sRec.canInSub = 0;
             gPlayer.curMotion[1] = MOT_DEFAULT;
             sSubStep = 0;
@@ -1427,7 +1427,7 @@ s32 StepChaseFrame(void) {
                     sCan.y -= sRec.fall;
                     sCanRot[0].vz -= 0x88;
                     if (++sRec.timer == 60) {
-                        gCourse.rot.vy = -0x400;
+                        gCourse.rot.vy = -ANGLE_DEG(90);
                         gPlayer.x = -1000;
                         gPlayer.y = 0;
                         gPlayer.z = 0;
@@ -1476,7 +1476,7 @@ s32 StepChaseFrame(void) {
                     SpawnEffect(4, sCan.x, -50 - rand() % 50, rand() % 500 - 250, 0);
                     sCan.y = rsin(gFrameCount * 40960 / 360) * 100 / 4096;
                     sCan.y = ABS(sCan.y) - 140;
-                    sCanRot[0].vx = 0x800;
+                    sCanRot[0].vx = ANGLE_DEG(180);
                     sCanRot[0].vy = 0;
                     sCanRot[0].vz = -(gFrameCount * 49152 / 360);
                     if (++sRec.timer == 30) {
@@ -1536,7 +1536,7 @@ s32 StepChaseFrame(void) {
             }
             break;
         case 2:
-            gCourse.rot.vy = -0x400;
+            gCourse.rot.vy = -ANGLE_DEG(90);
             gView[0] = 700;
             gView[1] = -200;
             gView[2] = 0;
@@ -1601,7 +1601,7 @@ s32 StepChaseFrame(void) {
                 t = rsin(gFrameCount * 40960 / 360) * 100;
                 sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
             }
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);
@@ -1720,7 +1720,7 @@ s32 StepChaseFrame(void) {
             sAct3Coords[0].coord.t[0] = sCan.x + gWorldShift[0];
             t = rsin(gFrameCount * 40960 / 360) * 100;
             sAct3Coords[0].coord.t[1] = sCan.y + gWorldShift[1] - ABS_GE(t / 4096);
-            sCanRot[0].vx = 0x800;
+            sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             sCanRot[0].vz = -(gFrameCount * 49152 / 360);

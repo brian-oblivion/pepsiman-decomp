@@ -238,7 +238,7 @@ void StepOpening(void) {
             gPlayer.speed = 0;
             gPlayer.x = 0;
             gPlayer.y = 100;
-            gPlayer.yaw = 0x800;
+            gPlayer.yaw = ANGLE_DEG(180);
             sView.vpx = 500;
             sView.vpy = -100;
             sView.vpz = 0;
@@ -799,12 +799,12 @@ void StepMainMenu(void) {
             /* MATCHING: the bob in a block-local with an (s16) cast; a shared
              * local takes the division's register, no cast folds the + 8. */
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
             DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
             }
             DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -866,12 +866,12 @@ void StepMainMenu(void) {
             DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
             DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
             }
             DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -1013,12 +1013,12 @@ void StepMainMenu(void) {
             DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
             DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
             }
             DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -1217,12 +1217,12 @@ void StepMainMenu(void) {
             if (sOptionsCursor == 0) {
                 p2.vy = pos.vy;
                 {
-                    s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                    s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                     p2.vx = pos.vx - (b >= 0 ? b : -b);
                 }
                 DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 {
-                    s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                    s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                     p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
                 }
                 DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -1245,12 +1245,12 @@ void StepMainMenu(void) {
                 if (sOptionsCursor == 1) {
                     p2.vy = pos.vy;
                     {
-                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx - (b >= 0 ? b : -b);
                     }
                     DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     {
-                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
                     }
                     DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -1286,12 +1286,12 @@ void StepMainMenu(void) {
                     sMenuScene = 3;
                     p2.vy = pos.vy;
                     {
-                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx - (b >= 0 ? b : -b);
                     }
                     DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     {
-                        s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                        s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
                     }
                     DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -1596,12 +1596,12 @@ void StepMainMenu(void) {
             DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
             DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
-                s32 b = rsin(gFrameCount * 0xA000 / 360) / 512;
+                s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x48);
             }
             DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
@@ -2446,7 +2446,7 @@ void StepTitle(void) {
             sView.vry = -150;
             sView.vrz = 0;
             gPlayer.x = -10000;
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.action = ACT_MODEL_LOOP;
             gPlayer.y = 0;
             gPlayer.z = 0;
@@ -2484,9 +2484,9 @@ void StepTitle(void) {
             break;
         case 110:
             gPlayer.x += 50;
-            sView.vpx = gPlayer.x + rsin((-sTitleCamTime * 12 + 90) * 4096 / 360) * 250 / 4096;
+            sView.vpx = gPlayer.x + rsin(ANGLE_DEG(-sTitleCamTime * 12 + 90)) * 250 / 4096;
             sView.vpy = -150;
-            sView.vpz = rcos((-sTitleCamTime * 12 + 90) * 4096 / 360) * 150 / 4096;
+            sView.vpz = rcos(ANGLE_DEG(-sTitleCamTime * 12 + 90)) * 150 / 4096;
             sView.vry = -150;
             sView.vrz = 0;
             sView.vrx = gPlayer.x;
@@ -2558,7 +2558,7 @@ void StepTitle(void) {
             break;
         case 1000:
             gPlayer.x = 11000;
-            gPlayer.yaw = -0x400;
+            gPlayer.yaw = -ANGLE_DEG(90);
             gPlayer.action = ACT_MODEL_LOOP;
             gPlayer.y = 0;
             gPlayer.z = 0;
@@ -2578,7 +2578,7 @@ void StepTitle(void) {
                 if (sTitleStarted == 0) {
                     MemCardAccept(0);
                     PlaySe(SE_POWER_UP);
-                    gPlayer.yaw = 0x400;
+                    gPlayer.yaw = ANGLE_DEG(90);
                     gPlayer.action = ACT_MODEL_ONCE;
                     gPlayer.motion[0] = MOT_STOP_WAIT;
                     sTitleExitTime = 1;

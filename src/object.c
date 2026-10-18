@@ -480,23 +480,23 @@ void PushPlayerFromWalls(void) {
     VECTOR pos;
     s32 idx;
 
-    pos.vx = gPlayer.x + (rsin(gCourse.rot.vy + 0x200) * 50 >> 12);
+    pos.vx = gPlayer.x + (rsin(gCourse.rot.vy + ANGLE_DEG(45)) * 50 >> 12);
     pos.vy = gPlayer.y;
-    pos.vz = gPlayer.z + (rcos(gCourse.rot.vy + 0x200) * 50 >> 12);
+    pos.vz = gPlayer.z + (rcos(gCourse.rot.vy + ANGLE_DEG(45)) * 50 >> 12);
     idx = gFloorIndex;
     StepFloorIndex(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
-        gPlayer.x -= rsin(gCourse.rot.vy + 0x400) * 25 >> 12;
-        gPlayer.z -= rcos(gCourse.rot.vy + 0x400) * 25 >> 12;
+        gPlayer.x -= rsin(gCourse.rot.vy + ANGLE_DEG(90)) * 25 >> 12;
+        gPlayer.z -= rcos(gCourse.rot.vy + ANGLE_DEG(90)) * 25 >> 12;
     }
-    pos.vx = gPlayer.x + (rsin(gCourse.rot.vy - 0x200) * 50 >> 12);
+    pos.vx = gPlayer.x + (rsin(gCourse.rot.vy - ANGLE_DEG(45)) * 50 >> 12);
     pos.vy = gPlayer.y;
-    pos.vz = gPlayer.z + (rcos(gCourse.rot.vy - 0x200) * 50 >> 12);
+    pos.vz = gPlayer.z + (rcos(gCourse.rot.vy - ANGLE_DEG(45)) * 50 >> 12);
     idx = gFloorIndex;
     StepFloorIndex(&idx, pos.vx, pos.vz);
     if (QueryWall(idx, &pos, (FloorHdr *)gFloorData)) {
-        gPlayer.x -= rsin(gCourse.rot.vy - 0x400) * 25 >> 12;
-        gPlayer.z -= rcos(gCourse.rot.vy - 0x400) * 25 >> 12;
+        gPlayer.x -= rsin(gCourse.rot.vy - ANGLE_DEG(90)) * 25 >> 12;
+        gPlayer.z -= rcos(gCourse.rot.vy - ANGLE_DEG(90)) * 25 >> 12;
     }
     CheckForcedThrowBack();
 }
@@ -811,7 +811,7 @@ void UpdateTrapViewer(void) {
     gTraps[1] = 0;
     gTraps[2] = 0;
     ((s16 *)gTraps)[12] = 0;
-    ((s16 *)gTraps)[13] = gFrameCount % 360 * 4096 / 360;
+    ((s16 *)gTraps)[13] = ANGLE_DEG(gFrameCount % 360);
     ((s16 *)gTraps)[14] = 0;
     UpdateObjectEntry(&gObjectModels[gSelectedSection], (Trap *)gTraps);
     ReactToHits(&gPlayer);
@@ -866,7 +866,7 @@ void UpdateTrapLayoutViewer(void) {
             gPlaceQueue.y = 0;
             gPlaceQueue.z = 0;
             gPlaceQueue.rotX = 0;
-            gPlaceQueue.rotY = gFrameCount % 360 * 4096 / 360;
+            gPlaceQueue.rotY = ANGLE_DEG(gFrameCount % 360);
             gPlaceQueue.rotZ = 0;
             gPlaceCount = PlaceStageTrap(gSelectedSection, (s32)&gPlaceQueue, (s32)gTraps);
             gModeStep++;
@@ -887,7 +887,7 @@ void UpdateTrapLayoutViewer(void) {
                 gModeStep = 1;
             }
             ResetCollision();
-            ((TrapPlaced *)gTraps)->o.rotY = gFrameCount % 360 * 4096 / 360;
+            ((TrapPlaced *)gTraps)->o.rotY = ANGLE_DEG(gFrameCount % 360);
             UpdateObjectEntry(&gObjectModels[((TrapPlaced *)gTraps)->model], (Trap *)gTraps);
             for (i = 1; i < gPlaceCount; i++) {
                 /* MATCHING: both bases assigned in the loop, hoisted after the guard. */
@@ -1122,11 +1122,11 @@ s32 StepDrift(Drifter *d) {
     if (d->count < 15) {
         d->count++;
         ret = d->count % 3 != 0;
-        PolarToXZ(20, gCourse.rot.vy * 360 / 4096, (Vec3 *)gOffsetVec);
+        PolarToXZ(20, ANGLE_TO_DEG(gCourse.rot.vy), (Vec3 *)gOffsetVec);
         d->x -= ((Vec3 *)gOffsetVec)->x >> 12;
         d->z -= ((Vec3 *)gOffsetVec)->z >> 12;
         d->phase = (d->phase + 10) % 360;
-        b = rsin(d->phase * 4096 / 360) * 200 >> 12;
+        b = rsin(ANGLE_DEG(d->phase)) * 200 >> 12;
         y = d->baseY;
         if (b < 0) {
             b = -b;
@@ -1180,7 +1180,7 @@ void PolarToXZ(s32 r, s32 deg, Vec3 *out) {
     s32 a;
 
     /* MATCHING: deg is s32, narrowed here; StepDrift passes it unextended. */
-    a = (s16)deg * 4096 / 360;
+    a = ANGLE_DEG((s16)deg);
     out->x = rsin(a) * r;
     out->z = rcos(a) * r;
 }
@@ -1397,9 +1397,9 @@ void StepSprite(s16 id, StageSprite *r) {
  *         times the sine of 0..180 degrees, out[0] -60..60 degrees and
  *         out[2] 0..20 degrees, in 4096ths of a turn. */
 void InterpSwing(s16 r, u16 t, u16 n, s32 *out) {
-    out[1] = rsin((s16)Lerp(0, 180, t, n) * 4096 / 360) * r;
-    out[0] = (s16)Lerp(-60, 60, t, n) * 4096 / 360;
-    out[2] = (s16)Lerp(0, 20, t, n) * 4096 / 360;
+    out[1] = rsin(ANGLE_DEG((s16)Lerp(0, 180, t, n))) * r;
+    out[0] = ANGLE_DEG((s16)Lerp(-60, 60, t, n));
+    out[2] = ANGLE_DEG((s16)Lerp(0, 20, t, n));
 }
 
 /** @brief Interpolates from 0 towards `b` by `t`/`n`, into out[1]. */

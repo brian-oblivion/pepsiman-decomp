@@ -12,10 +12,10 @@ void SwingGateContinuously(StageTrap *t, s8 arg) {
             t->timer++;
             switch (t->homeX) {
                 case 0:
-                    c.rotY = t->homeRotY - Lerp(0, 0x800, t->timer, 40);
+                    c.rotY = t->homeRotY - Lerp(0, ANGLE_DEG(180), t->timer, 40);
                     break;
                 case 1:
-                    c.rotY = t->homeRotY - Lerp(0x800, 0, t->timer, 40);
+                    c.rotY = t->homeRotY - Lerp(ANGLE_DEG(180), 0, t->timer, 40);
                     break;
             }
             if (gSection - UpdatePathSegment(t) < 2) {
@@ -41,7 +41,7 @@ void SwingGateContinuously(StageTrap *t, s8 arg) {
                     c.rotY = 0;
                     break;
                 case 1:
-                    c.rotY = 0x800;
+                    c.rotY = ANGLE_DEG(180);
                     break;
             }
             if (gSection - UpdatePathSegment(t) < 2) {

@@ -17,7 +17,7 @@ void StepDashBoard(StageTrap *t) {
             t->timer++;
             t->rotX = Lerp(0, -0x4E3, t->timer, 3);
             if (t->timer == 3) {
-                t->homeRotY = (t->rotY - 0x800) * 360 / 4096;
+                t->homeRotY = ANGLE_TO_DEG(t->rotY - ANGLE_DEG(180));
                 t->timer = 0;
                 t->state++;
             }

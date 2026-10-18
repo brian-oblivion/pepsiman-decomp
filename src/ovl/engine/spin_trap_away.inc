@@ -15,7 +15,7 @@ void SpinTrapAway(StageTrap *t) {
             }
             break;
         case 1:
-            PolarToXZ(40, t->homeRotY * 360 / 4096, (Vec3 *)gOffsetVec);
+            PolarToXZ(40, ANGLE_TO_DEG(t->homeRotY), (Vec3 *)gOffsetVec);
             t->x -= gOffsetVec[0] >> 12;
             t->z -= gOffsetVec[2] >> 12;
             t->timer = (t->timer + 10) % 360;

@@ -141,7 +141,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             }
         case 1:
             if (LatchProximity(t, 2000) != 0) {
-                PlaySe(0x55);
+                PlaySe(SE_TRUCK_HORN);
             }
             if (SnapToFloor(t) == -1) {
                 t->y = t->homeY;
@@ -243,7 +243,7 @@ void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {
                 t->timer = 0;
                 t->state++;
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
-                PlaySe(0x58);
+                PlaySe(SE_TRAP_SKID);
                 break;
             }
             PolarToXZ(s >> 2, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
@@ -299,7 +299,7 @@ void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {
                 t->state++;
             }
             if (LatchProximity(t, 2000) != 0) {
-                PlaySe(0x54);
+                PlaySe(SE_CAR_HORN);
             }
             if (gSection - UpdatePathSegment(t) < 2) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);

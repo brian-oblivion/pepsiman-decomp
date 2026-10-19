@@ -694,7 +694,7 @@ void StepBouncingRoller(StageTrap *t, s32 arg) {
             }
         }
         if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-            PlaySe(0x39);
+            PlaySe(SE_OBSTACLE_HIT);
         }
     }
 }
@@ -1112,10 +1112,10 @@ void PlaySpriteHitSe(u8 se) {
         case 0:
             break;
         case 1:
-            PlaySe(0x40);
+            PlaySe(SE_MAN_HURT);
             break;
         case 2:
-            PlaySe(0x42);
+            PlaySe(SE_WOMAN_SCREAM);
             break;
         case 3:
             PlaySe(0x44);
@@ -1753,7 +1753,7 @@ void StepSolidTrap(StageTrap *t) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }
     if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x39);
+        PlaySe(SE_OBSTACLE_HIT);
     }
 }
 

@@ -845,7 +845,7 @@ s32 StepChaseFrame(void) {
             if (sSceneTimer < 150) {
                 if (sSceneTimer >= 120) {
                     if (sSceneTimer == 120) {
-                        PlaySe(0x3E);
+                        PlaySe(SE_EXPLOSION);
                         if (gRumbleEnabled) {
                             gRumbleTime = 30;
                             gRumbleSmall[0] = 200;

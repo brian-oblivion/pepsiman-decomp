@@ -13,7 +13,7 @@ void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {
             t->z += gOffsetVec[2] >> 12;
             UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(57);
+                PlaySe(SE_OBSTACLE_HIT);
             }
             break;
     }

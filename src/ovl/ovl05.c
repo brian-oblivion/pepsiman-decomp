@@ -174,7 +174,7 @@ s32 StepChaseFrame(void) {
                     gView[4] = sCan.lidY;
                     gView[5] = sCan.lidZ;
                     if (sSceneTimer % 10 == 0) {
-                        PlaySe(0x54);
+                        PlaySe(SE_CAR_HORN);
                     }
                     if (++sSceneTimer >= 30) {
                         sCan.lidZ = -2000;
@@ -190,7 +190,7 @@ s32 StepChaseFrame(void) {
                     gView[4] = -150;
                     gView[5] = sSceneTimer * 30 - 500;
                     if (sSceneTimer == 10) {
-                        PlaySe(0x58);
+                        PlaySe(SE_TRAP_SKID);
                     }
                     if (++sSceneTimer >= 25) {
                         sCan.lidZ = -500;
@@ -256,7 +256,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[0] = 200;
                             gRumbleSmall[1] = 200;
                         }
-                        PlaySe(0x39);
+                        PlaySe(SE_OBSTACLE_HIT);
                         for (gLoopI = 0; gLoopI < 8; gLoopI++) {
                             SpawnEffect(4, gPlayer.x + rand() % 200 - 100, gPlayer.y + rand() % 200 - 100,
                                         gPlayer.z - (100 - rand() % 200), rand() % 4);
@@ -335,7 +335,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[0] = 200;
                             gRumbleSmall[1] = 200;
                         }
-                        PlaySe(0x39);
+                        PlaySe(SE_OBSTACLE_HIT);
                         for (gLoopI = 0; gLoopI < 16; gLoopI++) {
                             SpawnEffect(4, sCan.x + rand() % 100 - 50, -(rand() % 50),
                                         rand() % 500 - 250, rand() % 4);
@@ -463,7 +463,7 @@ s32 StepChaseFrame(void) {
             }
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
-                PlaySe(0x39);
+                PlaySe(SE_OBSTACLE_HIT);
             }
             sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
@@ -555,7 +555,7 @@ s32 StepChaseFrame(void) {
             }
             if (sSceneTimer < 120) {
                 if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                 }
                 gPlayer.x -= rsin(gPlayer.yaw) * 30 / 4096;
                 gPlayer.z -= rcos(gPlayer.yaw) * 30 / 4096;
@@ -581,7 +581,7 @@ s32 StepChaseFrame(void) {
             if (sSceneTimer < 150) {
                 if (sSceneTimer >= 120) {
                     if (sSceneTimer == 120) {
-                        PlaySe(0x3E);
+                        PlaySe(SE_EXPLOSION);
                         if (gRumbleEnabled) {
                             gRumbleTime = 30;
                             gRumbleSmall[0] = 200;

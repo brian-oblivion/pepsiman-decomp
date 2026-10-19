@@ -63,7 +63,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             }
         case 1:
             if (LatchProximity(t, 2000) != 0) {
-                PlaySe(0x55);
+                PlaySe(SE_TRUCK_HORN);
             }
             if (SnapToFloor(t) == -1) {
                 t->y = t->homeY;

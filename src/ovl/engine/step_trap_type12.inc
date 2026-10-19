@@ -12,7 +12,7 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
             PlaySe(0x53);
         case 1:
             if (LatchProximity(t, 2000) != 0) {
-                PlaySe(0x55);
+                PlaySe(SE_TRUCK_HORN);
             }
             PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             sSpawnedTraps[t->aux].x = t->x += gOffsetVec[0] >> 12;
@@ -22,7 +22,7 @@ void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
                 t->timer = 0;
                 t->state++;
                 t->homeRotY = t->rotY;
-                PlaySe(0x58);
+                PlaySe(SE_TRAP_SKID);
             }
             break;
         case 2:

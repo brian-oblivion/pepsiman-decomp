@@ -116,7 +116,7 @@ void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }
     if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x39);
+        PlaySe(SE_OBSTACLE_HIT);
     }
 }
 
@@ -145,7 +145,7 @@ void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x39);
+                PlaySe(SE_OBSTACLE_HIT);
             }
             if (dir == 1 && arg * arg < DistanceSquared((VECTOR *)&t->homeX, (VECTOR *)t)) {
                 t->state--;

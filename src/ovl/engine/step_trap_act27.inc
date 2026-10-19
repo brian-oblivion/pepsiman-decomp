@@ -12,7 +12,7 @@ void StepTrapAct27(StageTrap *t) {
             }
             if (t->touched != 0) {
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                 }
                 t->timer = 0;
                 t->state++;

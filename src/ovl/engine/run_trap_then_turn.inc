@@ -12,7 +12,7 @@ void RunTrapThenTurn(StageTrap *t, u16 speed, s32 range, s8 dir) {
                 t->state++;
                 t->homeRotY = t->rotY;
                 if (speed > 30) {
-                    PlaySe(88);
+                    PlaySe(SE_TRAP_SKID);
                 }
             }
             if (LatchProximity(t, 2000) != 0) {

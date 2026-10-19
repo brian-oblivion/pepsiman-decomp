@@ -14,7 +14,7 @@ void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {
                 t->timer = 0;
                 t->state++;
                 t->homeRotY = t->rotY;
-                PlaySe(62);
+                PlaySe(SE_EXPLOSION);
             }
             break;
         case 2:
@@ -27,7 +27,7 @@ void StepChargingTrap(StageTrap *t, s16 speed, s32 range) {
             } else {
                 t->timer = 0;
                 t->state++;
-                PlaySe(62);
+                PlaySe(SE_EXPLOSION);
             }
             break;
         case 3:

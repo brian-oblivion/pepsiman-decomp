@@ -165,7 +165,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[0] = 200;
                             gRumbleSmall[1] = 200;
                         }
-                        PlaySe(0x39);
+                        PlaySe(SE_OBSTACLE_HIT);
                         gPlayer.motion[0] = MOT_RIDE_JUMP_2;
                         gPlayer.action = ACT_MODEL_ONCE;
                         for (gLoopI = 0; gLoopI < 8; gLoopI++) {
@@ -251,7 +251,7 @@ s32 StepChaseFrame(void) {
                         gView[5] = gPlayer.z;
                     }
                     if (sSceneTimer >= 60) {
-                        PlaySe(0x55);
+                        PlaySe(SE_TRUCK_HORN);
                         sSceneTimer = 30;
                         sSubStep = 30;
                     }
@@ -504,7 +504,7 @@ s32 StepChaseFrame(void) {
             if (sSceneTimer < 150) {
                 if (sSceneTimer >= 120) {
                     if (sSceneTimer == 120) {
-                        PlaySe(0x3E);
+                        PlaySe(SE_EXPLOSION);
                         if (gRumbleEnabled) {
                             gRumbleTime = 30;
                             gRumbleSmall[0] = 200;

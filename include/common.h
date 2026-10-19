@@ -655,13 +655,21 @@ enum SoundEffect {
     SE_CAN = 0x35,        /**< a can collected */
     SE_TRAP_HIT = 0x37,   /**< a trap touches the player while hittable */
     SE_CRASH = 0x38, /**< a trap bursting or shattering at the player's touch, a chase piece hitting the can or the player, the miss sequence */
+    SE_OBSTACLE_HIT = 0x39, /**< the player runs into a solid trap or a bouncing roller */
     SE_KNOCK_AWAY = 0x3A, /**< the player knocks or slides a trap away; a chase piece reaching the can */
-    SE_LAUNCH = 0x3C, /**< ACT_LAUNCH starts */
-    SE_GET_UP = 0x50, /**< getting up after a fall */
-    SE_TRAP_APPROACH = 0x52, /**< a swell up and down: a running trap coming within 2000 units (the stage's bank) */
-    SE_SPRAY = 0x6A, /**< two hiss bursts, every 10 frames of StepSprayTrap */
-    SE_DASH = 0x71,  /**< the dash starts */
-    SE_ROLLER = 0x81 /**< every 20 frames of STAGE_2_1's roller */
+    SE_LAUNCH = 0x3C,    /**< ACT_LAUNCH starts */
+    SE_EXPLOSION = 0x3E, /**< an explosion: a charging trap blowing up, a chase scene throwing 20 pieces with the camera shaking */
+    SE_MAN_HURT = 0x40, /**< a man's "OWW": a stage sprite of sound kind 1, mostly men, hit by the player */
+    SE_WOMAN_SCREAM = 0x42, /**< a woman's scream: a stage sprite of sound kind 2, mostly women, hit by the player */
+    SE_HOP_LAND = 0x4E,      /**< each landing of a hopping trap */
+    SE_GET_UP = 0x50,        /**< getting up after a fall */
+    SE_TRAP_APPROACH = 0x52, /**< a swell up and down, like a vehicle passing: a running trap coming within 2000 units (the stage's bank) */
+    SE_CAR_HORN = 0x54,      /**< a car horn */
+    SE_TRUCK_HORN = 0x55,    /**< a truck horn */
+    SE_TRAP_SKID = 0x58, /**< a skid: a fast trap turning at the end of its run; also a chase scene */
+    SE_SPRAY = 0x6A,     /**< two hiss bursts, every 10 frames of StepSprayTrap */
+    SE_DASH = 0x71,      /**< the dash starts */
+    SE_ROLLER = 0x81     /**< every 20 frames of STAGE_2_1's roller */
 };
 
 /** @brief StartRumble's patterns: each a single RumbleStep of

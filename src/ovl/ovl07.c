@@ -147,7 +147,7 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
         if (gSection - UpdatePathSegment(t) < 2) {
             UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             if (t->timer * 20 % 180 == 0) {
-                PlaySe(0x4E);
+                PlaySe(SE_HOP_LAND);
             }
         }
         if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {

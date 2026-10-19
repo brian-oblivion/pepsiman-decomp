@@ -431,14 +431,14 @@ s32 StepChasePiece5(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[15], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     o->state = 1;
                     o->timer = 0;
                     o->speed = 45;
                 }
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 45 < gPlayer.z &&
                     gPlayer.z < o->z + 45 && o->y - 80 < gPlayer.y) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
@@ -595,7 +595,7 @@ s32 StepChasePiece7(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[17], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     o->state = 1;
                     o->timer = 0;
                     o->speed = 45;

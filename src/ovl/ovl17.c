@@ -60,7 +60,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
@@ -117,7 +117,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
@@ -173,7 +173,7 @@ s32 StepChasePiece2(Act3Obj *o) {
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
@@ -229,7 +229,7 @@ s32 StepChasePiece3(Act3Obj *o) {
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 40 < gPlayer.x && gPlayer.x < o->x + 40 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 35 < gPlayer.y && gPlayer.y < o->y + 215) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
@@ -483,7 +483,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[1] = 200;
                         }
                         sView = *(GsRVIEW2 *)gView;
-                        PlaySe(0x39);
+                        PlaySe(SE_OBSTACLE_HIT);
                         sSceneTimer = 0;
                         sSubStep = 45;
                     }
@@ -609,7 +609,7 @@ s32 StepChaseFrame(void) {
             }
             sAct3Coords[0].coord.t[2] = sCan.z + gWorldShift[2];
             if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
-                PlaySe(0x39);
+                PlaySe(SE_OBSTACLE_HIT);
             }
             sCanRot[0].vx = ANGLE_DEG(180);
             sCanRot[0].vy = 0;
@@ -701,7 +701,7 @@ s32 StepChaseFrame(void) {
             }
             if (sSceneTimer < 120) {
                 if (gFrameCount % 36 == 0 || gFrameCount % 36 == 18) {
-                    PlaySe(0x39);
+                    PlaySe(SE_OBSTACLE_HIT);
                 }
                 gPlayer.x -= rsin(gPlayer.yaw) * 30 / 4096;
                 gPlayer.z -= rcos(gPlayer.yaw) * 30 / 4096;
@@ -727,7 +727,7 @@ s32 StepChaseFrame(void) {
             if (sSceneTimer < 150) {
                 if (sSceneTimer >= 120) {
                     if (sSceneTimer == 120) {
-                        PlaySe(0x3E);
+                        PlaySe(SE_EXPLOSION);
                         if (gRumbleEnabled) {
                             gRumbleTime = 30;
                             gRumbleSmall[0] = 200;

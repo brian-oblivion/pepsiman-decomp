@@ -170,7 +170,7 @@ void DrawChaseShadow(void) {
     size.vx = 100 - d;
     size.vy = size.vx / 2;
     color.g = color.b = color.cd = 0x40 - d;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_BLOB, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
 /* MATCHING: draw takes a Sprite2D *, a type local to that unit; this

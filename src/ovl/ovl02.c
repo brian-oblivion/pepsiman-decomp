@@ -15,6 +15,87 @@
 #include "spad.h"
 #include "world_intro.h"
 
+/* Each screen of this overlay defines its own sprites from SPR_STAGE on,
+ * so the same id is a different picture on each. Each name says what its
+ * picture shows; an id left as a number is one whose picture does not say
+ * what it is. */
+
+/** @brief The opening's sprites (StepOpening). */
+enum OpeningSprite {
+    SPR_KID_LOGO = 0x1E /**< the developer's logo, white, in 3 strips: 128, 128 and 64 wide */
+};
+
+/** @brief The title screen's sprites (StepTitle). */
+enum TitleSprite {
+    SPR_TITLE_LOGO = 0x1E,        /**< the PEPSIMAN logo, a billboard */
+    SPR_TITLE_PRESS_START = 0x1F, /**< 2 layers of "PRESS START" at one spot: added, then subtracted */
+    SPR_TITLE_COPYRIGHT = 0x21 /**< 2 layers of the trademark and copyright lines: opaque, then subtracted */
+};
+
+/** @brief The menus' sprites (DefineMenuSprites): captions, digits, the
+ *         cursor frames and the memory card messages. */
+enum MenuSprite {
+    SPR_MENU_GAME_START = 0x1E,  /**< the first of 7 menu items, sMenuItems[i] from here */
+    SPR_MENU_CONTINUE = 0x1F,    /**< "CONTINUE" */
+    SPR_MENU_FREE_PLAY = 0x20,   /**< "FREE PLAY" */
+    SPR_MENU_EXPERT_MODE = 0x21, /**< "EXPERT MODE" */
+    SPR_MENU_OPTION = 0x22,      /**< "OPTION" */
+    SPR_MENU_LOAD = 0x23,        /**< "LOAD" */
+    SPR_MENU_SAVE = 0x24,        /**< "SAVE" */
+    SPR_MENU_ALL_STAGE = 0x25,   /**< "ALL STAGE" */
+    SPR_MENU_STAGE_1 = 0x26,     /**< 4 captions, "STAGE 1" to "STAGE 4" */
+    SPR_MENU_SCENE_1 = 0x2A,     /**< "SCENE 1" */
+    SPR_MENU_SCENE_2 = 0x2B,     /**< "SCENE 2" */
+    SPR_MENU_SCENE_3 = 0x2C,     /**< "SCENE 3" */
+    SPR_MENU_PEPSI_TIME = 0x2D,  /**< "PEPSI TIME", small */
+    SPR_MENU_DIGIT = 0x2E,       /**< 10 8x8 digits */
+    SPR_MENU_COLON = 0x38,       /**< the time's separator */
+    SPR_MENU_SLASH = 0x39,       /**< the slash of "n/100" */
+    SPR_MENU_SOUND = 0x3A,       /**< "SOUND" */
+    SPR_MENU_VIBRATION = 0x3B,   /**< "VIBRATION" */
+    SPR_MENU_PEPSIMAN = 0x3C,    /**< "PEPSIMAN": the costume option */
+    SPR_MENU_KEY_CONFIG = 0x3D,  /**< "KEY CONFIG" */
+    SPR_MENU_EXIT = 0x3E,        /**< "EXIT" */
+    SPR_MENU_JUMP = 0x3F,        /**< "JUMP" */
+    SPR_MENU_SLIDING = 0x40,     /**< "SLIDING" */
+    SPR_MENU_BRAKE_DASH = 0x41,  /**< "BRAKE & DASH" */
+    SPR_MENU_TYPE_A = 0x42,      /**< 4 captions, "TYPE A" to "TYPE D": the button layouts */
+    SPR_MENU_STEREO = 0x46,      /**< "STEREO" */
+    SPR_MENU_MONO = 0x47,        /**< "MONO" */
+    SPR_MENU_ON = 0x48,          /**< "ON" */
+    SPR_MENU_OFF = 0x49,         /**< "OFF" */
+    SPR_MENU_NEW = 0x4A,         /**< "NEW": a costume */
+    SPR_MENU_OLD = 0x4B,         /**< "OLD": a costume */
+    SPR_MENU_WIRE = 0x4C,        /**< "WIRE": a costume */
+    SPR_MENU_STEALTH = 0x4D,     /**< "STELTH", so spelled on screen: a costume */
+    SPR_MENU_ARROW_LEFT = 0x4E,  /**< a left arrow beside a choice */
+    SPR_MENU_ARROW_RIGHT = 0x4F, /**< a right arrow beside a choice */
+    SPR_MENU_FRAME = 0x53,       /**< a rounded yellow frame, 160 wide: DrawMenuCursor kind 1 */
+    SPR_MENU_FRAME_SMALL = 0x54, /**< 128 wide: kind 2 */
+    SPR_MENU_FRAME_WIDE = 0x55, /**< the left 144 of a 280-wide frame, then its right 136: kind 3 */
+    SPR_MENU_CHECKING_CARD = 0x57, /**< the first of 18 memory card messages: "CHECKING MEMORY CARD" */
+    SPR_MENU_NO_DATA = 0x58,       /**< "NO DATA" */
+    SPR_MENU_INSERT_CARD = 0x59,   /**< "INSERT MEMORY CARD" */
+    SPR_MENU_DATA_LOAD = 0x5A,     /**< "DATA LOAD", with "YES" and "NO" */
+    SPR_MENU_DATA_SAVE = 0x5B,     /**< "DATA SAVE", with "YES" and "NO" */
+    SPR_MENU_OVERWRITE = 0x5C,     /**< "OVER WRITE", with "OK" and "NO" */
+    SPR_MENU_LOADING = 0x5D,       /**< "DATA LOADING" */
+    SPR_MENU_SAVING = 0x5E,        /**< "DATA SAVING" */
+    SPR_MENU_SAVE_FAILED = 0x5F,   /**< "SAVE FAILED" */
+    SPR_MENU_LOAD_FAILED = 0x60,   /**< "LOAD FAILED" */
+    SPR_MENU_UNFORMATTED = 0x61,   /**< "MEMORY CARD UNFORMAT" */
+    SPR_MENU_FORMAT = 0x62,        /**< "FORMAT", with "YES" and "NO" */
+    SPR_MENU_FORMATTING = 0x63,    /**< "FORMATTING" */
+    SPR_MENU_FORMAT_FAILED = 0x64, /**< "FORMAT FAILED" */
+    SPR_MENU_CARD_FULL = 0x65,     /**< "MEMORY CARD IS FULL" */
+    SPR_MENU_COMPLETE = 0x66,      /**< "COMPLETE" */
+    SPR_MENU_DATA_BROKEN = 0x67,   /**< "SAVE DATA IS BROKEN" */
+    SPR_MENU_CARD_ERROR = 0x68,    /**< "MEMORY CARD ERROR" */
+    SPR_MENU_BUTTON_CIRCLE = 0x69, /**< the circle button; the cross and square follow */
+    SPR_MENU_BUTTON_CROSS = 0x6A,  /**< the cross button */
+    SPR_MENU_BUTTON_SQUARE = 0x6B  /**< the square button */
+};
+
 /* MATCHING: non-static inline, emitted at the file's end in this order. */
 inline void DrawTitlePlayerShadow(void);
 inline void DrawTitleGroundShadow(void);
@@ -208,9 +289,9 @@ void StepOpening(void) {
 
     switch (gSubStep) {
         case 50:
-            DefineSprite(0x1E, 0, 0x80, 0xF0, 0x15, 0, 0, 0, 0x1F3);
-            DefineSprite(0x1F, 0, 0x80, 0xF0, 0x15, 0x80, 0, 0, 0x1F3);
-            DefineSprite(0x20, 0, 0x40, 0xF0, 0x16, 0, 0, 0, 0x1F3);
+            DefineSprite(SPR_KID_LOGO, 0, 0x80, 0xF0, 0x15, 0, 0, 0, 0x1F3);
+            DefineSprite(SPR_KID_LOGO + 1, 0, 0x80, 0xF0, 0x15, 0x80, 0, 0, 0x1F3);
+            DefineSprite(SPR_KID_LOGO + 2, 0, 0x40, 0xF0, 0x16, 0, 0, 0, 0x1F3);
             sLights.l[0].r = 0x80;
             sLights.l[0].g = 0x80;
             sLights.l[0].b = 0x80;
@@ -255,11 +336,11 @@ void StepOpening(void) {
             color.g = color.b = color.cd = 0x80;
             pos.vx = -160;
             pos.vy = -120;
-            DrawSprite(0x1E, &pos, (CVECTOR *)&color, 1, gCurOt);
+            DrawSprite(SPR_KID_LOGO, &pos, (CVECTOR *)&color, 1, gCurOt);
             pos.vx += 0x80;
-            DrawSprite(0x1F, &pos, (CVECTOR *)&color, 1, gCurOt);
+            DrawSprite(SPR_KID_LOGO + 1, &pos, (CVECTOR *)&color, 1, gCurOt);
             pos.vx += 0x80;
-            DrawSprite(0x20, &pos, (CVECTOR *)&color, 1, gCurOt);
+            DrawSprite(SPR_KID_LOGO + 2, &pos, (CVECTOR *)&color, 1, gCurOt);
             if (sFadeMode == 1) {
                 sOpeningTime++;
                 gPlayer.z += 20;
@@ -295,36 +376,36 @@ void DrawCansAndTime(SVECTOR *pos, s32 count, s32 frames) {
     color.g = color.b = color.cd = 0x80;
     x = pos->vx;
     pos->vx -= 8;
-    DrawSprite(0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 8;
-    DrawSprite(0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 8;
-    DrawSprite(0x2F, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_MENU_DIGIT + 1, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 8;
-    DrawSprite(0x39, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_MENU_SLASH, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     n = count;
     dead = (u32)frames / 100;
     count /= 10;
     pos->vx -= 8;
-    DrawSprite(n % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     if (count != 0) {
         pos->vx -= 8;
-        DrawSprite(count % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(count % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     if (n / 100 != 0) {
         pos->vx -= 8;
-        DrawSprite(n / 100 % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(n / 100 % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     n = frames * 100 / 30;
     d = n;
     d /= 10;
     pos->vx = x - 8;
     pos->vy += 8;
-    DrawSprite(n % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 8;
-    DrawSprite(d % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 8;
-    DrawSprite(0x38, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_MENU_COLON, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     sec = frames / 30;
     m = sec / 60;
     n = sec % 60;
@@ -332,17 +413,17 @@ void DrawCansAndTime(SVECTOR *pos, s32 count, s32 frames) {
     d = n;
     d /= 10;
     pos->vx -= 8;
-    DrawSprite(n % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(n % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     pos->vx -= 8;
-    DrawSprite(d % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(d % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     n = m;
     pos->vx -= 8;
-    DrawSprite(0x38, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_MENU_COLON, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     for (; k < 11; k *= 10) {
         t = n / k;
         if (t != 0 || (k == 1 && n == 0)) {
             pos->vx -= 8;
-            DrawSprite(t % 10 + 0x2E, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(t % 10 + SPR_MENU_DIGIT, pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
     }
 }
@@ -452,46 +533,46 @@ void DefineMenuSprites(void) {
     s32 i;
 
     for (i = 0; i < 7; i++) {
-        DefineSprite(i + 0x1E, 0, 0xA0, 0x10, 6, 0, (u8)(i * 16), 0, 0x1E0);
+        DefineSprite(i + SPR_MENU_GAME_START, 0, 0xA0, 0x10, 6, 0, (u8)(i * 16), 0, 0x1E0);
     }
     for (i = 0; i < 7; i++) {
-        DefineSprite(i + 0x26, 0, 0x60, 0x10, 6, 0xA0, (u8)(i * 16), 0, 0x1E0);
+        DefineSprite(i + SPR_MENU_STAGE_1, 0, 0x60, 0x10, 6, 0xA0, (u8)(i * 16), 0, 0x1E0);
     }
-    DefineSprite(0x25, 0, 0x80, 0x10, 6, 0, 0x70, 0, 0x1E0);
-    DefineSprite(0x2D, 0, 0x20, 0x10, 6, 0x80, 0x70, 0, 0x1E0);
+    DefineSprite(SPR_MENU_ALL_STAGE, 0, 0x80, 0x10, 6, 0, 0x70, 0, 0x1E0);
+    DefineSprite(SPR_MENU_PEPSI_TIME, 0, 0x20, 0x10, 6, 0x80, 0x70, 0, 0x1E0);
     for (i = 0; i < 12; i++) {
-        DefineSprite(i + 0x2E, 0, 8, 8, 6, (u8)(i * 8 + 0xA0), 0x70, 0, 0x1E0);
+        DefineSprite(i + SPR_MENU_DIGIT, 0, 8, 8, 6, (u8)(i * 8 + 0xA0), 0x70, 0, 0x1E0);
     }
-    DefineSprite(0x3A, 0, 0x50, 0x10, 6, 0, 0x80, 0, 0x1E0);
+    DefineSprite(SPR_MENU_SOUND, 0, 0x50, 0x10, 6, 0, 0x80, 0, 0x1E0);
     for (i = 0; i < 3; i++) {
-        DefineSprite(i + 0x3B, 0, 0x80, 0x10, 6, 0, (u8)(i * 16 + 0x90), 0, 0x1E0);
+        DefineSprite(i + SPR_MENU_VIBRATION, 0, 0x80, 0x10, 6, 0, (u8)(i * 16 + 0x90), 0, 0x1E0);
     }
-    DefineSprite(0x3E, 0, 0x30, 0x10, 6, 0x50, 0x80, 0, 0x1E0);
-    DefineSprite(0x3F, 0, 0x40, 0x10, 6, 0, 0xC0, 0, 0x1E0);
-    DefineSprite(0x40, 0, 0x60, 0x10, 6, 0x40, 0xC0, 0, 0x1E0);
-    DefineSprite(0x41, 0, 0x90, 0x10, 6, 0, 0xD0, 0, 0x1E0);
-    DefineSprite(0x42, 0, 0x50, 0x10, 6, 0, 0xE0, 0, 0x1E0);
-    DefineSprite(0x43, 0, 0x50, 0x10, 6, 0x50, 0xE0, 0, 0x1E0);
-    DefineSprite(0x44, 0, 0x50, 0x10, 6, 0, 0xF0, 0, 0x1E0);
-    DefineSprite(0x45, 0, 0x50, 0x10, 6, 0x50, 0xF0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_EXIT, 0, 0x30, 0x10, 6, 0x50, 0x80, 0, 0x1E0);
+    DefineSprite(SPR_MENU_JUMP, 0, 0x40, 0x10, 6, 0, 0xC0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_SLIDING, 0, 0x60, 0x10, 6, 0x40, 0xC0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_BRAKE_DASH, 0, 0x90, 0x10, 6, 0, 0xD0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_TYPE_A, 0, 0x50, 0x10, 6, 0, 0xE0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_TYPE_A + 1, 0, 0x50, 0x10, 6, 0x50, 0xE0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_TYPE_A + 2, 0, 0x50, 0x10, 6, 0, 0xF0, 0, 0x1E0);
+    DefineSprite(SPR_MENU_TYPE_A + 3, 0, 0x50, 0x10, 6, 0x50, 0xF0, 0, 0x1E0);
     for (i = 0; i < 8; i++) {
-        DefineSprite(i + 0x46, 0, 0x60, 0x10, 6, 0xA0, (u8)(i * 16 + 0x80), 0, 0x1E0);
+        DefineSprite(i + SPR_MENU_STEREO, 0, 0x60, 0x10, 6, 0xA0, (u8)(i * 16 + 0x80), 0, 0x1E0);
     }
-    DefineSprite(0x4E, 0, 0x10, 0x10, 6, 0x80, 0x80, 0, 0x1E0);
-    DefineSprite(0x4F, 0, 0x10, 0x10, 6, 0x90, 0x80, 0, 0x1E0);
+    DefineSprite(SPR_MENU_ARROW_LEFT, 0, 0x10, 0x10, 6, 0x80, 0x80, 0, 0x1E0);
+    DefineSprite(SPR_MENU_ARROW_RIGHT, 0, 0x10, 0x10, 6, 0x90, 0x80, 0, 0x1E0);
     DefineSprite(0x50, 0, 0x10, 0x10, 6, 0x80, 0x90, 0, 0x1E0);
     DefineSprite(0x51, 0, 0x10, 0x10, 6, 0x80, 0xA0, 0, 0x1E0);
     DefineSprite(0x52, 0, 0x10, 0x10, 6, 0x80, 0xB0, 0, 0x1E0);
-    DefineSprite(0x53, 0, 0xA0, 0x20, 7, 0, 0x80, 0x30, 0x1E0);
-    DefineSprite(0x54, 0, 0x80, 0x20, 7, 0, 0xA0, 0x30, 0x1E0);
-    DefineSprite(0x55, 0, 0x90, 0x20, 7, 0, 0xC0, 0x30, 0x1E0);
-    DefineSprite(0x56, 0, 0x88, 0x20, 7, 0, 0xE0, 0x30, 0x1E0);
+    DefineSprite(SPR_MENU_FRAME, 0, 0xA0, 0x20, 7, 0, 0x80, 0x30, 0x1E0);
+    DefineSprite(SPR_MENU_FRAME_SMALL, 0, 0x80, 0x20, 7, 0, 0xA0, 0x30, 0x1E0);
+    DefineSprite(SPR_MENU_FRAME_WIDE, 0, 0x90, 0x20, 7, 0, 0xC0, 0x30, 0x1E0);
+    DefineSprite(SPR_MENU_FRAME_WIDE + 1, 0, 0x88, 0x20, 7, 0, 0xE0, 0x30, 0x1E0);
     for (i = 0; i < 18; i++) {
-        DefineSprite(i + 0x57, 0, 0xFF, 0xE, 5, 0, (u8)(i * 14), 0x10, 0x1E0);
+        DefineSprite(i + SPR_MENU_CHECKING_CARD, 0, 0xFF, 0xE, 5, 0, (u8)(i * 14), 0x10, 0x1E0);
     }
-    DefineSprite(0x69, 0, 0x10, 0x10, 7, 0, 0, 0x20, 0x1E0);
-    DefineSprite(0x6A, 0, 0x10, 0x10, 7, 0x10, 0, 0x20, 0x1E0);
-    DefineSprite(0x6B, 0, 0x10, 0x10, 7, 0x20, 0, 0x20, 0x1E0);
+    DefineSprite(SPR_MENU_BUTTON_CIRCLE, 0, 0x10, 0x10, 7, 0, 0, 0x20, 0x1E0);
+    DefineSprite(SPR_MENU_BUTTON_CROSS, 0, 0x10, 0x10, 7, 0x10, 0, 0x20, 0x1E0);
+    DefineSprite(SPR_MENU_BUTTON_SQUARE, 0, 0x10, 0x10, 7, 0x20, 0, 0x20, 0x1E0);
 }
 
 extern GsCOORDINATE2 sAct3Coords[];
@@ -647,7 +728,8 @@ void StepMainMenu(void) {
                 /* MATCHING: the cast keeps i * 24 - 12 one induction value;
                  * without it the -12 moves onto the count. */
                 pos.vy = (s16)(i * 24 - 12) - sMenuItemCount * 12;
-                DrawSprite(sMenuItems[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(sMenuItems[i] + SPR_MENU_GAME_START, &pos, (CVECTOR *)&col, 0,
+                           &gSubOt[gActiveBuff]);
             }
             if (sMenuTime == sMenuItemCount * 2 + 8) {
                 gSubStep = 102;
@@ -669,7 +751,8 @@ void StepMainMenu(void) {
                 t = 8;
                 pos.vx = t * 32 - 0x150;
                 pos.vy = (s16)(i * 24 - 12) - sMenuItemCount * 12;
-                DrawSprite(sMenuItems[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(sMenuItems[i] + SPR_MENU_GAME_START, &pos, (CVECTOR *)&col, 0,
+                           &gSubOt[gActiveBuff]);
             }
             p2.vx = -0x50;
             p2.vy = sMenuCursor * 24 - sMenuItemCount * 12 - 0x15;
@@ -721,7 +804,8 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x50;
                 pos.vy = (s16)(i * 24 - 12) - sMenuItemCount * 12;
-                DrawSprite(sMenuItems[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(sMenuItems[i] + SPR_MENU_GAME_START, &pos, (CVECTOR *)&col, 0,
+                           &gSubOt[gActiveBuff]);
             }
             if (sMenuTime == sMenuItemCount * 2 + 12) {
                 switch (sMenuItems[sMenuCursor]) {
@@ -787,14 +871,14 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x150;
             pos.vy = -0x58;
-            DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FREE_PLAY, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 2;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x130;
             pos.vy = -0x38;
-            DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gSelectedWorld + SPR_MENU_STAGE_1, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             /* MATCHING: the bob in a block-local with an (s16) cast; a shared
              * local takes the division's register, no cast folds the + 8. */
@@ -802,30 +886,30 @@ void StepMainMenu(void) {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
-            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
             }
-            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 4;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = -0x18;
-            DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ALL_STAGE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 6;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = 8;
-            DrawSprite(0x2A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_1, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vx = pos.vx + 0x100;
             p2.vy = pos.vy;
             pos.vx += 0x90;
-            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_PEPSI_TIME, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             DrawCansAndTime(&p2, gBestCans[gSelectedWorld].a, gBestTimes[gSelectedWorld].a);
             t = sMenuTime - 8;
             if (t > 8) {
@@ -833,11 +917,11 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = 0x28;
-            DrawSprite(0x2B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_2, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vx = pos.vx + 0x100;
             p2.vy = pos.vy;
             pos.vx += 0x90;
-            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_PEPSI_TIME, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             DrawCansAndTime(&p2, gBestCans[gSelectedWorld].b, gBestTimes[gSelectedWorld].b);
             t = sMenuTime - 10;
             if (t > 8) {
@@ -845,7 +929,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = 0x48;
-            DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_3, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime == 20) {
                 gSubStep = 1002;
             }
@@ -860,21 +944,21 @@ void StepMainMenu(void) {
             hi.cd = 0;
             pos.vx = -0x50;
             pos.vy = -0x58;
-            DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FREE_PLAY, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx = -0x30;
             pos.vy = -0x38;
-            DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gSelectedWorld + SPR_MENU_STAGE_1, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
-            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
             }
-            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime < 16) {
                 sMenuTime++;
             }
@@ -889,7 +973,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = -0x18;
-            DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ALL_STAGE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (gSelectedAct == 1) {
                 col = hi;
             } else {
@@ -901,13 +985,13 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = 8;
-            DrawSprite(0x2A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_1, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             col.r = -1;
             col.g = col.b = col.cd = 0x80;
             p2.vx = pos.vx + 0x100;
             p2.vy = pos.vy;
             pos.vx += 0x90;
-            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_PEPSI_TIME, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             DrawCansAndTime(&p2, gBestCans[gSelectedWorld].a, gBestTimes[gSelectedWorld].a);
             if (gSelectedAct == 2) {
                 col = hi;
@@ -920,13 +1004,13 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = 0x28;
-            DrawSprite(0x2B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_2, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             col.r = -1;
             col.g = col.b = col.cd = 0x80;
             p2.vx = pos.vx + 0x100;
             p2.vy = pos.vy;
             pos.vx += 0x90;
-            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_PEPSI_TIME, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             DrawCansAndTime(&p2, gBestCans[gSelectedWorld].b, gBestTimes[gSelectedWorld].b);
             if (gSelectedAct == 3) {
                 col = hi;
@@ -939,7 +1023,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = 0x48;
-            DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_3, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime >= 16) {
                 p2.vx = -0x8E;
                 p2.vy = gSelectedAct * 32 - 0x21;
@@ -1003,43 +1087,43 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x50;
             pos.vy = -0x58;
-            DrawSprite(0x20, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FREE_PLAY, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 2;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x30;
             pos.vy = -0x38;
-            DrawSprite(gSelectedWorld + 0x26, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gSelectedWorld + SPR_MENU_STAGE_1, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
-            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x58);
             }
-            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 4;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x80;
             pos.vy = -0x18;
-            DrawSprite(0x25, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ALL_STAGE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 6;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x80;
             pos.vy = 8;
-            DrawSprite(0x2A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_1, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vx = pos.vx + 0x100;
             p2.vy = pos.vy;
             pos.vx += 0x90;
-            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_PEPSI_TIME, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             DrawCansAndTime(&p2, gBestCans[gSelectedWorld].a, gBestTimes[gSelectedWorld].a);
             t = sMenuTime - 8;
             if (t < 0) {
@@ -1047,11 +1131,11 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x80;
             pos.vy = 0x28;
-            DrawSprite(0x2B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_2, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vx = pos.vx + 0x100;
             p2.vy = pos.vy;
             pos.vx += 0x90;
-            DrawSprite(0x2D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_PEPSI_TIME, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             DrawCansAndTime(&p2, gBestCans[gSelectedWorld].b, gBestTimes[gSelectedWorld].b);
             t = sMenuTime - 10;
             if (t < 0) {
@@ -1059,7 +1143,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x80;
             pos.vy = 0x48;
-            DrawSprite(0x2C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SCENE_3, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime == 24) {
                 if (sMenuCancelled == 1) {
                     gSubStep = 100;
@@ -1116,20 +1200,20 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x150;
             pos.vy = -0x58;
-            DrawSprite(0x22, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_OPTION, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 2;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = -0x38;
-            DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SOUND, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0x98;
             /* MATCHING: one call per arm, which cross-jumping merges. */
             if (gStereo != 0) {
-                DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_STEREO, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             } else {
-                DrawSprite(0x47, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_MONO, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
             if (PadInfoMode(0, 2, 0) != 0) {
                 t = sMenuTime - 4;
@@ -1138,12 +1222,12 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x180;
                 pos.vy = -0x18;
-                DrawSprite(0x3B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_VIBRATION, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 pos.vx += 0x98;
                 if (gRumbleEnabled != 0) {
-                    DrawSprite(0x48, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ON, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 } else {
-                    DrawSprite(0x49, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_OFF, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 }
             }
             if (*(s8 *)&gUnlocks != 1) {
@@ -1153,20 +1237,20 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x180;
                 pos.vy = 8;
-                DrawSprite(0x3C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_PEPSIMAN, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 pos.vx += 0x98;
                 switch (gTmdSortMode) {
                     case 0:
-                        DrawSprite(0x4A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_NEW, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 1:
-                        DrawSprite(0x4B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_OLD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 2:
-                        DrawSprite(0x4C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_WIRE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 3:
-                        DrawSprite(0x4D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_STEALTH, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                 }
             }
@@ -1176,14 +1260,14 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x140;
             pos.vy = 0x28;
-            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_KEY_CONFIG, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 10;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x118;
             pos.vy = 0x48;
-            DrawSprite(0x3E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_EXIT, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime == 20) {
                 gSubStep = 2002;
             }
@@ -1198,7 +1282,7 @@ void StepMainMenu(void) {
             hi.cd = 0;
             pos.vx = -0x50;
             pos.vy = -0x58;
-            DrawSprite(0x22, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_OPTION, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = 8;
             if (sOptionsCursor == 0) {
                 col = hi;
@@ -1207,12 +1291,12 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x180;
             pos.vy = -0x38;
-            DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SOUND, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0x98;
             if (gStereo != 0) {
-                DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_STEREO, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             } else {
-                DrawSprite(0x47, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_MONO, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
             if (sOptionsCursor == 0) {
                 p2.vy = pos.vy;
@@ -1220,12 +1304,12 @@ void StepMainMenu(void) {
                     s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                     p2.vx = pos.vx - (b >= 0 ? b : -b);
                 }
-                DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 {
                     s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                     p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
                 }
-                DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
             if ((sPadHasRumble = PadInfoMode(0, 2, 0) != 0)) {
                 if (sOptionsCursor == 1) {
@@ -1235,12 +1319,12 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x180;
                 pos.vy = -0x18;
-                DrawSprite(0x3B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_VIBRATION, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 pos.vx += 0x98;
                 if (gRumbleEnabled != 0) {
-                    DrawSprite(0x48, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ON, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 } else {
-                    DrawSprite(0x49, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_OFF, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 }
                 if (sOptionsCursor == 1) {
                     p2.vy = pos.vy;
@@ -1248,12 +1332,12 @@ void StepMainMenu(void) {
                         s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx - (b >= 0 ? b : -b);
                     }
-                    DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     {
                         s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
                     }
-                    DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 }
             } else if (sOptionsCursor == 1) {
                 sOptionsCursor = 0;
@@ -1266,20 +1350,20 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x180;
                 pos.vy = 8;
-                DrawSprite(0x3C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_PEPSIMAN, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 pos.vx += 0x98;
                 switch (gTmdSortMode) {
                     case 0:
-                        DrawSprite(0x4A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_NEW, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 1:
-                        DrawSprite(0x4B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_OLD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 2:
-                        DrawSprite(0x4C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_WIRE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 3:
-                        DrawSprite(0x4D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_STEALTH, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                 }
                 if (sOptionsCursor == 2) {
@@ -1289,12 +1373,12 @@ void StepMainMenu(void) {
                         s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx - (b >= 0 ? b : -b);
                     }
-                    DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     {
                         s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                         p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x50);
                     }
-                    DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 } else {
                     sMenuScene = 1;
                 }
@@ -1306,7 +1390,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x140;
             pos.vy = 0x28;
-            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_KEY_CONFIG, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sOptionsCursor == 4) {
                 col = hi;
             } else {
@@ -1314,7 +1398,7 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x118;
             pos.vy = 0x48;
-            DrawSprite(0x3E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_EXIT, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             d = sOptionsCursor;
             p2.vx = d >= 3 ? -0x40 : -0x8E;
             p2.vy = d * 32 - 0x41;
@@ -1466,19 +1550,19 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x50;
             pos.vy = -0x58;
-            DrawSprite(0x22, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_OPTION, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 2;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x80;
             pos.vy = -0x38;
-            DrawSprite(0x3A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SOUND, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0x98;
             if (gStereo != 0) {
-                DrawSprite(0x46, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_STEREO, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             } else {
-                DrawSprite(0x47, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_MONO, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             }
             if (PadInfoMode(0, 2, 0) != 0) {
                 t = sMenuTime - 4;
@@ -1487,12 +1571,12 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x80;
                 pos.vy = -0x18;
-                DrawSprite(0x3B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_VIBRATION, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 pos.vx += 0x98;
                 if (gRumbleEnabled != 0) {
-                    DrawSprite(0x48, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_ON, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 } else {
-                    DrawSprite(0x49, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_OFF, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 }
             }
             if (*(s8 *)&gUnlocks != 1) {
@@ -1502,20 +1586,20 @@ void StepMainMenu(void) {
                 }
                 pos.vx = t * 32 - 0x80;
                 pos.vy = 8;
-                DrawSprite(0x3C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(SPR_MENU_PEPSIMAN, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                 pos.vx += 0x98;
                 switch (gTmdSortMode) {
                     case 0:
-                        DrawSprite(0x4A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_NEW, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 1:
-                        DrawSprite(0x4B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_OLD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 2:
-                        DrawSprite(0x4C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_WIRE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                     case 3:
-                        DrawSprite(0x4D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                        DrawSprite(SPR_MENU_STEALTH, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                         break;
                 }
             }
@@ -1525,14 +1609,14 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x40;
             pos.vy = 0x28;
-            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_KEY_CONFIG, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 10;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x18;
             pos.vy = 0x48;
-            DrawSprite(0x3E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_EXIT, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             if (sMenuTime == 24) {
                 if (sOptionsCursor == 4) {
                     gSubStep = 100;
@@ -1554,32 +1638,34 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x140;
             pos.vy = -0x58;
-            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_KEY_CONFIG, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 2;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x128;
             pos.vy = -0x38;
-            DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gButtonConfig + SPR_MENU_TYPE_A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 4;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x160;
             pos.vy = -0x18;
-            DrawSprite(0x3F, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_JUMP, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0xB0;
-            DrawSprite(sButtonIcons[gButtonConfig][0] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(sButtonIcons[gButtonConfig][0] + SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0,
+                       &gSubOt[gActiveBuff]);
             t = sMenuTime - 6;
             if (t > 8) {
                 t = 8;
             }
             pos.vx = t * 32 - 0x160;
             pos.vy = 8;
-            DrawSprite(0x40, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SLIDING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0xB0;
-            DrawSprite(sButtonIcons[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(sButtonIcons[gButtonConfig][1] + SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0,
+                       &gSubOt[gActiveBuff]);
             if (sMenuTime == 18) {
                 gSubStep = 3002;
             }
@@ -1590,31 +1676,33 @@ void StepMainMenu(void) {
             t = 8;
             pos.vx = t * 32 - 0x140;
             pos.vy = -0x58;
-            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_KEY_CONFIG, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx = t * 32 - 0x128;
             pos.vy = -0x38;
-            DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gButtonConfig + SPR_MENU_TYPE_A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             p2.vy = pos.vy;
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx - (s16)((b >= 0 ? b : -b) + 8);
             }
-            DrawSprite(0x4E, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_LEFT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             {
                 s32 b = rsin(ANGLE_DEG(gFrameCount * 10)) / 512;
                 p2.vx = pos.vx + (s16)((b >= 0 ? b : -b) + 0x48);
             }
-            DrawSprite(0x4F, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_ARROW_RIGHT, &p2, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx = t * 32 - 0x160;
             pos.vy = -0x18;
-            DrawSprite(0x3F, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_JUMP, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0xB0;
-            DrawSprite(sButtonIcons[gButtonConfig][0] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(sButtonIcons[gButtonConfig][0] + SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0,
+                       &gSubOt[gActiveBuff]);
             pos.vx = t * 32 - 0x160;
             pos.vy = t;
-            DrawSprite(0x40, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SLIDING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0xB0;
-            DrawSprite(sButtonIcons[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(sButtonIcons[gButtonConfig][1] + SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0,
+                       &gSubOt[gActiveBuff]);
             if (gPadTrig & PADLleft) {
                 PlaySe(SE_CURSOR);
                 if (gButtonConfig == 0) {
@@ -1648,32 +1736,34 @@ void StepMainMenu(void) {
             }
             pos.vx = t * 32 - 0x40;
             pos.vy = -0x58;
-            DrawSprite(0x3D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_KEY_CONFIG, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 2;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x28;
             pos.vy = -0x38;
-            DrawSprite(gButtonConfig + 0x42, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(gButtonConfig + SPR_MENU_TYPE_A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             t = sMenuTime - 4;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x60;
             pos.vy = -0x18;
-            DrawSprite(0x3F, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_JUMP, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0xB0;
-            DrawSprite(sButtonIcons[gButtonConfig][0] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(sButtonIcons[gButtonConfig][0] + SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0,
+                       &gSubOt[gActiveBuff]);
             t = sMenuTime - 6;
             if (t < 0) {
                 t = 0;
             }
             pos.vx = t * 32 - 0x60;
             pos.vy = 8;
-            DrawSprite(0x40, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_SLIDING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
             pos.vx += 0xB0;
-            DrawSprite(sButtonIcons[gButtonConfig][1] + 0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(sButtonIcons[gButtonConfig][1] + SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0,
+                       &gSubOt[gActiveBuff]);
             if (sMenuTime == 22) {
                 gSubStep = 2000;
             }
@@ -1685,7 +1775,8 @@ void StepMainMenu(void) {
                 t = 8;
                 pos.vx = t * 32 - 0x150;
                 pos.vy = (s16)(i * 24 - 12) - sMenuItemCount * 12;
-                DrawSprite(sMenuItems[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(sMenuItems[i] + SPR_MENU_GAME_START, &pos, (CVECTOR *)&col, 0,
+                           &gSubOt[gActiveBuff]);
             }
             p2.vx = -0x88;
             p2.vy = 0x4F;
@@ -1694,13 +1785,13 @@ void StepMainMenu(void) {
             pos.vy = 0x58;
             switch (sCardStep) {
                 case 0:
-                    DrawSprite(0x5A, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_DATA_LOAD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x41;
                     pos.vy = 0x57;
-                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x6F;
                     pos.vy = 0x57;
-                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
                         PlaySe(0xE);
                         gSubStep = 102;
@@ -1710,12 +1801,12 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 5:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     MemCardExist(0);
                     sCardStep = 6;
                     break;
                 case 6:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
@@ -1738,12 +1829,12 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 10:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     MemCardAccept(0);
                     sCardStep = 11;
                     break;
                 case 11:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
@@ -1773,7 +1864,7 @@ void StepMainMenu(void) {
                     sCardStep = 13;
                     break;
                 case 13:
-                    DrawSprite(0x5D, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_LOADING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
@@ -1887,7 +1978,8 @@ void StepMainMenu(void) {
                 t = 8;
                 pos.vx = t * 32 - 0x150;
                 pos.vy = (s16)(i * 24 - 12) - sMenuItemCount * 12;
-                DrawSprite(sMenuItems[i] + 0x1E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                DrawSprite(sMenuItems[i] + SPR_MENU_GAME_START, &pos, (CVECTOR *)&col, 0,
+                           &gSubOt[gActiveBuff]);
             }
             p2.vx = -0x88;
             p2.vy = 0x4F;
@@ -1896,13 +1988,13 @@ void StepMainMenu(void) {
             pos.vy = 0x58;
             switch (sCardStep) {
                 case 0:
-                    DrawSprite(0x5B, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_DATA_SAVE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x41;
                     pos.vy = 0x57;
-                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x6F;
                     pos.vy = 0x57;
-                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
                         PlaySe(0xE);
                         gSubStep = 102;
@@ -1913,14 +2005,14 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 5:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (++sCardMessageTime == 4) {
                         MemCardExist(0);
                         sCardStep = 6;
                     }
                     break;
                 case 6:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
@@ -1972,12 +2064,12 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 10:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     MemCardAccept(0);
                     sCardStep = 11;
                     break;
                 case 11:
-                    DrawSprite(0x57, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_CHECKING_CARD, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
@@ -2072,13 +2164,13 @@ void StepMainMenu(void) {
                     sCardStep = 15;
                     break;
                 case 13:
-                    DrawSprite(0x5C, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_OVERWRITE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x41;
                     pos.vy = 0x57;
-                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x6F;
                     pos.vy = 0x57;
-                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
                         PlaySe(0xE);
                         gSubStep = 102;
@@ -2124,7 +2216,7 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 15:
-                    DrawSprite(0x5E, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_SAVING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (MemCardSync(1, NULL, &sCardResult) == 1) {
                         switch (sCardResult) {
                             case 0:
@@ -2160,19 +2252,19 @@ void StepMainMenu(void) {
                 case 500:
                     col.g = 0x80;
                     col.b = col.cd = 0;
-                    DrawSprite(0x61, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_UNFORMATTED, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (++sCardMessageTime == 30) {
                         sCardStep = 501;
                     }
                     break;
                 case 501:
-                    DrawSprite(0x62, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_FORMAT, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x41;
                     pos.vy = 0x57;
-                    DrawSprite(0x69, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CIRCLE, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     pos.vx = 0x6F;
                     pos.vy = 0x57;
-                    DrawSprite(0x6A, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
                         PlaySe(0xE);
                         gSubStep = 102;
@@ -2183,13 +2275,13 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 502:
-                    DrawSprite(0x63, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_FORMATTING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     if (++sCardMessageTime == 8) {
                         sCardStep = 503;
                     }
                     break;
                 case 503:
-                    DrawSprite(0x63, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_FORMATTING, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     switch (MemCardFormat(0)) {
                         case 0:
                             sCardMessageTime = 0;
@@ -2208,7 +2300,7 @@ void StepMainMenu(void) {
                     }
                     break;
                 case 504:
-                    DrawSprite(0x66, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
+                    DrawSprite(SPR_MENU_COMPLETE, &pos, (CVECTOR *)&col, 0, &gSubOt[gActiveBuff]);
                     sCardMessageTime++;
                     break;
                 case 1000:
@@ -2361,7 +2453,7 @@ inline void DrawTitlePlayerShadow(void) {
     size.vy = size.vx / 2;
     color.r = BLEND_SUB;
     color.g = color.b = color.cd = 0x40;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_BLOB, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
 inline void DrawTitleGroundShadow(void) {
@@ -2381,7 +2473,7 @@ inline void DrawTitleGroundShadow(void) {
     size.vy = 50;
     color.r = BLEND_SUB;
     color.g = color.b = color.cd = 0x60;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_BLOB, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
 void StepTitle(void) {
@@ -2394,11 +2486,11 @@ void StepTitle(void) {
 
     switch (gSubStep) {
         case 50:
-            DefineSprite(0x1E, 1, 0xFF, 0x60, 0x17, 0, 0, 0, 0x1E1);
-            DefineSprite(0x1F, 0, 0xFF, 0x10, 0x17, 0, 0x80, 0x40, 0x1E0);
-            DefineSprite(0x20, 0, 0xFF, 0x10, 0x17, 0, 0x90, 0x40, 0x1E0);
-            DefineSprite(0x21, 0, 0xFF, 0x20, 0x17, 0, 0xA0, 0x40, 0x1E0);
-            DefineSprite(0x22, 0, 0xFF, 0x20, 0x17, 0, 0xC0, 0x40, 0x1E0);
+            DefineSprite(SPR_TITLE_LOGO, 1, 0xFF, 0x60, 0x17, 0, 0, 0, 0x1E1);
+            DefineSprite(SPR_TITLE_PRESS_START, 0, 0xFF, 0x10, 0x17, 0, 0x80, 0x40, 0x1E0);
+            DefineSprite(SPR_TITLE_PRESS_START + 1, 0, 0xFF, 0x10, 0x17, 0, 0x90, 0x40, 0x1E0);
+            DefineSprite(SPR_TITLE_COPYRIGHT, 0, 0xFF, 0x20, 0x17, 0, 0xA0, 0x40, 0x1E0);
+            DefineSprite(SPR_TITLE_COPYRIGHT + 1, 0, 0xFF, 0x20, 0x17, 0, 0xC0, 0x40, 0x1E0);
             for (gLoopI = 0; gLoopI < 2; gLoopI++) {
                 /* MATCHING: the entry assigned inside the store keeps the +1 off
                  * the directory's address. */
@@ -2611,23 +2703,23 @@ void StepTitle(void) {
             color.g = color.b = color.cd = 0x80;
             pos.vx = -128;
             pos.vy = 16;
-            DrawSprite(0x1F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_TITLE_PRESS_START, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
             color.r = 2;
             color.g = color.b = color.cd = 0x80;
             pos.vx = -128;
             pos.vy = 16;
-            DrawSprite(0x20, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_TITLE_PRESS_START + 1, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         }
         color.r = -1;
         color.g = color.b = color.cd = 0x80;
         pos.vx = -128;
         pos.vy = 0x48;
-        DrawSprite(0x21, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(SPR_TITLE_COPYRIGHT, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
         color.r = 2;
         color.g = color.b = color.cd = 0x80;
         pos.vx = -128;
         pos.vy = 0x48;
-        DrawSprite(0x22, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+        DrawSprite(SPR_TITLE_COPYRIGHT + 1, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
     }
     StepStepper(&gPlayer);
     DrawStepper(&gPlayer);
@@ -2648,7 +2740,7 @@ void StepTitle(void) {
     pos.vy = 0xC0;
     color.r = -1;
     color.g = color.b = color.cd = 0x80;
-    DrawBillboard(0x1E, &pos, (CVECTOR *)&color, 2, &gOt[gActiveBuff]);
+    DrawBillboard(SPR_TITLE_LOGO, &pos, (CVECTOR *)&color, 2, &gOt[gActiveBuff]);
     sAct3Coords[0].coord.t[0] = 0;
     sAct3Coords[0].coord.t[1] = 0;
     sAct3Coords[0].coord.t[2] = 0;
@@ -2910,15 +3002,15 @@ inline void DrawScreenFade(void) {
 inline void DrawMenuCursor(SVECTOR *pos, s32 kind) {
     switch (kind) {
         case 1:
-            DrawSprite(0x53, pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FRAME, pos, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 2:
-            DrawSprite(0x54, pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FRAME_SMALL, pos, NULL, 0, &gSubOt[gActiveBuff]);
             break;
         case 3:
-            DrawSprite(0x55, pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FRAME_WIDE, pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos->vx += 0x90;
-            DrawSprite(0x56, pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(SPR_MENU_FRAME_WIDE + 1, pos, NULL, 0, &gSubOt[gActiveBuff]);
             break;
     }
 }

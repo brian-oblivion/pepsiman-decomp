@@ -180,7 +180,7 @@ void DrawChaseShadowCentre(void) {
     size.vx = 100 - d;
     size.vy = size.vx / 2;
     color.g = color.b = color.cd = 0x40 - d;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_BLOB, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
 /* The same at the player's position. */
@@ -203,7 +203,7 @@ void DrawChaseShadow(void) {
     size.vx = 100 - d;
     size.vy = size.vx / 2;
     color.g = color.b = color.cd = 0x40 - d;
-    DrawBillboard(0x12D, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
+    DrawBillboard(SPR_BLOB, &size, (CVECTOR *)&color, 2, &gSubOt[gActiveBuff]);
 }
 
 /* Draws the retry count, its label, and the run's progress bar. */
@@ -218,7 +218,7 @@ void DrawChaseHud(void) {
     pos.vy = 0x4C;
     for (div = 1; div < 10001; div *= 10) {
         if (n / div != 0) {
-            DrawSprite(n / div % 10 + 0x105, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+            DrawSprite(n / div % 10 + SPR_DIGIT, &pos, NULL, 0, &gSubOt[gActiveBuff]);
             pos.vx -= 16;
         }
     }
@@ -235,8 +235,9 @@ void DrawChaseHud(void) {
     color.g = color.b = color.cd = 0x80;
     pos.vy = -0x69;
     pos.vx = n * 0x5800 / CHASE_LENGTH + 0x34;
-    DrawSprite((gFrameCount >> 2 & 3) + 0x12F, &pos, (CVECTOR *)&color, 0, &gSubOt[gActiveBuff]);
+    DrawSprite((gFrameCount >> 2 & 3) + SPR_PROGRESS_MARK, &pos, (CVECTOR *)&color, 0,
+               &gSubOt[gActiveBuff]);
     pos.vx = 0x34;
     pos.vy = -100;
-    DrawSprite(0x12E, &pos, NULL, 0, &gSubOt[gActiveBuff]);
+    DrawSprite(SPR_PROGRESS_BAR, &pos, NULL, 0, &gSubOt[gActiveBuff]);
 }

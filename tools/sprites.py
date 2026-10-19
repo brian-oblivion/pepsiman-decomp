@@ -399,6 +399,21 @@ def definitions(path):
     return calls, ev.names
 
 
+def call_name(arg, sid, names):
+    """The label of a sprite a call defines: the name its id argument uses,
+    or another of that family's names (SPR_MENU_...) with the same value,
+    else that name + n; "" when the argument names no sprite."""
+    base = re.search(r"\bSPR_\w+", arg)
+    if not base or base.group(0) not in names:
+        return ""
+    family = re.match(r"SPR_[A-Z0-9]+_", base.group(0))
+    for n, v in names.items():
+        if v == sid and family and n.startswith(family.group(0)):
+            return n
+    v = names[base.group(0)]
+    return base.group(0) if v == sid else f"{base.group(0)} + {sid - v}"
+
+
 def evaluate(ev, args, headers):
     """The argument tuples of one call, over its loops (outermost first)."""
     if len(args) != len(PARAMS):
@@ -426,6 +441,7 @@ def evaluate(ev, args, headers):
             v = ev.eval(a, env)
             bits = PARAM_BITS.get(name)
             vals[name] = v & ((1 << bits) - 1) if bits else v
+        vals["name"] = call_name(args[0], vals["id"], ev.names)
         out.append(vals)
     return out
 
@@ -433,7 +449,8 @@ def evaluate(ev, args, headers):
 # ---------------------------------------------------------------- output
 
 def sprite_name(sid, names):
-    """The SPR_ enumerator at or below `sid`, as NAME or NAME + n."""
+    """The SPR_ enumerator at or below `sid`, as NAME or NAME + n: the label
+    of a stage pack's sprite, which no call names."""
     best = None
     for n, v in names.items():
         if n.startswith("SPR_") and v <= sid and (best is None or v > best[1]):
@@ -591,7 +608,7 @@ def card(vram, d, names, where, out_dir, key, seen):
     tpage = tpage_of(d["page"], d["mode"])
     clut = clut_of(d["clutX"], d["clutY"])
     sid = d["id"]
-    info = {"title": f"{sid:#x}", "name": sprite_name(sid, names), "where": where,
+    info = {"title": f"{sid:#x}", "name": d["name"] if "name" in d else sprite_name(sid, names), "where": where,
             "size": f"{d['w']}x{d['h']}"}
     if d["mode"] >= 2:
         info["note"] = "a 16-bit page: the game draws only frozen frames this way, which are not on the disc"

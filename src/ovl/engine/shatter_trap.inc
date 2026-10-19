@@ -12,7 +12,7 @@ void ShatterTrap(StageTrap *t) {
             }
             if (t->touched == 1) {
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
                 t->homeY = sFloorHit[0];
                 t->timer = 0;

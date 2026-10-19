@@ -38,7 +38,7 @@ void StepSprayTrap(StageTrap *t, s8 dir) {
                                               (d = c.y - t->homeY, d >= 0 ? d : -d), 0, 0);
                     }
                     if (gFrameCount % 10 == 0) {
-                        PlaySe(0x6A);
+                        PlaySe(SE_SPRAY);
                     }
                     if (!(gFrameCount & 1)) {
                         SpawnEffect(4, (s16)t->homeX - (50 - rand() % 100),

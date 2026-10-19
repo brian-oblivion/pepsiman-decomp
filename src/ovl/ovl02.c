@@ -772,7 +772,7 @@ void StepMainMenu(void) {
                     sMenuCursor++;
                 }
             } else if (gPadTrig & PADRright) {
-                PlaySe(0xC);
+                PlaySe(SE_CONFIRM);
                 switch (sMenuItems[sMenuCursor]) {
                     case 0:
                     case 1:
@@ -1065,14 +1065,14 @@ void StepMainMenu(void) {
                 }
             } else if (gPadTrig & PADRdown) {
                 if (sMenuTime >= 16) {
-                    PlaySe(0xE);
+                    PlaySe(SE_CANCEL);
                     sMenuCancelled = 1;
                     sMenuTime = 0;
                     gSubStep = 1003;
                 }
             } else if (gPadTrig & PADRright) {
                 if (sMenuTime >= 16) {
-                    PlaySe(0xC);
+                    PlaySe(SE_CONFIRM);
                     sMenuTime = 0;
                     gSubStep = 1003;
                 }
@@ -1520,7 +1520,7 @@ void StepMainMenu(void) {
                         break;
                 }
             } else if (gPadTrig & PADRdown) {
-                PlaySe(0xE);
+                PlaySe(SE_CANCEL);
                 sMenuTime = 0;
                 if (sOptionsCursor != 4) {
                     sOptionsCursor = 4;
@@ -1529,12 +1529,12 @@ void StepMainMenu(void) {
             } else if (gPadTrig & PADRright) {
                 switch (sOptionsCursor) {
                     case 3:
-                        PlaySe(0xC);
+                        PlaySe(SE_CONFIRM);
                         sMenuTime = 0;
                         gSubStep = 2003;
                         break;
                     case 4:
-                        PlaySe(0xE);
+                        PlaySe(SE_CANCEL);
                         sMenuTime = 0;
                         gSubStep = 2003;
                         break;
@@ -1718,11 +1718,11 @@ void StepMainMenu(void) {
                     gButtonConfig++;
                 }
             } else if (gPadTrig & PADRright) {
-                PlaySe(0xE);
+                PlaySe(SE_CANCEL);
                 sMenuTime = 0;
                 gSubStep = 3003;
             } else if (gPadTrig & PADRdown) {
-                PlaySe(0xE);
+                PlaySe(SE_CANCEL);
                 sMenuTime = 0;
                 gSubStep = 3003;
             }
@@ -1793,10 +1793,10 @@ void StepMainMenu(void) {
                     pos.vy = 0x57;
                     DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
-                        PlaySe(0xE);
+                        PlaySe(SE_CANCEL);
                         gSubStep = 102;
                     } else if (gPadTrig & PADRright) {
-                        PlaySe(0xC);
+                        PlaySe(SE_CONFIRM);
                         sCardStep = 10;
                     }
                     break;
@@ -1996,10 +1996,10 @@ void StepMainMenu(void) {
                     pos.vy = 0x57;
                     DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
-                        PlaySe(0xE);
+                        PlaySe(SE_CANCEL);
                         gSubStep = 102;
                     } else if (gPadTrig & PADRright) {
-                        PlaySe(0xC);
+                        PlaySe(SE_CONFIRM);
                         sCardMessageTime = 0;
                         sCardStep = 10;
                     }
@@ -2172,10 +2172,10 @@ void StepMainMenu(void) {
                     pos.vy = 0x57;
                     DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
-                        PlaySe(0xE);
+                        PlaySe(SE_CANCEL);
                         gSubStep = 102;
                     } else if (gPadTrig & PADRright) {
-                        PlaySe(0xC);
+                        PlaySe(SE_CONFIRM);
                         sSave = (SaveData *)RAM_WORK_A;
                         sSave->times[0].a = gBestTimes[0].a;
                         sSave->times[1].a = gBestTimes[1].a;
@@ -2266,10 +2266,10 @@ void StepMainMenu(void) {
                     pos.vy = 0x57;
                     DrawSprite(SPR_MENU_BUTTON_CROSS, &pos, NULL, 0, &gSubOt[gActiveBuff]);
                     if (gPadTrig & PADRdown) {
-                        PlaySe(0xE);
+                        PlaySe(SE_CANCEL);
                         gSubStep = 102;
                     } else if (gPadTrig & PADRright) {
-                        PlaySe(0xC);
+                        PlaySe(SE_CONFIRM);
                         sCardMessageTime = 0;
                         sCardStep = 502;
                     }

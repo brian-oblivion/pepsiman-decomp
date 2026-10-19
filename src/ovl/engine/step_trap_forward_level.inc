@@ -1,6 +1,6 @@
 void StepTrapForwardLevel(StageTrap *t, u16 speed) {
     if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
+        PlaySe(SE_TRAP_APPROACH);
     }
     t->homeY = t->y;
     t->y -= 20;

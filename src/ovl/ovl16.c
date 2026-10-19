@@ -96,7 +96,7 @@ void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
     }
     if (t->state == 0) {
         if (LatchProximity(t, 2000) != 0) {
-            PlaySe(82);
+            PlaySe(SE_TRAP_APPROACH);
         }
         SnapToFloor(t);
         if (t->timer < 150 && speed != 0) {
@@ -653,7 +653,7 @@ s8 StepGoalCutscene(StageTrap *t) {
                 PlaySe(0x71);
             }
             if (t->timer == 80) {
-                PlaySe(0x33);
+                PlaySe(SE_GOAL);
             }
             if (t->timer > 120) {
                 ret = 1;
@@ -939,7 +939,7 @@ void UpdateStageEventHook(void) {
         gPlayer.hittable = 0;
         gPlayer.invulnTimer = 30;
         gPlayer.rideMode &= 0xF0;
-        PlaySe(0x38);
+        PlaySe(SE_CRASH);
     }
 }
 

@@ -61,7 +61,7 @@ s32 StepChasePiece0(Act3Obj *o) {
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 140 < gPlayer.z &&
                     gPlayer.z < o->z + 140 && o->y - 25 < gPlayer.y && gPlayer.y < o->y + 205) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
@@ -118,7 +118,7 @@ s32 StepChasePiece1(Act3Obj *o) {
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x - 35 < gPlayer.x && gPlayer.x < o->x + 35 && o->z - 140 < gPlayer.z &&
                     gPlayer.z < o->z + 140 && o->y - 25 < gPlayer.y && gPlayer.y < o->y + 205) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2 && sHurtTimer == 0) {
@@ -549,7 +549,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[0] = 200;
                             gRumbleSmall[1] = 200;
                         }
-                        PlaySe(0x38);
+                        PlaySe(SE_CRASH);
                         sView = *(GsRVIEW2 *)gView;
                         gPlayer.motion[0] = MOT_RIDE_JUMP_2;
                         gPlayer.action = ACT_MODEL_ONCE;

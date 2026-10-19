@@ -251,7 +251,7 @@ void StepMissSequence(void) {
                 break;
             case 3:
                 if (++m->timer < 8 && m->timer % 2 == 0) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
                 if (m->timer >= 9) {
                     m->timer = 0;

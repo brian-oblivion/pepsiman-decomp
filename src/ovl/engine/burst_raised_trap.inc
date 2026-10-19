@@ -13,7 +13,7 @@ void BurstRaisedTrap(StageTrap *t) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
             }
             t->y = t->homeY;

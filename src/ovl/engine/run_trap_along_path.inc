@@ -1,6 +1,6 @@
 void RunTrapAlongPath(StageTrap *t, u16 speed, s8 turn) {
     if (LatchProximity(t, 2000) != 0) {
-        PlaySe(82);
+        PlaySe(SE_TRAP_APPROACH);
     }
     t->state++;
     SnapToFloor(t);

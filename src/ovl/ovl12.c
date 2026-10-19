@@ -137,7 +137,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->state++;
             PlaySe(0x53);
             if (dir == 3) {
-                PlaySe(0x11);
+                PlaySe(SE_DANGER);
             }
         case 1:
             if (LatchProximity(t, 2000) != 0) {
@@ -211,7 +211,7 @@ void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {
     switch (t->state) {
         case 0:
             t->state++;
-            PlaySe(0x11);
+            PlaySe(SE_DANGER);
         case 1:
             StepRollingTrap(t, speed);
             DrawTrapWarning(t);
@@ -277,7 +277,7 @@ void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {
             t->homeY = t->y;
             t->homeZ = t->z;
             t->state++;
-            PlaySe(0x11);
+            PlaySe(SE_DANGER);
         case 1:
             StepTrapForward(t, speed);
             DrawTrapWarning(t);
@@ -285,7 +285,7 @@ void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {
                 t->timer = 0;
                 t->homeRotZ = 0;
                 t->state++;
-                PlaySe(0x52);
+                PlaySe(SE_TRAP_APPROACH);
             }
             break;
         case 2:
@@ -691,7 +691,7 @@ void StepTrapFFAct65(StageTrap *t, s32 arg) {
                     PlaySe(0x36);
                 }
                 if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
             } else {
                 t->model = -1;

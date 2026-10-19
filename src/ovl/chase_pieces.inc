@@ -25,14 +25,14 @@ s32 StepChasePiece0(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[10], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                     o->state = 1;
                     o->timer = 0;
                     o->speed = 45;
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 80 < gPlayer.z &&
                     gPlayer.z < o->z + 80 && o->y - 80 < gPlayer.y) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
@@ -268,14 +268,14 @@ s32 StepChasePiece3(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[13], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                     o->state = 1;
                     o->timer = 0;
                     o->speed = 45;
                 }
                 if (o->x - 50 < gPlayer.x && gPlayer.x < o->x + 50 && o->z - 60 < gPlayer.z &&
                     gPlayer.z < o->z + 60 && o->y - 80 < gPlayer.y) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
@@ -349,14 +349,14 @@ s32 StepChasePiece4(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[14], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
-                    PlaySe(0x3A);
+                    PlaySe(SE_KNOCK_AWAY);
                     o->state = 1;
                     o->timer = 0;
                     o->speed = 45;
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 95 < gPlayer.z &&
                     gPlayer.z < o->z + 95 && o->y - 100 < gPlayer.y) {
-                    PlaySe(0x3A);
+                    PlaySe(SE_KNOCK_AWAY);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {
@@ -513,14 +513,14 @@ s32 StepChasePiece6(Act3Obj *o) {
                 GsSetLsMatrix(&m);
                 GsSortObject4(&sPieceObjs[16], &gSubOt[gActiveBuff], 2, getScratchAddr(0));
                 if (o->x < sCan.x + CHASE_REACH) {
-                    PlaySe(0x3A);
+                    PlaySe(SE_KNOCK_AWAY);
                     o->state = 1;
                     o->timer = 0;
                     o->speed = 45;
                 }
                 if (o->x - 20 < gPlayer.x && gPlayer.x < o->x + 20 && o->z - 105 < gPlayer.z &&
                     gPlayer.z < o->z + 105 && o->y - 90 < gPlayer.y) {
-                    PlaySe(0x3A);
+                    PlaySe(SE_KNOCK_AWAY);
                     gPlayer.action = ACT_TRIP_HARD_START;
                     EndJump();
                     if (gPlayer.slideState < 2) {

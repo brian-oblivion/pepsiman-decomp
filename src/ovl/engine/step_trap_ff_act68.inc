@@ -31,7 +31,7 @@ void StepTrapFFAct68(StageTrap *t) {
                 t->homeRotZ = 0;
             }
             if (t->timer == 180) {
-                PlaySe(0x38);
+                PlaySe(SE_CRASH);
             }
             if (t->aux != 3) {
                 t->homeZ -= ++t->counter;
@@ -51,7 +51,7 @@ void StepTrapFFAct68(StageTrap *t) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched == 1) {
-                PlaySe(0x38);
+                PlaySe(SE_CRASH);
                 t->timer = 0;
                 t->state++;
             }

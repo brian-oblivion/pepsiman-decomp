@@ -9,7 +9,7 @@ void SlideTrapAway(StageTrap *t, s32 arg) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x3A);
+                    PlaySe(SE_KNOCK_AWAY);
                 }
             }
             break;

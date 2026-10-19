@@ -16,7 +16,7 @@ void RunTrapThenTurn(StageTrap *t, u16 speed, s32 range, s8 dir) {
                 }
             }
             if (LatchProximity(t, 2000) != 0) {
-                PlaySe(82);
+                PlaySe(SE_TRAP_APPROACH);
             }
             break;
         case 2:

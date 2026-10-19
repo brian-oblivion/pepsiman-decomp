@@ -17,6 +17,6 @@ void UpdateStageEventHook(void) {
         gPlayer.hittable = 0;
         gPlayer.invulnTimer = 30;
         gPlayer.rideMode &= 0xF0;
-        PlaySe(0x38);
+        PlaySe(SE_CRASH);
     }
 }

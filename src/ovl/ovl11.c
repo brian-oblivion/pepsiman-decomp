@@ -1652,7 +1652,7 @@ s32 StepChaseFrame(void) {
                     if (gPlayer.x > 32300) {
                         sSubStep = 5;
                         StopCdTrack();
-                        PlaySe(0x10);
+                        PlaySe(SE_CHASE_CLEAR);
                     }
                     break;
                 case 5:

@@ -9,7 +9,7 @@ void KnockTrapAway(StageTrap *t) {
             }
             if (t->touched != 0) {
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(58);
+                    PlaySe(SE_KNOCK_AWAY);
                 }
                 t->homeX = 0;
                 t->homeY = t->y;

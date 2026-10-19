@@ -212,7 +212,7 @@ s32 StepChaseFrame(void) {
                             gRumbleSmall[0] = 200;
                             gRumbleSmall[1] = 200;
                         }
-                        PlaySe(0x38);
+                        PlaySe(SE_CRASH);
                         PlaySe(SE_MISS);
                         /* MATCHING: z less (100 less the roll) takes z - 100 first. */
                         for (gLoopI = 0; gLoopI < 8; gLoopI++) {

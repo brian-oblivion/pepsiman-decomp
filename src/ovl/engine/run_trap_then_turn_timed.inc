@@ -6,7 +6,7 @@ void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             t->homeY = t->y;
             t->homeZ = t->z;
             t->state++;
-            PlaySe(0x11);
+            PlaySe(SE_DANGER);
         case 1:
             StepTrapForward(t, speed);
             DrawTrapWarning(t);

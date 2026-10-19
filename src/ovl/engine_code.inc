@@ -354,7 +354,7 @@ void StepCheckpoint(StageTrap *t, s32 id, s8 near) {
                 sSaved.cameraYaw = gCameraYaw;
                 sSaved.cans = gCans;
                 sSaved.viewY = gView[1];
-                PlaySe(12);
+                PlaySe(SE_CONFIRM);
                 t->timer = 0;
                 t->state++;
             }
@@ -744,7 +744,7 @@ void BurstTrapFast(StageTrap *t) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
             }
             break;
@@ -808,7 +808,7 @@ void BurstTrapFastAlt(StageTrap *t) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
             }
             break;
@@ -871,7 +871,7 @@ void BurstTrapSlow(StageTrap *t) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
             }
             break;
@@ -941,7 +941,7 @@ void BurstTrapMedium(StageTrap *t) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
             }
             break;
@@ -993,7 +993,7 @@ void StepFlipPanel(StageTrap *t) {
             if (t->homeRotZ == 0 && t->touched != 0) {
                 t->timer = 0;
                 t->state++;
-                PlaySe(0x20);
+                PlaySe(SE_FLIP_PANEL);
                 gPlayer.x = t->x;
                 gPlayer.z = t->z;
             }
@@ -1323,7 +1323,7 @@ void RunTrapType09(StageTrap *t, s8 reverse) {
     RunTrapAlongPath(t, t->act * 10 + dir * 60, 0);
     DrawTrapWarning(t);
     if (t->state == 0) {
-        PlaySe(0x11);
+        PlaySe(SE_DANGER);
     }
 }
 
@@ -1339,7 +1339,7 @@ void RunTrapType0A(StageTrap *t) {
     StepChargingTrap(t, t->act * 10 + 60, sp.v[t->act / 5]);
     DrawTrapWarning(t);
     if (t->state == 0) {
-        PlaySe(0x11);
+        PlaySe(SE_DANGER);
     }
 }
 

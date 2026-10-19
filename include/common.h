@@ -629,14 +629,19 @@ s32 PlaySe(s32 id);
  *         where each is played. Ids below 70 are in the common VAB bank;
  *         from 70 on, sSeVabBanks picks a stage's own. */
 enum SoundEffect {
-    SE_CURSOR = 0x0B, /**< a menu cursor moves */
-    SE_STEP = 0x13,   /**< every 8 frames of MOT_RUN_SLOW */
-    SE_SLIDE = 0x16,  /**< a slide or a brake starts */
-    SE_JUMP = 0x17,   /**< leaving the ground */
-    SE_WIPE = 0x19,   /**< StartScreenWipe */
-    SE_SPIN = 0x1A,   /**< the spin's first frame */
-    SE_FALL = 0x1B,   /**< falling off the course (MISS_FELL) */
-    SE_LAND = 0x1E,   /**< LandPlayer: down on the ground or a ride quad */
+    SE_CURSOR = 0x0B,  /**< a menu cursor moves */
+    SE_CONFIRM = 0x0C, /**< circle picks a menu item; also a checkpoint taking the player's place */
+    SE_CANCEL = 0x0E,  /**< cross backs out of a menu */
+    SE_CHASE_CLEAR = 0x10, /**< a 2.4 s jingle in place of the music: the end of stage 3-3's chase */
+    SE_DANGER = 0x11,      /**< four alarm pulses: a trap starting, with its DANGER warning */
+    SE_STEP = 0x13,        /**< every 8 frames of MOT_RUN_SLOW */
+    SE_SLIDE = 0x16,       /**< a slide or a brake starts */
+    SE_JUMP = 0x17,        /**< leaving the ground */
+    SE_WIPE = 0x19,        /**< StartScreenWipe */
+    SE_SPIN = 0x1A,        /**< the spin's first frame */
+    SE_FALL = 0x1B,        /**< falling off the course (MISS_FELL) */
+    SE_LAND = 0x1E,        /**< LandPlayer: down on the ground or a ride quad */
+    SE_FLIP_PANEL = 0x20,  /**< StepFlipPanel: the panel the player stands on turns over */
     SE_POWER_UP = 0x22, /**< a retry won on the results screen, or every tenth can raising the bonus level */
     SE_NEW_RECORD = 0x25, /**< the results screen beats a best can count or time */
     SE_HURRY = 0x28,      /**< 11 seconds left */
@@ -645,13 +650,18 @@ enum SoundEffect {
     SE_ALL_CANS = 0x2F,   /**< the results screen counts all 100 cans */
     SE_ITEM_1 = 0x30,     /**< ACT_STOP_ITEM, frame 13 */
     SE_ITEM_2 = 0x31,     /**< ACT_STOP_ITEM, frame 20 */
+    SE_GOAL = 0x33,       /**< 6 s, 15 frames into the goal's screen wipe */
     SE_MISS = 0x34,       /**< lying down with no bonus level left: the miss */
     SE_CAN = 0x35,        /**< a can collected */
     SE_TRAP_HIT = 0x37,   /**< a trap touches the player while hittable */
-    SE_LAUNCH = 0x3C,     /**< ACT_LAUNCH starts */
-    SE_GET_UP = 0x50,     /**< getting up after a fall */
-    SE_DASH = 0x71,       /**< the dash starts */
-    SE_ROLLER = 0x81      /**< every 20 frames of STAGE_2_1's roller */
+    SE_CRASH = 0x38, /**< a trap bursting or shattering at the player's touch, a chase piece hitting the can or the player, the miss sequence */
+    SE_KNOCK_AWAY = 0x3A, /**< the player knocks or slides a trap away; a chase piece reaching the can */
+    SE_LAUNCH = 0x3C, /**< ACT_LAUNCH starts */
+    SE_GET_UP = 0x50, /**< getting up after a fall */
+    SE_TRAP_APPROACH = 0x52, /**< a swell up and down: a running trap coming within 2000 units (the stage's bank) */
+    SE_SPRAY = 0x6A, /**< two hiss bursts, every 10 frames of StepSprayTrap */
+    SE_DASH = 0x71,  /**< the dash starts */
+    SE_ROLLER = 0x81 /**< every 20 frames of STAGE_2_1's roller */
 };
 
 /** @brief StartRumble's patterns: each a single RumbleStep of

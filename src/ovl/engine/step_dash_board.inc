@@ -6,7 +6,7 @@ void StepDashBoard(StageTrap *t) {
                 t->timer = 0;
                 t->state++;
                 if (gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                    PlaySe(0x71);
+                    PlaySe(SE_DASH);
                 }
             }
             if (gSection - UpdatePathSegment(t) < 2) {

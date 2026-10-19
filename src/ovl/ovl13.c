@@ -127,7 +127,7 @@ void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->state++;
             PlaySe(0x53);
             if (dir == 3) {
-                PlaySe(0x11);
+                PlaySe(SE_DANGER);
             }
         case 1:
             if (LatchProximity(t, 2000) != 0) {
@@ -307,7 +307,7 @@ void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x38);
+                PlaySe(SE_CRASH);
             }
             break;
     }
@@ -426,7 +426,7 @@ void StepMissSequence(void) {
                 break;
             case 3:
                 if (++m->timer < 8 && m->timer % 2 == 0) {
-                    PlaySe(0x38);
+                    PlaySe(SE_CRASH);
                 }
                 if (m->timer >= 9) {
                     m->timer = 0;
@@ -603,7 +603,7 @@ s8 StepGoalCutscene(StageTrap *t) {
             break;
         case 4:
             if (++t->timer == 15) {
-                PlaySe(0x33);
+                PlaySe(SE_GOAL);
             }
             if (IsScreenWipeActive() == 0) {
                 t->state++;

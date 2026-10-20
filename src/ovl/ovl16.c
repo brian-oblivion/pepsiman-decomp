@@ -881,7 +881,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {}
 
 void RunTrainAhead(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
 FUNC_ALIAS(StepStage1_1FurnitureVan, RunManholeWorker, 0x24);

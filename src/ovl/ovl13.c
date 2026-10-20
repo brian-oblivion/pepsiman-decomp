@@ -692,7 +692,7 @@ void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
 void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 
 void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {}
 

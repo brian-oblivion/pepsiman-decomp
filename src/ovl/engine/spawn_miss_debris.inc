@@ -11,8 +11,8 @@ void SpawnMissDebris(void) {
         }
         t = &sSpawnedTraps[n];
         t->switchNo = 0xB8;
-        t->type = 0xFF;
-        t->act = 0x6A;
+        t->type = TRAP_SPECIAL;
+        t->act = SPECIAL_MISS_DEBRIS;
         gSwitches[0xB8].state = SWITCH_ON;
         t->homeY = gPlayer.groundY - 50;
         t->x = gPlayer.x + (rand() % 200 - 100);

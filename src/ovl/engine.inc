@@ -279,7 +279,7 @@ void RunTrapType1C(StageTrap *t);
 void RunBison(StageTrap *t);
 void RunBoulder(StageTrap *t);
 void RunTumbleweed(StageTrap *t);
-void RunTrapType22(StageTrap *t);
+void RunStageTruck(StageTrap *t);
 void RunFallingSign(StageTrap *t);
 void RunTrapType2A(StageTrap *t);
 void ReverseSemiTruck(StageTrap *t);

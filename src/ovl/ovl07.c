@@ -523,7 +523,7 @@ void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepRunningBison(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 #include "engine_code.inc" /* BurstTrapStacked */
 
 #include "engine/tumble_upright_can.inc"

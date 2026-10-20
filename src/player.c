@@ -2772,8 +2772,8 @@ void SpawnModeObject(void) {
                     break;
             }
             slot->switchNo = 0xBA;
-            slot->type = 0xFF;
-            slot->act = 0x69;
+            slot->type = TRAP_SPECIAL;
+            slot->act = SPECIAL_FLUNG_PIECE;
             slot->state = 0;
             slot->timer = 0;
             gRideSwitchState[0] = 1;

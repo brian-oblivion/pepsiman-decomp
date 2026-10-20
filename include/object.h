@@ -40,6 +40,83 @@ enum SwitchState {
     SWITCH_OFF = 2    /**< spent: after its pair fires, or when a miss starts */
 };
 
+/** @brief A trap's type, the dispatcher StepStageTrap runs it by. Paired
+ *         types share a dispatcher and differ in a direction or mode;
+ *         "left" turns the heading by -90 degrees, "right" by +90. */
+enum TrapType {
+    TRAP_OBJECT = 0,                 /**< a standing object; its act picks how it reacts */
+    TRAP_RUN_AHEAD = 1,              /**< runs straight ahead on the floor */
+    TRAP_RUN_ALONG_PATH = 2,         /**< runs along the course */
+    TRAP_RUN_AHEAD_BACKWARD = 3,     /**< runs straight back on the floor */
+    TRAP_CHARGE = 4,                 /**< charges, recoils, stands in dust */
+    TRAP_RUN_THEN_TURN_LEFT = 5,     /**< runs ahead, then turns left */
+    TRAP_RUN_THEN_TURN_RIGHT = 6,    /**< runs ahead, then turns right */
+    TRAP_WAIT_RUN_TURN_LEFT = 7,     /**< waits for the player, runs, turns left */
+    TRAP_WAIT_RUN_TURN_RIGHT = 8,    /**< waits for the player, runs, turns right */
+    TRAP_RUN_ALONG_PATH_WARNED = 9,  /**< runs along the course, with a warning */
+    TRAP_CHARGE_WARNED = 10,         /**< charges, with a warning */
+    TRAP_RUN_TURN_TIMED_LEFT = 11,   /**< runs ahead for a time, then turns left */
+    TRAP_RUN_TURN_TIMED_RIGHT = 12,  /**< runs ahead for a time, then turns right */
+    TRAP_BIKER_LEFT = 13,            /**< a biker who swerves left and skids */
+    TRAP_BIKER_RIGHT = 14,           /**< a biker who swerves right and skids */
+    TRAP_SEMI_TRUCK = 15,            /**< a semi truck driving straight ahead */
+    TRAP_SEMI_TRUCK_ALONG_PATH = 16, /**< a semi truck driving along the course */
+    TRAP_SEMI_TRUCK_WARNED = 17,     /**< a semi truck along the course, with a warning */
+    TRAP_JACKKNIFING_TRUCK = 18,     /**< a semi truck that drives, then jackknifes */
+    TRAP_PLANK_WORKER = 19,          /**< a worker carrying a plank, turning as the player nears */
+    TRAP_GATE = 20,                  /**< a two-part gate that swings open */
+    TRAP_TOPPLE = 21,                /**< falls when the player nears, in 12 frames */
+    TRAP_TOPPLE_FAST = 22,           /**< falls when the player nears, in 10 frames */
+    TRAP_SHIFT = 23,                 /**< moves up or down when the player nears */
+    TRAP_MINE_CART = 24,             /**< a mine cart rolling a distance, then coasting */
+    TRAP_MINE_CART_ALONG_PATH = 25,  /**< a mine cart rolling along the course */
+    TRAP_ROLL_THEN_HOP = 26,         /**< rolls a distance, then hops to a stop; unused */
+    TRAP_FALLING_CAN = 27,           /**< a giant can that drops, then rolls */
+    TRAP_TIP_OVER = 28,              /**< tips a quarter turn when the player nears; unused */
+    TRAP_BISON = 29,                 /**< a running bison */
+    TRAP_BOULDER = 30,               /**< a bouncing boulder */
+    TRAP_TUMBLEWEED = 31,            /**< a tumbleweed */
+    TRAP_CRATE_ONE_WAY = 32,         /**< a crate sliding one way; unused */
+    TRAP_SHUTTLING_CRATE = 33,       /**< a crate sliding back and forth */
+    TRAP_STAGE_TRUCK_1 = 34,         /**< the stage's own truck (34 to 38 and 40 alike) */
+    TRAP_STAGE_TRUCK_2 = 35,         /**< the stage's own truck */
+    TRAP_STAGE_TRUCK_3 = 36,         /**< the stage's own truck */
+    TRAP_STAGE_TRUCK_4 = 37,         /**< the stage's own truck */
+    TRAP_STAGE_TRUCK_5 = 38,         /**< the stage's own truck */
+    TRAP_FALLING_SIGN = 39,          /**< a sign that drops, bounces and tips flat */
+    TRAP_STAGE_TRUCK_6 = 40,         /**< the stage's own truck */
+    TRAP_SLIDING_DOOR = 41,          /**< one panel of a pair of sliding doors */
+    TRAP_BACK_AWAY = 42,             /**< backs away a distance; unused */
+    TRAP_SEMI_TRUCK_REVERSING = 43,  /**< a semi truck backing up */
+    TRAP_MANHOLE_WORKER_UP = 44,     /**< a manhole worker who pops up */
+    TRAP_MANHOLE_WORKER_DOWN = 45,   /**< a manhole worker who ducks back down */
+    TRAP_JACKHAMMER_WORKER = 46,     /**< a worker with a jackhammer */
+    TRAP_TRAIN = 47,                 /**< a train */
+    TRAP_RUN_AND_SHRINK = 48,        /**< runs ahead with a warning, then shrinks away; unused */
+    TRAP_SPINNING_BRUSH = 49,        /**< a spinning brush */
+    TRAP_SLIDING_CRATE = 50,         /**< a crate sliding along the floor */
+    TRAP_SLIDING_CRATE_SHORT = 51,   /**< a crate sliding 500 units, then stopping */
+    TRAP_SPECIAL = 255               /**< a special object; its act is a SpecialAct */
+};
+
+/** @brief The act of a TRAP_SPECIAL trap. */
+enum SpecialAct {
+    SPECIAL_NONE = 0,                 /**< does nothing */
+    SPECIAL_LINKED = 1,               /**< drawn while a linked trap is in its early states */
+    SPECIAL_PARTICLES = 5,            /**< gives off particles */
+    SPECIAL_CHECKPOINT_1 = 10,        /**< checkpoint 1 */
+    SPECIAL_CHECKPOINT_2 = 11,        /**< checkpoint 2 */
+    SPECIAL_RISING_CHECKPOINT_1 = 12, /**< checkpoint 1, rising as the player nears */
+    SPECIAL_RISING_CHECKPOINT_2 = 13, /**< checkpoint 2, rising as the player nears */
+    SPECIAL_BOUNCING_ROLLER = 100,    /**< a barrel or can rolling off a truck */
+    SPECIAL_BOUNCING_LOG = 101,       /**< a log off the log truck, bouncing low */
+    SPECIAL_BOUNCING_LOG_HIGH = 102,  /**< a log off the log truck, bouncing high */
+    SPECIAL_TOSSED_LITTER = 103,      /**< litter thrown from a truck */
+    SPECIAL_BOUNCING_FURNITURE = 104, /**< furniture bouncing out of a van */
+    SPECIAL_FLUNG_PIECE = 105,        /**< a piece flung from the player */
+    SPECIAL_MISS_DEBRIS = 106         /**< a miss's debris */
+};
+
 /** @brief A switch (gSwitches, 200 of them): a box whose corners
  *         are tested against the player or placed in the world. */
 typedef struct {

@@ -621,8 +621,8 @@ void SpawnBouncingRoller(StageTrap *t, s8 kind) {
         s->y = s->homeY = p.pos.vy;
         s->z = s->homeZ = p.pos.vz;
         s->model = 10;
-        s->type = 0xFF;
-        s->act = 100;
+        s->type = TRAP_SPECIAL;
+        s->act = SPECIAL_BOUNCING_ROLLER;
         s->state = 0;
         s->timer = 90;
     }
@@ -827,7 +827,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {}
 
 void RunTrainAhead(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 
 #include "engine_code.inc" /* BurstTrapStacked */
 

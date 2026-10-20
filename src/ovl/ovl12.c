@@ -644,8 +644,8 @@ s32 SpawnBouncingLog(StageTrap *t, s8 kind) {
     s->y = s->homeY = p.pos.vy;
     s->z = s->homeZ = p.pos.vz;
     s->model = 0x24;
-    s->type = 0xFF;
-    s->act = rand() % 2 + 0x65;
+    s->type = TRAP_SPECIAL;
+    s->act = rand() % 2 + SPECIAL_BOUNCING_LOG;
     s->state = 0;
     s->timer = 90;
     return 0;
@@ -799,7 +799,7 @@ void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
 #include "engine_code.inc" /* RunPlankWorker to RunTrapType17 */
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 
 void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {}
 

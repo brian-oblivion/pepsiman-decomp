@@ -571,8 +571,8 @@ void SpawnBouncingFurniture(StageTrap *t, s8 arg) {
         s->y = s->homeY = p.pos.vy;
         s->z = s->homeZ = p.pos.vz;
         m = models[rand() % 9];
-        s->type = 0xFF;
-        s->act = 0x68;
+        s->type = TRAP_SPECIAL;
+        s->act = SPECIAL_BOUNCING_FURNITURE;
         s->state = 0;
         s->timer = 40;
         s->model = m;
@@ -781,7 +781,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {}
 
 void RunTrainAhead(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 
 #include "engine_code.inc" /* BurstTrapStacked */
 

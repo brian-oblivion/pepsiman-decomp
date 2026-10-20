@@ -615,8 +615,8 @@ void SpawnTossedLitter(StageTrap *t, s8 arg) {
         s->y = s->homeY = p.pos.vy;
         s->z = s->homeZ = p.pos.vz;
         r = rand();
-        s->type = 0xFF;
-        s->act = 0x67;
+        s->type = TRAP_SPECIAL;
+        s->act = SPECIAL_TOSSED_LITTER;
         s->rotY += ANGLE_DEG(180);
         s->state = 0;
         s->timer = 20;
@@ -721,8 +721,8 @@ void SpawnBouncingFurniture(StageTrap *t, s8 arg) {
         s->y = s->homeY = p.pos.vy;
         s->z = s->homeZ = p.pos.vz;
         m = models[rand() % 9];
-        s->type = 0xFF;
-        s->act = 0x68;
+        s->type = TRAP_SPECIAL;
+        s->act = SPECIAL_BOUNCING_FURNITURE;
         s->state = 0;
         s->timer = 40;
         s->rotY += ANGLE_DEG(180);
@@ -809,7 +809,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {}
 
 void RunTrainAhead(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
+#include "engine_code.inc" /* RunStageTruck to RunJackhammerWorker */
 
 #include "engine_code.inc" /* BurstTrapStacked */
 

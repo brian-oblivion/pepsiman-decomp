@@ -150,155 +150,155 @@ void UpdateStageTraps(void) {
  */
 void StepStageTrap(StageTrap *t) {
     switch (t->type) {
-        case 255:
+        case TRAP_SPECIAL:
             RunTrapTypeFF(t);
             break;
-        case 0:
+        case TRAP_OBJECT:
             RunTrapType00(t);
             break;
-        case 1:
+        case TRAP_RUN_AHEAD:
             RunTrapType01(t, 0);
             break;
-        case 2:
+        case TRAP_RUN_ALONG_PATH:
             RunTrapType02(t);
             break;
-        case 3:
+        case TRAP_RUN_AHEAD_BACKWARD:
             RunTrapType01(t, 1);
             break;
-        case 4:
+        case TRAP_CHARGE:
             RunTrapType04(t);
             break;
-        case 5:
+        case TRAP_RUN_THEN_TURN_LEFT:
             RunTrapType05(t, 2);
             break;
-        case 6:
+        case TRAP_RUN_THEN_TURN_RIGHT:
             RunTrapType05(t, 1);
             break;
-        case 7:
+        case TRAP_WAIT_RUN_TURN_LEFT:
             RunTrapType07(t, 3000, 2);
             break;
-        case 8:
+        case TRAP_WAIT_RUN_TURN_RIGHT:
             RunTrapType07(t, 3000, 1);
             break;
-        case 9:
+        case TRAP_RUN_ALONG_PATH_WARNED:
             RunTrapType09(t, 0);
             break;
-        case 10:
+        case TRAP_CHARGE_WARNED:
             RunTrapType0A(t);
             break;
-        case 11:
+        case TRAP_RUN_TURN_TIMED_LEFT:
             RunTrapType0B(t, 2);
             break;
-        case 12:
+        case TRAP_RUN_TURN_TIMED_RIGHT:
             RunTrapType0B(t, 1);
             break;
-        case 13:
+        case TRAP_BIKER_LEFT:
             RunSwervingBiker(t, 2);
             break;
-        case 14:
+        case TRAP_BIKER_RIGHT:
             RunSwervingBiker(t, 1);
             break;
-        case 15:
+        case TRAP_SEMI_TRUCK:
             RunSemiTruck(t, 0);
             break;
-        case 16:
+        case TRAP_SEMI_TRUCK_ALONG_PATH:
             RunSemiTruckAlongPath(t, 1);
             break;
-        case 17:
+        case TRAP_SEMI_TRUCK_WARNED:
             RunSemiTruckWithWarning(t, 3);
             break;
-        case 18:
+        case TRAP_JACKKNIFING_TRUCK:
             RunJackknifingTruck(t);
             break;
     }
     switch (t->type) {
-        case 19:
+        case TRAP_PLANK_WORKER:
             RunPlankWorker(t);
             break;
-        case 20:
+        case TRAP_GATE:
             RunTrapType14(t);
             break;
-        case 21:
+        case TRAP_TOPPLE:
             RunTrapType15(t, 0);
             break;
-        case 22:
+        case TRAP_TOPPLE_FAST:
             RunTrapType15(t, 1);
             break;
-        case 23:
+        case TRAP_SHIFT:
             RunTrapType17(t);
             break;
-        case 24:
+        case TRAP_MINE_CART:
             RunMineCart(t, 0);
             break;
-        case 25:
+        case TRAP_MINE_CART_ALONG_PATH:
             RunMineCart(t, 1);
             break;
-        case 26:
+        case TRAP_ROLL_THEN_HOP:
             RunTrapType1A(t, 0);
             break;
-        case 27:
+        case TRAP_FALLING_CAN:
             RunFallingRollingCan(t);
             break;
-        case 28:
+        case TRAP_TIP_OVER:
             RunTrapType1C(t);
             break;
-        case 29:
+        case TRAP_BISON:
             RunBison(t);
             break;
-        case 30:
+        case TRAP_BOULDER:
             RunBoulder(t);
             break;
-        case 31:
+        case TRAP_TUMBLEWEED:
             RunTumbleweed(t);
             break;
-        case 32:
+        case TRAP_CRATE_ONE_WAY:
             RunShuttlingCrate(t, 0);
             break;
-        case 33:
+        case TRAP_SHUTTLING_CRATE:
             RunShuttlingCrate(t, 1);
             break;
-        case 34:
-        case 35:
-        case 36:
-        case 37:
-        case 38:
-        case 40:
-            RunTrapType22(t);
+        case TRAP_STAGE_TRUCK_1:
+        case TRAP_STAGE_TRUCK_2:
+        case TRAP_STAGE_TRUCK_3:
+        case TRAP_STAGE_TRUCK_4:
+        case TRAP_STAGE_TRUCK_5:
+        case TRAP_STAGE_TRUCK_6:
+            RunStageTruck(t);
             break;
-        case 39:
+        case TRAP_FALLING_SIGN:
             RunFallingSign(t);
             break;
-        case 41:
+        case TRAP_SLIDING_DOOR:
             RunSlidingDoor(t, 0);
             break;
-        case 42:
+        case TRAP_BACK_AWAY:
             RunTrapType2A(t);
             break;
-        case 43:
+        case TRAP_SEMI_TRUCK_REVERSING:
             ReverseSemiTruck(t);
             break;
-        case 44:
+        case TRAP_MANHOLE_WORKER_UP:
             RunManholeWorker(t, 0);
             break;
-        case 45:
+        case TRAP_MANHOLE_WORKER_DOWN:
             RunManholeWorker(t, 1);
             break;
-        case 46:
+        case TRAP_JACKHAMMER_WORKER:
             RunJackhammerWorker(t);
             break;
-        case 47:
+        case TRAP_TRAIN:
             RunTrain(t);
             break;
-        case 48:
+        case TRAP_RUN_AND_SHRINK:
             RunTrapType30(t);
             break;
-        case 49:
+        case TRAP_SPINNING_BRUSH:
             RunSpinningBrush(t);
             break;
-        case 50:
+        case TRAP_SLIDING_CRATE:
             RunSlidingCrate(t, 0);
             break;
-        case 51:
+        case TRAP_SLIDING_CRATE_SHORT:
             RunSlidingCrate(t, 1);
             break;
     }
@@ -1168,45 +1168,45 @@ void StartSpriteWalk(EngSprite *r, u16 i, s16 angle) {
  */
 void RunTrapTypeFF(StageTrap *t) {
     switch (t->act) {
-        case 0:
+        case SPECIAL_NONE:
             break;
-        case 1:
+        case SPECIAL_LINKED:
             DrawTrapWhileLinked(t);
             break;
-        case 5:
+        case SPECIAL_PARTICLES:
             EmitTrapParticles(t);
             break;
-        case 10:
+        case SPECIAL_CHECKPOINT_1:
             StepCheckpoint(t, 1, 0);
             break;
-        case 11:
+        case SPECIAL_CHECKPOINT_2:
             StepCheckpoint(t, 2, 0);
             break;
-        case 12:
+        case SPECIAL_RISING_CHECKPOINT_1:
             StepCheckpoint(t, 1, 1);
             break;
-        case 13:
+        case SPECIAL_RISING_CHECKPOINT_2:
             StepCheckpoint(t, 2, 1);
             break;
-        case 100:
+        case SPECIAL_BOUNCING_ROLLER:
             StepBouncingRoller(t, 80);
             break;
-        case 101:
+        case SPECIAL_BOUNCING_LOG:
             StepBouncingLog(t, 50);
             break;
-        case 102:
+        case SPECIAL_BOUNCING_LOG_HIGH:
             StepBouncingLog(t, 180);
             break;
-        case 103:
+        case SPECIAL_TOSSED_LITTER:
             StepTossedLitter(t);
             break;
-        case 104:
+        case SPECIAL_BOUNCING_FURNITURE:
             StepBouncingFurniture(t);
             break;
-        case 105:
+        case SPECIAL_FLUNG_PIECE:
             StepFlungPiece(t);
             break;
-        case 106:
+        case SPECIAL_MISS_DEBRIS:
             StepMissDebris(t);
             break;
     }
@@ -1350,8 +1350,8 @@ void RunTrapType0A(StageTrap *t) {
 
 /**
  * @brief Types 50 and 51: a Pepsi crate that slides along the floor (stage
- *        5-2) at the act's speed. With mode 0, acts 0 to 10 give act * 10 and acts 11 to 20
- *        (act - 10) * 10 backwards in mode 2; with mode 1, acts 0 to 3 give
+ *        5-2) at the act's speed. With mode 0, acts 0 to 10 give act * 10
+ *        and acts 11 to 20 (act - 10) * 10 backwards in mode 2; with mode 1, acts 0 to 3 give
  *        (act + 1) * 10.
  * @param t    the trap
  * @param mode 0 for type 50, 1 for type 51
@@ -1489,8 +1489,9 @@ void RunSemiTruckWithWarning(StageTrap *t, s8 dir) {
 
 /**
  * @brief Type 18: a semi truck that drives ahead, then jackknifes, tractor
- *        and trailer turning apart in a cloud of smoke: acts 0 to 2 run at (act + 1) * 10 for 60
- *        frames, acts 3 to 5 at (act - 2) * 10 for 90.
+ *        and trailer turning apart in a cloud of smoke: acts 0 to 2 run at
+ *        (act + 1) * 10 for 60 frames, acts 3 to 5 at (act - 2) * 10 for
+ *        90.
  * @param t the trap
  */
 void RunJackknifingTruck(StageTrap *t) {
@@ -1509,8 +1510,8 @@ void RunJackknifingTruck(StageTrap *t) {
 }
 
 /**
- * @brief Type 43: a semi truck backing up (mode 4) at 5 or 10 and a distance of 250 or 500 by act (0 to 3); act 4 does
- *        nothing.
+ * @brief Type 43: a semi truck backing up (mode 4) at 5 or 10 for 250 or
+ *        500 units by act (0 to 3); act 4 does nothing.
  * @param t the trap
  */
 void ReverseSemiTruck(StageTrap *t) {
@@ -1790,7 +1791,8 @@ void ArmTrapByRange(StageTrap *t, s32 range, u8 type, u8 act) {
 #elif ENGINE_PART == 15
 
 /**
- * @brief Type 19: a worker carrying a plank, who turns an eighth of a turn to one side when
+ * @brief Type 19: a worker carrying a plank, who turns an eighth of a
+ *        turn to one side when
  *        the player comes within 500, 1000, 2000 or 3000 units (by act, 0
  *        to 7); even acts turn one way, odd acts the other.
  * @param t the trap
@@ -1940,35 +1942,36 @@ void RunTrapType17(StageTrap *t) {
 #elif ENGINE_PART == 16
 
 /**
- * @brief Types 34 to 38 and 40: the stage's own trap, picked by the stage
- *        being played. Act 0 runs stage 1-1's or 1-2's; act 1 (and act 0
- *        in any other stage) runs stage 1-1's, 2-1's, 4-1's or 5-1's
- *        second one. In the stages it does not list it does nothing.
+ * @brief Types 34 to 38 and 40: the stage's own truck, which drops things
+ *        in its wake, picked by the stage being played. Act 0 runs stage
+ *        1-1's litter truck or 1-2's furniture van; act 1 (and act 0 in any
+ *        other stage) runs 1-1's furniture van, 2-1's barrel truck, 4-1's
+ *        log truck or 5-1's can truck. In other stages it does nothing.
  * @param t the trap
  */
-void RunTrapType22(StageTrap *t) {
+void RunStageTruck(StageTrap *t) {
     switch (t->act) {
         case 0:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     StepStage1_1LitterTruck(t);
                     return;
-                case 1:
+                case STAGE_1_2:
                     StepStage1_2FurnitureVan(t);
                     break;
             }
         case 1:
             switch (gStage) {
-                case 0:
+                case STAGE_1_1:
                     StepStage1_1FurnitureVan(t);
                     break;
-                case 3:
+                case STAGE_2_1:
                     StepStage2_1BarrelTruck(t);
                     break;
-                case 9:
+                case STAGE_4_1:
                     StepStage4_1LogTruck(t);
                     break;
-                case 12:
+                case STAGE_5_1:
                     StepStage5_1CanTruck(t);
                     break;
             }
@@ -1978,8 +1981,8 @@ void RunTrapType22(StageTrap *t) {
 
 /**
  * @brief Types 44 and 45: a manhole whose worker pops up (type 44) or ducks
- *        back under the lid (type 45), with a sound, when
- *        the player comes within 500, 1000 or 1500 units (by act, 0 to 2).
+ *        back under the lid (type 45), with a sound, when the player comes
+ *        within 500, 1000 or 1500 units (by act, 0 to 2).
  * @param t   the trap
  * @param arg 0 (type 44) to take the next model, which is then solid; 1
  *            (type 45) the previous, which is only drawn

@@ -55,8 +55,8 @@ void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {
                 sSpawnedTraps[n].state = 0;
                 SnapToFloor(&sSpawnedTraps[n]);
                 sSpawnedTraps[n].model = rand() % 3 + 17;
-                sSpawnedTraps[n].type = 0;
-                sSpawnedTraps[n].act = 1;
+                sSpawnedTraps[n].type = TRAP_OBJECT;
+                sSpawnedTraps[n].act = 1; /* solid, StepSolidTrap */
                 t->homeRotZ++;
             }
             break;

@@ -173,10 +173,10 @@ void StepTossedLitter(StageTrap *t) {
 
 #include "engine/swing_gate_continuously.inc"
 
-#include "engine/step_hopping_trap.inc"
+#include "engine/step_jackhammer_worker.inc"
 
-#include "engine/swap_trap_model_on_approach.inc"
-FUNC_ALIAS(StepStage4_1Dropper, SwapTrapModelOnApproach, 0x12C);
+#include "engine/toggle_manhole_worker_on_approach.inc"
+FUNC_ALIAS(StepStage4_1LogTruck, ToggleManholeWorkerOnApproach, 0x12C);
 
 void StepMissSequence(void) {
     s32 unused[18];
@@ -299,7 +299,7 @@ void UpdateStageEventHook(void) {
     }
 }
 
-FUNC_ALIAS(StepStage5_1Dropper, UpdateStageEventHook, 0x18);
+FUNC_ALIAS(StepStage5_1CanTruck, UpdateStageEventHook, 0x18);
 FUNC_ALIAS(StepBouncingLog, UpdateStageEventHook, 0x50);
 
 extern s8 gAct1GoalSwitchState;
@@ -529,7 +529,7 @@ void StepStageFrame(void) {
 
 void SpawnTossedLitter(StageTrap *t, s8 arg);
 
-void StepStage1_1Dropper(StageTrap *t) {
+void StepStage1_1LitterTruck(StageTrap *t) {
     switch (t->state) {
         case 0:
             t->homeRotZ = 0;
@@ -582,8 +582,8 @@ void StepStage1_1Dropper(StageTrap *t) {
     }
 }
 
-FUNC_ALIAS(StepStage1_2Dropper, StepStage1_1Dropper, 0x174);
-FUNC_ALIAS(StepStage2_1Dropper, StepStage1_1Dropper, 0x1C8);
+FUNC_ALIAS(StepStage1_2FurnitureVan, StepStage1_1LitterTruck, 0x174);
+FUNC_ALIAS(StepStage2_1BarrelTruck, StepStage1_1LitterTruck, 0x1C8);
 
 void SpawnTossedLitter(StageTrap *t, s8 arg) {
     PlacedPos p;
@@ -628,7 +628,7 @@ void SpawnTossedLitter(StageTrap *t, s8 arg) {
 
 void SpawnBouncingFurniture(StageTrap *t, s8 arg);
 
-void StepStage1_1CreepingDropper(StageTrap *t) {
+void StepStage1_1FurnitureVan(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -801,7 +801,7 @@ void StepSpinningBrush(StageTrap *t, s32 arg) {}
 
 void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
-#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
+#include "engine_code.inc" /* RunPlankWorker to RunTrapType17 */
 
 void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
@@ -809,7 +809,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {}
 
 void RunTrainAhead(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
+#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
 
 #include "engine_code.inc" /* BurstTrapStacked */
 
@@ -829,7 +829,7 @@ void ToppleCactusOnHit(StageTrap *t) {}
 
 void BurstRaisedTrap(StageTrap *t) {}
 
-void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {}
+void TurnPlankWorkerOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
 void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {}
 

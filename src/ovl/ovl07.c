@@ -71,7 +71,7 @@ GsRVIEW2 sSavedView = {0};
 #include "engine/step_spray_trap.inc"
 #include "engine/burst_raised_trap.inc"
 
-#include "engine/turn_trap_on_approach.inc"
+#include "engine/turn_plank_worker_on_approach.inc"
 
 #include "engine/open_gate_on_approach.inc"
 
@@ -83,7 +83,7 @@ GsRVIEW2 sSavedView = {0};
 
 #include "engine/shift_trap_on_approach.inc"
 
-void StepHoppingTrap(StageTrap *t, u8 act) {
+void StepJackhammerWorker(StageTrap *t, u8 act) {
     VECTOR v;
     s32 off;
     s32 amp;
@@ -158,9 +158,9 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
 
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(StepStage4_1Dropper, StepHoppingTrap, 0x284);
+FUNC_ALIAS(StepStage4_1LogTruck, StepJackhammerWorker, 0x284);
 
-#include "engine/swap_trap_model_on_approach.inc"
+#include "engine/toggle_manhole_worker_on_approach.inc"
 
 void StepMissSequence(void) {
     s32 unused[18];
@@ -246,7 +246,7 @@ void StepMissSequence(void) {
 
 /* MATCHING: the type dispatchers call these two addresses inside the
  * function above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(StepStage5_1Dropper, StepMissSequence, 0xD8);
+FUNC_ALIAS(StepStage5_1CanTruck, StepMissSequence, 0xD8);
 FUNC_ALIAS(StepBouncingLog, StepMissSequence, 0x110);
 
 void StepGoalSequence(void) {
@@ -449,10 +449,10 @@ s8 StepGoalCutscene(StageTrap *t) {
 
 /* MATCHING: the type-34 dispatcher calls these addresses inside the
  * function above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(StepStage1_1Dropper, StepGoalCutscene, 0x14);
-FUNC_ALIAS(StepStage1_2Dropper, StepGoalCutscene, 0x188);
-FUNC_ALIAS(StepStage2_1Dropper, StepGoalCutscene, 0x1DC);
-FUNC_ALIAS(StepStage1_1CreepingDropper, StepGoalCutscene, 0x518);
+FUNC_ALIAS(StepStage1_1LitterTruck, StepGoalCutscene, 0x14);
+FUNC_ALIAS(StepStage1_2FurnitureVan, StepGoalCutscene, 0x188);
+FUNC_ALIAS(StepStage2_1BarrelTruck, StepGoalCutscene, 0x1DC);
+FUNC_ALIAS(StepStage1_1FurnitureVan, StepGoalCutscene, 0x518);
 #include "engine_code.inc" /* UpdateStageEvents to RunTrapType02 */
 #include "engine/run_trap_type04.inc"
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
@@ -517,13 +517,13 @@ void StepSpinningBrush(StageTrap *t, s32 arg) {}
 
 void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
-#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
+#include "engine_code.inc" /* RunPlankWorker to RunTrapType17 */
 
 void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepRunningBison(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
+#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
 #include "engine_code.inc" /* BurstTrapStacked */
 
 #include "engine/tumble_upright_can.inc"

@@ -213,7 +213,7 @@ void StepStageTrap(StageTrap *t) {
     }
     switch (t->type) {
         case 19:
-            RunTrapType13(t);
+            RunPlankWorker(t);
             break;
         case 20:
             RunTrapType14(t);
@@ -278,13 +278,13 @@ void StepStageTrap(StageTrap *t) {
             ReverseSemiTruck(t);
             break;
         case 44:
-            RunTrapType2C(t, 0);
+            RunManholeWorker(t, 0);
             break;
         case 45:
-            RunTrapType2C(t, 1);
+            RunManholeWorker(t, 1);
             break;
         case 46:
-            RunTrapType2E(t);
+            RunJackhammerWorker(t);
             break;
         case 47:
             RunTrain(t);
@@ -1790,36 +1790,36 @@ void ArmTrapByRange(StageTrap *t, s32 range, u8 type, u8 act) {
 #elif ENGINE_PART == 15
 
 /**
- * @brief Type 19: a trap that turns an eighth of a turn to one side when
+ * @brief Type 19: a worker carrying a plank, who turns an eighth of a turn to one side when
  *        the player comes within 500, 1000, 2000 or 3000 units (by act, 0
  *        to 7); even acts turn one way, odd acts the other.
  * @param t the trap
  */
-void RunTrapType13(StageTrap *t) {
+void RunPlankWorker(StageTrap *t) {
     switch (t->act) {
         case 0:
-            TurnTrapOnApproach(t, 500, 1);
+            TurnPlankWorkerOnApproach(t, 500, 1);
             break;
         case 1:
-            TurnTrapOnApproach(t, 500, 2);
+            TurnPlankWorkerOnApproach(t, 500, 2);
             break;
         case 2:
-            TurnTrapOnApproach(t, 1000, 1);
+            TurnPlankWorkerOnApproach(t, 1000, 1);
             break;
         case 3:
-            TurnTrapOnApproach(t, 1000, 2);
+            TurnPlankWorkerOnApproach(t, 1000, 2);
             break;
         case 4:
-            TurnTrapOnApproach(t, 2000, 1);
+            TurnPlankWorkerOnApproach(t, 2000, 1);
             break;
         case 5:
-            TurnTrapOnApproach(t, 2000, 2);
+            TurnPlankWorkerOnApproach(t, 2000, 2);
             break;
         case 6:
-            TurnTrapOnApproach(t, 3000, 1);
+            TurnPlankWorkerOnApproach(t, 3000, 1);
             break;
         case 7:
-            TurnTrapOnApproach(t, 3000, 2);
+            TurnPlankWorkerOnApproach(t, 3000, 2);
             break;
     }
 }
@@ -1951,25 +1951,25 @@ void RunTrapType22(StageTrap *t) {
         case 0:
             switch (gStage) {
                 case 0:
-                    StepStage1_1Dropper(t);
+                    StepStage1_1LitterTruck(t);
                     return;
                 case 1:
-                    StepStage1_2Dropper(t);
+                    StepStage1_2FurnitureVan(t);
                     break;
             }
         case 1:
             switch (gStage) {
                 case 0:
-                    StepStage1_1CreepingDropper(t);
+                    StepStage1_1FurnitureVan(t);
                     break;
                 case 3:
-                    StepStage2_1Dropper(t);
+                    StepStage2_1BarrelTruck(t);
                     break;
                 case 9:
-                    StepStage4_1Dropper(t);
+                    StepStage4_1LogTruck(t);
                     break;
                 case 12:
-                    StepStage5_1Dropper(t);
+                    StepStage5_1CanTruck(t);
                     break;
             }
             break;
@@ -1977,33 +1977,34 @@ void RunTrapType22(StageTrap *t) {
 }
 
 /**
- * @brief Types 44 and 45: a trap that changes model, with a sound, when
+ * @brief Types 44 and 45: a manhole whose worker pops up (type 44) or ducks
+ *        back under the lid (type 45), with a sound, when
  *        the player comes within 500, 1000 or 1500 units (by act, 0 to 2).
  * @param t   the trap
  * @param arg 0 (type 44) to take the next model, which is then solid; 1
  *            (type 45) the previous, which is only drawn
  */
-void RunTrapType2C(StageTrap *t, u8 arg) {
+void RunManholeWorker(StageTrap *t, u8 arg) {
     switch (t->act) {
         case 0:
-            SwapTrapModelOnApproach(t, 500, arg);
+            ToggleManholeWorkerOnApproach(t, 500, arg);
             break;
         case 1:
-            SwapTrapModelOnApproach(t, 1000, arg);
+            ToggleManholeWorkerOnApproach(t, 1000, arg);
             break;
         case 2:
-            SwapTrapModelOnApproach(t, 1500, arg);
+            ToggleManholeWorkerOnApproach(t, 1500, arg);
             break;
     }
 }
 
 /**
- * @brief Type 46: a trap that hops in place, by its act swaying side to
+ * @brief Type 46: a worker with a jackhammer who hops in place, by its act swaying side to
  *        side or moving in one of four directions.
  * @param t the trap
  */
-void RunTrapType2E(StageTrap *t) {
-    StepHoppingTrap(t, t->act);
+void RunJackhammerWorker(StageTrap *t) {
+    StepJackhammerWorker(t, t->act);
 }
 
 #undef ENGINE_PART

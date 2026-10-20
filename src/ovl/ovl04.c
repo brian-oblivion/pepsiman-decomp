@@ -156,9 +156,9 @@ void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {
 
 #include "engine/swing_gate_continuously.inc"
 
-#include "engine/step_hopping_trap.inc"
+#include "engine/step_jackhammer_worker.inc"
 
-#include "engine/swap_trap_model_on_approach.inc"
+#include "engine/toggle_manhole_worker_on_approach.inc"
 
 void StepMissSequence(void) {
     s32 unused[18];
@@ -246,7 +246,7 @@ void StepMissSequence(void) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(StepStage4_1Dropper, StepMissSequence, 0x12C);
+FUNC_ALIAS(StepStage4_1LogTruck, StepMissSequence, 0x12C);
 
 s8 StepGoalCutscene(StageTrap *t);
 
@@ -315,7 +315,7 @@ void LoadTimRange(u8 *dir, u16 first, u16 count);
 
 /* MATCHING: the type dispatchers call these two addresses inside the
  * function above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(StepStage5_1Dropper, CycleGoalLights, 0x4);
+FUNC_ALIAS(StepStage5_1CanTruck, CycleGoalLights, 0x4);
 FUNC_ALIAS(StepBouncingLog, CycleGoalLights, 0x3C);
 
 #include "engine/step_stage_frame.inc"
@@ -470,12 +470,12 @@ s8 StepGoalCutscene(StageTrap *t) {
     return ret;
 }
 
-FUNC_ALIAS(StepStage1_1Dropper, StepGoalCutscene, 0x3E4);
+FUNC_ALIAS(StepStage1_1LitterTruck, StepGoalCutscene, 0x3E4);
 
 
 void SpawnBouncingFurniture(StageTrap *t, s8 arg);
 
-void StepStage1_2Dropper(StageTrap *t) {
+void StepStage1_2FurnitureVan(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -537,7 +537,7 @@ void StepStage1_2Dropper(StageTrap *t) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(StepStage2_1Dropper, StepStage1_2Dropper, 0x54);
+FUNC_ALIAS(StepStage2_1BarrelTruck, StepStage1_2FurnitureVan, 0x54);
 
 void SpawnBouncingFurniture(StageTrap *t, s8 arg) {
     PlacedPos p;
@@ -591,7 +591,7 @@ void SpawnBouncingFurniture(StageTrap *t, s8 arg) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(StepStage1_1CreepingDropper, SpawnBouncingFurniture, 0x58);
+FUNC_ALIAS(StepStage1_1FurnitureVan, SpawnBouncingFurniture, 0x58);
 
 void StepBoardSpeed(void) {
     s16 v;
@@ -773,7 +773,7 @@ void StepSpinningBrush(StageTrap *t, s32 arg) {}
 
 void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
-#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
+#include "engine_code.inc" /* RunPlankWorker to RunTrapType17 */
 
 void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
@@ -781,7 +781,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {}
 
 void RunTrainAhead(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
+#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
 
 #include "engine_code.inc" /* BurstTrapStacked */
 
@@ -801,7 +801,7 @@ void ToppleCactusOnHit(StageTrap *t) {}
 
 void BurstRaisedTrap(StageTrap *t) {}
 
-void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {}
+void TurnPlankWorkerOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
 void ToppleTrapOnApproach(StageTrap *t, s32 side, s32 speed, u8 kind) {}
 

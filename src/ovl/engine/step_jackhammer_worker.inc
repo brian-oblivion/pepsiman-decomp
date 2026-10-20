@@ -1,4 +1,4 @@
-void StepHoppingTrap(StageTrap *t, u8 act) {
+void StepJackhammerWorker(StageTrap *t, u8 act) {
     VECTOR v;
     s32 off;
     s32 amp;

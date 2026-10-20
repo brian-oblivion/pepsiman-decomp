@@ -111,7 +111,7 @@ void ResetSpawnedTraps(void) {
 
 #include "engine/burst_raised_trap.inc"
 
-#include "engine/turn_trap_on_approach.inc"
+#include "engine/turn_plank_worker_on_approach.inc"
 
 #include "engine/open_gate_on_approach.inc"
 
@@ -123,7 +123,7 @@ void ResetSpawnedTraps(void) {
 
 #include "engine/shift_trap_on_approach.inc"
 
-void StepHoppingTrap(StageTrap *t, u8 act) {
+void StepJackhammerWorker(StageTrap *t, u8 act) {
     VECTOR v;
     s32 off;
     s32 amp;
@@ -198,9 +198,9 @@ void StepHoppingTrap(StageTrap *t, u8 act) {
 
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(StepStage4_1Dropper, StepHoppingTrap, 0x260);
+FUNC_ALIAS(StepStage4_1LogTruck, StepJackhammerWorker, 0x260);
 
-#include "engine/swap_trap_model_on_approach.inc"
+#include "engine/toggle_manhole_worker_on_approach.inc"
 
 void StepMissSequence(void) {
     s32 unused[18];
@@ -288,7 +288,7 @@ void StepMissSequence(void) {
 
 /* MATCHING: the engine dispatchers call these addresses inside the function
  * above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(StepStage5_1Dropper, StepMissSequence, 0xB4);
+FUNC_ALIAS(StepStage5_1CanTruck, StepMissSequence, 0xB4);
 FUNC_ALIAS(StepBouncingLog, StepMissSequence, 0xEC);
 
 extern s8 gAct1GoalSwitchState;
@@ -489,13 +489,13 @@ void StepStageFrame(void) {
 
 /* MATCHING: the engine dispatchers call these addresses inside the function
  * above (other stages' entry points in their own overlays). */
-FUNC_ALIAS(StepStage1_1Dropper, StepStageFrame, 0x7C);
-FUNC_ALIAS(StepStage1_2Dropper, StepStageFrame, 0x1F0);
+FUNC_ALIAS(StepStage1_1LitterTruck, StepStageFrame, 0x7C);
+FUNC_ALIAS(StepStage1_2FurnitureVan, StepStageFrame, 0x1F0);
 
 void SpawnBouncingRoller(StageTrap *t, s8 dir);
 
 /* MATCHING: s32 with no return statement, which keeps retail's tail. */
-s32 StepStage2_1Dropper(StageTrap *t) {
+s32 StepStage2_1BarrelTruck(StageTrap *t) {
     s16 speed;
 
     switch (t->state) {
@@ -596,7 +596,7 @@ void SpawnBouncingRoller(StageTrap *t, s8 dir) {
 
 /* MATCHING: the engine dispatchers call this address inside the function
  * above (another stage's entry point in its own overlay). */
-FUNC_ALIAS(StepStage1_1CreepingDropper, SpawnBouncingRoller, 0x4);
+FUNC_ALIAS(StepStage1_1FurnitureVan, SpawnBouncingRoller, 0x4);
 
 s8 StepGoalCutscene(StageTrap *t) {
     StageTrap *g;
@@ -732,13 +732,13 @@ void StepSpinningBrush(StageTrap *t, s32 arg) {}
 
 void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
-#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
+#include "engine_code.inc" /* RunPlankWorker to RunTrapType17 */
 
 void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
 void StepRunningBison(StageTrap *t, u16 speed) {}
 
-#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
+#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
 
 #include "engine_code.inc" /* BurstTrapStacked */
 

@@ -548,7 +548,7 @@ void SpawnBouncingLogOnTimer(StageTrap *t, s16 period);
 
 /* MATCHING: s32 with no return keeps the index shift in the jump table's
  * bound check delay slot. */
-s32 StepStage4_1Dropper(StageTrap *t) {
+s32 StepStage4_1LogTruck(StageTrap *t) {
     s32 home;
     s16 speed;
 
@@ -653,7 +653,7 @@ s32 SpawnBouncingLog(StageTrap *t, s8 kind) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(StepStage5_1Dropper, SpawnBouncingLog, 0x16C);
+FUNC_ALIAS(StepStage5_1CanTruck, SpawnBouncingLog, 0x16C);
 
 void StepBouncingLog(StageTrap *t, s32 arg) {
     /* MATCHING: one local per case keeps each abs in its own register. */
@@ -719,20 +719,20 @@ void SpawnBouncingLogOnTimer(StageTrap *t, s16 period) {
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(StepStage1_1Dropper, RunTrapType09, 0x64);
+FUNC_ALIAS(StepStage1_1LitterTruck, RunTrapType09, 0x64);
 
 #include "engine/run_trap_type0b.inc"
 
 #include "engine_code.inc" /* RunSlidingCrate */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(StepStage1_2Dropper, RunSlidingCrate, 0x30);
-FUNC_ALIAS(StepStage2_1Dropper, RunSlidingCrate, 0x84);
+FUNC_ALIAS(StepStage1_2FurnitureVan, RunSlidingCrate, 0x30);
+FUNC_ALIAS(StepStage2_1BarrelTruck, RunSlidingCrate, 0x84);
 
 #include "engine_code.inc" /* RunSemiTruck to RunTrain */
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
-FUNC_ALIAS(StepStage1_1CreepingDropper, RunTrapType30, 0x28);
+FUNC_ALIAS(StepStage1_1FurnitureVan, RunTrapType30, 0x28);
 
 #include "engine_code.inc" /* StepSolidTrap */
 
@@ -797,9 +797,9 @@ void StepSpinningBrush(StageTrap *t, s32 arg) {
 
 void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
-#include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
+#include "engine_code.inc" /* RunPlankWorker to RunTrapType17 */
 
-#include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
+#include "engine_code.inc" /* RunTrapType22 to RunJackhammerWorker */
 
 void TumbleTrapAway(StageTrap *t, s32 height, s8 spawn) {}
 
@@ -829,7 +829,7 @@ void StepSmokingTumbleTrap(StageTrap *t) {}
 
 void StepSmokingTrap(StageTrap *t) {}
 
-void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {}
+void TurnPlankWorkerOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
 void OpenGateOnApproach(StageTrap *t, s32 speed, s8 arg) {}
 
@@ -837,9 +837,9 @@ void SwingGateContinuously(StageTrap *t, s8 arg) {}
 
 void ShiftTrapOnApproach(StageTrap *t, s8 dir, s32 speed) {}
 
-void StepHoppingTrap(StageTrap *t, u8 act) {}
+void StepJackhammerWorker(StageTrap *t, u8 act) {}
 
-void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {}
+void ToggleManholeWorkerOnApproach(StageTrap *t, s32 speed, u8 arg) {}
 
 #include "engine/draw_trap_while_linked.inc"
 

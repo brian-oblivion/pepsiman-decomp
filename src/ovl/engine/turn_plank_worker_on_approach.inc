@@ -1,4 +1,4 @@
-void TurnTrapOnApproach(StageTrap *t, s32 speed, s8 arg) {
+void TurnPlankWorkerOnApproach(StageTrap *t, s32 speed, s8 arg) {
     s32 v;
     s32 w;
 

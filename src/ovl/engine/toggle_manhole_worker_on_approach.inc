@@ -1,4 +1,4 @@
-void SwapTrapModelOnApproach(StageTrap *t, s32 speed, u8 arg) {
+void ToggleManholeWorkerOnApproach(StageTrap *t, s32 speed, u8 arg) {
     switch (t->state) {
         case 0:
             if (speed * speed > DistanceSquared((VECTOR *)&gPlayer.x, (VECTOR *)t)) {

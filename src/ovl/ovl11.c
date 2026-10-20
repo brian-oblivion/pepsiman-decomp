@@ -315,7 +315,7 @@ void DrawChaseClearWipe(void) {
     gEventTraps.title++;
 }
 
-s32 StepChasePiece0(Act3Obj *o) {
+s32 StepChaseBarricade(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -381,7 +381,7 @@ s32 StepChasePiece0(Act3Obj *o) {
 }
 
 /* The same for piece model 1. */
-s32 StepChasePiece1(Act3Obj *o) {
+s32 StepChaseAFrameSign(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -447,7 +447,7 @@ s32 StepChasePiece1(Act3Obj *o) {
 }
 
 /* The same for piece model 2. */
-s32 StepChasePiece2(Act3Obj *o) {
+s32 StepChaseStandSign(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -513,7 +513,7 @@ s32 StepChasePiece2(Act3Obj *o) {
 }
 
 /* The same for piece model 3, tumbling on two axes. */
-s32 StepChasePiece3(Act3Obj *o) {
+s32 StepChaseCrate(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -579,7 +579,7 @@ s32 StepChasePiece3(Act3Obj *o) {
 }
 
 /* The same for piece model 4. */
-s32 StepChasePiece4(Act3Obj *o) {
+s32 StepChaseCrowdBarrier(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -645,7 +645,7 @@ s32 StepChasePiece4(Act3Obj *o) {
 }
 
 /* The same for piece model 5, tumbling on two axes. */
-s32 StepChasePiece5(Act3Obj *o) {
+s32 StepChaseTrashCan(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -713,7 +713,7 @@ s32 StepChasePiece5(Act3Obj *o) {
 }
 
 /* The same for piece model 6. */
-s32 StepChasePiece6(Act3Obj *o) {
+s32 StepChaseBicycle(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -779,7 +779,7 @@ s32 StepChasePiece6(Act3Obj *o) {
 }
 
 /* Piece model 7, a block that stops the player instead of hurting it. */
-s32 StepChasePiece7(Act3Obj *o) {
+s32 StepChaseDrum(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -842,7 +842,7 @@ s32 StepChasePiece7(Act3Obj *o) {
     }
 }
 
-s32 StepChasePiece8(Act3Obj *o) {
+s32 StepChaseCanBanner(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -912,7 +912,7 @@ s32 StepChasePiece8(Act3Obj *o) {
     }
 }
 
-s32 StepChasePiece9(Act3Obj *o) {
+s32 StepChaseCanBannerMirrored(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -982,7 +982,7 @@ s32 StepChasePiece9(Act3Obj *o) {
     }
 }
 
-s32 StepChasePiece10(Act3Obj *o) {
+s32 StepChasePepsimanBanner(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -1052,7 +1052,7 @@ s32 StepChasePiece10(Act3Obj *o) {
     }
 }
 
-s32 StepChasePiece11(Act3Obj *o) {
+s32 StepChasePepsimanBannerMirrored(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -1123,7 +1123,7 @@ s32 StepChasePiece11(Act3Obj *o) {
 }
 
 /* Piece model 12, which drops from above once the player is near. */
-s32 StepChasePiece12(Act3Obj *o) {
+s32 StepChaseFallingBillboard(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 dir;
@@ -1908,7 +1908,11 @@ Act3Place sPlacements[] = {
 
 /** @brief Each object kind's step, which moves and draws one object. */
 Act3Step sPieceSteps[] = {
-    StepChasePiece0,  StepChasePiece1,  StepChasePiece2,  StepChasePiece3, StepChasePiece4,
-    StepChasePiece5,  StepChasePiece6,  StepChasePiece7,  StepChasePiece8, StepChasePiece9,
-    StepChasePiece10, StepChasePiece11, StepChasePiece12,
+    StepChaseBarricade,        StepChaseAFrameSign,
+    StepChaseStandSign,        StepChaseCrate,
+    StepChaseCrowdBarrier,     StepChaseTrashCan,
+    StepChaseBicycle,          StepChaseDrum,
+    StepChaseCanBanner,        StepChaseCanBannerMirrored,
+    StepChasePepsimanBanner,   StepChasePepsimanBannerMirrored,
+    StepChaseFallingBillboard,
 };

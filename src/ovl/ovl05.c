@@ -790,10 +790,11 @@ Act3Place sPlacements[] = {
     /* 102 */ {1, {0, 0}, 29500, 0, 200},
 };
 
-#define CHASE_PIECE_STEPS                                                                    \
-    StepChasePiece0, StepChasePiece1, StepChasePiece2, StepChasePiece3, StepChasePiece4,     \
-        StepChasePiece5, StepChasePiece6, StepChasePiece7, StepChasePiece8, StepChasePiece9, \
-        StepChasePiece10, StepChasePiece11, StepChasePiece12
+#define CHASE_PIECE_STEPS                                                          \
+    StepChaseBarricade, StepChaseAFrameSign, StepChaseStandSign, StepChaseCrate,   \
+        StepChaseCrowdBarrier, StepChaseTrashCan, StepChaseBicycle, StepChaseDrum, \
+        StepChaseCanBanner, StepChaseCanBannerMirrored, StepChasePepsimanBanner,   \
+        StepChasePepsimanBannerMirrored, StepChaseFallingBillboard
 #define CHASE_SKY \
     {0x6B, 0xBC, 0xEB, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}
 

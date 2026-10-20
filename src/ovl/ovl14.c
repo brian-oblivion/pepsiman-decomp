@@ -29,7 +29,7 @@ void StartChaseJump(void) {
 
 /* Piece model 0, which comes from behind the player, rolling, and hurts it
  * as it passes. */
-s32 StepChasePiece0(Act3Obj *o) {
+s32 StepChaseRollingLog(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 x;
@@ -85,7 +85,7 @@ s32 StepChasePiece0(Act3Obj *o) {
 }
 
 /* The same, bouncing as it rolls. */
-s32 StepChasePiece1(Act3Obj *o) {
+s32 StepChaseBouncingLog(Act3Obj *o) {
     s32 unused[2];
     MATRIX m;
     s32 x;
@@ -989,7 +989,7 @@ Act3Place sPlacements[] = {
     /*  52 */ {1, {0, 0}, 37000, 0, -122},
 };
 
-#define CHASE_PIECE_STEPS StepChasePiece0, StepChasePiece1
+#define CHASE_PIECE_STEPS StepChaseRollingLog, StepChaseBouncingLog
 #define CHASE_SKY \
     {0x6B, 0xBC, 0xEB, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}, {0xFF, 0xFF, 0xFF, 0}
 

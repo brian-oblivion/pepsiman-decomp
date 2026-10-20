@@ -640,6 +640,7 @@ enum SoundEffect {
     SE_WIPE = 0x19,        /**< StartScreenWipe */
     SE_SPIN = 0x1A,        /**< the spin's first frame */
     SE_FALL = 0x1B,        /**< falling off the course (MISS_FELL) */
+    SE_BOULDER_HIT = 0x1D, /**< stage 4-2's bouncing boulder touching the player */
     SE_LAND = 0x1E,        /**< LandPlayer: down on the ground or a ride quad */
     SE_FLIP_PANEL = 0x20,  /**< StepFlipPanel: the panel the player stands on turns over */
     SE_POWER_UP = 0x22, /**< a retry won on the results screen, or every tenth can raising the bonus level */
@@ -659,17 +660,29 @@ enum SoundEffect {
     SE_KNOCK_AWAY = 0x3A, /**< the player knocks or slides a trap away; a chase piece reaching the can */
     SE_LAUNCH = 0x3C,    /**< ACT_LAUNCH starts */
     SE_EXPLOSION = 0x3E, /**< an explosion: a charging trap blowing up, a chase scene throwing 20 pieces with the camera shaking */
+    SE_SOFT_HIT = 0x3F, /**< the player brushing a soft obstacle: a bush, a clothesline, a tumbleweed */
     SE_MAN_HURT = 0x40, /**< a man's "OWW": a stage sprite of sound kind 1, mostly men, hit by the player */
     SE_WOMAN_SCREAM = 0x42, /**< a woman's scream: a stage sprite of sound kind 2, mostly women, hit by the player */
+    SE_LITTER_LAND = 0x49,   /**< litter thrown from stage 1-1's truck landing */
     SE_HOP_LAND = 0x4E,      /**< each landing of a hopping trap */
     SE_GET_UP = 0x50,        /**< getting up after a fall */
     SE_TRAP_APPROACH = 0x52, /**< a swell up and down, like a vehicle passing: a running trap coming within 2000 units (the stage's bank) */
-    SE_CAR_HORN = 0x54,      /**< a car horn */
-    SE_TRUCK_HORN = 0x55,    /**< a truck horn */
+    SE_TRUCK_START = 0x53, /**< a semi truck setting off (the stage's bank; every caller is a semi) */
+    SE_CAR_HORN = 0x54,    /**< a car horn */
+    SE_TRUCK_HORN = 0x55, /**< a truck horn */
     SE_TRAP_SKID = 0x58, /**< a skid: a fast trap turning at the end of its run; also a chase scene */
-    SE_SPRAY = 0x6A,     /**< two hiss bursts, every 10 frames of StepSprayTrap */
-    SE_DASH = 0x71,      /**< the dash starts */
-    SE_ROLLER = 0x81     /**< every 20 frames of STAGE_2_1's roller */
+    SE_TRUCK_DROP = 0x61,     /**< stage 1-1's and 1-2's trucks throwing out litter or furniture */
+    SE_SPRAY = 0x6A,          /**< two hiss bursts, every 10 frames of StepSprayTrap */
+    SE_TRAIN_START = 0x6D,    /**< 6 s: stage 2-2's train setting off (world 2's bank) */
+    SE_TRAIN_APPROACH = 0x6E, /**< stage 2-2's train coming within 2000 units (world 2's bank) */
+    SE_DASH = 0x71,           /**< the dash starts */
+    SE_BISON_APPROACH = 0x79, /**< a running bison coming within 1000 units (world 4's bank) */
+    SE_CAN_ROLL = 0x7C, /**< every 20 frames of stage 4-1's giant can falling and rolling (world 4's bank) */
+    SE_MINE_CART = 0x7F,    /**< stage 4-2's mine cart coming within 1000 units (world 4's bank) */
+    SE_BOULDER_ROLL = 0x80, /**< 3 s: stage 4-2's boulder coming within 1500 units (world 4's bank) */
+    SE_ROLLER = 0x81,       /**< every 20 frames of STAGE_2_1's roller */
+    SE_DOOR_STOP = 0x83,    /**< stage 5-2's sliding doors stopping at each end (world 5's bank) */
+    SE_CRATE_APPROACH = 0x84 /**< stage 5-2's shuttling crate coming within 1500 units (world 5's bank) */
 };
 
 /** @brief StartRumble's patterns: each a single RumbleStep of

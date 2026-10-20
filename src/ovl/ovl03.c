@@ -57,7 +57,7 @@ void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->homeY = t->y;
             t->homeZ = t->z;
             t->state++;
-            PlaySe(0x53);
+            PlaySe(SE_TRUCK_START);
             if (dir == 3) {
                 PlaySe(SE_DANGER);
             }
@@ -138,7 +138,7 @@ void StepTossedLitter(StageTrap *t) {
         h = rsin(ANGLE_DEG(t->timer)) * 200 >> 12;
         t->y = t->homeY - (h >= 0 ? h : -h);
         if (t->timer >= 180) {
-            PlaySe(0x49);
+            PlaySe(SE_LITTER_LAND);
             t->state++;
         }
     }
@@ -606,7 +606,7 @@ void SpawnTossedLitter(StageTrap *t, s8 arg) {
                 p.lx = -20;
                 break;
         }
-        PlaySe(0x61);
+        PlaySe(SE_TRUCK_DROP);
         p.ly = 0;
         p.lz = 0;
         p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;
@@ -712,7 +712,7 @@ void SpawnBouncingFurniture(StageTrap *t, s8 arg) {
                 p.lx = 20;
                 break;
         }
-        PlaySe(0x61);
+        PlaySe(SE_TRUCK_DROP);
         p.ly = 0;
         p.lz = 0;
         p.coord = (GsCOORDINATE2 *)gObjectModels[t->model].coord;

@@ -9,7 +9,7 @@ void StepJackknifingTruck(StageTrap *t, u16 speed, s16 arg) {
             sSpawnedTraps[t->aux].y = t->y -= 150;
             t->timer = 0;
             t->state++;
-            PlaySe(0x53);
+            PlaySe(SE_TRUCK_START);
         case 1:
             if (LatchProximity(t, 2000) != 0) {
                 PlaySe(SE_TRUCK_HORN);

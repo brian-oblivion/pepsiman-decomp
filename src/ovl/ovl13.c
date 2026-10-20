@@ -125,7 +125,7 @@ void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->homeY = t->y;
             t->homeZ = t->z;
             t->state++;
-            PlaySe(0x53);
+            PlaySe(SE_TRUCK_START);
             if (dir == 3) {
                 PlaySe(SE_DANGER);
             }
@@ -207,7 +207,7 @@ void StepMineCart(StageTrap *t, s16 speed, s32 arg, s8 dir) {
             t->state++;
         case 1:
             if (LatchProximity(t, 1000) != 0) {
-                PlaySe(0x7F);
+                PlaySe(SE_MINE_CART);
             }
             SnapToFloor(t);
             switch (dir) {
@@ -274,7 +274,7 @@ void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             t->state++;
         case 1:
             if (LatchProximity(t, 1000) != 0) {
-                PlaySe(0x80);
+                PlaySe(SE_BOULDER_ROLL);
             }
             SnapToFloor(t);
             t->y -= 50;
@@ -342,13 +342,13 @@ void StepBouncingBoulder(StageTrap *t, u16 speed) {
             t->z += gOffsetVec[2] >> 12;
             t->rotX += ((s16)speed << 12) / 360;
             if (LatchProximity(t, 1500) != 0) {
-                PlaySe(0x80);
+                PlaySe(SE_BOULDER_ROLL);
             }
             if (gSection - UpdatePathSegment(t) < 2) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
             }
             if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x1D);
+                PlaySe(SE_BOULDER_HIT);
             }
             t->timer++;
             if (t->timer > t->homeRotZ) {

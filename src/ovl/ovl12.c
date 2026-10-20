@@ -135,7 +135,7 @@ void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->homeY = t->y;
             t->homeZ = t->z;
             t->state++;
-            PlaySe(0x53);
+            PlaySe(SE_TRUCK_START);
             if (dir == 3) {
                 PlaySe(SE_DANGER);
             }
@@ -341,7 +341,7 @@ void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {
             t->y += t->homeRotZ;
             t->rotX += ((s16)((s16)speed / 3) << 12) / 360;
             if ((u16)(t->timer % 20) == 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-                PlaySe(0x7C);
+                PlaySe(SE_CAN_ROLL);
             }
             break;
         case 3:
@@ -353,7 +353,7 @@ void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {
             t->z += gOffsetVec[2] >> 12;
             if (near < 2 && (u16)(t->timer % 20) == 0 && gPlayer.invulnTimer == 0 &&
                 gPlayer.hittable == 1) {
-                PlaySe(0x7C);
+                PlaySe(SE_CAN_ROLL);
             }
             break;
     }

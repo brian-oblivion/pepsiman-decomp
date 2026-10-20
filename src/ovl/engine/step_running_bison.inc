@@ -55,7 +55,7 @@ void StepRunningBison(StageTrap *t, u16 speed) {
             v.vz = t->z - (25 - rand() % 50);
             ScatterDust(&v);
             if (LatchProximity(t, 1000) != 0) {
-                PlaySe(0x79);
+                PlaySe(SE_BISON_APPROACH);
             }
             break;
     }

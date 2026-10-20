@@ -3,6 +3,6 @@ void StepSolidClothesline(StageTrap *t) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }
     if (t->touched != 0 && gPlayer.invulnTimer == 0 && gPlayer.hittable == 1) {
-        PlaySe(0x3F);
+        PlaySe(SE_SOFT_HIT);
     }
 }

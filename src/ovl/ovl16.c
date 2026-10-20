@@ -139,7 +139,7 @@ void StepShuttlingCrate(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             t->x += gOffsetVec[0] >> 12;
             t->z += gOffsetVec[2] >> 12;
             if (LatchProximity(t, 1500) != 0) {
-                PlaySe(0x84);
+                PlaySe(SE_CRATE_APPROACH);
             }
             if (gSection - UpdatePathSegment(t) < 2) {
                 UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
@@ -179,7 +179,7 @@ void StepSlidingDoor(StageTrap *t, s32 startSide, s8 pauseMode) {
             if (++t->timer >= 26) {
                 t->timer = 0;
                 t->state++;
-                PlaySe(0x83);
+                PlaySe(SE_DOOR_STOP);
             }
             break;
         case 2:

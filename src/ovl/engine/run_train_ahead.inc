@@ -3,10 +3,10 @@ void RunTrainAhead(StageTrap *t, u16 speed) {
         case 0:
             t->timer = 0;
             t->state++;
-            PlaySe(109);
+            PlaySe(SE_TRAIN_START);
         case 1:
             if (LatchProximity(t, 2000) != 0) {
-                PlaySe(110);
+                PlaySe(SE_TRAIN_APPROACH);
             }
             PolarToXZ(speed, ANGLE_TO_DEG(t->rotY), (Vec3 *)gOffsetVec);
             t->x += gOffsetVec[0] >> 12;

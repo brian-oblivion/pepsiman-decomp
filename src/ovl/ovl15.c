@@ -148,7 +148,7 @@ void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {
             t->homeY = t->y;
             t->homeZ = t->z;
             t->state++;
-            PlaySe(0x53);
+            PlaySe(SE_TRUCK_START);
             if (dir == 3) {
                 PlaySe(SE_DANGER);
             }

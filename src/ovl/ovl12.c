@@ -218,7 +218,7 @@ void StepSwervingBiker(StageTrap *t, u16 speed, s32 arg, s8 dir) {
             t->timer++;
             if (LatchProximity(t, 1000) != 0) {
                 PlaySe(0x60);
-                PlaySe(0x78);
+                PlaySe(SE_BIKE_ENGINE);
             }
             if (t->timer > arg) {
                 t->state++;

@@ -676,6 +676,7 @@ enum SoundEffect {
     SE_TRAIN_START = 0x6D,    /**< 6 s: stage 2-2's train setting off (world 2's bank) */
     SE_TRAIN_APPROACH = 0x6E, /**< stage 2-2's train coming within 2000 units (world 2's bank) */
     SE_DASH = 0x71,           /**< the dash starts */
+    SE_BIKE_ENGINE = 0x78, /**< a motorbike engine, rising and falling: stage 4-1's biker coming near (world 4's bank) */
     SE_BISON_APPROACH = 0x79, /**< a running bison coming within 1000 units (world 4's bank) */
     SE_CAN_ROLL = 0x7C, /**< every 20 frames of stage 4-1's giant can falling and rolling (world 4's bank) */
     SE_MINE_CART = 0x7F,    /**< stage 4-2's mine cart coming within 1000 units (world 4's bank) */

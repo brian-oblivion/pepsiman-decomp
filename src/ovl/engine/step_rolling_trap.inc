@@ -4,7 +4,7 @@ void StepRollingTrap(StageTrap *t, u16 speed) {
     t->x += gOffsetVec[0] >> 12;
     t->z += gOffsetVec[2] >> 12;
     if (LatchProximity(t, 500) != 0) {
-        PlaySe(120);
+        PlaySe(SE_BIKE_ENGINE);
     }
     if (gSection - UpdatePathSegment(t) < 2) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);

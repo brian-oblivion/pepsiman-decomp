@@ -1,4 +1,4 @@
-void StepTrapFFAct68(StageTrap *t) {
+void StepBouncingFurniture(StageTrap *t) {
     StageTrap c;
     u16 i;
     s16 model;

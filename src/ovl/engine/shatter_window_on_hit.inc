@@ -1,4 +1,4 @@
-void StepTrapAct27(StageTrap *t) {
+void ShatterWindowOnHit(StageTrap *t) {
     StageTrap c;
     u16 i;
     s16 model;

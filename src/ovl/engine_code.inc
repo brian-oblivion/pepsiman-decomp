@@ -193,22 +193,22 @@ void StepStageTrap(StageTrap *t) {
             RunTrapType0B(t, 1);
             break;
         case 13:
-            RunTrapType0D(t, 2);
+            RunSwervingBiker(t, 2);
             break;
         case 14:
-            RunTrapType0D(t, 1);
+            RunSwervingBiker(t, 1);
             break;
         case 15:
-            RunTrapType0F(t, 0);
+            RunSemiTruck(t, 0);
             break;
         case 16:
-            RunTrapType10(t, 1);
+            RunSemiTruckAlongPath(t, 1);
             break;
         case 17:
-            RunTrapType11(t, 3);
+            RunSemiTruckWithWarning(t, 3);
             break;
         case 18:
-            RunTrapType12(t);
+            RunJackknifingTruck(t);
             break;
     }
     switch (t->type) {
@@ -228,34 +228,34 @@ void StepStageTrap(StageTrap *t) {
             RunTrapType17(t);
             break;
         case 24:
-            RunTrapType18(t, 0);
+            RunMineCart(t, 0);
             break;
         case 25:
-            RunTrapType18(t, 1);
+            RunMineCart(t, 1);
             break;
         case 26:
             RunTrapType1A(t, 0);
             break;
         case 27:
-            RunTrapType1B(t);
+            RunFallingRollingCan(t);
             break;
         case 28:
             RunTrapType1C(t);
             break;
         case 29:
-            RunTrapType1D(t);
+            RunBison(t);
             break;
         case 30:
-            RunTrapType1E(t);
+            RunBoulder(t);
             break;
         case 31:
-            RunTrapType1F(t);
+            RunTumbleweed(t);
             break;
         case 32:
-            RunTrapType20(t, 0);
+            RunShuttlingCrate(t, 0);
             break;
         case 33:
-            RunTrapType20(t, 1);
+            RunShuttlingCrate(t, 1);
             break;
         case 34:
         case 35:
@@ -266,16 +266,16 @@ void StepStageTrap(StageTrap *t) {
             RunTrapType22(t);
             break;
         case 39:
-            RunTrapType27(t);
+            RunFallingSign(t);
             break;
         case 41:
-            RunTrapType29(t, 0);
+            RunSlidingDoor(t, 0);
             break;
         case 42:
             RunTrapType2A(t);
             break;
         case 43:
-            RunTrapType2B(t);
+            ReverseSemiTruck(t);
             break;
         case 44:
             RunTrapType2C(t, 0);
@@ -287,19 +287,19 @@ void StepStageTrap(StageTrap *t) {
             RunTrapType2E(t);
             break;
         case 47:
-            RunTrapType2F(t);
+            RunTrain(t);
             break;
         case 48:
             RunTrapType30(t);
             break;
         case 49:
-            RunTrapType31(t);
+            RunSpinningBrush(t);
             break;
         case 50:
-            RunTrapType32(t, 0);
+            RunSlidingCrate(t, 0);
             break;
         case 51:
-            RunTrapType32(t, 1);
+            RunSlidingCrate(t, 1);
             break;
     }
 }
@@ -415,10 +415,10 @@ void RunTrapType00(StageTrap *t) {
             SlideTrapAway(t, 0);
             break;
         case 8:
-            TumbleTrapAct08(t);
+            TumbleUprightCan(t);
             break;
         case 9:
-            TumbleTrapAct09(t);
+            TumbleLyingCan(t);
             break;
         case 11:
             TumbleTrapAct0B(t);
@@ -472,7 +472,7 @@ void RunTrapType00(StageTrap *t) {
             StepSmokingTrap(t);
             break;
         case 29:
-            StepTrapAct1D(t);
+            ToppleCactusOnHit(t);
             break;
         case 30:
             BurstRaisedTrap(t);
@@ -484,7 +484,7 @@ void RunTrapType00(StageTrap *t) {
             TumbleTrapAway(t, 10, 2);
             break;
         case 33:
-            StepTrapAct21(t);
+            StepSolidCactus(t);
             break;
         case 34:
             StepTrapAct22(t);
@@ -493,19 +493,19 @@ void RunTrapType00(StageTrap *t) {
             StepTrapAct23(t);
             break;
         case 36:
-            StepTrapAct24(t);
+            StepSolidBush(t);
             break;
         case 37:
-            StepTrapAct25(t, 2);
+            StepSolidPipe(t, 2);
             break;
         case 38:
-            StepTrapAct25(t, 1);
+            StepSolidPipe(t, 1);
             break;
         case 39:
-            StepTrapAct27(t);
+            ShatterWindowOnHit(t);
             break;
         case 40:
-            StepTrapAct28(t);
+            StepSolidClothesline(t);
             break;
     }
 }
@@ -1192,16 +1192,16 @@ void RunTrapTypeFF(StageTrap *t) {
             StepBouncingRoller(t, 80);
             break;
         case 101:
-            StepTrapFFAct65(t, 50);
+            StepBouncingLog(t, 50);
             break;
         case 102:
-            StepTrapFFAct65(t, 180);
+            StepBouncingLog(t, 180);
             break;
         case 103:
-            StepTrapFFAct67(t);
+            StepTossedLitter(t);
             break;
         case 104:
-            StepTrapFFAct68(t);
+            StepBouncingFurniture(t);
             break;
         case 105:
             StepFlungPiece(t);
@@ -1349,14 +1349,14 @@ void RunTrapType0A(StageTrap *t) {
 #elif ENGINE_PART == 11
 
 /**
- * @brief Types 50 and 51: hands the act's speed to the overlay's type-50
- *        step. With mode 0, acts 0 to 10 give act * 10 and acts 11 to 20
+ * @brief Types 50 and 51: a Pepsi crate that slides along the floor (stage
+ *        5-2) at the act's speed. With mode 0, acts 0 to 10 give act * 10 and acts 11 to 20
  *        (act - 10) * 10 backwards in mode 2; with mode 1, acts 0 to 3 give
  *        (act + 1) * 10.
  * @param t    the trap
  * @param mode 0 for type 50, 1 for type 51
  */
-void RunTrapType32(StageTrap *t, s8 mode) {
+void RunSlidingCrate(StageTrap *t, s8 mode) {
     if (mode == 0) {
         switch (t->act) {
             case 0:
@@ -1370,7 +1370,7 @@ void RunTrapType32(StageTrap *t, s8 mode) {
             case 8:
             case 9:
             case 10:
-                StepTrapType32(t, t->act * 10, 0);
+                StepSlidingCrate(t, t->act * 10, 0);
                 break;
             case 11:
             case 12:
@@ -1382,7 +1382,7 @@ void RunTrapType32(StageTrap *t, s8 mode) {
             case 18:
             case 19:
             case 20:
-                StepTrapType32(t, -((t->act - 10) * 10), 2);
+                StepSlidingCrate(t, -((t->act - 10) * 10), 2);
                 break;
         }
     } else {
@@ -1391,7 +1391,7 @@ void RunTrapType32(StageTrap *t, s8 mode) {
             case 1:
             case 2:
             case 3:
-                StepTrapType32(t, (t->act + 1) * 10, mode);
+                StepSlidingCrate(t, (t->act + 1) * 10, mode);
                 break;
         }
     }
@@ -1403,12 +1403,13 @@ void RunTrapType32(StageTrap *t, s8 mode) {
 #elif ENGINE_PART == 12
 
 /**
- * @brief Type 15: hands the overlay's type-15 step a speed of act * 10 for
- *        acts 0 to 10, or 60 in mode 5 for act 11.
+ * @brief Type 15: a semi truck, a tractor and its trailer, driving straight
+ *        ahead at act * 10 for acts 0 to 10, or at 60 in mode 5 for act
+ *        11.
  * @param t   the trap
  * @param dir the step's mode for acts 0 to 10: 0
  */
-void RunTrapType0F(StageTrap *t, s8 dir) {
+void RunSemiTruck(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 0:
         case 1:
@@ -1421,22 +1422,22 @@ void RunTrapType0F(StageTrap *t, s8 dir) {
         case 8:
         case 9:
         case 10:
-            StepTrapType0F(t, t->act * 10, dir, 0);
+            StepSemiTruck(t, t->act * 10, dir, 0);
             break;
         case 11:
-            StepTrapType0F(t, 60, 5, 0);
+            StepSemiTruck(t, 60, 5, 0);
             break;
     }
 }
 
 /**
- * @brief Type 16: hands the overlay's type-15 step a speed of act * 10 for
+ * @brief Type 16: a semi truck driving along the course at act * 10 for
  *        acts 0 to 10, or (act - 10) * 10 in the next mode for acts 11 to
  *        20.
  * @param t   the trap
  * @param dir the step's mode for acts 0 to 10: 1
  */
-void RunTrapType10(StageTrap *t, s8 dir) {
+void RunSemiTruckAlongPath(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 0:
         case 1:
@@ -1449,7 +1450,7 @@ void RunTrapType10(StageTrap *t, s8 dir) {
         case 8:
         case 9:
         case 10:
-            StepTrapType0F(t, t->act * 10, dir, 0);
+            StepSemiTruck(t, t->act * 10, dir, 0);
             break;
         case 11:
         case 12:
@@ -1461,18 +1462,18 @@ void RunTrapType10(StageTrap *t, s8 dir) {
         case 18:
         case 19:
         case 20:
-            StepTrapType0F(t, (t->act - 10) * 10, dir + 1, 0);
+            StepSemiTruck(t, (t->act - 10) * 10, dir + 1, 0);
             break;
     }
 }
 
 /**
- * @brief Type 17: hands the overlay's type-15 step a speed of
- *        (act + 6) * 10 for acts 0 to 6.
+ * @brief Type 17: a semi truck driving along the course, with a warning,
+ *        at (act + 6) * 10 for acts 0 to 6.
  * @param t   the trap
  * @param dir the step's mode: 3
  */
-void RunTrapType11(StageTrap *t, s8 dir) {
+void RunSemiTruckWithWarning(StageTrap *t, s8 dir) {
     switch (t->act) {
         case 0:
         case 1:
@@ -1481,51 +1482,50 @@ void RunTrapType11(StageTrap *t, s8 dir) {
         case 4:
         case 5:
         case 6:
-            StepTrapType0F(t, (t->act + 6) * 10, dir, 0);
+            StepSemiTruck(t, (t->act + 6) * 10, dir, 0);
             break;
     }
 }
 
 /**
- * @brief Type 18: a two-part trap that runs ahead, then skids to a stop
- *        spinning and throwing out effects: acts 0 to 2 run at (act + 1) * 10 for 60
+ * @brief Type 18: a semi truck that drives ahead, then jackknifes, tractor
+ *        and trailer turning apart in a cloud of smoke: acts 0 to 2 run at (act + 1) * 10 for 60
  *        frames, acts 3 to 5 at (act - 2) * 10 for 90.
  * @param t the trap
  */
-void RunTrapType12(StageTrap *t) {
+void RunJackknifingTruck(StageTrap *t) {
     switch (t->act) {
         case 0:
         case 1:
         case 2:
-            StepTrapType12(t, (t->act + 1) * 10, 60);
+            StepJackknifingTruck(t, (t->act + 1) * 10, 60);
             break;
         case 3:
         case 4:
         case 5:
-            StepTrapType12(t, (t->act - 2) * 10, 90);
+            StepJackknifingTruck(t, (t->act - 2) * 10, 90);
             break;
     }
 }
 
 /**
- * @brief Type 43: hands the overlay's type-15 step, in mode 4, a speed of
- *        5 or 10 and a distance of 250 or 500 by act (0 to 3); act 4 does
+ * @brief Type 43: a semi truck backing up (mode 4) at 5 or 10 and a distance of 250 or 500 by act (0 to 3); act 4 does
  *        nothing.
  * @param t the trap
  */
-void RunTrapType2B(StageTrap *t) {
+void ReverseSemiTruck(StageTrap *t) {
     switch (t->act) {
         case 0:
-            StepTrapType0F(t, 5, 4, 250);
+            StepSemiTruck(t, 5, 4, 250);
             break;
         case 1:
-            StepTrapType0F(t, 10, 4, 250);
+            StepSemiTruck(t, 10, 4, 250);
             break;
         case 2:
-            StepTrapType0F(t, 5, 4, 500);
+            StepSemiTruck(t, 5, 4, 500);
             break;
         case 3:
-            StepTrapType0F(t, 10, 4, 500);
+            StepSemiTruck(t, 10, 4, 500);
             break;
         case 4:
             break;
@@ -1533,41 +1533,41 @@ void RunTrapType2B(StageTrap *t) {
 }
 
 /**
- * @brief Type 31: a trap that rolls ahead, bouncing, at its act's speed
+ * @brief Type 31: a tumbleweed that rolls ahead, bouncing, at its act's speed
  *        from sType1FSpeeds. Act 5 reads the halfword after the table's
  *        five speeds, which differs per overlay.
  * @param t the trap
  */
-void RunTrapType1F(StageTrap *t) {
-    StepTrapType1F(t, sType1FSpeeds[t->act]);
+void RunTumbleweed(StageTrap *t) {
+    StepTumbleweed(t, sType1FSpeeds[t->act]);
 }
 
 /**
- * @brief Types 13 and 14: hands the overlay's type-13 step a speed of
- *        act * 10 + 70 and 45.
+ * @brief Types 13 and 14: a biker who rides at the player at act * 10 + 70,
+ *        then swerves aside after 45 frames and skids to a stop.
  * @param t   the trap
  * @param dir the side: 2 for type 13, 1 for type 14
  */
-void RunTrapType0D(StageTrap *t, s8 dir) {
-    StepTrapType0D(t, t->act * 10 + 70, 45, dir);
+void RunSwervingBiker(StageTrap *t, s8 dir) {
+    StepSwervingBiker(t, t->act * 10 + 70, 45, dir);
 }
 
 /**
- * @brief Type 27: hands the overlay's type-27 step a speed of
- *        act * 10 + 20 and a range of 5000.
+ * @brief Type 27: a giant Pepsi can that drops when the player comes within
+ *        5000, then rolls ahead at act * 10 + 20.
  * @param t the trap
  */
-void RunTrapType1B(StageTrap *t) {
-    StepTrapType1B(t, t->act * 10 + 20, 5000);
+void RunFallingRollingCan(StageTrap *t) {
+    StepFallingRollingCan(t, t->act * 10 + 20, 5000);
 }
 
 /**
- * @brief Type 29: a three-part trap, a body and two swinging parts, that
- *        walks ahead at act * 10 + 10.
+ * @brief Type 29: a bison, a body and two pairs of swinging legs, that
+ *        runs ahead at act * 10 + 10.
  * @param t the trap
  */
-void RunTrapType1D(StageTrap *t) {
-    StepTrapType1D(t, t->act * 10 + 10);
+void RunBison(StageTrap *t) {
+    StepRunningBison(t, t->act * 10 + 10);
 }
 
 /**
@@ -1580,17 +1580,17 @@ void RunTrapType30(StageTrap *t) {
 }
 
 /**
- * @brief Types 24 and 25: hands the overlay's type-24 step a speed of
+ * @brief Types 24 and 25: a mine cart rolling at a speed of
  *        act * 10 + 10 for acts below 10, or the same counted from 10 and
  *        backwards for the rest, and a range of 1200.
  * @param t   the trap
  * @param dir 0 for type 24, 1 for type 25
  */
-void RunTrapType18(StageTrap *t, s8 dir) {
+void RunMineCart(StageTrap *t, s8 dir) {
     if (t->act < 10) {
-        StepTrapType18(t, t->act * 10 + 10, 1200, dir);
+        StepMineCart(t, t->act * 10 + 10, 1200, dir);
     } else {
-        StepTrapType18(t, -((t->act - 10) * 10 + 10), 1200, dir);
+        StepMineCart(t, -((t->act - 10) * 10 + 10), 1200, dir);
     }
 }
 
@@ -1634,22 +1634,21 @@ void RunTrapType1C(StageTrap *t) {
 }
 
 /**
- * @brief Type 30: hands the overlay's type-30 step a speed of
- *        act * 5 + 10.
+ * @brief Type 30: a boulder that rolls ahead, bouncing, at act * 5 + 10.
  * @param t the trap
  */
-void RunTrapType1E(StageTrap *t) {
-    StepTrapType1E(t, t->act * 5 + 10);
+void RunBoulder(StageTrap *t) {
+    StepBouncingBoulder(t, t->act * 5 + 10);
 }
 
 /**
- * @brief Types 32 and 33: hands the overlay's type-32 step a speed of 10,
- *        20 or 30 (by the act modulo 3) and a range of 700.
+ * @brief Types 32 and 33: a Pepsi crate that slides at 10, 20 or 30 (by the
+ *        act modulo 3); type 33 shuttles back and forth over 700.
  * @param t   the trap
  * @param dir 0 for type 32, 1 for type 33
  */
-void RunTrapType20(StageTrap *t, s8 dir) {
-    StepTrapType20(t, (u8)(t->act % 3) * 10 + 10, 700, dir);
+void RunShuttlingCrate(StageTrap *t, s8 dir) {
+    StepShuttlingCrate(t, (u8)(t->act % 3) * 10 + 10, 700, dir);
 }
 
 /**
@@ -1676,66 +1675,68 @@ void RunTrapType2A(StageTrap *t) {
 }
 
 /**
- * @brief Type 41: hands the overlay's type-41 step 2 for acts 0 to 2 and 1
- *        for acts 3 to 5, with the act modulo 3.
+ * @brief Type 41: one panel of a pair of sliding doors, opening one way for
+ *        acts 0 to 2 and the other for acts 3 to 5, with the act modulo 3
+ *        picking its pause.
  * @param t      the trap
  * @param unused unused
  */
-void RunTrapType29(StageTrap *t, s8 unused) {
+void RunSlidingDoor(StageTrap *t, s8 unused) {
     switch (t->act) {
         case 0:
         case 1:
         case 2:
-            StepTrapType29(t, 2, t->act);
+            StepSlidingDoor(t, 2, t->act);
             break;
         case 3:
         case 4:
         case 5:
-            StepTrapType29(t, 1, t->act % 3);
+            StepSlidingDoor(t, 1, t->act % 3);
             break;
     }
 }
 
 /**
- * @brief Type 39: a trap that drops to the floor when the player comes
+ * @brief Type 39: a sign that drops to the floor when the player comes
  *        within act * 1000 + 1000 units (acts 0 to 3), bounces and tips
  *        over.
  * @param t the trap
  */
-void RunTrapType27(StageTrap *t) {
+void RunFallingSign(StageTrap *t) {
     switch (t->act) {
         case 0:
         case 1:
         case 2:
         case 3:
-            StepTrapType27(t, t->act * 1000 + 1000);
+            StepFallingSign(t, t->act * 1000 + 1000);
             break;
     }
 }
 
 /**
- * @brief Type 49: hands the overlay's type-49 step its act, 0 or 1.
+ * @brief Type 49: a brush that spins about its upright axis (act 0) or its
+ *        lying one (act 1).
  * @param t the trap
  */
-void RunTrapType31(StageTrap *t) {
+void RunSpinningBrush(StageTrap *t) {
     switch (t->act) {
         case 0:
-            StepTrapType31(t, 0);
+            StepSpinningBrush(t, 0);
             break;
         case 1:
-            StepTrapType31(t, 1);
+            StepSpinningBrush(t, 1);
             break;
     }
 }
 
 /**
- * @brief Type 47: a trap that flies straight ahead at its own height at
+ * @brief Type 47: a train that runs straight ahead at its own height at
  *        act * 10 + 30, with a sound as it starts and as the player first
  *        comes near.
  * @param t the trap
  */
-void RunTrapType2F(StageTrap *t) {
-    RunTrapAheadAtHeight(t, t->act * 10 + 30);
+void RunTrain(StageTrap *t) {
+    RunTrainAhead(t, t->act * 10 + 30);
 }
 
 #undef ENGINE_PART

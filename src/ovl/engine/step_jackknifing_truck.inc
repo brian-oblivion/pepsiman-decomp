@@ -1,4 +1,4 @@
-void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {
+void StepJackknifingTruck(StageTrap *t, u16 speed, s16 arg) {
     switch (t->state) {
         case 0:
             /* MATCHING: retail stores the slot unextended, as if from an s32. */

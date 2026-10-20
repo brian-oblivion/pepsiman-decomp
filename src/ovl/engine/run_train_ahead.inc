@@ -1,4 +1,4 @@
-void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {
+void RunTrainAhead(StageTrap *t, u16 speed) {
     switch (t->state) {
         case 0:
             t->timer = 0;

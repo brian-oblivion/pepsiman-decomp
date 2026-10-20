@@ -1,4 +1,4 @@
-void StepTrapType1F(StageTrap *t, u16 arg) {
+void StepTumbleweed(StageTrap *t, u16 arg) {
     s32 d;
 
     switch (t->state) {

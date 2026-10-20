@@ -1,4 +1,4 @@
-void StepTrapType1D(StageTrap *t, u16 speed) {
+void StepRunningBison(StageTrap *t, u16 speed) {
     VECTOR v;
     StageTrap *base;
     u16 phase;

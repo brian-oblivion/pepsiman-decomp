@@ -87,7 +87,7 @@ void ResetSpawnedTraps(void) {
 
 #include "engine_code.inc" /* RunTrapType00 to RunTrapType07 */
 
-void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
+void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {
     s16 dir;
 
     dir = 1;
@@ -120,7 +120,7 @@ void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {
     }
 }
 
-void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
+void StepShuttlingCrate(StageTrap *t, u16 speed, s32 arg, s8 dir) {
     switch (t->state) {
         case 0:
             t->homeRotZ = 0;
@@ -155,7 +155,7 @@ void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {
     }
 }
 
-void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {
+void StepSlidingDoor(StageTrap *t, s32 startSide, s8 pauseMode) {
     switch (t->state) {
         case 0:
             t->homeRotZ = 0;
@@ -217,7 +217,7 @@ void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {
     }
 }
 
-#include "engine/step_trap_type27.inc"
+#include "engine/step_falling_sign.inc"
 
 #include "engine/knock_trap_away.inc"
 
@@ -790,37 +790,37 @@ FUNC_ALIAS(StepStage4_1Dropper, StartSpriteWalk, 0x3C);
 /* MATCHING: the dispatchers call these stage entry points, which in this
  * overlay land inside the functions above. */
 FUNC_ALIAS(StepStage5_1Dropper, RunTrapType0A, 0x58);
-FUNC_ALIAS(StepTrapFFAct65, RunTrapType0A, 0x90);
+FUNC_ALIAS(StepBouncingLog, RunTrapType0A, 0x90);
 
 #include "engine/run_trap_type0b.inc"
 
-#include "engine_code.inc" /* RunTrapType32 */
+#include "engine_code.inc" /* RunSlidingCrate */
 
 void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-#include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
+#include "engine_code.inc" /* RunSemiTruck to RunTrain */
 
-void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
+void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
 
-void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {}
+void StepJackknifingTruck(StageTrap *t, u16 speed, s16 arg) {}
 
-void StepTrapType1F(StageTrap *t, u16 arg) {}
+void StepTumbleweed(StageTrap *t, u16 arg) {}
 
 #include "engine_code.inc" /* StepSolidTrap */
 
-void StepTrapFFAct67(StageTrap *t) {}
+void StepTossedLitter(StageTrap *t) {}
 
-void StepTrapFFAct68(StageTrap *t) {}
+void StepBouncingFurniture(StageTrap *t) {}
 
-void StepTrapAct21(StageTrap *t) {}
+void StepSolidCactus(StageTrap *t) {}
 
 void StepTrapAct22(StageTrap *t) {}
 
 void StepTrapAct23(StageTrap *t) {}
 
-void StepTrapAct24(StageTrap *t) {}
+void StepSolidBush(StageTrap *t) {}
 
-void StepTrapAct25(StageTrap *t, s32 arg) {
+void StepSolidPipe(StageTrap *t, s32 arg) {
     u8 unused[0x78];
 
     if (gSection - UpdatePathSegment(t) < 2) {
@@ -833,11 +833,11 @@ void StepTrapAct25(StageTrap *t, s32 arg) {
 
 /* MATCHING: the dispatchers call this stage entry point, which in this
  * overlay lands inside the function above. */
-FUNC_ALIAS(StepStage1_1Dropper, StepTrapAct25, 0x78);
+FUNC_ALIAS(StepStage1_1Dropper, StepSolidPipe, 0x78);
 
-void StepTrapAct27(StageTrap *t) {}
+void ShatterWindowOnHit(StageTrap *t) {}
 
-void StepTrapAct28(StageTrap *t) {}
+void StepSolidClothesline(StageTrap *t) {}
 
 #include "engine_code.inc" /* ArmTrapByRange */
 
@@ -853,21 +853,21 @@ void RunTrapThenTurn(StageTrap *t, u16 speed, s32 range, s8 dir) {}
 
 #include "engine/draw_trap_warning.inc"
 
-void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
+void StepSwervingBiker(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
+void StepMineCart(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {}
 
-void StepTrapType1E(StageTrap *t, u16 speed) {}
+void StepBouncingBoulder(StageTrap *t, u16 speed) {}
 
 void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType31(StageTrap *t, s32 arg) {}
+void StepSpinningBrush(StageTrap *t, s32 arg) {}
 
 #include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
 /* MATCHING: the dispatchers call these stage entry points, which in this
@@ -875,11 +875,11 @@ void StepTrapType31(StageTrap *t, s32 arg) {}
 FUNC_ALIAS(StepStage1_2Dropper, RunTrapType13, 0x38);
 FUNC_ALIAS(StepStage2_1Dropper, RunTrapType13, 0x8C);
 
-void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {}
+void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType1D(StageTrap *t, u16 speed) {}
+void StepRunningBison(StageTrap *t, u16 speed) {}
 
-void RunTrapAheadAtHeight(StageTrap *t, u16 speed) {}
+void RunTrainAhead(StageTrap *t, u16 speed) {}
 
 #include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
 /* MATCHING: the dispatchers call these stage entry points, which in this
@@ -890,9 +890,9 @@ FUNC_ALIAS(StepStage1_1CreepingDropper, RunTrapType2C, 0x24);
 
 void SlideTrapAway(StageTrap *t, s32 arg) {}
 
-#include "engine/tumble_trap_act08.inc"
+#include "engine/tumble_upright_can.inc"
 
-#include "engine/tumble_trap_act09.inc"
+#include "engine/tumble_lying_can.inc"
 
 #include "engine/tumble_trap_act0b.inc"
 
@@ -906,7 +906,7 @@ void StepSprayTrap(StageTrap *t, s8 dir) {}
 
 void StepSmokingTumbleTrap(StageTrap *t) {}
 
-void StepTrapAct1D(StageTrap *t) {}
+void ToppleCactusOnHit(StageTrap *t) {}
 
 void StepSmokingTrap(StageTrap *t) {}
 

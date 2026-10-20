@@ -44,7 +44,7 @@ GsRVIEW2 sSavedView = {0};
 
 #include "engine/step_rolling_trap.inc"
 
-#include "engine/run_trap_ahead_at_height.inc"
+#include "engine/run_train_ahead.inc"
 #include "engine/knock_trap_away.inc"
 
 #include "engine/tumble_trap_away.inc"
@@ -247,7 +247,7 @@ void StepMissSequence(void) {
 /* MATCHING: the type dispatchers call these two addresses inside the
  * function above (other stages' entry points in their own overlays). */
 FUNC_ALIAS(StepStage5_1Dropper, StepMissSequence, 0xD8);
-FUNC_ALIAS(StepTrapFFAct65, StepMissSequence, 0x110);
+FUNC_ALIAS(StepBouncingLog, StepMissSequence, 0x110);
 
 void StepGoalSequence(void) {
     StageTrap *t;
@@ -457,78 +457,78 @@ FUNC_ALIAS(StepStage1_1CreepingDropper, StepGoalCutscene, 0x518);
 #include "engine/run_trap_type04.inc"
 #include "engine_code.inc" /* RunTrapType09 to RunTrapType0A */
 #include "engine/run_trap_type0b.inc"
-#include "engine_code.inc" /* RunTrapType32 */
+#include "engine_code.inc" /* RunSlidingCrate */
 
 void RunTrapThenTurnTimed(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
-#include "engine_code.inc" /* RunTrapType0F to RunTrapType2F */
+#include "engine_code.inc" /* RunSemiTruck to RunTrain */
 
-void StepTrapType0F(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
+void StepSemiTruck(StageTrap *t, u16 speed, s8 dir, s32 arg) {}
 
-void StepTrapType12(StageTrap *t, u16 speed, s16 arg) {}
+void StepJackknifingTruck(StageTrap *t, u16 speed, s16 arg) {}
 
-void StepTrapType1F(StageTrap *t, u16 arg) {}
+void StepTumbleweed(StageTrap *t, u16 arg) {}
 
 #include "engine_code.inc" /* StepSolidTrap */
 
-void StepTrapFFAct67(StageTrap *t) {}
+void StepTossedLitter(StageTrap *t) {}
 
-void StepTrapFFAct68(StageTrap *t) {}
+void StepBouncingFurniture(StageTrap *t) {}
 
-void StepTrapAct21(StageTrap *t) {}
+void StepSolidCactus(StageTrap *t) {}
 
 void StepTrapAct22(StageTrap *t) {}
 
 void StepTrapAct23(StageTrap *t) {}
 
-void StepTrapAct24(StageTrap *t) {}
+void StepSolidBush(StageTrap *t) {}
 
-void StepTrapAct25(StageTrap *t, s32 arg) {}
+void StepSolidPipe(StageTrap *t, s32 arg) {}
 
-void StepTrapAct27(StageTrap *t) {}
+void ShatterWindowOnHit(StageTrap *t) {}
 
-void StepTrapAct28(StageTrap *t) {}
+void StepSolidClothesline(StageTrap *t) {}
 
 #include "engine_code.inc" /* ArmTrapByRange */
 
 #include "engine/draw_trap_warning.inc"
 
-void StepTrapType0D(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
+void StepSwervingBiker(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 void StepTrapType30(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType18(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
+void StepMineCart(StageTrap *t, s32 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1A(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 void StepTrapType1C(StageTrap *t, s32 speed, s32 tiltSide, s32 unused) {}
 
-void StepTrapType1E(StageTrap *t, u16 speed) {}
+void StepBouncingBoulder(StageTrap *t, u16 speed) {}
 
-void StepTrapType20(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
+void StepShuttlingCrate(StageTrap *t, u16 speed, s32 arg, s8 dir) {}
 
 void StepTrapType2A(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType29(StageTrap *t, s32 startSide, s8 pauseMode) {}
+void StepSlidingDoor(StageTrap *t, s32 startSide, s8 pauseMode) {}
 
-void StepTrapType27(StageTrap *t, s32 arg) {}
+void StepFallingSign(StageTrap *t, s32 arg) {}
 
-void StepTrapType31(StageTrap *t, s32 arg) {}
+void StepSpinningBrush(StageTrap *t, s32 arg) {}
 
-void StepTrapType32(StageTrap *t, s16 speed, s8 mode) {}
+void StepSlidingCrate(StageTrap *t, s16 speed, s8 mode) {}
 
 #include "engine_code.inc" /* RunTrapType13 to RunTrapType17 */
 
-void StepTrapType1B(StageTrap *t, u16 speed, s32 arg) {}
+void StepFallingRollingCan(StageTrap *t, u16 speed, s32 arg) {}
 
-void StepTrapType1D(StageTrap *t, u16 speed) {}
+void StepRunningBison(StageTrap *t, u16 speed) {}
 
 #include "engine_code.inc" /* RunTrapType22 to RunTrapType2E */
 #include "engine_code.inc" /* BurstTrapStacked */
 
-#include "engine/tumble_trap_act08.inc"
+#include "engine/tumble_upright_can.inc"
 
-#include "engine/tumble_trap_act09.inc"
+#include "engine/tumble_lying_can.inc"
 
 #include "engine/tumble_trap_act0b.inc"
 
@@ -536,7 +536,7 @@ void StepTrapType1D(StageTrap *t, u16 speed) {}
 
 #include "engine/tumble_trap_act12.inc"
 
-void StepTrapAct1D(StageTrap *t) {}
+void ToppleCactusOnHit(StageTrap *t) {}
 
 #include "engine/draw_trap_while_linked.inc"
 

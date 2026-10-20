@@ -1,4 +1,4 @@
-void StepTrapType27(StageTrap *t, s32 arg) {
+void StepFallingSign(StageTrap *t, s32 arg) {
     StageTrap probe;
     s32 d;
 

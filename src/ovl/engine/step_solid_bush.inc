@@ -1,4 +1,4 @@
-void StepTrapAct28(StageTrap *t) {
+void StepSolidBush(StageTrap *t) {
     if (gSection - UpdatePathSegment(t) < 2) {
         UpdateObjectEntry(&gObjectModels[t->model], (Trap *)t);
     }

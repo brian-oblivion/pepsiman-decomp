@@ -1,4 +1,4 @@
-void StepTrapAct1D(StageTrap *t) {
+void ToppleCactusOnHit(StageTrap *t) {
     VECTOR v;
 
     switch (t->state) {

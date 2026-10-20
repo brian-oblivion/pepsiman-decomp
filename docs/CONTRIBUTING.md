@@ -101,9 +101,13 @@ every sprite the game defines, from the textures on your disc, into
 `build/sprites/index.html`. `tools/sounds.py <disc image>` does the same
 for the sound effects: it renders every id PlaySe plays, from the sound
 banks its callers have loaded, into `build/sounds/index.html` (players that
-load nothing until clicked) and describes each in `sounds.json`. The
-pictures and sounds are the game's: they stay in `build/` and are never
-committed.
+load nothing until clicked) and describes each in `sounds.json`.
+`tools/models.py <disc image>` renders every stage's trap and object
+models (the TMD a stage loads to `RAM_OBJECT_MODELS`) into
+`build/models/index.html`, with each placed trap's type, act and the
+functions StepStageTrap reaches for it, so a trap routine can be named
+from the pictures of what it moves. The pictures, sounds and models are
+the game's: they stay in `build/` and are never committed.
 
 Never edit `asm/` (it is regenerated) or `check.sha1` (it is the retail
 hash). Run `tools/lint.sh` before sending a change.

@@ -32,6 +32,11 @@ type, act and stage (gStage) select, and every call that passes the trap
 on, to a few levels. PlaySe calls met on the way are listed. Stage code
 that reaches a record by its index (sTraps[11]) is listed too.
 
+The chase stages (x-3) are read differently: their objects are each
+overlay's sPlacements list, a kind picks the step from the overlay's step
+table, and each step draws a piece model (object n - 10 of the act-3 pack's
+part 3, Loc[2], for its sPieceObjs[n]).
+
 The renders are orthographic, from four sides at 30 degrees above,
 flat-shaded with a fixed light, textured from VRAM (magenta where no TIM
 covers a texel). Not pretty, but recognisable.
@@ -61,8 +66,8 @@ VIEW = 112             # each view's size in pixels; a model's PNG is 2x2 views
 DEPTH = 3              # how far below StepStageTrap the call walk goes
 MISSING = (255, 0, 255)
 STAGE3 = (9, 10)       # world 3's overlays: tables in Loc[7], no type dispatch
-# The chase stages (x-3) are skipped: their gTraps holds 20-byte records of
-# their own (chase.inc's Act3Obj), not Trap records.
+# The chase stages (x-3) have no Trap records: their gTraps holds chase.inc's
+# 20-byte Act3Obj, placed from the overlay's own list (chase_stage()).
 
 
 def stage_name(ovl):
@@ -646,7 +651,12 @@ def main():
         if args.only and key not in args.only:
             continue
         if (ovl - 3) % 3 == 2:
-            continue  # a chase stage: its objects are not Trap records
+            if len(lbas) > 2 and lbas[2] in by_lba:
+                print(f"{key} (stage {stage_name(ovl)}, chase): ", end="", flush=True)
+                st = chase_stage(key, ovl, [by_lba.get(x) for x in lbas], read, boot, args.out)
+                stages.append(st)
+                print(f"{len(st['models'])} pieces, {len(st['records'])} objects")
+            continue
         table = 7 if ovl in STAGE3 else 6
         if len(lbas) <= table or lbas[4] not in by_lba or lbas[table] not in by_lba:
             continue
@@ -672,15 +682,7 @@ def main():
             else:
                 r["funcs"], r["se"] = [], []
             r["refs"] = [f"{f} ({arr}[{r['index']}])" for arr, f in refs.get(r["index"], [])]
-        models = []
-        used = {r["model"] for r in recs}
-        for k, obj in enumerate(objs):
-            fname = f"{key}_model{k:02}.png"
-            info = {"index": k, "prims": len(obj["prims"]), "verts": len(obj["verts"]), "used": k in used}
-            if obj["prims"]:
-                (args.out / fname).write_bytes(picture(obj, vram))
-                info["img"] = fname
-            models.append(info)
+        models = render_models(objs, vram, {r["model"] for r in recs}, key, args.out)
         stages.append({"key": key, "ovl": ovl, "stage": stage_name(ovl), "engine": engine,
                        "tmd": by_lba[lbas[4]], "table": by_lba[lbas[table]],
                        "models": models, "records": recs,
@@ -693,6 +695,64 @@ def main():
     index = (args.out / "index.html").resolve()
     print(f"wrote {index.relative_to(ROOT) if index.is_relative_to(ROOT) else index}")
     return 0
+
+
+def render_models(objs, vram, used, key, out_dir):
+    """Renders each object to out_dir; the stage's model list."""
+    models = []
+    for k, obj in enumerate(objs):
+        fname = f"{key}_model{k:02}.png"
+        info = {"index": k, "prims": len(obj["prims"]), "verts": len(obj["verts"]), "used": k in used}
+        if obj["prims"]:
+            (out_dir / fname).write_bytes(picture(obj, vram))
+            info["img"] = fname
+        models.append(info)
+    return models
+
+
+def chase_stage(key, ovl, locs, read, boot, out_dir):
+    """A chase stage (x-3): its objects are the overlay's own placement
+    list (sPlacements, kind and position), each kind's step the overlay's
+    step table, and each step draws piece model n - 10 of its
+    sPieceObjs[n], object n - 10 of part 3 of the act-3 pack LoadAct3Data
+    reads (Loc[2]). Textures: the boot TIMs and Loc[1]."""
+    pack = read(locs[2])
+    offs = struct.unpack_from("<5I", pack, 0)
+    pieces = tmd_objects(pack[offs[3]:])
+    vram = Vram()
+    for n in boot + [locs[1]]:
+        vram.load(read(n))
+    unit = Unit(ROOT / "src" / "ovl" / f"{key}.c")
+    text = unit.text
+    steps = []
+    m = re.search(r"\{\s*(StepChasePiece\w+(?:\s*,\s*StepChasePiece\w+)*)\s*,?\s*\}", text)
+    if m:
+        steps = [x.strip() for x in m.group(1).split(",")]
+    places = []
+    m = re.search(r"\bsPlacements\s*\[\s*\d*\s*\]\s*=\s*\{", text)
+    if m:
+        body = text[m.end():text.index("};", m.end())]
+        places = [tuple(int(v, 0) for v in p) for p in re.findall(
+            r"\{\s*(-?\w+)\s*,\s*\{[^}]*\}\s*,\s*(-?\w+)\s*,\s*(-?\w+)\s*,\s*(-?\w+)\s*\}", body)]
+    piece_of, se_of = {}, {}
+    for name in set(steps):
+        if name not in unit.funcs:
+            continue
+        idx = sorted({int(n) - 10 for n in re.findall(r"sPieceObjs\s*\[\s*(\d+)\s*\]", unit.funcs[name][1])})
+        piece_of[name] = idx
+        tree = unit.walk(name, {"@trap": "o", "gStage": ovl - 3})
+        se_of[name] = all_se(tree)
+    recs = []
+    for i, (kind, x, y, z) in enumerate(places):
+        step = steps[kind] if kind < len(steps) else None
+        idx = piece_of.get(step, [])
+        recs.append({"index": i, "model": idx[0] if idx else -1, "switch": -1, "type": kind, "act": 0,
+                     "pos": [x, y, z], "rot": [0, 0, 0], "funcs": [step] if step else [],
+                     "se": se_of.get(step, []), "refs": []})
+    return {"key": key, "ovl": ovl, "stage": stage_name(ovl), "engine": True, "chase": True,
+            "tmd": f"{locs[2]} part 3", "table": "sPlacements", "records": recs,
+            "models": render_models(pieces, vram, {r["model"] for r in recs}, key, out_dir),
+            "where": {f: "%s:%d" % unit.where_is(f) for f in set(steps) if f in unit.funcs}}
 
 
 def write_index(out_dir, stages):
@@ -737,8 +797,9 @@ def write_index(out_dir, stages):
             n = sum(1 for s2, r2 in byfunc[f] if (s2["key"], r2["model"], r2["type"], r2["act"]) == k)
             parts.append(f"<div class=c>{img(st, r['model'])}<div class=t>"
                          f"<a href='#{st['key']}-r{r['index']}'>{st['key']} ({st['stage']}) "
-                         f"#{r['index']}</a></div><div class=s>model {r['model']}, type {r['type']:#x}, "
-                         f"act {r['act']:#x}" + (f", {n} records" if n > 1 else "") + "</div></div>")
+                         f"#{r['index']}</a></div><div class=s>model {r['model']}, "
+                         + (f"kind {r['type']}" if st.get("chase") else
+                            f"type {r['type']:#x}, act {r['act']:#x}") + (f", {n} records" if n > 1 else "") + "</div></div>")
         parts.append("</div>")
     for st in stages:
         parts.append(f"<h2 id='{st['key']}'>{st['key']}: stage {st['stage']}</h2><p class=n>"
@@ -749,9 +810,13 @@ def write_index(out_dir, stages):
             chain = tree_text(r["tree"]) if "tree" in r else ""
             parts.append(f"<div class=c id='{st['key']}-r{r['index']}'>{img(st, r['model'])}"
                          f"<div class=t>#{r['index']} model {r['model']}</div>"
-                         f"<div class=s>type {r['type']:#x} act {r['act']:#x}, switch {r['switch']}</div>")
+                         + (f"<div class=s>kind {r['type']}</div>" if st.get("chase") else
+                          f"<div class=s>type {r['type']:#x} act {r['act']:#x}, switch {r['switch']}</div>"))
             if chain:
                 parts.append(f"<div class=s><code>{chain}</code></div>")
+            elif st.get("chase") and r["funcs"]:
+                parts.append(f"<div class=s><code>&rarr; <a href='#f-{r['funcs'][0]}'>{r['funcs'][0]}</a>"
+                             "</code></div>")
             if r["se"]:
                 parts.append(f"<div class=s>sounds: {html.escape(', '.join(r['se']))}</div>")
             if r["refs"]:
